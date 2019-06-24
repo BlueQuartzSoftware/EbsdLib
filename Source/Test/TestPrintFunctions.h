@@ -2,15 +2,16 @@
 
 #include <cstdio>
 #include <iostream>
+#include <string>
+#include <array>
+
+#include <QtCore/QString>
 
 #include "EbsdLib/Core/DataArray.hpp"
 #include "EbsdLib/Core/QuaternionMath.hpp"
 
-static const QString DCName("Orientation Transforms Test");
-static const QString AMName("Angles");
-
-QString k_InputNames[7] = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
-int k_CompDims[7] = {3, 9, 4, 4, 4, 3, 3};
+std::array<QString, 7> k_InputNames = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
+std::array<int, 7> k_CompDims = {3, 9, 4, 4, 4, 3, 3};
 
 namespace OrientationPrinters
 {

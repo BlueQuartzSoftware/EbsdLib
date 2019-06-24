@@ -71,15 +71,14 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
 # be directly included in the main test source file. We list them here so that
 # they will show up in IDEs
 set(TEST_NAMES
-	AngImportTest
-	CtfReaderTest
+  AngImportTest
+  CtfReaderTest
   TextureTest
   ODFTest
   OrientationArrayTest
   OrientationConverterTest
-  #IPFLegendTest
   SO3SamplerTest
-  #OrientationTransformsTest
+  OrientationTransformsTest
 )
 
 if(EbsdLib_ENABLE_HDF5)
