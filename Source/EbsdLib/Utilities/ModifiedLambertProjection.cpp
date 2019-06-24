@@ -38,11 +38,8 @@
 
 #define WRITE_LAMBERT_SQUARE_COORD_VTK 0
 
-#ifdef EbsdLib_USE_SIMPL
-#include "EbsdLib/Math/MatrixMath.h
-#else
 #include "EbsdLib/Math/MatrixMath.h"
-#endif
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------

@@ -99,7 +99,7 @@ target_include_directories(${PROJECT_NAME}
                           PRIVATE
                             ${EbsdLibProj_SOURCE_DIR}/Source
                             ${EbsdLibProj_BINARY_DIR}
-                          PUBLIC 
+                         # PUBLIC 
                             ${EIGEN3_INCLUDE_DIR}
                             ${HDF5_INCLUDE_DIRS}
                             ${HDF5_INCLUDE_DIR}
@@ -131,8 +131,8 @@ target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
 set(install_dir "bin")
 set(lib_install_dir "lib")
 if(WIN32)
-	set(install_dir ".")
-	set(lib_install_dir "")
+	set(install_dir "bin")
+	set(lib_install_dir "lib")
 endif()
 
 INSTALL(TARGETS ${PROJECT_NAME}

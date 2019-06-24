@@ -64,7 +64,7 @@ class OrientationArray
      * @param size The number of elements
      * @param init Initialization value to be assigned to each element
      */
-    OrientationArray(size_t size, T init = (T)(0) ) :
+    OrientationArray(size_t size, T init = static_cast<T>(0) ) :
       m_Ptr(nullptr),
       m_Size(size),
       m_Owns(true)
@@ -365,7 +365,7 @@ class OrientationArray
       if (!dontUseRealloc)
       {
         // Try to reallocate with minimal memory usage and possibly avoid copying.
-        newArray = (T*)realloc(m_Ptr, newSize * sizeof(T));
+        newArray = reinterpret_cast<T*>(realloc(m_Ptr, newSize * sizeof(T)));
         if (!newArray)
         {
           free(m_Ptr);
@@ -377,7 +377,7 @@ class OrientationArray
       }
       else
       {
-        newArray = (T*)malloc(newSize * sizeof(T));
+        newArray =  reinterpret_cast<T*>(malloc(newSize * sizeof(T)));
         if (!newArray)
         {
           free(m_Ptr);

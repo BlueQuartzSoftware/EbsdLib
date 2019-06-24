@@ -40,6 +40,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 	)
 
 option(EbsdLib_DISABLE_MSVC_WARNINGS ON)
+option(BUILD_SHARED_LIBS "Build Shared Libs" ON)
 
 #-------------------------------------------------------------------------------
 # Find the Qt5 Library as we need that.

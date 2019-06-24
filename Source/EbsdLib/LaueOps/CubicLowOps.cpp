@@ -56,9 +56,9 @@
 
 namespace Detail
 {
-  static const float CubicLowDim1InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi / 2.0f) - sinf((EbsdLib::Constants::k_Pi / 2.0f)))), (1.0f / 3.0f));
-  static const float CubicLowDim2InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi / 2.0f) - sinf((EbsdLib::Constants::k_Pi / 2.0f)))), (1.0f / 3.0f));
-  static const float CubicLowDim3InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi / 2.0f) - sinf((EbsdLib::Constants::k_Pi / 2.0f)))), (1.0f / 3.0f));
+  static const float CubicLowDim1InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pif / 2.0f) - sinf((EbsdLib::Constants::k_Pif / 2.0f)))), (1.0f / 3.0f));
+  static const float CubicLowDim2InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pif / 2.0f) - sinf((EbsdLib::Constants::k_Pif / 2.0f)))), (1.0f / 3.0f));
+  static const float CubicLowDim3InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pif / 2.0f) - sinf((EbsdLib::Constants::k_Pif / 2.0f)))), (1.0f / 3.0f));
   static const float CubicLowDim1StepValue = CubicLowDim1InitValue / 18.0f;
   static const float CubicLowDim2StepValue = CubicLowDim2InitValue / 18.0f;
   static const float CubicLowDim3StepValue = CubicLowDim3InitValue / 18.0f;
@@ -308,11 +308,15 @@ float CubicLowOps::_calcMisoQuat(const QuatF quatsym[24], int numsym,
   n3 = n3min / denom;
   if(denom == 0)
   {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
+    n1 = 0.0;
+    n2 = 0.0;
+    n3 = 1.0;
   }
-  if(wmin == 0)
+  if(wmin == 0.0f)
   {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
+    n1 = 0.0;
+    n2 = 0.0;
+    n3 = 1.0;
   }
   return wmin;
 
@@ -365,7 +369,9 @@ FOrientArrayType CubicLowOps::getMDFFZRod(FOrientArrayType rod)
   OrientationTransforms<FOrientArrayType, float>::ro2ax(rod, ax);
 
   n1 = ax[0];
-  n2 = ax[1], n3 = ax[2], w = ax[3];
+  n2 = ax[1];
+  n3 = ax[2];
+  w = ax[3];
 
   FZw = w;
   n1 = fabs(n1);
@@ -378,16 +384,16 @@ FOrientArrayType CubicLowOps::getMDFFZRod(FOrientArrayType rod)
       FZn1 = n1;
       if (n2 > n3)
       {
-        FZn2 = n2, FZn3 = n3;
+        FZn2 = n2; FZn3 = n3;
       }
       else
       {
-        FZn2 = n3, FZn3 = n2;
+        FZn2 = n3; FZn3 = n2;
       }
     }
     else
     {
-      FZn1 = n3, FZn2 = n1, FZn3 = n2;
+      FZn1 = n3; FZn2 = n1;FZn3 = n2;
     }
   }
   else
@@ -397,16 +403,16 @@ FOrientArrayType CubicLowOps::getMDFFZRod(FOrientArrayType rod)
       FZn1 = n2;
       if (n1 > n3)
       {
-        FZn2 = n1, FZn3 = n3;
+        FZn2 = n1; FZn3 = n3;
       }
       else
       {
-        FZn2 = n3, FZn3 = n1;
+        FZn2 = n3; FZn3 = n1;
       }
     }
     else
     {
-      FZn1 = n3, FZn2 = n2, FZn3 = n1;
+      FZn1 = n3; FZn2 = n2; FZn3 = n1;
     }
   }
 

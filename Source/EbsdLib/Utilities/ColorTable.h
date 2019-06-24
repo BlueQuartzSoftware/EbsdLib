@@ -37,6 +37,7 @@
 
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 #include <QtCore/QVector>
 

@@ -1,0 +1,33 @@
+# TEM_PIXperUM          1.000000
+# x-star                0.372300
+# y-star                0.689300
+# z-star                0.970100
+# WorkingDistance       5.000000
+#
+# Phase 1
+# MaterialName  	Nickel
+# Formula     	Ni
+# Info		
+# Symmetry              43
+# LatticeConstants      3.520 3.520 3.520  90.000  90.000  90.000
+# NumberFamilies        4
+# hklFamilies   	 1  1  1 1 0.000000
+# hklFamilies   	 2  0  0 1 0.000000
+# hklFamilies   	 2  2  0 1 0.000000
+# hklFamilies   	 3  1  1 1 0.000000
+# Categories 0 0 0 0 0 
+#
+# GRID: SqrGrid
+# XSTEP: 0.250000
+# YSTEP: 0.250000
+# NCOLS_ODD: 40
+# NCOLS_EVEN: 40
+# NROWS: 4
+#
+# OPERATOR: 	Administrator
+#
+# SAMPLEID: 	
+#
+# SCANID: 	
+#
+

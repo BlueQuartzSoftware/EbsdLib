@@ -31,7 +31,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ComputeStereographicProjection.h"
 
-#if 0
+#ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 #endif

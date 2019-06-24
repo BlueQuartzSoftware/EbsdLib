@@ -58,7 +58,7 @@ function(AddSIMPLUnitTest)
 endfunction()
 
 
-
+enable_testing()
 set(TEST_TEMP_DIR ${EbsdLibProj_BINARY_DIR}/Test/Temp)
 # Make sure the directory is created during CMake time
 file(MAKE_DIRECTORY ${TEST_TEMP_DIR})
@@ -73,8 +73,6 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
 set(TEST_NAMES
 	AngImportTest
 	CtfReaderTest
-	
-  
   TextureTest
   ODFTest
   OrientationArrayTest
@@ -139,6 +137,7 @@ AddSIMPLUnitTest(TESTNAME EbsdLibUnitTest
     ${EbsdLibProj_SOURCE_DIR}/Source/Test
     ${EbsdLibProj_BINARY_DIR}
     ${EbsdLibProj_BINARY_DIR}/Test
+    ${EIGEN3_INCLUDE_DIR}
   )
 
 if(MSVC)

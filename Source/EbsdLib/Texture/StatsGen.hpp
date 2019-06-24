@@ -78,7 +78,7 @@ public:
     y.resize(size);
     for(int i = 0; i < size; i++)
     {
-      betain = (i * (1.0 / float(size))) + ((1.0 / float(size)) / 2.0);
+      betain = (i * (1.0f / float(size))) + ((1.0f / float(size)) / 2.0f);
       betaout = powf(betain, (alpha - 1)) * powf((1 - betain), (beta - 1));
       x[i] = betain;
       y[i] = betaout;
@@ -114,21 +114,21 @@ public:
     int err = 0;
     float max, min;
     float stdDevSqr2 = sigma * sigma * 2.0f;
-    float root2pi = powf((float)(M_2PI), 0.5);
+    float root2pi = powf(EbsdLib::Constants::k_2Pi, 0.5f);
     x.resize(size);
     y.resize(size);
     min = exp(mu - (minCutOff * sigma));
     max = exp(mu + (maxCutOff * sigma));
 
     float mmSize = (max - min) / static_cast<float>(size);
-    float mmSizeOver2 = mmSize * 0.5;
+    float mmSizeOver2 = mmSize * 0.5f;
 
     for(int i = 0; i < size; i++)
     {
       float logNormIn = (i * mmSize) + mmSizeOver2 + min;
       float expTerm = log(logNormIn) - mu;
       expTerm = expTerm * expTerm;
-      float logNormOut = (1.0 / (logNormIn * sigma * root2pi)) * exp(-(expTerm / stdDevSqr2));
+      float logNormOut = (1.0f / (logNormIn * sigma * root2pi)) * exp(-(expTerm / stdDevSqr2));
       x[i] = logNormIn;
       y[i] = logNormOut * mmSize;
       if(logNormOut < 0)
@@ -159,7 +159,7 @@ public:
     max = 3;
     for(int i = 0; i < size; i++)
     {
-      in = (i * ((max - min) / float(size))) + (((max - min) / float(size)) / 2.0) + min;
+      in = (i * ((max - min) / float(size))) + (((max - min) / float(size)) / 2.0f) + min;
       out = alpha * powf(in, k) + beta;
       x[i] = in;
       y[i] = out;
@@ -237,7 +237,7 @@ public:
    */
   template <typename T> static int GenCubicODFPlotData(const T* odf, T* eulers, size_t npoints)
   {
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
@@ -285,7 +285,7 @@ public:
    */
   template <typename T> static int GenHexODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
@@ -332,7 +332,7 @@ public:
    */
   template <typename T> static int GenOrthoRhombicODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
@@ -388,7 +388,7 @@ public:
    */
   template <typename T> static int GenAxisODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
@@ -435,7 +435,7 @@ public:
   {
     float radtodeg = 180.0f / float(M_PI);
 
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
 
     int err = 0;
@@ -498,7 +498,7 @@ public:
   {
     float radtodeg = 180.0f / float(M_PI);
 
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
 
     int err = 0;

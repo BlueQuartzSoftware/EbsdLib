@@ -497,7 +497,7 @@ public:
     const int odfsize = orientationOps.getODFSize();
     const int mdfsize = orientationOps.getMDFSize();
 
-    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
     SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
 
     int mbin;
