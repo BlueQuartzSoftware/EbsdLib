@@ -72,10 +72,18 @@ class EbsdLib_EXPORT ModifiedLambertProjection
 
     virtual ~ModifiedLambertProjection();
 
+    using EnumType = unsigned int;
+
     enum Square
     {
       NorthSquare = 0,
       SouthSquare = 1
+    };
+
+    enum class ProjectionType : EnumType
+    {
+      Stereographic,
+      Circular
     };
 
     /**
@@ -89,6 +97,20 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @return
      */
     static Pointer LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius);
+
+
+    /**
+     * @brief CreateProjectionFromXYZCoords This static method creates the north and south squares based on the XYZ coordinates
+     * in the 'coords' parameter. The XYZ coordinates are on the unit sphere but are true cartesian coordinates and NOT
+     * spherical coordinates.
+     * @param coords The XYZ cartesian coords that are all on the Unit Sphere (Radius = 1)
+     * @param dimension The Dimension of the modified lambert projections images
+     * @param resolution The Resolution of the modified lambert projections
+     * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
+     * @return
+     */
+    static Pointer CreateProjectionFromXYZCoords(const std::vector<float> &coords, int dimension, float sphereRadius);
+
 
     /**
      * @brief Getter property for Dimension
@@ -181,7 +203,7 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sqCoord [output] The XY coordinate in the Modified Lambert Square
      * @return If the point was in the north or south squares
      */
-    bool getSquareCoord(float* xyz, float* sqCoord);
+    bool getSquareCoord(const float* xyz, float* sqCoord);
 
     /**
      * @brief getSquareIndex
@@ -208,6 +230,20 @@ class EbsdLib_EXPORT ModifiedLambertProjection
     DoubleArrayType::Pointer createStereographicProjection(int dim);
 
     void createStereographicProjection(int dim, DoubleArrayType* stereoIntensity);
+
+    /**
+     * @brief ModifiedLambertProjection::createProjection
+     * @param dim
+     * @param stereoIntensity
+     * @param projType
+     */
+    void createProjection(int dim, std::vector<float> &stereoIntensity, ModifiedLambertProjection::ProjectionType projType);
+
+    /**
+     * @brief createStereographicProjection
+     * @param stereoGraphicProjectionDims
+     */
+    typename std::vector<float> createProjection(int dim, ModifiedLambertProjection::ProjectionType projType);
 
   protected:
     ModifiedLambertProjection();

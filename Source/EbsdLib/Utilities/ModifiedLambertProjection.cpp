@@ -124,6 +124,73 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
 
   return squareProj;
 }
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::CreateProjectionFromXYZCoords(const std::vector<float> &coords, int dimension, float sphereRadius)
+{
+
+  bool nhCheck = false;
+  float sqCoord[2];
+  //int sqIndex = 0;
+  ModifiedLambertProjection::Pointer squareProj = ModifiedLambertProjection::New();
+  squareProj->initializeSquares(dimension, sphereRadius);
+
+
+#if WRITE_LAMBERT_SQUARE_COORD_VTK
+  QString ss;
+  QString filename("/tmp/");
+  filename.append("ModifiedLambert_Square_Coords_").append(coords->getName()).append(".vtk");
+  FILE* f = nullptr;
+  f = fopen(filename.toLatin1().data(), "wb");
+  if(nullptr == f)
+  {
+    ss.str("");
+    QString ss = QObject::tr("Could not open vtk viz file %1 for writing. Please check access permissions and the path to the output location exists").arg(filename);
+    return squareProj;
+  }
+
+  // Write the correct header
+  fprintf(f, "# vtk DataFile Version 2.0\n");
+  fprintf(f, "data set from DREAM3D\n");
+  fprintf(f, "ASCII");
+  fprintf(f, "\n");
+
+  fprintf(f, "DATASET UNSTRUCTURED_GRID\nPOINTS %lu float\n", coords->getNumberOfTuples() );
+#endif
+
+  for(size_t it = 0; it < coords.size(); it =it+3)
+  {
+    const float* xyzPtr = coords.data() + it; // Pointer aritmetic
+    sqCoord[0] = 0.0;
+    sqCoord[1] = 0.0;
+    //get coordinates in square projection of crystal normal parallel to boundary normal
+    nhCheck = squareProj->getSquareCoord(xyzPtr, sqCoord);
+#if WRITE_LAMBERT_SQUARE_COORD_VTK
+    fprintf(f, "%f %f 0\n", sqCoord[0], sqCoord[1]);
+#endif
+
+    // Based on the XY coordinate, get the pointer index that the value corresponds to in the proper square
+//    sqIndex = squareProj->getSquareIndex(sqCoord);
+    if (nhCheck)
+    {
+      //north increment by 1
+//      squareProj->addValue(ModifiedLambertProjection::Square::NorthSquare, sqIndex, 1.0);
+      squareProj->addInterpolatedValues(ModifiedLambertProjection::Square::NorthSquare, sqCoord, 1.0);
+    }
+    else
+    {
+      // south increment by 1
+//      squareProj->addValue(ModifiedLambertProjection::SouthSquare, sqIndex, 1.0);
+      squareProj->addInterpolatedValues(ModifiedLambertProjection::Square::SouthSquare, sqCoord, 1.0);
+    }
+  }
+#if WRITE_LAMBERT_SQUARE_COORD_VTK
+  fclose(f);
+#endif
+
+  return squareProj;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -407,7 +474,7 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, const floa
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
+bool ModifiedLambertProjection::getSquareCoord(const float* xyz, float* sqCoord)
 {
   bool nhCheck = false;
   float adjust = 1.0;
@@ -601,6 +668,132 @@ DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjectio
   stereoIntensity->initializeWithZeros();
   createStereographicProjection(dim, stereoIntensity.get());
   return stereoIntensity;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ModifiedLambertProjection::createProjection(int dim, std::vector<float> &stereoIntensity, ModifiedLambertProjection::ProjectionType projType)
+{
+  int xpoints = dim;
+  int ypoints = dim;
+
+  int xpointshalf = xpoints / 2;
+  int ypointshalf = ypoints / 2;
+
+  float span;
+  float unitRadius = 1.0;
+  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
+  {
+  }
+  else if(projType == ModifiedLambertProjection::ProjectionType::Circular)
+  {
+    unitRadius = std::sqrt(2.0f);
+  }
+  else
+  {
+    return;
+  }
+
+  span = unitRadius - (-unitRadius);
+
+
+  float xres = span / static_cast<float>(xpoints);
+  float yres = span / static_cast<float>(ypoints);
+  float xtmp, ytmp;
+  float sqCoord[2];
+  float xyz[3];
+  bool nhCheck = false;
+
+  std::fill(stereoIntensity.begin(), stereoIntensity.end(), 0.0f);
+  float* intensity = stereoIntensity.data();
+// int sqIndex = 0;
+
+  for (int64_t y = 0; y < ypoints; y++)
+  {
+    for (int64_t x = 0; x < xpoints; x++)
+    {
+      //get (x,y) for stereographic projection pixel
+      xtmp = static_cast<float>(x - xpointshalf) * xres + (xres * 0.5f);
+      ytmp = static_cast<float>(y - ypointshalf) * yres + (yres * 0.5f);
+      size_t index = static_cast<size_t>(y * xpoints + x);
+      if((xtmp * xtmp + ytmp * ytmp) <= unitRadius * unitRadius)
+      {
+        //project xy from stereo projection to the unit sphere
+        if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
+        {
+          xyz[2] = -((xtmp * xtmp + ytmp * ytmp) - 1) / ((xtmp * xtmp + ytmp * ytmp) + 1);
+          xyz[0] = xtmp * (1 + xyz[2]);
+          xyz[1] = ytmp * (1 + xyz[2]);
+        }
+        else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
+        {
+          float q = xtmp*xtmp + ytmp*ytmp;
+          float t = std::sqrt(1.0f - (q / 4.0f));
+
+          xyz[0] = xtmp * t;
+          xyz[1] = ytmp * t;
+          xyz[2] = (q / 2.0f) - 1.0f;
+        }
+        else
+        {
+          // Not a valid projection type
+          return;
+        }
+
+
+        for( int64_t m = 0; m < 2; m++)
+        {
+          if(m == 1)
+          {
+            xyz[0] *= -1.0;
+            xyz[1] *= -1.0;
+            xyz[2] *= -1.0;
+          }
+          nhCheck = getSquareCoord(xyz, sqCoord);
+          //sqIndex = getSquareIndex(sqCoord);
+          if (nhCheck)
+          {
+            //get Value from North square
+            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::NorthSquare, sqCoord);
+            //intensity[index] += getValue(ModifiedLambertProjection::Square::NorthSquare, sqIndex);
+          }
+          else
+          {
+            //get Value from South square
+            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::SouthSquare, sqCoord);
+            //intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
+          }
+        }
+        intensity[index]  = intensity[index] * 0.5f;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+typename std::vector<float> ModifiedLambertProjection::createProjection(int dim, ModifiedLambertProjection::ProjectionType projType)
+{
+  QString arrayName;
+  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
+  {
+    arrayName = "ModifiedLambertProjection_StereographicProjection";
+  }
+  else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
+  {
+    arrayName = "ModifiedLambertProjection_CircularProjection";
+  }
+  else
+  {
+    // Not a valid projection type
+    return std::vector<float>();
+  }
+
+  typename std::vector<float> intensity(dim*dim, 0.0);
+  createProjection(dim, intensity, projType);
+  return intensity;
 }
 
 // -----------------------------------------------------------------------------
