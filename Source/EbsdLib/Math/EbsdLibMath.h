@@ -76,9 +76,8 @@
 
 #endif
 
-#include <stddef.h>
-#include <math.h>
-
+#include <cstddef>
+#include <cmath>
 #include <vector>
 #include <limits>
 
