@@ -108,3 +108,47 @@ function(CMP_MODULE_INCLUDE_DIRS)
 endfunction()
 
 
+
+
+#-------------------------------------------------------------------------------
+# This function will attempt to generate a build date/time string.
+#
+#-------------------------------------------------------------------------------
+function(cmpGenerateBuildDate)
+  set(oneValueArgs PROJECT_NAME )
+  cmake_parse_arguments(GVS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
+  IF (WIN32)
+      EXECUTE_PROCESS(COMMAND "cmd" " /C date /T" OUTPUT_VARIABLE RESULT)
+      string(REPLACE  " " ";" RESULT ${RESULT})
+      list(GET RESULT 1 RESULT)
+      string(REPLACE "/" ";" RESULT ${RESULT})
+      list(LENGTH RESULT LIST_LENGTH)
+      if(LIST_LENGTH GREATER 2)
+        list(GET RESULT 2 YEAR)
+        list(GET RESULT 0 MONTH)
+        list(GET RESULT 1 DAY)
+        set(${GVS_PROJECT_NAME}_BUILD_DATE "${YEAR}/${MONTH}/${DAY}" PARENT_SCOPE)
+      else()
+        set(${GVS_PROJECT_NAME}_BUILD_DATE "0000/00/00" PARENT_SCOPE)
+      endif()
+      #message(STATUS "${GVS_PROJECT_NAME}_BUILD_DATE: ${${GVS_PROJECT_NAME}_BUILD_DATE}")
+  ELSEIF(UNIX)
+      EXECUTE_PROCESS(COMMAND "date" "+%Y/%m/%d/" OUTPUT_VARIABLE RESULT)
+      string(REPLACE "/" ";" RESULT ${RESULT})
+      list(LENGTH RESULT LIST_LENGTH)
+      if(LIST_LENGTH GREATER 2)
+        list(GET RESULT 0 YEAR)
+        list(GET RESULT 1 MONTH)
+        list(GET RESULT 2 DAY)
+        set(${GVS_PROJECT_NAME}_BUILD_DATE "${YEAR}/${MONTH}/${DAY}" PARENT_SCOPE)
+      else()
+          set(${GVS_PROJECT_NAME}_BUILD_DATE "0000/00/00" PARENT_SCOPE)
+      endif()
+      #message(STATUS "${GVS_PROJECT_NAME}_BUILD_DATE: ${${GVS_PROJECT_NAME}_BUILD_DATE}")
+  ELSE (WIN32)
+      MESSAGE(SEND_ERROR "date for this operating system not implemented")
+      set(${GVS_PROJECT_NAME}_BUILD_DATE "0000/00/00" PARENT_SCOPE)
+  ENDIF (WIN32)
+
+endfunction()

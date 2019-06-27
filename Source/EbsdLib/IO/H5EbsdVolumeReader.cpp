@@ -37,7 +37,6 @@
 #include "H5EbsdVolumeReader.h"
 
 
-
 #if defined (H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
@@ -85,9 +84,9 @@ void* H5EbsdVolumeReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Ebsd::NumType H5EbsdVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5EbsdVolumeReader::getPointerType(const QString& featureName)
 {
-  return Ebsd::UnknownNumType;
+  return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------

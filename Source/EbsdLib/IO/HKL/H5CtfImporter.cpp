@@ -40,7 +40,7 @@
 #include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 
-#include "EbsdLib/EbsdConstants.h"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLibVersion.h"
 
 #if defined (H5Support_NAMESPACE)
@@ -141,7 +141,7 @@ int H5CtfImporter::importFile(hid_t fileId, int64_t z, const QString& ctfFile)
   herr_t err = -1;
   setCancel(false);
   setErrorCode(0);
-  setPipelineMessage("");
+  //setPipelineMessage("");
 
   //  std::cout << "H5CtfImporter: Importing " << ctfFile << std::endl;
   CtfReader reader;
@@ -175,7 +175,7 @@ int H5CtfImporter::importFile(hid_t fileId, int64_t z, const QString& ctfFile)
     {
       ss = reader.getErrorMessage();
     }
-    setPipelineMessage(ss);
+    //  setPipelineMessage(ss);
     setErrorCode(err);
     progressMessage(ss, 100);
 
@@ -189,22 +189,22 @@ int H5CtfImporter::importFile(hid_t fileId, int64_t z, const QString& ctfFile)
     H5T_class_t type_class;
     size_t type_size = 0;
     hid_t attr_type = -1;
-    err = QH5Lite::getAttributeInfo(fileId, "/", Ebsd::H5Aztec::FileVersionStr, dims, type_class, type_size, attr_type);
+    err = QH5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5Aztec::FileVersionStr, dims, type_class, type_size, attr_type);
     if (attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = QH5Lite::writeScalarAttribute(fileId, QString("/"), Ebsd::H5Aztec::FileVersionStr, m_FileVersion);
+      err = QH5Lite::writeScalarAttribute(fileId, QString("/"), EbsdLib::H5Aztec::FileVersionStr, m_FileVersion);
     }
     else
     {
       H5Aclose(attr_type);
     }
 
-    err = QH5Lite::getAttributeInfo(fileId, "/", Ebsd::H5Aztec::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
+    err = QH5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5Aztec::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
     if (attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = QH5Lite::writeStringAttribute(fileId, QString("/"), Ebsd::H5Aztec::EbsdLibVersionStr, EbsdLib::Version::Complete());
+      err = QH5Lite::writeStringAttribute(fileId, QString("/"), EbsdLib::H5Aztec::EbsdLibVersionStr, EbsdLib::Version::Complete());
     }
     else
     {
@@ -239,55 +239,55 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
   if(ctfGroup < 0)
   {
     QString ss = QObject::tr("H5CtfImporter Error: A Group for Z index %1 could not be created. Please check other error messages from the HDF5 library for possible reasons.").arg(z);
-    setPipelineMessage(ss);
+    //setPipelineMessage(ss);
     setErrorCode(-500);
     return -1;
   }
 
-  hid_t gid = QH5Utilities::createGroup(ctfGroup, Ebsd::H5Aztec::Header);
+  hid_t gid = QH5Utilities::createGroup(ctfGroup, EbsdLib::H5Aztec::Header);
   if(gid < 0)
   {
     QString ss = QObject::tr("H5CtfImporter Error: The 'Header' Group for Z index %1 could not be created. Please check other error messages from the HDF5 library for possible reasons.").arg(z);
     progressMessage(ss, 100);
     err = H5Gclose(ctfGroup);
-    setPipelineMessage(ss);
+    // setPipelineMessage(ss);
     setErrorCode(-600);
     return -1;
   }
 
-  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Prj, Ebsd::Ctf::Prj);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Author, Ebsd::Ctf::Author);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, JobMode, Ebsd::Ctf::JobMode);
-  WRITE_EBSD_HEADER_DATA(reader, int, XCells, Ebsd::Ctf::XCells)
+  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Prj, EbsdLib::Ctf::Prj);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Author, EbsdLib::Ctf::Author);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, JobMode, EbsdLib::Ctf::JobMode);
+  WRITE_EBSD_HEADER_DATA(reader, int, XCells, EbsdLib::Ctf::XCells)
   xDim = reader.getXCells();
-  WRITE_EBSD_HEADER_DATA(reader, int, YCells, Ebsd::Ctf::YCells)
+  WRITE_EBSD_HEADER_DATA(reader, int, YCells, EbsdLib::Ctf::YCells)
   yDim = reader.getYCells();
-  WRITE_EBSD_HEADER_DATA(reader, float, XStep, Ebsd::Ctf::XStep)
+  WRITE_EBSD_HEADER_DATA(reader, float, XStep, EbsdLib::Ctf::XStep)
   xRes = reader.getXStep();
-  WRITE_EBSD_HEADER_DATA(reader, float, YStep, Ebsd::Ctf::YStep)
+  WRITE_EBSD_HEADER_DATA(reader, float, YStep, EbsdLib::Ctf::YStep)
   yRes = reader.getYStep();
 
   float* zPtr = reader.getZPointer();
   if(nullptr != zPtr)
   {
-    WRITE_EBSD_HEADER_DATA(reader, int, ZCells, Ebsd::Ctf::ZCells)
+    WRITE_EBSD_HEADER_DATA(reader, int, ZCells, EbsdLib::Ctf::ZCells)
     zDim = reader.getZCells();
-    WRITE_EBSD_HEADER_DATA(reader, float, ZStep, Ebsd::Ctf::ZStep)
+    WRITE_EBSD_HEADER_DATA(reader, float, ZStep, EbsdLib::Ctf::ZStep)
     zRes = reader.getZStep();
   }
 
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE1, Ebsd::Ctf::AcqE1);
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE2, Ebsd::Ctf::AcqE2);
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE3, Ebsd::Ctf::AcqE3);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Euler, Ebsd::Ctf::Euler);
-  WRITE_EBSD_HEADER_DATA(reader, int, Mag, Ebsd::Ctf::Mag);
-  WRITE_EBSD_HEADER_DATA(reader, int, Coverage, Ebsd::Ctf::Coverage);
-  WRITE_EBSD_HEADER_DATA(reader, int, Device, Ebsd::Ctf::Device);
-  WRITE_EBSD_HEADER_DATA(reader, int, KV, Ebsd::Ctf::KV);
-  WRITE_EBSD_HEADER_DATA(reader, float, TiltAngle, Ebsd::Ctf::TiltAngle);
-  WRITE_EBSD_HEADER_DATA(reader, float, TiltAxis, Ebsd::Ctf::TiltAxis)
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE1, EbsdLib::Ctf::AcqE1);
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE2, EbsdLib::Ctf::AcqE2);
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE3, EbsdLib::Ctf::AcqE3);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, QString, Euler, EbsdLib::Ctf::Euler);
+  WRITE_EBSD_HEADER_DATA(reader, int, Mag, EbsdLib::Ctf::Mag);
+  WRITE_EBSD_HEADER_DATA(reader, int, Coverage, EbsdLib::Ctf::Coverage);
+  WRITE_EBSD_HEADER_DATA(reader, int, Device, EbsdLib::Ctf::Device);
+  WRITE_EBSD_HEADER_DATA(reader, int, KV, EbsdLib::Ctf::KV);
+  WRITE_EBSD_HEADER_DATA(reader, float, TiltAngle, EbsdLib::Ctf::TiltAngle);
+  WRITE_EBSD_HEADER_DATA(reader, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
 
-  hid_t phasesGid = QH5Utilities::createGroup(gid, Ebsd::H5Aztec::Phases);
+  hid_t phasesGid = QH5Utilities::createGroup(gid, EbsdLib::H5Aztec::Phases);
   if(phasesGid < 0)
   {
     QString ss = QObject::tr("H5CtfImporter Error: The 'Header' Group for the Phases could not be created."
@@ -296,7 +296,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
     progressMessage(ss, 100);
     err = H5Gclose(gid);
     err = H5Gclose(ctfGroup);
-    setPipelineMessage(ss);
+    //setPipelineMessage(ss);
     setErrorCode(-600);
     return -1;
   }
@@ -305,36 +305,35 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
   err = H5Gclose(phasesGid);
 
   QString ctfCompleteHeader = reader.getOriginalHeader();
-  err = QH5Lite::writeStringDataset(gid, Ebsd::H5Aztec::OriginalHeader, ctfCompleteHeader);
-  err = QH5Lite::writeStringDataset(gid, Ebsd::H5Aztec::OriginalFile, reader.getFileName());
+  err = QH5Lite::writeStringDataset(gid, EbsdLib::H5Aztec::OriginalHeader, ctfCompleteHeader);
+  err = QH5Lite::writeStringDataset(gid, EbsdLib::H5Aztec::OriginalFile, reader.getFileName());
 
   // Close the "Header" group
   err = H5Gclose(gid);
 
   // Create the "Data" group
-  gid = QH5Utilities::createGroup(ctfGroup, Ebsd::H5Aztec::Data);
+  gid = QH5Utilities::createGroup(ctfGroup, EbsdLib::H5Aztec::Data);
   if(gid < 0)
   {
     QString ss = QObject::tr("H5CtfImporter Error: The 'Data' Group for Z index %1 could not be created."
                              " Please check other error messages from the HDF5 library for possible reasons.\n").arg(z);
     progressMessage(ss, 100);
     err = H5Gclose(ctfGroup);
-    setPipelineMessage(ss);
+    //setPipelineMessage(ss);
     setErrorCode(-700);
     return -1;
   }
 
   int32_t rank = 1;
-  hsize_t dims[1] =
-  { static_cast<hsize_t> (reader.getXCells() * reader.getYCells()) };
+  hsize_t dims[1] = {static_cast<hsize_t>(reader.getXCells() * reader.getYCells())};
 
-  Ebsd::NumType numType = Ebsd::UnknownNumType;
+  EbsdLib::NumericTypes::Type numType = EbsdLib::NumericTypes::Type::UnknownNumType;
   QList<QString> columnNames = reader.getColumnNames();
   for(const QString& name : columnNames)
   // for (qint32 i = 0; i < columnNames.size(); ++i)
   {
     numType = reader.getPointerType(name);
-    if(numType == Ebsd::Int32)
+    if(numType == EbsdLib::NumericTypes::Type::Int32)
     {
       int32_t* dataPtr = static_cast<int32_t*>(reader.getPointerByName(name));
       if(nullptr == dataPtr)
@@ -344,7 +343,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
       dataPtr = dataPtr + (actualSlice * dims[0]); // Put the pointer at the proper offset into the larger array
       WRITE_EBSD_DATA_ARRAY(reader, int, gid, name);
     }
-    else if(numType == Ebsd::Float)
+    else if(numType == EbsdLib::NumericTypes::Type::Float)
     {
       float* dataPtr = static_cast<float*>(reader.getPointerByName(name));
       if(nullptr == dataPtr)
@@ -429,32 +428,30 @@ int H5CtfImporter::writePhaseData(CtfReader& reader, hid_t phasesGid)
   int32_t rank = 1;
   hsize_t dims[1] = { 0 };
   QVector<CtfPhase::Pointer> phases = reader.getPhaseVector();
-  Ebsd::Ctf::LaueGroupStrings laueGroupStrings;
+  EbsdLib::Ctf::LaueGroupStrings laueGroupStrings;
   for(const CtfPhase::Pointer& phase : phases)
   // for (QVector<CtfPhase::Pointer>::iterator phase = phases.begin(); phase != phases.end(); ++phase )
   {
     CtfPhase* p = phase.get();
     hid_t pid = QH5Utilities::createGroup(phasesGid, QString::number(phase->getPhaseIndex()));
 
-    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, Ebsd::Ctf::LatticeConstants);
-    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, PhaseName, Ebsd::Ctf::PhaseName)
-    WRITE_PHASE_HEADER_DATA(phase, int, LaueGroup, Ebsd::Ctf::LaueGroup)
+    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, EbsdLib::Ctf::LatticeConstants);
+    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, PhaseName, EbsdLib::Ctf::PhaseName)
+    WRITE_PHASE_HEADER_DATA(phase, int, LaueGroup, EbsdLib::Ctf::LaueGroup)
 
-    err = QH5Lite::writeStringAttribute(pid, Ebsd::Ctf::LaueGroup, "Name",
-                                        laueGroupStrings.getString(p->getLaueGroup()));
+    err = QH5Lite::writeStringAttribute(pid, EbsdLib::Ctf::LaueGroup, "Name", laueGroupStrings.getString(p->getLaueGroup()));
     if (err < 0)
     {
-      QString ss =
-        QObject::tr("H5CtfImporter Error: Could not write Ctf Attribute 'Name' to Dataset '%1'").arg(Ebsd::Ctf::LaueGroup);
+      QString ss = QObject::tr("H5CtfImporter Error: Could not write Ctf Attribute 'Name' to Dataset '%1'").arg(EbsdLib::Ctf::LaueGroup);
       progressMessage(ss, 100);
       err = H5Gclose(pid);
       return -1;
     }
 
-    WRITE_PHASE_HEADER_DATA(phase, int, SpaceGroup, Ebsd::Ctf::SpaceGroup)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Internal1, Ebsd::Ctf::Internal1)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Internal2, Ebsd::Ctf::Internal2)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Comment, Ebsd::Ctf::Comment)
+    WRITE_PHASE_HEADER_DATA(phase, int, SpaceGroup, EbsdLib::Ctf::SpaceGroup)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Internal1, EbsdLib::Ctf::Internal1)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Internal2, EbsdLib::Ctf::Internal2)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, QString, Comment, EbsdLib::Ctf::Comment)
     err = H5Gclose(pid);
   }
   return err;

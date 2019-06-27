@@ -42,8 +42,7 @@
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/H5EbsdVolumeReader.h"
-
+#include "EbsdLib/IO/H5EbsdVolumeReader.h"
 #include "EbsdLib/IO/TSL/AngPhase.h"
 
 
@@ -109,7 +108,7 @@ class EbsdLib_EXPORT H5AngVolumeReader : public H5EbsdVolumeReader
       * primitive type that the data is stored as (Int, Float, etc).
       * @param featureName The name of the feature.
       */
-    EbsdLib::NumType getPointerType(const QString& featureName) override;
+    EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
 
     /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
      * and then splats '0' across all the bytes of the memory allocation

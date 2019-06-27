@@ -46,7 +46,12 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+
+#ifdef EbsdLib_ENABLE_HDF5
+#include <hdf5.h>
+#endif
 
 #define mxa_bswap(s, d, t)                                                                                                                                                                             \
   t[0] = ptr[s];                                                                                                                                                                                       \
@@ -1368,7 +1373,7 @@ public:
     return daCopy;
   }
 
-#ifdef EbsdLib_ENABLE_HDF5
+#ifdef EbsdLib_ENABLE_HDF5_OFF
   /**
    *
    * @param parentId
@@ -1494,7 +1499,7 @@ public:
     return info;
   }
 
-#ifdef EbsdLib_ENABLE_HDF5
+#ifdef EbsdLib_ENABLE_HDF5_OFF
   /**
    * @brief
    * @param parentId

@@ -45,8 +45,7 @@
 #define DECLARE_STRING_CONST(var)\
   const QString var(#var);
 
-
-namespace Ebsd
+namespace EbsdLib
 {
 
 namespace H5Aztec

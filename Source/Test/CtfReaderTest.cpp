@@ -75,15 +75,15 @@ public:
     DREAM3D_REQUIRE(latticeConstants[5] >= 120.00f && latticeConstants[5] <= 120.00f)
     DREAM3D_REQUIRE(latticeConstants.size() == 6)
 
-    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler1));
+    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler1));
     DREAM3D_REQUIRE(euler1 != nullptr)
     DREAM3D_REQUIRE(euler1[1] == 103.85f)
 
-    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler2));
+    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler2));
     DREAM3D_REQUIRE(euler2 != nullptr)
     DREAM3D_REQUIRE(euler2[1] == 40.207f)
 
-    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler3));
+    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler3));
     DREAM3D_REQUIRE(euler3 != nullptr)
     DREAM3D_REQUIRE(euler3[1] == 29.394f)
   }
@@ -113,15 +113,15 @@ public:
     DREAM3D_REQUIRE(latticeConstants[5] >= 90.00f && latticeConstants[5] <= 90.00f)
     DREAM3D_REQUIRE(latticeConstants.size() == 6)
 
-    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler1));
+    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler1));
     DREAM3D_REQUIRE(euler1 != nullptr)
     DREAM3D_REQUIRE(euler1[1] == 5.673f)
 
-    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler2));
+    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler2));
     DREAM3D_REQUIRE(euler2 != nullptr)
     DREAM3D_REQUIRE(euler2[1] == 0.2549f)
 
-    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler3));
+    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler3));
     DREAM3D_REQUIRE(euler3 != nullptr)
     DREAM3D_REQUIRE(euler3[1] == 0.2423f)
   }
@@ -151,15 +151,15 @@ public:
     DREAM3D_REQUIRE(latticeConstants[5] >= 90.00f && latticeConstants[5] <= 90.00f)
     DREAM3D_REQUIRE(latticeConstants.size() == 6)
 
-    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler1));
+    float* euler1 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler1));
     DREAM3D_REQUIRE(euler1 != nullptr)
     DREAM3D_REQUIRE(euler1[1] == 103.85f)
 
-    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler2));
+    float* euler2 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler2));
     DREAM3D_REQUIRE(euler2 != nullptr)
     DREAM3D_REQUIRE(euler2[1] == 40.207f)
 
-    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(Ebsd::Ctf::Euler3));
+    float* euler3 = reinterpret_cast<float*>(reader.getPointerByName(EbsdLib::Ctf::Euler3));
     DREAM3D_REQUIRE(euler3 != nullptr)
     DREAM3D_REQUIRE(euler3[1] == 29.394f)
   }

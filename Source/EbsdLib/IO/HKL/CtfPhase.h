@@ -88,7 +88,7 @@ class EbsdLib_EXPORT CtfPhase
     */
     QString getPhaseName() const ;
 
-    EBSD_INSTANCE_PROPERTY(Ebsd::Ctf::LaueGroupTable, LaueGroup) // <== Laue Group
+    EBSD_INSTANCE_PROPERTY(EbsdLib::Ctf::LaueGroupTable, LaueGroup) // <== Laue Group
 
     EBSD_INSTANCE_PROPERTY(int, SpaceGroup)
     /**

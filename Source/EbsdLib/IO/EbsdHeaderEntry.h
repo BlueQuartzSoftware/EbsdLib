@@ -40,7 +40,7 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 
-#if EbsdLib_HDF5_SUPPORT
+#ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/QH5Lite.h"
 #endif
 
@@ -101,7 +101,7 @@
        */
       virtual QString getKey() = 0;
 
-#if EbsdLib_HDF5_SUPPORT
+#ifdef EbsdLib_ENABLE_HDF5
       virtual QString getHDFType() = 0;
 #endif
 

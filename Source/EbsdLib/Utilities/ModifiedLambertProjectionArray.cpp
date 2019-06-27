@@ -37,6 +37,8 @@
 #include <QtCore/QList>
 
 #ifdef EbsdLib_ENABLE_HDF5
+#include "H5Support/H5Utilities.h"
+#include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 #endif
 
@@ -660,7 +662,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
   }
 
   QList<QString> names;
-  err = QH5Utilities::getGroupObjects(gid, H5Utilities::H5Support_GROUP, names);
+  err = QH5Utilities::getGroupObjects(gid, H5Utilities::CustomHDFDataTypes::Group, names);
   if(err < 0)
   {
     err |= QH5Utilities::closeHDF5Object(gid);

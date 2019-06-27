@@ -32,15 +32,16 @@
 
 #pragma once
 
+#include <array>
+
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
 
-#include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
-#include "SIMPLib/Common/SIMPLArray.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 class EbsdLib_EXPORT EspritPhase
 {
@@ -117,6 +118,12 @@ public:
 protected:
   EspritPhase();
 
+private:
+  QString m_Name = {};
+  QString m_MaterialName = {};
+  QString m_SpaceGroup = {};
+  QString m_Formula = {};
+
 public:
   EspritPhase(const EspritPhase&) = delete;            // Copy Constructor Not Implemented
   EspritPhase(EspritPhase&&) = delete;                 // Move Constructor Not Implemented
@@ -126,9 +133,9 @@ public:
 
 struct Esprit_Private_Data
 {
-  SizeVec3Type dims;
-  FloatVec3Type resolution;
-  FloatVec3Type origin;
+  std::array<size_t, 3> dims;
+  std::array<float, 3> resolution;
+  std::array<float, 3> origin;
   QVector<EspritPhase::Pointer> phases;
   int32_t units;
 

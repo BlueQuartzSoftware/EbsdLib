@@ -66,33 +66,33 @@ public:
 
   /** @brief Header Values from the TSL ang file */
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, TEMpixPerum, Ebsd::Ang::TEMPIXPerUM)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, TEMpixPerum, EbsdLib::Ang::TEMPIXPerUM)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStar, Ebsd::Ang::XStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStar, EbsdLib::Ang::XStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStar, Ebsd::Ang::YStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStar, EbsdLib::Ang::YStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, ZStar, Ebsd::Ang::ZStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, ZStar, EbsdLib::Ang::ZStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, WorkingDistance, Ebsd::Ang::WorkingDistance)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, WorkingDistance, EbsdLib::Ang::WorkingDistance)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, Ebsd::Ang::Grid)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, EbsdLib::Ang::Grid)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, Ebsd::Ang::XStep)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::XStep)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, Ebsd::Ang::YStep)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::YStep)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumOddCols, Ebsd::Ang::NColsOdd)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumOddCols, EbsdLib::Ang::NColsOdd)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumEvenCols, Ebsd::Ang::NColsEven)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumEvenCols, EbsdLib::Ang::NColsEven)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, Ebsd::Ang::NRows)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::NRows)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, OIMOperator, Ebsd::Ang::OPERATOR)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, OIMOperator, EbsdLib::Ang::OPERATOR)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SampleID, Ebsd::Ang::SAMPLEID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SampleID, EbsdLib::Ang::SAMPLEID)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SCANID, Ebsd::Ang::SCANID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SCANID, EbsdLib::Ang::SCANID)
 
   EBSD_INSTANCE_PROPERTY(QVector<AngPhase::Pointer>, PhaseVector)
 
@@ -143,7 +143,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumType getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
 
   /**
    * @brief Reads the complete TSL .ang file.

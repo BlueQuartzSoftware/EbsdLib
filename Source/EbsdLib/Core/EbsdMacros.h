@@ -136,7 +136,7 @@
 #define READ_PHASE_HEADER_ARRAY(cname, pid, Type, fqKey, key, phase)                                                                                                                                   \
   {                                                                                                                                                                                                    \
     std::vector<Type> t;                                                                                                                                                                               \
-    err = QH5Lite::readVectorDataset(pid, fqKey, t);                                                                                                                                                   \
+    err = H5Lite::readVectorDataset(pid, fqKey.toStdString(), t);                                                                                                                                      \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
       QString ss =                                                                                                                                                                                     \
@@ -170,7 +170,8 @@
     if(nullptr != _##name)                                                                                                                                                                             \
     {                                                                                                                                                                                                  \
       ::memset(_##name, 0, numBytes);                                                                                                                                                                  \
-      err = QH5Lite::readPointerDataset(gid, h5name, _##name);                                                                                                                                         \
+      QString dataName = h5name;                                                                                                                                                                       \
+      err = QH5Lite::readPointerDataset(gid, dataName, _##name);                                                                                                                                       \
       if(err < 0)                                                                                                                                                                                      \
       {                                                                                                                                                                                                \
         deallocateArrayData(_##name); /*deallocate the array*/                                                                                                                                         \
@@ -178,7 +179,7 @@
         ss << "Error reading dataset '" << #name                                                                                                                                                       \
            << "' from the HDF5 file. This data set is required to be in the file because either "                                                                                                      \
               "the program is set to read ALL the Data arrays or the program was instructed to read this array.";                                                                                      \
-        setErrorMessage(ss.string());                                                                                                                                                                  \
+        setErrorMessage(sBuf);                                                                                                                                                                         \
         err = H5Gclose(gid);                                                                                                                                                                           \
         return -90020;                                                                                                                                                                                 \
       }                                                                                                                                                                                                \

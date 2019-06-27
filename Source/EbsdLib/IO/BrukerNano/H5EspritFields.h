@@ -40,7 +40,7 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 
-#include "EbsdLib/BrukerNano/EspritConstants.h"
+#include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 
 /**
  * @class EspritFields EspritFields.h EbsdLib/HKL/EspritFields.h

@@ -68,10 +68,21 @@ execute_process(COMMAND "${QtQMake_location}" -query QT_VERSION OUTPUT_VARIABLE 
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
 if(EbsdLib_ENABLE_HDF5)
+
 	find_package(HDF5 NAMES hdf5)
 	if(NOT HDF5_FOUND)
 		message(FATAL_ERROR "HDF5 was not found on your system. Please follow any instructions given to fix the problem")
 	endif()
+
+	find_package(H5Support NAMES H5Support)
+	if(NOT H5Support_FOUND)
+		message(FATAL_ERROR "H5Support is required for this project.")
+	endif()
+
+
+	message(STATUS "HDF5_DIR: ${HDF5_DIR}")
+	message(STATUS "H5Support_DIR: ${H5Support_DIR}")
+	message(STATUS "H5Support_INCLUDE_DIRS: ${H5Support_INCLUDE_DIRS}")
 endif()
 
 mark_as_advanced(EbsdLib_ENABLE_HDF5)

@@ -40,7 +40,6 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
-
 #include "EbsdLib/IO/TSL/AngConstants.h"
 
 #pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
@@ -101,7 +100,7 @@ public:
      */
   void printSelf(QTextStream& stream)
   {
-    stream << Ebsd::Ang::HKLFamilies;
+    stream << EbsdLib::Ang::HKLFamilies;
     stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
   }
 

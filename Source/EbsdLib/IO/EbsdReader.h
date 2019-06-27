@@ -173,7 +173,7 @@ class EbsdLib_EXPORT EbsdReader
      * primitive type that the data is stored as (Int, Float, etc).
      * @param featureName The name of the feature.
      */
-    virtual EbsdLib::NumType getPointerType(const QString& featureName) = 0;
+    virtual EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) = 0;
 
     /**
      * @brief freePointerByName

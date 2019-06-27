@@ -92,21 +92,21 @@ public:
 
     reader->setReadPatternData(true);
     err = reader->readFile();
-    float* f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::Phi1));
+    float* f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi1));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::Phi));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::Phi2));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi2));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::ImageQuality));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::ImageQuality));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::ConfidenceIndex));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::ConfidenceIndex));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::SEMSignal));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::SEMSignal));
     DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(Ebsd::Ang::Fit));
+    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Fit));
 
-    int* phasePtr = reinterpret_cast<int*>(reader->getPointerByName(Ebsd::Ang::PhaseData));
+    int* phasePtr = reinterpret_cast<int*>(reader->getPointerByName(EbsdLib::Ang::PhaseData));
     DREAM3D_REQUIRE_VALID_POINTER(phasePtr)
 
     if(reader->getReadPatternData())

@@ -64,56 +64,56 @@ unsigned int EspritPhase::determineLaueGroup()
 
   if(sg >= 1 && sg <= 2)
   {
-    return Ebsd::CrystalStructure::Triclinic;
+    return EbsdLib::CrystalStructure::Triclinic;
   }
 
   if(sg >= 3 && sg <= 15)
   {
-    return Ebsd::CrystalStructure::Monoclinic;
+    return EbsdLib::CrystalStructure::Monoclinic;
   }
 
   if(sg >= 16 && sg <= 74)
   {
-    return Ebsd::CrystalStructure::OrthoRhombic;
+    return EbsdLib::CrystalStructure::OrthoRhombic;
   }
 
   if(sg >= 75 && sg <= 89)
   {
-    return Ebsd::CrystalStructure::Tetragonal_Low;
+    return EbsdLib::CrystalStructure::Tetragonal_Low;
   }
   if(sg >= 90 && sg <= 142)
   {
-    return Ebsd::CrystalStructure::Tetragonal_High;
+    return EbsdLib::CrystalStructure::Tetragonal_High;
   }
 
   if(sg >= 143 && sg <= 148)
   {
-    return Ebsd::CrystalStructure::Trigonal_Low;
+    return EbsdLib::CrystalStructure::Trigonal_Low;
   }
   if(sg >= 149 && sg <= 167)
   {
-    return Ebsd::CrystalStructure::Trigonal_High;
+    return EbsdLib::CrystalStructure::Trigonal_High;
   }
 
   if(sg >= 168 && sg <= 176)
   {
-    return Ebsd::CrystalStructure::Hexagonal_Low;
+    return EbsdLib::CrystalStructure::Hexagonal_Low;
   }
   if(sg >= 177 && sg <= 194)
   {
-    return Ebsd::CrystalStructure::Hexagonal_High;
+    return EbsdLib::CrystalStructure::Hexagonal_High;
   }
 
   if(sg >= 195 && sg <= 206)
   {
-    return Ebsd::CrystalStructure::Cubic_Low;
+    return EbsdLib::CrystalStructure::Cubic_Low;
   }
   if(sg >= 207 && sg <= 230)
   {
-    return Ebsd::CrystalStructure::Cubic_High;
+    return EbsdLib::CrystalStructure::Cubic_High;
   }
 
-  return Ebsd::CrystalStructure::UnknownCrystalStructure;
+  return EbsdLib::CrystalStructure::UnknownCrystalStructure;
 }
 
 // -----------------------------------------------------------------------------

@@ -53,6 +53,34 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/EbsdLibConfiguration.h.i
                 ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
+set(VERSION_GEN_NAMESPACE "EbsdLib")
+set(VERSION_GEN_NAME "EBSDLIB")
+set(VERSION_GEN_HEADER_FILE_NAME "EbsdLibVersion.h")
+set(VERSION_GEN_VER_MAJOR ${EbsdLibProj_VERSION_MAJOR})
+set(VERSION_GEN_VER_MINOR ${EbsdLibProj_VERSION_MINOR})
+set(VERSION_GEN_VER_PATCH ${EbsdLibProj_VERSION_PATCH})
+set(VERSION_GEN_VER_REVISION "0")
+set(PROJECT_PREFIX "EbsdLib")
+cmpGenerateBuildDate(PROJECT_NAME EbsdLibProj)
+set(VERSION_BUILD_DATE ${EbsdLibProj_BUILD_DATE})
+#------------------------------------------------------------------------------
+# Find the Git Package for Versioning. It should be ok if Git is NOT found
+Find_package(Git)
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
+    OUTPUT_VARIABLE GVS_GIT_HASH
+    RESULT_VARIABLE did_run
+    ERROR_VARIABLE git_error
+    WORKING_DIRECTORY ${EbsdLibProj_SOURCE_DIR} 
+)
+string(REPLACE "\n" "" GVS_GIT_HASH "${GVS_GIT_HASH}")
+
+
+configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/cmpVersion.h.in
+                ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
+)
+configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/cmpVersion.cpp.in
+                ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.cpp
+)
 
 set(EbsdLib_PROJECT_SRCS
   ${EbsdLib_Core_HDRS}
@@ -76,12 +104,16 @@ set(EbsdLib_PROJECT_SRCS
   ${EbsdLib_Utilities_HDRS}
   ${EbsdLib_Utilities_SRCS}
 
+  ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
+  ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.cpp
+
   ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
 if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
     INSTALL (FILES 
               ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
+              ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
             DESTINATION include/EbsdLib
             COMPONENT Headers   )
 endif()
@@ -99,12 +131,12 @@ target_include_directories(${PROJECT_NAME}
                           PRIVATE
                             ${EbsdLibProj_SOURCE_DIR}/Source
                             ${EbsdLibProj_BINARY_DIR}
-                         # PUBLIC 
                             ${EIGEN3_INCLUDE_DIR}
                             ${HDF5_INCLUDE_DIRS}
                             ${HDF5_INCLUDE_DIR}
                             ${Qt5Core_INCLUDE_DIRS}
                             ${Qt5Core_INCLUDE_DIR}
+                            ${H5Support_INCLUDE_DIRS}
 )
 
 # Start building up the list of libraries to link against
@@ -114,7 +146,7 @@ set(EBSDLib_LINK_LIBRARIES Qt5::Core)
 if(${EbsdLib_ENABLE_HDF5})
 	set(EBSDLib_LINK_LIBRARIES
 		${EBSDLib_LINK_LIBRARIES}
-      hdf5::hdf5 H5Support
+      H5Support::H5Support
 		)
   target_compile_definitions(${PROJECT_NAME} PRIVATE -DEbsdLib_HAVE_HDF5)
 endif()

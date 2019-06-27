@@ -33,7 +33,7 @@
 
 #include <QtCore/QString>
 
-namespace Ebsd
+namespace EbsdLib
 {
 namespace Esprit
 {

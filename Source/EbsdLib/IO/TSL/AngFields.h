@@ -66,12 +66,12 @@ class EbsdLib_EXPORT AngFields : public AbstractEbsdFields
     {
       T features;
 
-      features.push_back(Ebsd::Ang::ImageQuality);
-      features.push_back(Ebsd::Ang::ConfidenceIndex);
-      features.push_back(Ebsd::Ang::SEMSignal);
-      features.push_back(Ebsd::Ang::Fit);
-      features.push_back(Ebsd::Ang::XPosition);
-      features.push_back(Ebsd::Ang::YPosition);
+      features.push_back(EbsdLib::Ang::ImageQuality);
+      features.push_back(EbsdLib::Ang::ConfidenceIndex);
+      features.push_back(EbsdLib::Ang::SEMSignal);
+      features.push_back(EbsdLib::Ang::Fit);
+      features.push_back(EbsdLib::Ang::XPosition);
+      features.push_back(EbsdLib::Ang::YPosition);
       return features;
     }
 

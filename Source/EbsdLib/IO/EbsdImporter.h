@@ -37,13 +37,15 @@
 
 #pragma once
 
-#include "hdf5.h"
+
 
 #include <QtCore/QtDebug>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
+#ifdef EbsdLib_ENABLE_HDF5
+#include <hdf5.h>
+#endif
 /**
  * @class EbsdImporter EbsdImporter.h EbsdLib/EbsdImporter.h
  * @brief  This class is a pure virtual class that defines the interface that
@@ -77,7 +79,7 @@ class EbsdLib_EXPORT EbsdImporter
     /**
      * @brief Sets an Error Message
      */
-    SIMPL_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
+    //SIMPL_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
 
     /**
      * @brief Sets an error condition
@@ -85,13 +87,18 @@ class EbsdLib_EXPORT EbsdImporter
     /**
     * @brief Setter property for ErrorCode
     */
-    virtual void setErrorCode(const int& value); 
+    virtual void setErrorCode(int value)
+    {
+      m_ErrorCode = value;
+    }
     /**
     * @brief Getter property for ErrorCode
     * @return Value of ErrorCode
     */
-    virtual int getErrorCode() const;
-
+    virtual int getErrorCode() const
+    {
+      return m_ErrorCode;
+    }
 
     /**
      * @brief Cancel the operation
@@ -99,13 +106,19 @@ class EbsdLib_EXPORT EbsdImporter
     /**
     * @brief Setter property for Cancel
     */
-    virtual void setCancel(const bool& value); 
+    virtual void setCancel(bool value)
+    {
+      m_Cancel = value;
+    }
+
     /**
     * @brief Getter property for Cancel
     * @return Value of Cancel
     */
-    virtual bool getCancel() const;
-
+    virtual bool getCancel() const
+    {
+      return m_Cancel;
+    }
 
     /**
      * @brief Either prints a message or sends the message to the User Interface
@@ -165,12 +178,7 @@ class EbsdLib_EXPORT EbsdImporter
     virtual void setFileVersion(uint32_t version) = 0;
 
   protected:
-    EbsdImporter()
-    : m_ErrorCode(0)
-    , m_Cancel(false)
-    {
-      m_PipelineMessage = "";
-    }
+    EbsdImporter() = default;
 
   public:
     EbsdImporter(const EbsdImporter&) = delete;   // Copy Constructor Not Implemented
@@ -179,12 +187,6 @@ class EbsdLib_EXPORT EbsdImporter
     EbsdImporter& operator=(EbsdImporter&&) = delete;      // Move Assignment Not Implemented
 
   private:
-
-    int m_ErrorCode = {};
-    bool m_Cancel = {};
-
-
+    int m_ErrorCode = 0;
+    bool m_Cancel = false;
 };
-
-
-

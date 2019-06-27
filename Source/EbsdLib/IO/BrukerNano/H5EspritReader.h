@@ -36,12 +36,14 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 
-#include "EbsdLib/BrukerNano/EspritConstants.h"
-#include "EbsdLib/BrukerNano/EspritPhase.h"
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/IO/BrukerNano/EspritConstants.h"
+#include "EbsdLib/IO/BrukerNano/EspritPhase.h"
+#include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/IO/TSL/AngHeaderEntry.h"
+#include "EbsdLib/IO/BrukerNano/EspritConstants.h"
+
 
 /**
  * @class H5EspritReader H5EspritReader.h EbsdLib/BrukerNano/H5EspritReader.h
@@ -163,7 +165,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumType getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
 
   /**
    * @brief Reads the file

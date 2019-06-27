@@ -62,27 +62,27 @@ CtfReader::CtfReader() :
 {
 
   // Initialize the map of header key to header value
-  m_HeaderMap[Ebsd::Ctf::ChannelTextFile] = CtfStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ctf::ChannelTextFile);
-  m_HeaderMap[Ebsd::Ctf::Prj] = CtfStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ctf::Prj);
-  m_HeaderMap[Ebsd::Ctf::Author] = CtfStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ctf::Author);
-  m_HeaderMap[Ebsd::Ctf::JobMode] = CtfStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ctf::JobMode);
-  m_HeaderMap[Ebsd::Ctf::XCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::XCells);
-  m_HeaderMap[Ebsd::Ctf::YCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::YCells);
-  m_HeaderMap[Ebsd::Ctf::ZCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::ZCells);
-  m_HeaderMap[Ebsd::Ctf::XStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::XStep);
-  m_HeaderMap[Ebsd::Ctf::YStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::YStep);
-  m_HeaderMap[Ebsd::Ctf::ZStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::ZStep);
-  m_HeaderMap[Ebsd::Ctf::AcqE1] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::AcqE1);
-  m_HeaderMap[Ebsd::Ctf::AcqE2] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::AcqE2);
-  m_HeaderMap[Ebsd::Ctf::AcqE3] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::AcqE3);
-  m_HeaderMap[Ebsd::Ctf::Euler] = CtfStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ctf::Euler);
-  m_HeaderMap[Ebsd::Ctf::Mag] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::Mag);
-  m_HeaderMap[Ebsd::Ctf::Coverage] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::Coverage);
-  m_HeaderMap[Ebsd::Ctf::Device] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::Device);
-  m_HeaderMap[Ebsd::Ctf::KV] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::KV);
-  m_HeaderMap[Ebsd::Ctf::TiltAngle] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::TiltAngle);
-  m_HeaderMap[Ebsd::Ctf::TiltAxis] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::TiltAxis);
-  m_HeaderMap[Ebsd::Ctf::NumPhases] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ctf::NumPhases);
+  m_HeaderMap[EbsdLib::Ctf::ChannelTextFile] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::ChannelTextFile);
+  m_HeaderMap[EbsdLib::Ctf::Prj] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Prj);
+  m_HeaderMap[EbsdLib::Ctf::Author] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Author);
+  m_HeaderMap[EbsdLib::Ctf::JobMode] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::JobMode);
+  m_HeaderMap[EbsdLib::Ctf::XCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::XCells);
+  m_HeaderMap[EbsdLib::Ctf::YCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::YCells);
+  m_HeaderMap[EbsdLib::Ctf::ZCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZCells);
+  m_HeaderMap[EbsdLib::Ctf::XStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::XStep);
+  m_HeaderMap[EbsdLib::Ctf::YStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::YStep);
+  m_HeaderMap[EbsdLib::Ctf::ZStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZStep);
+  m_HeaderMap[EbsdLib::Ctf::AcqE1] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE1);
+  m_HeaderMap[EbsdLib::Ctf::AcqE2] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE2);
+  m_HeaderMap[EbsdLib::Ctf::AcqE3] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE3);
+  m_HeaderMap[EbsdLib::Ctf::Euler] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Euler);
+  m_HeaderMap[EbsdLib::Ctf::Mag] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Mag);
+  m_HeaderMap[EbsdLib::Ctf::Coverage] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Coverage);
+  m_HeaderMap[EbsdLib::Ctf::Device] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Device);
+  m_HeaderMap[EbsdLib::Ctf::KV] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::KV);
+  m_HeaderMap[EbsdLib::Ctf::TiltAngle] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAngle);
+  m_HeaderMap[EbsdLib::Ctf::TiltAxis] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAxis);
+  m_HeaderMap[EbsdLib::Ctf::NumPhases] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::NumPhases);
 
   setXCells(0);
   setYCells(0);
@@ -135,75 +135,75 @@ void* CtfReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumType CtfReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type CtfReader::getPointerType(const QString& featureName)
 {
   // std::cout << "featureName: " << featureName << std::endl;
-  if(featureName.compare(Ebsd::Ctf::Phase) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::X) == 0)
+  if(featureName.compare(EbsdLib::Ctf::X) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::Y) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::Z) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::Bands) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::Error) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler1) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler2) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler3) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::MAD) == 0)
+  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ctf::BC) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::BS) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainIndex) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourR) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourG) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourB) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
   // std::cout << "THIS IS NOT GOOD. Featurename: " << featureName << " was not found in the list" << std::endl;
-  return EbsdLib::UnknownNumType;
+  return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -211,67 +211,67 @@ EbsdLib::NumType CtfReader::getPointerType(const QString& featureName)
 // -----------------------------------------------------------------------------
 int CtfReader::getTypeSize(const QString& featureName)
 {
-  if(featureName.compare(Ebsd::Ctf::Phase) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::X) == 0)
+  if(featureName.compare(EbsdLib::Ctf::X) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Y) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Z) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Bands) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Error) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler1) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler2) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::Euler3) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::MAD) == 0)
+  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::BC) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::BS) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainIndex) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourR) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourG) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
   {
     return 4;
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourB) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
   {
     return 4;
   }
@@ -284,67 +284,67 @@ int CtfReader::getTypeSize(const QString& featureName)
 DataParser::Pointer CtfReader::getParser(const QString& featureName, void* ptr, size_t size)
 {
   // These are defaulted to a "3D" CTF file with Feature IDS already determined and their colors
-  if(featureName.compare(Ebsd::Ctf::Phase) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 0);
   }
-  if(featureName.compare(Ebsd::Ctf::X) == 0)
+  if(featureName.compare(EbsdLib::Ctf::X) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 1);
   }
-  if(featureName.compare(Ebsd::Ctf::Y) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 2);
   }
-  if(featureName.compare(Ebsd::Ctf::Z) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 3);
   }
-  if(featureName.compare(Ebsd::Ctf::Bands) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 4);
   }
-  if(featureName.compare(Ebsd::Ctf::Error) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 5);
   }
-  if(featureName.compare(Ebsd::Ctf::Euler1) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 6);
   }
-  if(featureName.compare(Ebsd::Ctf::Euler2) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 7);
   }
-  if(featureName.compare(Ebsd::Ctf::Euler3) == 0)
+  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 8);
   }
-  if(featureName.compare(Ebsd::Ctf::MAD) == 0)
+  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 9);
   }
-  if(featureName.compare(Ebsd::Ctf::BC) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 10);
   }
-  if(featureName.compare(Ebsd::Ctf::BS) == 0)
+  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 11);
   }
-  if(featureName.compare(Ebsd::Ctf::GrainIndex) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 12);
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourR) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 13);
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourG) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 14);
   }
-  if(featureName.compare(Ebsd::Ctf::GrainRandomColourB) == 0)
+  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 15);
   }
@@ -466,14 +466,14 @@ int CtfReader::readData(QFile& in)
 
   QList<QByteArray> tokens = buf.split('\t'); // Tokenize the array with a tab
 
-  EbsdLib::NumType pType = EbsdLib::UnknownNumType;
+  EbsdLib::NumericTypes::Type pType = EbsdLib::NumericTypes::Type::UnknownNumType;
   qint32 size = tokens.size();
   bool didAllocate = false;
   for (qint32 i = 0; i < size; ++i)
   {
     QString name = QString::fromLatin1(tokens[i]);
     pType = getPointerType(name);
-    if(EbsdLib::Int32 == pType)
+    if(EbsdLib::NumericTypes::Type::Int32 == pType)
     {
       Int32Parser::Pointer dparser = Int32Parser::New(nullptr, totalScanPoints, name, i);
       didAllocate = dparser->allocateArray(totalScanPoints);
@@ -484,7 +484,7 @@ int CtfReader::readData(QFile& in)
         m_NamePointerMap.insert(name, dparser);
       }
     }
-    else if(EbsdLib::Float == pType)
+    else if(EbsdLib::NumericTypes::Type::Float == pType)
     {
       FloatParser::Pointer dparser = FloatParser::New(nullptr, totalScanPoints, name, i);
       didAllocate = dparser->allocateArray(totalScanPoints);
@@ -610,7 +610,7 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
         PRINT_HTML_TABLE_ROW(p)
       }
     }
-    else if(sLine.startsWith(Ebsd::Ctf::NumPhases))
+    else if(sLine.startsWith(EbsdLib::Ctf::NumPhases))
     {
       QByteArray key = tabTokens[0];
       EbsdHeaderEntry::Pointer p = m_HeaderMap[key];
@@ -672,8 +672,8 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
         //        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
         //        std::cout << "#define ANG_" << upper << "     \"" << line[0] << "\"" << std::endl;
         //        std::cout << "const QString " << line[0] << "(ANG_" << upper << ");" << std::endl;
-        //        std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << line[0] << "Ebsd::Ctf::" << line[0] << std::endl;
-        //        std::cout << "m_Headermap[Ebsd::Ctf::" << line[0] << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ctf::" << line[0] << ");" << std::endl;
+        //        std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << line[0] << "EbsdLib::Ctf::" << line[0] << std::endl;
+        //        std::cout << "m_Headermap[EbsdLib::Ctf::" << line[0] << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::" << line[0] << ");" << std::endl;
       }
       else
       {

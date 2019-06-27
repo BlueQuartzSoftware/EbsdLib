@@ -73,7 +73,7 @@ class EbsdLib_EXPORT AngHeaderEntry : public EbsdHeaderEntry
     {
       return m_key;
     }
-#if EbsdLib_HDF5_SUPPORT
+#ifdef EbsdLib_ENABLE_HDF5
     QString getHDFType() override
     {
       T value = static_cast<T>(0);

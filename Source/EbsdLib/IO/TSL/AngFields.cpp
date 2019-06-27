@@ -53,16 +53,16 @@ AngFields::~AngFields() = default;
 QVector<QString> AngFields::getFieldNames()
 {
   QVector<QString> features;
-  features.push_back(Ebsd::Ang::Phi1);
-  features.push_back(Ebsd::Ang::Phi);
-  features.push_back(Ebsd::Ang::Phi2);
-  features.push_back(Ebsd::Ang::XPosition);
-  features.push_back(Ebsd::Ang::YPosition);
-  features.push_back(Ebsd::Ang::ImageQuality);
-  features.push_back(Ebsd::Ang::ConfidenceIndex);
-  features.push_back(Ebsd::Ang::PhaseData);
-  features.push_back(Ebsd::Ang::SEMSignal);
-  features.push_back(Ebsd::Ang::Fit);
+  features.push_back(EbsdLib::Ang::Phi1);
+  features.push_back(EbsdLib::Ang::Phi);
+  features.push_back(EbsdLib::Ang::Phi2);
+  features.push_back(EbsdLib::Ang::XPosition);
+  features.push_back(EbsdLib::Ang::YPosition);
+  features.push_back(EbsdLib::Ang::ImageQuality);
+  features.push_back(EbsdLib::Ang::ConfidenceIndex);
+  features.push_back(EbsdLib::Ang::PhaseData);
+  features.push_back(EbsdLib::Ang::SEMSignal);
+  features.push_back(EbsdLib::Ang::Fit);
 
   return features;
 }

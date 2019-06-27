@@ -51,22 +51,22 @@ CtfFields::~CtfFields() = default;
 QVector<QString> CtfFields::getFieldNames()
 {
   QVector<QString> features;
-  features.push_back(Ebsd::Ctf::Phase);
-  features.push_back(Ebsd::Ctf::X);
-  features.push_back(Ebsd::Ctf::Y);
-  features.push_back(Ebsd::Ctf::Z);
-  features.push_back(Ebsd::Ctf::Bands);
-  features.push_back(Ebsd::Ctf::Error);
-  features.push_back(Ebsd::Ctf::Euler1);
-  features.push_back(Ebsd::Ctf::Euler2);
-  features.push_back(Ebsd::Ctf::Euler3);
-  features.push_back(Ebsd::Ctf::MAD);
-  features.push_back(Ebsd::Ctf::BC);
-  features.push_back(Ebsd::Ctf::BS);
-  features.push_back(Ebsd::Ctf::GrainIndex);
-  features.push_back(Ebsd::Ctf::GrainRandomColourR);
-  features.push_back(Ebsd::Ctf::GrainRandomColourG);
-  features.push_back(Ebsd::Ctf::GrainRandomColourB);
+  features.push_back(EbsdLib::Ctf::Phase);
+  features.push_back(EbsdLib::Ctf::X);
+  features.push_back(EbsdLib::Ctf::Y);
+  features.push_back(EbsdLib::Ctf::Z);
+  features.push_back(EbsdLib::Ctf::Bands);
+  features.push_back(EbsdLib::Ctf::Error);
+  features.push_back(EbsdLib::Ctf::Euler1);
+  features.push_back(EbsdLib::Ctf::Euler2);
+  features.push_back(EbsdLib::Ctf::Euler3);
+  features.push_back(EbsdLib::Ctf::MAD);
+  features.push_back(EbsdLib::Ctf::BC);
+  features.push_back(EbsdLib::Ctf::BS);
+  features.push_back(EbsdLib::Ctf::GrainIndex);
+  features.push_back(EbsdLib::Ctf::GrainRandomColourR);
+  features.push_back(EbsdLib::Ctf::GrainRandomColourG);
+  features.push_back(EbsdLib::Ctf::GrainRandomColourB);
 
   return features;
 }

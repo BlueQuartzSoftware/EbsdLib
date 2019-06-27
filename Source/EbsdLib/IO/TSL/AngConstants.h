@@ -113,7 +113,7 @@ enum ANG_READ_FLAG
   ANG_HEADER_ONLY
 };
 
-namespace Ebsd
+namespace EbsdLib
 {
 
 namespace H5OIM
@@ -292,8 +292,7 @@ const QString EbsdLibVersionStr("EbsdLibVersion");
 #define ANG_SEM_SIGNAL_LOWER "sem signal"
 #define ANG_FIT_LOWER "fit"
 
-
-namespace Ebsd
+namespace EbsdLib
 {
 
 

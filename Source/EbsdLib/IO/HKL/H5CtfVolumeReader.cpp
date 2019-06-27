@@ -41,8 +41,8 @@
 #include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 
-#include "EbsdLib/EbsdConstants.h"
-#include "EbsdLib/HKL/H5CtfReader.h"
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/IO/HKL/H5CtfReader.h"
 
 #if defined (H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
@@ -61,7 +61,7 @@ H5CtfVolumeReader::~H5CtfVolumeReader()
 }
 
 #define H5CTFREADER_ALLOCATE_ARRAY(name, type)                                                                                                                                                         \
-  if(readAllArrays == true || arrayNames.find(Ebsd::Ctf::name) != arrayNames.end())                                                                                                                    \
+  if(readAllArrays == true || arrayNames.find(EbsdLib::Ctf::name) != arrayNames.end())                                                                                                                 \
   {                                                                                                                                                                                                    \
     auto _##name = allocateArray<type>(numElements);                                                                                                                                                   \
     if(nullptr != _##name)                                                                                                                                                                             \
@@ -118,37 +118,103 @@ void H5CtfVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 void* H5CtfVolumeReader::getPointerByName(const QString& featureName)
 {
-  if (featureName.compare(Ebsd::Ctf::Phase) == 0) { return static_cast<void*>(m_Phase);}
-  if (featureName.compare(Ebsd::Ctf::X) == 0) { return static_cast<void*>(m_X);}
-  if (featureName.compare(Ebsd::Ctf::Y) == 0) { return static_cast<void*>(m_Y);}
-  if (featureName.compare(Ebsd::Ctf::Bands) == 0) { return static_cast<void*>(m_Bands);}
-  if (featureName.compare(Ebsd::Ctf::Error) == 0) { return static_cast<void*>(m_Error);}
-  if (featureName.compare(Ebsd::Ctf::Euler1) == 0) { return static_cast<void*>(m_Euler1);}
-  if (featureName.compare(Ebsd::Ctf::Euler2) == 0) { return static_cast<void*>(m_Euler2);}
-  if (featureName.compare(Ebsd::Ctf::Euler3) == 0) { return static_cast<void*>(m_Euler3);}
-  if (featureName.compare(Ebsd::Ctf::MAD) == 0) { return static_cast<void*>(m_MAD);}
-  if (featureName.compare(Ebsd::Ctf::BC) == 0) { return static_cast<void*>(m_BC);}
-  if (featureName.compare(Ebsd::Ctf::BS) == 0) { return static_cast<void*>(m_BS);}
+  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  {
+    return static_cast<void*>(m_Phase);
+  }
+  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  {
+    return static_cast<void*>(m_X);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  {
+    return static_cast<void*>(m_Y);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  {
+    return static_cast<void*>(m_Bands);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  {
+    return static_cast<void*>(m_Error);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  {
+    return static_cast<void*>(m_Euler1);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  {
+    return static_cast<void*>(m_Euler2);
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  {
+    return static_cast<void*>(m_Euler3);
+  }
+  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  {
+    return static_cast<void*>(m_MAD);
+  }
+  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  {
+    return static_cast<void*>(m_BC);
+  }
+  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  {
+    return static_cast<void*>(m_BS);
+  }
   return nullptr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Ebsd::NumType H5CtfVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const QString& featureName)
 {
-  if (featureName.compare(Ebsd::Ctf::Phase) == 0) { return Ebsd::Int32;}
-  if (featureName.compare(Ebsd::Ctf::X) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::Y) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::Bands) == 0) { return Ebsd::Int32;}
-  if (featureName.compare(Ebsd::Ctf::Error) == 0) { return Ebsd::Int32;}
-  if (featureName.compare(Ebsd::Ctf::Euler1) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::Euler2) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::Euler3) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::MAD) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ctf::BC) == 0) { return Ebsd::Int32;}
-  if (featureName.compare(Ebsd::Ctf::BS) == 0) { return Ebsd::Int32;}
-  return Ebsd::UnknownNumType;
+  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -253,7 +319,7 @@ int H5CtfVolumeReader::loadData(int64_t xpoints,
     ystartspot = static_cast<int>( (ypointstemp - ypointsslice) / 2 );
 
     // If no stacking order preference was passed, read it from the file and use that value
-    if(ZDir == Ebsd::RefFrameZDir::UnknownRefFrameZDirection)
+    if(ZDir == EbsdLib::RefFrameZDir::UnknownRefFrameZDirection)
     {
       ZDir = getStackingOrder();
     }

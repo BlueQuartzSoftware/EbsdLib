@@ -126,19 +126,19 @@ public:
 
   EBSD_INSTANCE_2DVECTOR_PROPERTY(int, PatternDims)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumColumns, Ebsd::Ang::nColumns)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumColumns, EbsdLib::Ang::nColumns)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, Ebsd::Ang::nRows)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::nRows)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, Ebsd::Ang::StepX)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::StepX)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, Ebsd::Ang::StepY)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::StepY)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, Ebsd::Ang::GridType)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, EbsdLib::Ang::GridType)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, Ebsd::Ang::PatternWidth)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::Ang::PatternWidth)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, Ebsd::Ang::PatternHeight)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, EbsdLib::Ang::PatternHeight)
 
   /**
    * @brief Reads the file

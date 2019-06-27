@@ -75,14 +75,14 @@ class EbsdLib_EXPORT CtfFields : public AbstractEbsdFields
     T getFilterFeatures()
     {
       T features;
-      features.push_back(Ebsd::Ctf::Bands);
-      features.push_back(Ebsd::Ctf::Error);
+      features.push_back(EbsdLib::Ctf::Bands);
+      features.push_back(EbsdLib::Ctf::Error);
 
-      features.push_back(Ebsd::Ctf::MAD);
-      features.push_back(Ebsd::Ctf::BC);
-      features.push_back(Ebsd::Ctf::BS);
-      features.push_back(Ebsd::Ctf::X);
-      features.push_back(Ebsd::Ctf::Y);
+      features.push_back(EbsdLib::Ctf::MAD);
+      features.push_back(EbsdLib::Ctf::BC);
+      features.push_back(EbsdLib::Ctf::BS);
+      features.push_back(EbsdLib::Ctf::X);
+      features.push_back(EbsdLib::Ctf::Y);
       return features;
     }
 

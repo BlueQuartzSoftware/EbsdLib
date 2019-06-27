@@ -137,6 +137,9 @@ AddSIMPLUnitTest(TESTNAME EbsdLibUnitTest
     ${EbsdLibProj_BINARY_DIR}
     ${EbsdLibProj_BINARY_DIR}/Test
     ${EIGEN3_INCLUDE_DIR}
+    ${HDF5_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIR}
+    ${H5Support_INCLUDE_DIRS}
   )
 
 if(MSVC)

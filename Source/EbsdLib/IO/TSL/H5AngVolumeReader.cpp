@@ -43,7 +43,7 @@
 #include "H5Support/H5Lite.h"
 #include "H5Support/QH5Utilities.h"
 
-#include "EbsdLib/EbsdConstants.h"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/TSL/H5AngReader.h"
 
 #if defined (H5Support_NAMESPACE)
@@ -77,7 +77,7 @@ H5AngVolumeReader::~H5AngVolumeReader()
 }
 
 #define H5ANGREADER_ALLOCATE_ARRAY(name, type)                                                                                                                                                         \
-  if(readAllArrays == true || arrayNames.find(Ebsd::Ang::name) != arrayNames.end())                                                                                                                    \
+  if(readAllArrays == true || arrayNames.find(EbsdLib::Ang::name) != arrayNames.end())                                                                                                                 \
   {                                                                                                                                                                                                    \
     auto _##name = allocateArray<type>(numElements);                                                                                                                                                   \
     if(nullptr != _##name)                                                                                                                                                                             \
@@ -131,35 +131,95 @@ void H5AngVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 void* H5AngVolumeReader::getPointerByName(const QString& featureName)
 {
-  if (featureName.compare(Ebsd::Ang::Phi1) == 0) { return static_cast<void*>(m_Phi1);}
-  if (featureName.compare(Ebsd::Ang::Phi) == 0) { return static_cast<void*>(m_Phi);}
-  if (featureName.compare(Ebsd::Ang::Phi2) == 0) { return static_cast<void*>(m_Phi2);}
-  if (featureName.compare(Ebsd::Ang::ImageQuality) == 0) { return static_cast<void*>(m_Iq);}
-  if (featureName.compare(Ebsd::Ang::ConfidenceIndex) == 0) { return static_cast<void*>(m_Ci);}
-  if (featureName.compare(Ebsd::Ang::PhaseData) == 0) { return static_cast<void*>(m_PhaseData);}
-  if (featureName.compare(Ebsd::Ang::XPosition) == 0) { return static_cast<void*>(m_X);}
-  if (featureName.compare(Ebsd::Ang::YPosition) == 0) { return static_cast<void*>(m_Y);}
-  if (featureName.compare(Ebsd::Ang::SEMSignal) == 0) { return static_cast<void*>(m_SEMSignal);}
-  if (featureName.compare(Ebsd::Ang::Fit) == 0) { return static_cast<void*>(m_Fit);}
+  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  {
+    return static_cast<void*>(m_Phi1);
+  }
+  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  {
+    return static_cast<void*>(m_Phi);
+  }
+  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  {
+    return static_cast<void*>(m_Phi2);
+  }
+  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  {
+    return static_cast<void*>(m_Iq);
+  }
+  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  {
+    return static_cast<void*>(m_Ci);
+  }
+  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  {
+    return static_cast<void*>(m_PhaseData);
+  }
+  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  {
+    return static_cast<void*>(m_X);
+  }
+  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  {
+    return static_cast<void*>(m_Y);
+  }
+  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  {
+    return static_cast<void*>(m_SEMSignal);
+  }
+  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  {
+    return static_cast<void*>(m_Fit);
+  }
   return nullptr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Ebsd::NumType H5AngVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const QString& featureName)
 {
-  if (featureName.compare(Ebsd::Ang::Phi1) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::Phi) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::Phi2) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::ImageQuality) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::ConfidenceIndex) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::PhaseData) == 0) { return Ebsd::Int32;}
-  if (featureName.compare(Ebsd::Ang::XPosition) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::YPosition) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::SEMSignal) == 0) { return Ebsd::Float;}
-  if (featureName.compare(Ebsd::Ang::Fit) == 0) { return Ebsd::Float;}
-  return Ebsd::UnknownNumType;
+  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  {
+    return EbsdLib::NumericTypes::Type::Float;
+  }
+  return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
 
@@ -272,12 +332,18 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
     ystop = ypointsslice;
 
     // If no stacking order preference was passed, read it from the file and use that value
-    if(ZDir == Ebsd::RefFrameZDir::UnknownRefFrameZDirection)
+    if(ZDir == EbsdLib::RefFrameZDir::UnknownRefFrameZDirection)
     {
       ZDir = getStackingOrder();
     }
-    if(ZDir == Ebsd::RefFrameZDir::LowtoHigh) { zval = slice; }
-    if(ZDir == Ebsd::RefFrameZDir::HightoLow) { zval = static_cast<int>( (zpoints - 1) - slice ); }
+    if(ZDir == EbsdLib::RefFrameZDir::LowtoHigh)
+    {
+      zval = slice;
+    }
+    if(ZDir == EbsdLib::RefFrameZDir::HightoLow)
+    {
+      zval = static_cast<int>((zpoints - 1) - slice);
+    }
 
     // Copy the data from the current storage into the new memory Location
     for (int j = 0; j < ystop; j++)

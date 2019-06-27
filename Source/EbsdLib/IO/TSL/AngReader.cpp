@@ -67,23 +67,23 @@ AngReader::AngReader()
   m_ReadHexGrid = false;
 
   // Initialize the map of header key to header value
-  m_HeaderMap[Ebsd::Ang::TEMPIXPerUM] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::TEMPIXPerUM);
-  m_HeaderMap[Ebsd::Ang::XStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::XStar);
-  m_HeaderMap[Ebsd::Ang::YStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::YStar);
-  m_HeaderMap[Ebsd::Ang::ZStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::ZStar);
-  m_HeaderMap[Ebsd::Ang::WorkingDistance] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::WorkingDistance);
-  m_HeaderMap[Ebsd::Ang::Grid] = AngStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ang::Grid);
-  m_HeaderMap[Ebsd::Ang::XStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::XStep);
-  m_HeaderMap[Ebsd::Ang::YStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::YStep);
-  m_HeaderMap[Ebsd::Ang::ZStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::ZStep); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  m_HeaderMap[Ebsd::Ang::ZPos] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::ZPos);   // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  m_HeaderMap[Ebsd::Ang::ZMax] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::ZMax);   // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  m_HeaderMap[Ebsd::Ang::NColsOdd] = AngHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ang::NColsOdd);
-  m_HeaderMap[Ebsd::Ang::NColsEven] = AngHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ang::NColsEven);
-  m_HeaderMap[Ebsd::Ang::NRows] = AngHeaderEntry<int>::NewEbsdHeaderEntry(Ebsd::Ang::NRows);
-  m_HeaderMap[Ebsd::Ang::OPERATOR] = AngStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ang::OPERATOR);
-  m_HeaderMap[Ebsd::Ang::SAMPLEID] = AngStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ang::SAMPLEID);
-  m_HeaderMap[Ebsd::Ang::SCANID] = AngStringHeaderEntry::NewEbsdHeaderEntry(Ebsd::Ang::SCANID);
+  m_HeaderMap[EbsdLib::Ang::TEMPIXPerUM] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::TEMPIXPerUM);
+  m_HeaderMap[EbsdLib::Ang::XStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::XStar);
+  m_HeaderMap[EbsdLib::Ang::YStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::YStar);
+  m_HeaderMap[EbsdLib::Ang::ZStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZStar);
+  m_HeaderMap[EbsdLib::Ang::WorkingDistance] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::WorkingDistance);
+  m_HeaderMap[EbsdLib::Ang::Grid] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::Grid);
+  m_HeaderMap[EbsdLib::Ang::XStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::XStep);
+  m_HeaderMap[EbsdLib::Ang::YStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::YStep);
+  m_HeaderMap[EbsdLib::Ang::ZStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZStep); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  m_HeaderMap[EbsdLib::Ang::ZPos] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZPos);   // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  m_HeaderMap[EbsdLib::Ang::ZMax] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZMax);   // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  m_HeaderMap[EbsdLib::Ang::NColsOdd] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::NColsOdd);
+  m_HeaderMap[EbsdLib::Ang::NColsEven] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::NColsEven);
+  m_HeaderMap[EbsdLib::Ang::NRows] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::NRows);
+  m_HeaderMap[EbsdLib::Ang::OPERATOR] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::OPERATOR);
+  m_HeaderMap[EbsdLib::Ang::SAMPLEID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::SAMPLEID);
+  m_HeaderMap[EbsdLib::Ang::SCANID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::SCANID);
 
   // Give these values some defaults
   setNumOddCols(-1);
@@ -155,43 +155,43 @@ AngReader::~AngReader()
 // -----------------------------------------------------------------------------
 void* AngReader::getPointerByName(const QString& featureName)
 {
-  if(featureName.compare(Ebsd::Ang::Phi1) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
   {
     return static_cast<void*>(m_Phi1);
   }
-  if(featureName.compare(Ebsd::Ang::Phi) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
   {
     return static_cast<void*>(m_Phi);
   }
-  if(featureName.compare(Ebsd::Ang::Phi2) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
   {
     return static_cast<void*>(m_Phi2);
   }
-  if(featureName.compare(Ebsd::Ang::ImageQuality) == 0)
+  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
   {
     return static_cast<void*>(m_Iq);
   }
-  if(featureName.compare(Ebsd::Ang::ConfidenceIndex) == 0)
+  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
   {
     return static_cast<void*>(m_Ci);
   }
-  if(featureName.compare(Ebsd::Ang::PhaseData) == 0)
+  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
   {
     return static_cast<void*>(m_PhaseData);
   }
-  if(featureName.compare(Ebsd::Ang::XPosition) == 0)
+  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName.compare(Ebsd::Ang::YPosition) == 0)
+  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName.compare(Ebsd::Ang::SEMSignal) == 0)
+  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
   {
     return static_cast<void*>(m_SEMSignal);
   }
-  if(featureName.compare(Ebsd::Ang::Fit) == 0)
+  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
   {
     return static_cast<void*>(m_Fit);
   }
@@ -201,49 +201,49 @@ void* AngReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumType AngReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type AngReader::getPointerType(const QString& featureName)
 {
-  if(featureName.compare(Ebsd::Ang::Phi1) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::Phi) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::Phi2) == 0)
+  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::ImageQuality) == 0)
+  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::ConfidenceIndex) == 0)
+  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::PhaseData) == 0)
+  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
   {
-    return EbsdLib::Int32;
+    return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Ebsd::Ang::XPosition) == 0)
+  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::YPosition) == 0)
+  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::SEMSignal) == 0)
+  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Ebsd::Ang::Fit) == 0)
+  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
   {
-    return EbsdLib::Float;
+    return EbsdLib::NumericTypes::Type::Float;
   }
-  return EbsdLib::UnknownNumType;
+  return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -369,7 +369,7 @@ void AngReader::readData(QFile& in, QByteArray& buf)
     setErrorMessage("NumRows Sanity Check not correct. Check the entry for NROWS in the .ang file");
     return;
   }
-  if(grid.startsWith(Ebsd::Ang::SquareGrid))
+  if(grid.startsWith(EbsdLib::Ang::SquareGrid))
   {
     if(nOddCols > 0)
     {
@@ -384,13 +384,13 @@ void AngReader::readData(QFile& in, QByteArray& buf)
       totalDataPoints = 0;
     }
   }
-  else if(grid.startsWith(Ebsd::Ang::HexGrid) && !m_ReadHexGrid)
+  else if(grid.startsWith(EbsdLib::Ang::HexGrid) && !m_ReadHexGrid)
   {
     setErrorCode(-400);
     setErrorMessage("Ang Files with Hex Grids Are NOT currently supported - Try converting them to Square Grid with the Hex2Sqr Converter filter.");
     return;
   }
-  else if(grid.startsWith(Ebsd::Ang::HexGrid) && m_ReadHexGrid)
+  else if(grid.startsWith(EbsdLib::Ang::HexGrid) && m_ReadHexGrid)
   {
     bool evenRow = false;
     totalDataPoints = 0;
@@ -568,63 +568,63 @@ void AngReader::parseHeaderLine(QByteArray& buf)
   // parsing data for the phase then stick the Phase instance into the header
   // map or stick it into a vector<Phase::Pointer> and stick the vector into
   // the map under the "Phase" key
-  if(word.compare(Ebsd::Ang::Phase) == 0)
+  if(word.compare(EbsdLib::Ang::Phase) == 0)
   {
     m_CurrentPhase = AngPhase::New();
     m_CurrentPhase->setPhaseIndex(tokens.at(1).toInt(&ok, 10));
     // Parsing the phase is complete, now add it to the vector of Phases
     m_PhaseVector.push_back(m_CurrentPhase);
   }
-  else if(word.compare(Ebsd::Ang::MaterialName) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::MaterialName) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseMaterialName(tokens);
     }
   }
-  else if(word.compare(Ebsd::Ang::Formula) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::Formula) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseFormula(tokens);
     }
   }
-  else if(word.compare(Ebsd::Ang::Info) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::Info) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseInfo(tokens);
     }
   }
-  else if(word.compare(Ebsd::Ang::Symmetry) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::Symmetry) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->setSymmetry(tokens.at(1).toUInt(&ok, 10));
     }
   }
-  else if(word.compare(Ebsd::Ang::LatticeConstants) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::LatticeConstants) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseLatticeConstants(tokens);
     }
   }
-  else if(word.compare(Ebsd::Ang::NumberFamilies) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::NumberFamilies) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->setNumberFamilies(tokens.at(1).toInt(&ok, 10));
     }
   }
-  else if(word.compare(Ebsd::Ang::HKLFamilies) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word.compare(EbsdLib::Ang::HKLFamilies) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseHKLFamilies(tokens);
     }
   }
-  else if(word.startsWith(Ebsd::Ang::Categories) && m_CurrentPhase.get() != nullptr)
+  else if(word.startsWith(EbsdLib::Ang::Categories) && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
@@ -644,8 +644,8 @@ std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
 std::cout << "#define ANG_" << upper << "     \"" << word << "\"" << std::endl;
 std::cout << "const QString " << word << "(ANG_" << upper << ");" << std::endl;
 
-std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << word << "Ebsd::Ang::" << word << std::endl;
-std::cout << "m_HeaderMap[Ebsd::Ang::" << word << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(Ebsd::Ang::" << word << ");" << std::endl;
+std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << word << "EbsdLib::Ang::" << word << std::endl;
+std::cout << "m_HeaderMap[EbsdLib::Ang::" << word << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::" << word << ");" << std::endl;
 */
 #if 0
       std::cout << "<tr>\n    <td>" << word << "</td>\n    <td>" << "H5T_STRING" << "</td>\n";

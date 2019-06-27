@@ -60,6 +60,14 @@ enum InfoStringFormat
   UnknownFormat
 };
 
+namespace StringConstants
+{
+const QString Statistics("Statistics");
+const QString StatsData("StatsData");
+const QString StatsType("StatsType");
+const QString GBCD("GBCD");
+}
+
 namespace NumericTypes
 {
 namespace Names
@@ -237,21 +245,6 @@ const QString Cubic("Cubic");
 const QString Hexagonal("Hexagonal");
 } // namespace BravaisLattice
 
-enum NumType
-{
-  Int8 = 0,
-  UInt8,
-  Int16,
-  UInt16,
-  Int32,
-  UInt32,
-  Int64,
-  UInt64,
-  Float,
-  Double,
-  UnknownNumType
-};
-
 namespace AngleRepresentation
 {
 static const int Radians = 0;
@@ -297,4 +290,4 @@ static const double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.4142135623730950, 0
 // Condense some of the namespaces to same some typing later on.
 namespace LPs = LambertParametersType;
 
-} // namespace Ebsd
+} // namespace EbsdLib
