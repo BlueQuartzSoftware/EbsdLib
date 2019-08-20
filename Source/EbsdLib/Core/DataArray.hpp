@@ -149,7 +149,7 @@ public:
   : m_NumTuples(numTuples)
   , m_CompDims(std::move(compDims))
   {
-    m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), 1, std::multiplies<>());
+    m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), 1, std::multiplies<size_t>());
     m_InitValue = initValue;
     m_Array = resizeAndExtend(m_NumTuples * m_NumComponents);
   }
@@ -166,7 +166,7 @@ public:
   : m_NumTuples(numTuples)
   , m_CompDims(std::move(compDims))
   {
-    m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), 1, std::multiplies<>());
+    m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), 1, std::multiplies<size_t>());
     m_InitValue = static_cast<T>(0);
     if(allocate)
     {
@@ -311,7 +311,7 @@ public:
       return NullPointer();
     }
 
-    size_t numTuples = std::accumulate(tupleDims.begin(), tupleDims.end(), 1, std::multiplies<>());
+    size_t numTuples = std::accumulate(tupleDims.begin(), tupleDims.end(), 1, std::multiplies<size_t>());
 
     auto d = new DataArray<T>(numTuples, name, compDims, allocate);
     if(allocate)
