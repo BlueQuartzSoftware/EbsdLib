@@ -195,7 +195,7 @@ private:
   * second 32 bits.
   */
 
-#define SIMPL_RANDOMNG_NEW()                                                                                                                                                                           \
+#define EBSD_RANDOMNG_NEW()                                                                                                                                                                           \
   EbsdLibRandom rg;                                                                                                                                                                                    \
   {                                                                                                                                                                                                    \
     unsigned long long int millisSinceEpoch = static_cast<unsigned long long int>(QDateTime::currentMSecsSinceEpoch());                                                                                \
@@ -204,7 +204,7 @@ private:
     rg.init_genrand(seedPtr[AIMRNG_OFFSET]);                                                                                                                                                           \
   }
 
-#define SIMPL_RANDOMNG_NEW_SEEDED(seed)                                                                                                                                                                \
+#define EBSD_RANDOMNG_NEW_SEEDED(seed)                                                                                                                                                                \
   EbsdLibRandom rg;                                                                                                                                                                                    \
   {                                                                                                                                                                                                    \
     unsigned int* seedPtr = reinterpret_cast<unsigned int*>(&seed);                                                                                                                                    \

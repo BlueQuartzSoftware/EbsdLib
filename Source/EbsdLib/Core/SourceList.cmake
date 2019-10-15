@@ -8,7 +8,11 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdMacros.h         
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdSetGetMacros.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdTransform.h
-  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/QuaternionMath.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Orientation.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/OrientationMath.h
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/OrientationTransformation.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Quaternion.hpp
+
   )
 
 set(EbsdLib_${DIR_NAME}_SRCS

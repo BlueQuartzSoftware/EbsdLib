@@ -146,9 +146,9 @@
  * information. */
 #define EBSD_TYPE_MACRO(thisClass)                                                                                                                                                                     \
 public:                                                                                                                                                                                                \
-  const char* getNameOfClass() const                                                                                                                                                                   \
+  virtual QString getNameOfClass() const                                                                                                                                                               \
   {                                                                                                                                                                                                    \
-    return #thisClass;                                                                                                                                                                                 \
+    return QString(#thisClass);                                                                                                                                                                        \
   }                                                                                                                                                                                                    \
   static int IsTypeOf(const char* m_msgType)                                                                                                                                                           \
   {                                                                                                                                                                                                    \
@@ -162,7 +162,8 @@ public:                                                                         
   {                                                                                                                                                                                                    \
     return this->thisClass::IsTypeOf(m_msgType);                                                                                                                                                       \
   }                                                                                                                                                                                                    \
-  template <class Target, class Source> inline Target polymorphic_downcast(Source* x)                                                                                                                  \
+  template <class Target, class Source>                                                                                                                                                                \
+  inline Target polymorphic_downcast(Source* x)                                                                                                                                                        \
   {                                                                                                                                                                                                    \
     if(dynamic_cast<Target>(x) != x)                                                                                                                                                                   \
     {                                                                                                                                                                                                  \
@@ -173,9 +174,9 @@ public:                                                                         
 
 #define EBSD_TYPE_MACRO_SUPER(thisClass, superclass)                                                                                                                                                   \
 public:                                                                                                                                                                                                \
-  virtual const char* getNameOfClass() const                                                                                                                                                           \
+  virtual QString getNameOfClass() constconst                                                                                                                                                          \
   {                                                                                                                                                                                                    \
-    return #thisClass;                                                                                                                                                                                 \
+    return QString(#thisClass);                                                                                                                                                                        \
   }                                                                                                                                                                                                    \
   static int IsTypeOf(const char* m_msgType)                                                                                                                                                           \
   {                                                                                                                                                                                                    \
@@ -189,13 +190,33 @@ public:                                                                         
   {                                                                                                                                                                                                    \
     return this->thisClass::IsTypeOf(m_msgType);                                                                                                                                                       \
   }                                                                                                                                                                                                    \
-  template <class Target, class Source> static Target polymorphic_downcast(Source* x)                                                                                                                  \
+  template <class Target, class Source>                                                                                                                                                                \
+  static Target polymorphic_downcast(Source* x)                                                                                                                                                        \
   {                                                                                                                                                                                                    \
     if(dynamic_cast<Target>(x) != x)                                                                                                                                                                   \
     {                                                                                                                                                                                                  \
       return nullptr;                                                                                                                                                                                  \
     }                                                                                                                                                                                                  \
     return static_cast<Target>(x);                                                                                                                                                                     \
+  }
+
+#define EBSD_TYPE_MACRO_SUPER_OVERRIDE(thisClass, superclass)                                                                                                                                         \
+public:                                                                                                                                                                                                \
+  QString getNameOfClass() const override                                                                                                                                                              \
+  {                                                                                                                                                                                                    \
+    return QString(#thisClass);                                                                                                                                                                        \
+  }                                                                                                                                                                                                    \
+  static QString ClassName()                                                                                                                                                                           \
+  {                                                                                                                                                                                                    \
+    return QString(#thisClass);                                                                                                                                                                        \
+  }                                                                                                                                                                                                    \
+  static int IsTypeOf(const char* type)                                                                                                                                                                \
+  {                                                                                                                                                                                                    \
+    if(!strcmp(#thisClass, type))                                                                                                                                                                      \
+    {                                                                                                                                                                                                  \
+      return 1;                                                                                                                                                                                        \
+    }                                                                                                                                                                                                  \
+    return superclass::IsTypeOf(type);                                                                                                                                                                 \
   }
 
 //------------------------------------------------------------------------------

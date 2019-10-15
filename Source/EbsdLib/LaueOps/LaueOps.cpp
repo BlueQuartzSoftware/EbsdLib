@@ -39,9 +39,11 @@
 #include <limits>
 #include <random>
 
-#include "EbsdLib/Math/EbsdLibRandom.h"
 
-#include "EbsdLib/OrientationMath/OrientationTransforms.hpp"
+#include "EbsdLib/Math/EbsdLibRandom.h"
+#include "EbsdLib/Utilities/ColorTable.h"
+
+
 
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
@@ -58,20 +60,20 @@
 namespace Detail
 {
 
-// const static float m_OnePointThree = 1.33333333333f;
+// const static double m_OnePointThree = 1.33333333333f;
 
-// const static float sin_wmin_neg_1_over_2 = static_cast<float>(sinf(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
-// const static float sin_wmin_pos_1_over_2 = static_cast<float>(sinf(EbsdLib::Constants::k_ACos1 / 2.0f));
-// const static float sin_of_acos_neg_1 = sinf(EbsdLib::Constants::k_ACosNeg1);
-// const static float sin_of_acos_pos_1 = sinf(EbsdLib::Constants::k_ACos1);
+// const static double sin_wmin_neg_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
+// const static double sin_wmin_pos_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACos1 / 2.0f));
+// const static double sin_of_acos_neg_1 = sinf(EbsdLib::Constants::k_ACosNeg1);
+// const static double sin_of_acos_pos_1 = sinf(EbsdLib::Constants::k_ACos1);
 
-//  const float recip_sin_of_acos_neg_1 = 1.0f / sin_of_acos_neg_1;
-//  const float recip_sin_of_acos_pos_1 = 1.0f / sin_of_acos_pos_1;
+//  const double recip_sin_of_acos_neg_1 = 1.0f / sin_of_acos_neg_1;
+//  const double recip_sin_of_acos_pos_1 = 1.0f / sin_of_acos_pos_1;
 
-// const static float SinOfHalf = sinf(0.5f);
-// const static float CosOfHalf = cosf(0.5f);
-// const static float SinOfZero = sinf(0.0f);
-// const static float CosOfZero = cosf(0.0f);
+// const static double SinOfHalf = sinf(0.5f);
+// const static double CosOfHalf = cosf(0.5f);
+// const static double SinOfZero = sinf(0.0f);
+// const static double CosOfZero = cosf(0.0f);
 }
 
 // -----------------------------------------------------------------------------
@@ -84,45 +86,43 @@ LaueOps::LaueOps() = default;
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
 
-void LaueOps::getFZQuat(QuatF& qr)
+// -----------------------------------------------------------------------------
+QuatType LaueOps::getFZQuat(const QuatType& qr) const
 {
   Q_ASSERT(false);
+  return QuatType();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-float LaueOps::_calcMisoQuat(const QuatF quatsym[24], int numsym, QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3)
+double LaueOps::_calcMisoQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2, double& n1, double& n2, double& n3) const
 {
-  float wmin = 9999999.0f; //,na,nb,nc;
-  float w = 0;
-  float n1min = 0.0f;
-  float n2min = 0.0f;
-  float n3min = 0.0f;
-  QuatF qr;
-  QuatF qc;
-  QuatF q2inv;
+  double wmin = 9999999.0f; //,na,nb,nc;
+  double w = 0.0;
+  double n1min = 0.0f;
+  double n2min = 0.0f;
+  double n3min = 0.0f;
 
-  QuaternionMathF::Copy(q2, q2inv);
+  QuatType qc;
 
-  QuaternionMathF::Conjugate(q2inv);
-  QuaternionMathF::Multiply(q1, q2inv, qr);
+  QuatType q2inv = q2.conjugate();
+  QuatType qr = q1 * q2inv;
   for(int i = 0; i < numsym; i++)
   {
 
-    QuaternionMathF::Multiply(quatsym[i], qr, qc);
-    if(qc.w < -1)
+    qc = quatsym[i] * qr;
+
+    if(qc.w() < -1)
     {
-      qc.w = -1;
+      qc.w() = -1;
     }
-    else if(qc.w > 1)
+    else if(qc.w() > 1)
     {
-      qc.w = 1;
+      qc.w() = 1;
     }
 
-    FOrientArrayType ax(4, 0.0f);
-    FOrientTransformsType::qu2ax(FOrientArrayType(qc.x, qc.y, qc.z, qc.w), ax);
-    ax.toAxisAngle(n1, n2, n3, w);
+    OrientationTransformation::qu2ax<QuatType, OrientationType>(qc).toAxisAngle(n1, n2, n3, w);
 
     if(w > EbsdLib::Constants::k_Pi)
     {
@@ -136,7 +136,7 @@ float LaueOps::_calcMisoQuat(const QuatF quatsym[24], int numsym, QuatF& q1, Qua
       n3min = n3;
     }
   }
-  float denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
+  double denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
   n1 = n1min / denom;
   n2 = n2min / denom;
   n3 = n3min / denom;
@@ -154,13 +154,14 @@ float LaueOps::_calcMisoQuat(const QuatF quatsym[24], int numsym, QuatF& q1, Qua
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType LaueOps::_calcRodNearestOrigin(const float rodsym[24][3], int numsym, FOrientArrayType rod)
+OrientationType LaueOps::_calcRodNearestOrigin(const double rodsym[24][3], int numsym, const OrientationType& inRod) const
 {
-  float denom = 0.0f, dist = 0.0f;
-  float smallestdist = 100000000.0f;
-  float rc1 = 0.0f, rc2 = 0.0f, rc3 = 0.0f;
-  FOrientArrayType outRod(4, 0.0f);
+  double denom = 0.0f, dist = 0.0f;
+  double smallestdist = 100000000.0f;
+  double rc1 = 0.0f, rc2 = 0.0f, rc3 = 0.0f;
+  OrientationType outRod(4, 0.0f);
   // Turn into an actual 3 Comp Rodrigues Vector
+  OrientationType rod = inRod;
   rod[0] *= rod[3];
   rod[1] *= rod[3];
   rod[2] *= rod[3];
@@ -179,10 +180,10 @@ FOrientArrayType LaueOps::_calcRodNearestOrigin(const float rodsym[24][3], int n
       outRod[2] = rc3;
     }
   }
-  float mag = sqrt(outRod[0] * outRod[0] + outRod[1] * outRod[1] + outRod[2] * outRod[2]);
+  double mag = sqrt(outRod[0] * outRod[0] + outRod[1] * outRod[1] + outRod[2] * outRod[2]);
   if(mag == 0.0f)
   {
-    outRod[3] = std::numeric_limits<float>::infinity();
+    outRod[3] = std::numeric_limits<double>::infinity();
   }
   else
   {
@@ -197,66 +198,62 @@ FOrientArrayType LaueOps::_calcRodNearestOrigin(const float rodsym[24][3], int n
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void LaueOps::_calcNearestQuat(const QuatF quatsym[24], int numsym, QuatF& q1, QuatF& q2)
+QuatType LaueOps::_calcNearestQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2) const
 {
-  float dist = 0;
-  float smallestdist = 1000000.0f;
-  QuatF qc = QuaternionMath<float>::New();
-  QuatF qmax = QuaternionMath<float>::New();
-
-  QuaternionMathF::Copy(q2, qc);
+  QuatType out;
+  double dist = 0.0;
+  double smallestdist = 1000000.0f;
+  QuatType qmax;
 
   for(int i = 0; i < numsym; i++)
   {
-    QuaternionMathF::Multiply(quatsym[i], q2, qc);
-    if(qc.w < 0)
+    QuatType qc = quatsym[i] * q2;
+    if(qc.w() < 0)
     {
-      qc.x = -qc.x;
-      qc.y = -qc.y;
-      qc.z = -qc.z;
-      qc.w = -qc.w;
+      qc.negate();
     }
-    dist = static_cast<float>(1 - (qc.w * q1.w + qc.x * q1.x + qc.y * q1.y + qc.z * q1.z));
+    dist = static_cast<double>(1 - (qc.w() * q1.w() + qc.x() * q1.x() + qc.y() * q1.y() + qc.z() * q1.z()));
     if(dist < smallestdist)
     {
       smallestdist = dist;
-      QuaternionMathF::Copy(qc, qmax);
+      qmax = qc;
     }
   }
-  QuaternionMathF::Copy(qmax, q2);
-  if(q2.w < 0)
+  out = qmax;
+  if(out.w() < 0)
   {
-    QuaternionMathF::Negate(q2);
+    out.negate();
   }
+  return out;
 }
 
-void LaueOps::_calcQuatNearestOrigin(const QuatF quatsym[24], int numsym, QuatF& qr)
+QuatType LaueOps::_calcQuatNearestOrigin(const QuatType quatsym[24], int numsym, const QuatType& qr) const
 {
-  float dist = 0;
-  float smallestdist = 1000000.0f;
-  QuatF qc = QuaternionMath<float>::New();
-  QuatF qmax = QuaternionMath<float>::New();
-
-  QuaternionMathF::Copy(qr, qc);
+  double dist = 0.0;
+  double smallestdist = 1000000.0f;
+  QuatType qmax;
 
   for(int i = 0; i < numsym; i++)
   {
-    QuaternionMathF::Multiply(quatsym[i], qr, qc);
-    dist = 1 - (qc.w * qc.w);
+    QuatType qc = quatsym[i] * qr;
+
+    dist = 1 - (qc.w() * qc.w());
     if(dist < smallestdist)
     {
       smallestdist = dist;
-      QuaternionMathF::Copy(qc, qmax);
+      qmax = qc;
     }
   }
-  QuaternionMathF::Copy(qmax, qr);
-  if(qr.w < 0)
+  QuatType out = qmax;
+
+  if(out.w() < 0)
   {
-    QuaternionMathF::Negate(qr);
+    out.negate();
   }
+  return out;
 }
 
-int LaueOps::_calcMisoBin(float dim[3], float bins[3], float step[3], const FOrientArrayType& ho)
+int LaueOps::_calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& ho) const
 {
   int miso1bin = int((ho[0] + dim[0]) / step[0]);
   int miso2bin = int((ho[1] + dim[1]) / step[1]);
@@ -288,23 +285,23 @@ int LaueOps::_calcMisoBin(float dim[3], float bins[3], float step[3], const FOri
   return (static_cast<int>((bins[0] * bins[1] * miso3bin) + (bins[0] * miso2bin) + miso1bin));
 }
 
-void LaueOps::_calcDetermineHomochoricValues(uint64_t seed, float init[3], float step[3], int32_t phi[3], int choose, float& r1, float& r2, float& r3)
+void LaueOps::_calcDetermineHomochoricValues(uint64_t seed, double init[3], double step[3], int32_t phi[3], int choose, double& r1, double& r2, double& r3) const
 {
-  float random;
+  double random;
 
-  SIMPL_RANDOMNG_NEW_SEEDED(seed)
-  random = static_cast<float>(rg.genrand_res53());
+  EBSD_RANDOMNG_NEW_SEEDED(seed)
+  random = static_cast<double>(rg.genrand_res53());
   r1 = (step[0] * phi[0]) + (step[0] * random) - (init[0]);
-  random = static_cast<float>(rg.genrand_res53());
+  random = static_cast<double>(rg.genrand_res53());
   r2 = (step[1] * phi[1]) + (step[1] * random) - (init[1]);
-  random = static_cast<float>(rg.genrand_res53());
+  random = static_cast<double>(rg.genrand_res53());
   r3 = (step[2] * phi[2]) + (step[2] * random) - (init[2]);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int LaueOps::_calcODFBin(float dim[3], float bins[3], float step[3], FOrientArrayType ho)
+int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const OrientationType& ho) const
 {
   int g1euler1bin;
   int g1euler2bin;
@@ -405,7 +402,11 @@ std::vector<QString> LaueOps::GetLaueNames()
   std::vector<QString> names;
 
   std::vector<LaueOps::Pointer> ops = getOrientationOpsVector();
-  std::for_each(ops.begin(), ops.end(), [&](LaueOps::Pointer op) { names.push_back(op->getSymmetryName()); });
+  names.reserve(ops.size());
+  for(const auto& op : ops)
+  {
+    names.push_back(op->getSymmetryName());
+  }
 
   return names;
 }
@@ -413,7 +414,7 @@ std::vector<QString> LaueOps::GetLaueNames()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-size_t LaueOps::getRandomSymmetryOperatorIndex(int numSymOps)
+size_t LaueOps::getRandomSymmetryOperatorIndex(int numSymOps) const
 {
 
   using SizeTDistributionType = std::uniform_int_distribution<size_t>;
@@ -429,22 +430,4 @@ size_t LaueOps::getRandomSymmetryOperatorIndex(int numSymOps)
 
   size_t symOp = distribution(generator); // Random remaining position.
   return symOp;
-}
-
-// -----------------------------------------------------------------------------
-LaueOps::Pointer LaueOps::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
-const QString LaueOps::getNameOfClass() const
-{
-  return QString("LaueOps");
-}
-
-// -----------------------------------------------------------------------------
-QString LaueOps::ClassName()
-{
-  return QString("LaueOps");
 }

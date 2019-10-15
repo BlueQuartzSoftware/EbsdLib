@@ -39,19 +39,17 @@
 #include <QtCore/QFile>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/IO/TSL/AngReader.h"
 
-#ifdef EbsdLib_ENABLE_HDF5
+#if EbsdLib_HDF5_SUPPORT
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 #include "EbsdLib/IO/TSL/H5AngImporter.h"
 #endif
 
-#include "EbsdLib/IO/TSL/AngReader.h"
-
-
 #include "UnitTestSupport.hpp"
 
-#include "Test/EbsdLibTestFileLocations.h"
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 class AngImportTest
 {

@@ -441,17 +441,39 @@ int CtfReader::readData(QFile& in)
 {
   QString sBuf;
   QTextStream ss(&sBuf);
-  // Initialize new pointers
-  size_t yCells = getYCells();
-  size_t xCells = getXCells();
-  int zCells = getZCells();
-  int zStart = 0;
-  int zEnd = zCells;
+// Initialize new pointers
+  int32_t xCells = getXCells();
+  if(xCells < 0)
+  {
+    setErrorCode(-110);
+    QString msg;
+    QTextStream ss(&msg);
+    ss << "The number of X Cells was reported as " << xCells << ". This value must be larger than ZERO. This error can be caused by "
+       << " a missing X Cells header value, an incorrect  XCells value or a value of X Cells larger than 2^31.\n";
+    setErrorMessage(msg);
+    return -110;
+  }
+  int32_t yCells = getYCells();
+  if(yCells < 0)
+  {
+    setErrorCode(-111);
+    QString msg;
+    QTextStream ss(&msg);
+    ss << "The number of Y Cells was reported as " << yCells << ". This value must be larger than ZERO. This error can be caused by "
+       << " a missing Y Cells header value, an incorrect Y Cells value or a value of Y Cells larger than 2^31.\n";
+    setErrorMessage(msg);
+    return -111;
+  }
+
+  int32_t zCells = getZCells();
+  int32_t zStart = 0;
+  int32_t zEnd = zCells;
+
   if(zCells < 0 || m_SingleSliceRead >= 0)
   {
     zCells = 1;
   }
-  size_t totalScanPoints = yCells * xCells * zCells;
+  size_t totalScanPoints = static_cast<size_t>(yCells * xCells * zCells);
 
   setNumberOfElements(totalScanPoints);
 

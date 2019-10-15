@@ -35,7 +35,7 @@
 
 #include "TriclinicOps.h"
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
@@ -47,45 +47,35 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/OrientationMath/OrientationArray.hpp"
-#include "EbsdLib/OrientationMath/OrientationTransforms.hpp"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
-#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/ColorTable.h"
+
+#include "EbsdLib/Core/Orientation.hpp"
+
+#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 namespace Detail
 {
-  static const float TriclinicDim1InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi) - sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0f));
-  static const float TriclinicDim2InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi) - sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0f));
-  static const float TriclinicDim3InitValue = powf((0.75f * ((EbsdLib::Constants::k_Pi) - sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0f));
-  static const float TriclinicDim1StepValue = TriclinicDim1InitValue / 36.0f;
-  static const float TriclinicDim2StepValue = TriclinicDim2InitValue / 36.0f;
-  static const float TriclinicDim3StepValue = TriclinicDim3InitValue / 36.0f;
+static const double TriclinicDim1InitValue = std::pow((0.75f * ((EbsdLib::Constants::k_Pi)-sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0));
+static const double TriclinicDim2InitValue = std::pow((0.75f * ((EbsdLib::Constants::k_Pi)-sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0));
+static const double TriclinicDim3InitValue = std::pow((0.75f * ((EbsdLib::Constants::k_Pi)-sinf((EbsdLib::Constants::k_Pi)))), (1.0f / 3.0));
+static const double TriclinicDim1StepValue = TriclinicDim1InitValue / 36.0f;
+static const double TriclinicDim2StepValue = TriclinicDim2InitValue / 36.0f;
+static const double TriclinicDim3StepValue = TriclinicDim3InitValue / 36.0f;
 
-  namespace Triclinic
-  {
-    static const int symSize0 = 2;
-    static const int symSize1 = 2;
-    static const int symSize2 = 2;
-  }
-}
-
-static const QuatF TriclinicQuatSym[1] =
+namespace Triclinic
 {
-  QuaternionMathF::New(0.000000000f, 0.000000000f, 0.000000000f, 1.000000000f)
-};
+static const int symSize0 = 2;
+static const int symSize1 = 2;
+static const int symSize2 = 2;
+} // namespace Triclinic
+} // namespace Detail
 
+static const QuatType TriclinicQuatSym[1] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
 
-static const float TriclinicRodSym[1][3] = {{0.0f, 0.0f, 0.0f}};
+static const double TriclinicRodSym[1][3] = {{0.0, 0.0, 0.0}};
 
-
-static const float TriclinicMatSym[1][3][3] =
-{
-  { {1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}
-  }
-};
+static const double TriclinicMatSym[1][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
 
 using namespace Detail;
 
@@ -102,7 +92,7 @@ TriclinicOps::~TriclinicOps() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool TriclinicOps::getHasInversion()
+bool TriclinicOps::getHasInversion() const
 {
   return true;
 }
@@ -110,7 +100,7 @@ bool TriclinicOps::getHasInversion()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getODFSize()
+int TriclinicOps::getODFSize() const
 {
   return k_OdfSize;
 }
@@ -118,7 +108,7 @@ int TriclinicOps::getODFSize()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getMDFSize()
+int TriclinicOps::getMDFSize() const
 {
   return k_MdfSize;
 }
@@ -126,7 +116,7 @@ int TriclinicOps::getMDFSize()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getNumSymOps()
+int TriclinicOps::getNumSymOps() const
 {
   return k_NumSymQuats;
 }
@@ -142,48 +132,58 @@ QString TriclinicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-float TriclinicOps::getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3)
+double TriclinicOps::getMisoQuat(QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const
 {
+  return _calcMisoQuat(TriclinicQuatSym, k_NumSymQuats, q1, q2, n1, n2, n3);
+}
 
-  int numsym = 1;
-
-  return _calcMisoQuat(TriclinicQuatSym, numsym, q1, q2, n1, n2, n3);
+// -----------------------------------------------------------------------------
+float TriclinicOps::getMisoQuat(QuatF& q1f, QuatF& q2f, float& n1f, float& n2f, float& n3f) const
+{
+  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  double n1 = n1f;
+  double n2 = n2f;
+  double n3 = n3f;
+  float w = static_cast<float>(_calcMisoQuat(TriclinicQuatSym, k_NumSymQuats, q1, q2, n1, n2, n3));
+  n1f = n1;
+  n2f = n2;
+  n3f = n3;
+  return w;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-float TriclinicOps::_calcMisoQuat(const QuatF quatsym[24], int numsym,
-                                  QuatF& q1, QuatF& q2,
-                                  float& n1, float& n2, float& n3)
+double TriclinicOps::_calcMisoQuat(const QuatType quatsym[24], int numsym, QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const
 {
-  float wmin = 9999999.0f; //,na,nb,nc;
-  float w = 0;
-  float n1min = 0.0f;
-  float n2min = 0.0f;
-  float n3min = 0.0f;
-  QuatF qr;
-  QuatF qc;
-  QuatF q2inv;
-  QuaternionMathF::Copy(q2, q2inv);
-  QuaternionMathF::Conjugate(q2inv);
+  double wmin = 9999999.0f; //,na,nb,nc;
+  double w = 0.0;
+  double n1min = 0.0f;
+  double n2min = 0.0f;
+  double n3min = 0.0f;
+  QuatType qc;
 
-  QuaternionMathF::Multiply(q1, q2inv, qr);
+  QuatType qr = q1 * (q2.conjugate());
+
   for (int i = 0; i < numsym; i++)
   {
-    QuaternionMathF::Multiply(quatsym[i], qr, qc);
-    if (qc.w < -1)
+    qc = quatsym[i] * qr;
+
+    if(qc.w() < -1)
     {
-      qc.w = -1;
+      qc.w() = -1.0;
     }
-    else if (qc.w > 1)
+    else if(qc.w() > 1)
     {
-      qc.w = 1;
+      qc.w() = 1.0;
     }
 
-    FOrientArrayType ax(4, 0.0f);
-    FOrientTransformsType::qu2ax(FOrientArrayType(qc.x, qc.y, qc.z, qc.w), ax);
-    ax.toAxisAngle(n1, n2, n3, w);
+    OrientationType ax = OrientationTransformation::qu2ax<QuatType, OrientationType>(qc);
+    n1 = ax[0];
+    n2 = ax[1];
+    n3 = ax[2];
+    w = ax[3];
 
     if (w > EbsdLib::Constants::k_Pi)
     {
@@ -197,7 +197,7 @@ float TriclinicOps::_calcMisoQuat(const QuatF quatsym[24], int numsym,
       n3min = n3;
     }
   }
-  float denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
+  double denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
   n1 = n1min / denom;
   n2 = n2min / denom;
   n3 = n3min / denom;
@@ -210,22 +210,21 @@ float TriclinicOps::_calcMisoQuat(const QuatF quatsym[24], int numsym,
     n1 = 0.0, n2 = 0.0, n3 = 1.0;
   }
   return wmin;
-
 }
 
-void TriclinicOps::getQuatSymOp(int i, QuatF& q)
+QuatType TriclinicOps::getQuatSymOp(int32_t i) const
 {
-  QuaternionMathF::Copy(TriclinicQuatSym[i], q);
+  return TriclinicQuatSym[i];
 }
 
-void TriclinicOps::getRodSymOp(int i, float* r)
+void TriclinicOps::getRodSymOp(int i, double* r) const
 {
   r[0] = TriclinicRodSym[i][0];
   r[1] = TriclinicRodSym[i][1];
   r[2] = TriclinicRodSym[i][2];
 }
 
-void TriclinicOps::getMatSymOp(int i, float g[3][3])
+void TriclinicOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = TriclinicMatSym[i][0][0];
   g[0][1] = TriclinicMatSym[i][0][1];
@@ -238,10 +237,22 @@ void TriclinicOps::getMatSymOp(int i, float g[3][3])
   g[2][2] = TriclinicMatSym[i][2][2];
 }
 
+void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
+{
+  g[0][0] = TriclinicMatSym[i][0][0];
+  g[0][1] = TriclinicMatSym[i][0][1];
+  g[0][2] = TriclinicMatSym[i][0][2];
+  g[1][0] = TriclinicMatSym[i][1][0];
+  g[1][1] = TriclinicMatSym[i][1][1];
+  g[1][2] = TriclinicMatSym[i][1][2];
+  g[2][0] = TriclinicMatSym[i][2][0];
+  g[2][1] = TriclinicMatSym[i][2][1];
+  g[2][2] = TriclinicMatSym[i][2][2];
+}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType TriclinicOps::getODFFZRod(FOrientArrayType rod)
+OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 {
   int numsym = 1;
 
@@ -251,48 +262,41 @@ FOrientArrayType TriclinicOps::getODFFZRod(FOrientArrayType rod)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType TriclinicOps::getMDFFZRod(FOrientArrayType rod)
+OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  float w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
-  float FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
+  OrientationType rod = LaueOps::_calcRodNearestOrigin(TriclinicRodSym, 1, inRod);
 
-  rod = LaueOps::_calcRodNearestOrigin(TriclinicRodSym, 1, rod);
-  FOrientArrayType ax(4, 0.0f);
-  OrientationTransforms<FOrientArrayType, float>::ro2ax(rod, ax);
-  n1 = ax[0];
-  n2 = ax[1], n3 = ax[2], w = ax[3];
+  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
-  FZn1 = n1;
-  FZn2 = n2;
-  FZn3 = n3;
-  FZw = w;
-
-  ax.fromAxisAngle(FZn1, FZn2, FZn3, FZw);
-  OrientationTransforms<FOrientArrayType, float>::ax2ro(ax, rod);
-  return rod;
+  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(ax);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TriclinicOps::getNearestQuat(QuatF& q1, QuatF& q2)
+QuatType TriclinicOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
 {
-  int numsym = 1;
-
-  _calcNearestQuat(TriclinicQuatSym, numsym, q1, q2);
+  return _calcNearestQuat(TriclinicQuatSym, k_NumSymQuats, q1, q2);
+}
+QuatF TriclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
+{
+  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatType temp = _calcNearestQuat(TriclinicQuatSym, k_NumSymQuats, q1, q2);
+  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
+  return out;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getMisoBin(FOrientArrayType rod)
+int TriclinicOps::getMisoBin(const OrientationType& rod) const
 {
-  float dim[3];
-  float bins[3];
-  float step[3];
+  double dim[3];
+  double bins[3];
+  double step[3];
 
-  FOrientArrayType ho(3);
-  OrientationTransforms<FOrientArrayType, float>::ro2ho(rod, ho);
+  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
   dim[0] = Detail::TriclinicDim1InitValue;
   dim[1] = Detail::TriclinicDim2InitValue;
@@ -310,12 +314,12 @@ int TriclinicOps::getMisoBin(FOrientArrayType rod)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType TriclinicOps::determineEulerAngles(uint64_t seed, int choose)
+OrientationType TriclinicOps::determineEulerAngles(uint64_t seed, int choose) const
 {
-  float init[3];
-  float step[3];
+  double init[3];
+  double step[3];
   int32_t phi[3];
-  float h1, h2, h3;
+  double h1, h2, h3;
 
   init[0] = Detail::TriclinicDim1InitValue;
   init[1] = Detail::TriclinicDim2InitValue;
@@ -329,44 +333,33 @@ FOrientArrayType TriclinicOps::determineEulerAngles(uint64_t seed, int choose)
 
   _calcDetermineHomochoricValues(seed, init, step, phi, choose, h1, h2, h3);
 
-  FOrientArrayType ho(h1, h2, h3);
-  FOrientArrayType ro(4);
-  OrientationTransforms<FOrientArrayType, float>::ho2ro(ho, ro);
-
+  OrientationType ho(h1, h2, h3);
+  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
   ro = getODFFZRod(ro);
-  FOrientArrayType eu(4);
-  OrientationTransforms<FOrientArrayType, float>::ro2eu(ro, eu);
+  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType TriclinicOps::randomizeEulerAngles(FOrientArrayType synea)
+OrientationType TriclinicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  QuatF q;
-  QuatF qc;
   size_t symOp = getRandomSymmetryOperatorIndex(k_NumSymQuats);
-
-  FOrientArrayType quat(4, 0.0f);
-  OrientationTransforms<FOrientArrayType, float>::eu2qu(synea, quat);
-  q = quat.toQuaternion();
-  QuaternionMathF::Multiply(TriclinicQuatSym[symOp], q, qc);
-
-  quat.fromQuaternion(qc);
-  OrientationTransforms<FOrientArrayType, float>::qu2eu(quat, synea);
-  return synea;
+  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
+  QuatType qc = TriclinicQuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FOrientArrayType TriclinicOps::determineRodriguesVector(uint64_t seed, int choose)
+OrientationType TriclinicOps::determineRodriguesVector(uint64_t seed, int choose) const
 {
-  float init[3];
-  float step[3];
+  double init[3];
+  double step[3];
   int32_t phi[3];
-  float h1, h2, h3;
+  double h1, h2, h3;
 
   init[0] = Detail::TriclinicDim1InitValue;
   init[1] = Detail::TriclinicDim2InitValue;
@@ -379,9 +372,8 @@ FOrientArrayType TriclinicOps::determineRodriguesVector(uint64_t seed, int choos
   phi[2] = static_cast<int32_t>(choose / (72 * 72));
 
   _calcDetermineHomochoricValues(seed, init, step, phi, choose, h1, h2, h3);
-  FOrientArrayType ho(h1, h2, h3);
-  FOrientArrayType ro(4);
-  OrientationTransforms<FOrientArrayType, float>::ho2ro(ho, ro);
+  OrientationType ho(h1, h2, h3);
+  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -389,14 +381,13 @@ FOrientArrayType TriclinicOps::determineRodriguesVector(uint64_t seed, int choos
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getOdfBin(FOrientArrayType rod)
+int TriclinicOps::getOdfBin(const OrientationType& rod) const
 {
-  float dim[3];
-  float bins[3];
-  float step[3];
+  double dim[3];
+  double bins[3];
+  double step[3];
 
-  FOrientArrayType ho(3);
-  OrientationTransforms<FOrientArrayType, float>::ro2ho(rod, ho);
+  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
   dim[0] = Detail::TriclinicDim1InitValue;
   dim[1] = Detail::TriclinicDim2InitValue;
@@ -411,13 +402,13 @@ int TriclinicOps::getOdfBin(FOrientArrayType rod)
   return _calcODFBin(dim, bins, step, ho);
 }
 
-void TriclinicOps::getSchmidFactorAndSS(float load[3], float& schmidfactor, float angleComps[2], int& slipsys)
+void TriclinicOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
   schmidfactor = 0;
   slipsys = 0;
 }
 
-void TriclinicOps::getSchmidFactorAndSS(float load[3], float plane[3], float direction[3], float& schmidfactor, float angleComps[2], int& slipsys)
+void TriclinicOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
   schmidfactor = 0;
   slipsys = 0;
@@ -425,9 +416,9 @@ void TriclinicOps::getSchmidFactorAndSS(float load[3], float plane[3], float dir
   angleComps[1] = 0;
 
   //compute mags
-  float loadMag = sqrt( load[0] * load[0] + load[1] * load[1] + load[2] * load[2] );
-  float planeMag = sqrt( plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2] );
-  float directionMag = sqrt( direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2] );
+  double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
+  double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+  double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
@@ -435,7 +426,7 @@ void TriclinicOps::getSchmidFactorAndSS(float load[3], float plane[3], float dir
   for(int i = 0; i < k_NumSymQuats; i++)
   {
     //compute slip system
-    float slipPlane[3] = {0};
+    double slipPlane[3] = {0};
     slipPlane[2] = TriclinicMatSym[i][2][0] * plane[0] + TriclinicMatSym[i][2][1] * plane[1] + TriclinicMatSym[i][2][2] * plane[2];
 
     //dont consider negative z planes (to avoid duplicates)
@@ -444,15 +435,15 @@ void TriclinicOps::getSchmidFactorAndSS(float load[3], float plane[3], float dir
       slipPlane[0] = TriclinicMatSym[i][0][0] * plane[0] + TriclinicMatSym[i][0][1] * plane[1] + TriclinicMatSym[i][0][2] * plane[2];
       slipPlane[1] = TriclinicMatSym[i][1][0] * plane[0] + TriclinicMatSym[i][1][1] * plane[1] + TriclinicMatSym[i][1][2] * plane[2];
 
-      float slipDirection[3] = {0};
+      double slipDirection[3] = {0};
       slipDirection[0] = TriclinicMatSym[i][0][0] * direction[0] + TriclinicMatSym[i][0][1] * direction[1] + TriclinicMatSym[i][0][2] * direction[2];
       slipDirection[1] = TriclinicMatSym[i][1][0] * direction[0] + TriclinicMatSym[i][1][1] * direction[1] + TriclinicMatSym[i][1][2] * direction[2];
       slipDirection[2] = TriclinicMatSym[i][2][0] * direction[0] + TriclinicMatSym[i][2][1] * direction[1] + TriclinicMatSym[i][2][2] * direction[2];
 
-      float cosPhi = fabs( load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2] ) / planeMag;
-      float cosLambda = fabs( load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2] ) / directionMag;
+      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
-      float schmid = cosPhi * cosLambda;
+      double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
       {
         schmidfactor = schmid;
@@ -464,24 +455,24 @@ void TriclinicOps::getSchmidFactorAndSS(float load[3], float plane[3], float dir
   }
 }
 
-void TriclinicOps::getmPrime(QuatF& q1, QuatF& q2, float LD[3], float& mPrime)
+double TriclinicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
 {
-  mPrime = 0;
+  return 0.0;
 }
 
-void TriclinicOps::getF1(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1)
+double TriclinicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
 {
-  F1 = 0;
+  return 0.0;
 }
 
-void TriclinicOps::getF1spt(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1spt)
+double TriclinicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
 {
-  F1spt = 0;
+  return 0.0;
 }
 
-void TriclinicOps::getF7(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F7)
+double TriclinicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
 {
-  F7 = 0;
+  return 0.0;
 }
 // -----------------------------------------------------------------------------
 //
@@ -508,17 +499,16 @@ namespace Detail
 
         void generate(size_t start, size_t end) const
         {
-          float g[3][3];
-          float gTranpose[3][3];
-          float direction[3] = {0.0, 0.0, 0.0};
+          double g[3][3];
+          double gTranpose[3][3];
+          double direction[3] = {0.0, 0.0, 0.0};
 
           // Geneate all the Coordinates
           for(size_t i = start; i < end; ++i)
           {
-            FOrientArrayType eu(m_Eulers->getPointer(i * 3), 3);
-            FOrientArrayType om(9, 0.0);
-            OrientationTransforms<FOrientArrayType, float>::eu2om(eu, om);
-            om.toGMatrix(g);
+            OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+            OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+
             MatrixMath::Transpose3x3(g, gTranpose);
 
             // -----------------------------------------------------------------------------
@@ -528,8 +518,7 @@ namespace Detail
             direction[2] = 1.0;
             MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
             MatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1);
-
+            MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 011 Family
@@ -538,8 +527,7 @@ namespace Detail
             direction[2] = 0.0;
             MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
             MatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1);
-
+            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 111 Family
@@ -548,12 +536,12 @@ namespace Detail
             direction[2] = 0;
             MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
             MatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1);
+            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
           }
 
         }
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
         void operator()(const tbb::blocked_range<size_t>& r) const
         {
           generate(r.begin(), r.end());
@@ -566,7 +554,7 @@ namespace Detail
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TriclinicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* xyz001, FloatArrayType* xyz011, FloatArrayType* xyz111)
+void TriclinicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* xyz001, FloatArrayType* xyz011, FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -585,12 +573,12 @@ void TriclinicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatA
     xyz111->resizeTuples(nOrientations * Detail::Triclinic::symSize2 * 3);
   }
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 #endif
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
   if(doParallel)
   {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations),
@@ -609,7 +597,7 @@ void TriclinicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatA
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool TriclinicOps::inUnitTriangle(float eta, float chi)
+bool TriclinicOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < 0 || eta > (180.0 * EbsdLib::Constants::k_PiOver180) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
 }
@@ -617,7 +605,7 @@ bool TriclinicOps::inUnitTriangle(float eta, float chi)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TriclinicOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees)
+EbsdLib::Rgb TriclinicOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const
 {
   return generateIPFColor(eulers[0], eulers[1], eulers[2], refDir[0], refDir[1], refDir[2], convertDegrees);
 }
@@ -625,7 +613,7 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double* eulers, double* refDir, bool
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad)
+EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
   if(degToRad)
   {
@@ -633,29 +621,21 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
     phi = phi * EbsdLib::Constants::k_DegToRad;
     phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
   }
-  QuatF qc;
-  QuatF q2;
-  QuatF q1;
-  float g[3][3];
-  float p[3];
-  float refDirection[3];
-  float eta = 0.0f, chi = 0.0f;
-  float _rgb[3] = { 0.0, 0.0, 0.0 };
 
-  FOrientArrayType eu(phi1, phi, phi2);
-  FOrientArrayType qu(4);
-  FOrientArrayType om(9); // Reusable for the loop
-  OrientationTransforms<FOrientArrayType, float>::eu2qu(eu, qu);
-  q1 = qu.toQuaternion();
+  double g[3][3];
+  double p[3];
+  double refDirection[3] = {0.0f, 0.0f, 0.0f};
+  double chi = 0.0f, eta = 0.0f;
+  double _rgb[3] = {0.0, 0.0, 0.0};
 
-  for (int j = 0; j < 1; j++)
+  OrientationType eu(phi1, phi, phi2);
+  OrientationType om(9); // Reusable for the loop
+  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+
+  for(int j = 0; j < k_NumSymQuats; j++)
   {
-    getQuatSymOp(j, q2);
-    QuaternionMathF::Multiply(q2, q1, qc);
-
-    qu.fromQuaternion(qc);
-    OrientationTransforms<FOrientArrayType, float>::qu2om(qu, om);
-    om.toGMatrix(g);
+    QuatType qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -671,21 +651,21 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
     {
       p[0] = -p[0], p[1] = -p[1], p[2] = -p[2];
     }
-    chi = acos(p[2]);
-    eta = atan2(p[1], p[0]);
+    chi = std::acos(p[2]);
+    eta = std::atan2(p[1], p[0]);
     if(!inUnitTriangle(eta, chi))
     {
       continue;
     }
 
-      break;
+    break;
   }
 
-  float etaMin = 0.0;
-  float etaMax = 180.0;
-  float chiMax = 90.0;
-  float etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  float chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaMin = 0.0;
+  double etaMax = 180.0;
+  double chiMax = 90.0;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
@@ -696,7 +676,7 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
   _rgb[1] = sqrt(_rgb[1]);
   _rgb[2] = sqrt(_rgb[2]);
 
-  float max = _rgb[0];
+  double max = _rgb[0];
   if (_rgb[1] > max)
   {
     max = _rgb[1];
@@ -716,17 +696,17 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TriclinicOps::generateRodriguesColor(float r1, float r2, float r3)
+EbsdLib::Rgb TriclinicOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  float range1 = 2.0f * TriclinicDim1InitValue;
-  float range2 = 2.0f * TriclinicDim2InitValue;
-  float range3 = 2.0f * TriclinicDim3InitValue;
-  float max1 = range1 / 2.0f;
-  float max2 = range2 / 2.0f;
-  float max3 = range3 / 2.0f;
-  float red = (r1 + max1) / range1;
-  float green = (r2 + max2) / range2;
-  float blue = (r3 + max3) / range3;
+  double range1 = 2.0f * TriclinicDim1InitValue;
+  double range2 = 2.0f * TriclinicDim2InitValue;
+  double range3 = 2.0f * TriclinicDim3InitValue;
+  double max1 = range1 / 2.0f;
+  double max2 = range2 / 2.0f;
+  double max3 = range3 / 2.0f;
+  double red = (r1 + max1) / range1;
+  double green = (r2 + max2) / range2;
+  double blue = (r3 + max3) / range3;
 
   // Scale values from 0 to 1.0
   red = red / max1;
@@ -740,7 +720,7 @@ EbsdLib::Rgb TriclinicOps::generateRodriguesColor(float r1, float r2, float r3)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config)
+QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   QString label0 = QString("<001>");
   QString label1 = QString("<100>");
@@ -757,11 +737,11 @@ QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConf
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  FloatArrayType::Pointer xyz001 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize0, dims, label0 + QString("xyzCoords"));
+  FloatArrayType::Pointer xyz001 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize0, dims, label0 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  FloatArrayType::Pointer xyz011 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize1, dims, label1 + QString("xyzCoords"));
+  FloatArrayType::Pointer xyz011 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize1, dims, label1 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  FloatArrayType::Pointer xyz111 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize2, dims, label2 + QString("xyzCoords"));
+  FloatArrayType::Pointer xyz111 = FloatArrayType::CreateArray(numOrientations * Detail::Triclinic::symSize2, dims, label2 + QString("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -771,10 +751,10 @@ QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConf
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  DoubleArrayType::Pointer intensity001 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image");
-  DoubleArrayType::Pointer intensity011 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image");
-  DoubleArrayType::Pointer intensity111 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image");
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+  DoubleArrayType::Pointer intensity001 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  DoubleArrayType::Pointer intensity011 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  DoubleArrayType::Pointer intensity111 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 
@@ -849,9 +829,9 @@ QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConf
   config.maxScale = max;
 
   dims[0] = 4;
-  UInt8ArrayType::Pointer image001 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0);
-  UInt8ArrayType::Pointer image011 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1);
-  UInt8ArrayType::Pointer image111 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2);
+  UInt8ArrayType::Pointer image001 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
+  UInt8ArrayType::Pointer image011 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
+  UInt8ArrayType::Pointer image111 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
   QVector<UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
@@ -866,7 +846,7 @@ QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConf
     poleFigures[2] = image111;
   }
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef EBSD_USE_PARALLEL_ALGORITHMS
 
   if(doParallel)
   {
@@ -894,29 +874,28 @@ QVector<UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConf
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim)
+UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim) const
 {
 
   std::vector<size_t> dims(1, 4);
-  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend");
+  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
-  float xInc = 1.0f / static_cast<float>(imageDim);
-  float yInc = 1.0f / static_cast<float>(imageDim);
-  float rad = 1.0f;
+  double xInc = 1.0f / static_cast<double>(imageDim);
+  double yInc = 1.0f / static_cast<double>(imageDim);
+  double rad = 1.0f;
 
-  float x = 0.0f;
-  float y = 0.0f;
-  float a = 0.0f;
-  float b = 0.0f;
-  float c = 0.0f;
+  double x = 0.0f;
+  double y = 0.0f;
+  double a = 0.0f;
+  double b = 0.0f;
+  double c = 0.0f;
 
-  float val = 0.0f;
-  float x1 = 0.0f;
-  float y1 = 0.0f;
-  float z1 = 0.0f;
-  float denom = 0.0f;
-
+  double val = 0.0f;
+  double x1 = 0.0f;
+  double y1 = 0.0f;
+  double z1 = 0.0f;
+  double denom = 0.0f;
 
   EbsdLib::Rgb color;
   size_t idx = 0;
@@ -933,8 +912,8 @@ UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim)
       x =  -1.0f + 2.0f * xIndex * xInc;
       y = -1.0f + 2.0f * yIndex * yInc;
 
-      float sumSquares = (x * x) + (y * y);
-      if( sumSquares > 1.0f) // Outside unit circle
+      double sumSquares = (x * x) + (y * y);
+      if(sumSquares > 1.0) // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
@@ -972,7 +951,7 @@ UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TriclinicOps::generateMisorientationColor(const QuatF& q, const QuatF& refFrame)
+EbsdLib::Rgb TriclinicOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
 {
   EbsdLib::Rgb rgb = RgbColor::dRgb(0, 0, 0, 0);
 
@@ -981,27 +960,3 @@ EbsdLib::Rgb TriclinicOps::generateMisorientationColor(const QuatF& q, const Qua
   return rgb;
 }
 
-// -----------------------------------------------------------------------------
-TriclinicOps::Pointer TriclinicOps::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
-const QString TriclinicOps::getNameOfClass() const
-{
-  return QString("TriclinicOps");
-}
-
-// -----------------------------------------------------------------------------
-QString TriclinicOps::ClassName()
-{
-  return QString("TriclinicOps");
-}
-
-// -----------------------------------------------------------------------------
-TriclinicOps::Pointer TriclinicOps::New()
-{
-  Pointer sharedPtr(new(TriclinicOps));
-  return sharedPtr;
-}

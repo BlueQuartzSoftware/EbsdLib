@@ -33,11 +33,12 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
 #pragma once
 
-#include "EbsdLib/Core/QuaternionMath.hpp"
+#include "SIMPLib/SIMPLib.h"
 
-#include "EbsdLib/EbsdLib.h"
+#include "OrientationLib/OrientationLib.h"
 
 
 /**
@@ -49,7 +50,7 @@
  * @date Jul 30, 2014
  * @version 5.1
  */
-class EbsdLib_EXPORT OrientationMath
+class OrientationLib_EXPORT OrientationMath
 {
   public:
 

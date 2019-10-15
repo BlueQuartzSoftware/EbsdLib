@@ -42,6 +42,8 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
+#include "EbsdLib/EbsdLib.h"
+
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Texture/Texture.hpp"
 
@@ -56,9 +58,7 @@
 class StatsGen
 {
 public:
-  virtual ~StatsGen()
-  {
-  }
+  virtual ~StatsGen() = default;
 
   /**
    * @brief Generates  XY Scatter plot data for a Beta Distribution function
@@ -78,7 +78,7 @@ public:
     y.resize(size);
     for(int i = 0; i < size; i++)
     {
-      betain = (i * (1.0f / float(size))) + ((1.0f / float(size)) / 2.0f);
+      betain = (i * (1.0 / float(size))) + ((1.0 / float(size)) / 2.0);
       betaout = powf(betain, (alpha - 1)) * powf((1 - betain), (beta - 1));
       x[i] = betain;
       y[i] = betaout;
@@ -114,21 +114,21 @@ public:
     int err = 0;
     float max, min;
     float stdDevSqr2 = sigma * sigma * 2.0f;
-    float root2pi = powf(EbsdLib::Constants::k_2Pi, 0.5f);
+    float root2pi = powf((float)(M_2PI), 0.5);
     x.resize(size);
     y.resize(size);
     min = exp(mu - (minCutOff * sigma));
     max = exp(mu + (maxCutOff * sigma));
 
     float mmSize = (max - min) / static_cast<float>(size);
-    float mmSizeOver2 = mmSize * 0.5f;
+    float mmSizeOver2 = mmSize * 0.5;
 
     for(int i = 0; i < size; i++)
     {
       float logNormIn = (i * mmSize) + mmSizeOver2 + min;
       float expTerm = log(logNormIn) - mu;
       expTerm = expTerm * expTerm;
-      float logNormOut = (1.0f / (logNormIn * sigma * root2pi)) * exp(-(expTerm / stdDevSqr2));
+      float logNormOut = (1.0 / (logNormIn * sigma * root2pi)) * exp(-(expTerm / stdDevSqr2));
       x[i] = logNormIn;
       y[i] = logNormOut * mmSize;
       if(logNormOut < 0)
@@ -159,7 +159,7 @@ public:
     max = 3;
     for(int i = 0; i < size; i++)
     {
-      in = (i * ((max - min) / float(size))) + (((max - min) / float(size)) / 2.0f) + min;
+      in = (i * ((max - min) / float(size))) + (((max - min) / float(size)) / 2.0) + min;
       out = alpha * powf(in, k) + beta;
       x[i] = in;
       y[i] = out;
@@ -237,8 +237,8 @@ public:
    */
   template <typename T> static int GenCubicODFPlotData(const T* odf, T* eulers, size_t npoints)
   {
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
     T totaldensity;
@@ -264,7 +264,7 @@ public:
           break;
         }
       }
-      FOrientArrayType eu = ops.determineEulerAngles(m_Seed, choose);
+      OrientationD eu = ops.determineEulerAngles(m_Seed, choose);
       eulers[3 * i + 0] = eu[0];
       eulers[3 * i + 1] = eu[1];
       eulers[3 * i + 2] = eu[2];
@@ -285,8 +285,8 @@ public:
    */
   template <typename T> static int GenHexODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
     float totaldensity;
@@ -311,7 +311,7 @@ public:
           break;
         }
       }
-      FOrientArrayType eu = ops.determineEulerAngles(m_Seed, choose);
+      OrientationD eu = ops.determineEulerAngles(m_Seed, choose);
       eulers[3 * i + 0] = eu[0];
       eulers[3 * i + 1] = eu[1];
       eulers[3 * i + 2] = eu[2];
@@ -332,8 +332,8 @@ public:
    */
   template <typename T> static int GenOrthoRhombicODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
     float totaldensity;
@@ -358,7 +358,7 @@ public:
           break;
         }
       }
-      FOrientArrayType eu = ops.determineEulerAngles(m_Seed, choose);
+      OrientationD eu = ops.determineEulerAngles(m_Seed, choose);
       eulers[3 * i + 0] = eu[0];
       eulers[3 * i + 1] = eu[1];
       eulers[3 * i + 2] = eu[2];
@@ -388,8 +388,8 @@ public:
    */
   template <typename T> static int GenAxisODFPlotData(T* odf, T* eulers, int npoints)
   {
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
     int err = 0;
     int choose;
     float totaldensity;
@@ -414,7 +414,7 @@ public:
           break;
         }
       }
-      FOrientArrayType eu = ops.determineEulerAngles(m_Seed, choose);
+      OrientationD eu = ops.determineEulerAngles(m_Seed, choose);
       eulers[3 * i + 0] = eu[0];
       eulers[3 * i + 1] = eu[1];
       eulers[3 * i + 2] = eu[2];
@@ -435,8 +435,8 @@ public:
   {
     float radtodeg = 180.0f / float(M_PI);
 
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
 
     int err = 0;
     float density;
@@ -470,9 +470,8 @@ public:
           break;
         }
       }
-      FOrientArrayType rod = ops.determineRodriguesVector(m_Seed, choose);
-      FOrientArrayType ax(4, 0.0);
-      FOrientTransformsType::ro2ax(rod, ax);
+      OrientationD rod = ops.determineRodriguesVector(m_Seed, choose);
+      OrientationD ax = OrientationTransformation::ro2ax<OrientationD, OrientationD>(rod);
 
       w = ax[3] * radtodeg;
       yval[int(w / 5.0)]++;
@@ -498,8 +497,8 @@ public:
   {
     float radtodeg = 180.0f / float(M_PI);
 
-    uint64_t m_Seed = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch());
-    SIMPL_RANDOMNG_NEW_SEEDED(m_Seed);
+    uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
+    EBSD_RANDOMNG_NEW_SEEDED(m_Seed);
 
     int err = 0;
     int choose = 0;
@@ -531,9 +530,8 @@ public:
           break;
         }
       }
-      FOrientArrayType rod = ops.determineRodriguesVector(m_Seed, choose);
-      FOrientArrayType ax(4, 0.0);
-      FOrientTransformsType::ro2ax(rod, ax);
+      OrientationD rod = ops.determineRodriguesVector(m_Seed, choose);
+      OrientationD ax = OrientationTransformation::ro2ax<OrientationD, OrientationD>(rod);
 
       float w = ax[3] * radtodeg;
       size_t index = static_cast<size_t>(w / 5.0f);
@@ -548,12 +546,11 @@ public:
   }
 
 protected:
-  StatsGen()
-  {
-  }
+  StatsGen() = default;
 
-private:
-  StatsGen(const StatsGen&);       // Copy Constructor Not Implemented
-  void operator=(const StatsGen&); // Move assignment Not Implemented
+public:
+  StatsGen(const StatsGen&) = delete;            // Copy Constructor Not Implemented
+  StatsGen(StatsGen&&) = delete;                 // Move Constructor Not Implemented
+  StatsGen& operator=(const StatsGen&) = delete; // Copy Assignment Not Implemented
+  StatsGen& operator=(StatsGen&&) = delete;      // Move Assignment Not Implemented
 };
-

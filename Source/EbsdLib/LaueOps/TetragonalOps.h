@@ -35,9 +35,12 @@
 #pragma once
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/QuaternionMath.hpp"
-#include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/DataArray.hpp"
+
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/LaueOps.h"
+
 /**
  * @class TetragonalOps TetragonalOps.h DREAM3DLib/Common/LaueOps/TetragonalOps.h
  * @brief
@@ -49,23 +52,10 @@
 class EbsdLib_EXPORT TetragonalOps : public LaueOps
 {
   public:
-    using Self = TetragonalOps;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+    EBSD_SHARED_POINTERS(TetragonalOps)
+     EBSD_TYPE_MACRO_SUPER_OVERRIDE(TetragonalOps, LaueOps)
+    EBSD_STATIC_NEW_MACRO(TetragonalOps)
 
-    /**
-     * @brief Returns the name of the class for TetragonalOps
-     */
-    const QString getNameOfClass() const override;
-    /**
-     * @brief Returns the name of the class for TetragonalOps
-     */
-    static QString ClassName();
-
-    static Pointer New();
 
     TetragonalOps();
     ~TetragonalOps() override;
@@ -78,25 +68,25 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @brief getHasInversion Returns if this Laue class has inversion
      * @return
      */
-    bool getHasInversion() override;
+    bool getHasInversion() const override;
 
     /**
      * @brief getODFSize Returns the number of ODF bins
      * @return
      */
-    int getODFSize() override;
+    int getODFSize() const override;
 
     /**
      * @brief getMDFSize Returns the number of MDF bins
      * @return
      */
-    int getMDFSize() override;
+    int getMDFSize() const override;
 
     /**
      * @brief getNumSymOps Returns the number of symmetry operators
      * @return
      */
-    int getNumSymOps() override;
+    int getNumSymOps() const override;
 
     /**
      * @brief getSymmetryName Returns the name of the Laue class
@@ -104,27 +94,35 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      */
     QString getSymmetryName() const override;
 
-    float getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3) override;
-    void getQuatSymOp(int i, QuatF& q) override;
-    void getRodSymOp(int i, float* r) override;
-    void getMatSymOp(int i, float g[3][3]) override;
-    FOrientArrayType getODFFZRod(FOrientArrayType rod) override;
-    FOrientArrayType getMDFFZRod(FOrientArrayType rod) override;
-    void getNearestQuat(QuatF& q1, QuatF& q2) override;
-    int getMisoBin(FOrientArrayType rod) override;
-    bool inUnitTriangle(float eta, float chi) override;
-    FOrientArrayType determineEulerAngles(uint64_t seed, int choose) override;
-    FOrientArrayType randomizeEulerAngles(FOrientArrayType euler) override;
-    FOrientArrayType determineRodriguesVector(uint64_t seed, int choose) override;
-    int getOdfBin(FOrientArrayType rod) override;
-    void getSchmidFactorAndSS(float load[3], float& schmidfactor, float angleComps[2], int& slipsys) override;
-    void getSchmidFactorAndSS(float load[3], float plane[3], float direction[3], float& schmidfactor, float angleComps[2], int& slipsys) override;
-    void getmPrime(QuatF& q1, QuatF& q2, float LD[3], float& mPrime) override;
-    void getF1(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1) override;
-    void getF1spt(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1spt) override;
-    void getF7(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F7) override;
+    double getMisoQuat(QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const override;
+    float getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3) const override;
 
-    void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) override;
+    QuatType getQuatSymOp(int i) const override;
+    void getRodSymOp(int i, double* r) const override;
+
+    void getMatSymOp(int i, double g[3][3]) const override;
+    void getMatSymOp(int i, float g[3][3]) const override;
+
+    OrientationType getODFFZRod(const OrientationType& rod) const override;
+    OrientationType getMDFFZRod(const OrientationType& rod) const override;
+
+    QuatType getNearestQuat(const QuatType& q1, const QuatType& q2) const override;
+    QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const override;
+
+    int getMisoBin(const OrientationType& rod) const override;
+    bool inUnitTriangle(double eta, double chi) const override;
+    OrientationType determineEulerAngles(uint64_t seed, int choose) const override;
+    OrientationType randomizeEulerAngles(const OrientationType& euler) const override;
+    OrientationType determineRodriguesVector(uint64_t seed, int choose) const override;
+    int getOdfBin(const OrientationType& rod) const override;
+    void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
+    void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
+    double getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const override;
+    double getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
+    double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
+    double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
+
+    void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const override;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -133,7 +131,7 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @param convertDegrees Are the input angles in Degrees
      * @return Returns the ARGB Quadruplet EbsdLib::Rgb
      */
-    EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) override;
+    EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const override;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -146,7 +144,7 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @param convertDegrees Are the input angles in Degrees
      * @return Returns the ARGB Quadruplet EbsdLib::Rgb
      */
-    EbsdLib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees) override;
+    EbsdLib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees) const override;
 
     /**
      * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -155,7 +153,7 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @param r3 Third component of the Rodrigues Vector
      * @return Returns the ARGB Quadruplet EbsdLib::Rgb
      */
-    EbsdLib::Rgb generateRodriguesColor(float r1, float r2, float r3) override;
+    EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
 
     /**
      * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
@@ -163,7 +161,7 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @param refDir The sample reference direction
      * @return Returns the ARGB Quadruplet EbsdLib::Rgb
      */
-    EbsdLib::Rgb generateMisorientationColor(const QuatF& q, const QuatF& refFrame) override;
+    EbsdLib::Rgb generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const override;
 
     /**
      * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -174,26 +172,22 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @return A QVector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    QVector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) override;
+    QVector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
     /**
      * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
      * @return
      */
-    UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim);
+    UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
 
   protected:
-    float _calcMisoQuat(const QuatF quatsym[8], int numsym,
-                        QuatF& q1, QuatF& q2,
-                        float& n1, float& n2, float& n3);
+    double _calcMisoQuat(const QuatType quatsym[8], int numsym, QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const;
 
   public:
     TetragonalOps(const TetragonalOps&) = delete;  // Copy Constructor Not Implemented
     TetragonalOps(TetragonalOps&&) = delete;       // Move Constructor Not Implemented
     TetragonalOps& operator=(const TetragonalOps&) = delete; // Copy Assignment Not Implemented
     TetragonalOps& operator=(TetragonalOps&&) = delete;      // Move Assignment Not Implemented
-
-  private:
 };
 
 

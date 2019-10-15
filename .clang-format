@@ -71,8 +71,8 @@ ConstructorInitializerIndentWidth: 0
 # PenaltyExcessCharacter: 1000000
 # PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Left
-ReflowComments:  false
-SortIncludes:    false
+# ReflowComments:  true
+# SortIncludes:    true
 # SpaceAfterCStyleCast: false
 # SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: Never

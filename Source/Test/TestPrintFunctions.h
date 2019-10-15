@@ -8,7 +8,7 @@
 #include <QtCore/QString>
 
 #include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/Core/QuaternionMath.hpp"
+#include "EbsdLib/Core/Quaternion.hpp"
 
 std::array<QString, 7> k_InputNames = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
 std::array<int, 7> k_CompDims = {3, 9, 4, 4, 4, 3, 3};
@@ -64,14 +64,15 @@ template <typename T, typename K> void Print_HO(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void Print_QU(const T& om, typename QuaternionMath<K>::Order layout = QuaternionMath<K>::QuaternionVectorScalar)
+template <typename T, typename K>
+void Print_QU(const T& om, typename Quaternion<K>::Order layout = Quaternion<K>::Order::VectorScalar)
 {
-  if(layout == QuaternionMath<K>::QuaternionVectorScalar)
+  if(layout == Quaternion<K>::Order::VectorScalar)
   {
     printf("QU:<% 3.16f % 3.6f % 3.16f> % 3.16f\n", om[0], om[1], om[2], om[3]);
   }
 
-  else if(layout == QuaternionMath<K>::QuaternionScalarVector)
+  else if(layout == Quaternion<K>::Order::ScalarVector)
   {
     printf("QU: % 3.16f <% 3.16f % 3.16f % 3.16f>\n", om[0], om[1], om[2], om[3]);
   }

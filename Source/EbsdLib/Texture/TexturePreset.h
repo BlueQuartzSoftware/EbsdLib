@@ -42,7 +42,13 @@
 #include <QtCore/QString>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
+
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/Core/EbsdLibConstants.h"
+
+#include "EbsdLib/EbsdLib.h"
+
 
 /**
  * @brief The TexturePreset class
@@ -50,26 +56,11 @@
 class EbsdLib_EXPORT TexturePreset
 {
   public:
-    using Self = TexturePreset;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+    EBSD_SHARED_POINTERS(TexturePreset)
+    typedef QVector<Pointer> Container;
 
-    using Container = QVector<Pointer>;
-
-    static Pointer New();
-
-    /**
-     * @brief Returns the name of the class for TexturePreset
-     */
-    const QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for TexturePreset
-     */
-    static QString ClassName();
-
+    EBSD_STATIC_NEW_MACRO(TexturePreset)
+    EBSD_TYPE_MACRO(TexturePreset)
     static Pointer New(unsigned int xtal,
                        const QString& name,
                        double e1, double e2, double e3)
@@ -85,55 +76,11 @@ class EbsdLib_EXPORT TexturePreset
 
     virtual ~TexturePreset();
 
-    /**
-     * @brief Setter property for CrystalStructure
-     */
-    void setCrystalStructure(const unsigned int& value);
-    /**
-     * @brief Getter property for CrystalStructure
-     * @return Value of CrystalStructure
-     */
-    unsigned int getCrystalStructure() const;
-
-    /**
-     * @brief Setter property for Name
-     */
-    void setName(const QString& value);
-    /**
-     * @brief Getter property for Name
-     * @return Value of Name
-     */
-    QString getName() const;
-
-    /**
-     * @brief Setter property for Euler1
-     */
-    void setEuler1(const double& value);
-    /**
-     * @brief Getter property for Euler1
-     * @return Value of Euler1
-     */
-    double getEuler1() const;
-
-    /**
-     * @brief Setter property for Euler2
-     */
-    void setEuler2(const double& value);
-    /**
-     * @brief Getter property for Euler2
-     * @return Value of Euler2
-     */
-    double getEuler2() const;
-
-    /**
-     * @brief Setter property for Euler3
-     */
-    void setEuler3(const double& value);
-    /**
-     * @brief Getter property for Euler3
-     * @return Value of Euler3
-     */
-    double getEuler3() const;
+    EBSD_INSTANCE_PROPERTY(unsigned int, CrystalStructure)
+    EBSD_INSTANCE_STRING_PROPERTY(Name)
+    EBSD_INSTANCE_PROPERTY(double, Euler1)
+    EBSD_INSTANCE_PROPERTY(double, Euler2)
+    EBSD_INSTANCE_PROPERTY(double, Euler3)
 
   protected:
     TexturePreset();
@@ -143,13 +90,6 @@ class EbsdLib_EXPORT TexturePreset
     TexturePreset(TexturePreset&&) = delete;       // Move Constructor Not Implemented
     TexturePreset& operator=(const TexturePreset&) = delete; // Copy Assignment Not Implemented
     TexturePreset& operator=(TexturePreset&&) = delete;      // Move Assignment Not Implemented
-
-  private:
-    unsigned int m_CrystalStructure = {};
-    QString m_Name = {};
-    double m_Euler1 = {};
-    double m_Euler2 = {};
-    double m_Euler3 = {};
 };
 
 
@@ -165,11 +105,9 @@ class EbsdLib_EXPORT CubicTexturePresets
   protected:
     CubicTexturePresets();
 
-  public:
-    CubicTexturePresets(const CubicTexturePresets&) = delete;            // Copy Constructor Not Implemented
-    CubicTexturePresets(CubicTexturePresets&&) = delete;                 // Move Constructor Not Implemented
-    CubicTexturePresets& operator=(const CubicTexturePresets&) = delete; // Copy Assignment Not Implemented
-    CubicTexturePresets& operator=(CubicTexturePresets&&) = delete;      // Move Assignment Not Implemented
+  private:
+    CubicTexturePresets(const CubicTexturePresets&) = delete; // Copy Constructor Not Implemented
+    void operator=(const CubicTexturePresets&) = delete;      // Move assignment Not Implemented
 };
 
 /**
@@ -184,9 +122,9 @@ class EbsdLib_EXPORT HexTexturePresets
   protected:
     HexTexturePresets();
 
-  public:
-    HexTexturePresets(const HexTexturePresets&) = delete;            // Copy Constructor Not Implemented
-    HexTexturePresets(HexTexturePresets&&) = delete;                 // Move Constructor Not Implemented
-    HexTexturePresets& operator=(const HexTexturePresets&) = delete; // Copy Assignment Not Implemented
-    HexTexturePresets& operator=(HexTexturePresets&&) = delete;      // Move Assignment Not Implemented
+  private:
+    HexTexturePresets(const HexTexturePresets&) = delete; // Copy Constructor Not Implemented
+    void operator=(const HexTexturePresets&) = delete;    // Move assignment Not Implemented
 };
+
+

@@ -28,7 +28,7 @@ function(CMP_AddDefinitions)
     target_compile_options(${Z_TARGET} PRIVATE -fmessage-length=0)
   endif(CMAKE_COMPILER_IS_GNUCXX)
 
-  if(MSVC AND SIMPL_DISABLE_MSVC_WARNINGS)
+  if(MSVC AND EBSD_DISABLE_MSVC_WARNINGS)
     target_compile_definitions(${Z_TARGET} PRIVATE -D_CRT_SECURE_NO_WARNINGS)
     target_compile_definitions(${Z_TARGET} PRIVATE -D_SCL_SECURE_NO_WARNINGS)
   endif()
@@ -64,7 +64,7 @@ set(TEST_TEMP_DIR ${EbsdLibProj_BINARY_DIR}/Test/Temp)
 file(MAKE_DIRECTORY ${TEST_TEMP_DIR})
 
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
-               ${EbsdLibProj_BINARY_DIR}/Test/EbsdLibTestFileLocations.h @ONLY IMMEDIATE)
+               ${EbsdLibProj_BINARY_DIR}/EbsdLib/Test/EbsdLibTestFileLocations.h @ONLY IMMEDIATE)
 
 #------------------------------------------------------------------------------
 # List all the source files here. They will NOT be compiled but instead
@@ -73,12 +73,13 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
 set(TEST_NAMES
   AngImportTest
   CtfReaderTest
+  QuaternionTest
+  # OrientationTransformationTest
+  OrientationTest
   TextureTest
   ODFTest
-  OrientationArrayTest
   OrientationConverterTest
   SO3SamplerTest
-  OrientationTransformsTest
 )
 
 if(EbsdLib_ENABLE_HDF5)

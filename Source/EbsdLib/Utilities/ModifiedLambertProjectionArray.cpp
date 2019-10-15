@@ -37,8 +37,6 @@
 #include <QtCore/QList>
 
 #ifdef EbsdLib_ENABLE_HDF5
-#include "H5Support/H5Utilities.h"
-#include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 #endif
 
@@ -73,7 +71,7 @@ QString ModifiedLambertProjectionArray::getTypeAsString() { return "ModifiedLamb
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, size_t* dims, const QString& name, bool allocate)
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate)
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
@@ -81,11 +79,10 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, std::vector<size_t> dims, const QString& name, bool allocate)
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate)
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -282,7 +279,7 @@ size_t ModifiedLambertProjectionArray::getTypeSize()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::eraseTuples(QVector<size_t>& idxs)
+int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
 {
   int err = 0;
 
@@ -300,7 +297,7 @@ int ModifiedLambertProjectionArray::eraseTuples(QVector<size_t>& idxs)
 
   // Sanity Check the Indices in the vector to make sure we are not trying to remove any indices that are
   // off the end of the array and return an error code.
-  for(QVector<size_t>::size_type i = 0; i < idxs.size(); ++i)
+  for(std::vector<size_t>::size_type i = 0; i < idxs.size(); ++i)
   {
     if (idxs[i] >= static_cast<size_t>(m_ModifiedLambertProjectionArray.size()))
     {
@@ -448,7 +445,6 @@ void ModifiedLambertProjectionArray::printComponent(QTextStream& out, size_t i, 
 }
 
 #ifdef EbsdLib_ENABLE_HDF5
-
 // -------------------------------------------------------------------------- */
 void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, double* north, double* south)
 {
@@ -604,7 +600,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, QVector<size_t> tDims)
+int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size_t> tDims)
 {
   herr_t err = 0;
   if(m_ModifiedLambertProjectionArray.empty())
@@ -662,7 +658,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
   }
 
   QList<QString> names;
-  err = QH5Utilities::getGroupObjects(gid, H5Utilities::CustomHDFDataTypes::Group, names);
+  err = QH5Utilities::getGroupObjects(gid, H5Utilities::H5Support_GROUP, names);
   if(err < 0)
   {
     err |= QH5Utilities::closeHDF5Object(gid);
@@ -743,59 +739,4 @@ QString ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat 
 
   }
   return info;
-}
-
-// -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::New()
-{
-  Pointer sharedPtr(new(ModifiedLambertProjectionArray));
-  return sharedPtr;
-}
-
-// -----------------------------------------------------------------------------
-const QString ModifiedLambertProjectionArray::getNameOfClass() const
-{
-  return QString("ModifiedLambertProjectionArray");
-}
-
-// -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::ClassName()
-{
-  return QString("ModifiedLambertProjectionArray");
-}
-
-// -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::setPhase(const int& value)
-{
-  m_Phase = value;
-}
-
-// -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::getPhase() const
-{
-  return m_Phase;
-}
-
-// -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::setModifiedLambertProjectionArray(const QVector<ModifiedLambertProjection::Pointer>& value)
-{
-  m_ModifiedLambertProjectionArray = value;
-}
-
-// -----------------------------------------------------------------------------
-QVector<ModifiedLambertProjection::Pointer> ModifiedLambertProjectionArray::getModifiedLambertProjectionArray() const
-{
-  return m_ModifiedLambertProjectionArray;
-}
-
-// -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::getClassVersion()
-{
-  return 2;
 }

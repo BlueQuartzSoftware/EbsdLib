@@ -35,7 +35,7 @@ int main(int argc, char** argv)
   @QT_APPLICATION_CLASS@::setOrganizationDomain("Your Domain");
   @QT_APPLICATION_CLASS@::setApplicationName("@PluginName@");
 
-#ifdef SIMPL_Group_FILTERS
+#ifdef EBSD_Group_FILTERS
   // Register all the filters including trying to load those from Plugins
   FilterManager* fm = FilterManager::Instance();
   SIMPLibPluginLoader::LoadPluginFilters(fm);

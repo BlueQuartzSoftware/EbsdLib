@@ -64,7 +64,16 @@ float GeometryMath::CosThetaBetweenVectors(const float a[3], const float b[3])
   }
   return (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (norm1 * norm2);
 }
-
+double GeometryMath::CosThetaBetweenVectors(const double a[3], const double b[3])
+{
+  double norm1 = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+  double norm2 = sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
+  if(norm1 == 0 || norm2 == 0)
+  {
+    return 1.0;
+  }
+  return (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (norm1 * norm2);
+}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -73,7 +82,7 @@ float GeometryMath::AngleBetweenVectors(const float a[3], const float b[3])
   float norm1 = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
   float norm2 = sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
   float cosAng = (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (norm1 * norm2);
-  EbsdLibMath::boundF(cosAng, -1, 1);
+  EbsdLibMath::bound(cosAng, -1.0f, 1.0f);
   return acos(cosAng);
 }
 

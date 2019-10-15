@@ -29,7 +29,7 @@ function(CMP_AddDefinitions)
     target_compile_options(${Z_TARGET} PRIVATE -fmessage-length=0)
   endif(CMAKE_COMPILER_IS_GNUCXX)
 
-  if(MSVC AND SIMPL_DISABLE_MSVC_WARNINGS)
+  if(MSVC AND EBSD_DISABLE_MSVC_WARNINGS)
     target_compile_definitions(${Z_TARGET} PRIVATE -D_CRT_SECURE_NO_WARNINGS)
     target_compile_definitions(${Z_TARGET} PRIVATE -D_SCL_SECURE_NO_WARNINGS)
   endif()

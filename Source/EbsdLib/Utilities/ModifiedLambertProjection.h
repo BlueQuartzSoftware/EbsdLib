@@ -32,15 +32,18 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
 #pragma once
 
-#include <memory>
-
-#include <QtCore/QString>
-
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
+
+#ifdef EbsdLib_ENABLE_HDF5
+#include <hdf5.h>
+#endif
 
 /**
  * @class ModifiedLambertProjection ModifiedLambertProjection.h DREAM3DLib/Common/ModifiedLambertProjection.h
@@ -52,23 +55,9 @@
 class EbsdLib_EXPORT ModifiedLambertProjection
 {
   public:
-    using Self = ModifiedLambertProjection;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
-
-    static Pointer New();
-
-    /**
-     * @brief Returns the name of the class for ModifiedLambertProjection
-     */
-    const QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for ModifiedLambertProjection
-     */
-    static QString ClassName();
+    EBSD_SHARED_POINTERS(ModifiedLambertProjection)
+    EBSD_STATIC_NEW_MACRO(ModifiedLambertProjection)
+    EBSD_TYPE_MACRO(ModifiedLambertProjection)
 
     virtual ~ModifiedLambertProjection();
 
@@ -98,49 +87,12 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      */
     static Pointer LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius);
 
+    EBSD_GET_PROPERTY(int, Dimension)
+    EBSD_GET_PROPERTY(float, StepSize)
+    EBSD_GET_PROPERTY(float, SphereRadius)
 
-    /**
-     * @brief CreateProjectionFromXYZCoords This static method creates the north and south squares based on the XYZ coordinates
-     * in the 'coords' parameter. The XYZ coordinates are on the unit sphere but are true cartesian coordinates and NOT
-     * spherical coordinates.
-     * @param coords The XYZ cartesian coords that are all on the Unit Sphere (Radius = 1)
-     * @param dimension The Dimension of the modified lambert projections images
-     * @param resolution The Resolution of the modified lambert projections
-     * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
-     * @return
-     */
-    static Pointer CreateProjectionFromXYZCoords(const std::vector<float> &coords, int dimension, float sphereRadius);
-
-
-    /**
-     * @brief Getter property for Dimension
-     * @return Value of Dimension
-     */
-    int getDimension() const;
-
-    /**
-     * @brief Getter property for StepSize
-     * @return Value of StepSize
-     */
-    float getStepSize() const;
-
-    /**
-     * @brief Getter property for SphereRadius
-     * @return Value of SphereRadius
-     */
-    float getSphereRadius() const;
-
-    /**
-     * @brief Getter property for NorthSquare
-     * @return Value of NorthSquare
-     */
-    DoubleArrayType::Pointer getNorthSquare() const;
-
-    /**
-     * @brief Getter property for SouthSquare
-     * @return Value of SouthSquare
-     */
-    DoubleArrayType::Pointer getSouthSquare() const;
+    EBSD_GET_PROPERTY(DoubleArrayType::Pointer, NorthSquare)
+    EBSD_GET_PROPERTY(DoubleArrayType::Pointer, SouthSquare)
 
     /**
      * @brief initializeSquares
@@ -149,12 +101,10 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sphereRadius
      */
     void initializeSquares(int dims, float sphereRadius);
-
 #ifdef EbsdLib_ENABLE_HDF5
 
     virtual int writeHDF5Data(hid_t groupId);
     virtual int readHDF5Data(hid_t groupId);
-
 #endif
 
     /**
@@ -195,7 +145,7 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sqCoord
      * @return
      */
-    double getInterpolatedValue(Square square, const float* sqCoord);
+    double getInterpolatedValue(Square square, float* sqCoord);
 
     /**
      * @brief getSquareCoord
@@ -203,14 +153,14 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sqCoord [output] The XY coordinate in the Modified Lambert Square
      * @return If the point was in the north or south squares
      */
-    bool getSquareCoord(const float* xyz, float* sqCoord);
+    bool getSquareCoord(float* xyz, float* sqCoord);
 
     /**
      * @brief getSquareIndex
      * @param sqCoord
      * @return
      */
-    int getSquareIndex(const float* sqCoord);
+    int getSquareIndex(float* sqCoord);
 
     /**
      * @brief This function normalizes the squares by taking the value of each square and dividing by the sum of all the

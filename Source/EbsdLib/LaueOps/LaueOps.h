@@ -40,47 +40,39 @@
 #include <QtCore/QVector>
 #include <QtCore/QString>
 
+
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/OrientationMath/OrientationArray.hpp"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
-#include "EbsdLib/Core/QuaternionMath.hpp"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 /*
- * @class LaueOps LaueOps.h EbsdLib/LaueOps/LaueOps.h
+ * @class LaueOps LaueOps.h OrientationLib/LaueOps/LaueOps.h
  * @brief
  */
 class EbsdLib_EXPORT LaueOps
 {
   public:
-    using Self = LaueOps;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
-
-    /**
-     * @brief Returns the name of the class for LaueOps
-     */
-    virtual const QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for LaueOps
-     */
-    static QString ClassName();
+    EBSD_SHARED_POINTERS(LaueOps)
+    EBSD_TYPE_MACRO(LaueOps)
 
     virtual ~LaueOps();
 
+
     /**
      * @brief getOrientationOpsVector This method returns a vector of each type of LaueOps placed such that the
-     * index into the vector is the value of the constant at EbsdLib::CrystalStructure::***
+     * index into the vector is the value of the constant at EBSD::CrystalStructure::***
      * @return Vector of LaueOps subclasses.
      */
     static QVector<LaueOps::Pointer> getOrientationOpsQVector();
 
     /**
      * @brief getOrientationOpsVector This method returns a vector of each type of LaueOps placed such that the
-     * index into the vector is the value of the constant at EbsdLib::CrystalStructure::***
+     * index into the vector is the value of the constant at EBSD::CrystalStructure::***
      * @return Vector of LaueOps subclasses.
      */
     static std::vector<LaueOps::Pointer> getOrientationOpsVector();
@@ -96,25 +88,25 @@ class EbsdLib_EXPORT LaueOps
      * @brief getODFSize Returns the number of elements in the ODF array
      * @return
      */
-    virtual int getODFSize() = 0;
+    virtual int getODFSize() const = 0;
 
     /**
     * @brief getHasInversion Returns a bool whether the symmetry class is centro-symmetric
     * @return
     */
-    virtual bool getHasInversion() = 0;
+    virtual bool getHasInversion() const = 0;
 
     /**
      * @brief getMDFSize Returns the number of elements in the MDF Array
      * @return
      */
-    virtual int getMDFSize() = 0;
+    virtual int getMDFSize() const = 0;
 
     /**
      * @brief getNumSymOps Returns the number of symmetry operators
      * @return
      */
-    virtual int getNumSymOps() = 0;
+    virtual int getNumSymOps() const = 0;
 
     /**
      * @brief getSymmetryName Returns the name of the symmetry
@@ -131,36 +123,55 @@ class EbsdLib_EXPORT LaueOps
      * @param n3
      * @return
      */
-    virtual float getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3) = 0;
+    virtual double getMisoQuat(QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const = 0;
+    virtual float getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3) const = 0;
 
     /**
      * @brief getQuatSymOp Copies the symmetry operator at index i into q
      * @param i The index into the Symmetry operators array
      * @param q [output] The quaternion to store the value into
      */
-    virtual void getQuatSymOp(int i, QuatF& q) = 0;
-    virtual void getRodSymOp(int i, float* r) = 0;
-    virtual void getMatSymOp(int i, float g[3][3]) = 0;
-    virtual FOrientArrayType getODFFZRod(FOrientArrayType rod) = 0;
-    virtual FOrientArrayType getMDFFZRod(FOrientArrayType rod) = 0;
-    virtual void getNearestQuat(QuatF& q1, QuatF& q2) = 0;
-    virtual void getFZQuat(QuatF& qr);
-    virtual int getMisoBin(FOrientArrayType rod) = 0;
-    virtual bool inUnitTriangle(float eta, float chi) = 0;
-    virtual FOrientArrayType determineEulerAngles(uint64_t seed, int choose) = 0;
-    virtual FOrientArrayType randomizeEulerAngles(FOrientArrayType euler) = 0;
-    virtual size_t getRandomSymmetryOperatorIndex(int numSymOps);
-    virtual FOrientArrayType determineRodriguesVector(uint64_t seed, int choose) = 0;
-    virtual int getOdfBin(FOrientArrayType rod) = 0;
-    virtual void getSchmidFactorAndSS(float load[3], float& schmidfactor, float angleComps[2], int& slipsys) = 0;
-    virtual void getSchmidFactorAndSS(float load[3], float plane[3], float direction[3], float& schmidfactor, float angleComps[2], int& slipsys) = 0;
-    virtual void getmPrime(QuatF& q1, QuatF& q2, float LD[3], float& mPrime) = 0;
-    virtual void getF1(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1) = 0;
-    virtual void getF1spt(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F1spt) = 0;
-    virtual void getF7(QuatF& q1, QuatF& q2, float LD[3], bool maxSF, float& F7) = 0;
+    virtual QuatType getQuatSymOp(int i) const = 0;
+    virtual void getRodSymOp(int i, double* r) const = 0;
 
+    virtual void getMatSymOp(int i, double g[3][3]) const = 0;
+    virtual void getMatSymOp(int i, float g[3][3]) const = 0;
 
-    virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) = 0;
+    virtual OrientationType getODFFZRod(const OrientationType& rod) const = 0;
+    virtual OrientationType getMDFFZRod(const OrientationType& rod) const = 0;
+
+    virtual QuatType getNearestQuat(const QuatType& q1, const QuatType& q2) const = 0;
+    virtual QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const = 0;
+
+    virtual QuatType getFZQuat(const QuatType& qr) const;
+
+    virtual int getMisoBin(const OrientationType& rod) const = 0;
+
+    virtual bool inUnitTriangle(double eta, double chi) const = 0;
+
+    virtual OrientationType determineEulerAngles(uint64_t seed, int choose) const = 0;
+
+    virtual OrientationType randomizeEulerAngles(const OrientationType& euler) const = 0;
+
+    virtual size_t getRandomSymmetryOperatorIndex(int numSymOps) const;
+
+    virtual OrientationType determineRodriguesVector(uint64_t seed, int choose) const = 0;
+
+    virtual int getOdfBin(const OrientationType& rod) const = 0;
+
+    virtual void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const = 0;
+
+    virtual void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const = 0;
+
+    virtual double getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const = 0;
+
+    virtual double getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+
+    virtual double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+
+    virtual double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+
+    virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const = 0;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -169,7 +180,7 @@ class EbsdLib_EXPORT LaueOps
      * @param rgb [output] The pointer to store the RGB value
      * @param convertDegrees Are the input angles in Degrees
      */
-    virtual EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) = 0;
+    virtual EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -182,7 +193,7 @@ class EbsdLib_EXPORT LaueOps
      * @param rgb [output] The pointer to store the RGB value
      * @param convertDegrees Are the input angles in Degrees
      */
-    virtual EbsdLib::Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) = 0;
+    virtual EbsdLib::Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
 
     /**
      * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -191,7 +202,7 @@ class EbsdLib_EXPORT LaueOps
      * @param r3 Third component of the Rodrigues Vector
      * @param rgb [output] The pointer to store the RGB value
      */
-    virtual EbsdLib::Rgb generateRodriguesColor(float r1, float r2, float r3) = 0;
+    virtual EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
 
     /**
      * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
@@ -199,7 +210,7 @@ class EbsdLib_EXPORT LaueOps
      * @param refDir A Quaternion representing the sample reference direction
      * @return A EbsdLib::Rgb value
      */
-    virtual EbsdLib::Rgb generateMisorientationColor(const QuatF& q, const QuatF& refFrame) = 0;
+    virtual EbsdLib::Rgb generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const = 0;
 
     /**
      * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -210,30 +221,26 @@ class EbsdLib_EXPORT LaueOps
      * @return A QVector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    virtual QVector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) = 0;
+    virtual QVector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
   protected:
     LaueOps();
 
-    float _calcMisoQuat(const QuatF quatsym[24], int numsym,
-                        QuatF& q1, QuatF& q2,
-                        float& n1, float& n2, float& n3);
+    double _calcMisoQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2, double& n1, double& n2, double& n3) const;
 
-    FOrientArrayType _calcRodNearestOrigin(const float rodsym[24][3], int numsym, FOrientArrayType rod);
-    void _calcNearestQuat(const QuatF quatsym[24], int numsym, QuatF& q1, QuatF& q2);
-    void _calcQuatNearestOrigin(const QuatF quatsym[24], int numsym, QuatF& qr);
+    OrientationType _calcRodNearestOrigin(const double rodsym[24][3], int numsym, const OrientationType& rod) const;
+    QuatType _calcNearestQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2) const;
+    QuatType _calcQuatNearestOrigin(const QuatType quatsym[24], int numsym, const QuatType& qr) const;
 
-    int _calcMisoBin(float dim[3], float bins[3], float step[3], const FOrientArrayType& homochoric);
-    void _calcDetermineHomochoricValues(uint64_t seed, float init[3], float step[3], int32_t phi[3], int choose, float& r1, float& r2, float& r3);
-    int _calcODFBin(float dim[3], float bins[3], float step[3], FOrientArrayType homochoric);
+    int _calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
+    void _calcDetermineHomochoricValues(uint64_t seed, double init[3], double step[3], int32_t phi[3], int choose, double& r1, double& r2, double& r3) const;
+    int _calcODFBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
 
   public:
     LaueOps(const LaueOps&) = delete;        // Copy Constructor Not Implemented
     LaueOps(LaueOps&&) = delete;             // Move Constructor Not Implemented
     LaueOps& operator=(const LaueOps&) = delete; // Copy Assignment Not Implemented
     LaueOps& operator=(LaueOps&&) = delete;      // Move Assignment Not Implemented
-
-  private:
 };
 
 

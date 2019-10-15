@@ -32,16 +32,22 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
 #pragma once
 
 #include <vector>
 
+#ifdef EbsdLib_ENABLE_HDF5
+#include <hdf5.h>
+#endif
+
 #include <QtCore/QString>
-#include <QtCore/QTextStream>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
-#include "EbsdLib/Core/EbsdLibConstants.h"
+
 
 /**
  * @brief The ModifiedLambertProjectionArray class
@@ -49,36 +55,11 @@
 class EbsdLib_EXPORT ModifiedLambertProjectionArray
 {
 public:
-  using Self = ModifiedLambertProjectionArray;
-  using Pointer = std::shared_ptr<Self>;
-  using ConstPointer = std::shared_ptr<const Self>;
-  using WeakPointer = std::weak_ptr<Self>;
-  using ConstWeakPointer = std::weak_ptr<Self>;
-  static Pointer NullPointer();
+  EBSD_SHARED_POINTERS(ModifiedLambertProjectionArray)
+  EBSD_STATIC_NEW_MACRO(ModifiedLambertProjectionArray)
+  EBSD_TYPE_MACRO(ModifiedLambertProjectionArray)
 
-  static Pointer New();
-
-  /**
-     * @brief Returns the name of the class for ModifiedLambertProjectionArray
-     */
-  const QString getNameOfClass() const;
-  /**
-     * @brief Returns the name of the class for ModifiedLambertProjectionArray
-     */
-  static QString ClassName();
-
-  int getClassVersion();
-
-  virtual ~ModifiedLambertProjectionArray();
-
-  /**
-   * @brief getName
-   * @return 
-   */
-  QString getName() const
-  {
-    return m_Name;
-  }
+  ~ModifiedLambertProjectionArray();
 
   /**
      * @brief getXdmfTypeAndSize
@@ -92,27 +73,11 @@ public:
      * can be a primitive like char, float, int or the name of a class.
      * @return
      */
-  virtual QString getTypeAsString();
+  QString getTypeAsString();
 
-  /**
-     * @brief Setter property for Phase
-     */
-  void setPhase(const int& value);
-  /**
-     * @brief Getter property for Phase
-     * @return Value of Phase
-     */
-  int getPhase() const;
+  EBSD_INSTANCE_PROPERTY(int, Phase)
 
-  /**
-     * @brief Setter property for ModifiedLambertProjectionArray
-     */
-  void setModifiedLambertProjectionArray(const QVector<ModifiedLambertProjection::Pointer>& value);
-  /**
-     * @brief Getter property for ModifiedLambertProjectionArray
-     * @return Value of ModifiedLambertProjectionArray
-     */
-  QVector<ModifiedLambertProjection::Pointer> getModifiedLambertProjectionArray() const;
+  EBSD_INSTANCE_PROPERTY(QVector<ModifiedLambertProjection::Pointer>, ModifiedLambertProjectionArray)
 
   /**
      * @brief createNewArray
@@ -123,7 +88,7 @@ public:
      * @param allocate
      * @return
      */
-  virtual Pointer createNewArray(size_t numElements, int rank, size_t* dims, const QString& name, bool allocate = true);
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate = true);
 
   /**
      * @brief createNewArray
@@ -133,12 +98,12 @@ public:
      * @param allocate
      * @return
      */
-  virtual Pointer createNewArray(size_t numElements, std::vector<size_t> dims, const QString& name, bool allocate = true);
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate = true);
 
   /**
-    * @brief
-    */
-  virtual bool isAllocated();
+     * @brief
+     */
+  bool isAllocated();
 
   /**
      * @brief clearAll
@@ -172,7 +137,7 @@ public:
      */
   ModifiedLambertProjection::Pointer operator[](int idx);
 
-  /* **************** This is the interface for the IDataArray Class which MUST
+  /* **************** This is the interface for the ModifiedLambertProjectionArray Class which MUST
      *  Be implemented. Most of it is useless and will simply ASSERT if called. */
 
   /**
@@ -190,14 +155,14 @@ public:
   /**
      * @brief Makes this class responsible for freeing the memory.
      */
-  virtual void takeOwnership();
+  void takeOwnership();
 
   /**
      * @brief This class will NOT free the memory associated with the internal pointer.
      * This can be useful if the user wishes to keep the data around after this
      * class goes out of scope.
      */
-  virtual void releaseOwnership();
+  void releaseOwnership();
 
   /**
      * @brief Returns a void pointer pointing to the index of the array. nullptr
@@ -206,18 +171,18 @@ public:
      * @param i The index to have the returned pointer pointing to.
      * @return Void Pointer. Possibly nullptr.
      */
-  virtual void* getVoidPointer(size_t i);
+  void* getVoidPointer(size_t i);
 
   /**
      * @brief Returns the number of Tuples in the array.
      */
-  virtual size_t getNumberOfTuples();
+  size_t getNumberOfTuples();
 
   /**
      * @brief Return the number of elements in the array
      * @return
      */
-  virtual size_t getSize();
+  size_t getSize();
 
   /**
      * @brief SetNumberOfComponents
@@ -229,13 +194,13 @@ public:
      * @brief getNumberOfComponents
      * @return
      */
-  virtual int getNumberOfComponents();
+  int getNumberOfComponents();
 
   /**
      * @brief getComponentDimensions
      * @return
      */
-  virtual std::vector<size_t> getComponentDimensions();
+  std::vector<size_t> getComponentDimensions();
 
   /**
      * @brief SetRank
@@ -256,7 +221,7 @@ public:
      * 4 = 32 bit integer/Float
      * 8 = 64 bit integer/Double
      */
-  virtual size_t getTypeSize();
+  size_t getTypeSize();
 
   /**
      * @brief Removes Tuples from the Array. If the size of the vector is Zero nothing is done. If the size of the
@@ -266,7 +231,7 @@ public:
      * @param idxs The indices to remove
      * @return error code.
      */
-  virtual int eraseTuples(QVector<size_t>& idxs);
+  int eraseTuples(std::vector<size_t>& idxs);
 
   /**
      * @brief Copies a Tuple from one position to another.
@@ -274,7 +239,11 @@ public:
      * @param newPos The destination index to place the copied data
      * @return
      */
-  virtual int copyTuple(size_t currentPos, size_t newPos);
+  int copyTuple(size_t currentPos, size_t newPos);
+
+  // This line must be here, because we are overloading the copyData pure virtual function in ModifiedLambertProjectionArray.
+  // This is required so that other classes can call this version of copyData from the subclasses.
+  //using ModifiedLambertProjectionArray::copyFromArray;
 
   /**
      * @brief copyData This method copies the number of tuples specified by the
@@ -295,25 +264,25 @@ public:
      * @param sourceArray
      * @return
      */
-  virtual bool copyFromArray(size_t destTupleOffset, Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples);
+  bool copyFromArray(size_t destTupleOffset, ModifiedLambertProjectionArray::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples);
 
   /**
      * @brief Splats the same value c across all values in the Tuple
      * @param i The index of the Tuple
      * @param c The value to splat across all components in the tuple
      */
-  virtual void initializeTuple(size_t i, void* p);
+  void initializeTuple(size_t i, void* p);
 
   /**
      * @brief Sets all the values to zero.
      */
-  virtual void initializeWithZeros();
+  void initializeWithZeros();
 
   /**
      * @brief deepCopy
      * @return
      */
-  virtual Pointer deepCopy(bool forceNoAllocate = false);
+  ModifiedLambertProjectionArray::Pointer deepCopy(bool forceNoAllocate = false);
 
   /**
      * @brief Reseizes the internal array
@@ -345,13 +314,12 @@ public:
   void printComponent(QTextStream& out, size_t i, int j);
 
 #ifdef EbsdLib_ENABLE_HDF5
-
   /**
      *
      * @param parentId
      * @return
      */
-  int writeH5Data(hid_t parentId, QVector<size_t> tDims);
+  int writeH5Data(hid_t parentId, std::vector<size_t> tDims);
 
   /**
      * @brief readH5Data
@@ -359,8 +327,8 @@ public:
      * @return
      */
   int readH5Data(hid_t parentId);
-
 #endif
+
   /**
      * @brief writeXdmfAttribute
      * @param out
@@ -382,9 +350,6 @@ protected:
   ModifiedLambertProjectionArray();
 
 private:
-  int m_Phase = {};
-  QVector<ModifiedLambertProjection::Pointer> m_ModifiedLambertProjectionArray = {};
-
   QString m_Name;
   bool m_IsAllocated;
 

@@ -1,7 +1,7 @@
 
 set(DIR_NAME Utilities)
 
-set(EbsdLib_${DIR_NAME}_HDRS
+set(EbsdLib_${DIR_NAME}_MOC_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureData.h
 )
 
@@ -40,5 +40,5 @@ if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
             COMPONENT Headers   )
 endif()
 
-set(EbsdLib_Utilities_HDRS ${EbsdLib_Utilities_HDRS} ${EbsdLib_Utilities_MOC_HDRS})
+set(EbsdLib_Utilities_HDRS ${EbsdLib_Utilities_HDRS} ${EbsdLib_${DIR_NAME}_MOC_HDRS})
 set(EbsdLib_Utilities_SRCS ${EbsdLib_Utilities_SRCS} ${EbsdLib_Generated_MOC_SRCS})

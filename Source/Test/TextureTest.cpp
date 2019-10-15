@@ -39,9 +39,10 @@
 #include <vector>
 #include <string>
 
+#include <QtCore/QVector>
+
 #include "EbsdLib/Texture/Texture.hpp"
 #include "EbsdLib/LaueOps/CubicOps.h"
-
 
 /**
  * @brief These tests are just here to make sure the code compiles. The tests will
@@ -53,8 +54,8 @@
 class TextureTest
 {
   public:
-    TextureTest(){}
-    virtual ~TextureTest(){}
+    TextureTest() = default;
+    ~TextureTest() = default;
 
     void operator()()
     {
@@ -90,9 +91,11 @@ class TextureTest
       QVector<float> mdf(CubicOps::k_MdfSize);
 
       Texture::CalculateMDFData<float, CubicOps>(angles.data(), axes.data(), weights.data(), odf.data(), mdf.data(), angles.size());
-
     }
-  private:
-    TextureTest(const TextureTest&); // Copy Constructor Not Implemented
-    void operator=(const TextureTest&); // Move assignment Not Implemented
+
+  public:
+    TextureTest(const TextureTest&) = delete;            // Copy Constructor Not Implemented
+    TextureTest(TextureTest&&) = delete;                 // Move Constructor Not Implemented
+    TextureTest& operator=(const TextureTest&) = delete; // Copy Assignment Not Implemented
+    TextureTest& operator=(TextureTest&&) = delete;      // Move Assignment Not Implemented
 };

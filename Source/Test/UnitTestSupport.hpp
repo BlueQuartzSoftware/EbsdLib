@@ -50,7 +50,7 @@
 #include <QtCore/QTextStream>
 
 
-namespace SIMPL
+namespace Ebsd
 {
 namespace unittest
 {
@@ -65,7 +65,7 @@ namespace unittest
     static int SizeOfPassed = 6;
     static int SizeOfFailed = 6;
 } // namespace unittest
-} // namespace SIMPL
+} // namespace Ebsd
 
 #if 0
 // -----------------------------------------------------------------------------
@@ -196,22 +196,22 @@ private:
 // -----------------------------------------------------------------------------
 void TestPassed(const std::string& test)
 {
-  ::memset(SIMPL::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
-  SIMPL::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
+  ::memset(Ebsd::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
+  Ebsd::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
 
-  std::string::size_type size = NUM_COLS - SIMPL::unittest::SizeOfPassed;
-  ::strncpy(&(SIMPL::unittest::TestMessage[size]), SIMPL::unittest::Passed, SIMPL::unittest::SizeOfPassed);
+  std::string::size_type size = NUM_COLS - Ebsd::unittest::SizeOfPassed;
+  ::strncpy(&(Ebsd::unittest::TestMessage[size]), Ebsd::unittest::Passed, Ebsd::unittest::SizeOfPassed);
   if(test.length() < size)
   {
-    ::strncpy(SIMPL::unittest::TestMessage, test.c_str(), test.length());
+    ::strncpy(Ebsd::unittest::TestMessage, test.c_str(), test.length());
   }
   else
   {
-    ::strncpy(SIMPL::unittest::TestMessage, test.substr(0, size).c_str(), size);
+    ::strncpy(Ebsd::unittest::TestMessage, test.substr(0, size).c_str(), size);
   }
-  SIMPL::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
-  std::cout << SIMPL::unittest::TestMessage << std::endl;
-  SIMPL::unittest::numTestsPass++;
+  Ebsd::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
+  std::cout << Ebsd::unittest::TestMessage << std::endl;
+  Ebsd::unittest::numTestsPass++;
 }
 
 // -----------------------------------------------------------------------------
@@ -219,22 +219,22 @@ void TestPassed(const std::string& test)
 // -----------------------------------------------------------------------------
 void TestFailed(const std::string& test)
 {
-  ::memset(SIMPL::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
-  SIMPL::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
+  ::memset(Ebsd::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
+  Ebsd::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
 
-  std::string::size_type size = NUM_COLS - SIMPL::unittest::SizeOfFailed;
-  ::strncpy(&(SIMPL::unittest::TestMessage[size]), SIMPL::unittest::Failed, SIMPL::unittest::SizeOfFailed);
+  std::string::size_type size = NUM_COLS - Ebsd::unittest::SizeOfFailed;
+  ::strncpy(&(Ebsd::unittest::TestMessage[size]), Ebsd::unittest::Failed, Ebsd::unittest::SizeOfFailed);
   if(test.length() < size)
   {
-    ::strncpy(SIMPL::unittest::TestMessage, test.c_str(), test.length());
+    ::strncpy(Ebsd::unittest::TestMessage, test.c_str(), test.length());
   }
   else
   {
-    ::strncpy(SIMPL::unittest::TestMessage, test.substr(0, size).c_str(), size);
+    ::strncpy(Ebsd::unittest::TestMessage, test.substr(0, size).c_str(), size);
   }
-  SIMPL::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
-  std::cout << SIMPL::unittest::TestMessage << std::endl;
-  SIMPL::unittest::numTestFailed++;
+  Ebsd::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
+  std::cout << Ebsd::unittest::TestMessage << std::endl;
+  Ebsd::unittest::numTestFailed++;
 }
 
 // -----------------------------------------------------------------------------
@@ -502,12 +502,12 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 #define DREAM3D_ASSERT(P) assert((P));
 
 #define DREAM3D_ENTER_TEST(test)                                                                                                                                                                       \
-  SIMPL::unittest::CurrentMethod = #test;                                                                                                                                                              \
-  SIMPL::unittest::numTests++;
+  Ebsd::unittest::CurrentMethod = #test;                                                                                                                                                              \
+  Ebsd::unittest::numTests++;
 
 #define DREAM3D_LEAVE_TEST(test)                                                                                                                                                                       \
   TestPassed(#test);                                                                                                                                                                                   \
-  SIMPL::unittest::CurrentMethod = "";
+  Ebsd::unittest::CurrentMethod = "";
 
 #define DREAM3D_REGISTER_TEST(test)                                                                                                                                                                    \
   try                                                                                                                                                                                                  \
@@ -517,17 +517,17 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     DREAM3D_LEAVE_TEST(test)                                                                                                                                                                           \
   } catch(TestException & e)                                                                                                                                                                           \
   {                                                                                                                                                                                                    \
-    TestFailed(SIMPL::unittest::CurrentMethod);                                                                                                                                                        \
+    TestFailed(Ebsd::unittest::CurrentMethod);                                                                                                                                                        \
     std::cout << e.what() << std::endl;                                                                                                                                                                \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }
 
 #define PRINT_TEST_SUMMARY()                                                                                                                                                                           \
   std::cout << "Test Summary:" << std::endl;                                                                                                                                                           \
-  std::cout << "  Tests Passed: " << SIMPL::unittest::numTestsPass << std::endl;                                                                                                                       \
-  std::cout << "  Tests Failed: " << SIMPL::unittest::numTestFailed << std::endl;                                                                                                                      \
-  std::cout << "  Total Tests:  " << SIMPL::unittest::numTests << std::endl;                                                                                                                           \
-  if(SIMPL::unittest::numTestFailed > 0)                                                                                                                                                               \
+  std::cout << "  Tests Passed: " << Ebsd::unittest::numTestsPass << std::endl;                                                                                                                       \
+  std::cout << "  Tests Failed: " << Ebsd::unittest::numTestFailed << std::endl;                                                                                                                      \
+  std::cout << "  Total Tests:  " << Ebsd::unittest::numTests << std::endl;                                                                                                                           \
+  if(Ebsd::unittest::numTestFailed > 0)                                                                                                                                                               \
   {                                                                                                                                                                                                    \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }

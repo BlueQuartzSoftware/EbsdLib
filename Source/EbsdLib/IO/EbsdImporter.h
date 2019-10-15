@@ -79,7 +79,7 @@ class EbsdLib_EXPORT EbsdImporter
     /**
      * @brief Sets an Error Message
      */
-    //SIMPL_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
+    //EBSD_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
 
     /**
      * @brief Sets an error condition

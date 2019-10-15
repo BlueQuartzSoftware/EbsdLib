@@ -738,42 +738,6 @@ float EbsdLibMath::incompletebetaps(float a, float b, float x, float maxgam)
   return result;
 }
 
-void EbsdLibMath::boundD(double& val, double min, double max)
-{
-  if(val < min)
-  {
-    val = min;
-  }
-  else if(val > max)
-  {
-    val = max;
-  }
-}
-
-void EbsdLibMath::boundF(float& val, float min, float max)
-{
-  if(val < min)
-  {
-    val = min;
-  }
-  else if(val > max)
-  {
-    val = max;
-  }
-}
-
-void EbsdLibMath::boundI(int& val, int min, int max)
-{
-  if(val < min)
-  {
-    val = min;
-  }
-  else if(val > max)
-  {
-    val = max;
-  }
-}
-
 std::vector<double> EbsdLibMath::linspace(double minVal, double maxVal, int dim)
 {
   std::vector<double> result;

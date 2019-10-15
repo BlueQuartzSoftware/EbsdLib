@@ -13,10 +13,10 @@ class GenerateFunctionList
 {
 
   public:
-    GenerateFunctionList() = default;
-    ~GenerateFunctionList() = default;
+    GenerateFunctionList(){}
+  virtual ~GenerateFunctionList(){}
 
-    using EntryType = std::vector<int>;
+    typedef std::vector<int> EntryType;
 
     /**
      * @brief GenerateTable

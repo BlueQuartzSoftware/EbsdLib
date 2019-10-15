@@ -36,27 +36,15 @@
 #include <QtCore/QString>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 class EbsdLib_EXPORT LambertUtilities
 {
   public:
-    using Self = LambertUtilities;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
-
-    static Pointer New();
-
-    /**
-     * @brief Returns the name of the class for LambertUtilities
-     */
-    const QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for LambertUtilities
-     */
-    static QString ClassName();
+    EBSD_SHARED_POINTERS(LambertUtilities)
+    EBSD_STATIC_NEW_MACRO(LambertUtilities)
+    EBSD_TYPE_MACRO(LambertUtilities)
+    int getClassVersion();
 
     virtual ~LambertUtilities();
 
@@ -89,7 +77,5 @@ class EbsdLib_EXPORT LambertUtilities
     LambertUtilities(LambertUtilities&&) = delete;      // Move Constructor Not Implemented
     LambertUtilities& operator=(const LambertUtilities&) = delete; // Copy Assignment Not Implemented
     LambertUtilities& operator=(LambertUtilities&&) = delete;      // Move Assignment Not Implemented
-
-  private:
 };
 

@@ -33,19 +33,21 @@
 
 
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/ArrayHelpers.hpp"
+
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/OrientationMath/OrientationTransforms.hpp"
 
+using OrientationType = Orientation<double>;
 
-
-namespace {
+namespace
+{
 const int AnorthicType = 0; // Triclinic
 const int CyclicType = 1;
 const int DihedralType = 2;
 const int TetrahedralType = 3;
 const int OctahedralType = 4;
-}
-
+} // namespace
 
 namespace
 {
@@ -247,7 +249,7 @@ bool SO3Sampler::insideCyclicFZ(double* rod, int order)
   if (rod[3] != std::numeric_limits<double>::infinity())
   {
     // check the z-component vs. tan(pi/2n)
-    insideFZ = fabs(rod[2] * rod[3]) <= EbsdLib::LPs::BP[order - 1];
+    insideFZ = fabs(rod[2]*rod[3]) <= LPs::BP[order - 1];
   }
   else if (rod[2] == 0.0)
   {
@@ -282,7 +284,7 @@ bool SO3Sampler::insideDihedralFZ(double* rod, int order)
   const double r1 = 1.0;
 
   // first, check the z-component vs. tan(pi/2n)  (same as insideCyclicFZ)
-  c1 = fabs(r[2]) <= EbsdLib::LPs::BP[order - 1];
+  c1 = fabs(r[2]) <= LPs::BP[order -1];
   res = false;
 
   // check the square boundary planes if c1=true
@@ -293,19 +295,19 @@ bool SO3Sampler::insideDihedralFZ(double* rod, int order)
         c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
         break;
       case ThreeFoldAxisOrder:
-        c2 = fabs(EbsdLib::LPs::srt * r[0] + 0.50 * r[1]) <= r1;
-        c2 = c2 && (fabs(EbsdLib::LPs::srt * r[0] - 0.50 * r[1]) <= r1);
+        c2 = fabs( LPs::srt*r[0]+0.50*r[1]) <= r1;
+        c2 = c2 && ( fabs( LPs::srt*r[0]-0.50*r[1]) <= r1 );
         c2 = c2 && ( fabs(r[1]) <= r1 );
         break;
       case FourFoldAxisOrder:
         c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
-        c2 = c2 && ((EbsdLib::LPs::r22 * fabs(r[0] + r[1]) <= r1) && (EbsdLib::LPs::r22 * fabs(r[0] - r[1]) <= r1));
+        c2 = c2 && ((LPs::r22*fabs(r[0]+r[1]) <= r1) && (LPs::r22*fabs(r[0]-r[1]) <= r1));
         break;
       case SixFoldAxisOrder:
-        c2 = fabs(0.50 * r[0] + EbsdLib::LPs::srt * r[1]) <= r1;
-        c2 = c2 && (fabs(EbsdLib::LPs::srt * r[0] + 0.50 * r[1]) <= r1);
-        c2 = c2 && (fabs(EbsdLib::LPs::srt * r[0] - 0.50 * r[1]) <= r1);
-        c2 = c2 && (fabs(0.50 * r[0] - EbsdLib::LPs::srt * r[1]) <= r1);
+        c2 =          fabs( 0.50*r[0]+LPs::srt*r[1]) <= r1;
+        c2 = c2 && ( fabs( LPs::srt*r[0]+0.50*r[1]) <= r1 );
+        c2 = c2 && ( fabs( LPs::srt*r[0]-0.50*r[1]) <= r1 );
+        c2 = c2 && ( fabs( 0.50*r[0]-LPs::srt*r[1]) <= r1 );
         c2 = c2 && ( fabs(r[1]) <= r1 );
         c2 = c2 && ( fabs(r[0]) <= r1 );
         break;
@@ -339,20 +341,19 @@ bool SO3Sampler::insideCubicFZ(double* rod, int ot)
 {
   bool res = false, c1 = false, c2 = false;
   std::vector<double> r(3);
-  r[0] = rod[0] * rod[3];
-  r[1] = rod[1] * rod[3];
-  r[2] = rod[2] * rod[3];
+  r[0] = std::fabs(rod[0] * rod[3]);
+  r[1] = std::fabs(rod[1] * rod[3]);
+  r[2] = std::fabs(rod[2] * rod[3]);
   const double r1 = 1.0;
 
   // primary cube planes (only needed for octahedral case)
-  if (ot == OctahedralType) {
-
-    typedef OrientationTransforms<std::vector<double>, double> OrientationTransformsType;
-
-    // std::vector<double> absR = OrientationTransformsType::OMHelperType::absValue(r);
-    // double maxVal = OrientationTransformsType::OMHelperType::maxval(absR);
-    c1 = OrientationTransformsType::OMHelperType::maxval(OrientationTransformsType::OMHelperType::absValue(r)) <= EbsdLib::LPs::BP[3];
-  } else {
+  if(ot == OctahedralType)
+  {
+    double result = *(std::max_element(r.begin(), r.end()));
+    c1 = (result <= LPs::BP[3]);
+  }
+  else
+  {
     c1 = true;
   }
 
@@ -426,12 +427,11 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
   int32_t                 FZtype, FZorder;
 
   // step size for sampling of grid; total number of samples = (2*nsteps+1)**3
-  delta = (0.50 * EbsdLib::LPs::ap) / static_cast<double>(nsteps);
+  delta = ( 0.50 * LPs::ap)/static_cast<double>(nsteps);
 
   // determine which function we should call for this point group symmetry
   FZtype = FZtarray[pgnum-1];
   FZorder = FZoarray[pgnum-1];
-  typedef OrientationTransforms<DOrientArrayType, double> OrientationTransformsType;
 
   // loop over the cube of volume pi^2; note that we do not want to include
   // the opposite edges/facets of the cube, to avoid double counting rotations
@@ -449,9 +449,8 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
         z = static_cast<double>(k) * delta;
 
         // convert to Rodrigues representation
-        DOrientArrayType cu(x, y, z);
-        DOrientArrayType rod(4);
-        OrientationTransformsType::cu2ro(cu, rod);
+        OrientationType cu(x, y, z);
+        OrientationType rod = OrientationTransformation::cu2ro<OrientationType, OrientationType>(cu);
 
         // If insideFZ=true, then add this point to the linked list FZlist and keep
         // track of how many points there are on this list
@@ -466,29 +465,4 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
   }
 
   return FZlist;
-}
-
-// -----------------------------------------------------------------------------
-SO3Sampler::Pointer SO3Sampler::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
-SO3Sampler::Pointer SO3Sampler::New()
-{
-  Pointer sharedPtr(new(SO3Sampler));
-  return sharedPtr;
-}
-
-// -----------------------------------------------------------------------------
-const QString SO3Sampler::getNameOfClass() const
-{
-  return QString("SO3Sampler");
-}
-
-// -----------------------------------------------------------------------------
-QString SO3Sampler::ClassName()
-{
-  return QString("SO3Sampler");
 }

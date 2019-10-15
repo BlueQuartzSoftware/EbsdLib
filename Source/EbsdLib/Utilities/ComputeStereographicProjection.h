@@ -31,10 +31,11 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
+#include "EbsdLib/Core/DataArray.hpp"
+
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
-#include "EbsdLib/Core/DataArray.hpp"
 
 /**
 * @class ComputeStereographicProjection This class is a wrapper around simply generating a stereo graphically projected intensity "image" (2D Array) based

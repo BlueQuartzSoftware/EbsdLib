@@ -34,24 +34,27 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QImage>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/LaueOps/CubicLowOps.h"
-#include "EbsdLib/LaueOps/CubicOps.h"
-#include "EbsdLib/LaueOps/HexagonalLowOps.h"
-#include "EbsdLib/LaueOps/HexagonalOps.h"
-#include "EbsdLib/LaueOps/MonoclinicOps.h"
-#include "EbsdLib/LaueOps/OrthoRhombicOps.h"
-#include "EbsdLib/LaueOps/TetragonalLowOps.h"
-#include "EbsdLib/LaueOps/TetragonalOps.h"
-#include "EbsdLib/LaueOps/TriclinicOps.h"
-#include "EbsdLib/LaueOps/TrigonalLowOps.h"
-#include "EbsdLib/LaueOps/TrigonalOps.h"
-
+#include "SIMPLib/SIMPLib.h"
 #include "UnitTestSupport.hpp"
-#include "EbsdLibTestFileLocations.h"
+
+#include "OrientationLib/OrientationLib.h"
+#include "OrientationLib/LaueOps/CubicLowOps.h"
+#include "OrientationLib/LaueOps/CubicOps.h"
+#include "OrientationLib/LaueOps/HexagonalLowOps.h"
+#include "OrientationLib/LaueOps/HexagonalOps.h"
+#include "OrientationLib/LaueOps/MonoclinicOps.h"
+#include "OrientationLib/LaueOps/OrthoRhombicOps.h"
+#include "OrientationLib/LaueOps/TetragonalLowOps.h"
+#include "OrientationLib/LaueOps/TetragonalOps.h"
+#include "OrientationLib/LaueOps/TriclinicOps.h"
+#include "OrientationLib/LaueOps/TrigonalLowOps.h"
+#include "OrientationLib/LaueOps/TrigonalOps.h"
+
+#include "OrientationLibTestFileLocations.h"
 
 #define IMAGE_WIDTH 512
 #define IMAGE_HEIGHT 512
@@ -60,7 +63,12 @@ class IPFLegendTest
 {
 public:
   IPFLegendTest() = default;
-  virtual ~IPFLegendTest() = default;
+  ~IPFLegendTest() = default;
+
+  IPFLegendTest(const IPFLegendTest&) = delete;            // Copy Constructor Not Implemented
+  IPFLegendTest(IPFLegendTest&&) = delete;                 // Move Constructor Not Implemented
+  IPFLegendTest& operator=(const IPFLegendTest&) = delete; // Copy Assignment Not Implemented
+  IPFLegendTest& operator=(IPFLegendTest&&) = delete;      // Move Assignment Not Implemented
 
   // -----------------------------------------------------------------------------
   //
@@ -68,16 +76,6 @@ public:
   int getImageSize()
   {
     return IMAGE_HEIGHT;
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
-  {
-#if REMOVE_TEST_FILES
-// QFile::remove();
-#endif
   }
 
   // -----------------------------------------------------------------------------
@@ -111,12 +109,17 @@ public:
 
     bool saved = image.save(outputFile);
     DREAM3D_REQUIRE(saved == true)
+#if REMOVE_TEST_FILES
+    bool removed = QFile::remove(outputFile);
+    DREAM3D_REQUIRE(removed == true)
+#endif
   }
 
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <class LaueOpsType> void TestIPFLegend(const QString outputFile)
+  template <class LaueOpsType>
+  void TestIPFLegend(const QString outputFile)
   {
     LaueOpsType ops;
     UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
@@ -140,10 +143,6 @@ public:
     DREAM3D_REGISTER_TEST(TestIPFLegend<TrigonalLowOps>(UnitTest::IPFLegendTest::TrignonalLowFile))
     DREAM3D_REGISTER_TEST(TestIPFLegend<TrigonalOps>(UnitTest::IPFLegendTest::TrignonalHighFile))
 
-    DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 
-private:
-  IPFLegendTest(const IPFLegendTest&);  // Copy Constructor Not Implemented
-  void operator=(const IPFLegendTest&); // Move assignment Not Implemented
 };

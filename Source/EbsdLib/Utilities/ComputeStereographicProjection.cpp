@@ -31,11 +31,11 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ComputeStereographicProjection.h"
 
+#define CSP_DEBUG_OUTPUT 0
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 #endif
-
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
 // -----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void ComputeStereographicProjection::operator()() const
 
       intensity[index]++;
     }
-#if 0
+#if CSP_DEBUG_OUTPUT
     // This chunk is here for some debugging....
     int dim = m_Config->imageDim;
     QString filename = QString("/tmp/Discrete-%1-%2.h5").arg(m_Intensity->getName()).arg(dim);
@@ -101,7 +101,7 @@ void ComputeStereographicProjection::operator()() const
   {
     ModifiedLambertProjection::Pointer lambert = ModifiedLambertProjection::LambertBallToSquare(m_XYZCoords, m_Config->lambertDim, m_Config->sphereRadius);
     lambert->normalizeSquaresToMRD();
-#if 0
+#if CSP_DEBUG_OUTPUT
     int dim = lambert->getDimension();
     QString filename = QString("/tmp/Lambert-%1.h5").arg(dim).arg(m_Config->);
     hid_t file_id = H5Utilities::createFile(filename.toStdString());

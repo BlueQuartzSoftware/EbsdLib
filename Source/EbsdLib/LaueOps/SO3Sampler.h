@@ -31,11 +31,14 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <list>
+
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/OrientationMath/OrientationArray.hpp"
+
+#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @brief The SO3Sampler class
@@ -43,30 +46,16 @@
 class EbsdLib_EXPORT SO3Sampler
 {
   public:
-    using Self = SO3Sampler;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
-
-    static Pointer New();
-
-    /**
-     * @brief Returns the name of the class for SO3Sampler
-     */
-    const QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for SO3Sampler
-     */
-    static QString ClassName();
+    EBSD_SHARED_POINTERS(SO3Sampler)
+    EBSD_STATIC_NEW_MACRO(SO3Sampler)
+    EBSD_TYPE_MACRO(SO3Sampler)
 
     virtual ~SO3Sampler();
 
     /**
      * @brief OrientationListArrayType
      */
-    using OrientationListArrayType = std::list<DOrientArrayType>;
+    using OrientationListArrayType = std::list<Orientation<double>>;
 
     // sampler routine
     OrientationListArrayType SampleRFZ(int nsteps,int pgnum);
@@ -105,6 +94,7 @@ class EbsdLib_EXPORT SO3Sampler
     bool insideDihedralFZ(double* rod, int order);
 
   private:
+
   protected:
     SO3Sampler();
 

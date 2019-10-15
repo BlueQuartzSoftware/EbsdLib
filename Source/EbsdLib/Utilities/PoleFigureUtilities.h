@@ -41,7 +41,6 @@
 #include <QtCore/QVector>
 
 #include "EbsdLib/EbsdLib.h"
-
 #include "EbsdLib/Core/DataArray.hpp"
 
 /**
