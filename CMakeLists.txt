@@ -16,7 +16,7 @@ set(CMAKE_CXX_EXTENSIONS False)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set project's name
-PROJECT( EbsdLibProj VERSION 1.0.0)
+PROJECT( EbsdLibProj VERSION 2.0.0)
 
 # ---------- Setup output Directories -------------------------
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
