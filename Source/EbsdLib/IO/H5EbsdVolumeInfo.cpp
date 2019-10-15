@@ -198,7 +198,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
       if (phasesGid > 0)
       {
         std::list<std::string> names;
-        err = H5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
+        err = H5Utilities::getGroupObjects(phasesGid, static_cast<int32_t>(H5Utilities::CustomHDFDataTypes::Group), names);
         if (err >= 0)
         {
           m_NumPhases = static_cast<int>( names.size() );
@@ -214,7 +214,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
     if(dataGid > 0)
     {
       std::list<std::string> names;
-      err = H5Utilities::getGroupObjects(dataGid, H5Utilities::CustomHDFDataTypes::Dataset, names);
+      err = H5Utilities::getGroupObjects(dataGid, static_cast<int32_t>(H5Utilities::CustomHDFDataTypes::Dataset), names);
       if (err >= 0)
       {
         for(std::list<std::string>::iterator iter = names.begin(); iter != names.end(); iter++)

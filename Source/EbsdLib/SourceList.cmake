@@ -178,57 +178,5 @@ INSTALL(TARGETS ${PROJECT_NAME}
 
 
 
-# --------------------------------------------------------------------
-# Allow the generation and installation of a CMake configuration file
-# which makes using EBSDLib from another project easier.
-# --------------------------------------------------------------------
-
-# --------------------------------------------------------------------
-include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
-  VERSION ${EbsdLib_VERSION}
-  COMPATIBILITY AnyNewerVersion
-)
-#if(BUILD_SHARED_LIBS)
-  export(EXPORT ${PROJECT_NAME}Targets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}Targets.cmake"
-    NAMESPACE EbsdLib::
-  )
-#endif()
-
-configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
-  @ONLY
-)
-
-set(ConfigPackageLocation share/cmake/EbsdLib)
-
-#if(BUILD_SHARED_LIBS)
-  install(EXPORT ${PROJECT_NAME}Targets
-    FILE
-      ${PROJECT_NAME}Targets.cmake
-    NAMESPACE
-      EbsdLib::
-    DESTINATION
-      ${ConfigPackageLocation}
-  )
-
-#endif()
-
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
-)
-
-
-
-
 
 

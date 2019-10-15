@@ -65,7 +65,7 @@ namespace UnitTest
     const QString MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
     const QString HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHeader.ang");
     const QString ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
-    const QString EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxOIMData.h5");
+    const QString EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
   }
 
   namespace CtfReaderTest

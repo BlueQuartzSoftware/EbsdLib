@@ -38,16 +38,15 @@
 
 #include <vector>
 
-#ifdef EbsdLib_ENABLE_HDF5
-#include <hdf5.h>
-#endif
-
 #include <QtCore/QString>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
+#ifdef EbsdLib_ENABLE_HDF5
+#include <hdf5.h>
+#endif
 
 /**
  * @brief The ModifiedLambertProjectionArray class
