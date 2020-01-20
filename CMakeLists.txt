@@ -66,7 +66,7 @@ execute_process(COMMAND "${QtQMake_location}" -query QT_VERSION OUTPUT_VARIABLE 
 # Find the HDF5 Library as we need that.
 #-------------------------------------------------------------------------------
 # Extra Variables that need to be set before all the configured files are generated.
-option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
+option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" OFF)
 if(EbsdLib_ENABLE_HDF5)
 
 	include(${EbsdLibProj_SOURCE_DIR}/Source/H5Support/Support/CMP/ExtLib/HDF5Support.cmake)

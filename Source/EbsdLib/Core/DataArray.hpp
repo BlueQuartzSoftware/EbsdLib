@@ -42,6 +42,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
