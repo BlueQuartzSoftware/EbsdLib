@@ -12,7 +12,6 @@ endif(BUILD_SHARED_LIBS)
 
 include (${EbsdLibProj_SOURCE_DIR}/cmake/EbsdLibMacros.cmake)
 
-
 #-------------------------------------------------------------------------------
 # Core
 #-------------------------------------------------------------------------------
@@ -63,6 +62,7 @@ set(VERSION_GEN_VER_REVISION "0")
 set(PROJECT_PREFIX "EbsdLib")
 cmpGenerateBuildDate(PROJECT_NAME EbsdLibProj)
 set(VERSION_BUILD_DATE ${EbsdLibProj_BUILD_DATE})
+
 #------------------------------------------------------------------------------
 # Find the Git Package for Versioning. It should be ok if Git is NOT found
 Find_package(Git)
@@ -121,6 +121,22 @@ endif()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 
+# Start building up the list of libraries to link against
+set(EBSDLib_LINK_LIBRARIES Qt5::Core)
+
+#------------------------------------------------------------------------------
+# Now add in the H5Support sources to the current target
+if(EbsdLib_ENABLE_HDF5)
+  include (${H5Support_SOURCE_DIR}/H5SupportFunctions.cmake)
+  
+  set(H5Support_INCLUDE_QT_API ON)
+  set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
+
+  AddH5SupportSources(TARGET ${PROJECT_NAME} QT_SUPPORT ${H5Support_INCLUDE_QT_API} BINARY_DIR ${EbsdLibProj_BINARY_DIR})
+  
+endif()
+
+
 CMP_AddDefinitions(TARGET ${PROJECT_NAME})
 
 #-- Configure Target Specific Include Directories
@@ -139,17 +155,7 @@ target_include_directories(${PROJECT_NAME}
                             ${H5Support_INCLUDE_DIRS}
 )
 
-# Start building up the list of libraries to link against
-set(EBSDLib_LINK_LIBRARIES Qt5::Core)
 
-# If we compiled against HDF5, we need that on the list of link libs
-if(${EbsdLib_ENABLE_HDF5})
-	set(EBSDLib_LINK_LIBRARIES
-		${EBSDLib_LINK_LIBRARIES}
-      H5Support::H5Support
-		)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DEbsdLib_HAVE_HDF5)
-endif()
 
 
 if(WIN32 AND BUILD_SHARED_LIBS)

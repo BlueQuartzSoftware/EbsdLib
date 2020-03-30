@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 3.14.0)
 
 # Request C++14 standard, using new CMake variables.
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_EXTENSIONS False)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 #--------------------------------------------------------------------------------------------------
 # Always write out the compile_commands.json file to help out things like QtCreator and VS Code
@@ -62,19 +62,27 @@ get_property(Qt5_STATUS_PRINTED GLOBAL PROPERTY Qt5_STATUS_PRINTED)
 execute_process(COMMAND "${QtQMake_location}" -query QT_INSTALL_PREFIX OUTPUT_VARIABLE QM_QT_INSTALL_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND "${QtQMake_location}" -query QT_VERSION OUTPUT_VARIABLE QM_QT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
+
 #-------------------------------------------------------------------------------
 # Find the HDF5 Library as we need that.
 #-------------------------------------------------------------------------------
 # Extra Variables that need to be set before all the configured files are generated.
-option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" OFF)
+option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
 if(EbsdLib_ENABLE_HDF5)
-
-	include(${EbsdLibProj_SOURCE_DIR}/Source/H5Support/Support/CMP/ExtLib/HDF5Support.cmake)
-	
-
-	set(H5Support_INCLUDE_QT_API ON)
-	add_subdirectory(${EbsdLibProj_SOURCE_DIR}/Source/H5Support ${EbsdLibProj_BINARY_DIR}/H5Support)
-
+	#------------------------------------------------------------------------------
+	# If the developer has set another H5Support directory then use that, otherwise look
+	# for the H5Support directory at the same level as the EBSDLib directory
+	if("${H5Support_SOURCE_DIR}" STREQUAL "")
+		if(EXISTS "${EbsdLib_PARENT}/H5Support")
+			set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
+		else()
+			message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
+		endif()
+		message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
+	endif()
+	# This will find the HDF5 Libraries
+	include(${EbsdLibProj_SOURCE_DIR}/cmake/HDF5Support.cmake)
 endif()
 mark_as_advanced(EbsdLib_ENABLE_HDF5)
 
@@ -91,7 +99,6 @@ else()
 endif()
 
 
-
 include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
 
 
@@ -99,3 +106,6 @@ option(EbsdLib_ENABLE_TESTING "Enable the unit test" ON)
 if(EbsdLib_ENABLE_TESTING)
 	include(${EbsdLibProj_SOURCE_DIR}/Source/Test/CMakeLists.txt)
 endif()
+
+
+
