@@ -45,7 +45,6 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
-
 #include "EbsdLib/IO/BrukerNano/EspritPhase.h"
 
 // -----------------------------------------------------------------------------

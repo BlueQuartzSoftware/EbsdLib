@@ -36,6 +36,8 @@
 
 #include "ModifiedLambertProjection.h"
 
+
+
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/MatrixMath.h"
 
@@ -154,7 +156,6 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 
 
 }
-
 #ifdef EbsdLib_ENABLE_HDF5
 // -----------------------------------------------------------------------------
 //
@@ -181,8 +182,8 @@ int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
   int err = -1;
   return err;
 }
-#endif
 
+#endif
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -603,129 +604,57 @@ DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjectio
   return stereoIntensity;
 }
 
-
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ModifiedLambertProjection::createProjection(int dim, std::vector<float> &stereoIntensity, ModifiedLambertProjection::ProjectionType projType)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::NullPointer()
 {
-  int xpoints = dim;
-  int ypoints = dim;
-
-  int xpointshalf = xpoints / 2;
-  int ypointshalf = ypoints / 2;
-
-  float span;
-  float unitRadius = 1.0;
-  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-  {
-  }
-  else if(projType == ModifiedLambertProjection::ProjectionType::Circular)
-  {
-    unitRadius = std::sqrt(2.0f);
-  }
-  else
-  {
-    return;
-  }
-
-  span = unitRadius - (-unitRadius);
-
-
-  float xres = span / static_cast<float>(xpoints);
-  float yres = span / static_cast<float>(ypoints);
-  float xtmp, ytmp;
-  float sqCoord[2];
-  float xyz[3];
-  bool nhCheck = false;
-
-  std::fill(stereoIntensity.begin(), stereoIntensity.end(), 0.0f);
-  float* intensity = stereoIntensity.data();
-// int sqIndex = 0;
-
-  for (int64_t y = 0; y < ypoints; y++)
-  {
-    for (int64_t x = 0; x < xpoints; x++)
-    {
-      //get (x,y) for stereographic projection pixel
-      xtmp = static_cast<float>(x - xpointshalf) * xres + (xres * 0.5f);
-      ytmp = static_cast<float>(y - ypointshalf) * yres + (yres * 0.5f);
-      size_t index = static_cast<size_t>(y * xpoints + x);
-      if((xtmp * xtmp + ytmp * ytmp) <= unitRadius * unitRadius)
-      {
-        //project xy from stereo projection to the unit sphere
-        if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-        {
-          xyz[2] = -((xtmp * xtmp + ytmp * ytmp) - 1) / ((xtmp * xtmp + ytmp * ytmp) + 1);
-          xyz[0] = xtmp * (1 + xyz[2]);
-          xyz[1] = ytmp * (1 + xyz[2]);
-        }
-        else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
-        {
-          float q = xtmp*xtmp + ytmp*ytmp;
-          float t = std::sqrt(1.0f - (q / 4.0f));
-
-          xyz[0] = xtmp * t;
-          xyz[1] = ytmp * t;
-          xyz[2] = (q / 2.0f) - 1.0f;
-        }
-        else
-        {
-          // Not a valid projection type
-          return;
-        }
-
-
-        for( int64_t m = 0; m < 2; m++)
-        {
-          if(m == 1)
-          {
-            xyz[0] *= -1.0;
-            xyz[1] *= -1.0;
-            xyz[2] *= -1.0;
-          }
-          nhCheck = getSquareCoord(xyz, sqCoord);
-          //sqIndex = getSquareIndex(sqCoord);
-          if (nhCheck)
-          {
-            //get Value from North square
-            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::NorthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::Square::NorthSquare, sqIndex);
-          }
-          else
-          {
-            //get Value from South square
-            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::SouthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
-          }
-        }
-        intensity[index]  = intensity[index] * 0.5f;
-      }
-    }
-  }
+  return Pointer(static_cast<Self*>(nullptr));
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-typename std::vector<float> ModifiedLambertProjection::createProjection(int dim, ModifiedLambertProjection::ProjectionType projType)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::New()
 {
-  QString arrayName;
-  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-  {
-    arrayName = "ModifiedLambertProjection_StereographicProjection";
-  }
-  else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
-  {
-    arrayName = "ModifiedLambertProjection_CircularProjection";
-  }
-  else
-  {
-    // Not a valid projection type
-    return std::vector<float>();
-  }
+  Pointer sharedPtr(new(ModifiedLambertProjection));
+  return sharedPtr;
+}
 
-  typename std::vector<float> intensity(dim*dim, 0.0);
-  createProjection(dim, intensity, projType);
-  return intensity;
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjection::getNameOfClass() const
+{
+  return QString("ModifiedLambertProjection");
+}
+
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjection::ClassName()
+{
+  return QString("ModifiedLambertProjection");
+}
+
+// -----------------------------------------------------------------------------
+int ModifiedLambertProjection::getDimension() const
+{
+  return m_Dimension;
+}
+
+// -----------------------------------------------------------------------------
+float ModifiedLambertProjection::getStepSize() const
+{
+  return m_StepSize;
+}
+
+// -----------------------------------------------------------------------------
+float ModifiedLambertProjection::getSphereRadius() const
+{
+  return m_SphereRadius;
+}
+
+// -----------------------------------------------------------------------------
+DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
+{
+  return m_NorthSquare;
+}
+
+// -----------------------------------------------------------------------------
+DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
+{
+  return m_SouthSquare;
 }

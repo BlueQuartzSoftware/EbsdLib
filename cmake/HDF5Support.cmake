@@ -140,7 +140,7 @@ if(HDF5_FOUND)
   # Add the library directory to the file that has all the search directories stored in it.
   get_property(HDF5_STATUS_PRINTED GLOBAL PROPERTY HDF5_STATUS_PRINTED)
   if(NOT HDF5_STATUS_PRINTED)
-    message(STATUS "HDF5 Location: ${HDF5_INSTALL}")
+    message(STATUS "HDF5 Location: ${HDF5_DIR}")
     message(STATUS "HDF5 Version: ${HDF5_VERSION_STRING}")
     set_property(GLOBAL PROPERTY HDF5_STATUS_PRINTED TRUE)
 

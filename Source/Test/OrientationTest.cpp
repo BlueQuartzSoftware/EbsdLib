@@ -1,6 +1,5 @@
 
 #include <cstdlib>
-
 #include <algorithm>
 #include <complex>
 #include <iomanip>
@@ -19,20 +18,20 @@
 
 #include <QtCore/QVector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/Math/ArrayHelpers.hpp"
-#include "EbsdLib/Math/MatrixMath.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/ArrayHelpers.hpp"
+#include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/MatrixMath.h"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
-#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
-
-#include "UnitTestSupport.hpp"
-#include "TestPrintFunctions.h"
 
 using namespace EbsdLib::Constants;
+
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
+#include "TestPrintFunctions.h"
+#include "UnitTestSupport.hpp"
 
 class OrientationTest
 {

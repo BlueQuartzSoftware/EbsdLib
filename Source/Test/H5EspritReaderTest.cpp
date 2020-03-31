@@ -9,7 +9,6 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 #include "EbsdLib/IO/BrukerNano/H5EspritReader.h"
-
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 #include "UnitTestSupport.hpp"

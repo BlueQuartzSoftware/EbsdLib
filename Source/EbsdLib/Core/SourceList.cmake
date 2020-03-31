@@ -18,6 +18,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
 set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/AbstractEbsdFields.cpp 
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdTransform.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/DataArray.cpp
 )
 
 

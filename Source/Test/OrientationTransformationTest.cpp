@@ -39,20 +39,24 @@
 #include <QtCore/QFile>
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtCore/QTextStream>
+#include <QtCore/QDebug>
 
-#include "SIMPLib/Common/Observer.h"
-#include "SIMPLib/CoreFilters/DataContainerWriter.h"
-#include "SIMPLib/Filtering/AbstractFilter.h"
-#include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
-#include "SIMPLib/Plugin/ISIMPLibPlugin.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
+#include "EbsdLib/Common/Observer.h"
+#include "EbsdLib/CoreFilters/DataContainerWriter.h"
+#include "EbsdLib/Filtering/AbstractFilter.h"
+#include "EbsdLib/Filtering/FilterManager.h"
+#include "EbsdLib/Filtering/QMetaObjectUtilities.h"
+#include "EbsdLib/Plugin/IEbsdLibPlugin.h"
+#include "EbsdLib/Plugin/EbsdLibPluginLoader.h"
+#include "EbsdLib/DataContainers/DataContainerArray.h"
+#include "EbsdLib/DataContainers/DataContainer.h"
 
 #include "UnitTestSupport.hpp"
 
-#include "OrientationLib/Core/Orientation.hpp"
-#include "OrientationLib/Core/OrientationTransformation.hpp"
-#include "OrientationLib/OrientationMath/OrientationConverter.hpp"
+#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 
 #include "GenerateFunctionList.h"
 #include "OrientationLibTestFileLocations.h"
@@ -165,14 +169,14 @@ public:
           eulers->setComponent(counter, 2, phi2_min + k * phi2_delta);
 
           T one80Check = phi1_min + i * phi1_delta + phi2_min + k * phi2_delta;
-          if(SIMPLibMath::closeEnough(static_cast<T>(SIMPLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
+          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
           {
             eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
             eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);
           }
 
-          one80Check = fmod(one80Check, SIMPLib::Constants::k_2Pi);
-          if(SIMPLibMath::closeEnough(static_cast<T>(SIMPLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
+          one80Check = fmod(one80Check, EbsdLib::Constants::k_2Pi);
+          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
           {
             eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
             eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);
@@ -477,7 +481,7 @@ public:
 
         DataArrayPath daPath(DCName, AMName, diffMapArrayName);
         std::vector<size_t> cDims(1, k_CompDims[cDim]);
-        typename DataArray<K>::Pointer diff = dca->getPrereqArrayFromPath<DataArray<K>, AbstractFilter>(diffMapFilt.get(), daPath, cDims);
+        typename DataArray<K>::Pointer diff = dca->getPrereqArrayFromPath<DataArray<K>>(diffMapFilt.get(), daPath, cDims);
 
         size_t tuples = diff->getNumberOfTuples();
         // printf("Total Tuples: %lu\n", tuples);

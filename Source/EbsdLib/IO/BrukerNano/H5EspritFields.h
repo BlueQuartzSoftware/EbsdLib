@@ -39,7 +39,6 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 
 /**

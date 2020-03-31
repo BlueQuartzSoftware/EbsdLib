@@ -32,17 +32,13 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-
-
 #pragma once
+
+#include <QtCore/QString>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 
-#ifdef EbsdLib_ENABLE_HDF5
-#include "H5Support/QH5Lite.h"
-#endif
 
 /**
  * @brief Creates a static "New" method that creates an instance of thisClass
@@ -127,8 +123,6 @@
       EbsdHeaderEntry(EbsdHeaderEntry&&) = delete;      // Move Constructor Not Implemented
       EbsdHeaderEntry& operator=(const EbsdHeaderEntry&) = delete; // Copy Assignment Not Implemented
       EbsdHeaderEntry& operator=(EbsdHeaderEntry&&) = delete;      // Move Assignment Not Implemented
-
-  private:
 
 
   };

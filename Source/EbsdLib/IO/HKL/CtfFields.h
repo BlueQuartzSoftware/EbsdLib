@@ -43,7 +43,6 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/AbstractEbsdFields.h"
-
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 
 /**

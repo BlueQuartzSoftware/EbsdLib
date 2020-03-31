@@ -36,9 +36,8 @@
 
 #pragma once
 
-#include "SIMPLib/SIMPLib.h"
-
-#include "OrientationLib/OrientationLib.h"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/EbsdLib.h"
 
 
 /**
@@ -50,7 +49,7 @@
  * @date Jul 30, 2014
  * @version 5.1
  */
-class OrientationLib_EXPORT OrientationMath
+class EbsdLib_EXPORT OrientationMath
 {
   public:
 

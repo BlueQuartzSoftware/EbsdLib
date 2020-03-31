@@ -127,13 +127,20 @@ set(EBSDLib_LINK_LIBRARIES Qt5::Core)
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target
 if(EbsdLib_ENABLE_HDF5)
-  include (${H5Support_SOURCE_DIR}/H5SupportFunctions.cmake)
-  
-  set(H5Support_INCLUDE_QT_API ON)
-  set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
-
-  AddH5SupportSources(TARGET ${PROJECT_NAME} QT_SUPPORT ${H5Support_INCLUDE_QT_API} BINARY_DIR ${EbsdLibProj_BINARY_DIR})
-  
+  target_sources(${PROJECT_NAME}  PRIVATE
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Lite.h       
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Macros.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedErrorHandler.h 
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h     
+    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Lite.h          
+    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Utilities.h
+  )
+   set(H5Support_USE_QT ON)
+   set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
+   target_compile_definitions( ${PROJECT_NAME} PRIVATE  -DH5Support_USE_QT)
 endif()
 
 
@@ -148,15 +155,19 @@ target_include_directories(${PROJECT_NAME}
                             ${EbsdLibProj_SOURCE_DIR}/Source
                             ${EbsdLibProj_BINARY_DIR}
                             ${EIGEN3_INCLUDE_DIR}
-                            ${HDF5_INCLUDE_DIRS}
-                            ${HDF5_INCLUDE_DIR}
                             ${Qt5Core_INCLUDE_DIRS}
                             ${Qt5Core_INCLUDE_DIR}
-                            ${H5Support_INCLUDE_DIRS}
 )
 
 
-
+if(EbsdLib_ENABLE_HDF5)
+  target_include_directories(${PROJECT_NAME}
+                            PRIVATE
+                              ${HDF5_INCLUDE_DIRS}
+                              ${HDF5_INCLUDE_DIR}
+                              ${H5Support_SOURCE_DIR}/Source
+                             )
+endif()
 
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
@@ -164,6 +175,11 @@ endif()
 	
 LibraryProperties( ${PROJECT_NAME} ${EXE_DEBUG_EXTENSION} )
 target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
+
+if(EBSD_USE_PARALLEL_ALGORITHMS)
+  target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
+endif()
+
 
 
 set(install_dir "bin")

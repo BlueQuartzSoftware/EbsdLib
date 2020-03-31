@@ -99,6 +99,12 @@ else()
 endif()
 
 
+option(EBSD_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
+if(EBSD_USE_PARALLEL_ALGORITHMS)
+  include(${EbsdLibProj_SOURCE_DIR}/cmake/TBBSupport.cmake)
+endif()
+
+
 include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
 
 

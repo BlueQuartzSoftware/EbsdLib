@@ -41,10 +41,10 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 
-#if EbsdLib_HDF5_SUPPORT
+#ifdef EbsdLib_ENABLE_HDF5
+#include "EbsdLib/IO/TSL/H5AngImporter.h"
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
-#include "EbsdLib/IO/TSL/H5AngImporter.h"
 #endif
 
 #include "UnitTestSupport.hpp"

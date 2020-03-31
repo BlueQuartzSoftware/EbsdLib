@@ -11,6 +11,8 @@
 
 #cmakedefine EbsdLib_USE_SIMPL
 
+#cmakedefine EBSD_USE_PARALLEL_ALGORITHMS
+
 /* Include the Overall Configuration header file */
 //#include "@PROJECT_NAME@/@CMP_CONFIGURATION_FILE_NAME@"
 

@@ -32,8 +32,6 @@
 #pragma once
 
 #include "EbsdLib/Core/DataArray.hpp"
-
-
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 

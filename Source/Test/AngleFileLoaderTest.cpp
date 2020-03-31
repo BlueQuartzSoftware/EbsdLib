@@ -43,8 +43,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 
-#include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/Utilities/IO/AngleFileLoader.h"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Utilities/IO/AngleFileLoader.h"
 
 #include "UnitTestSupport.hpp"
 

@@ -45,6 +45,9 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 
+#ifdef EbsdLib_ENABLE_HDF5
+#include "H5Support/H5Lite.h"
+#endif
 
 /**
  * @class AngHeaderEntry AngHeaderEntry.h EbsdLib/IO/TSL/AngHeaderEntry.h

@@ -140,8 +140,10 @@ AddSIMPLUnitTest(TESTNAME EbsdLibUnitTest
     ${EIGEN3_INCLUDE_DIR}
     ${HDF5_INCLUDE_DIRS}
     ${HDF5_INCLUDE_DIR}
-    ${H5Support_INCLUDE_DIRS}
+    ${H5Support_SOURCE_DIR}/Source
   )
+target_compile_definitions( EbsdLibUnitTest PRIVATE  -DH5Support_USE_QT)
+
 
 if(MSVC)
   set_source_files_properties(${EbsdLibProj_BINARY_DIR}/EbsdLibUnitTest.cpp PROPERTIES COMPILE_FLAGS /bigobj)

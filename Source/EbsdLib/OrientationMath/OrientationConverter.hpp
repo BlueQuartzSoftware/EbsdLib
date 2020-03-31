@@ -36,21 +36,17 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
-#include <QtCore/QVector>
 #include <QtCore/QString>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Core/DataArray.hpp"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-
 #include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/EbsdLib.h"
-
-#include "EbsdLib/Core/Orientation.hpp"
-
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -58,21 +54,6 @@
 #include <tbb/partitioner.h>
 #include <tbb/task_scheduler_init.h>
 #endif
-
-namespace OrientationRepresentation
-{
-enum class Type : int
-{
-  Euler = 0,
-  OrientationMatrix,
-  Quaternion,
-  AxisAngle,
-  Rodrigues,
-  Homochoric,
-  Cubochoric,
-  Unknown
-};
-}
 
 /**
  * @brief This is the top level superclass for doing the conversions between orientation
@@ -82,7 +63,7 @@ template<typename T>
 class OrientationConverter
 {
   public:
-    EBSD_SHARED_POINTERS(OrientationConverter<T> )
+    EBSD_SHARED_POINTERS(OrientationConverter<T>)
     EBSD_TYPE_MACRO(OrientationConverter<T>)
 
     ~OrientationConverter() = default;
@@ -198,19 +179,20 @@ class OrientationConverter
     * @brief Sets/Gets the input orientations
     */
     EBSD_INSTANCE_PROPERTY(typename DataArray<T>::Pointer, InputData)
-    
+
     /**
-    * @brief Sets/Gets the output orientations
-    */
+     * @brief Sets/Gets the output orientations
+     */
     EBSD_INSTANCE_PROPERTY(typename DataArray<T>::Pointer, OutputData)
-    
+
     /**
      * @brief GetOrientationTypeStrings
      * @return
      */
-    static QVector<QString> GetOrientationTypeStrings()
+    template <typename ContainerType>
+    static ContainerType GetOrientationTypeStrings()
     {
-      QVector<QString> otypes(7);
+      ContainerType otypes(7);
       otypes[0] = "Euler";
       otypes[1] = "Orientation Matrix";
       otypes[2] = "Quaternion";
@@ -225,9 +207,10 @@ class OrientationConverter
      * @brief GetComponentCounts
      * @return
      */
-    static QVector<int> GetComponentCounts()
+    template <typename ContainerType>
+    static ContainerType GetComponentCounts()
     {
-      QVector<int> counts(7);
+      ContainerType counts(7);
       counts[0] = 3; // Euler
       counts[1] = 9; // Orientation Matrix
       counts[2] = 4; // Quaternion
@@ -242,9 +225,9 @@ class OrientationConverter
      * @brief GetOrientationTypes
      * @return
      */
-    static QVector<OrientationRepresentation::Type> GetOrientationTypes()
+    static std::vector<OrientationRepresentation::Type> GetOrientationTypes()
     {
-      QVector<OrientationRepresentation::Type> ocTypes(7);
+      std::vector<OrientationRepresentation::Type> ocTypes(7);
       ocTypes[0] = OrientationRepresentation::Type::Euler;
       ocTypes[1] = OrientationRepresentation::Type::OrientationMatrix;
       ocTypes[2] = OrientationRepresentation::Type::Quaternion;
@@ -392,8 +375,8 @@ class ConvertRepresentation
         input = input + m_InStride; /* Increment input pointer */ 
         output = output + m_OutStride; /* Increment output pointer*/ 
       }
-    } 
-    
+    }
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -478,7 +461,7 @@ class EulerSanityCheck
         inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -500,8 +483,8 @@ template<typename T>
 class EulerConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(EulerConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(EulerConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(EulerConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(EulerConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(EulerConverter<T>)
 
     virtual ~EulerConverter() = default;
@@ -555,7 +538,7 @@ class EulerConverter : public OrientationConverter<T>
       T* inPtr = input->getPointer(0);
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
-      
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
       tbb::task_scheduler_init init;
       bool doParallel = true;
@@ -653,7 +636,7 @@ class OrientationMatrixSanityCheck
         inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -686,8 +669,8 @@ template<typename T>
 class OrientationMatrixConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(OrientationMatrixConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(OrientationMatrixConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(OrientationMatrixConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(OrientationMatrixConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(OrientationMatrixConverter<T>)
 
     virtual ~OrientationMatrixConverter() = default;
@@ -835,7 +818,7 @@ class QuaternionSanityCheck
         
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -854,8 +837,8 @@ template<typename T>
 class QuaternionConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(QuaternionConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(QuaternionConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(QuaternionConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(QuaternionConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(QuaternionConverter<T>)
 
     virtual ~QuaternionConverter() = default;
@@ -1000,7 +983,7 @@ class AxisAngleSanityCheck
         
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -1018,8 +1001,8 @@ template<typename T>
 class AxisAngleConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(AxisAngleConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(AxisAngleConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(AxisAngleConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(AxisAngleConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(AxisAngleConverter<T>)
 
     virtual ~AxisAngleConverter() = default;
@@ -1165,7 +1148,7 @@ class RodriguesSanityCheck
         
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -1183,8 +1166,8 @@ template<typename T>
 class RodriguesConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(RodriguesConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(RodriguesConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(RodriguesConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(RodriguesConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(RodriguesConverter<T>)
 
     virtual ~RodriguesConverter() = default;
@@ -1331,7 +1314,7 @@ class HomochoricSanityCheck
         
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -1349,8 +1332,8 @@ template<typename T>
 class HomochoricConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(HomochoricConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(HomochoricConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(HomochoricConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(HomochoricConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(HomochoricConverter<T>)
 
     virtual ~HomochoricConverter() = default;
@@ -1498,7 +1481,7 @@ class CubochoricSanityCheck
         
       }
     }
-    
+
 #ifdef EBSD_USE_PARALLEL_ALGORITHMS
     void operator()(const tbb::blocked_range<size_t>& r) const
     {
@@ -1516,8 +1499,8 @@ template<typename T>
 class CubochoricConverter : public OrientationConverter<T>
 {
   public:
-    EBSD_SHARED_POINTERS(CubochoricConverter<T> )
-    EBSD_TYPE_MACRO_SUPER_OVERRIDE(CubochoricConverter<T>, OrientationConverter<T>)
+    EBSD_SHARED_POINTERS(CubochoricConverter<T>)
+    EBSD_TYPE_MACRO_SUPER(CubochoricConverter<T>, OrientationConverter<T>)
     EBSD_STATIC_NEW_MACRO(CubochoricConverter<T>)
 
     virtual ~CubochoricConverter() = default;
