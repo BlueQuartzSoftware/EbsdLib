@@ -59,9 +59,9 @@ namespace OrthoRhombic
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * ((EbsdLib::Constants::k_PiOver2)-sinf((EbsdLib::Constants::k_PiOver2)))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_PiOver2)-sinf((EbsdLib::Constants::k_PiOver2)))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_PiOver2)-sinf((EbsdLib::Constants::k_PiOver2)))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -687,7 +687,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigur
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   std::vector<size_t> dims(1, 3);
@@ -954,9 +954,9 @@ EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatType& q, con
   z2 = (x1 + y1 + z1) / sqrt(3.0);
 
   //eq c1.4
-  k = fmodf(atan2f(y2, x2) + 2.0f * EbsdLib::Constants::k_Pi, 2.0f * EbsdLib::Constants::k_Pi);
-  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + fmodf(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
-  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + fmodf(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
+  k = std::fmod(std::atan2(y2, x2) + 2.0f * EbsdLib::Constants::k_Pi, 2.0f * EbsdLib::Constants::k_Pi);
+  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
+  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
   z3 = z2 - 1.0;
 
   //eq c1.5

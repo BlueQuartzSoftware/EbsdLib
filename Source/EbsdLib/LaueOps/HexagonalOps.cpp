@@ -59,9 +59,9 @@ namespace HexagonalHigh
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * (((EbsdLib::Constants::k_PiOver2)) - sinf(((EbsdLib::Constants::k_PiOver2))))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (((EbsdLib::Constants::k_PiOver2)) - sinf(((EbsdLib::Constants::k_PiOver2))))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_Pi / 6.0) - sinf(EbsdLib::Constants::k_Pi / 6.0))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -279,16 +279,16 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
     else
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
       FZw = 30.0f - FZw;
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
   }
 
@@ -1329,7 +1329,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
@@ -1495,7 +1495,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = sinf(30.0 * EbsdLib::Constants::k_PiOver180) / cosf(30.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180);
 
   EbsdLib::Rgb color;
   size_t idx = 0;
@@ -1656,9 +1656,9 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   z2 = (x1 + y1 + z1) / EbsdLib::Constants::k_Sqrt3;
 
   //eq c1.4
-  k = fmodf(atan2f(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
-  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
-  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
+  k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
+  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
+  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
   z3 = z2 - 1.0f;
 
   //eq c1.5

@@ -35,9 +35,9 @@
 
 #pragma once
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/EbsdLib.h"
+#include <cstdint>
 
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @class OrientationMath OrientationMath.h DREAM3DLib/Common/OrientationMath.h
@@ -141,7 +141,7 @@ class EbsdLib_EXPORT OrientationMath
     * @param millerBravais Input Vector (UVTW)
     * @param miller Output Vector (UVW)
     */
-    static void MillerBravaisToMillerDirection(const int millerBravais[4], int miller[3]);
+    static void MillerBravaisToMillerDirection(const int32_t millerBravais[4], int32_t miller[3]);
 
     /**
     * @brief Converts 3 parameter Miller lattice coordinates direction to 4 parameter Miller-Bravais lattice
@@ -149,7 +149,7 @@ class EbsdLib_EXPORT OrientationMath
     * @param miller Input Vector (UVW)
     * @param millerBravais Output Vector (UVTW)
     */
-    static void MillerToMillerBravaisDirection(const int miller[3], int millerBravais[4]);
+    static void MillerToMillerBravaisDirection(const int32_t miller[3], int32_t millerBravais[4]);
 
     /**
     * @brief Converts 4 parameter Miller-Bravais lattice coordinates plane to 3 parameter Miller lattice
@@ -157,7 +157,7 @@ class EbsdLib_EXPORT OrientationMath
     * @param millerBravais Input Vector (HKIL)
     * @param miller Output Vector (HKL)
     */
-    static void MillerBravaisToMillerPlane(const int millerBravais[4], int miller[3]);
+    static void MillerBravaisToMillerPlane(const int32_t millerBravais[4], int32_t miller[3]);
 
     /**
     * @brief Converts 3 parameter Miller lattice coordinates plane to 4 parameter Miller-Bravais lattice
@@ -165,7 +165,7 @@ class EbsdLib_EXPORT OrientationMath
     * @param miller Input Vector (HKL)
     * @param millerBravais Output Vector (HKIL)
     */
-    static void MillerToMillerBravaisPlane(const int miller[3], int millerBravais[4]);
+    static void MillerToMillerBravaisPlane(const int32_t miller[3], int32_t millerBravais[4]);
 
   protected:
     OrientationMath();

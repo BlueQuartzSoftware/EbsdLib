@@ -40,11 +40,8 @@ public:
   OrientationTest() = default;
   virtual ~OrientationTest() = default;
 
-  // typedef OrientationArray<float> OrientationF;
   using FloatVectorType = std::vector<float>;
-  using FloatQVectorType = QVector<float>;
   using DoubleVectorType = std::vector<double>;
-  using DoubleQVectorType = QVector<double>;
 
   // -----------------------------------------------------------------------------
   //
@@ -122,18 +119,6 @@ public:
       result = OrientationTransformation::eu_check(eu_v);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType eu_q(3);
-      eu_q[0] = 1.0f;
-      eu_q[1] = 0.4f;
-      eu_q[2] = 0.9f;
-      result = OrientationTransformation::eu_check(eu_q);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      eu_q[0] = -1.0;
-      result = OrientationTransformation::eu_check(eu_q);
-      DREAM3D_REQUIRE_EQUAL(result.result, -1);
-    }
   }
 
   // -----------------------------------------------------------------------------
@@ -159,21 +144,6 @@ public:
     {
       OrientationTransformation::ResultType result;
       FloatVectorType ro(4);
-      ro[0] = 1.0f;
-      ro[1] = 1.0f;
-      ro[2] = 1.0f;
-      ro[3] = 1.0f;
-      EbsdMatrixMath::Normalize3x1(&(ro[0]));
-      result = OrientationTransformation::ro_check(ro);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      ro[3] = -1.0;
-      result = OrientationTransformation::ro_check(ro);
-      DREAM3D_REQUIRE_EQUAL(result.result, -1);
-    }
-
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType ro(4);
       ro[0] = 1.0f;
       ro[1] = 1.0f;
       ro[2] = 1.0f;
@@ -217,19 +187,6 @@ public:
       result = OrientationTransformation::ho_check(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
-
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType ho(3);
-      ho[0] = 0.5f;
-      ho[1] = 0.5f;
-      ho[2] = 0.5f;
-      result = OrientationTransformation::ho_check(ho);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      ho[2] = 8.0;
-      result = OrientationTransformation::ho_check(ho);
-      DREAM3D_REQUIRE_EQUAL(result.result, -1);
-    }
   }
 
   // -----------------------------------------------------------------------------
@@ -253,19 +210,6 @@ public:
     {
       OrientationTransformation::ResultType result;
       FloatVectorType v(3);
-      v[0] = 0.5f;
-      v[1] = 0.5f;
-      v[2] = 0.5f;
-      result = OrientationTransformation::cu_check(v);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      v[2] = 8.0;
-      result = OrientationTransformation::cu_check(v);
-      DREAM3D_REQUIRE_EQUAL(result.result, -1);
-    }
-
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
       v[2] = 0.5f;
@@ -328,28 +272,6 @@ public:
       result = OrientationTransformation::qu_check(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
-
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType qu(4);
-      qu[0] = quat.x();
-      qu[1] = quat.y();
-      qu[2] = quat.z();
-      qu[3] = quat.w();
-      EbsdMatrixMath::Normalize3x1(&(qu[0]));
-      result = OrientationTransformation::qu_check(qu);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-
-      qu[0] = 1.5f;
-      qu[1] = 3.0f;
-      qu[2] = 2.0f;
-      result = OrientationTransformation::qu_check(qu);
-      DREAM3D_REQUIRE_EQUAL(result.result, -2);
-
-      qu[0] = -1.0;
-      result = OrientationTransformation::qu_check(qu);
-      DREAM3D_REQUIRE_EQUAL(result.result, -2);
-    }
   }
 
   // -----------------------------------------------------------------------------
@@ -391,25 +313,6 @@ public:
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
-      ax[3] = EbsdLib::Constants::k_Pi + 1.0;
-      result = OrientationTransformation::ax_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, -1);
-    }
-
-    {
-      OrientationTransformation::ResultType result;
-      FloatQVectorType ax(4);
-      ax[0] = 0.0f;
-      ax[1] = 0.0f;
-      ax[2] = 1.0f;
-      ax[3] = EbsdLib::Constants::k_Pi - 0.00001f;
-      result = OrientationTransformation::ax_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-
-      ax[0] = 1.0f;
-      result = OrientationTransformation::ax_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, -2);
-
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
@@ -442,7 +345,7 @@ public:
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
-      ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
+      ax[3] = EbsdLib::Constants::k_Pi + 1.0;
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -467,33 +370,7 @@ public:
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
-      ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformation::om_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, -2);
-    }
-
-    {
-
-      OrientationTransformation::ResultType result;
-      FloatQVectorType ax(9);
-      ax[0] = 1.0f;
-      ax[1] = 0.0f;
-      ax[2] = 0.0f;
-      ax[3] = 0.0f;
-      ax[4] = 1.0f;
-      ax[5] = 0.0f;
-      ax[6] = 0.0f;
-      ax[7] = 0.0f;
-      ax[8] = 1.0f;
-      result = OrientationTransformation::om_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, 1);
-
-      ax[1] = -16.0f;
-      ax[6] = -12.0f;
-      result = OrientationTransformation::om_check(ax);
-      DREAM3D_REQUIRE_EQUAL(result.result, -3);
-
-      ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
+      ax[3] = EbsdLib::Constants::k_Pi + 1.0;
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -523,7 +400,6 @@ public:
     float omega = EbsdLib::Constants::k_PiOver2;
     GenRotTest<OrientationF, float>(eu, omega);
     GenRotTest<FloatVectorType, float>(eu, omega);
-    GenRotTest<FloatQVectorType, float>(eu, omega);
   }
 
   // -----------------------------------------------------------------------------
@@ -698,11 +574,10 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
                                  \  0.0000   0.0000   1.0000 /
 */
     std::cout << "Test_om2_XXX  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
-    float om[9] = {0.0000, 1.0000, 0.0000, -1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000};
+    float om[9] = {0.0000f, 1.0000f, 0.0000f, -1.0000f, 0.0000f, 0.0000f, 0.0000f, 0.0000f, 1.0000f};
     OrientationPrinters::Print_OM<float*>(om);
     OM_2_XXX<OrientationF>(om);
     OM_2_XXX<FloatVectorType>(om);
-    OM_2_XXX<FloatQVectorType>(om);
   }
 
   // -----------------------------------------------------------------------------
@@ -754,7 +629,6 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_RO<float*, float>(ro);
     RO_2_XXX<OrientationF>(ro);
     RO_2_XXX<FloatVectorType>(ro);
-    RO_2_XXX<FloatQVectorType>(ro);
   }
 
   // -----------------------------------------------------------------------------
@@ -806,7 +680,6 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_AX<float*>(ax);
     AX_2_XXX<OrientationF>(ax);
     AX_2_XXX<std::vector<float>>(ax);
-    AX_2_XXX<FloatQVectorType>(ax);
   }
 
   // -----------------------------------------------------------------------------
@@ -920,7 +793,6 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_HO<float*>(ho);
     HO_2_XXX<OrientationF>(ho);
     HO_2_XXX<std::vector<float>>(ho);
-    HO_2_XXX<FloatQVectorType>(ho);
   }
 
   // -----------------------------------------------------------------------------

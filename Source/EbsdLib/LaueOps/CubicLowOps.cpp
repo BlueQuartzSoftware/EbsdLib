@@ -59,9 +59,9 @@ namespace CubicLow
 {
 
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * (EbsdLib::Constants::k_PiOver2 - sinf(EbsdLib::Constants::k_PiOver2))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (EbsdLib::Constants::k_PiOver2 - sinf(EbsdLib::Constants::k_PiOver2))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (EbsdLib::Constants::k_PiOver2 - sinf(EbsdLib::Constants::k_PiOver2))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -958,7 +958,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family

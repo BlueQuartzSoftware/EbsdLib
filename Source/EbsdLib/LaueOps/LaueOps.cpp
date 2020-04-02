@@ -60,17 +60,17 @@ namespace Detail
 
 // const static double m_OnePointThree = 1.33333333333f;
 
-// const static double sin_wmin_neg_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
-// const static double sin_wmin_pos_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACos1 / 2.0f));
-// const static double sin_of_acos_neg_1 = sinf(EbsdLib::Constants::k_ACosNeg1);
-// const static double sin_of_acos_pos_1 = sinf(EbsdLib::Constants::k_ACos1);
+// const static double sin_wmin_neg_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
+// const static double sin_wmin_pos_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACos1 / 2.0f));
+// const static double sin_of_acos_neg_1 = std::sin(EbsdLib::Constants::k_ACosNeg1);
+// const static double sin_of_acos_pos_1 = std::sin(EbsdLib::Constants::k_ACos1);
 
 //  const double recip_sin_of_acos_neg_1 = 1.0f / sin_of_acos_neg_1;
 //  const double recip_sin_of_acos_pos_1 = 1.0f / sin_of_acos_pos_1;
 
-// const static double SinOfHalf = sinf(0.5f);
+// const static double SinOfHalf = std::sin(0.5f);
 // const static double CosOfHalf = cosf(0.5f);
-// const static double SinOfZero = sinf(0.0f);
+// const static double SinOfZero = std::sin(0.0f);
 // const static double CosOfZero = cosf(0.0f);
 }
 

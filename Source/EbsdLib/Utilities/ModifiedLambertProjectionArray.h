@@ -106,12 +106,12 @@ public:
   /**
    * @brief Setter property for ModifiedLambertProjectionArray
    */
-  void setModifiedLambertProjectionArray(const QVector<ModifiedLambertProjection::Pointer>& value);
+  void setModifiedLambertProjectionArray(const std::vector<ModifiedLambertProjection::Pointer>& value);
   /**
    * @brief Getter property for ModifiedLambertProjectionArray
    * @return Value of ModifiedLambertProjectionArray
    */
-  QVector<ModifiedLambertProjection::Pointer> getModifiedLambertProjectionArray() const;
+  std::vector<ModifiedLambertProjection::Pointer> getModifiedLambertProjectionArray() const;
 
   /**
    * @brief createNewArray
@@ -169,7 +169,7 @@ public:
    * @param idx
    * @return
    */
-  ModifiedLambertProjection::Pointer operator[](int idx);
+  ModifiedLambertProjection::Pointer operator[](size_t idx);
 
   /* **************** This is the interface for the IDataArray Class which MUST
    *  Be implemented. Most of it is useless and will simply ASSERT if called. */
@@ -388,7 +388,7 @@ protected:
 
 private:
   int m_Phase = {};
-  QVector<ModifiedLambertProjection::Pointer> m_ModifiedLambertProjectionArray = {};
+  std::vector<ModifiedLambertProjection::Pointer> m_ModifiedLambertProjectionArray = {};
 
   QString m_Name;
   bool m_IsAllocated;

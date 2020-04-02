@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "TrigonalLowOps.h"
 
@@ -60,9 +60,9 @@ namespace TrigonalLow
 {
 static const std::array<size_t, 3> OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * (EbsdLib::Constants::k_Pi - sinf(EbsdLib::Constants::k_Pi))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (EbsdLib::Constants::k_Pi - sinf(EbsdLib::Constants::k_Pi))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_Pi / 6.0) - sinf(EbsdLib::Constants::k_Pi / 6.0))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -244,16 +244,16 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
     else
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = 60.0f - FZw;
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
   }
 
@@ -715,7 +715,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
@@ -882,7 +882,7 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalLowOps::generateIPFTriangleLegend(int i
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = sinf(60.0 * EbsdLib::Constants::k_PiOver180) / cosf(60.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180);
 
   EbsdLib::Rgb color;
   size_t idx = 0;

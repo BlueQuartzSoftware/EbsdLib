@@ -115,7 +115,7 @@ void ModifiedLambertProjectionArray::setModifiedLambertProjection(int index, Mod
     size_t old = m_ModifiedLambertProjectionArray.size();
     m_ModifiedLambertProjectionArray.resize(index + 1);
     // Initialize with zero length Vectors
-    for (int i = old; i < m_ModifiedLambertProjectionArray.size(); ++i)
+    for(size_t i = old; i < m_ModifiedLambertProjectionArray.size(); ++i)
     {
       m_ModifiedLambertProjectionArray[i] = ModifiedLambertProjection::New();
     }
@@ -155,7 +155,7 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::getModifiedLa
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](int idx)
+ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](size_t idx)
 {
 #ifndef NDEBUG
   if(!m_ModifiedLambertProjectionArray.empty())
@@ -309,8 +309,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
     }
   }
 
-
-  QVector<ModifiedLambertProjection::Pointer> replacement(m_ModifiedLambertProjectionArray.size() - idxs.size());
+  std::vector<ModifiedLambertProjection::Pointer> replacement(m_ModifiedLambertProjectionArray.size() - idxs.size());
   qint32 idxsIndex = 0;
   size_t rIdx = 0;
   size_t count = static_cast<size_t>(m_ModifiedLambertProjectionArray.size());
@@ -348,13 +347,22 @@ int ModifiedLambertProjectionArray::copyTuple(size_t currentPos, size_t newPos)
 // -----------------------------------------------------------------------------
 bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, ModifiedLambertProjectionArray::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples)
 {
-  if(!m_IsAllocated) { return false; }
+  if(!m_IsAllocated)
+  {
+    return false;
+  }
   if(m_ModifiedLambertProjectionArray.empty())
   {
     return false;
   }
-  if(destTupleOffset >= m_ModifiedLambertProjectionArray.size()) { return false; }
-  if(!sourceArray->isAllocated()) { return false; }
+  if(destTupleOffset >= m_ModifiedLambertProjectionArray.size())
+  {
+    return false;
+  }
+  if(!sourceArray->isAllocated())
+  {
+    return false;
+  }
   Self* source = dynamic_cast<Self*>(sourceArray.get());
 
   if(sourceArray->getNumberOfComponents() != getNumberOfComponents()) { return false; }
@@ -764,13 +772,13 @@ int ModifiedLambertProjectionArray::getPhase() const
 }
 
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::setModifiedLambertProjectionArray(const QVector<ModifiedLambertProjection::Pointer>& value)
+void ModifiedLambertProjectionArray::setModifiedLambertProjectionArray(const std::vector<ModifiedLambertProjection::Pointer>& value)
 {
   m_ModifiedLambertProjectionArray = value;
 }
 
 // -----------------------------------------------------------------------------
-QVector<ModifiedLambertProjection::Pointer> ModifiedLambertProjectionArray::getModifiedLambertProjectionArray() const
+std::vector<ModifiedLambertProjection::Pointer> ModifiedLambertProjectionArray::getModifiedLambertProjectionArray() const
 {
   return m_ModifiedLambertProjectionArray;
 }

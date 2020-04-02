@@ -58,9 +58,9 @@ namespace TrigonalHigh
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 24}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * (EbsdLib::Constants::k_PiOver2 - sinf(EbsdLib::Constants::k_PiOver2))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (EbsdLib::Constants::k_PiOver2 - sinf(EbsdLib::Constants::k_PiOver2))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * (EbsdLib::Constants::k_PiOver3 - sinf(EbsdLib::Constants::k_PiOver3))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver3 - std::sin(EbsdLib::Constants::k_PiOver3))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -257,16 +257,16 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
     else
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = 60.0f - FZw;
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
   }
 
@@ -721,7 +721,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
@@ -888,7 +888,7 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int imag
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = sinf(30.0 * EbsdLib::Constants::k_PiOver180) / cosf(30.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180);
 
   EbsdLib::Rgb color;
   size_t idx = 0;

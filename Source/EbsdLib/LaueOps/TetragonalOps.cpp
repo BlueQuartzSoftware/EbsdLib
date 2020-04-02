@@ -58,9 +58,9 @@ namespace TetragonalHigh
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 18}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75f * ((EbsdLib::Constants::k_PiOver2)-sinf((EbsdLib::Constants::k_PiOver2)))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_PiOver2)-sinf((EbsdLib::Constants::k_PiOver2)))), (1.0f / 3.0)),
-                                                      std::pow((0.75f * ((EbsdLib::Constants::k_PiOver4)-sinf((EbsdLib::Constants::k_PiOver4)))), (1.0f / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver4)-std::sin((EbsdLib::Constants::k_PiOver4)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -709,7 +709,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
@@ -938,10 +938,62 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   throw std::out_of_range("TetragonalOps::generateMisorientationColor NOT Implemented");
 
   // double n1, n2, n3, w;
-  double xo, xo1, xo2, xo3, x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11;
-  double yo, yo1, yo2, yo3, y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11;
-  double zo, zo1, zo2, zo3, z, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11;
-  double k, h, s, v, c, r, g, b;
+  double xo;
+  double xo1;
+  double xo2;
+  double xo3;
+  double x;
+  double x1;
+  double x2;
+  double x3;
+  double x4;
+  double x5;
+  double x6;
+  double x7;
+  double x8;
+  double x9;
+  double x10;
+  double x11;
+  double yo;
+  double yo1;
+  double yo2;
+  double yo3;
+  double y;
+  double y1;
+  double y2;
+  double y3;
+  double y4;
+  double y5;
+  double y6;
+  double y7;
+  double y8;
+  double y9;
+  double y10;
+  double y11;
+  double zo;
+  double zo1;
+  double zo2;
+  double zo3;
+  double z;
+  double z1;
+  double z2;
+  double z3;
+  double z4;
+  double z5;
+  double z6;
+  double z7;
+  double z8;
+  double z9;
+  double z10;
+  double z11;
+  double k;
+  double h;
+  double s;
+  double v;
+  double c;
+  double r;
+  double g;
+  double b;
 
   QuatType q1 = q;
   QuatType q2 = refFrame;
@@ -1029,9 +1081,9 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   z2 = (x1 + y1 + z1) / sqrt(3.0);
 
   //eq c1.4
-  k = fmodf(atan2f(y2, x2) + 2.0f * EbsdLib::Constants::k_Pi, 2.0f * EbsdLib::Constants::k_Pi);
-  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5f;
-  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5f;
+  k = fmod(atan2(y2, x2) + 2.0 * EbsdLib::Constants::k_Pi, 2.0 * EbsdLib::Constants::k_Pi);
+  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0 * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
+  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0 * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
   z3 = z2 - 1.0f;
 
   //eq c1.5

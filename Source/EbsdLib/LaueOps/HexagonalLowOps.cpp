@@ -255,16 +255,16 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (30.0 * int(angle / 30.0));
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
     else
     {
       FZw = angle - (30.0 * int(angle / 30.0));
       FZw = 30.0f - FZw;
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
   }
 
@@ -1276,7 +1276,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
@@ -1442,7 +1442,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   double denom = 0.0;
 
   // Find the slope of the bounding line.
-  static const double m = sinf(60.0 * EbsdLib::Constants::k_PiOver180) / cosf(60.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180);
 
   EbsdLib::Rgb color;
   size_t idx = 0;
