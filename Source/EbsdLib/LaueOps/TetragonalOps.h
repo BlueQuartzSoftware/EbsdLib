@@ -37,7 +37,7 @@
 #include <memory>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
@@ -62,16 +62,18 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
     /**
     * @brief Returns the name of the class for TetragonalOps
     */
-    QString getNameOfClass() const override;
+    virtual QString getNameOfClass() const override;
+
     /**
-    * @brief Returns the name of the class for TetragonalOps
-    */
+     * @brief Returns the name of the class for TetragonalOps
+     */
     static QString ClassName();
 
     static Pointer New();
 
     TetragonalOps();
-    ~TetragonalOps() override;
+
+    virtual ~TetragonalOps() override;
 
     /**
      * @brief getHasInversion Returns if this Laue class has inversion
@@ -150,7 +152,7 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
     double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
     double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
 
-    void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const override;
+    void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const override;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -197,16 +199,16 @@ class EbsdLib_EXPORT TetragonalOps : public LaueOps
      * @param eulers The Euler Angles to generate the pole figure from.
      * @param imageSize The size in Pixels of the final RGB Image.
      * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-     * @return A QVector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+     * @return A QVector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    std::vector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
+    std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
     /**
      * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
      * @return
      */
-    UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
+    EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
 
   protected:
 

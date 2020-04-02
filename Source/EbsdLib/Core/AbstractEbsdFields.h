@@ -53,7 +53,7 @@ class EbsdLib_EXPORT AbstractEbsdFields
     /**
     * @brief Returns the name of the class for AbstractEbsdFields
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for AbstractEbsdFields
     */

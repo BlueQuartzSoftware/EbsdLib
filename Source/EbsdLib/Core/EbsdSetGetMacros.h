@@ -34,31 +34,25 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
+//-- C++11 Includes
+#include <memory>
 #include <array>
 #include <cstring>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
-#include <QtCore/QString>
-
 /**
- * @file EbsdSEtGetMacros.h
+ * @file EbsdSetGetMacros.h
  * @brief This file contains preprocessor macros that can be used to quickly
  * create instance variables, pointer types and other conveniences for a C++ class.
  */
 
 #if defined(QT_CORE_LIB)
 //-- Qt includes
+#include <QtCore/QString>
 #include <QtCore/QSharedPointer>
 //#define RAW_PTR  data
-#endif
-
-//-- C++11 Includes
-#include <memory>
-
-#ifndef SHARED_IS_NULL
-#define SHARED_IS_NULL(ptr) ((ptr).get() == nullptr)
 #endif
 
 /**

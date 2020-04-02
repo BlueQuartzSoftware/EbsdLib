@@ -57,12 +57,11 @@ public:
     /**
     * @brief Returns the name of the class for EspritPhase
     */
-    const QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for EspritPhase
-    */
-    static QString ClassName();
-
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for EspritPhase
+   */
+  static QString ClassName();
 
   virtual ~EspritPhase();
 

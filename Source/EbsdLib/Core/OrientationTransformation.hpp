@@ -49,7 +49,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
@@ -1267,11 +1267,11 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   }
   // printf("res[z]: % 3.16f \n", res[z]);
 
-  s = MatrixMath::Magnitude4x1(&(res[0]));
+  s = EbsdMatrixMath::Magnitude4x1(&(res[0]));
 
   if(s != 0.0)
   {
-    MatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
+    EbsdMatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
   }
 
   /* we need to do a quick test here to make sure that the
@@ -1637,7 +1637,7 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
-  typename OutputType::value_type s = MatrixMath::Magnitude3x1(&(res[0]));
+  typename OutputType::value_type s = EbsdMatrixMath::Magnitude3x1(&(res[0]));
   if(s < thr)
   {
     res[0] = 0.0;

@@ -57,7 +57,7 @@
   }
 
 /**
- * @class CtfReader CtfReader.h EbsdLib/HKL/CtfReader.h
+ * @class CtfReader CtfReader.h EbsdLib/IO/HKL/CtfReader.h
  * @brief This class is a self contained HKL .ctf file reader and will read a
  * single .ctf file and store all the data in column centric pointers.
  * @author Michael A. Jackson for BlueQuartz Software
@@ -70,116 +70,116 @@ public:
   CtfReader();
   ~CtfReader() override;
 
-    /**
-    * @brief Returns the name of the class for _SUPERCtfReader
-    */
-    const QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for _SUPERCtfReader
-    */
-    static QString ClassName();
+  /**
+   * @brief Returns the name of the class for _SUPERCtfReader
+   */
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for _SUPERCtfReader
+   */
+  static QString ClassName();
 
-    EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Channel, EbsdLib::Ctf::ChannelTextFile)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Prj, EbsdLib::Ctf::Prj)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Author, EbsdLib::Ctf::Author)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, JobMode, EbsdLib::Ctf::JobMode)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, XCells, EbsdLib::Ctf::XCells)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, YCells, EbsdLib::Ctf::YCells)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, ZCells, EbsdLib::Ctf::ZCells)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, XStep, EbsdLib::Ctf::XStep)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, YStep, EbsdLib::Ctf::YStep)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, ZStep, EbsdLib::Ctf::ZStep)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE1, EbsdLib::Ctf::AcqE1)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE2, EbsdLib::Ctf::AcqE2)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE3, EbsdLib::Ctf::AcqE3)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Euler, EbsdLib::Ctf::Euler)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Mag, EbsdLib::Ctf::Mag)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Coverage, EbsdLib::Ctf::Coverage)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Device, EbsdLib::Ctf::Device)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, KV, EbsdLib::Ctf::KV)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
-    EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, NumPhases, EbsdLib::Ctf::NumPhases)
-    EBSD_INSTANCE_PROPERTY(QVector<CtfPhase::Pointer>, PhaseVector)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Channel, EbsdLib::Ctf::ChannelTextFile)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Prj, EbsdLib::Ctf::Prj)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Author, EbsdLib::Ctf::Author)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, JobMode, EbsdLib::Ctf::JobMode)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, XCells, EbsdLib::Ctf::XCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, YCells, EbsdLib::Ctf::YCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, ZCells, EbsdLib::Ctf::ZCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, XStep, EbsdLib::Ctf::XStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, YStep, EbsdLib::Ctf::YStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, ZStep, EbsdLib::Ctf::ZStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE1, EbsdLib::Ctf::AcqE1)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE2, EbsdLib::Ctf::AcqE2)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE3, EbsdLib::Ctf::AcqE3)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Euler, EbsdLib::Ctf::Euler)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Mag, EbsdLib::Ctf::Mag)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Coverage, EbsdLib::Ctf::Coverage)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Device, EbsdLib::Ctf::Device)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, KV, EbsdLib::Ctf::KV)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, NumPhases, EbsdLib::Ctf::NumPhases)
+  EBSD_INSTANCE_PROPERTY(QVector<CtfPhase::Pointer>, PhaseVector)
 
-    CTF_READER_PTR_PROP(Phase, Phase, int)
-    CTF_READER_PTR_PROP(X, X, float)
-    CTF_READER_PTR_PROP(Y, Y, float)
-    CTF_READER_PTR_PROP(Z, Z, float)
-    CTF_READER_PTR_PROP(BandCount, Bands, int)
-    CTF_READER_PTR_PROP(Error, Error, int)
-    CTF_READER_PTR_PROP(Euler1, Euler1, float)
-    CTF_READER_PTR_PROP(Euler2, Euler2, float)
-    CTF_READER_PTR_PROP(Euler3, Euler3, float)
-    CTF_READER_PTR_PROP(MeanAngularDeviation, MAD, float)
-    CTF_READER_PTR_PROP(BandContrast, BC, int)
-    CTF_READER_PTR_PROP(BandSlope, BS, int)
+  CTF_READER_PTR_PROP(Phase, Phase, int)
+  CTF_READER_PTR_PROP(X, X, float)
+  CTF_READER_PTR_PROP(Y, Y, float)
+  CTF_READER_PTR_PROP(Z, Z, float)
+  CTF_READER_PTR_PROP(BandCount, Bands, int)
+  CTF_READER_PTR_PROP(Error, Error, int)
+  CTF_READER_PTR_PROP(Euler1, Euler1, float)
+  CTF_READER_PTR_PROP(Euler2, Euler2, float)
+  CTF_READER_PTR_PROP(Euler3, Euler3, float)
+  CTF_READER_PTR_PROP(MeanAngularDeviation, MAD, float)
+  CTF_READER_PTR_PROP(BandContrast, BC, int)
+  CTF_READER_PTR_PROP(BandSlope, BS, int)
 
-    /* These will be in a 3D ctf file */
-    CTF_READER_PTR_PROP(GrainIndex, GrainIndex, int)
-    CTF_READER_PTR_PROP(GrainRandomColourR, GrainRandomColourR, int)
-    CTF_READER_PTR_PROP(GrainRandomColourG, GrainRandomColourG, int)
-    CTF_READER_PTR_PROP(GrainRandomColourB, GrainRandomColourB, int)
+  /* These will be in a 3D ctf file */
+  CTF_READER_PTR_PROP(GrainIndex, GrainIndex, int)
+  CTF_READER_PTR_PROP(GrainRandomColourR, GrainRandomColourR, int)
+  CTF_READER_PTR_PROP(GrainRandomColourG, GrainRandomColourG, int)
+  CTF_READER_PTR_PROP(GrainRandomColourB, GrainRandomColourB, int)
 
-    /**
+  /**
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-    void* getPointerByName(const QString& featureName) override;
-    //  void setPointerByName(const QString& name, void* p);
+  void* getPointerByName(const QString& featureName) override;
+  //  void setPointerByName(const QString& name, void* p);
 
-    /**
+  /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-    EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
-    int getTypeSize(const QString& featureName);
-    DataParser::Pointer getParser(const QString& featureName, void* ptr, size_t size);
+  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  int getTypeSize(const QString& featureName);
+  DataParser::Pointer getParser(const QString& featureName, void* ptr, size_t size);
 
-    QList<QString> getColumnNames();
+  QList<QString> getColumnNames();
 
-    /**
+  /**
    * @brief Reads the complete HKL .ctf file.
    * @return 1 on success
    */
-    int readFile() override;
+  int readFile() override;
 
-    /**
+  /**
    * @brief Reads ONLY the header portion of the HKL .ctf file
    * @return 1 on success
    */
-    int readHeaderOnly() override;
+  int readHeaderOnly() override;
 
-    void readOnlySliceIndex(int slice);
+  void readOnlySliceIndex(int slice);
 
-    int getXDimension() override;
-    void setXDimension(int xdim) override;
-    int getYDimension() override;
-    void setYDimension(int ydim) override;
+  int getXDimension() override;
+  void setXDimension(int xdim) override;
+  int getYDimension() override;
+  void setYDimension(int ydim) override;
 
-    void printHeader(std::ostream& out);
+  void printHeader(std::ostream& out);
 
-    /**
+  /**
    * @brief writeFile
    * @param filepath
    */
-    int writeFile(QString filepath);
+  int writeFile(const QString& filepath);
 
-  protected:
-  private:
-    int m_SingleSliceRead;
-    QMap<QString, DataParser::Pointer> m_NamePointerMap;
+protected:
+private:
+  int m_SingleSliceRead;
+  QMap<QString, DataParser::Pointer> m_NamePointerMap;
 
-    /**
+  /**
    * @brief
    * @param reader
    * @param headerLines
    * @return
    */
-    int getHeaderLines(QFile& reader, QList<QByteArray>& headerLines);
+  int getHeaderLines(QFile& reader, QList<QByteArray>& headerLines);
 
-    /**
+  /**
    * Checks that the line is the header of the columns for the data.
    *
    * @param columns
@@ -187,20 +187,20 @@ public:
    * @return <code>true</code> if the line is the columns header line,
    *         <code>false</code> otherwise
    */
-    bool isDataHeaderLine(QVector<QString>& columns);
+  bool isDataHeaderLine(QVector<QString>& columns);
 
-    /**
+  /**
    *
    */
-    int parseHeaderLines(QList<QByteArray>& headerLines);
+  int parseHeaderLines(QList<QByteArray>& headerLines);
 
-    /**
+  /**
    * @brief
    * @param in The input file stream to read from
    */
-    int readData(QFile& in);
+  int readData(QFile& in);
 
-    /**
+  /**
    * @brief Reads a line of Data from the ASCII based file
    * @param line The current line of data
    * @param row Current Row of Data
@@ -209,11 +209,11 @@ public:
    * @param yCells Number of Y Data Points
    * @param col The current Column of Data
    */
-    int parseDataLine(QByteArray& line, size_t row, size_t col, size_t i, size_t xCells, size_t yCells);
+  int parseDataLine(QByteArray& line, size_t row, size_t col, size_t i, size_t xCells, size_t yCells);
 
-  public:
-    CtfReader(const CtfReader&) = delete;            // Copy Constructor Not Implemented
-    CtfReader(CtfReader&&) = delete;                 // Move Constructor Not Implemented
-    CtfReader& operator=(const CtfReader&) = delete; // Copy Assignment Not Implemented
-    CtfReader& operator=(CtfReader&&) = delete;      // Move Assignment Not Implemented
+public:
+  CtfReader(const CtfReader&) = delete;            // Copy Constructor Not Implemented
+  CtfReader(CtfReader&&) = delete;                 // Move Constructor Not Implemented
+  CtfReader& operator=(const CtfReader&) = delete; // Copy Assignment Not Implemented
+  CtfReader& operator=(CtfReader&&) = delete;      // Move Assignment Not Implemented
 };

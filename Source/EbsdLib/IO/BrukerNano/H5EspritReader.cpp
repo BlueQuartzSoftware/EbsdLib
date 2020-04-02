@@ -49,11 +49,9 @@
 
 // -----------------------------------------------------------------------------
 H5EspritReader::H5EspritReader()
-: m_HDF5Path()
-, m_ReadPatternData(false)
-, m_ReadAllArrays(true)
+: m_ReadPatternData(false)
+, m_HDF5Path()
 {
-
   m_HeaderMap.clear();
   // Initialize the map of header key to header value
   m_HeaderMap[EbsdLib::H5Esprit::CameraTilt] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::CameraTilt);
@@ -244,7 +242,7 @@ int H5EspritReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&gid);
+  sentinel.addGroupId(&gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.toLatin1().data(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -256,7 +254,7 @@ int H5EspritReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&ebsdGid);
+  sentinel.addGroupId(&ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -350,7 +348,7 @@ int H5EspritReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&gid);
+  sentinel.addGroupId(&gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.toLatin1().data(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -362,7 +360,7 @@ int H5EspritReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&ebsdGid);
+  sentinel.addGroupId(&ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -504,7 +502,7 @@ int H5EspritReader::readHeader(hid_t parId)
     H5Gclose(gid);
     return getErrorCode();
   }
-  sentinel.addGroupID(&phasesGid);
+  sentinel.addGroupId(&phasesGid);
 
   QStringList names;
   err = QH5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
@@ -887,7 +885,7 @@ EbsdLib::NumericTypes::Type H5EspritReader::getPointerType(const QString& featur
 
   //  if(featureName == EbsdLib::H5Esprit::DD)
   //  {
-  //    return Ebsd::Float;
+  //    return EbsdLib::NumericTypes::Type::Float;
   //  }
   if(featureName == EbsdLib::H5Esprit::MAD)
   {
@@ -895,7 +893,7 @@ EbsdLib::NumericTypes::Type H5EspritReader::getPointerType(const QString& featur
   }
   //  if(featureName == EbsdLib::H5Esprit::MADPhase)
   //  {
-  //    return Ebsd::Int32;
+  //    return EbsdLib::NumericTypes::Type::Int32;
   //  }
   if(featureName == EbsdLib::H5Esprit::NIndexedBands)
   {
@@ -903,11 +901,11 @@ EbsdLib::NumericTypes::Type H5EspritReader::getPointerType(const QString& featur
   }
   //  if(featureName == EbsdLib::H5Esprit::PCX)
   //  {
-  //    return Ebsd::Float;
+  //    return EbsdLib::NumericTypes::Type::Float;
   //  }
   //  if(featureName == EbsdLib::H5Esprit::PCY)
   //  {
-  //    return Ebsd::Float;
+  //    return EbsdLib::NumericTypes::Type::Float;
   //  }
   if(featureName == EbsdLib::H5Esprit::PHI)
   {
@@ -935,11 +933,11 @@ EbsdLib::NumericTypes::Type H5EspritReader::getPointerType(const QString& featur
   }
   //  if(featureName == EbsdLib::H5Esprit::XSAMPLE)
   //  {
-  //    return Ebsd::Float;
+  //    return EbsdLib::NumericTypes::Type::Float;
   //  }
   //  if(featureName == EbsdLib::H5Esprit::YSAMPLE)
   //  {
-  //    return Ebsd::Float;
+  //    return EbsdLib::NumericTypes::Type::Float;
   //  }
   if(featureName == EbsdLib::H5Esprit::phi1)
   {
@@ -981,7 +979,7 @@ QString H5EspritReader::getHDF5Path() const
 
 
 // -----------------------------------------------------------------------------
-const QString H5EspritReader::getNameOfClass() const
+QString H5EspritReader::getNameOfClass() const
 {
   return QString("H5EspritReader");
 }

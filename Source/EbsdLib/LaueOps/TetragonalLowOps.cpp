@@ -38,8 +38,7 @@
 
 #include <memory>
 
-
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
@@ -436,18 +435,19 @@ double TetragonalLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD
   {
     class GenerateSphereCoordsImpl
     {
-        FloatArrayType* m_Eulers;
-        FloatArrayType* m_xyz001;
-        FloatArrayType* m_xyz011;
-        FloatArrayType* m_xyz111;
+      EbsdLib::FloatArrayType* m_Eulers;
+      EbsdLib::FloatArrayType* m_xyz001;
+      EbsdLib::FloatArrayType* m_xyz011;
+      EbsdLib::FloatArrayType* m_xyz111;
 
-      public:
-        GenerateSphereCoordsImpl(FloatArrayType* eulerAngles, FloatArrayType* xyz001Coords, FloatArrayType* xyz011Coords, FloatArrayType* xyz111Coords) :
-          m_Eulers(eulerAngles),
-          m_xyz001(xyz001Coords),
-          m_xyz011(xyz011Coords),
-          m_xyz111(xyz111Coords)
-        {}
+    public:
+      GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
+      : m_Eulers(eulerAngles)
+      , m_xyz001(xyz001Coords)
+      , m_xyz011(xyz011Coords)
+      , m_xyz111(xyz111Coords)
+      {
+      }
         virtual ~GenerateSphereCoordsImpl() = default;
 
         void generate(size_t start, size_t end) const
@@ -461,38 +461,38 @@ double TetragonalLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD
             OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
             OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-            MatrixMath::Transpose3x3(g, gTranpose);
+            EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
             // -----------------------------------------------------------------------------
             // 001 Family
             direction[0] = 0.0;
             direction[1] = 0.0;
             direction[2] = 1.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
-            MatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
+            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 011 Family
             direction[0] = 1.0;
             direction[1] = 0.0;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
-            MatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
+            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 111 Family
             direction[0] = 0.0;
             direction[1] = 1.0;
             direction[2] = 0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
-            MatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
+            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
           }
         }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
         void operator()(const tbb::blocked_range<size_t>& r) const
         {
           generate(r.begin(), r.end());
@@ -504,7 +504,7 @@ double TetragonalLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD
     // -----------------------------------------------------------------------------
     //
     // -----------------------------------------------------------------------------
-    void TetragonalLowOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* xyz001, FloatArrayType* xyz011, FloatArrayType* xyz111) const
+    void TetragonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
     {
       size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -522,17 +522,17 @@ double TetragonalLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD
         xyz111->resizeTuples(nOrientations * TetragonalLow::symSize2 * 3);
       }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
-  tbb::task_scheduler_init init;
-  bool doParallel = true;
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+      tbb::task_scheduler_init init;
+      bool doParallel = true;
 #endif
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
-  if(doParallel)
-  {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TetragonalLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
-  }
-  else
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+      if(doParallel)
+      {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TetragonalLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
+      }
+      else
 #endif
   {
     TetragonalLow::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
@@ -586,8 +586,8 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
     refDirection[2] = refDir2;
-    MatrixMath::Multiply3x3with3x1(g, refDirection, p);
-    MatrixMath::Normalize3x1(p);
+    EbsdMatrixMath::Multiply3x3with3x1(g, refDirection, p);
+    EbsdMatrixMath::Normalize3x1(p);
 
     if(!getHasInversion() && p[2] < 0)
     {
@@ -667,7 +667,7 @@ EbsdLib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
+std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   QString label0 = QString("<001>");
   QString label1 = QString("<100>");
@@ -684,11 +684,11 @@ std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFi
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  FloatArrayType::Pointer xyz001 = FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize0, dims, label0 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  FloatArrayType::Pointer xyz011 = FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize1, dims, label1 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  FloatArrayType::Pointer xyz111 = FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize2, dims, label2 + QString("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -698,10 +698,10 @@ std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFi
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  DoubleArrayType::Pointer intensity001 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity011 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity111 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+  EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 
@@ -776,11 +776,11 @@ std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFi
   config.maxScale = max;
 
   dims[0] = 4;
-  UInt8ArrayType::Pointer image001 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
-  UInt8ArrayType::Pointer image011 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
-  UInt8ArrayType::Pointer image111 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
+  EbsdLib::UInt8ArrayType::Pointer image001 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
+  EbsdLib::UInt8ArrayType::Pointer image011 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
+  EbsdLib::UInt8ArrayType::Pointer image111 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
 
-  std::vector<UInt8ArrayType::Pointer> poleFigures(3);
+  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
     poleFigures[config.order[0]] = image001;
@@ -794,7 +794,7 @@ std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFi
     poleFigures[2] = image111;
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 
   if(doParallel)
   {
@@ -822,11 +822,11 @@ std::vector<UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int imageDim) const
 {
 
   std::vector<size_t> dims(1, 4);
-  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0f / static_cast<double>(imageDim);

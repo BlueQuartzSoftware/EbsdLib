@@ -87,7 +87,7 @@ EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
 EbsdTransform::~EbsdTransform() = default;
 
 // -----------------------------------------------------------------------------
-const QString EbsdTransform::getNameOfClass() const
+QString EbsdTransform::getNameOfClass() const
 {
   return QString("EbsdTransform");
 }

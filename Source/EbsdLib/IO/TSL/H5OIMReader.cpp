@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "H5OIMReader.h"
 
@@ -131,7 +131,7 @@ int H5OIMReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&gid);
+  sentinel.addGroupId(&gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.toLatin1().data(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -143,7 +143,7 @@ int H5OIMReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&ebsdGid);
+  sentinel.addGroupId(&ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -265,7 +265,7 @@ int H5OIMReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupID(&gid);
+  sentinel.addGroupId(&gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.toLatin1().data(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -274,7 +274,7 @@ int H5OIMReader::readHeaderOnly()
     setErrorCode(-90007);
     return getErrorCode();
   }
-  sentinel.addGroupID(&ebsdGid);
+  sentinel.addGroupId(&ebsdGid);
 
   err = readHeader(ebsdGid);
 
@@ -371,7 +371,7 @@ int H5OIMReader::readHeader(hid_t parId)
     setErrorMessage("H5OIMReader Error: Could not open 'Pattern Center Calibration' Group");
     return -1;
   }
-  sentinel.addGroupID(&patternCenterCalibrationGid);
+  sentinel.addGroupId(&patternCenterCalibrationGid);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::XStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::YStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::ZStar, patternCenterCalibrationGid, m_HeaderMap);
@@ -419,7 +419,7 @@ int H5OIMReader::readHeader(hid_t parId)
     H5Gclose(gid);
     return getErrorCode();
   }
-  sentinel.addGroupID(&phasesGid);
+  sentinel.addGroupId(&phasesGid);
 
   QStringList names;
   err = QH5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
@@ -493,7 +493,7 @@ int H5OIMReader::readHeader(hid_t parId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int H5OIMReader::readHKLFamilies(hid_t hklGid, AngPhase::Pointer phase)
+int H5OIMReader::readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase)
 {
 
   herr_t status = 1;
@@ -655,9 +655,9 @@ int H5OIMReader::readData(hid_t parId)
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
       totalDataRows = 1; // Calculate the total number of elements to allocate for the pattern data
-      for(qint32 i = 0; i < dims.size(); i++)
+      for(unsigned long long dim : dims)
       {
-        totalDataRows = totalDataRows * dims[i];
+        totalDataRows = totalDataRows * dim;
       }
       // Set the pattern dimensions
       m_PatternDims[0] = dims[1];
@@ -743,7 +743,7 @@ QString H5OIMReader::getHDF5Path() const
 
 
 // -----------------------------------------------------------------------------
-const QString H5OIMReader::getNameOfClass() const
+QString H5OIMReader::getNameOfClass() const
 {
   return QString("H5OIMReader");
 }

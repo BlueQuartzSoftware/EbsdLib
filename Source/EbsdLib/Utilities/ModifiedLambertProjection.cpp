@@ -1,45 +1,44 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "ModifiedLambertProjection.h"
 
 
 
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 #define WRITE_LAMBERT_SQUARE_COORD_VTK 0
 
@@ -63,7 +62,7 @@ ModifiedLambertProjection::~ModifiedLambertProjection() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius)
 {
 
   size_t npoints = coords->getNumberOfTuples();
@@ -149,9 +148,9 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 
   std::vector<size_t> tDims(2, m_Dimension);
   std::vector<size_t> cDims(1, 1);
-  m_NorthSquare = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
+  m_NorthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
   m_NorthSquare->initializeWithZeros();
-  m_SouthSquare = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
+  m_SouthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
   m_SouthSquare->initializeWithZeros();
 
 
@@ -529,7 +528,7 @@ void ModifiedLambertProjection::normalizeSquaresToMRD()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArrayType* stereoIntensity)
+void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity)
 {
   int xpoints = dim;
   int ypoints = dim;
@@ -568,7 +567,7 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArr
         {
           if(m == 1)
           {
-            MatrixMath::Multiply3x1withConstant(xyz, -1.0f);
+            EbsdMatrixMath::Multiply3x1withConstant(xyz, -1.0f);
           }
           nhCheck = getSquareCoord(xyz, sqCoord);
           //sqIndex = getSquareIndex(sqCoord);
@@ -594,11 +593,11 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArr
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
 {
   std::vector<size_t> tDims(2, dim);
   std::vector<size_t> cDims(1, 1);
-  DoubleArrayType::Pointer stereoIntensity = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
+  EbsdLib::DoubleArrayType::Pointer stereoIntensity = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
   stereoIntensity->initializeWithZeros();
   createStereographicProjection(dim, stereoIntensity.get());
   return stereoIntensity;
@@ -648,13 +647,13 @@ float ModifiedLambertProjection::getSphereRadius() const
 }
 
 // -----------------------------------------------------------------------------
-DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
 {
   return m_NorthSquare;
 }
 
 // -----------------------------------------------------------------------------
-DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
 {
   return m_SouthSquare;
 }

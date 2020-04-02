@@ -38,7 +38,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
@@ -66,7 +66,7 @@ public:
     size_t nTuples = 2;
     int qStride = 4;
     std::vector<size_t> cDims(1, 3);
-    FloatArrayType::Pointer eulers = FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
+    EbsdLib::FloatArrayType::Pointer eulers = EbsdLib::FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
     // Initialize the Eulers with some values
     eulers->setComponent(0, 0, 302.84f * EbsdLib::Constants::k_PiOver180);
     eulers->setComponent(0, 1, 51.282f * EbsdLib::Constants::k_PiOver180);
@@ -82,11 +82,11 @@ public:
     // std::cout << "Remainer (302.84/360): " << remainder(rad, EbsdLib::Constants::k_2Pi) << std::endl;
     std::cout << "fmod (5.28556 / 2Pi): " << fmod(rad, EbsdLib::Constants::k_2Pi) << std::endl;
 
-    OrientationConverter<float>::Pointer ocEulers = EulerConverter<float>::New();
+    OrientationConverter<EbsdLib::FloatArrayType, float>::Pointer ocEulers = EulerConverter<EbsdLib::FloatArrayType, float>::New();
     ocEulers->setInputData(eulers);
     ocEulers->convertRepresentationTo(OrientationRepresentation::Type::Quaternion);
 
-    FloatArrayType::Pointer output = ocEulers->getOutputData();
+    EbsdLib::FloatArrayType::Pointer output = ocEulers->getOutputData();
 
     for(size_t i = 0; i < nTuples; i++)
     {
@@ -105,24 +105,24 @@ public:
     size_t nTuples = 1;
     int qStride = 4;
     std::vector<size_t> cDims(1, 3);
-    FloatArrayType::Pointer eulers = FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
+    EbsdLib::FloatArrayType::Pointer eulers = EbsdLib::FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
     // Initialize the Eulers with some values
     eulers->setComponent(0, 0, phi1);
     eulers->setComponent(0, 1, phi);
     eulers->setComponent(0, 2, phi2);
 
     using StringContainerType = std::vector<QString>;
-    using OCType = OrientationConverter<float>;
+    using OCType = OrientationConverter<EbsdLib::FloatArrayType, float>;
     std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
     StringContainerType tStrings = OCType::GetOrientationTypeStrings<StringContainerType>();
     std::vector<OCType::Pointer> converters(6);
-    converters[0] = EulerConverter<float>::New();
-    converters[1] = OrientationMatrixConverter<float>::New();
-    converters[2] = QuaternionConverter<float>::New();
-    converters[3] = AxisAngleConverter<float>::New();
-    converters[4] = RodriguesConverter<float>::New();
-    converters[5] = HomochoricConverter<float>::New();
-    // converters[6] = CubochoricConverter<float>::New();
+    converters[0] = EulerConverter<EbsdLib::FloatArrayType, float>::New();
+    converters[1] = OrientationMatrixConverter<EbsdLib::FloatArrayType, float>::New();
+    converters[2] = QuaternionConverter<EbsdLib::FloatArrayType, float>::New();
+    converters[3] = AxisAngleConverter<EbsdLib::FloatArrayType, float>::New();
+    converters[4] = RodriguesConverter<EbsdLib::FloatArrayType, float>::New();
+    converters[5] = HomochoricConverter<EbsdLib::FloatArrayType, float>::New();
+    // converters[6] = CubochoricConverter<EbsdLib::FloatArrayType,float>::New();
 
     OrientationTransformation::ResultType result;
     std::vector<int> strides = OCType::GetComponentCounts<std::vector<int>>();
@@ -138,11 +138,11 @@ public:
 
         converters[t0]->setInputData(eulers);
         converters[t0]->convertRepresentationTo(ocTypes[t1]);
-        FloatArrayType::Pointer t1_output = converters[t0]->getOutputData();
+        EbsdLib::FloatArrayType::Pointer t1_output = converters[t0]->getOutputData();
 
         converters[t1]->setInputData(t1_output);
         converters[t1]->convertRepresentationTo(ocTypes[t0]);
-        FloatArrayType::Pointer t0_output = converters[t1]->getOutputData();
+        EbsdLib::FloatArrayType::Pointer t0_output = converters[t1]->getOutputData();
 
         qStride = strides[t0];
         std::vector<float> delta(qStride, 0);

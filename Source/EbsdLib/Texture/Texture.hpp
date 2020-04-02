@@ -42,7 +42,7 @@
 
 #include <QtCore/QString>
 
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/EbsdLib.h"
@@ -88,7 +88,7 @@ public:
     LaueOps ops;
     std::array<size_t, 3> odfNumBins = ops.getOdfNumBins();
     odf.resize(ops.getODFSize());
-    Int32ArrayType::Pointer textureBins = Int32ArrayType::CreateArray(numEntries, "TextureBins", true);
+    EbsdLib::Int32ArrayType::Pointer textureBins = EbsdLib::Int32ArrayType::CreateArray(numEntries, "TextureBins", true);
     int32_t* TextureBins = textureBins->getPointer(0);
 
     float addweight = 0;

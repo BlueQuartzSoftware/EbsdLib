@@ -43,7 +43,7 @@
 #include <QtCore/QVector>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/OrientationMath/OrientationArray.hpp"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 #include "EbsdLib/OrientationMath/OrientationTransforms.hpp"

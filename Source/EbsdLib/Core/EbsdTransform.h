@@ -61,7 +61,7 @@ class EbsdLib_EXPORT EbsdTransform
     /**
     * @brief Returns the name of the class for EbsdTransform
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for EbsdTransform
     */

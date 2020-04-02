@@ -66,11 +66,11 @@ public:
     /**
     * @brief Returns the name of the class for H5EspritReader
     */
-    const QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for H5EspritReader
-    */
-    static QString ClassName();
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for H5EspritReader
+   */
+  static QString ClassName();
 
   ~H5EspritReader() override;
 
@@ -233,12 +233,10 @@ protected:
   int sanityCheckForOpening();
 
 private:
-
-    QString m_HDF5Path = {};
-
+  QString m_HDF5Path = {};
 
   QSet<QString> m_ArrayNames;
-  bool m_ReadAllArrays;
+  bool m_ReadAllArrays = true;
 
   QVector<EspritPhase::Pointer> m_Phases;
 

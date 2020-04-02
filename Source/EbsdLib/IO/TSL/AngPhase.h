@@ -79,7 +79,7 @@ public:
   /**
     * @brief Returns the name of the class for HKLFamily
     */
-  const QString getNameOfClass() const;
+  QString getNameOfClass() const;
   /**
     * @brief Returns the name of the class for HKLFamily
     */
@@ -164,7 +164,7 @@ public:
   /**
     * @brief Returns the name of the class for AngPhase
     */
-  const QString getNameOfClass() const;
+  QString getNameOfClass() const;
   /**
     * @brief Returns the name of the class for AngPhase
     */

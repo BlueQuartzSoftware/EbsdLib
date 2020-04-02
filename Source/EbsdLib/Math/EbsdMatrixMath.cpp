@@ -1,6 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2019 BlueQuartz Software, LLC
- * All rights reserved.
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,9 +11,9 @@
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * Neither the names of any of the BlueQuartz Software contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,57 +26,33 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "H5EspritFields.h"
+#include "EbsdMatrixMath.h"
 
-#include "EspritConstants.h"
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-H5EspritFields::H5EspritFields() = default;
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-H5EspritFields::~H5EspritFields() = default;
+EbsdMatrixMath::EbsdMatrixMath() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> H5EspritFields::getFieldNames()
-{
-  QVector<QString> features;
-  // features.push_back(EbsdLib::H5Esprit::DD);
-  features.push_back(EbsdLib::H5Esprit::MAD);
-  // features.push_back(EbsdLib::H5Esprit::MADPhase);
-  features.push_back(EbsdLib::H5Esprit::NIndexedBands);
-  // features.push_back(EbsdLib::H5Esprit::PCX);
-  // features.push_back(EbsdLib::H5Esprit::PCY);
-  features.push_back(EbsdLib::H5Esprit::PHI);
-  features.push_back(EbsdLib::H5Esprit::Phase);
-  features.push_back(EbsdLib::H5Esprit::RadonBandCount);
-  features.push_back(EbsdLib::H5Esprit::RadonQuality);
-  features.push_back(EbsdLib::H5Esprit::RawPatterns);
-  features.push_back(EbsdLib::H5Esprit::XBEAM);
-  features.push_back(EbsdLib::H5Esprit::YBEAM);
-  // features.push_back(EbsdLib::H5Esprit::XSAMPLE);
-  // features.push_back(EbsdLib::H5Esprit::YSAMPLE);
-  features.push_back(EbsdLib::H5Esprit::phi1);
-  features.push_back(EbsdLib::H5Esprit::phi2);
-  return features;
-}
+EbsdMatrixMath::~EbsdMatrixMath() = default;
 
 // -----------------------------------------------------------------------------
-QString H5EspritFields::getNameOfClass() const
-{
-  return QString("_SUPERH5EspritFields");
-}
-
+//
 // -----------------------------------------------------------------------------
-QString H5EspritFields::ClassName()
+void EbsdMatrixMath::Multiply3x3with3x1(const double g1[3][3], const double g2[3], float outMat[3])
 {
-  return QString("_SUPERH5EspritFields");
+  outMat[0] = g1[0][0] * g2[0] + g1[0][1] * g2[1] + g1[0][2] * g2[2];
+  outMat[1] = g1[1][0] * g2[0] + g1[1][1] * g2[1] + g1[1][2] * g2[2];
+  outMat[2] = g1[2][0] * g2[0] + g1[2][1] * g2[1] + g1[2][2] * g2[2];
 }

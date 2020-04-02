@@ -222,7 +222,7 @@ public:
    * @brief SetNumberOfComponents
    * @param nc
    */
-  virtual void SetNumberOfComponents(int nc);
+  void SetNumberOfComponents(int nc);
 
   /**
    * @brief getNumberOfComponents
@@ -240,13 +240,13 @@ public:
    * @brief SetRank
    * @param rank
    */
-  virtual void SetRank(int rank);
+  void SetRank(int rank);
 
   /**
    * @brief getRank
    * @return
    */
-  virtual int getRank() const;
+  int getRank() const;
 
   /**
    * @brief Returns the number of bytes that make up the data type.
@@ -381,7 +381,7 @@ public:
    * with values populated to match the current DataArray.
    * @return
    */
-  ToolTipGenerator getToolTipGenerator() const;
+  EbsdLib::ToolTipGenerator getToolTipGenerator() const;
 
 protected:
   ModifiedLambertProjectionArray();

@@ -41,7 +41,7 @@ AbstractEbsdFields::AbstractEbsdFields() = default;
 AbstractEbsdFields::~AbstractEbsdFields() = default;
 
 // -----------------------------------------------------------------------------
-const QString AbstractEbsdFields::getNameOfClass() const
+QString AbstractEbsdFields::getNameOfClass() const
 {
   return QString("AbstractEbsdFields");
 }

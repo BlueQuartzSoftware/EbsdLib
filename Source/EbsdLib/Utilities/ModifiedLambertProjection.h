@@ -39,9 +39,7 @@
 #include <memory>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 /**
@@ -90,7 +88,7 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
      * @return
      */
-    static Pointer LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius);
+    static Pointer LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius);
 
     /**
      * @brief Getter property for Dimension
@@ -114,13 +112,13 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @brief Getter property for NorthSquare
      * @return Value of NorthSquare
      */
-    DoubleArrayType::Pointer getNorthSquare() const;
+    EbsdLib::DoubleArrayType::Pointer getNorthSquare() const;
 
     /**
      * @brief Getter property for SouthSquare
      * @return Value of SouthSquare
      */
-    DoubleArrayType::Pointer getSouthSquare() const;
+    EbsdLib::DoubleArrayType::Pointer getSouthSquare() const;
 
     /**
      * @brief initializeSquares
@@ -205,9 +203,9 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @brief createStereographicProjection
      * @param stereoGraphicProjectionDims
      */
-    DoubleArrayType::Pointer createStereographicProjection(int dim);
+    EbsdLib::DoubleArrayType::Pointer createStereographicProjection(int dim);
 
-    void createStereographicProjection(int dim, DoubleArrayType* stereoIntensity);
+    void createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity);
 
   protected:
     ModifiedLambertProjection();
@@ -223,8 +221,8 @@ class EbsdLib_EXPORT ModifiedLambertProjection
     float m_MaxCoord;
     float m_MinCoord;
 
-    DoubleArrayType::Pointer m_NorthSquare;
-    DoubleArrayType::Pointer m_SouthSquare;
+    EbsdLib::DoubleArrayType::Pointer m_NorthSquare;
+    EbsdLib::DoubleArrayType::Pointer m_SouthSquare;
 
   public:
     ModifiedLambertProjection(const ModifiedLambertProjection&) = delete; // Copy Constructor Not Implemented

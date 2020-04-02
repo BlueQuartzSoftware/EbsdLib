@@ -116,7 +116,7 @@ public:
     coords[0] = coords[0] - xc;
     coords[1] = coords[1] - yc;
     coords[2] = coords[2] - zc;
-    MatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
+    EbsdMatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
 
     Print_Coord<float>(coords);
     Print_Coord<float>(coordsRotated);

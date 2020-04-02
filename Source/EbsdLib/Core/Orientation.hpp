@@ -38,7 +38,6 @@
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/EbsdLib.h"
 
 /**
  * @brief The Orientation class encapsulates one of many types of rotation representations
@@ -428,7 +427,7 @@ public:
   {
     if(index >= m_Size)
     {
-      throw std::out_of_range("DataArray subscript out of range");
+      throw std::out_of_range("Orientation subscript out of range");
     }
     return m_Array[index];
   }
@@ -437,7 +436,7 @@ public:
   {
     if(index >= m_Size)
     {
-      throw std::out_of_range("DataArray subscript out of range");
+      throw std::out_of_range("Orientation subscript out of range");
     }
     return m_Array[index];
   }

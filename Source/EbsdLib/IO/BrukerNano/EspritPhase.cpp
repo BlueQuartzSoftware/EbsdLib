@@ -199,7 +199,7 @@ QString EspritPhase::getSpaceGroup() const
 
 
 // -----------------------------------------------------------------------------
-const QString EspritPhase::getNameOfClass() const
+QString EspritPhase::getNameOfClass() const
 {
   return QString("EspritPhase");
 }

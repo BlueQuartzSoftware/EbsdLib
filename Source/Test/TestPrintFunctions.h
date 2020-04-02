@@ -8,7 +8,7 @@
 
 #include <QtCore/QTextStream>
 
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 
 static const QString DCName("Orientation Transforms Test");
 static const QString AMName("Angles");
@@ -100,7 +100,8 @@ template <typename T> void Print_CU(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename K> void PrintTuple(typename DataArray<K>::Pointer data, size_t t)
+template <typename DataArrayClass>
+void PrintTuple(typename DataArrayClass::Pointer data, size_t t)
 {
   std::vector<size_t> cDims = data->getComponentDimensions();
   printf("%s\n", data->getName().toStdString().c_str());

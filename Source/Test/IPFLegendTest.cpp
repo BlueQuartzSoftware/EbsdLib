@@ -81,7 +81,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void SaveImage(UInt8ArrayType::Pointer rgbaImage, const QString outputFile)
+  void SaveImage(EbsdLib::UInt8ArrayType::Pointer rgbaImage, const QString outputFile)
   {
     QRgb* rgba = reinterpret_cast<QRgb*>(rgbaImage->getPointer(0));
 
@@ -122,7 +122,7 @@ public:
   void TestIPFLegend(const QString outputFile)
   {
     LaueOpsType ops;
-    UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
+    EbsdLib::UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
 
     SaveImage(image, outputFile);
   }

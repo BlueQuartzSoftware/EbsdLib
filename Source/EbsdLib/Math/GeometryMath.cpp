@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "GeometryMath.h"
 
@@ -39,7 +39,7 @@
 #include <random>
 
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -535,9 +535,9 @@ void GeometryMath::FindBoundingBoxOfRotatedFace(TriangleGeom* faces, int faceId,
   p3[0] = c[0];
   p3[1] = c[1];
   p3[2] = c[2];
-  MatrixMath::Multiply3x3with3x1(g, p1, p1r);
-  MatrixMath::Multiply3x3with3x1(g, p2, p2r);
-  MatrixMath::Multiply3x3with3x1(g, p3, p3r);
+  EbsdMatrixMath::Multiply3x3with3x1(g, p1, p1r);
+  EbsdMatrixMath::Multiply3x3with3x1(g, p2, p2r);
+  EbsdMatrixMath::Multiply3x3with3x1(g, p3, p3r);
   ll[0] = p1r[0];
   ur[0] = p1r[0];
   ll[1] = p1r[1];
@@ -648,7 +648,7 @@ void GeometryMath::FindPolygonNormal(const float* vertices, const int64_t numVer
     vec1[1] = a[1] - b[1];
     vec1[2] = a[2] - b[2];
 
-    MatrixMath::CrossProduct(vec0, vec1, tmpNormal);
+    EbsdMatrixMath::CrossProduct(vec0, vec1, tmpNormal);
     std::transform(n, n + 3, tmpNormal, n, std::plus<float>());
   }
 }
@@ -668,7 +668,7 @@ void GeometryMath::FindPlaneNormalVector(const float a[3], const float b[3], con
   ac[1] = c[1] - a[1];
   ac[2] = c[2] - a[2];
 
-  MatrixMath::CrossProduct(ab, ac, n);
+  EbsdMatrixMath::CrossProduct(ab, ac, n);
 }
 
 // -----------------------------------------------------------------------------
@@ -686,7 +686,7 @@ void GeometryMath::FindPlaneNormalVector(const double a[3], const double b[3], c
   ac[1] = c[1] - a[1];
   ac[2] = c[2] - a[2];
 
-  MatrixMath::CrossProduct(ab, ac, n);
+  EbsdMatrixMath::CrossProduct(ab, ac, n);
 }
 
 // -----------------------------------------------------------------------------
@@ -812,7 +812,7 @@ char GeometryMath::RayIntersectsPlane(const float* a, const float* b, const floa
   rq[1] = r[1] - q[1];
   rq[2] = r[2] - q[2];
   denom = (rq[0] * n[0]) + (rq[1] * n[1]) + (rq[2] * n[2]);
-  m = MatrixMath::FindIndexOfMaxVal3x1(n);
+  m = EbsdMatrixMath::FindIndexOfMaxVal3x1(n);
 
   if(denom == 0.0)
   {
@@ -1185,7 +1185,7 @@ GeometryMath::Pointer GeometryMath::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-const QString GeometryMath::getNameOfClass() const
+QString GeometryMath::getNameOfClass() const
 {
   return QString("GeometryMath");
 }

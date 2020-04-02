@@ -37,8 +37,7 @@
 
 #include <memory>
 
-
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
@@ -943,8 +942,8 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
 
   OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
   OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
-  MatrixMath::Transpose3x3(g1, g1);
-  MatrixMath::Transpose3x3(g2, g2);
+  EbsdMatrixMath::Transpose3x3(g1, g1);
+  EbsdMatrixMath::Transpose3x3(g2, g2);
   for(int i = 0; i < 12; i++)
   {
     slipDirection[0] = CubicHigh::SlipDirections[i][0];
@@ -953,10 +952,10 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    MatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
     planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
@@ -972,10 +971,10 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
   slipPlane[0] = CubicHigh::SlipPlanes[ss1][0];
   slipPlane[1] = CubicHigh::SlipPlanes[ss1][1];
   slipPlane[2] = CubicHigh::SlipPlanes[ss1][2];
-  MatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-  MatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
-  MatrixMath::Normalize3x1(hkl1);
-  MatrixMath::Normalize3x1(uvw1);
+  EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
+  EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+  EbsdMatrixMath::Normalize3x1(hkl1);
+  EbsdMatrixMath::Normalize3x1(uvw1);
 
   maxSchmidFactor = 0;
   for(int j = 0; j < 12; j++)
@@ -986,10 +985,10 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
     slipPlane[0] = CubicHigh::SlipPlanes[j][0];
     slipPlane[1] = CubicHigh::SlipPlanes[j][1];
     slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-    MatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-    MatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
-    MatrixMath::Normalize3x1(hkl2);
-    MatrixMath::Normalize3x1(uvw2);
+    EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
+    EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+    EbsdMatrixMath::Normalize3x1(hkl2);
+    EbsdMatrixMath::Normalize3x1(uvw2);
     directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
     planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
     schmidFactor2 = directionComponent2 * planeComponent2;
@@ -1005,10 +1004,10 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
   slipPlane[0] = CubicHigh::SlipPlanes[ss2][0];
   slipPlane[1] = CubicHigh::SlipPlanes[ss2][1];
   slipPlane[2] = CubicHigh::SlipPlanes[ss2][2];
-  MatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-  MatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
-  MatrixMath::Normalize3x1(hkl2);
-  MatrixMath::Normalize3x1(uvw2);
+  EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
+  EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+  EbsdMatrixMath::Normalize3x1(hkl2);
+  EbsdMatrixMath::Normalize3x1(uvw2);
   planeMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
   directionMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
   return planeMisalignment * directionMisalignment;
@@ -1030,10 +1029,10 @@ double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], boo
 
   OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
   OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
-  MatrixMath::Transpose3x3(g1, g1);
-  MatrixMath::Transpose3x3(g2, g2);
+  EbsdMatrixMath::Transpose3x3(g1, g1);
+  EbsdMatrixMath::Transpose3x3(g2, g2);
 
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
 
   if(maxSF)
   {
@@ -1047,10 +1046,10 @@ double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], boo
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    MatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
     planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
@@ -1069,10 +1068,10 @@ double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], boo
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        MatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        MatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
@@ -1112,10 +1111,10 @@ double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], 
   double F1spt = 0.0f;
   OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
   OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
-  MatrixMath::Transpose3x3(g1, g1);
-  MatrixMath::Transpose3x3(g2, g2);
+  EbsdMatrixMath::Transpose3x3(g1, g1);
+  EbsdMatrixMath::Transpose3x3(g2, g2);
 
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
 
   if(maxSF)
   {
@@ -1129,10 +1128,10 @@ double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], 
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    MatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
     planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
@@ -1152,10 +1151,10 @@ double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], 
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        MatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        MatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
@@ -1199,10 +1198,10 @@ double CubicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], boo
 
   OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
   OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
-  MatrixMath::Transpose3x3(g1, g1);
-  MatrixMath::Transpose3x3(g2, g2);
+  EbsdMatrixMath::Transpose3x3(g1, g1);
+  EbsdMatrixMath::Transpose3x3(g2, g2);
 
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
 
   for(int i = 0; i < 12; i++)
   {
@@ -1212,10 +1211,10 @@ double CubicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], boo
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    MatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
     planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
@@ -1234,10 +1233,10 @@ double CubicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], boo
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        MatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        MatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
@@ -1268,13 +1267,13 @@ namespace CubicHigh
 {
 class GenerateSphereCoordsImpl
 {
-  FloatArrayType* m_Eulers;
-  FloatArrayType* m_xyz001;
-  FloatArrayType* m_xyz011;
-  FloatArrayType* m_xyz111;
+  EbsdLib::FloatArrayType* m_Eulers;
+  EbsdLib::FloatArrayType* m_xyz001;
+  EbsdLib::FloatArrayType* m_xyz011;
+  EbsdLib::FloatArrayType* m_xyz111;
 
 public:
-  GenerateSphereCoordsImpl(FloatArrayType* eulers, FloatArrayType* xyz001, FloatArrayType* xyz011, FloatArrayType* xyz111)
+  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111)
   : m_Eulers(eulers)
   , m_xyz001(xyz001)
   , m_xyz011(xyz011)
@@ -1294,102 +1293,102 @@ public:
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
       OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-      MatrixMath::Transpose3x3(g, gTranpose);
+      EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
       // -----------------------------------------------------------------------------
       // 001 Family
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18));
-      MatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
-      MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 6));
-      MatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
-      MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 12));
-      MatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
-      MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
 
       // -----------------------------------------------------------------------------
       // 011 Family
       direction[0] = EbsdLib::Constants::k_1OverRoot2;
       direction[1] = EbsdLib::Constants::k_1OverRoot2;
       direction[2] = 0.0;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot2;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
       direction[0] = 0.0;
       direction[1] = EbsdLib::Constants::k_1OverRoot2;
       direction[2] = EbsdLib::Constants::k_1OverRoot2;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot2;
       direction[1] = EbsdLib::Constants::k_1OverRoot2;
       direction[2] = 0.0;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot2;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
       direction[0] = 0.0;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2;
       direction[2] = EbsdLib::Constants::k_1OverRoot2;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
-      MatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
-      MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
 
       // -----------------------------------------------------------------------------
       // 111 Family
       direction[0] = EbsdLib::Constants::k_1OverRoot3;
       direction[1] = EbsdLib::Constants::k_1OverRoot3;
       direction[2] = EbsdLib::Constants::k_1OverRoot3;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
-      MatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
-      MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot3;
       direction[1] = EbsdLib::Constants::k_1OverRoot3;
       direction[2] = EbsdLib::Constants::k_1OverRoot3;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
-      MatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
-      MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot3;
       direction[1] = -EbsdLib::Constants::k_1OverRoot3;
       direction[2] = EbsdLib::Constants::k_1OverRoot3;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
-      MatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
-      MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot3;
       direction[1] = EbsdLib::Constants::k_1OverRoot3;
       direction[2] = -EbsdLib::Constants::k_1OverRoot3;
-      MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
-      MatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
-      MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
     }
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
-        void operator()(const tbb::blocked_range<size_t>& r) const
-        {
-          generate(r.begin(), r.end());
-        }
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    generate(r.begin(), r.end());
+  }
 #endif
 };
 } // namespace CubicHigh
@@ -1397,7 +1396,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void CubicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* xyz001, FloatArrayType* xyz011, FloatArrayType* xyz111) const
+void CubicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -1415,12 +1414,12 @@ void CubicOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArray
     xyz111->resizeTuples(nOrientations * CubicHigh::symSize2 * 3);
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 #endif
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   if(doParallel)
   {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), CubicHigh::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
@@ -1628,8 +1627,8 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
     refDirection[2] = refDir2;
-    MatrixMath::Multiply3x3with3x1(g, refDirection, p);
-    MatrixMath::Normalize3x1(p);
+    EbsdMatrixMath::Multiply3x3with3x1(g, refDirection, p);
+    EbsdMatrixMath::Normalize3x1(p);
 
     if(!getHasInversion() && p[2] < 0)
     {
@@ -1710,7 +1709,7 @@ EbsdLib::Rgb CubicOps::generateRodriguesColor(double r1, double r2, double r3) c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
+std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   QString label0 = QString("<001>");
   QString label1 = QString("<011>");
@@ -1727,11 +1726,11 @@ std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConf
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  FloatArrayType::Pointer xyz001 = FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize0, dims, label0 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  FloatArrayType::Pointer xyz011 = FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize1, dims, label1 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  FloatArrayType::Pointer xyz111 = FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicHigh::symSize2, dims, label2 + QString("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -1740,11 +1739,11 @@ std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConf
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  DoubleArrayType::Pointer intensity001 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity011 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity111 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 
@@ -1818,11 +1817,11 @@ std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConf
   config.maxScale = max;
 
   dims[0] = 4;
-  UInt8ArrayType::Pointer image001 = UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label0, true);
-  UInt8ArrayType::Pointer image011 = UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label1, true);
-  UInt8ArrayType::Pointer image111 = UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label2, true);
+  EbsdLib::UInt8ArrayType::Pointer image001 = EbsdLib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label0, true);
+  EbsdLib::UInt8ArrayType::Pointer image011 = EbsdLib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label1, true);
+  EbsdLib::UInt8ArrayType::Pointer image111 = EbsdLib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageDim * config.imageDim), dims, label2, true);
 
-  std::vector<UInt8ArrayType::Pointer> poleFigures(3);
+  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
     poleFigures[static_cast<int>(config.order[0])] = image001;
@@ -1836,7 +1835,7 @@ std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConf
     poleFigures[2] = image111;
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 
   if(doParallel)
   {
@@ -1874,11 +1873,11 @@ std::vector<UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConf
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDim) const
 {
 
   std::vector<size_t> dims(1, 4);
-  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double indexConst1 = 0.414f / static_cast<double>(imageDim);
@@ -2051,10 +2050,10 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const Quat
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer CubicOps::generateMisorientationTriangleLegend(double angle, int n1, int n2, int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer CubicOps::generateMisorientationTriangleLegend(double angle, int n1, int n2, int imageDim) const
 {
   std::vector<size_t> dims(1, 4);
-  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, "Cubic High Misorientation Triangle Legend", true);
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, "Cubic High Misorientation Triangle Legend", true);
 #if 0
   //uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 

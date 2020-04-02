@@ -67,7 +67,7 @@ class EbsdLib_EXPORT EbsdReader
     /**
     * @brief Returns the name of the class for EbsdReader
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for EbsdReader
     */

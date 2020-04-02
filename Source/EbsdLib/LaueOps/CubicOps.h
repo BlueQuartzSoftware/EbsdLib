@@ -38,8 +38,7 @@
 #include <memory>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/DataArray.hpp"
-
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
@@ -65,7 +64,7 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
     /**
      * @brief Returns the name of the class for CubicOps
      */
-    QString getNameOfClass() const override;
+    virtual QString getNameOfClass() const override;
     /**
      * @brief Returns the name of the class for CubicOps
      */
@@ -74,7 +73,8 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
     static Pointer New();
 
     CubicOps();
-    ~CubicOps() override;
+
+    virtual ~CubicOps() override;
 
     /**
      * @brief getHasInversion Returns if this Laue class has inversion
@@ -144,7 +144,7 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
     int getMisoBin(const OrientationType& rod) const override;
     bool inUnitTriangle(double eta, double chi) const override;
     OrientationType determineEulerAngles(double random[3], int choose) const override;
-    OrientationType randomizeEulerAngles(const OrientationType& euler) const override;
+    OrientationType randomizeEulerAngles(const OrientationType& synea) const override;
     OrientationType determineRodriguesVector(double random[3], int choose) const override;
     int getOdfBin(const OrientationType& rod) const override;
     void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
@@ -154,7 +154,7 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
     double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
     double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
 
-    void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const override;
+    void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const override;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -176,7 +176,7 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
      * @param convertDegrees Are the input angles in Degrees
      * @return Returns the ARGB Quadruplet EbsdLib::Rgb
      */
-    EbsdLib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees) const override;
+    EbsdLib::Rgb generateIPFColor(double phi1, double phi, double phi2, double dir0, double dir1, double dir2, bool degToRad) const override;
 
     /**
      * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -201,16 +201,16 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
      * @param eulers The Euler Angles to generate the pole figure from.
      * @param imageSize The size in Pixels of the final RGB Image.
      * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-     * @return A QVector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+     * @return A QVector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    std::vector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
+    std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
     /**
      * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
      * @return
      */
-    UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
+    EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
 
     /**
      * @brief generates a misorientation coloring legend
@@ -220,7 +220,7 @@ class EbsdLib_EXPORT CubicOps : public LaueOps
      * @param width of produced image (in pixels)
      * @return
      */
-    UInt8ArrayType::Pointer generateMisorientationTriangleLegend(double, int, int, int) const;
+    EbsdLib::UInt8ArrayType::Pointer generateMisorientationTriangleLegend(double, int, int, int) const;
 
   protected:
     /**

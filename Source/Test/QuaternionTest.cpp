@@ -39,7 +39,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/Quaternion.hpp"
 
@@ -69,7 +69,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void TestMatrixMath()
+  void TestEbsdMatrixMath()
   {
     using VectorMapType = Eigen::Map<Eigen::Vector3f>;
 
@@ -84,8 +84,8 @@ public:
 
     {
       float dir[3] = {1.0f, 2.0f, 3.0f};
-      MatrixMath::Normalize3x1(dir);
-      MatrixMath::Multiply3x1withConstant(dir, -1.0f);
+      EbsdMatrixMath::Normalize3x1(dir);
+      EbsdMatrixMath::Multiply3x1withConstant(dir, -1.0f);
     }
   }
 
@@ -351,7 +351,7 @@ public:
     std::cout << "#### QuaternionTest Starting ####" << std::endl;
 
     int err = EXIT_SUCCESS;
-    DREAM3D_REGISTER_TEST(TestMatrixMath())
+    DREAM3D_REGISTER_TEST(TestEbsdMatrixMath())
     DREAM3D_REGISTER_TEST(TestQuat_t())
     DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }

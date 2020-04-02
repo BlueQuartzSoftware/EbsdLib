@@ -60,6 +60,7 @@ class EbsdLib_EXPORT SO3Sampler
      * @brief Returns the name of the class for SO3Sampler
      */
     virtual QString getNameOfClass() const;
+
     /**
      * @brief Returns the name of the class for SO3Sampler
      */

@@ -38,6 +38,8 @@
 
 #include "EbsdLib/EbsdLib.h"
 
+namespace EbsdLib
+{
 /**
  * @class ToolTipGenerator ToolTipGenerator.h SIMPLib/Utilities/ToolTipGenerator.h
  * @brief The ToolTipGenerator class is used for generating HTML table strings.
@@ -125,3 +127,4 @@ private:
   QString m_RowColorStr = "#FFFCEA";
   std::vector<RowItem> m_Rows;
 };
+} // end namespace EbsdLib

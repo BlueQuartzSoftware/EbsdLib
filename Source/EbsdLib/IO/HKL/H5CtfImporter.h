@@ -46,7 +46,7 @@
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 
 /**
- * @class H5CtfImporter H5CtfImporter.h EbsdLib/HKL/H5CtfImporter.h
+ * @class H5CtfImporter H5CtfImporter.h EbsdLib/IO/HKL/H5CtfImporter.h
  * @brief This class will read a series of .ctf files and store the values into
  * an HDF5 file according to the .h5ebsd specification
  *
@@ -68,7 +68,7 @@ class EbsdLib_EXPORT H5CtfImporter : public EbsdImporter
     /**
     * @brief Returns the name of the class for _SUPERH5CtfImporter
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for _SUPERH5CtfImporter
     */
@@ -84,7 +84,7 @@ class EbsdLib_EXPORT H5CtfImporter : public EbsdImporter
      * @param index The slice index for the file
      * @param angFile The absolute path to the input .ang file
      */
-    int importFile(hid_t fileId, int64_t index, const QString& angFile) override;
+    int importFile(hid_t fileId, int64_t z, const QString& ctfFile) override;
 
     /**
      * @brief Writes the phase data into the HDF5 file

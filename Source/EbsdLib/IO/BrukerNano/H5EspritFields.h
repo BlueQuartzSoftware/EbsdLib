@@ -42,7 +42,7 @@
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 
 /**
- * @class EspritFields EspritFields.h EbsdLib/HKL/EspritFields.h
+ * @class EspritFields EspritFields.h EbsdLib/IO/HKL/EspritFields.h
  * @brief This class simply holds the names of the columns that are present in the
  * HKL .Esprit file.
  *
@@ -57,12 +57,11 @@ public:
     /**
     * @brief Returns the name of the class for _SUPERH5EspritFields
     */
-    const QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for _SUPERH5EspritFields
-    */
-    static QString ClassName();
-
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for _SUPERH5EspritFields
+   */
+  static QString ClassName();
 
   QVector<QString> getFieldNames() override;
 

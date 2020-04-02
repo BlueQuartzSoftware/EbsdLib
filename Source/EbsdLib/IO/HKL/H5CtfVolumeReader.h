@@ -67,7 +67,7 @@ class EbsdLib_EXPORT H5CtfVolumeReader : public H5EbsdVolumeReader
     /**
     * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
     */

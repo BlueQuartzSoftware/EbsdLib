@@ -140,7 +140,7 @@ if(EbsdLib_ENABLE_HDF5)
   )
    set(H5Support_USE_QT ON)
    set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
-   target_compile_definitions( ${PROJECT_NAME} PRIVATE  -DH5Support_USE_QT)
+   target_compile_definitions( ${PROJECT_NAME} PUBLIC -DH5Support_USE_QT)
 endif()
 
 
@@ -151,18 +151,20 @@ get_filename_component(TARGET_BINARY_DIR_PARENT ${EbsdLibProj_BINARY_DIR} PATH)
 get_filename_component(TARGET_SOURCE_DIR_PARENT ${EbsdLibProj_SOURCE_DIR} PATH)
 
 target_include_directories(${PROJECT_NAME}
-                          PRIVATE
-                            ${EbsdLibProj_SOURCE_DIR}/Source
-                            ${EbsdLibProj_BINARY_DIR}
+                            PUBLIC
+                            $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
+)
+target_include_directories(${PROJECT_NAME}
+                            PUBLIC
                             ${EIGEN3_INCLUDE_DIR}
                             ${Qt5Core_INCLUDE_DIRS}
                             ${Qt5Core_INCLUDE_DIR}
+                            $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
 )
-
 
 if(EbsdLib_ENABLE_HDF5)
   target_include_directories(${PROJECT_NAME}
-                            PRIVATE
+                              PUBLIC
                               ${HDF5_INCLUDE_DIRS}
                               ${HDF5_INCLUDE_DIR}
                               ${H5Support_SOURCE_DIR}/Source
@@ -176,7 +178,7 @@ endif()
 LibraryProperties( ${PROJECT_NAME} ${EXE_DEBUG_EXTENSION} )
 target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
 
-if(EBSD_USE_PARALLEL_ALGORITHMS)
+if(EbsdLib_USE_PARALLEL_ALGORITHMS)
   target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
 endif()
 

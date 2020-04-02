@@ -32,10 +32,7 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 #pragma once
-
-#include <hdf5.h>
 
 // STL Includes
 #include <cassert>
@@ -46,19 +43,21 @@
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
+#include <hdf5.h>
+
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 
 /**
- * @class DataArray
+ * @class EbsdDataArray
  * @brief Template class for wrapping raw arrays of data and is the basis for storing data within the SIMPL data structure.
  */
 template <typename T>
-class DataArray
+class EbsdDataArray
 {
 
 public:
-  using Self = DataArray<T>;
+  using Self = EbsdDataArray<T>;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
@@ -81,10 +80,10 @@ public:
    */
   int32_t getClassVersion() const;
 
-  DataArray(const DataArray&) = default;           // Copy Constructor default Implemented
-  DataArray(DataArray&&) = delete;                 // Move Constructor Not Implemented
-  DataArray& operator=(const DataArray&) = delete; // Copy Assignment Not Implemented
-  DataArray& operator=(DataArray&&) = delete;      // Move Assignment Not Implemented
+  EbsdDataArray(const EbsdDataArray&) = default;           // Copy Constructor default Implemented
+  EbsdDataArray(EbsdDataArray&&) = delete;                 // Move Constructor Not Implemented
+  EbsdDataArray& operator=(const EbsdDataArray&) = delete; // Copy Assignment Not Implemented
+  EbsdDataArray& operator=(EbsdDataArray&&) = delete;      // Move Assignment Not Implemented
 
   //========================================= STL INTERFACE COMPATIBILITY =================================
   using comp_dims_type = std::vector<size_t>;
@@ -98,46 +97,46 @@ public:
   //========================================= SIMPL INTERFACE COMPATIBILITY =================================
   using ContainterType = std::vector<Pointer>;
 
-  //========================================= Constructing DataArray Objects =================================
-  DataArray();
+  //========================================= Constructing EbsdDataArray Objects =================================
+  EbsdDataArray();
 
   /**
    * @brief Constructor
-   * @param numTuples The number of Tuples in the DataArray
-   * @param name The name of the DataArray
+   * @param numTuples The number of Tuples in the EbsdDataArray
+   * @param name The name of the EbsdDataArray
    * @param initValue The value to use when initializing each element of the array
    */
-  DataArray(size_t numTuples, const QString& name, T initValue);
+  EbsdDataArray(size_t numTuples, const QString& name, T initValue);
   /**
-   * @brief DataArray
-   * @param numTuples The number of Tuples in the DataArray
-   * @param name The name of the DataArray
+   * @brief EbsdDataArray
+   * @param numTuples The number of Tuples in the EbsdDataArray
+   * @param name The name of the EbsdDataArray
    * @param compDims The number of elements in each axis dimension.
    * @param initValue The value to use when initializing each element of the array
    *
    * For example if you have a 2D image dimensions of 80(w) x 60(h) then the "cdims" would be [80][60]
    */
-  DataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue);
+  EbsdDataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue);
 
   /**
    * @brief Protected Constructor
-   * @param numTuples The number of Tuples in the DataArray
-   * @param name The name of the DataArray
+   * @param numTuples The number of Tuples in the EbsdDataArray
+   * @param name The name of the EbsdDataArray
    * @param compDims The number of elements in each axis dimension.
    * @param initValue The value to use when initializing each element of the array
    * @param allocate Will all the memory be allocated at time of construction
    */
-  DataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue, bool allocate);
+  EbsdDataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue, bool allocate);
 
-  ~DataArray();
+  ~EbsdDataArray();
 
-  //========================================= Static Constructing DataArray Objects =================================
+  //========================================= Static Constructing EbsdDataArray Objects =================================
   /**
    * @brief Static constructor
    * @param numElements The number of elements in the internal array.
    * @param name The name of the array
    * @param allocate Will all the memory be allocated at time of construction
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer CreateArray(size_t numTuples, const QString& name, bool allocate);
 
@@ -148,7 +147,7 @@ public:
    * @param dims The actual dimensions of the attribute on each Tuple
    * @param name The name of the array
    * @param allocate Will all the memory be allocated at time of construction
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer CreateArray(size_t numTuples, int rank, const size_t* dims, const QString& name, bool allocate);
 
@@ -158,7 +157,7 @@ public:
    * @param compDims The actual dimensions of the attribute on each Tuple
    * @param name The name of the array
    * @param allocate Will all the memory be allocated at time of construction
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer CreateArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate);
 
@@ -169,13 +168,13 @@ public:
    * @param compDims The number of elements in each axis dimension.
    * @param name The name of the array
    * @param allocate Will all the memory be allocated at time of construction
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer CreateArray(const comp_dims_type& tupleDims, const comp_dims_type& compDims, const QString& name, bool allocate);
 
-  //========================================= Instance Constructing DataArray Objects =================================
+  //========================================= Instance Constructing EbsdDataArray Objects =================================
   /**
-   * @brief createNewArray Creates a new DataArray object using the same POD type as the existing instance
+   * @brief createNewArray Creates a new EbsdDataArray object using the same POD type as the existing instance
    * @param numTuples The number of tuples in the array.
    * @param rank The number of dimensions of the attribute on each Tuple
    * @param dims The actual dimensions of the attribute on each Tuple
@@ -191,30 +190,30 @@ public:
    * @param compDims The number of elements in each axis dimension.
    * @param name The name of the array
    * @param allocate Will all the memory be allocated at time of construction
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   Pointer createNewArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate) const;
 
   /**
-   * @brief Static Method to create a DataArray from a QVector through a deep copy of the data
+   * @brief Static Method to create a EbsdDataArray from a QVector through a deep copy of the data
    * contained in the vector. The number of components will be set to 1.
    * @param vec The vector to copy the data from
    * @param name The name of the array
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer FromQVector(QVector<T>& vec, const QString& name);
 
   /**
-   * @brief Static Method to create a DataArray from a std::vector through a deep copy of the data
+   * @brief Static Method to create a EbsdDataArray from a std::vector through a deep copy of the data
    * contained in the vector. The number of components will be set to 1.
    * @param vec The vector to copy the data from
    * @param name The name of the array
-   * @return Std::Shared_Ptr wrapping an instance of DataArrayTemplate<T>
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
   static Pointer FromStdVector(std::vector<T>& vec, const QString& name);
 
   /**
-   * @brief FromPointer Creates a DataArray<T> object with a <b>DEEP COPY</b> of the data
+   * @brief FromPointer Creates a EbsdDataArray<T> object with a <b>DEEP COPY</b> of the data
    * @param data
    * @param size
    * @param name
@@ -223,7 +222,7 @@ public:
   static Pointer CopyFromPointer(T* data, size_t size, const QString& name);
 
   /**
-   * @brief WrapPointer Creates a DataArray<T> object that references the pointer. The original caller can
+   * @brief WrapPointer Creates a EbsdDataArray<T> object that references the pointer. The original caller can
    * set if the memory should be "free()'ed" when the object goes away. The original memory MUST have been
    * "alloc()'ed" and <b>NOT</b> new 'ed.
    * @param data
@@ -234,6 +233,17 @@ public:
    * @return
    */
   static Pointer WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const QString& name, bool ownsData);
+
+  /**
+   * @brief Use this method to move the pointer ownership from this class to another similar class, such as SIMPLib::DataArray<T>
+   */
+  template <typename DataArrayType>
+  std::shared_ptr<DataArrayType> moveToDataArrayType()
+  {
+    std::shared_ptr<DataArrayType> output = DataArrayType::WrapPointer(data(), getNumberOfTuples(), getComponentDimensions(), getName(), true);
+    releaseOwnership();
+    return output;
+  }
 
   //========================================= Begin API =================================
 
@@ -276,7 +286,7 @@ public:
    * totalSrcTuples value starting from the source tuple offset value in <b>sourceArray</b>
    * into the current array starting at the target destination tuple offset value.
    *
-   * For example if the DataArray has 10 tuples, the source DataArray has 10 tuples,
+   * For example if the EbsdDataArray has 10 tuples, the source EbsdDataArray has 10 tuples,
    *  the destTupleOffset = 5, the srcTupleOffset = 5, and the totalSrcTuples = 3,
    *  then tuples 5, 6, and 7 will be copied from the source into tuples 5, 6, and 7
    * of the destination array. In psuedo code it would be the following:
@@ -407,7 +417,7 @@ public:
   void* getVoidPointer(size_t i);
 
   /**
-   * @brief Returns a list of the contents of DataArray (For Python Binding)
+   * @brief Returns a list of the contents of EbsdDataArray (For Python Binding)
    * @return std::list. Possibly empty
    */
   std::list<T> getArray() const;
@@ -536,7 +546,7 @@ public:
 #ifdef DATA_ARRAY_ENABLE_ToolTipGenerator
   /**
    * @brief Returns a ToolTipGenerator for creating HTML tooltip tables
-   * with values populated to match the current DataArray.
+   * with values populated to match the current EbsdDataArray.
    * @return
    */
   ToolTipGenerator getToolTipGenerator() const
@@ -885,7 +895,7 @@ public:
   {
     if(index >= m_Size)
     {
-      throw std::out_of_range("DataArray subscript out of range");
+      throw std::out_of_range("EbsdDataArray subscript out of range");
     }
     return m_Array[index];
   }
@@ -894,7 +904,7 @@ public:
   {
     if(index >= m_Size)
     {
-      throw std::out_of_range("DataArray subscript out of range");
+      throw std::out_of_range("EbsdDataArray subscript out of range");
     }
     return m_Array[index];
   }
@@ -1040,52 +1050,55 @@ private:
 // -----------------------------------------------------------------------------
 // These are specialized for bool type as std::vector<bool> uses bits instead of bytes
 template <>
-typename DataArray<bool>::Pointer DataArray<bool>::FromStdVector(std::vector<bool>& vec, const QString& name);
+typename EbsdDataArray<bool>::Pointer EbsdDataArray<bool>::FromStdVector(std::vector<bool>& vec, const QString& name);
 
 template <>
-void DataArray<bool>::setTuple(size_t tupleIndex, const std::vector<bool>& data);
+void EbsdDataArray<bool>::setTuple(size_t tupleIndex, const std::vector<bool>& data);
 
 // -----------------------------------------------------------------------------
 // Declare our extern templates
-extern template class DataArray<bool>;
+extern template class EbsdDataArray<bool>;
 
-extern template class DataArray<char>;
-extern template class DataArray<unsigned char>;
+extern template class EbsdDataArray<char>;
+extern template class EbsdDataArray<unsigned char>;
 
-extern template class DataArray<int8_t>;
-extern template class DataArray<uint8_t>;
-extern template class DataArray<int16_t>;
-extern template class DataArray<uint16_t>;
-extern template class DataArray<int32_t>;
-extern template class DataArray<uint32_t>;
-extern template class DataArray<int64_t>;
-extern template class DataArray<uint64_t>;
+extern template class EbsdDataArray<int8_t>;
+extern template class EbsdDataArray<uint8_t>;
+extern template class EbsdDataArray<int16_t>;
+extern template class EbsdDataArray<uint16_t>;
+extern template class EbsdDataArray<int32_t>;
+extern template class EbsdDataArray<uint32_t>;
+extern template class EbsdDataArray<int64_t>;
+extern template class EbsdDataArray<uint64_t>;
 
-extern template class DataArray<float>;
-extern template class DataArray<double>;
+extern template class EbsdDataArray<float>;
+extern template class EbsdDataArray<double>;
 
-extern template class DataArray<size_t>;
+extern template class EbsdDataArray<size_t>;
 
 // -----------------------------------------------------------------------------
 // Declare our aliases
-using BoolArrayType = DataArray<bool>;
+namespace EbsdLib
+{
+// using BoolArrayType = EbsdDataArray<bool>;
 
-using CharArrayType = DataArray<char>;
-using UCharArrayType = DataArray<unsigned char>;
+// using CharArrayType = EbsdDataArray<char>;
+// using UCharArrayType = EbsdDataArray<unsigned char>;
 
-using Int8ArrayType = DataArray<int8_t>;
-using UInt8ArrayType = DataArray<uint8_t>;
+// using Int8ArrayType = EbsdDataArray<int8_t>;
+using UInt8ArrayType = EbsdDataArray<uint8_t>;
 
-using Int16ArrayType = DataArray<int16_t>;
-using UInt16ArrayType = DataArray<uint16_t>;
+// using Int16ArrayType = EbsdDataArray<int16_t>;
+// using UInt16ArrayType = EbsdDataArray<uint16_t>;
 
-using Int32ArrayType = DataArray<int32_t>;
-using UInt32ArrayType = DataArray<uint32_t>;
+using Int32ArrayType = EbsdDataArray<int32_t>;
+// using UInt32ArrayType = EbsdDataArray<uint32_t>;
 
-using Int64ArrayType = DataArray<int64_t>;
-using UInt64ArrayType = DataArray<uint64_t>;
+// using Int64ArrayType = EbsdDataArray<int64_t>;
+// using UInt64ArrayType = EbsdDataArray<uint64_t>;
 
-using FloatArrayType = DataArray<float>;
-using DoubleArrayType = DataArray<double>;
+using FloatArrayType = EbsdDataArray<float>;
+using DoubleArrayType = EbsdDataArray<double>;
 
-using SizeTArrayType = DataArray<size_t>;
+// using SizeTArrayType = EbsdDataArray<size_t>;
+} // namespace EbsdLib

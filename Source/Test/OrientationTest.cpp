@@ -18,14 +18,15 @@
 
 #include <QtCore/QVector>
 
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/ArrayHelpers.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/MatrixMath.h"
-#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
+//#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 
 using namespace EbsdLib::Constants;
 
@@ -147,7 +148,7 @@ public:
       ro[1] = 1.0f;
       ro[2] = 1.0f;
       ro[3] = 1.0f;
-      MatrixMath::Normalize3x1(&(ro[0]));
+      EbsdMatrixMath::Normalize3x1(&(ro[0]));
       result = OrientationTransformation::ro_check(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
@@ -162,7 +163,7 @@ public:
       ro[1] = 1.0f;
       ro[2] = 1.0f;
       ro[3] = 1.0f;
-      MatrixMath::Normalize3x1(&(ro[0]));
+      EbsdMatrixMath::Normalize3x1(&(ro[0]));
       result = OrientationTransformation::ro_check(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
@@ -177,7 +178,7 @@ public:
       ro[1] = 1.0f;
       ro[2] = 1.0f;
       ro[3] = 1.0f;
-      MatrixMath::Normalize3x1(&(ro[0]));
+      EbsdMatrixMath::Normalize3x1(&(ro[0]));
       result = OrientationTransformation::ro_check(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
@@ -291,7 +292,7 @@ public:
       qu[1] = quat.y();
       qu[2] = quat.z();
       qu[3] = quat.w();
-      MatrixMath::Normalize3x1(&(qu[0]));
+      EbsdMatrixMath::Normalize3x1(&(qu[0]));
       result = OrientationTransformation::qu_check(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -313,7 +314,7 @@ public:
       qu[1] = quat.y();
       qu[2] = quat.z();
       qu[3] = quat.w();
-      MatrixMath::Normalize3x1(&(qu[0]));
+      EbsdMatrixMath::Normalize3x1(&(qu[0]));
       result = OrientationTransformation::qu_check(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -335,7 +336,7 @@ public:
       qu[1] = quat.y();
       qu[2] = quat.z();
       qu[3] = quat.w();
-      MatrixMath::Normalize3x1(&(qu[0]));
+      EbsdMatrixMath::Normalize3x1(&(qu[0]));
       result = OrientationTransformation::qu_check(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -928,7 +929,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   void TestInputs()
   {
     std::vector<size_t> cDims(1, 3);
-    FloatArrayType::Pointer data = FloatArrayType::CreateArray(2, cDims, "Eulers", true);
+    EbsdLib::FloatArrayType::Pointer data = EbsdLib::FloatArrayType::CreateArray(2, cDims, "Eulers", true);
     data->initializeWithZeros();
     float* fPtr = data->getPointer(0);
     fPtr[0] = 90.0 * EbsdLib::Constants::k_PiOver180;
@@ -1025,7 +1026,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     std::cout << "vq: " << vq[0] << "," << vq[1] << "," << vq[2] << std::endl;
 
-    MatrixMath::Multiply3x3with3x1(g, v, vg.data());
+    EbsdMatrixMath::Multiply3x3with3x1(g, v, vg.data());
     std::cout << "vg: " << vg[0] << "," << vg[1] << "," << vg[2] << std::endl;
   }
 

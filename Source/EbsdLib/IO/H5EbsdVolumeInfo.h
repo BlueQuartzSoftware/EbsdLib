@@ -64,7 +64,7 @@ class  EbsdLib_EXPORT H5EbsdVolumeInfo
     /**
     * @brief Returns the name of the class for H5EbsdVolumeInfo
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for H5EbsdVolumeInfo
     */

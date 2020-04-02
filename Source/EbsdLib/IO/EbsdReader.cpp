@@ -39,18 +39,18 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdReader::EbsdReader() :
-  m_ErrorCode(0),
-  m_ErrorMessage(""),
-  m_UserZDir(EbsdLib::RefFrameZDir::LowtoHigh),
-  m_SampleTransformationAngle(0.0f),
-  m_EulerTransformationAngle(0.0f),
-  m_FileName(""),
-  m_NumFeatures(0),
-  m_OriginalHeader(""),
-  m_ManageMemory(true),
-  m_HeaderIsComplete(false),
-  m_NumberOfElements(0)
+EbsdReader::EbsdReader()
+: m_ErrorCode(0)
+, m_UserZDir(EbsdLib::RefFrameZDir::LowtoHigh)
+, m_SampleTransformationAngle(0.0f)
+, m_EulerTransformationAngle(0.0f)
+, m_NumFeatures(0)
+, m_ManageMemory(true)
+, m_HeaderIsComplete(false)
+, m_NumberOfElements(0)
+, m_ErrorMessage("")
+, m_FileName("")
+, m_OriginalHeader("")
 {
 }
 
@@ -103,10 +103,8 @@ QString EbsdReader::getOriginalHeader() const
   return m_OriginalHeader;
 }
 
-
-
 // -----------------------------------------------------------------------------
-const QString EbsdReader::getNameOfClass() const
+QString EbsdReader::getNameOfClass() const
 {
   return QString("EbsdReader");
 }

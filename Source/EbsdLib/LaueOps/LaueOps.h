@@ -40,7 +40,7 @@
 #include <QtCore/QString>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/DataArray.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
@@ -74,7 +74,7 @@ class EbsdLib_EXPORT LaueOps
 
     /**
      * @brief GetAllOrientationOps This method returns a vector of each type of LaueOps placed such that the
-     * index into the vector is the value of the constant at EBSD::CrystalStructure::***
+     * index into the vector is the value of the constant at EbsdLib::CrystalStructure::***
      * @return Vector of LaueOps subclasses.
      */
     static std::vector<LaueOps::Pointer> GetAllOrientationOps();
@@ -216,7 +216,7 @@ class EbsdLib_EXPORT LaueOps
 
     virtual double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
 
-    virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const = 0;
+    virtual void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const = 0;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -263,10 +263,10 @@ class EbsdLib_EXPORT LaueOps
      * @param eulers The Euler Angles to generate the pole figure from.
      * @param imageSize The size in Pixels of the final RGB Image.
      * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-     * @return A std::vector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+     * @return A std::vector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    virtual std::vector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
+    virtual std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
   protected:
     LaueOps();
