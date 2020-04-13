@@ -38,21 +38,21 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QImage>
 
-#include "SIMPLib/SIMPLib.h"
+#include "EbsdLib/EbsdLib.h"
 #include "UnitTestSupport.hpp"
 
-#include "OrientationLib/OrientationLib.h"
-#include "OrientationLib/LaueOps/CubicLowOps.h"
-#include "OrientationLib/LaueOps/CubicOps.h"
-#include "OrientationLib/LaueOps/HexagonalLowOps.h"
-#include "OrientationLib/LaueOps/HexagonalOps.h"
-#include "OrientationLib/LaueOps/MonoclinicOps.h"
-#include "OrientationLib/LaueOps/OrthoRhombicOps.h"
-#include "OrientationLib/LaueOps/TetragonalLowOps.h"
-#include "OrientationLib/LaueOps/TetragonalOps.h"
-#include "OrientationLib/LaueOps/TriclinicOps.h"
-#include "OrientationLib/LaueOps/TrigonalLowOps.h"
-#include "OrientationLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/CubicLowOps.h"
+#include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/LaueOps/HexagonalLowOps.h"
+#include "EbsdLib/LaueOps/HexagonalOps.h"
+#include "EbsdLib/LaueOps/MonoclinicOps.h"
+#include "EbsdLib/LaueOps/OrthoRhombicOps.h"
+#include "EbsdLib/LaueOps/TetragonalLowOps.h"
+#include "EbsdLib/LaueOps/TetragonalOps.h"
+#include "EbsdLib/LaueOps/TriclinicOps.h"
+#include "EbsdLib/LaueOps/TrigonalLowOps.h"
+#include "EbsdLib/LaueOps/TrigonalOps.h"
 
 #include "OrientationLibTestFileLocations.h"
 
@@ -81,7 +81,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void SaveImage(UInt8ArrayType::Pointer rgbaImage, const QString outputFile)
+  void SaveImage(EbsdLib::UInt8ArrayType::Pointer rgbaImage, const QString outputFile)
   {
     QRgb* rgba = reinterpret_cast<QRgb*>(rgbaImage->getPointer(0));
 
@@ -122,7 +122,7 @@ public:
   void TestIPFLegend(const QString outputFile)
   {
     LaueOpsType ops;
-    UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
+    EbsdLib::UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
 
     SaveImage(image, outputFile);
   }

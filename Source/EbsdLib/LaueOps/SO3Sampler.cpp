@@ -31,12 +31,10 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "SO3Sampler.h"
 
-
-#include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/ArrayHelpers.hpp"
-
-#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/Math/ArrayHelpers.hpp"
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 using OrientationType = Orientation<double>;
 
@@ -465,4 +463,29 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
   }
 
   return FZlist;
+}
+
+// -----------------------------------------------------------------------------
+SO3Sampler::Pointer SO3Sampler::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+SO3Sampler::Pointer SO3Sampler::New()
+{
+  Pointer sharedPtr(new(SO3Sampler));
+  return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+QString SO3Sampler::getNameOfClass() const
+{
+  return QString("SO3Sampler");
+}
+
+// -----------------------------------------------------------------------------
+QString SO3Sampler::ClassName()
+{
+  return QString("SO3Sampler");
 }

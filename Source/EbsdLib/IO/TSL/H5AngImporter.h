@@ -71,7 +71,7 @@ class EbsdLib_EXPORT H5AngImporter : public EbsdImporter
     /**
     * @brief Returns the name of the class for H5AngImporter
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for H5AngImporter
     */
@@ -87,7 +87,7 @@ class EbsdLib_EXPORT H5AngImporter : public EbsdImporter
      * @param index The slice index for the file
      * @param angFile The absolute path to the input .ang file
      */
-    int importFile(hid_t fileId, int64_t index, const QString& angFile) override;
+    int importFile(hid_t fileId, int64_t z, const QString& angFile) override;
 
     /**
      * @brief Writes the phase data into the HDF5 file
@@ -103,7 +103,7 @@ class EbsdLib_EXPORT H5AngImporter : public EbsdImporter
      * @param gid Valid HDF5 Group ID for the HKL Family.
      * @return error condition
      */
-    int writeHKLFamilies(AngPhase* p, hid_t pid);
+    int writeHKLFamilies(AngPhase* p, hid_t hklGid);
 
     /**
      * @brief Returns the dimensions for the EBSD Data set

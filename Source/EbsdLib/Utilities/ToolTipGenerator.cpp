@@ -1,5 +1,6 @@
 /* ============================================================================
- * Copyright (c) 2009-2019 BlueQuartz Software, LLC
+ * Copyright (c) 2019 BlueQuartz Software, LLC
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -11,9 +12,9 @@
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
- * contributors may be used to endorse or promote products derived from this software
- * without specific prior written permission.
+ * Neither the names of any of the BlueQuartz Software contributors
+ * may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -26,161 +27,144 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * The code contained herein was partially funded by the followig contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
- *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Air Force Prime Contract FA8650-15-D-5231
- *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "H5ScopedSentinel.h"
+#include "ToolTipGenerator.h"
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+#include <QtCore/QTextStream>
+
+using namespace EbsdLib;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-H5ScopedFileSentinel::H5ScopedFileSentinel(hid_t* fileID, bool turnOffErrors)
-: m_FileID(fileID)
-, m_TurnOffErrors(turnOffErrors)
+ToolTipGenerator::ToolTipGenerator() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ToolTipGenerator::~ToolTipGenerator()
 {
-  if(m_TurnOffErrors)
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ToolTipGenerator::addTitle(const QString& title)
+{
+  RowItem titleRow;
+  titleRow.type = RowItem::Type::Title;
+  titleRow.name = title;
+  m_Rows.push_back(titleRow);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ToolTipGenerator::addValue(const QString& name, const QString& value)
+{
+  RowItem valueRow;
+  valueRow.type = RowItem::Type::Value;
+  valueRow.name = name;
+  valueRow.value = value;
+  m_Rows.push_back(valueRow);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ToolTipGenerator::addSpacer()
+{
+  RowItem spacer;
+  spacer.type = RowItem::Type::Spacer;
+  m_Rows.push_back(spacer);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ToolTipGenerator::append(const ToolTipGenerator& other)
+{
+  addSpacer();
+  for(const auto& row : other.m_Rows)
   {
-    H5Eget_auto(H5E_DEFAULT, &_oldHDF_error_func, &_oldHDF_error_client_data);
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+    m_Rows.push_back(row);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-H5ScopedFileSentinel::~H5ScopedFileSentinel()
+void ToolTipGenerator::clear()
 {
-  if(m_TurnOffErrors)
-  {
-    H5Eset_auto(H5E_DEFAULT, _oldHDF_error_func, _oldHDF_error_client_data);
-  }
-  for(auto temp : m_Groups)
-  {
-    if(*temp > 0)
-    {
-      H5Gclose(*temp);
-      *temp = -1;
-    }
-  }
-
-  if(*m_FileID > 0)
-  {
-    H5Utilities::closeFile(*m_FileID);
-    *m_FileID = -1;
-  }
+  m_Rows.clear();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void H5ScopedFileSentinel::setFileID(hid_t* fileID)
+QString ToolTipGenerator::getRowColorStr() const
 {
-  m_FileID = fileID;
+  return m_RowColorStr;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-hid_t* H5ScopedFileSentinel::getFileID()
+void ToolTipGenerator::setRowColorStr(const QString& color)
 {
-  return m_FileID;
+  m_RowColorStr = color;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void H5ScopedFileSentinel::addGroupID(hid_t* groupID)
+QString ToolTipGenerator::generateHTML() const
 {
-  m_Groups.push_back(groupID);
-}
+  RowItem spacer;
+  spacer.type = RowItem::Type::Spacer;
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-H5ScopedGroupSentinel::H5ScopedGroupSentinel(hid_t* groupID, bool turnOffErrors)
-: m_TurnOffErrors(turnOffErrors)
-{
-  m_Groups.push_back(groupID);
-  if(m_TurnOffErrors)
+  QString html;
+  QTextStream ss(&html);
+
+  ss << "<html><head></head>\n";
+  ss << "<body>\n";
+  ss << "<table cellpadding=\"4\" cellspacing=\"0\" border=\"0\">\n";
+  ss << "<tbody>\n";
+
+  for(const auto& row : m_Rows)
   {
-    H5Eget_auto(H5E_DEFAULT, &_oldHDF_error_func, &_oldHDF_error_client_data);
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+    ss << rowToHTML(row);
   }
+
+  ss << rowToHTML(spacer);
+  ss << "</tbody></table>\n";
+  ss << "</body></html>";
+  return html;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-H5ScopedGroupSentinel::~H5ScopedGroupSentinel()
+QString ToolTipGenerator::rowToHTML(const RowItem& row) const
 {
-  if(m_TurnOffErrors)
-  {
-    H5Eset_auto(H5E_DEFAULT, _oldHDF_error_func, _oldHDF_error_client_data);
-  }
-  for(auto temp : m_Groups)
-  {
-    if(*temp > 0)
-    {
-      H5Gclose(*temp);
-      *temp = -1;
-    }
-  }
-}
+  QString html;
+  QTextStream ss(&html);
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void H5ScopedGroupSentinel::addGroupID(hid_t* groupID)
-{
-  m_Groups.push_back(groupID);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-H5ScopedObjectSentinel::H5ScopedObjectSentinel(hid_t* objectID, bool turnOffErrors)
-: m_TurnOffErrors(turnOffErrors)
-{
-  m_Objects.push_back(objectID);
-  if(m_TurnOffErrors)
+  switch(row.type)
   {
-    H5Eget_auto(H5E_DEFAULT, &_oldHDF_error_func, &_oldHDF_error_client_data);
-    H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+  case RowItem::Type::Title:
+    ss << R"(<tr bgcolor=")" << m_RowColorStr << R"("><th align="center" colspan=2>)" << row.name << "</th></tr>";
+    break;
+  case RowItem::Type::Value:
+    ss << R"(<tr bgcolor=")" << m_RowColorStr << R"("><th align="right">)" << row.name << ":</th><td>" << row.value << "</td></tr>";
+    break;
+  case RowItem::Type::Spacer:
+    ss << R"(<tr bgcolor=")" << m_RowColorStr << R"("><td></td><td></td></tr>)";
+    break;
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-H5ScopedObjectSentinel::~H5ScopedObjectSentinel()
-{
-  if(m_TurnOffErrors)
-  {
-    H5Eset_auto(H5E_DEFAULT, _oldHDF_error_func, _oldHDF_error_client_data);
-  }
-  for(auto temp : m_Objects)
-  {
-    if(*temp > 0)
-    {
-      H5Utilities::closeHDF5Object(*temp);
-      *temp = -1;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void H5ScopedObjectSentinel::addObjectID(hid_t* objectID)
-{
-  m_Objects.push_back(objectID);
+  
+  return html;
 }

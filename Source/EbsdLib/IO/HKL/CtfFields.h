@@ -43,11 +43,10 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/AbstractEbsdFields.h"
-
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 
 /**
- * @class CtfFields CtfFields.h EbsdLib/HKL/CtfFields.h
+ * @class CtfFields CtfFields.h EbsdLib/IO/HKL/CtfFields.h
  * @brief This class simply holds the names of the columns that are present in the
  * HKL .ctf file.
  *
@@ -62,7 +61,7 @@ class EbsdLib_EXPORT CtfFields : public AbstractEbsdFields
     /**
     * @brief Returns the name of the class for _SUPERCtfFields
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for _SUPERCtfFields
     */

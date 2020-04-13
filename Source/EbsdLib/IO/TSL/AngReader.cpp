@@ -686,7 +686,15 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
    * 2 columns and all the other columns are the same as above.
    */
   m_ErrorColumn = 0;
-  float p1 = 0.0f, p = 0.0f, p2 = 0.0f, x = -1.0f, y = -1.0f, iqual = -1.0f, conf = -1.0f, semSignal = -1.0f, fit = -1.0f;
+  float p1 = 0.0f;
+  float p = 0.0f;
+  float p2 = 0.0f;
+  float x = -1.0f;
+  float y = -1.0f;
+  float iqual = -1.0f;
+  float conf = -1.0f;
+  float semSignal = -1.0f;
+  float fit = -1.0f;
   int ph = 0;
   size_t offset = 0;
   QList<QByteArray> tokens = line.trimmed().simplified().split(' ');

@@ -73,7 +73,7 @@ QVector<QString> CtfFields::getFieldNames()
 
 
 // -----------------------------------------------------------------------------
-const QString CtfFields::getNameOfClass() const
+QString CtfFields::getNameOfClass() const
 {
   return QString("_SUPERCtfFields");
 }

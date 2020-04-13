@@ -34,10 +34,10 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Core/DataArray.hpp"
+#include <memory>
 
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
@@ -53,17 +53,29 @@
 class EbsdLib_EXPORT TrigonalOps : public LaueOps
 {
   public:
-    EBSD_SHARED_POINTERS(TrigonalOps)
-     EBSD_TYPE_MACRO_SUPER_OVERRIDE(TrigonalOps, LaueOps)
-    EBSD_STATIC_NEW_MACRO(TrigonalOps)
+    using Self = TrigonalOps;
+    using Pointer = std::shared_ptr<Self>;
+    using ConstPointer = std::shared_ptr<const Self>;
+    using WeakPointer = std::weak_ptr<Self>;
+    using ConstWeakPointer = std::weak_ptr<const Self>;
+    static Pointer NullPointer();
+
+    /**
+    * @brief Returns the name of the class for TrigonalOps
+    */
+    virtual QString getNameOfClass() const override;
+
+    /**
+     * @brief Returns the name of the class for TrigonalOps
+     */
+    static QString ClassName();
+
+    static Pointer New();
+
 
     TrigonalOps();
-    ~TrigonalOps() override;
 
-    static const int k_OdfSize = 31104;
-    static const int k_MdfSize = 31104;
-    static const int k_NumSymQuats = 6;
-
+    virtual ~TrigonalOps() override;
 
     /**
      * @brief getHasInversion Returns if this Laue class has inversion
@@ -95,8 +107,27 @@ class EbsdLib_EXPORT TrigonalOps : public LaueOps
      */
     QString getSymmetryName() const override;
 
-    double getMisoQuat(QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const override;
-    float getMisoQuat(QuatF& q1, QuatF& q2, float& n1, float& n2, float& n3) const override;
+    /**
+     * @brief Returns the number of bins in each of the 3 dimensions
+     * @return
+     */
+    std::array<size_t, 3> getOdfNumBins() const override;
+
+    /**
+     * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
+     * @param q1 Input Quaternion
+     * @param q2 Input Quaternion
+     * @return Axis Angle Representation
+     */
+    virtual OrientationD calculateMisorientation(const QuatType& q1, const QuatType& q2) const override;
+
+    /**
+     * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
+     * @param q1 Input Quaternion
+     * @param q2 Input Quaternion
+     * @return Axis Angle Representation
+     */
+    virtual OrientationF calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
 
     QuatType getQuatSymOp(int i) const override;
     void getRodSymOp(int i, double* r) const override;
@@ -112,9 +143,9 @@ class EbsdLib_EXPORT TrigonalOps : public LaueOps
 
     int getMisoBin(const OrientationType& rod) const override;
     bool inUnitTriangle(double eta, double chi) const override;
-    OrientationType determineEulerAngles(uint64_t seed, int choose) const override;
+    OrientationType determineEulerAngles(double random[3], int choose) const override;
     OrientationType randomizeEulerAngles(const OrientationType& euler) const override;
-    OrientationType determineRodriguesVector(uint64_t seed, int choose) const override;
+    OrientationType determineRodriguesVector(double random[3], int choose) const override;
     int getOdfBin(const OrientationType& rod) const override;
     void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
     void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
@@ -123,7 +154,7 @@ class EbsdLib_EXPORT TrigonalOps : public LaueOps
     double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
     double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
 
-    void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const override;
+    void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const override;
 
     /**
      * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
@@ -170,25 +201,25 @@ class EbsdLib_EXPORT TrigonalOps : public LaueOps
      * @param eulers The Euler Angles to generate the pole figure from.
      * @param imageSize The size in Pixels of the final RGB Image.
      * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-     * @return A QVector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+     * @return A QVector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
      * an image object from other libraries and written out to disk.
      */
-    QVector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
+    std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
     /**
      * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
      * @return
      */
-    UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
+    EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const;
 
   protected:
-    double _calcMisoQuat(const QuatType quatsym[6], int numsym, QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const;
 
   public:
     TrigonalOps(const TrigonalOps&) = delete;    // Copy Constructor Not Implemented
     TrigonalOps(TrigonalOps&&) = delete;         // Move Constructor Not Implemented
     TrigonalOps& operator=(const TrigonalOps&) = delete; // Copy Assignment Not Implemented
     TrigonalOps& operator=(TrigonalOps&&) = delete;      // Move Assignment Not Implemented
+
 };
 
 

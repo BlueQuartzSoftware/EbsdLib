@@ -231,7 +231,7 @@ QString CtfPhase::getComment() const
 
 
 // -----------------------------------------------------------------------------
-const QString CtfPhase::getNameOfClass() const
+QString CtfPhase::getNameOfClass() const
 {
   return QString("CtfPhase");
 }

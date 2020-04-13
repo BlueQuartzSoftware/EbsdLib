@@ -32,16 +32,12 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-
-
 #pragma once
-
-
 
 #include <QtCore/QtDebug>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include <hdf5.h>
@@ -79,7 +75,7 @@ class EbsdLib_EXPORT EbsdImporter
     /**
      * @brief Sets an Error Message
      */
-    //EBSD_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
+    EBSD_VIRTUAL_INSTANCE_STRING_PROPERTY(PipelineMessage);
 
     /**
      * @brief Sets an error condition

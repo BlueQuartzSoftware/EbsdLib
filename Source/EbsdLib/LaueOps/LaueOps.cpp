@@ -42,9 +42,7 @@
 
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-
-
-
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -62,17 +60,17 @@ namespace Detail
 
 // const static double m_OnePointThree = 1.33333333333f;
 
-// const static double sin_wmin_neg_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
-// const static double sin_wmin_pos_1_over_2 = static_cast<double>(sinf(EbsdLib::Constants::k_ACos1 / 2.0f));
-// const static double sin_of_acos_neg_1 = sinf(EbsdLib::Constants::k_ACosNeg1);
-// const static double sin_of_acos_pos_1 = sinf(EbsdLib::Constants::k_ACos1);
+// const static double sin_wmin_neg_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
+// const static double sin_wmin_pos_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACos1 / 2.0f));
+// const static double sin_of_acos_neg_1 = std::sin(EbsdLib::Constants::k_ACosNeg1);
+// const static double sin_of_acos_pos_1 = std::sin(EbsdLib::Constants::k_ACos1);
 
 //  const double recip_sin_of_acos_neg_1 = 1.0f / sin_of_acos_neg_1;
 //  const double recip_sin_of_acos_pos_1 = 1.0f / sin_of_acos_pos_1;
 
-// const static double SinOfHalf = sinf(0.5f);
+// const static double SinOfHalf = std::sin(0.5f);
 // const static double CosOfHalf = cosf(0.5f);
-// const static double SinOfZero = sinf(0.0f);
+// const static double SinOfZero = std::sin(0.0f);
 // const static double CosOfZero = cosf(0.0f);
 }
 
@@ -96,59 +94,47 @@ QuatType LaueOps::getFZQuat(const QuatType& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-double LaueOps::_calcMisoQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2, double& n1, double& n2, double& n3) const
+OrientationD LaueOps::calculateMisorientationInternal(const QuatType* quatsym, size_t numsym, const QuatType& q1, const QuatType& q2) const
 {
-  double wmin = 9999999.0f; //,na,nb,nc;
-  double w = 0.0;
-  double n1min = 0.0f;
-  double n2min = 0.0f;
-  double n3min = 0.0f;
-
+  OrientationD axisAngleMin(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
   QuatType qc;
+  QuatType qr = q1 * (q2.conjugate());
 
-  QuatType q2inv = q2.conjugate();
-  QuatType qr = q1 * q2inv;
-  for(int i = 0; i < numsym; i++)
+  for(size_t i = 0; i < numsym; i++)
   {
-
     qc = quatsym[i] * qr;
 
     if(qc.w() < -1)
     {
-      qc.w() = -1;
+      qc.w() = -1.0;
     }
     else if(qc.w() > 1)
     {
-      qc.w() = 1;
+      qc.w() = 1.0;
     }
 
-    OrientationTransformation::qu2ax<QuatType, OrientationType>(qc).toAxisAngle(n1, n2, n3, w);
+    OrientationD axisAngle = OrientationTransformation::qu2ax<QuatType, OrientationType>(qc);
+    if(axisAngle[3] > EbsdLib::Constants::k_Pi)
+    {
+      axisAngle[3] = EbsdLib::Constants::k_2Pi - axisAngle[3];
+    }
+    if(axisAngle[3] < axisAngleMin[3])
+    {
+      axisAngleMin = axisAngle;
+    }
+  }
+  double denom = sqrt((axisAngleMin[0] * axisAngleMin[0] + axisAngleMin[1] * axisAngleMin[1] + axisAngleMin[2] * axisAngleMin[2]));
+  axisAngleMin[0] = axisAngleMin[0] / denom;
+  axisAngleMin[1] = axisAngleMin[1] / denom;
+  axisAngleMin[2] = axisAngleMin[2] / denom;
+  if(denom == 0.0 || axisAngleMin[3] == 0.0)
+  {
+    axisAngleMin[0] = 0.0;
+    axisAngleMin[1] = 0.0;
+    axisAngleMin[2] = 1.0;
+  }
 
-    if(w > EbsdLib::Constants::k_Pi)
-    {
-      w = EbsdLib::Constants::k_2Pi - w;
-    }
-    if(w < wmin)
-    {
-      wmin = w;
-      n1min = n1;
-      n2min = n2;
-      n3min = n3;
-    }
-  }
-  double denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
-  n1 = n1min / denom;
-  n2 = n2min / denom;
-  n3 = n3min / denom;
-  if(denom == 0)
-  {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
-  }
-  if(wmin == 0)
-  {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
-  }
-  return wmin;
+  return axisAngleMin;
 }
 
 // -----------------------------------------------------------------------------
@@ -285,17 +271,11 @@ int LaueOps::_calcMisoBin(double dim[3], double bins[3], double step[3], const O
   return (static_cast<int>((bins[0] * bins[1] * miso3bin) + (bins[0] * miso2bin) + miso1bin));
 }
 
-void LaueOps::_calcDetermineHomochoricValues(uint64_t seed, double init[3], double step[3], int32_t phi[3], int choose, double& r1, double& r2, double& r3) const
+void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const
 {
-  double random;
-
-  EBSD_RANDOMNG_NEW_SEEDED(seed)
-  random = static_cast<double>(rg.genrand_res53());
-  r1 = (step[0] * phi[0]) + (step[0] * random) - (init[0]);
-  random = static_cast<double>(rg.genrand_res53());
-  r2 = (step[1] * phi[1]) + (step[1] * random) - (init[1]);
-  random = static_cast<double>(rg.genrand_res53());
-  r3 = (step[2] * phi[2]) + (step[2] * random) - (init[2]);
+  r1 = (step[0] * phi[0]) + (step[0] * random[0]) - (init[0]);
+  r2 = (step[1] * phi[1]) + (step[1] * random[1]) - (init[1]);
+  r3 = (step[2] * phi[2]) + (step[2] * random[2]) - (init[2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -341,35 +321,7 @@ int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const Or
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<LaueOps::Pointer> LaueOps::getOrientationOpsQVector()
-{
-  QVector<LaueOps::Pointer> m_OrientationOps;
-  m_OrientationOps.push_back(HexagonalOps::New());
-
-  m_OrientationOps.push_back(CubicOps::New());
-
-  m_OrientationOps.push_back(HexagonalLowOps::New()); // Hex Low
-  m_OrientationOps.push_back(CubicLowOps::New());     // Cubic Low
-  m_OrientationOps.push_back(TriclinicOps::New());    // Triclinic
-  m_OrientationOps.push_back(MonoclinicOps::New());   // Monoclinic
-
-  m_OrientationOps.push_back(OrthoRhombicOps::New()); // OrthoRhombic
-
-  m_OrientationOps.push_back(TetragonalLowOps::New()); // Tetragonal-low
-  m_OrientationOps.push_back(TetragonalOps::New());    // Tetragonal-high
-
-  m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
-  m_OrientationOps.push_back(TrigonalOps::New());    // Trigonal-High
-
-  m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
-
-  return m_OrientationOps;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::vector<LaueOps::Pointer> LaueOps::getOrientationOpsVector()
+std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 {
   std::vector<LaueOps::Pointer> m_OrientationOps;
   m_OrientationOps.push_back(HexagonalOps::New());
@@ -395,7 +347,7 @@ std::vector<LaueOps::Pointer> LaueOps::getOrientationOpsVector()
 }
 
 // -----------------------------------------------------------------------------
-LaueOps::Pointer LaueOps::getOrientationOpsFromSpaceGroupNumber(size_t sgNumber)
+LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber)
 {
   std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
   std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
@@ -447,7 +399,7 @@ std::vector<QString> LaueOps::GetLaueNames()
 {
   std::vector<QString> names;
 
-  std::vector<LaueOps::Pointer> ops = getOrientationOpsVector();
+  std::vector<LaueOps::Pointer> ops = GetAllOrientationOps();
   names.reserve(ops.size());
   for(const auto& op : ops)
   {
@@ -476,4 +428,22 @@ size_t LaueOps::getRandomSymmetryOperatorIndex(int numSymOps) const
 
   size_t symOp = distribution(generator); // Random remaining position.
   return symOp;
+}
+
+// -----------------------------------------------------------------------------
+LaueOps::Pointer LaueOps::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+QString LaueOps::getNameOfClass() const
+{
+  return QString("LaueOps");
+}
+
+// -----------------------------------------------------------------------------
+QString LaueOps::ClassName()
+{
+  return QString("LaueOps");
 }

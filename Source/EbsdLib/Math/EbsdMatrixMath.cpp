@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2019 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,43 +29,30 @@
  * The code contained herein was partially funded by the followig contracts:
  *    United States Air Force Prime Contract FA8650-07-D-5800
  *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Air Force Prime Contract FA8650-15-D-5231
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "EbsdMatrixMath.h"
 
-#include <hdf5.h>
+#include "EbsdLib/Math/EbsdLibMath.h"
 
-#include "H5Support/H5Support.h"
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdMatrixMath::EbsdMatrixMath() = default;
 
-#if defined(H5Support_NAMESPACE)
-namespace H5Support_NAMESPACE
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdMatrixMath::~EbsdMatrixMath() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EbsdMatrixMath::Multiply3x3with3x1(const double g1[3][3], const double g2[3], float outMat[3])
 {
-#endif
-
-/**
- * @brief This class is meant to disable the normal HDF5 error handlers until the
- * instance goes out of scope the original error handlers will be put back in
- * place
- */
-class H5Support_EXPORT H5ScopedErrorHandler
-{
-public:
-  H5ScopedErrorHandler();
-  ~H5ScopedErrorHandler();
-
-  H5ScopedErrorHandler(const H5ScopedErrorHandler&) = delete;            // Copy Constructor Not Implemented
-  H5ScopedErrorHandler(H5ScopedErrorHandler&&) = delete;                 // Move Constructor Not Implemented
-  H5ScopedErrorHandler& operator=(const H5ScopedErrorHandler&) = delete; // Copy Assignment Not Implemented
-  H5ScopedErrorHandler& operator=(H5ScopedErrorHandler&&) = delete;      // Move Assignment Not Implemented
-
-private:
-  herr_t (*_oldHDF_error_func)(hid_t, void*);
-  void* _oldHDF_error_client_data;
-};
-
-#if defined(H5Support_NAMESPACE)
+  outMat[0] = g1[0][0] * g2[0] + g1[0][1] * g2[1] + g1[0][2] * g2[2];
+  outMat[1] = g1[1][0] * g2[0] + g1[1][1] * g2[1] + g1[1][2] * g2[2];
+  outMat[2] = g1[2][0] * g2[0] + g1[2][1] * g2[1] + g1[2][2] * g2[2];
 }
-#endif

@@ -98,11 +98,11 @@ public:
     /**
     * @brief Returns the name of the class for H5OIMReader
     */
-    const QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for H5OIMReader
-    */
-    static QString ClassName();
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for H5OIMReader
+   */
+  static QString ClassName();
 
   ~H5OIMReader() override;
 
@@ -197,7 +197,7 @@ protected:
    * @param hklGid Valid HDF5 Group ID where the HKL Family data is located.
    * @param phase The AngPhase to parse the HKL Family data
    */
-  int readHKLFamilies(hid_t hklGid, AngPhase::Pointer phase);
+  int readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase);
 
   /**
    * @brief Reads the data section of the file

@@ -12,7 +12,6 @@ endif(BUILD_SHARED_LIBS)
 
 include (${EbsdLibProj_SOURCE_DIR}/cmake/EbsdLibMacros.cmake)
 
-
 #-------------------------------------------------------------------------------
 # Core
 #-------------------------------------------------------------------------------
@@ -63,6 +62,7 @@ set(VERSION_GEN_VER_REVISION "0")
 set(PROJECT_PREFIX "EbsdLib")
 cmpGenerateBuildDate(PROJECT_NAME EbsdLibProj)
 set(VERSION_BUILD_DATE ${EbsdLibProj_BUILD_DATE})
+
 #------------------------------------------------------------------------------
 # Find the Git Package for Versioning. It should be ok if Git is NOT found
 Find_package(Git)
@@ -121,6 +121,29 @@ endif()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 
+# Start building up the list of libraries to link against
+set(EBSDLib_LINK_LIBRARIES Qt5::Core)
+
+#------------------------------------------------------------------------------
+# Now add in the H5Support sources to the current target
+if(EbsdLib_ENABLE_HDF5)
+  target_sources(${PROJECT_NAME}  PRIVATE
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Lite.h       
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Macros.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedErrorHandler.h 
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h     
+    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Lite.h          
+    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Utilities.h
+  )
+   set(H5Support_USE_QT ON)
+   set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
+   target_compile_definitions( ${PROJECT_NAME} PUBLIC -DH5Support_USE_QT)
+endif()
+
+
 CMP_AddDefinitions(TARGET ${PROJECT_NAME})
 
 #-- Configure Target Specific Include Directories
@@ -128,29 +151,25 @@ get_filename_component(TARGET_BINARY_DIR_PARENT ${EbsdLibProj_BINARY_DIR} PATH)
 get_filename_component(TARGET_SOURCE_DIR_PARENT ${EbsdLibProj_SOURCE_DIR} PATH)
 
 target_include_directories(${PROJECT_NAME}
-                          PRIVATE
-                            ${EbsdLibProj_SOURCE_DIR}/Source
-                            ${EbsdLibProj_BINARY_DIR}
+                            PUBLIC
+                            $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
+)
+target_include_directories(${PROJECT_NAME}
+                            PUBLIC
                             ${EIGEN3_INCLUDE_DIR}
-                            ${HDF5_INCLUDE_DIRS}
-                            ${HDF5_INCLUDE_DIR}
                             ${Qt5Core_INCLUDE_DIRS}
                             ${Qt5Core_INCLUDE_DIR}
-                            ${H5Support_INCLUDE_DIRS}
+                            $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
 )
 
-# Start building up the list of libraries to link against
-set(EBSDLib_LINK_LIBRARIES Qt5::Core)
-
-# If we compiled against HDF5, we need that on the list of link libs
-if(${EbsdLib_ENABLE_HDF5})
-	set(EBSDLib_LINK_LIBRARIES
-		${EBSDLib_LINK_LIBRARIES}
-      H5Support::H5Support
-		)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DEbsdLib_HAVE_HDF5)
+if(EbsdLib_ENABLE_HDF5)
+  target_include_directories(${PROJECT_NAME}
+                              PUBLIC
+                              ${HDF5_INCLUDE_DIRS}
+                              ${HDF5_INCLUDE_DIR}
+                              ${H5Support_SOURCE_DIR}/Source
+                             )
 endif()
-
 
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
@@ -158,6 +177,11 @@ endif()
 	
 LibraryProperties( ${PROJECT_NAME} ${EXE_DEBUG_EXTENSION} )
 target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
+
+if(EbsdLib_USE_PARALLEL_ALGORITHMS)
+  target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
+endif()
+
 
 
 set(install_dir "bin")

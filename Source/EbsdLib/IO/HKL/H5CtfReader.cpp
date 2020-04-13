@@ -172,7 +172,7 @@ int H5CtfReader::readHeaderOnly()
     err = QH5Utilities::closeFile(fileId);
     return -1;
   }
-  sentinel.addGroupID(&gid);
+  sentinel.addGroupId(&gid);
 
   // Read all the header information
   err = readHeader(gid);
@@ -405,7 +405,7 @@ QString H5CtfReader::getHDF5Path() const
 
 
 // -----------------------------------------------------------------------------
-const QString H5CtfReader::getNameOfClass() const
+QString H5CtfReader::getNameOfClass() const
 {
   return QString("_SUPERH5CtfReader");
 }

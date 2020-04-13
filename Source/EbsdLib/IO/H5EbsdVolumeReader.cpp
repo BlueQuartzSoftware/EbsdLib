@@ -35,7 +35,7 @@
 
 
 #include "H5EbsdVolumeReader.h"
-
+#include <utility>
 
 #if defined (H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
@@ -139,7 +139,7 @@ H5EbsdVolumeReader::Pointer H5EbsdVolumeReader::NullPointer()
 
 
 // -----------------------------------------------------------------------------
-const QString H5EbsdVolumeReader::getNameOfClass() const
+QString H5EbsdVolumeReader::getNameOfClass() const
 {
   return QString("_SUPERH5EbsdVolumeReader");
 }

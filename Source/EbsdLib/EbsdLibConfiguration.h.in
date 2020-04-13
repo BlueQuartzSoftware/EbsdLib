@@ -9,13 +9,7 @@
 /* Did we compile with HDF5 support */
 #cmakedefine EbsdLib_ENABLE_HDF5
 
-#cmakedefine EbsdLib_USE_SIMPL
-
-/* Include the Overall Configuration header file */
-//#include "@PROJECT_NAME@/@CMP_CONFIGURATION_FILE_NAME@"
-
-/* Include the Typedefs Header */
-//#include "@PROJECT_NAME@/@CMP_TYPES_FILE_NAME@"
+#cmakedefine EbsdLib_USE_PARALLEL_ALGORITHMS
 
 /* Include the DLL export preprocessor defines */
 #include "@PROJECT_NAME@/Core/@PROJECT_NAME@DLLExport.h"
@@ -35,8 +29,3 @@
   #endif
 
 #endif
-
-// #ifdef EbsdLib_ENABLE_HDF5
-// #include "H5Support/H5Lite.h"
-// #include "H5Support/H5Utilities.h"
-// #endif

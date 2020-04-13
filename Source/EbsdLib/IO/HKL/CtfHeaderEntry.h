@@ -39,10 +39,6 @@
 #include <cstring>
 #include <utility>
 
-#ifdef EbsdLib_ENABLE_HDF5
-#include "H5Support/QH5Lite.h"
-#endif
-
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 #include <QtCore/QtDebug>
@@ -51,9 +47,12 @@
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 
+#ifdef EbsdLib_ENABLE_HDF5
+#include "H5Support/QH5Lite.h"
+#endif
 
 /**
- * @class CtfHeaderEntry CtfHeaderEntry.h EbsdLib/HKL/CtfHeaderEntry.h
+ * @class CtfHeaderEntry CtfHeaderEntry.h EbsdLib/IO/HKL/CtfHeaderEntry.h
  * @brief Header entry that holds an integer or decimal type value
  *
  * @date Aug 8, 2011
@@ -160,7 +159,7 @@ class EbsdLib_EXPORT CtfHeaderEntry : public EbsdHeaderEntry
 };
 
 /**
- * @class CtfStringHeaderEntry CtfHeaderEntry.h EbsdLib/HKL/CtfHeaderEntry.h
+ * @class CtfStringHeaderEntry CtfHeaderEntry.h EbsdLib/IO/HKL/CtfHeaderEntry.h
  * @brief Header entry that holds a string type value
  *
  * @date Aug 1, 2011

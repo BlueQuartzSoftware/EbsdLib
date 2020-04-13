@@ -1,17 +1,20 @@
 #pragma once
 
+#include <memory>
+
 #include <cstdio>
+
 #include <iostream>
-#include <string>
-#include <array>
 
-#include <QtCore/QString>
+#include <QtCore/QTextStream>
 
-#include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 
-std::array<QString, 7> k_InputNames = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
-std::array<int, 7> k_CompDims = {3, 9, 4, 4, 4, 3, 3};
+static const QString DCName("Orientation Transforms Test");
+static const QString AMName("Angles");
+
+QString k_InputNames[7] = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
+int k_CompDims[7] = {3, 9, 4, 4, 4, 3, 3};
 
 namespace OrientationPrinters
 {
@@ -93,30 +96,12 @@ template <typename T> void Print_CU(const T& om)
 {
   printf("Cu:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
-#if 0
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename K> void PrintTuple(DataContainerArray::Pointer dca, size_t t)
-{
-  for(int i = 0; i < 7; i++)
-  {
-    DataArrayPath daPath(DCName, AMName, k_InputNames[i]);
-    std::vector<size_t> cDims(1, k_CompDims[i]);
-    typename DataArray<K>::Pointer data = dca->getPrereqArrayFromPath<DataArray<K>, AbstractFilter>(nullptr, daPath, cDims);
-    std::cout << "'" << data->getName().toStdString() << "'"
-              << "\t";
-    QString text;
-    QTextStream ss(&text);
-    data->printTuple(ss, t);
-    std::cout << text.toStdString() << std::endl;
-  }
-}
-#endif
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <typename K> void PrintTuple(typename DataArray<K>::Pointer data, size_t t)
+template <typename DataArrayClass>
+void PrintTuple(typename DataArrayClass::Pointer data, size_t t)
 {
   std::vector<size_t> cDims = data->getComponentDimensions();
   printf("%s\n", data->getName().toStdString().c_str());

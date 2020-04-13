@@ -71,7 +71,7 @@ QVector<QString> H5EspritFields::getFieldNames()
 }
 
 // -----------------------------------------------------------------------------
-const QString H5EspritFields::getNameOfClass() const
+QString H5EspritFields::getNameOfClass() const
 {
   return QString("_SUPERH5EspritFields");
 }
@@ -81,5 +81,3 @@ QString H5EspritFields::ClassName()
 {
   return QString("_SUPERH5EspritFields");
 }
-
-

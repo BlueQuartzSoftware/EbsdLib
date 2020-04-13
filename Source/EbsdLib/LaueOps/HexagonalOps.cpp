@@ -1,41 +1,44 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#include <memory>
+#include <array>
 
 #include "HexagonalOps.h"
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
@@ -48,74 +51,72 @@
 // to expose some of the constants needed below
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorUtilities.h"
-
 #include "EbsdLib/Core/Orientation.hpp"
-
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
-namespace Detail
-{
-
-static const double HexDim1InitValue = std::pow((0.75f * (((EbsdLib::Constants::k_PiOver2)) - sinf(((EbsdLib::Constants::k_PiOver2))))), (1.0f / 3.0));
-static const double HexDim2InitValue = std::pow((0.75f * (((EbsdLib::Constants::k_PiOver2)) - sinf(((EbsdLib::Constants::k_PiOver2))))), (1.0f / 3.0));
-static const double HexDim3InitValue = std::pow((0.75f * ((EbsdLib::Constants::k_Pi / 6.0) - sinf(EbsdLib::Constants::k_Pi / 6.0))), (1.0f / 3.0));
-static const double HexDim1StepValue = HexDim1InitValue / 18.0f;
-static const double HexDim2StepValue = HexDim2InitValue / 18.0f;
-static const double HexDim3StepValue = HexDim3InitValue / 6.0f;
-
 namespace HexagonalHigh
 {
+static const std::array<size_t, 3> OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
+
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
+                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+
 static const int symSize0 = 2;
 static const int symSize1 = 6;
 static const int symSize2 = 6;
-} // namespace HexagonalHigh
-}
 
-static const QuatType HexQuatSym[12] = {
+static const int k_OdfSize = 15552;
+static const int k_MdfSize = 15552;
+static const int k_NumSymQuats = 12;
+
+static const QuatType QuatSym[12] = {
     QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatType(0.000000000, 0.000000000, 0.500000000, 0.866025400), QuatType(0.000000000, 0.000000000, 0.866025400, 0.500000000),
     QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000), QuatType(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatType(0.000000000, 0.000000000, 0.500000000, -0.86602540),
     QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000), QuatType(0.866025400, 0.500000000, 0.000000000, 0.000000000), QuatType(0.500000000, 0.866025400, 0.000000000, 0.000000000),
     QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatType(-0.50000000, 0.866025400, 0.000000000, 0.000000000), QuatType(-0.86602540, 0.500000000, 0.000000000, 0.000000000)};
 
-static const double HexRodSym[12][3] = {{0.0, 0.0, 0.0},
-                                        {0.0, 0.0, 0.57735},
-                                        {0.0, 0.0, 1.73205},
-                                        {0.0, 0.0, 1000000000000.0},
-                                        {0.0, 0.0, -1.73205},
-                                        {0.0, 0.0, -0.57735},
-                                        {1000000000000.0, 0.0, 0.0},
-                                        {8660254000000.0, 5000000000000.0, 0.0},
-                                        {5000000000000.0, 8660254000000.0, 0.0},
-                                        {0.0, 1000000000000.0, 0.0},
-                                        {-5000000000000.0, 8660254000000.0, 0.0},
-                                        {-8660254000000.0, 5000000000000.0, 0.0}};
-static const double HexMatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double RodSym[12][3] = {{0.0, 0.0, 0.0},
+                                     {0.0, 0.0, 0.57735},
+                                     {0.0, 0.0, 1.73205},
+                                     {0.0, 0.0, 1000000000000.0},
+                                     {0.0, 0.0, -1.73205},
+                                     {0.0, 0.0, -0.57735},
+                                     {1000000000000.0, 0.0, 0.0},
+                                     {8660254000000.0, 5000000000000.0, 0.0},
+                                     {5000000000000.0, 8660254000000.0, 0.0},
+                                     {0.0, 1000000000000.0, 0.0},
+                                     {-5000000000000.0, 8660254000000.0, 0.0},
+                                     {-8660254000000.0, 5000000000000.0, 0.0}};
+static const double MatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                        {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                        {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                        {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                        {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                        {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                           {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                        {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                           {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                        {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                           {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                        {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                           {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                        {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                           {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                        {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                           {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+                                        {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
 
 // Use a namespace for some detail that only this class needs
-using namespace Detail;
+} // namespace HexagonalHigh
 
 // -----------------------------------------------------------------------------
 //
@@ -140,7 +141,7 @@ bool HexagonalOps::getHasInversion() const
 // -----------------------------------------------------------------------------
 int HexagonalOps::getODFSize() const
 {
-  return k_OdfSize;
+  return HexagonalHigh::k_OdfSize;
 }
 
 // -----------------------------------------------------------------------------
@@ -148,7 +149,7 @@ int HexagonalOps::getODFSize() const
 // -----------------------------------------------------------------------------
 int HexagonalOps::getMDFSize() const
 {
-  return k_MdfSize;
+  return HexagonalHigh::k_MdfSize;
 }
 
 // -----------------------------------------------------------------------------
@@ -156,7 +157,13 @@ int HexagonalOps::getMDFSize() const
 // -----------------------------------------------------------------------------
 int HexagonalOps::getNumSymOps() const
 {
-  return k_NumSymQuats;
+  return HexagonalHigh::k_NumSymQuats;
+}
+
+// -----------------------------------------------------------------------------
+std::array<size_t, 3> HexagonalOps::getOdfNumBins() const
+{
+  return HexagonalHigh::OdfNumBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -168,127 +175,60 @@ QString HexagonalOps::getSymmetryName() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-double HexagonalOps::_calcMisoQuat(const QuatType quatsym[12], int numsym, QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const
+OrientationD HexagonalOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
 {
-  double wmin = 9999999.0f; //,na,nb,nc;
-  double w = 0.0;
-  double n1min = 0.0f;
-  double n2min = 0.0f;
-  double n3min = 0.0f;
-  QuatType qc;
-
-  QuatType qr = q1 * (q2.conjugate());
-
-  for (int i = 0; i < numsym; i++)
-  {
-    qc = quatsym[i] * qr;
-
-    if(qc.w() < -1)
-    {
-      qc.w() = -1.0;
-    }
-    else if(qc.w() > 1)
-    {
-      qc.w() = 1.0;
-    }
-
-    OrientationType ax = OrientationTransformation::qu2ax<QuatType, OrientationType>(qc);
-    n1 = ax[0];
-    n2 = ax[1];
-    n3 = ax[2];
-    w = ax[3];
-
-    if (w > EbsdLib::Constants::k_Pi)
-    {
-      w = EbsdLib::Constants::k_2Pi - w;
-    }
-    if (w < wmin)
-    {
-      wmin = w;
-      n1min = n1;
-      n2min = n2;
-      n3min = n3;
-    }
-  }
-  double denom = sqrt((n1min * n1min + n2min * n2min + n3min * n3min));
-  n1 = n1min / denom;
-  n2 = n2min / denom;
-  n3 = n3min / denom;
-  if(denom == 0)
-  {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
-  }
-  if(wmin == 0)
-  {
-    n1 = 0.0, n2 = 0.0, n3 = 1.0;
-  }
-  return wmin;
+  return calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
-double HexagonalOps::getMisoQuat(QuatType& q1, QuatType& q2, double& n1, double& n2, double& n3) const
+OrientationF HexagonalOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 {
-
-  return _calcMisoQuat(HexQuatSym, k_NumSymQuats, q1, q2, n1, n2, n3);
-}
-
-// -----------------------------------------------------------------------------
-float HexagonalOps::getMisoQuat(QuatF& q1f, QuatF& q2f, float& n1f, float& n2f, float& n3f) const
-{
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  double n1 = n1f;
-  double n2 = n2f;
-  double n3 = n3f;
-  float w = static_cast<float>(_calcMisoQuat(HexQuatSym, k_NumSymQuats, q1, q2, n1, n2, n3));
-  n1f = n1;
-  n2f = n2;
-  n3f = n3;
-  return w;
+  QuatType q1 = q1f;
+  QuatType q2 = q2f;
+  OrientationD axisAngle = calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  return axisAngle;
 }
 
 QuatType HexagonalOps::getQuatSymOp(int32_t i) const
 {
-  return HexQuatSym[i];
-  //  q.x = HexQuatSym[i][0];
-  //  q.y = HexQuatSym[i][1];
-  //  q.z = HexQuatSym[i][2];
-  //  q.w = HexQuatSym[i][3];
+  return HexagonalHigh::QuatSym[i];
+  //  q.x = HexagonalHigh::QuatSym[i][0];
+  //  q.y = HexagonalHigh::QuatSym[i][1];
+  //  q.z = HexagonalHigh::QuatSym[i][2];
+  //  q.w = HexagonalHigh::QuatSym[i][3];
 }
 
 void HexagonalOps::getRodSymOp(int i, double* r) const
 {
-  r[0] = HexRodSym[i][0];
-  r[1] = HexRodSym[i][1];
-  r[2] = HexRodSym[i][2];
+  r[0] = HexagonalHigh::RodSym[i][0];
+  r[1] = HexagonalHigh::RodSym[i][1];
+  r[2] = HexagonalHigh::RodSym[i][2];
 }
 
 void HexagonalOps::getMatSymOp(int i, double g[3][3]) const
 {
-  g[0][0] = HexMatSym[i][0][0];
-  g[0][1] = HexMatSym[i][0][1];
-  g[0][2] = HexMatSym[i][0][2];
-  g[1][0] = HexMatSym[i][1][0];
-  g[1][1] = HexMatSym[i][1][1];
-  g[1][2] = HexMatSym[i][1][2];
-  g[2][0] = HexMatSym[i][2][0];
-  g[2][1] = HexMatSym[i][2][1];
-  g[2][2] = HexMatSym[i][2][2];
+  g[0][0] = HexagonalHigh::MatSym[i][0][0];
+  g[0][1] = HexagonalHigh::MatSym[i][0][1];
+  g[0][2] = HexagonalHigh::MatSym[i][0][2];
+  g[1][0] = HexagonalHigh::MatSym[i][1][0];
+  g[1][1] = HexagonalHigh::MatSym[i][1][1];
+  g[1][2] = HexagonalHigh::MatSym[i][1][2];
+  g[2][0] = HexagonalHigh::MatSym[i][2][0];
+  g[2][1] = HexagonalHigh::MatSym[i][2][1];
+  g[2][2] = HexagonalHigh::MatSym[i][2][2];
 }
 
 void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = HexMatSym[i][0][0];
-  g[0][1] = HexMatSym[i][0][1];
-  g[0][2] = HexMatSym[i][0][2];
-  g[1][0] = HexMatSym[i][1][0];
-  g[1][1] = HexMatSym[i][1][1];
-  g[1][2] = HexMatSym[i][1][2];
-  g[2][0] = HexMatSym[i][2][0];
-  g[2][1] = HexMatSym[i][2][1];
-  g[2][2] = HexMatSym[i][2][2];
+  g[0][0] = HexagonalHigh::MatSym[i][0][0];
+  g[0][1] = HexagonalHigh::MatSym[i][0][1];
+  g[0][2] = HexagonalHigh::MatSym[i][0][2];
+  g[1][0] = HexagonalHigh::MatSym[i][1][0];
+  g[1][1] = HexagonalHigh::MatSym[i][1][1];
+  g[1][2] = HexagonalHigh::MatSym[i][1][2];
+  g[2][0] = HexagonalHigh::MatSym[i][2][0];
+  g[2][1] = HexagonalHigh::MatSym[i][2][1];
+  g[2][2] = HexagonalHigh::MatSym[i][2][2];
 }
 // -----------------------------------------------------------------------------
 //
@@ -296,7 +236,7 @@ void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
 OrientationType HexagonalOps::getODFFZRod(const OrientationType& rod) const
 {
   int numsym = 12;
-  return _calcRodNearestOrigin(HexRodSym, numsym, rod);
+  return _calcRodNearestOrigin(HexagonalHigh::RodSym, numsym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -308,7 +248,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag;
 
-  OrientationType rod = _calcRodNearestOrigin(HexRodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, 12, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
@@ -339,16 +279,16 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
     else
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
       FZw = 30.0f - FZw;
       FZw = FZw * EbsdLib::Constants::k_PiOver180;
-      FZn1 = n1n2mag * cosf(FZw);
-      FZn2 = n1n2mag * sinf(FZw);
+      FZn1 = n1n2mag * std::cos(FZw);
+      FZn2 = n1n2mag * std::sin(FZw);
     }
   }
 
@@ -357,14 +297,14 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
 
 QuatType HexagonalOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
 {
-  return _calcNearestQuat(HexQuatSym, k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
 }
 
 QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(HexQuatSym, k_NumSymQuats, q1, q2);
+  QuatType temp = _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -374,7 +314,7 @@ QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 // -----------------------------------------------------------------------------
 QuatType HexagonalOps::getFZQuat(const QuatType& qr) const
 {
-  return _calcQuatNearestOrigin(HexQuatSym, k_NumSymQuats, qr);
+  return _calcQuatNearestOrigin(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, qr);
 }
 
 // -----------------------------------------------------------------------------
@@ -388,15 +328,15 @@ int HexagonalOps::getMisoBin(const OrientationType& rod) const
 
   OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
-  dim[0] = HexDim1InitValue;
-  dim[1] = HexDim2InitValue;
-  dim[2] = HexDim3InitValue;
-  step[0] = HexDim1StepValue;
-  step[1] = HexDim2StepValue;
-  step[2] = HexDim3StepValue;
-  bins[0] = 36.0f;
-  bins[1] = 36.0f;
-  bins[2] = 12.0f;
+  dim[0] = HexagonalHigh::OdfDimInitValue[0];
+  dim[1] = HexagonalHigh::OdfDimInitValue[1];
+  dim[2] = HexagonalHigh::OdfDimInitValue[2];
+  step[0] = HexagonalHigh::OdfDimStepValue[0];
+  step[1] = HexagonalHigh::OdfDimStepValue[1];
+  step[2] = HexagonalHigh::OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalHigh::OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalHigh::OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalHigh::OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
@@ -404,24 +344,24 @@ int HexagonalOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::determineEulerAngles(uint64_t seed, int choose) const
+OrientationType HexagonalOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexDim1InitValue;
-  init[1] = HexDim2InitValue;
-  init[2] = HexDim3InitValue;
-  step[0] = HexDim1StepValue;
-  step[1] = HexDim2StepValue;
-  step[2] = HexDim3StepValue;
-  phi[0] = static_cast<int32_t>(choose % 36);
-  phi[1] = static_cast<int32_t>((choose / 36) % 36);
-  phi[2] = static_cast<int32_t>(choose / (36 * 36));
+  init[0] = HexagonalHigh::OdfDimInitValue[0];
+  init[1] = HexagonalHigh::OdfDimInitValue[1];
+  init[2] = HexagonalHigh::OdfDimInitValue[2];
+  step[0] = HexagonalHigh::OdfDimStepValue[0];
+  step[1] = HexagonalHigh::OdfDimStepValue[1];
+  step[2] = HexagonalHigh::OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::OdfNumBins[0]) % HexagonalHigh::OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::OdfNumBins[0] * HexagonalHigh::OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(seed, init, step, phi, choose, h1, h2, h3);
+  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
   OrientationType ho(h1, h2, h3);
   OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
@@ -435,33 +375,33 @@ OrientationType HexagonalOps::determineEulerAngles(uint64_t seed, int choose) co
 // -----------------------------------------------------------------------------
 OrientationType HexagonalOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_NumSymQuats);
   QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = HexQuatSym[symOp] * quat;
+  QuatType qc = HexagonalHigh::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::determineRodriguesVector(uint64_t seed, int choose) const
+OrientationType HexagonalOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexDim1InitValue;
-  init[1] = HexDim2InitValue;
-  init[2] = HexDim3InitValue;
-  step[0] = HexDim1StepValue;
-  step[1] = HexDim2StepValue;
-  step[2] = HexDim3StepValue;
-  phi[0] = static_cast<int32_t>(choose % 36);
-  phi[1] = static_cast<int32_t>((choose / 36) % 36);
-  phi[2] = static_cast<int32_t>(choose / (36 * 36));
+  init[0] = HexagonalHigh::OdfDimInitValue[0];
+  init[1] = HexagonalHigh::OdfDimInitValue[1];
+  init[2] = HexagonalHigh::OdfDimInitValue[2];
+  step[0] = HexagonalHigh::OdfDimStepValue[0];
+  step[1] = HexagonalHigh::OdfDimStepValue[1];
+  step[2] = HexagonalHigh::OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::OdfNumBins[0]) % HexagonalHigh::OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::OdfNumBins[0] * HexagonalHigh::OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(seed, init, step, phi, choose, h1, h2, h3);
+  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   OrientationType ho(h1, h2, h3);
   OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
   ro = getMDFFZRod(ro);
@@ -479,37 +419,17 @@ int HexagonalOps::getOdfBin(const OrientationType& rod) const
 
   OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
-  dim[0] = HexDim1InitValue;
-  dim[1] = HexDim2InitValue;
-  dim[2] = HexDim3InitValue;
-  step[0] = HexDim1StepValue;
-  step[1] = HexDim2StepValue;
-  step[2] = HexDim3StepValue;
-  bins[0] = 36.0f;
-  bins[1] = 36.0f;
-  bins[2] = 12.0f;
+  dim[0] = HexagonalHigh::OdfDimInitValue[0];
+  dim[1] = HexagonalHigh::OdfDimInitValue[1];
+  dim[2] = HexagonalHigh::OdfDimInitValue[2];
+  step[0] = HexagonalHigh::OdfDimStepValue[0];
+  step[1] = HexagonalHigh::OdfDimStepValue[1];
+  step[2] = HexagonalHigh::OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalHigh::OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalHigh::OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalHigh::OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void HexagonalOps::getInitializedODFBinDimensions(double dims[3])
-{
-  dims[0] = HexDim1InitValue;
-  dims[1] = HexDim2InitValue;
-  dims[2] = HexDim3InitValue;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void HexagonalOps::getOdfBinStepSize(double step[3])
-{
-  step[0] = HexDim1StepValue;
-  step[1] = HexDim2StepValue;
-  step[2] = HexDim3StepValue;
 }
 
 void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
@@ -839,18 +759,18 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
   {
     //compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = HexMatSym[i][2][0] * plane[0] + HexMatSym[i][2][1] * plane[1] + HexMatSym[i][2][2] * plane[2];
+    slipPlane[2] = HexagonalHigh::MatSym[i][2][0] * plane[0] + HexagonalHigh::MatSym[i][2][1] * plane[1] + HexagonalHigh::MatSym[i][2][2] * plane[2];
 
     //dont consider negative z planes (to avoid duplicates)
     if( slipPlane[2] >= 0)
     {
-      slipPlane[0] = HexMatSym[i][0][0] * plane[0] + HexMatSym[i][0][1] * plane[1] + HexMatSym[i][0][2] * plane[2];
-      slipPlane[1] = HexMatSym[i][1][0] * plane[0] + HexMatSym[i][1][1] * plane[1] + HexMatSym[i][1][2] * plane[2];
+      slipPlane[0] = HexagonalHigh::MatSym[i][0][0] * plane[0] + HexagonalHigh::MatSym[i][0][1] * plane[1] + HexagonalHigh::MatSym[i][0][2] * plane[2];
+      slipPlane[1] = HexagonalHigh::MatSym[i][1][0] * plane[0] + HexagonalHigh::MatSym[i][1][1] * plane[1] + HexagonalHigh::MatSym[i][1][2] * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = HexMatSym[i][0][0] * direction[0] + HexMatSym[i][0][1] * direction[1] + HexMatSym[i][0][2] * direction[2];
-      slipDirection[1] = HexMatSym[i][1][0] * direction[0] + HexMatSym[i][1][1] * direction[1] + HexMatSym[i][1][2] * direction[2];
-      slipDirection[2] = HexMatSym[i][2][0] * direction[0] + HexMatSym[i][2][1] * direction[1] + HexMatSym[i][2][2] * direction[2];
+      slipDirection[0] = HexagonalHigh::MatSym[i][0][0] * direction[0] + HexagonalHigh::MatSym[i][0][1] * direction[1] + HexagonalHigh::MatSym[i][0][2] * direction[2];
+      slipDirection[1] = HexagonalHigh::MatSym[i][1][0] * direction[0] + HexagonalHigh::MatSym[i][1][1] * direction[1] + HexagonalHigh::MatSym[i][1][2] * direction[2];
+      slipDirection[2] = HexagonalHigh::MatSym[i][2][0] * direction[0] + HexagonalHigh::MatSym[i][2][1] * direction[1] + HexagonalHigh::MatSym[i][2][2] * direction[2];
 
       double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
       double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
@@ -929,7 +849,7 @@ double HexagonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3],
 
   QuattoMat(q1, g1);
   QuattoMat(q2, g2);
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
   // Note the order of multiplication is such that I am actually multiplying by the inverse of g1 and g2
   if(maxSF == true)
   {
@@ -943,12 +863,12 @@ double HexagonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3],
     slipPlane[0] = CubicSlipPlanes[i][0];
     slipPlane[1] = CubicSlipPlanes[i][1];
     slipPlane[2] = CubicSlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
-    MatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = MatrixMath::DotProduct(LD,uvw1);
-    planeComponent1 = MatrixMath::DotProduct(LD,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
+    directionComponent1 = EbsdMatrixMath::DotProduct(LD,uvw1);
+    planeComponent1 = EbsdMatrixMath::DotProduct(LD,hkl1);
     schmidFactor1 = directionComponent1*planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || maxSF == false)
     {
@@ -962,12 +882,12 @@ double HexagonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3],
         slipPlane[0] = CubicSlipPlanes[i][0];
         slipPlane[1] = CubicSlipPlanes[i][1];
         slipPlane[2] = CubicSlipPlanes[i][2];
-        MatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
-        MatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
-        directionComponent2 = MatrixMath::DotProduct(LD,uvw2);
-        planeComponent2 = MatrixMath::DotProduct(LD,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
+        directionComponent2 = EbsdMatrixMath::DotProduct(LD,uvw2);
+        planeComponent2 = EbsdMatrixMath::DotProduct(LD,hkl2);
         schmidFactor2 = directionComponent2*planeComponent2;
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
@@ -1002,7 +922,7 @@ double HexagonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[
 
   QuattoMat(q1, g1);
   QuattoMat(q2, g2);
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
   // Note the order of multiplication is such that I am actually multiplying by the inverse of g1 and g2
   if(maxSF == true)
   {
@@ -1016,12 +936,12 @@ double HexagonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[
     slipPlane[0] = CubicSlipPlanes[i][0];
     slipPlane[1] = CubicSlipPlanes[i][1];
     slipPlane[2] = CubicSlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
-    MatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = MatrixMath::DotProduct(LD,uvw1);
-    planeComponent1 = MatrixMath::DotProduct(LD,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
+    directionComponent1 = EbsdMatrixMath::DotProduct(LD,uvw1);
+    planeComponent1 = EbsdMatrixMath::DotProduct(LD,hkl1);
     schmidFactor1 = directionComponent1*planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || maxSF == false)
     {
@@ -1036,15 +956,15 @@ double HexagonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[
         slipPlane[0] = CubicSlipPlanes[j][0];
         slipPlane[1] = CubicSlipPlanes[j][1];
         slipPlane[2] = CubicSlipPlanes[j][2];
-        MatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
-        MatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
-        directionComponent2 = MatrixMath::DotProduct(LD,uvw2);
-        planeComponent2 = MatrixMath::DotProduct(LD,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
+        directionComponent2 = EbsdMatrixMath::DotProduct(LD,uvw2);
+        planeComponent2 = EbsdMatrixMath::DotProduct(LD,hkl2);
         schmidFactor2 = directionComponent2*planeComponent2;
-        directionMisalignment = fabs(MatrixMath::DotProduct(uvw1,uvw2));
-        planeMisalignment = fabs(MatrixMath::DotProduct(hkl1,hkl2));
+        directionMisalignment = fabs(EbsdMatrixMath::DotProduct(uvw1,uvw2));
+        planeMisalignment = fabs(EbsdMatrixMath::DotProduct(hkl1,hkl2));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
         totalPlaneMisalignment = totalPlaneMisalignment + planeMisalignment;
       }
@@ -1078,7 +998,7 @@ double HexagonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3],
 
   QuattoMat(q1, g1);
   QuattoMat(q2, g2);
-  MatrixMath::Normalize3x1(LD);
+  EbsdMatrixMath::Normalize3x1(LD);
   // Note the order of multiplication is such that I am actually multiplying by the inverse of g1 and g2
 
   /*  for(int i=0;i<12;i++)
@@ -1089,12 +1009,12 @@ double HexagonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3],
     slipPlane[0] = CubicSlipPlanes[i][0];
     slipPlane[1] = CubicSlipPlanes[i][1];
     slipPlane[2] = CubicSlipPlanes[i][2];
-    MatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
-    MatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
-    MatrixMath::Normalize3x1(hkl1);
-    MatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = MatrixMath::DotProduct(LD,uvw1);
-    planeComponent1 = MatrixMath::DotProduct(LD,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipDirection,hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1,slipPlane,uvw1);
+    EbsdMatrixMath::Normalize3x1(hkl1);
+    EbsdMatrixMath::Normalize3x1(uvw1);
+    directionComponent1 = EbsdMatrixMath::DotProduct(LD,uvw1);
+    planeComponent1 = EbsdMatrixMath::DotProduct(LD,hkl1);
     schmidFactor1 = directionComponent1*planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || maxSF == false)
     {
@@ -1108,12 +1028,12 @@ double HexagonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3],
         slipPlane[0] = CubicSlipPlanes[j][0];
         slipPlane[1] = CubicSlipPlanes[j][1];
         slipPlane[2] = CubicSlipPlanes[j][2];
-        MatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
-        MatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
-        MatrixMath::Normalize3x1(hkl2);
-        MatrixMath::Normalize3x1(uvw2);
-        directionComponent2 = MatrixMath::DotProduct(LD,uvw2);
-        planeComponent2 = MatrixMath::DotProduct(LD,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipDirection,hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2,slipPlane,uvw2);
+        EbsdMatrixMath::Normalize3x1(hkl2);
+        EbsdMatrixMath::Normalize3x1(uvw2);
+        directionComponent2 = EbsdMatrixMath::DotProduct(LD,uvw2);
+        planeComponent2 = EbsdMatrixMath::DotProduct(LD,hkl2);
         schmidFactor2 = directionComponent2*planeComponent2;
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
@@ -1138,18 +1058,19 @@ namespace Detail
   {
     class GenerateSphereCoordsImpl
     {
-        FloatArrayType* m_Eulers;
-        FloatArrayType* m_xyz001;
-        FloatArrayType* m_xyz011;
-        FloatArrayType* m_xyz111;
+      EbsdLib::FloatArrayType* m_Eulers;
+      EbsdLib::FloatArrayType* m_xyz001;
+      EbsdLib::FloatArrayType* m_xyz011;
+      EbsdLib::FloatArrayType* m_xyz111;
 
-      public:
-        GenerateSphereCoordsImpl(FloatArrayType* eulerAngles, FloatArrayType* xyz0001Coords, FloatArrayType* xyz1010Coords, FloatArrayType* xyz1120Coords) :
-          m_Eulers(eulerAngles),
-          m_xyz001(xyz0001Coords),
-          m_xyz011(xyz1010Coords),
-          m_xyz111(xyz1120Coords)
-        {}
+    public:
+      GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz0001Coords, EbsdLib::FloatArrayType* xyz1010Coords, EbsdLib::FloatArrayType* xyz1120Coords)
+      : m_Eulers(eulerAngles)
+      , m_xyz001(xyz0001Coords)
+      , m_xyz011(xyz1010Coords)
+      , m_xyz111(xyz1120Coords)
+      {
+      }
         virtual ~GenerateSphereCoordsImpl() = default;
 
         void generate(size_t start, size_t end) const
@@ -1164,63 +1085,63 @@ namespace Detail
             OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
             OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-            MatrixMath::Transpose3x3(g, gTranpose);
+            EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
             // -----------------------------------------------------------------------------
             // 0001 Family
             direction[0] = 0.0;
             direction[1] = 0.0;
             direction[2] = 1.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
-            MatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
+            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 1010 Family
             direction[0] = EbsdLib::Constants::k_Root3Over2;
             direction[1] = 0.5;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18));
-            MatrixMath::Copy3x1(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18));
+            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 3), -1.0f);
             direction[0] = 0.0;
             direction[1] = 1.0;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 6));
-            MatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
-            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 6));
+            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
             direction[0] = -EbsdLib::Constants::k_Root3Over2;
             direction[1] = 0.5;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 12));
-            MatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15));
-            MatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 15), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 12));
+            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 15), -1.0f);
 
             // -----------------------------------------------------------------------------
             // 1120 Family
             direction[0] = 1.0;
             direction[1] = 0.0;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18));
-            MatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
-            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18));
+            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
             direction[0] = 0.5;
             direction[1] = EbsdLib::Constants::k_Root3Over2;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 6));
-            MatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
-            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 6));
+            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
             direction[0] = -0.5;
             direction[1] = EbsdLib::Constants::k_Root3Over2;
             direction[2] = 0.0;
-            MatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 12));
-            MatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
-            MatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 15), -1.0f);
+            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 12));
+            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
+            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 15), -1.0f);
           }
 
         }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
         void operator()(const tbb::blocked_range<size_t>& r) const
         {
           generate(r.begin(), r.end());
@@ -1233,35 +1154,34 @@ namespace Detail
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void HexagonalOps::generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* xyz0001, FloatArrayType* xyz1010, FloatArrayType* xyz1120) const
+void HexagonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz0001, EbsdLib::FloatArrayType* xyz1010, EbsdLib::FloatArrayType* xyz1120) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
 
   // Sanity Check the size of the arrays
-  if (xyz0001->getNumberOfTuples() < nOrientations * Detail::HexagonalHigh::symSize0)
+  if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize0)
   {
-    xyz0001->resizeTuples(nOrientations * Detail::HexagonalHigh::symSize0 * 3);
+    xyz0001->resizeTuples(nOrientations * HexagonalHigh::symSize0 * 3);
   }
-  if (xyz1010->getNumberOfTuples() < nOrientations * Detail::HexagonalHigh::symSize1)
+  if(xyz1010->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize1)
   {
-    xyz1010->resizeTuples(nOrientations * Detail::HexagonalHigh::symSize1 * 3);
+    xyz1010->resizeTuples(nOrientations * HexagonalHigh::symSize1 * 3);
   }
-  if (xyz1120->getNumberOfTuples() < nOrientations * Detail::HexagonalHigh::symSize2)
+  if(xyz1120->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize2)
   {
-    xyz1120->resizeTuples(nOrientations * Detail::HexagonalHigh::symSize2 * 3);
+    xyz1120->resizeTuples(nOrientations * HexagonalHigh::symSize2 * 3);
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 #endif
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   if(doParallel)
   {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations),
-                      Detail::HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), Detail::HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120), tbb::auto_partitioner());
   }
   else
 #endif
@@ -1310,7 +1230,7 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
   OrientationType om(9); // Reusable for the loop
   QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
 
-  for(int j = 0; j < k_NumSymQuats; j++)
+  for(int j = 0; j < HexagonalHigh::k_NumSymQuats; j++)
   {
     QuatType qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
@@ -1318,8 +1238,8 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
     refDirection[2] = refDir2;
-    MatrixMath::Multiply3x3with3x1(g, refDirection, p);
-    MatrixMath::Normalize3x1(p);
+    EbsdMatrixMath::Multiply3x3with3x1(g, refDirection, p);
+    EbsdMatrixMath::Normalize3x1(p);
 
     if(!getHasInversion() && p[2] < 0)
     {
@@ -1376,9 +1296,9 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0f * HexDim1InitValue;
-  double range2 = 2.0f * HexDim2InitValue;
-  double range3 = 2.0f * HexDim3InitValue;
+  double range1 = 2.0f * HexagonalHigh::OdfDimInitValue[0];
+  double range2 = 2.0f * HexagonalHigh::OdfDimInitValue[1];
+  double range3 = 2.0f * HexagonalHigh::OdfDimInitValue[2];
   double max1 = range1 / 2.0f;
   double max2 = range2 / 2.0f;
   double max3 = range3 / 2.0f;
@@ -1397,7 +1317,7 @@ EbsdLib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
+std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   QString label0 = QString("<0001>");
   QString label1 = QString("<10-10>");
@@ -1409,16 +1329,16 @@ QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConf
   if(config.labels.size() > 1) { label1 = config.labels.at(1); }
   if(config.labels.size() > 2) { label2 = config.labels.at(2); }
 
-  int numOrientations = config.eulers->getNumberOfTuples();
+  size_t numOrientations = config.eulers->getNumberOfTuples();
 
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  FloatArrayType::Pointer xyz001 = FloatArrayType::CreateArray(numOrientations * Detail::HexagonalHigh::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize0, dims, label0 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  FloatArrayType::Pointer xyz011 = FloatArrayType::CreateArray(numOrientations * Detail::HexagonalHigh::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize1, dims, label1 + QString("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  FloatArrayType::Pointer xyz111 = FloatArrayType::CreateArray(numOrientations * Detail::HexagonalHigh::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize2, dims, label2 + QString("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -1428,10 +1348,10 @@ QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConf
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  DoubleArrayType::Pointer intensity001 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity011 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
-  DoubleArrayType::Pointer intensity111 = DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+  EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 
@@ -1506,11 +1426,11 @@ QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConf
   config.maxScale = max;
 
   dims[0] = 4;
-  UInt8ArrayType::Pointer image001 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
-  UInt8ArrayType::Pointer image011 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
-  UInt8ArrayType::Pointer image111 = UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
+  EbsdLib::UInt8ArrayType::Pointer image001 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
+  EbsdLib::UInt8ArrayType::Pointer image011 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
+  EbsdLib::UInt8ArrayType::Pointer image111 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
 
-  QVector<UInt8ArrayType::Pointer> poleFigures(3);
+  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
     poleFigures[config.order[0]] = image001;
@@ -1524,7 +1444,7 @@ QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConf
     poleFigures[2] = image111;
   }
 
-#ifdef EBSD_USE_PARALLEL_ALGORITHMS
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 
   if(doParallel)
   {
@@ -1552,10 +1472,10 @@ QVector<UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConf
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) const
 {
   std::vector<size_t> dims(1, 4);
-  UInt8ArrayType::Pointer image = UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0f / static_cast<double>(imageDim);
@@ -1575,7 +1495,7 @@ UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) co
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = sinf(30.0 * EbsdLib::Constants::k_PiOver180) / cosf(30.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180);
 
   EbsdLib::Rgb color;
   size_t idx = 0;
@@ -1641,7 +1561,6 @@ UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) co
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
 {
-  double n1, n2, n3, w;
   double xo, xo1, xo2, xo3, x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11;
   double yo, yo1, yo2, yo3, y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11;
   double zo, zo1, zo2, zo3, z, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11;
@@ -1651,13 +1570,13 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   QuatType q2 = refFrame;
 
   //get misorientation
-  w = getMisoQuat(q1, q2, n1, n2, n3);
+  OrientationD axisAngle = calculateMisorientation(q1, q2);
 
   //eq c5.1
-  k = tan(w / 2.0);
-  xo = n1;
-  yo = n2;
-  zo = n3;
+  k = tan(axisAngle[3] / 2.0);
+  xo = axisAngle[0];
+  yo = axisAngle[1];
+  zo = axisAngle[2];
 
   OrientationType rod(xo, yo, zo, k);
   rod = getMDFFZRod(rod);
@@ -1737,9 +1656,9 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   z2 = (x1 + y1 + z1) / EbsdLib::Constants::k_Sqrt3;
 
   //eq c1.4
-  k = fmodf(atan2f(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
-  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
-  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + fmodf(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
+  k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
+  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
+  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
   z3 = z2 - 1.0f;
 
   //eq c1.5
@@ -1849,4 +1768,29 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
 
   //now standard 0-255 rgb, needs inversion
   return RgbColor::dRgb(255 - RgbColor::dRed(rgb), 255 - RgbColor::dGreen(rgb), 255 - RgbColor::dBlue(rgb), 0);
+}
+
+// -----------------------------------------------------------------------------
+HexagonalOps::Pointer HexagonalOps::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+QString HexagonalOps::getNameOfClass() const
+{
+  return QString("HexagonalOps");
+}
+
+// -----------------------------------------------------------------------------
+QString HexagonalOps::ClassName()
+{
+  return QString("HexagonalOps");
+}
+
+// -----------------------------------------------------------------------------
+HexagonalOps::Pointer HexagonalOps::New()
+{
+  Pointer sharedPtr(new(HexagonalOps));
+  return sharedPtr;
 }

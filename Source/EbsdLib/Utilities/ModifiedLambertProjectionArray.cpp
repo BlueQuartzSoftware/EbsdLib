@@ -1,41 +1,41 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ModifiedLambertProjectionArray.h"
 
 #include <QtCore/QList>
-
+#include <utility>
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Utilities.h"
 #include "H5Support/QH5Lite.h"
@@ -59,7 +59,7 @@ ModifiedLambertProjectionArray::~ModifiedLambertProjectionArray() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision)
+void ModifiedLambertProjectionArray::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const
 {
   xdmfTypeName = getNameOfClass();
   precision = 0;
@@ -68,12 +68,15 @@ void ModifiedLambertProjectionArray::getXdmfTypeAndSize(QString& xdmfTypeName, i
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getTypeAsString() { return "ModifiedLambertProjectionArray"; }
+QString ModifiedLambertProjectionArray::getTypeAsString() const
+{
+  return "ModifiedLambertProjectionArray";
+}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate)
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate) const
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
@@ -81,7 +84,7 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate)
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate) const
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
@@ -89,11 +92,10 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool ModifiedLambertProjectionArray::isAllocated()
+bool ModifiedLambertProjectionArray::isAllocated() const
 {
   return m_IsAllocated;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -113,7 +115,7 @@ void ModifiedLambertProjectionArray::setModifiedLambertProjection(int index, Mod
     size_t old = m_ModifiedLambertProjectionArray.size();
     m_ModifiedLambertProjectionArray.resize(index + 1);
     // Initialize with zero length Vectors
-    for (int i = old; i < m_ModifiedLambertProjectionArray.size(); ++i)
+    for(size_t i = old; i < m_ModifiedLambertProjectionArray.size(); ++i)
     {
       m_ModifiedLambertProjectionArray[i] = ModifiedLambertProjection::New();
     }
@@ -153,7 +155,7 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::getModifiedLa
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](int idx)
+ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](size_t idx)
 {
 #ifndef NDEBUG
   if(!m_ModifiedLambertProjectionArray.empty())
@@ -174,7 +176,7 @@ void ModifiedLambertProjectionArray::setName(const QString& name)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getName()
+QString ModifiedLambertProjectionArray::getName() const
 {
   return m_Name;
 }
@@ -214,7 +216,7 @@ void* ModifiedLambertProjectionArray::getVoidPointer(size_t i)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-size_t ModifiedLambertProjectionArray::getNumberOfTuples()
+size_t ModifiedLambertProjectionArray::getNumberOfTuples() const
 {
   return m_ModifiedLambertProjectionArray.size();
 }
@@ -222,7 +224,7 @@ size_t ModifiedLambertProjectionArray::getNumberOfTuples()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-size_t ModifiedLambertProjectionArray::getSize()
+size_t ModifiedLambertProjectionArray::getSize() const
 {
   return m_ModifiedLambertProjectionArray.size();
 }
@@ -241,7 +243,7 @@ void ModifiedLambertProjectionArray::SetNumberOfComponents(int nc)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::getNumberOfComponents()
+int ModifiedLambertProjectionArray::getNumberOfComponents() const
 {
   return 1;
 }
@@ -249,7 +251,7 @@ int ModifiedLambertProjectionArray::getNumberOfComponents()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<size_t> ModifiedLambertProjectionArray::getComponentDimensions()
+std::vector<size_t> ModifiedLambertProjectionArray::getComponentDimensions() const
 {
   std::vector<size_t> dims(1, 1);
   return dims;
@@ -265,7 +267,7 @@ void ModifiedLambertProjectionArray::SetRank(int rnk)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::getRank()
+int ModifiedLambertProjectionArray::getRank() const
 {
   return 1;
 }
@@ -273,7 +275,7 @@ int ModifiedLambertProjectionArray::getRank()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-size_t ModifiedLambertProjectionArray::getTypeSize()
+size_t ModifiedLambertProjectionArray::getTypeSize() const
 {
   return sizeof(ModifiedLambertProjection);
 }
@@ -307,8 +309,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
     }
   }
 
-
-  QVector<ModifiedLambertProjection::Pointer> replacement(m_ModifiedLambertProjectionArray.size() - idxs.size());
+  std::vector<ModifiedLambertProjection::Pointer> replacement(m_ModifiedLambertProjectionArray.size() - idxs.size());
   qint32 idxsIndex = 0;
   size_t rIdx = 0;
   size_t count = static_cast<size_t>(m_ModifiedLambertProjectionArray.size());
@@ -346,13 +347,22 @@ int ModifiedLambertProjectionArray::copyTuple(size_t currentPos, size_t newPos)
 // -----------------------------------------------------------------------------
 bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, ModifiedLambertProjectionArray::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples)
 {
-  if(!m_IsAllocated) { return false; }
+  if(!m_IsAllocated)
+  {
+    return false;
+  }
   if(m_ModifiedLambertProjectionArray.empty())
   {
     return false;
   }
-  if(destTupleOffset >= m_ModifiedLambertProjectionArray.size()) { return false; }
-  if(!sourceArray->isAllocated()) { return false; }
+  if(destTupleOffset >= m_ModifiedLambertProjectionArray.size())
+  {
+    return false;
+  }
+  if(!sourceArray->isAllocated())
+  {
+    return false;
+  }
   Self* source = dynamic_cast<Self*>(sourceArray.get());
 
   if(sourceArray->getNumberOfComponents() != getNumberOfComponents()) { return false; }
@@ -399,7 +409,7 @@ void ModifiedLambertProjectionArray::initializeWithZeros()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::deepCopy(bool forceNoAllocate)
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::deepCopy(bool forceNoAllocate) const
 {
   ModifiedLambertProjectionArray::Pointer daCopyPtr = ModifiedLambertProjectionArray::New();
   if(!forceNoAllocate)
@@ -434,14 +444,14 @@ void ModifiedLambertProjectionArray::resizeTuples(size_t numTuples)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::printTuple(QTextStream& out, size_t i, char delimiter)
+void ModifiedLambertProjectionArray::printTuple(QTextStream& out, size_t i, char delimiter) const
 {
   Q_ASSERT(false);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::printComponent(QTextStream& out, size_t i, int j)
+void ModifiedLambertProjectionArray::printComponent(QTextStream& out, size_t i, int j) const
 {
   Q_ASSERT(false);
 }
@@ -602,7 +612,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size_t> tDims)
+int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size_t> tDims) const
 {
   herr_t err = 0;
   if(m_ModifiedLambertProjectionArray.empty())
@@ -624,10 +634,8 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
 
   Create2DExpandableDataset(gid, dsetName, lambertElements, lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0) );
 
-
-  DoubleArrayType* north = nullptr;
-  DoubleArrayType* south = nullptr;
-
+  EbsdLib::DoubleArrayType* north = nullptr;
+  EbsdLib::DoubleArrayType* south = nullptr;
 
   // We start numbering our phases at 1. Anything in slot 0 is considered "Dummy" or invalid
   for(qint32 i = 1; i < m_ModifiedLambertProjectionArray.size(); ++i)
@@ -692,8 +700,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName,
-                                                       const QString& groupPath, const QString& labelb)
+int ModifiedLambertProjectionArray::writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& labelb) const
 {
   out << "<!-- Xdmf is not supported for " << getNameOfClass() << " with type " << getTypeAsString() << " --> ";
   return -1;
@@ -702,43 +709,82 @@ int ModifiedLambertProjectionArray::writeXdmfAttribute(QTextStream& out, int64_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat format)
+QString ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat format) const
 {
-  QString info;
-  QTextStream ss (&info);
   if(format == EbsdLib::HtmlFormat)
   {
-    ss << "<html><head></head>\n";
-    ss << "<body>\n";
-    ss << "<table cellpadding=\"4\" cellspacing=\"0\" border=\"0\">\n";
-    ss << "<tbody>\n";
-    ss << "<tr bgcolor=\"#D3D8E0\"><th colspan=2>Attribute Array Info</th></tr>";
-
-    ss << "<tr bgcolor=\"#C3C8D0\"><th align=\"right\">Name:</th><td>" << getName() << "</td></tr>";
-
-
-    ss << "<tr bgcolor=\"#C3C8D0\"><th align=\"right\">Type:</th><td>" << getTypeAsString() << "</td></tr>";
-    ss << "<tr bgcolor=\"#C3C8D0\"><th align=\"right\">Attribute Array Count:</th><td>" << getNumberOfTuples() << "</td></tr>";
-
-    //        QString compDimStr = "(";
-    //        for(int i = 0; i < m_CompDims.size(); i++)
-    //        {
-    //          compDimStr = compDimStr + QString::number(m_CompDims[i]);
-    //          if(i < m_CompDims.size() - 1) {
-    //             compDimStr = compDimStr + QString(", ");
-    //          }
-    //        }
-    //        compDimStr = compDimStr + ")";
-    //        ss << "<tr bgcolor=\"#C3C8D0\"><th align=\"right\">Component Dimensions:</th><td>" << compDimStr << "</td></tr>";
-    //        ss << "<tr bgcolor=\"#C3C8D0\"><th align=\"right\">Total Elements:</th><td>" << m_Size << "</td></tr>";
-
-    ss << "</tbody></table>\n";
-    ss << "<br/>";
-    ss << "</body></html>";
+    return getToolTipGenerator().generateHTML();
   }
-  else
-  {
+  return QString();
+}
 
-  }
-  return info;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdLib::ToolTipGenerator ModifiedLambertProjectionArray::getToolTipGenerator() const
+{
+  EbsdLib::ToolTipGenerator toolTipGen;
+  QLocale usa(QLocale::English, QLocale::UnitedStates);
+
+  toolTipGen.addTitle("Attribute Array Info");
+  toolTipGen.addValue("Name", getName());
+  toolTipGen.addValue("Type", getTypeAsString());
+  toolTipGen.addValue("Attribute Array Count", usa.toString(static_cast<qlonglong>(getNumberOfTuples())));
+
+  return toolTipGen;
+}
+
+// -----------------------------------------------------------------------------
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::New()
+{
+  Pointer sharedPtr(new(ModifiedLambertProjectionArray));
+  return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjectionArray::getNameOfClass() const
+{
+  return QString("ModifiedLambertProjectionArray");
+}
+
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjectionArray::ClassName()
+{
+  return QString("ModifiedLambertProjectionArray");
+}
+
+// -----------------------------------------------------------------------------
+void ModifiedLambertProjectionArray::setPhase(int value)
+{
+  m_Phase = value;
+}
+
+// -----------------------------------------------------------------------------
+int ModifiedLambertProjectionArray::getPhase() const
+{
+  return m_Phase;
+}
+
+// -----------------------------------------------------------------------------
+void ModifiedLambertProjectionArray::setModifiedLambertProjectionArray(const std::vector<ModifiedLambertProjection::Pointer>& value)
+{
+  m_ModifiedLambertProjectionArray = value;
+}
+
+// -----------------------------------------------------------------------------
+std::vector<ModifiedLambertProjection::Pointer> ModifiedLambertProjectionArray::getModifiedLambertProjectionArray() const
+{
+  return m_ModifiedLambertProjectionArray;
+}
+
+// -----------------------------------------------------------------------------
+int ModifiedLambertProjectionArray::getClassVersion() const
+{
+  return 2;
 }

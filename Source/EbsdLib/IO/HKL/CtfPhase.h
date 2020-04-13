@@ -47,7 +47,7 @@
 #include "CtfConstants.h"
 
 /**
- * @class CtfPhase CtfPhase.h EbsdLib/HKL/CtfPhase.h
+ * @class CtfPhase CtfPhase.h EbsdLib/IO/HKL/CtfPhase.h
  * @brief This class holds all the values for a "Phase" header block in an HKL .ctf file
  *
  * @date Mar 23, 2011
@@ -67,7 +67,7 @@ class EbsdLib_EXPORT CtfPhase
     /**
     * @brief Returns the name of the class for CtfPhase
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for CtfPhase
     */

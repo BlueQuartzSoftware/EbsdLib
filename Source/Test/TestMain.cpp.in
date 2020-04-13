@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 #ifdef EBSD_Group_FILTERS
   // Register all the filters including trying to load those from Plugins
   FilterManager* fm = FilterManager::Instance();
-  SIMPLibPluginLoader::LoadPluginFilters(fm);
+  EbsdLibPluginLoader::LoadPluginFilters(fm);
 
   // Register the special objects with the QMetaObject system
   QMetaObjectUtilities::RegisterMetaTypes();

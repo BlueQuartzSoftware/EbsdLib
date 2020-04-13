@@ -1,43 +1,44 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "ModifiedLambertProjection.h"
 
+
+
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 #define WRITE_LAMBERT_SQUARE_COORD_VTK 0
 
@@ -61,7 +62,7 @@ ModifiedLambertProjection::~ModifiedLambertProjection() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius)
 {
 
   size_t npoints = coords->getNumberOfTuples();
@@ -147,14 +148,13 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 
   std::vector<size_t> tDims(2, m_Dimension);
   std::vector<size_t> cDims(1, 1);
-  m_NorthSquare = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
+  m_NorthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
   m_NorthSquare->initializeWithZeros();
-  m_SouthSquare = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
+  m_SouthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
   m_SouthSquare->initializeWithZeros();
 
 
 }
-
 #ifdef EbsdLib_ENABLE_HDF5
 // -----------------------------------------------------------------------------
 //
@@ -181,8 +181,8 @@ int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
   int err = -1;
   return err;
 }
-#endif
 
+#endif
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -528,7 +528,7 @@ void ModifiedLambertProjection::normalizeSquaresToMRD()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArrayType* stereoIntensity)
+void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity)
 {
   int xpoints = dim;
   int ypoints = dim;
@@ -567,7 +567,7 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArr
         {
           if(m == 1)
           {
-            MatrixMath::Multiply3x1withConstant(xyz, -1.0f);
+            EbsdMatrixMath::Multiply3x1withConstant(xyz, -1.0f);
           }
           nhCheck = getSquareCoord(xyz, sqCoord);
           //sqIndex = getSquareIndex(sqCoord);
@@ -593,139 +593,67 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, DoubleArr
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
 {
   std::vector<size_t> tDims(2, dim);
   std::vector<size_t> cDims(1, 1);
-  DoubleArrayType::Pointer stereoIntensity = DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
+  EbsdLib::DoubleArrayType::Pointer stereoIntensity = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
   stereoIntensity->initializeWithZeros();
   createStereographicProjection(dim, stereoIntensity.get());
   return stereoIntensity;
 }
 
-
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ModifiedLambertProjection::createProjection(int dim, std::vector<float> &stereoIntensity, ModifiedLambertProjection::ProjectionType projType)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::NullPointer()
 {
-  int xpoints = dim;
-  int ypoints = dim;
-
-  int xpointshalf = xpoints / 2;
-  int ypointshalf = ypoints / 2;
-
-  float span;
-  float unitRadius = 1.0;
-  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-  {
-  }
-  else if(projType == ModifiedLambertProjection::ProjectionType::Circular)
-  {
-    unitRadius = std::sqrt(2.0f);
-  }
-  else
-  {
-    return;
-  }
-
-  span = unitRadius - (-unitRadius);
-
-
-  float xres = span / static_cast<float>(xpoints);
-  float yres = span / static_cast<float>(ypoints);
-  float xtmp, ytmp;
-  float sqCoord[2];
-  float xyz[3];
-  bool nhCheck = false;
-
-  std::fill(stereoIntensity.begin(), stereoIntensity.end(), 0.0f);
-  float* intensity = stereoIntensity.data();
-// int sqIndex = 0;
-
-  for (int64_t y = 0; y < ypoints; y++)
-  {
-    for (int64_t x = 0; x < xpoints; x++)
-    {
-      //get (x,y) for stereographic projection pixel
-      xtmp = static_cast<float>(x - xpointshalf) * xres + (xres * 0.5f);
-      ytmp = static_cast<float>(y - ypointshalf) * yres + (yres * 0.5f);
-      size_t index = static_cast<size_t>(y * xpoints + x);
-      if((xtmp * xtmp + ytmp * ytmp) <= unitRadius * unitRadius)
-      {
-        //project xy from stereo projection to the unit sphere
-        if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-        {
-          xyz[2] = -((xtmp * xtmp + ytmp * ytmp) - 1) / ((xtmp * xtmp + ytmp * ytmp) + 1);
-          xyz[0] = xtmp * (1 + xyz[2]);
-          xyz[1] = ytmp * (1 + xyz[2]);
-        }
-        else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
-        {
-          float q = xtmp*xtmp + ytmp*ytmp;
-          float t = std::sqrt(1.0f - (q / 4.0f));
-
-          xyz[0] = xtmp * t;
-          xyz[1] = ytmp * t;
-          xyz[2] = (q / 2.0f) - 1.0f;
-        }
-        else
-        {
-          // Not a valid projection type
-          return;
-        }
-
-
-        for( int64_t m = 0; m < 2; m++)
-        {
-          if(m == 1)
-          {
-            xyz[0] *= -1.0;
-            xyz[1] *= -1.0;
-            xyz[2] *= -1.0;
-          }
-          nhCheck = getSquareCoord(xyz, sqCoord);
-          //sqIndex = getSquareIndex(sqCoord);
-          if (nhCheck)
-          {
-            //get Value from North square
-            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::NorthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::Square::NorthSquare, sqIndex);
-          }
-          else
-          {
-            //get Value from South square
-            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::SouthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
-          }
-        }
-        intensity[index]  = intensity[index] * 0.5f;
-      }
-    }
-  }
+  return Pointer(static_cast<Self*>(nullptr));
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-typename std::vector<float> ModifiedLambertProjection::createProjection(int dim, ModifiedLambertProjection::ProjectionType projType)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::New()
 {
-  QString arrayName;
-  if (projType == ModifiedLambertProjection::ProjectionType::Stereographic)
-  {
-    arrayName = "ModifiedLambertProjection_StereographicProjection";
-  }
-  else if (projType == ModifiedLambertProjection::ProjectionType::Circular)
-  {
-    arrayName = "ModifiedLambertProjection_CircularProjection";
-  }
-  else
-  {
-    // Not a valid projection type
-    return std::vector<float>();
-  }
+  Pointer sharedPtr(new(ModifiedLambertProjection));
+  return sharedPtr;
+}
 
-  typename std::vector<float> intensity(dim*dim, 0.0);
-  createProjection(dim, intensity, projType);
-  return intensity;
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjection::getNameOfClass() const
+{
+  return QString("ModifiedLambertProjection");
+}
+
+// -----------------------------------------------------------------------------
+QString ModifiedLambertProjection::ClassName()
+{
+  return QString("ModifiedLambertProjection");
+}
+
+// -----------------------------------------------------------------------------
+int ModifiedLambertProjection::getDimension() const
+{
+  return m_Dimension;
+}
+
+// -----------------------------------------------------------------------------
+float ModifiedLambertProjection::getStepSize() const
+{
+  return m_StepSize;
+}
+
+// -----------------------------------------------------------------------------
+float ModifiedLambertProjection::getSphereRadius() const
+{
+  return m_SphereRadius;
+}
+
+// -----------------------------------------------------------------------------
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
+{
+  return m_NorthSquare;
+}
+
+// -----------------------------------------------------------------------------
+EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
+{
+  return m_SouthSquare;
 }

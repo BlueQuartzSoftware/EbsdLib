@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   QCoreApplication::setApplicationName("CombineAttributeArraysTest");
   // Register all the filters including trying to load those from Plugins
   FilterManager* fm = FilterManager::Instance();
-  SIMPLibPluginLoader::LoadPluginFilters(fm);
+  EbsdLibPluginLoader::LoadPluginFilters(fm);
 
   // Send progress messages from PipelineBuilder to this object for display
   QMetaObjectUtilities::RegisterMetaTypes();

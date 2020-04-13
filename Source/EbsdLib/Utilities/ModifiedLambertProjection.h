@@ -36,14 +36,11 @@
 
 #pragma once
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Core/DataArray.hpp"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include <memory>
 
-#ifdef EbsdLib_ENABLE_HDF5
-#include <hdf5.h>
-#endif
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 /**
  * @class ModifiedLambertProjection ModifiedLambertProjection.h DREAM3DLib/Common/ModifiedLambertProjection.h
@@ -55,24 +52,30 @@
 class EbsdLib_EXPORT ModifiedLambertProjection
 {
   public:
-    EBSD_SHARED_POINTERS(ModifiedLambertProjection)
-    EBSD_STATIC_NEW_MACRO(ModifiedLambertProjection)
-    EBSD_TYPE_MACRO(ModifiedLambertProjection)
+    using Self = ModifiedLambertProjection;
+    using Pointer = std::shared_ptr<Self>;
+    using ConstPointer = std::shared_ptr<const Self>;
+    using WeakPointer = std::weak_ptr<Self>;
+    using ConstWeakPointer = std::weak_ptr<const Self>;
+    static Pointer NullPointer();
+
+    static Pointer New();
+
+    /**
+     * @brief Returns the name of the class for ModifiedLambertProjection
+     */
+    QString getNameOfClass() const;
+    /**
+     * @brief Returns the name of the class for ModifiedLambertProjection
+     */
+    static QString ClassName();
 
     virtual ~ModifiedLambertProjection();
-
-    using EnumType = unsigned int;
 
     enum Square
     {
       NorthSquare = 0,
       SouthSquare = 1
-    };
-
-    enum class ProjectionType : EnumType
-    {
-      Stereographic,
-      Circular
     };
 
     /**
@@ -85,14 +88,37 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
      * @return
      */
-    static Pointer LambertBallToSquare(FloatArrayType* coords, int dimension, float sphereRadius);
+    static Pointer LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius);
 
-    EBSD_GET_PROPERTY(int, Dimension)
-    EBSD_GET_PROPERTY(float, StepSize)
-    EBSD_GET_PROPERTY(float, SphereRadius)
+    /**
+     * @brief Getter property for Dimension
+     * @return Value of Dimension
+     */
+    int getDimension() const;
 
-    EBSD_GET_PROPERTY(DoubleArrayType::Pointer, NorthSquare)
-    EBSD_GET_PROPERTY(DoubleArrayType::Pointer, SouthSquare)
+    /**
+     * @brief Getter property for StepSize
+     * @return Value of StepSize
+     */
+    float getStepSize() const;
+
+    /**
+     * @brief Getter property for SphereRadius
+     * @return Value of SphereRadius
+     */
+    float getSphereRadius() const;
+
+    /**
+     * @brief Getter property for NorthSquare
+     * @return Value of NorthSquare
+     */
+    EbsdLib::DoubleArrayType::Pointer getNorthSquare() const;
+
+    /**
+     * @brief Getter property for SouthSquare
+     * @return Value of SouthSquare
+     */
+    EbsdLib::DoubleArrayType::Pointer getSouthSquare() const;
 
     /**
      * @brief initializeSquares
@@ -101,8 +127,8 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @param sphereRadius
      */
     void initializeSquares(int dims, float sphereRadius);
-#ifdef EbsdLib_ENABLE_HDF5
 
+#ifdef EbsdLib_ENABLE_HDF5
     virtual int writeHDF5Data(hid_t groupId);
     virtual int readHDF5Data(hid_t groupId);
 #endif
@@ -177,23 +203,9 @@ class EbsdLib_EXPORT ModifiedLambertProjection
      * @brief createStereographicProjection
      * @param stereoGraphicProjectionDims
      */
-    DoubleArrayType::Pointer createStereographicProjection(int dim);
+    EbsdLib::DoubleArrayType::Pointer createStereographicProjection(int dim);
 
-    void createStereographicProjection(int dim, DoubleArrayType* stereoIntensity);
-
-    /**
-     * @brief ModifiedLambertProjection::createProjection
-     * @param dim
-     * @param stereoIntensity
-     * @param projType
-     */
-    void createProjection(int dim, std::vector<float> &stereoIntensity, ModifiedLambertProjection::ProjectionType projType);
-
-    /**
-     * @brief createStereographicProjection
-     * @param stereoGraphicProjectionDims
-     */
-    typename std::vector<float> createProjection(int dim, ModifiedLambertProjection::ProjectionType projType);
+    void createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity);
 
   protected:
     ModifiedLambertProjection();
@@ -209,8 +221,8 @@ class EbsdLib_EXPORT ModifiedLambertProjection
     float m_MaxCoord;
     float m_MinCoord;
 
-    DoubleArrayType::Pointer m_NorthSquare;
-    DoubleArrayType::Pointer m_SouthSquare;
+    EbsdLib::DoubleArrayType::Pointer m_NorthSquare;
+    EbsdLib::DoubleArrayType::Pointer m_SouthSquare;
 
   public:
     ModifiedLambertProjection(const ModifiedLambertProjection&) = delete; // Copy Constructor Not Implemented

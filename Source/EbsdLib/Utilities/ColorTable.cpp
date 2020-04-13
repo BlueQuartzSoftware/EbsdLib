@@ -114,7 +114,7 @@ std::vector<unsigned char> SIMPLColorTable::GetColorTable(size_t numColors, QJso
   {
     for(size_t j = 0; j < numComponents; j++)
     {
-      controlPoints[i][j] = static_cast<float>(colorControlPoints[numComponents * i + j].toDouble());
+      controlPoints[i][j] = static_cast<double>(colorControlPoints[static_cast<int32_t>(numComponents * i + j)].toDouble());
       if(j == 0)
       {
         binPoints.push_back(controlPoints[i][j]);

@@ -31,9 +31,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include "EbsdLib/Core/DataArray.hpp"
-
-
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
@@ -51,7 +49,7 @@ class EbsdLib_EXPORT ComputeStereographicProjection
      * @param config
      * @param intensity
      */
-    ComputeStereographicProjection(FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, DoubleArrayType* intensity);
+    ComputeStereographicProjection(EbsdLib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, EbsdLib::DoubleArrayType* intensity);
 
     virtual ~ComputeStereographicProjection();
 
@@ -68,9 +66,9 @@ class EbsdLib_EXPORT ComputeStereographicProjection
     ComputeStereographicProjection();
 
   private:
-    FloatArrayType*     m_XYZCoords = nullptr;
+    EbsdLib::FloatArrayType* m_XYZCoords = nullptr;
     PoleFigureConfiguration_t* m_Config = nullptr;
-    DoubleArrayType*    m_Intensity = nullptr;
+    EbsdLib::DoubleArrayType* m_Intensity = nullptr;
 
   public:
     ComputeStereographicProjection(const ComputeStereographicProjection&) = delete; // Copy Constructor Not Implemented

@@ -36,6 +36,8 @@
 
 #include "TexturePreset.h"
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -52,9 +54,9 @@ TexturePreset::~TexturePreset() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
+std::vector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
 {
-  QVector<TexturePreset::Pointer> textures;
+  std::vector<TexturePreset::Pointer> textures;
   ADD_NEW_TEXTURE("Brass", EbsdLib::CrystalStructure::Cubic_High, 35.0, 45.0, 0.0)
   ADD_NEW_TEXTURE("S", EbsdLib::CrystalStructure::Cubic_High, 59.0, 37.0, 63.0)
   ADD_NEW_TEXTURE("Copper", EbsdLib::CrystalStructure::Cubic_High, 90.0, 35.0, 45.0)
@@ -75,10 +77,95 @@ QVector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<TexturePreset::Pointer> HexTexturePresets::getTextures()
+std::vector<TexturePreset::Pointer> HexTexturePresets::getTextures()
 {
-  QVector<TexturePreset::Pointer> textures;
+  std::vector<TexturePreset::Pointer> textures;
   //  ADD_NEW_TEXTURE( "Brass", EbsdLib::CrystalStructure::Hexagonal, 35.0, 45.0, 0.0)
 
   return textures;
+}
+
+// -----------------------------------------------------------------------------
+TexturePreset::Pointer TexturePreset::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+TexturePreset::Pointer TexturePreset::New()
+{
+  Pointer sharedPtr(new(TexturePreset));
+  return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+QString TexturePreset::getNameOfClass() const
+{
+  return QString("TexturePreset");
+}
+
+// -----------------------------------------------------------------------------
+QString TexturePreset::ClassName()
+{
+  return QString("TexturePreset");
+}
+
+// -----------------------------------------------------------------------------
+void TexturePreset::setCrystalStructure(unsigned int value)
+{
+  m_CrystalStructure = value;
+}
+
+// -----------------------------------------------------------------------------
+unsigned int TexturePreset::getCrystalStructure() const
+{
+  return m_CrystalStructure;
+}
+
+// -----------------------------------------------------------------------------
+void TexturePreset::setName(const QString& value)
+{
+  m_Name = value;
+}
+
+// -----------------------------------------------------------------------------
+QString TexturePreset::getName() const
+{
+  return m_Name;
+}
+
+// -----------------------------------------------------------------------------
+void TexturePreset::setEuler1(double value)
+{
+  m_Euler1 = value;
+}
+
+// -----------------------------------------------------------------------------
+double TexturePreset::getEuler1() const
+{
+  return m_Euler1;
+}
+
+// -----------------------------------------------------------------------------
+void TexturePreset::setEuler2(double value)
+{
+  m_Euler2 = value;
+}
+
+// -----------------------------------------------------------------------------
+double TexturePreset::getEuler2() const
+{
+  return m_Euler2;
+}
+
+// -----------------------------------------------------------------------------
+void TexturePreset::setEuler3(double value)
+{
+  m_Euler3 = value;
+}
+
+// -----------------------------------------------------------------------------
+double TexturePreset::getEuler3() const
+{
+  return m_Euler3;
 }

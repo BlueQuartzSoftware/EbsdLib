@@ -36,13 +36,15 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include <QtCore/QString>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
+#include "EbsdLib/Utilities/ToolTipGenerator.h"
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include <hdf5.h>
@@ -54,301 +56,340 @@
 class EbsdLib_EXPORT ModifiedLambertProjectionArray
 {
 public:
-  EBSD_SHARED_POINTERS(ModifiedLambertProjectionArray)
-  EBSD_STATIC_NEW_MACRO(ModifiedLambertProjectionArray)
-  EBSD_TYPE_MACRO(ModifiedLambertProjectionArray)
+  using Self = ModifiedLambertProjectionArray;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+
+  static Pointer NullPointer();
+
+  static Pointer New();
+
+  /**
+   * @brief Returns the name of the class for ModifiedLambertProjectionArray
+   */
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for ModifiedLambertProjectionArray
+   */
+  static QString ClassName();
+
+  int getClassVersion() const;
 
   ~ModifiedLambertProjectionArray();
 
   /**
-     * @brief getXdmfTypeAndSize
-     * @param xdmfTypeName
-     * @param precision
-     */
-  void getXdmfTypeAndSize(QString& xdmfTypeName, int& precision);
+   * @brief getXdmfTypeAndSize
+   * @param xdmfTypeName
+   * @param precision
+   */
+  void getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const;
 
   /**
-     * @brief GetTypeName Returns a string representation of the type of data that is stored by this class. This
-     * can be a primitive like char, float, int or the name of a class.
-     * @return
-     */
-  QString getTypeAsString();
-
-  EBSD_INSTANCE_PROPERTY(int, Phase)
-
-  EBSD_INSTANCE_PROPERTY(QVector<ModifiedLambertProjection::Pointer>, ModifiedLambertProjectionArray)
+   * @brief GetTypeName Returns a string representation of the type of data that is stored by this class. This
+   * can be a primitive like char, float, int or the name of a class.
+   * @return
+   */
+  QString getTypeAsString() const;
 
   /**
-     * @brief createNewArray
-     * @param numElements
-     * @param rank
-     * @param dims
-     * @param name
-     * @param allocate
-     * @return
-     */
-  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate = true);
+   * @brief Setter property for Phase
+   */
+  void setPhase(int value);
+  /**
+   * @brief Getter property for Phase
+   * @return Value of Phase
+   */
+  int getPhase() const;
 
   /**
-     * @brief createNewArray
-     * @param numElements
-     * @param dims
-     * @param name
-     * @param allocate
-     * @return
-     */
-  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate = true);
+   * @brief Setter property for ModifiedLambertProjectionArray
+   */
+  void setModifiedLambertProjectionArray(const std::vector<ModifiedLambertProjection::Pointer>& value);
+  /**
+   * @brief Getter property for ModifiedLambertProjectionArray
+   * @return Value of ModifiedLambertProjectionArray
+   */
+  std::vector<ModifiedLambertProjection::Pointer> getModifiedLambertProjectionArray() const;
 
   /**
-     * @brief
-     */
-  bool isAllocated();
+   * @brief createNewArray
+   * @param numElements
+   * @param rank
+   * @param dims
+   * @param name
+   * @param allocate
+   * @return
+   */
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate = true) const;
 
   /**
-     * @brief clearAll
-     */
+   * @brief createNewArray
+   * @param numElements
+   * @param dims
+   * @param name
+   * @param allocate
+   * @return
+   */
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate = true) const;
+
+  /**
+   * @brief
+   */
+  bool isAllocated() const;
+
+  /**
+   * @brief clearAll
+   */
   void clearAll();
 
   /**
-     * @brief setModifiedLambertProjection
-     * @param index
-     * @param ModifiedLambertProjection
-     */
+   * @brief setModifiedLambertProjection
+   * @param index
+   * @param ModifiedLambertProjection
+   */
   void setModifiedLambertProjection(int index, ModifiedLambertProjection::Pointer ModifiedLambertProjection);
 
   /**
-     * @brief fillArrayWithNewModifiedLambertProjection
-     * @param n
-     */
+   * @brief fillArrayWithNewModifiedLambertProjection
+   * @param n
+   */
   void fillArrayWithNewModifiedLambertProjection(size_t n);
 
   /**
-     * @brief getModifiedLambertProjection
-     * @param idx
-     * @return
-     */
+   * @brief getModifiedLambertProjection
+   * @param idx
+   * @return
+   */
   ModifiedLambertProjection::Pointer getModifiedLambertProjection(int idx);
 
   /**
-     * @brief operator []
-     * @param idx
-     * @return
-     */
-  ModifiedLambertProjection::Pointer operator[](int idx);
+   * @brief operator []
+   * @param idx
+   * @return
+   */
+  ModifiedLambertProjection::Pointer operator[](size_t idx);
 
-  /* **************** This is the interface for the ModifiedLambertProjectionArray Class which MUST
-     *  Be implemented. Most of it is useless and will simply ASSERT if called. */
+  /* **************** This is the interface for the IDataArray Class which MUST
+   *  Be implemented. Most of it is useless and will simply ASSERT if called. */
 
   /**
-     * @brief setName
-     * @param name
-     */
+   * @brief setName
+   * @param name
+   */
   void setName(const QString& name);
 
   /**
-     * @brief getName
-     * @return
-     */
-  QString getName();
+   * @brief getName
+   * @return
+   */
+  QString getName() const;
 
   /**
-     * @brief Makes this class responsible for freeing the memory.
-     */
+   * @brief Makes this class responsible for freeing the memory.
+   */
   void takeOwnership();
 
   /**
-     * @brief This class will NOT free the memory associated with the internal pointer.
-     * This can be useful if the user wishes to keep the data around after this
-     * class goes out of scope.
-     */
+   * @brief This class will NOT free the memory associated with the internal pointer.
+   * This can be useful if the user wishes to keep the data around after this
+   * class goes out of scope.
+   */
   void releaseOwnership();
 
   /**
-     * @brief Returns a void pointer pointing to the index of the array. nullptr
-     * pointers are entirely possible. No checks are performed to make sure
-     * the index is with in the range of the internal data array.
-     * @param i The index to have the returned pointer pointing to.
-     * @return Void Pointer. Possibly nullptr.
-     */
+   * @brief Returns a void pointer pointing to the index of the array. nullptr
+   * pointers are entirely possible. No checks are performed to make sure
+   * the index is with in the range of the internal data array.
+   * @param i The index to have the returned pointer pointing to.
+   * @return Void Pointer. Possibly nullptr.
+   */
   void* getVoidPointer(size_t i);
 
   /**
-     * @brief Returns the number of Tuples in the array.
-     */
-  size_t getNumberOfTuples();
+   * @brief Returns the number of Tuples in the array.
+   */
+  size_t getNumberOfTuples() const;
 
   /**
-     * @brief Return the number of elements in the array
-     * @return
-     */
-  size_t getSize();
+   * @brief Return the number of elements in the array
+   * @return
+   */
+  size_t getSize() const;
 
   /**
-     * @brief SetNumberOfComponents
-     * @param nc
-     */
-  virtual void SetNumberOfComponents(int nc);
+   * @brief SetNumberOfComponents
+   * @param nc
+   */
+  void SetNumberOfComponents(int nc);
 
   /**
-     * @brief getNumberOfComponents
-     * @return
-     */
-  int getNumberOfComponents();
+   * @brief getNumberOfComponents
+   * @return
+   */
+  int getNumberOfComponents() const;
 
   /**
-     * @brief getComponentDimensions
-     * @return
-     */
-  std::vector<size_t> getComponentDimensions();
+   * @brief getComponentDimensions
+   * @return
+   */
+  std::vector<size_t> getComponentDimensions() const;
 
   /**
-     * @brief SetRank
-     * @param rank
-     */
-  virtual void SetRank(int rank);
+   * @brief SetRank
+   * @param rank
+   */
+  void SetRank(int rank);
 
   /**
-     * @brief getRank
-     * @return
-     */
-  virtual int getRank();
+   * @brief getRank
+   * @return
+   */
+  int getRank() const;
 
   /**
-     * @brief Returns the number of bytes that make up the data type.
-     * 1 = char
-     * 2 = 16 bit integer
-     * 4 = 32 bit integer/Float
-     * 8 = 64 bit integer/Double
-     */
-  size_t getTypeSize();
+   * @brief Returns the number of bytes that make up the data type.
+   * 1 = char
+   * 2 = 16 bit integer
+   * 4 = 32 bit integer/Float
+   * 8 = 64 bit integer/Double
+   */
+  size_t getTypeSize() const;
 
   /**
-     * @brief Removes Tuples from the Array. If the size of the vector is Zero nothing is done. If the size of the
-     * vector is greater than or Equal to the number of Tuples then the Array is Resized to Zero. If there are
-     * indices that are larger than the size of the original (before erasing operations) then an error code (-100) is
-     * returned from the program.
-     * @param idxs The indices to remove
-     * @return error code.
-     */
+   * @brief Removes Tuples from the Array. If the size of the vector is Zero nothing is done. If the size of the
+   * vector is greater than or Equal to the number of Tuples then the Array is Resized to Zero. If there are
+   * indices that are larger than the size of the original (before erasing operations) then an error code (-100) is
+   * returned from the program.
+   * @param idxs The indices to remove
+   * @return error code.
+   */
   int eraseTuples(std::vector<size_t>& idxs);
 
   /**
-     * @brief Copies a Tuple from one position to another.
-     * @param currentPos The index of the source data
-     * @param newPos The destination index to place the copied data
-     * @return
-     */
+   * @brief Copies a Tuple from one position to another.
+   * @param currentPos The index of the source data
+   * @param newPos The destination index to place the copied data
+   * @return
+   */
   int copyTuple(size_t currentPos, size_t newPos);
 
-  // This line must be here, because we are overloading the copyData pure virtual function in ModifiedLambertProjectionArray.
-  // This is required so that other classes can call this version of copyData from the subclasses.
-  //using ModifiedLambertProjectionArray::copyFromArray;
-
   /**
-     * @brief copyData This method copies the number of tuples specified by the
-     * totalSrcTuples value starting from the source tuple offset value in <b>sourceArray</b>
-     * into the current array starting at the target destination tuple offset value.
-     *
-     * For example if the DataArray has 10 tuples, the source DataArray has 10 tuples,
-     *  the destTupleOffset = 5, the srcTupleOffset = 5, and the totalSrcTuples = 3,
-     *  then tuples 5, 6, and 7 will be copied from the source into tuples 5, 6, and 7
-     * of the destination array. In psuedo code it would be the following:
-     * @code
-     *  destArray[5] = sourceArray[5];
-     *  destArray[6] = sourceArray[6];
-     *  destArray[7] = sourceArray[7];
-     *  .....
-     * @endcode
-     * @param destTupleOffset
-     * @param sourceArray
-     * @return
-     */
+   * @brief copyData This method copies the number of tuples specified by the
+   * totalSrcTuples value starting from the source tuple offset value in <b>sourceArray</b>
+   * into the current array starting at the target destination tuple offset value.
+   *
+   * For example if the DataArray has 10 tuples, the source DataArray has 10 tuples,
+   *  the destTupleOffset = 5, the srcTupleOffset = 5, and the totalSrcTuples = 3,
+   *  then tuples 5, 6, and 7 will be copied from the source into tuples 5, 6, and 7
+   * of the destination array. In psuedo code it would be the following:
+   * @code
+   *  destArray[5] = sourceArray[5];
+   *  destArray[6] = sourceArray[6];
+   *  destArray[7] = sourceArray[7];
+   *  .....
+   * @endcode
+   * @param destTupleOffset
+   * @param sourceArray
+   * @return
+   */
   bool copyFromArray(size_t destTupleOffset, ModifiedLambertProjectionArray::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples);
 
   /**
-     * @brief Splats the same value c across all values in the Tuple
-     * @param i The index of the Tuple
-     * @param c The value to splat across all components in the tuple
-     */
+   * @brief Splats the same value c across all values in the Tuple
+   * @param i The index of the Tuple
+   * @param c The value to splat across all components in the tuple
+   */
   void initializeTuple(size_t i, void* p);
 
   /**
-     * @brief Sets all the values to zero.
-     */
+   * @brief Sets all the values to zero.
+   */
   void initializeWithZeros();
 
   /**
-     * @brief deepCopy
-     * @return
-     */
-  ModifiedLambertProjectionArray::Pointer deepCopy(bool forceNoAllocate = false);
+   * @brief deepCopy
+   * @return
+   */
+  ModifiedLambertProjectionArray::Pointer deepCopy(bool forceNoAllocate = false) const;
 
   /**
-     * @brief Reseizes the internal array
-     * @param size The new size of the internal array
-     * @return 1 on success, 0 on failure
-     */
+   * @brief Reseizes the internal array
+   * @param size The new size of the internal array
+   * @return 1 on success, 0 on failure
+   */
   int32_t resizeTotalElements(size_t size);
 
   /**
-     * @brief Resizes the internal array to accomondate numTuples
-     * @param numTuples
-     */
+   * @brief Resizes the internal array to accomondate numTuples
+   * @param numTuples
+   */
   void resizeTuples(size_t numTuples);
 
   /**
-     * @brief printTuple
-     * @param out
-     * @param i
-     * @param delimiter
-     */
-  void printTuple(QTextStream& out, size_t i, char delimiter = ',');
+   * @brief printTuple
+   * @param out
+   * @param i
+   * @param delimiter
+   */
+  void printTuple(QTextStream& out, size_t i, char delimiter = ',') const;
 
   /**
-     * @brief printComponent
-     * @param out
-     * @param i
-     * @param j
-     */
-  void printComponent(QTextStream& out, size_t i, int j);
+   * @brief printComponent
+   * @param out
+   * @param i
+   * @param j
+   */
+  void printComponent(QTextStream& out, size_t i, int j) const;
 
 #ifdef EbsdLib_ENABLE_HDF5
   /**
-     *
-     * @param parentId
-     * @return
-     */
-  int writeH5Data(hid_t parentId, std::vector<size_t> tDims);
+   *
+   * @param parentId
+   * @return
+   */
+  int writeH5Data(hid_t parentId, std::vector<size_t> tDims) const;
 
   /**
-     * @brief readH5Data
-     * @param parentId
-     * @return
-     */
+   * @brief readH5Data
+   * @param parentId
+   * @return
+   */
   int readH5Data(hid_t parentId);
 #endif
 
   /**
-     * @brief writeXdmfAttribute
-     * @param out
-     * @param volDims
-     * @param hdfFileName
-     * @param groupPath
-     * @return
-     */
-  int writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& labelb);
+   * @brief writeXdmfAttribute
+   * @param out
+   * @param volDims
+   * @param hdfFileName
+   * @param groupPath
+   * @return
+   */
+  int writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& labelb) const;
 
   /**
-     * @brief getInfoString
-     * @return Returns a formatted string that contains general infomation about
-     * the instance of the object.
-     */
-  QString getInfoString(EbsdLib::InfoStringFormat format);
+   * @brief getInfoString
+   * @return Returns a formatted string that contains general infomation about
+   * the instance of the object.
+   */
+  QString getInfoString(EbsdLib::InfoStringFormat format) const;
+
+  /**
+   * @brief Returns a ToolTipGenerator for creating HTML tooltip tables
+   * with values populated to match the current DataArray.
+   * @return
+   */
+  EbsdLib::ToolTipGenerator getToolTipGenerator() const;
 
 protected:
   ModifiedLambertProjectionArray();
 
 private:
+  int m_Phase = {};
+  std::vector<ModifiedLambertProjection::Pointer> m_ModifiedLambertProjectionArray = {};
+
   QString m_Name;
   bool m_IsAllocated;
 

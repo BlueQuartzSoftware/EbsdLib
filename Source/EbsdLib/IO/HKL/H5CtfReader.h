@@ -46,7 +46,7 @@
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 
 /**
- * @class H5CtfReader H5CtfReader EbsdLib/HKL/H5CtfReader.h
+ * @class H5CtfReader H5CtfReader EbsdLib/IO/HKL/H5CtfReader.h
  * @brief
  *
  * @date Aug 2, 2011
@@ -86,7 +86,7 @@ class EbsdLib_EXPORT H5CtfReader : public CtfReader
     /**
     * @brief Returns the name of the class for _SUPERH5CtfReader
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for _SUPERH5CtfReader
     */

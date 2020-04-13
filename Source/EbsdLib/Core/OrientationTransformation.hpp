@@ -49,7 +49,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/MatrixMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
@@ -433,7 +433,10 @@ ResultType cu_check(const InputType& cu)
 template <typename InputType>
 ResultType qu_check(const InputType& qu, typename Quaternion<typename InputType::value_type>::Order layout = Quaternion<typename InputType::value_type>::Order::VectorScalar)
 {
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename InputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -900,6 +903,7 @@ OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::va
 template <typename InputType, typename OutputType>
 OutputType om2eu(const InputType& o)
 {
+  using OutputValueType = typename OutputType::value_type;
   OutputType res(3);
   typename OutputType::value_type zeta = 0.0;
   bool close = EbsdLibMath::closeEnough(std::fabs(o[8]), static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
@@ -921,8 +925,8 @@ OutputType om2eu(const InputType& o)
     }
     else
     {
-      res[0] = -atan2(-o[1], o[0]);
-      res[1] = EbsdLib::Constants::k_Pi;
+      res[0] = static_cast<OutputValueType>(-atan2(-o[1], o[0]));
+      res[1] = static_cast<OutputValueType>(EbsdLib::Constants::k_Pi);
       res[2] = 0.0;
     }
   }
@@ -1017,7 +1021,10 @@ template <typename InputType, typename OutputType>
 OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(3);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1027,12 +1034,13 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
   }
 
   InputType qq(4);
-  typename OutputType::value_type q12 = 0.0f;
-  typename OutputType::value_type q03 = 0.0f;
-  typename OutputType::value_type chi = 0.0f;
-  typename OutputType::value_type Phi = 0.0f;
-  typename OutputType::value_type phi1 = 0.0f;
-  typename OutputType::value_type phi2 = 0.0f;
+  using OutPutValueType = typename OutputType::value_type;
+  OutPutValueType q12 = 0.0f;
+  OutPutValueType q03 = 0.0f;
+  OutPutValueType chi = 0.0f;
+  OutPutValueType Phi = 0.0f;
+  OutPutValueType phi1 = 0.0f;
+  OutPutValueType phi2 = 0.0f;
 
   qq = q;
 
@@ -1058,7 +1066,7 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
     }
     else
     {
-      Phi = EbsdLib::Constants::k_Pi;
+      Phi = static_cast<OutPutValueType>(EbsdLib::Constants::k_Pi);
       phi2 = 0.0; // arbitrarily due to degeneracy
       phi1 = atan2(2.0 * qq[x] * qq[y], qq[x] * qq[x] - qq[y] * qq[y]);
     }
@@ -1267,11 +1275,11 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   }
   // printf("res[z]: % 3.16f \n", res[z]);
 
-  s = MatrixMath::Magnitude4x1(&(res[0]));
+  s = EbsdMatrixMath::Magnitude4x1(&(res[0]));
 
   if(s != 0.0)
   {
-    MatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
+    EbsdMatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
   }
 
   /* we need to do a quick test here to make sure that the
@@ -1394,6 +1402,7 @@ OutputType om2ax(const InputType& om)
 template <typename InputType, typename OutputType>
 OutputType ro2ax(const InputType& r)
 {
+  using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
   typename OutputType::value_type ta = 0.0L;
   typename OutputType::value_type angle = 0.0L;
@@ -1412,7 +1421,7 @@ OutputType ro2ax(const InputType& r)
     res[0] = r[0];
     res[1] = r[1];
     res[2] = r[2];
-    res[3] = DConst::k_Pi;
+    res[3] = static_cast<OutputValueType>(DConst::k_Pi);
   }
   else
   {
@@ -1637,7 +1646,7 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
-  typename OutputType::value_type s = MatrixMath::Magnitude3x1(&(res[0]));
+  typename OutputType::value_type s = EbsdMatrixMath::Magnitude3x1(&(res[0]));
   if(s < thr)
   {
     res[0] = 0.0;

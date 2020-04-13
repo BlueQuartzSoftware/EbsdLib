@@ -38,10 +38,16 @@
 #include <QtCore/QString>
 #include <QtCore/QMap>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
+
+#ifdef EbsdLib_ENABLE_HDF5
+#include "H5Support/H5Lite.h"
+#include "H5Support/QH5Lite.h"
+#include <hdf5.h>
+#endif
 
 /**
  * @class EbsdReader EbsdReader.h EbsdLib/EbsdReader.h
@@ -61,7 +67,7 @@ class EbsdLib_EXPORT EbsdReader
     /**
     * @brief Returns the name of the class for EbsdReader
     */
-    const QString getNameOfClass() const;
+    QString getNameOfClass() const;
     /**
     * @brief Returns the name of the class for EbsdReader
     */
