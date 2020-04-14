@@ -39,6 +39,8 @@
 /* Define our buffer size for reading data */
 #define kBufferSize 1024
 
+#include "H5Support/QtBackwardsCompatibilityMacro.h"
+
 /**
  * @brief These macros are used to read header values from an HDF5 file, NOT From a .ang or .ctf file
  */
@@ -148,7 +150,8 @@
       H5Gclose(gid);                                                                                                                                                                                   \
       return -1;                                                                                                                                                                                       \
     }                                                                                                                                                                                                  \
-    phase->set##key(QVector<Type>::fromStdVector(t));                                                                                                                                                  \
+    QVECTOR_FROM_STD_VECTOR(QVector<Type>, qvec, t)                                                                                                                                                    \
+    phase->set##key(qvec);                                                                                                                                                                             \
   }
 
 #define SHUFFLE_ARRAY(name, var, Type)                                                                                                                                                                 \
