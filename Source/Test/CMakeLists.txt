@@ -130,7 +130,7 @@ endforeach()
 
 AddSIMPLUnitTest(TESTNAME EbsdLibUnitTest
   SOURCES ${EbsdLibProj_BINARY_DIR}/Test/EbsdLibUnitTest.cpp ${EbsdLibProj_TEST_SRCS}
-  FOLDER "EbsdLibProjProj/Test"
+  FOLDER "EbsdLibProj/Test"
   LINK_LIBRARIES Qt5::Core EbsdLib
   INCLUDE_DIRS
     ${EbsdLibProj_SOURCE_DIR}/Source
