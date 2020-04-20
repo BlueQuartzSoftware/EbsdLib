@@ -42,7 +42,6 @@
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
 #include <tbb/task_group.h>
 #include <tbb/task.h>
 #endif
@@ -530,21 +529,11 @@ double OrthoRhombicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[
       }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), OrthoRhombic::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
+#else
+      OrthoRhombic::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
+      serial.generate(0, nOrientations);
 #endif
-
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel)
-      {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), OrthoRhombic::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
-      }
-      else
-#endif
-  {
-    OrthoRhombic::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
-    serial.generate(0, nOrientations);
-  }
     }
 
 // -----------------------------------------------------------------------------
@@ -708,7 +697,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigur
   EbsdLib::DoubleArrayType::Pointer intensity100 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   EbsdLib::DoubleArrayType::Pointer intensity010 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-  tbb::task_scheduler_init init;
   bool doParallel = true;
 
   if(doParallel)

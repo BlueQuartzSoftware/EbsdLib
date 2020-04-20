@@ -41,7 +41,6 @@
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
 #include <tbb/task_group.h>
 #include <tbb/task.h>
 #endif
@@ -552,11 +551,7 @@ void TetragonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eule
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-  tbb::task_scheduler_init init;
   bool doParallel = true;
-#endif
-
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   if(doParallel)
   {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TetragonalHigh::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
@@ -732,7 +727,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-  tbb::task_scheduler_init init;
   bool doParallel = true;
 
   if(doParallel)

@@ -52,7 +52,6 @@
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
 #endif
 
 #define OC_CLASS_DEFINES(name)                                                                                                                                                                         \
@@ -441,7 +440,6 @@ class ConvertRepresentation
   DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #OUT_ARRAY_NAME, true);                                                                                                     \
   output->initializeWithZeros(); /* Intialize the array with Zeros */                                                                                                                                  \
   T* outPtr = output->getPointer(0);                                                                                                                                                                   \
-  tbb::task_scheduler_init init;                                                                                                                                                                       \
   tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), ConvertRepresentation<T, Convertors::FUNCTOR<T>>(inPtr, outPtr, inStride, outStride), tbb::auto_partitioner());                            \
   this->setOutputData(output);
 
@@ -578,10 +576,7 @@ public:
     size_t nTuples = input->getNumberOfTuples();
     int inStride = input->getNumberOfComponents();
 
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    tbb::task_scheduler_init init;
     bool doParallel = true;
-#endif
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
     if(doParallel)
     {
@@ -768,10 +763,7 @@ public:
     T* inPtr = input->getPointer(0);
     size_t nTuples = input->getNumberOfTuples();
     int inStride = input->getNumberOfComponents();
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    tbb::task_scheduler_init init;
     bool doParallel = true;
-#endif
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
     if(doParallel)
     {
@@ -929,26 +921,17 @@ class QuaternionConverter : public OrientationConverter<DataArrayType, T>
      * go
      */
 #if 0
-      
       DataArrayPointerType input = this->getInputData();
       T* inPtr = input->getPointer(0);
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
+
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
-#endif
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel )
-      {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), QuaternionSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
-      }
-      else
-#endif
-      {
+#else
         QuaternionSanityCheck<T> serial(inPtr, inStride);
         serial.sanityCheck(0, nTuples);
-      } 
+#endif
 #endif
     }
 
@@ -1095,20 +1078,11 @@ class AxisAngleConverter : public OrientationConverter<DataArrayType, T>
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
-#endif
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel )
-      {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), AxisAngleSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
-      }
-      else
-#endif
-      {
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), AxisAngleSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+#else
         AxisAngleSanityCheck<T> serial(inPtr, inStride);
         serial.sanityCheck(0, nTuples);
-      } 
+#endif
 #endif
     }
     
@@ -1253,26 +1227,16 @@ class RodriguesConverter : public OrientationConverter<DataArrayType, T>
      * go
      */
 #if 0
-      
       DataArrayPointerType input = this->getInputData();
       T* inPtr = input->getPointer(0);
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
-#endif
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel )
-      {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), RodriguesSanityCheck<DataArrayType>(inPtr, inStride), tbb::auto_partitioner());
-      }
-      else
+#else
+      RodriguesSanityCheck<T> serial(inPtr, inStride);
+      serial.sanityCheck(0, nTuples);
 #endif
-      {
-        RodriguesSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
-      } 
 #endif
     }
     
@@ -1417,26 +1381,17 @@ class HomochoricConverter : public OrientationConverter<DataArrayType, T>
      * go
      */
 #if 0
-      
       DataArrayPointerType input = this->getInputData();
       T* inPtr = input->getPointer(0);
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
-#endif
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel )
-      {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), HomochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), HomochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
       }
-      else
-#endif
-      {
+#else
         HomochoricSanityCheck<T> serial(inPtr, inStride);
         serial.sanityCheck(0, nTuples);
-      } 
+#endif
 #endif    
     }
     
@@ -1581,26 +1536,16 @@ class CubochoricConverter : public OrientationConverter<DataArrayType, T>
      * go
      */
 #if 0
-      
       DataArrayPointerType input = this->getInputData();
       T* inPtr = input->getPointer(0);
       size_t nTuples = input->getNumberOfTuples();
       int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::task_scheduler_init init;
-      bool doParallel = true;
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), CubochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+#else
+      CubochoricSanityCheck<T> serial(inPtr, inStride);
+      serial.sanityCheck(0, nTuples);
 #endif
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      if(doParallel )
-      {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), CubochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
-      }
-      else
-#endif
-      {
-        CubochoricSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
-      } 
 #endif
     }
     
