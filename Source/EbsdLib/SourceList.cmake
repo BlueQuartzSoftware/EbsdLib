@@ -183,12 +183,25 @@ if(EbsdLib_USE_PARALLEL_ALGORITHMS)
 endif()
 
 
+get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
 
-set(install_dir "bin")
-set(lib_install_dir "lib")
-if(WIN32)
-	set(install_dir "bin")
-	set(lib_install_dir "lib")
+if(NOT "${EbsdLib_PACKAGE_DEST_PREFIX}" STREQUAL "")
+  if(APPLE)
+    get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
+    set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}bin")
+    set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
+  elseif(WIN32)
+    set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}")
+    set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}")
+  endif()
+else()
+  set(install_dir "bin")
+  set(lib_install_dir "lib")
+  if(WIN32)
+    set(install_dir "bin")
+    set(lib_install_dir "lib")
+  endif()
+
 endif()
 
 INSTALL(TARGETS ${PROJECT_NAME}
