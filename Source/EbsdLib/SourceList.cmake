@@ -1,6 +1,9 @@
 
-
-set(EbsdLib_INSTALL_FILES 1)
+get_property(EbsdLib_INSTALL_FILES GLOBAL PROPERTY EbsdLib_INSTALL_FILES)
+if( "${EbsdLib_INSTALL_FILES}" STREQUAL "")
+  set(EbsdLib_INSTALL_FILES 1)
+endif()
+set(EbsdLib_INSTALL_FILES ${EbsdLib_INSTALL_FILES})
 set(EXE_DEBUG_EXTENSION _debug)
 set(PROJECT_NAME EbsdLib)
 
@@ -182,26 +185,25 @@ if(EbsdLib_USE_PARALLEL_ALGORITHMS)
   target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
 endif()
 
+# --------------------------------------------------------------------
+# Setup the install rules for the various platforms
+set(install_dir "bin")
+set(lib_install_dir "lib")
+set(BUNDLE_DESTINATION ".")
+set(ConfigPackageLocation share/cmake/EbsdLib)
+
 
 get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
-
-if(NOT "${EbsdLib_PACKAGE_DEST_PREFIX}" STREQUAL "")
+if(NOT "${EbsdLib_PACKAGE_DEST_PREFIX}" STREQUAL "") 
   if(APPLE)
-    get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
     set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}bin")
     set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
-  elseif(WIN32)
-    set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}")
-    set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}")
+    set(BUNDLE_DESTINATION "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
+    set(ConfigPackageLocation ${EbsdLib_PACKAGE_DEST_PREFIX}share/cmake/EbsdLib)
+  else()
+    set(install_dir ".")
+    set(lib_install_dir ".")
   endif()
-else()
-  set(install_dir "bin")
-  set(lib_install_dir "lib")
-  if(WIN32)
-    set(install_dir "bin")
-    set(lib_install_dir "lib")
-  endif()
-
 endif()
 
 INSTALL(TARGETS ${PROJECT_NAME}
@@ -210,10 +212,8 @@ INSTALL(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${install_dir}
   LIBRARY DESTINATION ${lib_install_dir}
   ARCHIVE DESTINATION lib
-  BUNDLE DESTINATION "."
+  BUNDLE DESTINATION "${EbsdLib_PACKAGE_DEST_PREFIX}"
 )
-
-
 
 # --------------------------------------------------------------------
 # Allow the generation and installation of a CMake configuration file
@@ -240,7 +240,7 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmak
   @ONLY
 )
 
-set(ConfigPackageLocation share/cmake/EbsdLib)
+
 
 #if(BUILD_SHARED_LIBS)
   install(EXPORT ${PROJECT_NAME}Targets
