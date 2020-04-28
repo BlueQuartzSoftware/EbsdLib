@@ -189,60 +189,46 @@ endif()
 # Setup the install rules for the various platforms
 set(install_dir "bin")
 set(lib_install_dir "lib")
-set(BUNDLE_DESTINATION ".")
 set(ConfigPackageLocation share/cmake/EbsdLib)
 
-
-get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
-if(NOT "${EbsdLib_PACKAGE_DEST_PREFIX}" STREQUAL "") 
-  if(APPLE)
-    set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}bin")
-    set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
-    set(BUNDLE_DESTINATION "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
-    set(ConfigPackageLocation ${EbsdLib_PACKAGE_DEST_PREFIX}share/cmake/EbsdLib)
-  else()
-    set(install_dir ".")
-    set(lib_install_dir ".")
-  endif()
+if(WIN32)
+  set(install_dir ".")
+  set(lib_install_dir ".")
 endif()
 
-INSTALL(TARGETS ${PROJECT_NAME}
-  COMPONENT Applications
-  EXPORT ${PROJECT_NAME}Targets
-  RUNTIME DESTINATION ${install_dir}
-  LIBRARY DESTINATION ${lib_install_dir}
-  ARCHIVE DESTINATION lib
-  BUNDLE DESTINATION "${EbsdLib_PACKAGE_DEST_PREFIX}"
-)
+if(EbsdLib_INSTALL_FILES)
 
-# --------------------------------------------------------------------
-# Allow the generation and installation of a CMake configuration file
-# which makes using EBSDLib from another project easier.
-# --------------------------------------------------------------------
+  INSTALL(TARGETS ${PROJECT_NAME}
+    COMPONENT Applications
+    EXPORT ${PROJECT_NAME}Targets
+    RUNTIME DESTINATION ${install_dir}
+    LIBRARY DESTINATION ${lib_install_dir}
+    ARCHIVE DESTINATION lib
+  )
 
-# --------------------------------------------------------------------
-include(CMakePackageConfigHelpers)
+  # --------------------------------------------------------------------
+  # Allow the generation and installation of a CMake configuration file
+  # which makes using EBSDLib from another project easier.
+  # --------------------------------------------------------------------
+  include(CMakePackageConfigHelpers)
 
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
-  VERSION ${EbsdLib_VERSION}
-  COMPATIBILITY AnyNewerVersion
-)
-#if(BUILD_SHARED_LIBS)
+  write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
+    VERSION ${EbsdLib_VERSION}
+    COMPATIBILITY AnyNewerVersion
+  )
+
   export(EXPORT ${PROJECT_NAME}Targets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}Targets.cmake"
     NAMESPACE EbsdLib::
   )
-#endif()
-
-configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
-  @ONLY
-)
 
 
+  configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
+    @ONLY
+  )
 
-#if(BUILD_SHARED_LIBS)
   install(EXPORT ${PROJECT_NAME}Targets
     FILE
       ${PROJECT_NAME}Targets.cmake
@@ -252,19 +238,14 @@ configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmak
       ${ConfigPackageLocation}
   )
 
-#endif()
+  install(
+    FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
+      "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
+    DESTINATION
+      ${ConfigPackageLocation}
+    COMPONENT
+      Devel
+  )
 
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
-)
-
-
-
-
-
+endif()
