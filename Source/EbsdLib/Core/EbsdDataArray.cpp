@@ -37,57 +37,30 @@
 
 #include <QtCore/QDebug>
 
-//  Allow user to force EBSDLIB_ENDIAN_NO_INTRINSICS in case they aren't available for a
-//  particular platform/compiler combination.
-#ifndef EBSDLIB_ENDIAN_NO_INTRINSICS
-
-#ifndef __has_builtin      // Optional of course
-#define __has_builtin(x) 0 // Compatibility with non-clang compilers
+#ifndef __has_builtin
+#define __has_builtin(x) 0
 #endif
 
 #if defined(_MSC_VER)
-//  Microsoft documents these as being compatible since Windows 95 and specifically
-//  lists runtime library support since Visual Studio 2003 (aka 7.1).
-//  Clang/c2 uses the Microsoft rather than GCC intrinsics, so we check for
-//  defined(_MSC_VER) before defined(__clang__)
-#define EBSDLIB_ENDIAN_INTRINSIC_MSG "cstdlib _byteswap_ushort, etc."
 #include <cstdlib>
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_2(x) _byteswap_ushort(x)
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_4(x) _byteswap_ulong(x)
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_8(x) _byteswap_uint64(x)
+#define EBSD_BYTE_SWAP_16(x) _byteswap_ushort(x)
+#define EBSD_BYTE_SWAP_32(x) _byteswap_ulong(x)
+#define EBSD_BYTE_SWAP_64(x) _byteswap_uint64(x)
 
-//  GCC and Clang recent versions provide intrinsic byte swaps via builtins
 #elif(defined(__clang__) && __has_builtin(__builtin_bswap32) && __has_builtin(__builtin_bswap64)) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
-#define EBSDLIB_ENDIAN_INTRINSIC_MSG "__builtin_bswap16, etc."
-// prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
-// see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
-// Clang has a similar problem, but their feature test macros make it easier to detect
 #if(defined(__clang__) && __has_builtin(__builtin_bswap16)) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_2(x) __builtin_bswap16(x)
+#define EBSD_BYTE_SWAP_16(x) __builtin_bswap16(x)
 #else
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_2(x) __builtin_bswap32((x) << 16)
+#define EBSD_BYTE_SWAP_16(x) __builtin_bswap32((x) << 16)
 #endif
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_4(x) __builtin_bswap32(x)
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_8(x) __builtin_bswap64(x)
-
-//  Linux systems provide the byteswap.h header, with
+#define EBSD_BYTE_SWAP_32(x) __builtin_bswap32(x)
+#define EBSD_BYTE_SWAP_64(x) __builtin_bswap64(x)
 #elif defined(__linux__)
-//  don't check for obsolete forms defined(linux) and defined(__linux) on the theory that
-//  compilers that predefine only these are so old that byteswap.h probably isn't present.
-#define EBSDLIB_ENDIAN_INTRINSIC_MSG "byteswap.h bswap_16, etc."
 #include <byteswap.h>
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_2(x) bswap_16(x)
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_4(x) bswap_32(x)
-#define EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_8(x) bswap_64(x)
-
-#else
-#define EBSDLIB_ENDIAN_NO_INTRINSICS
-#define EBSDLIB_ENDIAN_INTRINSIC_MSG "no byte swap intrinsics"
+#define EBSD_BYTE_SWAP_16(x) bswap_16(x)
+#define EBSD_BYTE_SWAP_32(x) bswap_32(x)
+#define EBSD_BYTE_SWAP_64(x) bswap_64(x)
 #endif
-
-#elif !defined(EBSDLIB_ENDIAN_INTRINSIC_MSG)
-#define EBSDLIB_ENDIAN_INTRINSIC_MSG "no byte swap intrinsics"
-#endif // EBSDLIB_ENDIAN_NO_INTRINSICS
 
 #include <string>
 #include <cstring>
@@ -100,27 +73,74 @@
 #include "SIMPLib/HDF5/H5EbsdDataArrayWriter.hpp"
 #endif
 
-#define DA_BYTE_SWAP(s, d, t)                                                                                                                                                                          \
-  t[0] = ptr[s];                                                                                                                                                                                       \
-  ptr[s] = ptr[d];                                                                                                                                                                                     \
-  ptr[d] = t[0];
+namespace
+{
+// Can be replaced with std::bit_cast in C++ 20
+
+template <class To, class From, class = std::enable_if_t<(sizeof(To) == sizeof(From)) && std::is_trivially_copyable<From>::value && std::is_trivial<To>::value>>
+To bit_cast(const From& src) noexcept
+{
+  To dst;
+  std::memcpy(&dst, &src, sizeof(To));
+  return dst;
+}
+
+// SFINAE can be replaced with if constexpr in C++ 17
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint8_t)>* = nullptr>
+T byteSwap(T value)
+{
+  return value;
+}
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint16_t)>* = nullptr>
+T byteSwap(T value)
+{
+  return EBSD_BYTE_SWAP_16(value);
+}
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint32_t) && !std::is_floating_point<T>::value>* = nullptr>
+T byteSwap(T value)
+{
+  return EBSD_BYTE_SWAP_32(value);
+}
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint32_t) && std::is_floating_point<T>::value>* = nullptr>
+T byteSwap(T value)
+{
+  return bit_cast<T>(EBSD_BYTE_SWAP_32(bit_cast<uint32_t>(value)));
+}
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint64_t) && !std::is_floating_point<T>::value>* = nullptr>
+T byteSwap(T value)
+{
+  return EBSD_BYTE_SWAP_64(value);
+}
+
+template <class T, std::enable_if_t<sizeof(T) == sizeof(uint64_t) && std::is_floating_point<T>::value>* = nullptr>
+T byteSwap(T value)
+{
+  return bit_cast<T>(EBSD_BYTE_SWAP_64(bit_cast<uint64_t>(value)));
+}
+
+} // namespace
 
 template <typename T>
 typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::NullPointer()
 {
-  return Pointer(static_cast<Self*>(nullptr));
+  return nullptr;
 }
 
 template <typename T>
 QString EbsdDataArray<T>::getNameOfClass() const
 {
-  return QString("EbsdDataArray<T>");
+  return ClassName();
 }
 
 template <typename T>
 QString EbsdDataArray<T>::ClassName()
 {
-  return QString("EbsdDataArray<T>");
+  return "EbsdDataArray<T>";
 }
 
 template <typename T>
@@ -157,13 +177,13 @@ EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, T initVal
  * For example if you have a 2D image dimensions of 80(w) x 60(h) then the "cdims" would be [80][60]
  */
 template <typename T>
-EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue)
+EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue)
 : m_Name(name)
 , m_NumTuples(numTuples)
-, m_CompDims(std::move(compDims))
+, m_InitValue(initValue)
+, m_CompDims(compDims)
 {
-  m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), static_cast<size_t>(1), std::multiplies<>());
-  m_InitValue = initValue;
+  m_NumComponents = std::accumulate(m_CompDims.cbegin(), m_CompDims.cend(), static_cast<size_t>(1), std::multiplies<>());
   m_Array = resizeAndExtend(m_NumTuples * m_NumComponents);
 }
 
@@ -176,13 +196,13 @@ EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, comp_dims
  * @param allocate Will all the memory be allocated at time of construction
  */
 template <typename T>
-EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, comp_dims_type compDims, T initValue, bool allocate)
+EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue, bool allocate)
 : m_Name(name)
 , m_NumTuples(numTuples)
+, m_InitValue(initValue)
 , m_CompDims(std::move(compDims))
 {
-  m_NumComponents = std::accumulate(m_CompDims.begin(), m_CompDims.end(), static_cast<size_t>(1), std::multiplies<>());
-  m_InitValue = initValue;
+  m_NumComponents = std::accumulate(m_CompDims.cbegin(), m_CompDims.cend(), static_cast<size_t>(1), std::multiplies<>());
   if(allocate)
   {
     resizeTuples(numTuples);
@@ -208,48 +228,41 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuple
 {
   if(name.isEmpty())
   {
-    return NullPointer();
+    return nullptr;
   }
   comp_dims_type cDims = {1};
-  auto d = new EbsdDataArray<T>(numTuples, name, cDims, static_cast<T>(0), allocate);
+  auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, cDims, static_cast<T>(0), allocate);
   if(allocate)
   {
     if(d->allocate() < 0)
     {
       // Could not allocate enough memory, reset the pointer to null and return
-      delete d;
-      return EbsdDataArray<T>::NullPointer();
+      return nullptr;
     }
   }
-  Pointer ptr(d);
-  return ptr;
+  return d;
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, int rank, const size_t* dims, const QString& name, bool allocate)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, int32_t rank, const size_t* dims, const QString& name, bool allocate)
 {
   if(name.isEmpty())
   {
-    return NullPointer();
+    return nullptr;
   }
   comp_dims_type cDims(static_cast<size_t>(rank));
-  for(size_t i = 0; i < static_cast<size_t>(rank); i++)
-  {
-    cDims[i] = dims[i];
-  }
-  auto d = new EbsdDataArray<T>(numTuples, name, cDims, static_cast<T>(0), allocate);
+  std::copy(dims, dims + rank, cDims.begin());
+  auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, cDims, static_cast<T>(0), allocate);
   if(allocate)
   {
     if(d->allocate() < 0)
     {
       // Could not allocate enough memory, reset the pointer to null and return
-      delete d;
-      return EbsdDataArray<T>::NullPointer();
+      return nullptr;
     }
   }
-  Pointer ptr(d);
-  return ptr;
+  return d;
 }
 
 // -----------------------------------------------------------------------------
@@ -258,20 +271,18 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuple
 {
   if(name.isEmpty())
   {
-    return NullPointer();
+    return nullptr;
   }
-  EbsdDataArray<T>* d = new EbsdDataArray<T>(numTuples, name, compDims, static_cast<T>(0), allocate);
+  auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, compDims, static_cast<T>(0), allocate);
   if(allocate)
   {
     if(d->allocate() < 0)
     {
       // Could not allocate enough memory, reset the pointer to null and return
-      delete d;
-      return EbsdDataArray<T>::NullPointer();
+      return nullptr;
     }
   }
-  Pointer ptr(d);
-  return ptr;
+  return d;
 }
 
 // -----------------------------------------------------------------------------
@@ -280,91 +291,68 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(const comp_dims
 {
   if(name.isEmpty())
   {
-    return NullPointer();
+    return nullptr;
   }
 
-  size_t numTuples = std::accumulate(tupleDims.begin(), tupleDims.end(), static_cast<size_t>(1), std::multiplies<>());
+  size_t numTuples = std::accumulate(tupleDims.cbegin(), tupleDims.cend(), static_cast<size_t>(1), std::multiplies<>());
 
-  auto d = new EbsdDataArray<T>(numTuples, name, compDims, static_cast<T>(0), allocate);
+  auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, compDims, static_cast<T>(0), allocate);
   if(allocate)
   {
     if(d->allocate() < 0)
     {
       // Could not allocate enough memory, reset the pointer to null and return
-      delete d;
-      return EbsdDataArray<T>::NullPointer();
+      return nullptr;
     }
   }
-  Pointer ptr(d);
-  return ptr;
+  return d;
 }
 
 template <typename T>
 typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, int rank, const size_t* compDims, const QString& name, bool allocate) const
 {
-  EbsdDataArray<T>::Pointer p = EbsdDataArray<T>::CreateArray(numTuples, rank, compDims, name, allocate);
-  return p;
+  return EbsdDataArray<T>::CreateArray(numTuples, rank, compDims, name, allocate);
 }
 
 template <typename T>
 typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate) const
 {
-  EbsdDataArray<T>::Pointer p = EbsdDataArray<T>::CreateArray(numTuples, compDims, name, allocate);
-  return p;
+  return EbsdDataArray<T>::CreateArray(numTuples, compDims, name, allocate);
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromQVector(QVector<T>& vec, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromQVector(const QVector<T>& vec, const QString& name)
 {
-
   Pointer p = CreateArray(static_cast<size_t>(vec.size()), name, true);
-  if(nullptr != p.get())
+  if(nullptr != p)
   {
-    std::memcpy(p->getPointer(0), vec.data(), static_cast<size_t>(vec.size()) * sizeof(T));
-  }
-  return p;
-}
-
-// -----------------------------------------------------------------------------
-template <>
-typename EbsdDataArray<bool>::Pointer EbsdDataArray<bool>::FromStdVector(std::vector<bool>& vec, const QString& name)
-{
-  comp_dims_type cDims = {1};
-  Pointer p = CreateArray(vec.size(), cDims, name, true);
-  if(nullptr != p.get())
-  {
-    size_t i = 0;
-    for(const auto value : vec)
-    {
-      p->setValue(i, value);
-      i++;
-    }
+    std::copy(vec.cbegin(), vec.cend(), p->begin());
   }
   return p;
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(std::vector<T>& vec, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::vector<T>& vec, const QString& name)
 {
   comp_dims_type cDims = {1};
   Pointer p = CreateArray(vec.size(), cDims, name, true);
-  if(nullptr != p.get())
+  if(nullptr != p)
   {
-    std::memcpy(p->getPointer(0), &(vec.front()), vec.size() * sizeof(T));
+    std::copy(vec.cbegin(), vec.cend(), p->begin());
   }
   return p;
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(T* data, size_t size, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(const T* data, size_t size, const QString& name)
 {
   Pointer p = CreateArray(size, name, true);
-  if(nullptr != p.get())
+  if(nullptr != p)
   {
-    std::memcpy(p->getPointer(0), data, size * sizeof(T));
+    std::copy(data, data + size, p->begin());
   }
   return p;
 }
@@ -384,18 +372,18 @@ template <typename T>
 typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const QString& name, bool ownsData)
 {
   // Allocate on the heap
-  auto d = new EbsdDataArray(numTuples, name, compDims, static_cast<T>(0), false);
-  // Wrap that heap pointer with a shared_pointer to make it reference counted
-  Pointer p(d);
+  auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, compDims, static_cast<T>(0), false);
 
-  p->m_Array = data;        // Now set the internal array to the raw pointer
-  p->m_OwnsData = ownsData; // Set who owns the data, i.e., who is going to "free" the memory
+  // Now set the internal array to the raw pointer
+  d->m_Array = data;
+  // Set who owns the data, i.e., who is going to "free" the memory
+  d->m_OwnsData = ownsData;
   if(nullptr != data)
   {
-    p->m_IsAllocated = true;
+    d->m_IsAllocated = true;
   }
 
-  return p;
+  return d;
 }
 
 //========================================= Begin API =================================
@@ -420,13 +408,10 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::deepCopy(bool forceNoAlloca
   {
     allocate = false;
   }
-  EbsdDataArray<T>::Pointer daCopy = createNewArray(getNumberOfTuples(), getComponentDimensions(), getName(), allocate);
+  auto daCopy = CreateArray(getNumberOfTuples(), getComponentDimensions(), getName(), allocate);
   if(m_IsAllocated && !forceNoAllocate)
   {
-    T* src = getPointer(0);
-    void* dest = daCopy->getVoidPointer(0);
-    size_t totalBytes = (getNumberOfTuples() * static_cast<size_t>(getNumberOfComponents()) * sizeof(T));
-    std::memcpy(dest, src, totalBytes);
+    std::copy(begin(), end(), daCopy->begin());
   }
   return daCopy;
 }
@@ -439,53 +424,47 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::deepCopy(bool forceNoAlloca
 template <typename T>
 EbsdLib::NumericTypes::Type EbsdDataArray<T>::getType() const
 {
-  T value = static_cast<T>(0x00);
-  if(typeid(value) == typeid(int8_t))
+  if(std::is_same<T, int8_t>::value)
   {
     return EbsdLib::NumericTypes::Type::Int8;
   }
-  if(typeid(value) == typeid(uint8_t))
+  else if(std::is_same<T, uint8_t>::value)
   {
     return EbsdLib::NumericTypes::Type::UInt8;
   }
-
-  if(typeid(value) == typeid(int16_t))
+  else if(std::is_same<T, int16_t>::value)
   {
     return EbsdLib::NumericTypes::Type::Int16;
   }
-  if(typeid(value) == typeid(uint16_t))
+  else if(std::is_same<T, uint16_t>::value)
   {
     return EbsdLib::NumericTypes::Type::UInt16;
   }
-
-  if(typeid(value) == typeid(int32_t))
+  else if(std::is_same<T, int32_t>::value)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(typeid(value) == typeid(uint32_t))
+  else if(std::is_same<T, uint32_t>::value)
   {
     return EbsdLib::NumericTypes::Type::UInt32;
   }
-
-  if(typeid(value) == typeid(int64_t))
+  else if(std::is_same<T, int64_t>::value)
   {
     return EbsdLib::NumericTypes::Type::Int64;
   }
-  if(typeid(value) == typeid(uint64_t))
+  else if(std::is_same<T, uint64_t>::value)
   {
     return EbsdLib::NumericTypes::Type::UInt64;
   }
-
-  if(typeid(value) == typeid(float))
+  else if(std::is_same<T, float>::value)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(typeid(value) == typeid(double))
+  else if(std::is_same<T, double>::value)
   {
     return EbsdLib::NumericTypes::Type::Double;
   }
-
-  if(typeid(value) == typeid(bool))
+  else if(std::is_same<T, bool>::value)
   {
     return EbsdLib::NumericTypes::Type::Bool;
   }
@@ -497,77 +476,69 @@ EbsdLib::NumericTypes::Type EbsdDataArray<T>::getType() const
 template <typename T>
 void EbsdDataArray<T>::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const
 {
-  T value = static_cast<T>(0x00);
   xdmfTypeName = "UNKNOWN";
   precision = 0;
-  if(typeid(value) == typeid(int8_t))
+
+  if(std::is_same<T, int8_t>::value)
   {
     xdmfTypeName = "Char";
     precision = 1;
   }
-  if(typeid(value) == typeid(uint8_t))
+  else if(std::is_same<T, uint8_t>::value)
   {
     xdmfTypeName = "UChar";
     precision = 1;
   }
-
-  if(typeid(value) == typeid(int16_t))
+  else if(std::is_same<T, int16_t>::value)
   {
     xdmfTypeName = "Int";
     precision = 2;
   }
-  if(typeid(value) == typeid(uint16_t))
+  else if(std::is_same<T, uint16_t>::value)
   {
     xdmfTypeName = "UInt";
     precision = 2;
   }
-
-  if(typeid(value) == typeid(int32_t))
+  else if(std::is_same<T, int32_t>::value)
   {
     xdmfTypeName = "Int";
     precision = 4;
   }
-  if(typeid(value) == typeid(uint32_t))
+  else if(std::is_same<T, uint32_t>::value)
   {
     xdmfTypeName = "UInt";
     precision = 4;
   }
-
-  if(typeid(value) == typeid(int64_t))
+  else if(std::is_same<T, int64_t>::value)
   {
     xdmfTypeName = "Int";
     precision = 8;
   }
-  if(typeid(value) == typeid(uint64_t))
+  else if(std::is_same<T, uint64_t>::value)
   {
     xdmfTypeName = "UInt";
     precision = 8;
   }
-
-  if(typeid(value) == typeid(float))
+  else if(std::is_same<T, float>::value)
   {
     xdmfTypeName = "Float";
     precision = 4;
   }
-  if(typeid(value) == typeid(double))
+  else if(std::is_same<T, double>::value)
   {
     xdmfTypeName = "Float";
     precision = 8;
   }
-
-  if(typeid(value) == typeid(bool))
+  else if(std::is_same<T, bool>::value)
   {
-    xdmfTypeName = "uchar";
+    xdmfTypeName = "UChar";
     precision = 1;
   }
 }
-// This line must be here, because we are overloading the copyData pure  function in EbsdDataArray<T>.
-// This is required so that other classes can call this version of copyData from the subclasses.
-// using EbsdDataArray<T>::copyFromArray;
 
 // -----------------------------------------------------------------------------
 template <typename T>
-bool EbsdDataArray<T>::copyFromArray(size_t destTupleOffset, EbsdDataArray<T>::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples)
+bool EbsdDataArray<T>::copyFromArray(size_t destTupleOffset, EbsdDataArray<T>::ConstPointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples)
 {
   if(!m_IsAllocated)
   {
@@ -585,7 +556,11 @@ bool EbsdDataArray<T>::copyFromArray(size_t destTupleOffset, EbsdDataArray<T>::P
   {
     return false;
   }
-  Self* source = dynamic_cast<Self*>(sourceArray.get());
+  const Self* source = dynamic_cast<const Self*>(sourceArray.get());
+  if(source == nullptr)
+  {
+    return false;
+  }
   if(nullptr == source->getPointer(0))
   {
     return false;
@@ -606,9 +581,10 @@ bool EbsdDataArray<T>::copyFromArray(size_t destTupleOffset, EbsdDataArray<T>::P
     return false;
   }
 
-  size_t elementStart = destTupleOffset * static_cast<size_t>(getNumberOfComponents());
-  size_t totalBytes = (totalSrcTuples * static_cast<size_t>(sourceArray->getNumberOfComponents())) * sizeof(T);
-  std::memcpy(m_Array + elementStart, source->getPointer(srcTupleOffset * static_cast<size_t>(sourceArray->getNumberOfComponents())), totalBytes);
+  auto srcBegin = source->cbegin() + (srcTupleOffset * source->m_NumComponents);
+  auto srcEnd = srcBegin + (totalSrcTuples * source->m_NumComponents);
+  auto dstBegin = begin() + (destTupleOffset * m_NumComponents);
+  std::copy(srcBegin, srcEnd, dstBegin);
   return true;
 }
 
@@ -618,8 +594,7 @@ bool EbsdDataArray<T>::copyIntoArray(Pointer dest) const
 {
   if(m_IsAllocated && dest->isAllocated() && m_Array && dest->getPointer(0))
   {
-    size_t totalBytes = m_Size * sizeof(T);
-    std::memcpy(dest->getPointer(0), m_Array, totalBytes);
+    std::copy(cbegin(), cend(), dest->begin());
     return true;
   }
   return false;
@@ -657,7 +632,7 @@ void EbsdDataArray<T>::releaseOwnership()
 template <typename T>
 int32_t EbsdDataArray<T>::allocate()
 {
-  if((nullptr != m_Array) && (true == m_OwnsData))
+  if((nullptr != m_Array) && m_OwnsData)
   {
     deallocate();
   }
@@ -691,8 +666,7 @@ void EbsdDataArray<T>::initializeWithZeros()
   {
     return;
   }
-  size_t typeSize = sizeof(T);
-  ::memset(m_Array, 0, m_Size * typeSize);
+  std::fill_n(m_Array, m_Size, 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -703,17 +677,14 @@ void EbsdDataArray<T>::initializeWithValue(T initValue, size_t offset)
   {
     return;
   }
-  for(size_t i = offset; i < m_Size; i++)
-  {
-    m_Array[i] = initValue;
-  }
+  std::fill(begin() + offset, end(), initValue);
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-int EbsdDataArray<T>::eraseTuples(comp_dims_type& idxs)
+int32_t EbsdDataArray<T>::eraseTuples(const comp_dims_type& idxs)
 {
-  int err = 0;
+  int32_t err = 0;
 
   // If nothing is to be erased just return
   if(idxs.empty())
@@ -729,7 +700,7 @@ int EbsdDataArray<T>::eraseTuples(comp_dims_type& idxs)
 
   // Sanity Check the Indices in the vector to make sure we are not trying to remove any indices that are
   // off the end of the array and return an error code.
-  for(size_t& idx : idxs)
+  for(const size_t& idx : idxs)
   {
     if(idx * m_NumComponents > m_MaxId)
     {
@@ -743,11 +714,11 @@ int EbsdDataArray<T>::eraseTuples(comp_dims_type& idxs)
   // Create a new m_Array to copy into
   T* newArray = new T[newSize]();
 
+#ifndef NDEBUG
   // Splat AB across the array so we know if we are copying the values or not
-  ::memset(newArray, 0xAB, newSize * sizeof(T));
+  std::memset(newArray, 0xAB, newSize * sizeof(T));
+#endif
 
-  // Keep the current Destination Pointer
-  T* currentDest = newArray;
   size_t j = 0;
   size_t k = 0;
   // Find the first chunk to copy by walking the idxs array until we get an
@@ -764,11 +735,14 @@ int EbsdDataArray<T>::eraseTuples(comp_dims_type& idxs)
     }
   }
 
-  if(k == idxs.size()) // Only front elements are being dropped
+  // Only front elements are being dropped
+  if(k == idxs.size())
   {
-    T* currentSrc = m_Array + (j * m_NumComponents);
-    std::memcpy(currentDest, currentSrc, (getNumberOfTuples() - idxs.size()) * m_NumComponents * sizeof(T));
-    deallocate(); // We are done copying - delete the current m_Array
+    auto srcBegin = begin() + (j * m_NumComponents);
+    auto srcEnd = srcBegin + (getNumberOfTuples() - idxs.size()) * m_NumComponents;
+    std::copy(srcBegin, srcEnd, newArray);
+    // We are done copying - delete the current m_Array
+    deallocate();
     m_Size = newSize;
     m_Array = newArray;
     m_OwnsData = true;
@@ -802,10 +776,10 @@ int EbsdDataArray<T>::eraseTuples(comp_dims_type& idxs)
   // Copy the data
   for(size_t i = 0; i < srcIdx.size(); ++i)
   {
-    currentDest = newArray + destIdx[i];
-    T* currentSrc = m_Array + srcIdx[i];
-    size_t bytes = copyElements[i] * sizeof(T);
-    std::memcpy(currentDest, currentSrc, bytes);
+    auto srcBegin = begin() + srcIdx[i];
+    auto srcEnd = srcBegin + copyElements[i];
+    auto dstBegin = newArray + destIdx[i];
+    std::copy(srcBegin, srcEnd, dstBegin);
   }
 
   // We are done copying - delete the current m_Array
@@ -831,10 +805,10 @@ int EbsdDataArray<T>::copyTuple(size_t currentPos, size_t newPos)
   {
     return -1;
   }
-  T* src = m_Array + (currentPos * m_NumComponents);
-  T* dest = m_Array + (newPos * m_NumComponents);
-  size_t bytes = sizeof(T) * m_NumComponents;
-  std::memcpy(dest, src, bytes);
+  auto srcBegin = begin() + (currentPos * m_NumComponents);
+  auto srcEnd = srcBegin + m_NumComponents;
+  auto dstBegin = begin() + (newPos * m_NumComponents);
+  std::copy(srcBegin, srcEnd, dstBegin);
   return 0;
 }
 
@@ -883,28 +857,6 @@ void* EbsdDataArray<T>::getVoidPointer(size_t i)
   }
 
   return reinterpret_cast<void*>(&(m_Array[i]));
-}
-
-// -----------------------------------------------------------------------------
-template <typename T>
-std::list<T> EbsdDataArray<T>::getArray() const
-{
-  return std::list<T>(m_Array, m_Array + (m_Size * sizeof(T)) / sizeof(T));
-}
-
-// -----------------------------------------------------------------------------
-template <typename T>
-void EbsdDataArray<T>::setArray(std::list<T> newArray)
-{
-  if(newArray.size() != m_Size)
-  {
-    return;
-  }
-  int i = 0;
-  for(auto elem : newArray)
-  {
-    m_Array[i++] = elem;
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -974,7 +926,7 @@ void EbsdDataArray<T>::setComponent(size_t i, int32_t j, T c)
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::setTuple(size_t tupleIndex, T* data)
+void EbsdDataArray<T>::setTuple(size_t tupleIndex, const T* data)
 {
 #ifndef NDEBUG
   if(m_Size > 0)
@@ -982,7 +934,7 @@ void EbsdDataArray<T>::setTuple(size_t tupleIndex, T* data)
     Q_ASSERT(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
   }
 #endif
-  std::memcpy(getTuplePointer(tupleIndex), data, m_NumComponents * sizeof(T));
+  std::copy(data, data + m_NumComponents, begin() + (tupleIndex * m_NumComponents));
 }
 
 // -----------------------------------------------------------------------------
@@ -995,30 +947,14 @@ void EbsdDataArray<T>::setTuple(size_t tupleIndex, const std::vector<T>& data)
     Q_ASSERT(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
   }
 #endif
-  std::memcpy(getTuplePointer(tupleIndex), data.data(), m_NumComponents * sizeof(T));
-}
-// -----------------------------------------------------------------------------
-template <>
-void EbsdDataArray<bool>::setTuple(size_t tupleIndex, const std::vector<bool>& data)
-{
-#ifndef NDEBUG
-  if(m_Size > 0)
-  {
-    Q_ASSERT(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
-  }
-#endif
-  bool* ptr = getTuplePointer(tupleIndex);
-  size_t i = 0;
-  for(const auto value : data)
-  {
-    ptr[i] = value;
-    i++;
-  }
+  auto srcBegin = data.cbegin();
+  auto srcEnd = srcBegin + m_NumComponents;
+  std::copy(srcBegin, srcEnd, begin() + (tupleIndex * m_NumComponents));
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::initializeTuple(size_t i, void* p)
+void EbsdDataArray<T>::initializeTuple(size_t i, const void* p)
 {
   if(!m_IsAllocated)
   {
@@ -1034,11 +970,8 @@ void EbsdDataArray<T>::initializeTuple(size_t i, void* p)
   {
     return;
   }
-  T* c = reinterpret_cast<T*>(p);
-  for(size_t j = 0; j < m_NumComponents; ++j)
-  {
-    m_Array[i * m_NumComponents + j] = *c;
-  }
+  const T* c = reinterpret_cast<const T*>(p);
+  std::fill_n(begin() + (i * m_NumComponents), m_NumComponents, *c);
 }
 
 // -----------------------------------------------------------------------------
@@ -1069,13 +1002,12 @@ void EbsdDataArray<T>::resizeTuples(size_t numTuples)
 template <typename T>
 void EbsdDataArray<T>::printTuple(QTextStream& out, size_t i, char delimiter) const
 {
-  int precision = out.realNumberPrecision();
-  T value = static_cast<T>(0x00);
-  if(typeid(value) == typeid(float))
+  int32_t precision = out.realNumberPrecision();
+  if(std::is_same<T, float>::value)
   {
     out.setRealNumberPrecision(8);
   }
-  if(typeid(value) == typeid(double))
+  else if(std::is_same<T, double>::value)
   {
     out.setRealNumberPrecision(16);
   }
@@ -1111,151 +1043,51 @@ QString EbsdDataArray<T>::getFullNameOfClass() const
 template <typename T>
 QString EbsdDataArray<T>::getTypeAsString() const
 {
-  T value = static_cast<T>(0);
-  if(typeid(value) == typeid(float))
+  if(std::is_same<T, int8_t>::value)
+  {
+    return "int8_t";
+  }
+  else if(std::is_same<T, uint8_t>::value)
+  {
+    return "uint8_t";
+  }
+  else if(std::is_same<T, int16_t>::value)
+  {
+    return "int16_t";
+  }
+  else if(std::is_same<T, uint16_t>::value)
+  {
+    return "uint16_t";
+  }
+  else if(std::is_same<T, int32_t>::value)
+  {
+    return "int32_t";
+  }
+  else if(std::is_same<T, uint32_t>::value)
+  {
+    return "uint32_t";
+  }
+  else if(std::is_same<T, int64_t>::value)
+  {
+    return "int64_t";
+  }
+  else if(std::is_same<T, uint64_t>::value)
+  {
+    return "uint64_t";
+  }
+  else if(std::is_same<T, float>::value)
   {
     return "float";
   }
-  if(typeid(value) == typeid(double))
+  else if(std::is_same<T, double>::value)
   {
     return "double";
   }
-
-  if(typeid(value) == typeid(int8_t))
-  {
-    return "int8_t";
-  }
-  if(typeid(value) == typeid(uint8_t))
-  {
-    return "uint8_t";
-  }
-#if CMP_TYPE_CHAR_IS_SIGNED
-  if(typeid(value) == typeid(char))
-  {
-    return "int8_t";
-  }
-#else
-  if(typeid(value) == typeid(char))
-  {
-    return "int8_t";
-  }
-#endif
-  if(typeid(value) == typeid(signed char))
-  {
-    return "int8_t";
-  }
-  if(typeid(value) == typeid(unsigned char))
-  {
-    return "uint8_t";
-  }
-
-  if(typeid(value) == typeid(int16_t))
-  {
-    return "int16_t";
-  }
-  if(typeid(value) == typeid(short))
-  {
-    return "int16_t";
-  }
-  if(typeid(value) == typeid(signed short))
-  {
-    return "int16_t";
-  }
-  if(typeid(value) == typeid(uint16_t))
-  {
-    return "uint16_t";
-  }
-  if(typeid(value) == typeid(unsigned short))
-  {
-    return "uint16_t";
-  }
-
-  if(typeid(value) == typeid(int32_t))
-  {
-    return "int32_t";
-  }
-  if(typeid(value) == typeid(uint32_t))
-  {
-    return "uint32_t";
-  }
-#if(CMP_SIZEOF_INT == 4)
-  if(typeid(value) == typeid(int))
-  {
-    return "int32_t";
-  }
-  if(typeid(value) == typeid(signed int))
-  {
-    return "int32_t";
-  }
-  if(typeid(value) == typeid(unsigned int))
-  {
-    return "uint32_t";
-  }
-#endif
-
-  if(typeid(value) == typeid(int64_t))
-  {
-    return "int64_t";
-  }
-  if(typeid(value) == typeid(uint64_t))
-  {
-    return "uint64_t";
-  }
-
-#if(CMP_SIZEOF_LONG == 4)
-  if(typeid(value) == typeid(long int))
-  {
-    return "long int";
-  }
-  if(typeid(value) == typeid(signed long int))
-  {
-    return "signed long int";
-  }
-  if(typeid(value) == typeid(unsigned long int))
-  {
-    return "unsigned long int";
-  }
-#elif(CMP_SIZEOF_LONG == 8)
-  if(typeid(value) == typeid(long int))
-  {
-    return "int64_t";
-  }
-  if(typeid(value) == typeid(signed long int))
-  {
-    return "int64_t";
-  }
-  if(typeid(value) == typeid(unsigned long int))
-  {
-    return "uint64_t";
-  }
-#endif
-
-#if(CMP_SIZEOF_LONG_LONG == 8)
-  if(typeid(value) == typeid(long long int))
-  {
-    return "int64_t";
-  }
-  if(typeid(value) == typeid(signed long long int))
-  {
-    return "int64_t";
-  }
-  if(typeid(value) == typeid(unsigned long long int))
-  {
-    return "uint64_t";
-  }
-#endif
-
-  if(typeid(value) == typeid(bool))
+  else if(std::is_same<T, bool>::value)
   {
     return "bool";
   }
 
-  // qDebug()  << "Error: HDFTypeForPrimitive - Unknown Type: " << (typeid(value).name()) ;
-  const char* name = typeid(value).name();
-  if(nullptr != name && name[0] == 'l')
-  {
-    qDebug() << "You are using 'long int' as a type which is not 32/64 bit safe. Suggest you use one of the H5SupportTypes defined in <Common/H5SupportTypes.h> such as int32_t or uint32_t.";
-  }
   return "UnknownType";
 }
 
@@ -1271,16 +1103,17 @@ int EbsdDataArray<T>::writeH5Data(hid_t parentId, comp_dims_type tDims) const
   return H5EbsdDataArrayWriter::writeEbsdDataArray<Self>(parentId, this, tDims);
 }
 #endif
+
 // -----------------------------------------------------------------------------
 template <typename T>
-int EbsdDataArray<T>::writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& label) const
+int EbsdDataArray<T>::writeXdmfAttribute(QTextStream& out, const int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& label) const
 {
   if(m_Array == nullptr)
   {
     return -85648;
   }
   QString dimStr;
-  int precision = 0;
+  int32_t precision = 0;
   QString xdmfTypeName;
   getXdmfTypeAndSize(xdmfTypeName, precision);
   if(0 == precision)
@@ -1353,10 +1186,10 @@ QString EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
     QString compDimStr = "(";
     for(size_t i = 0; i < m_CompDims.size(); i++)
     {
-      compDimStr = compDimStr + QString::number(m_CompDims[i]);
+      compDimStr += QString::number(m_CompDims[i]);
       if(i < m_CompDims.size() - 1)
       {
-        compDimStr = compDimStr + QString(", ");
+        compDimStr += ", ";
       }
     }
     compDimStr = compDimStr + ")";
@@ -1376,10 +1209,10 @@ QString EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
     QString compDimStr = "(";
     for(size_t i = 0; i < m_CompDims.size(); i++)
     {
-      compDimStr = compDimStr + QString::number(m_CompDims[i]);
+      compDimStr += QString::number(m_CompDims[i]);
       if(i < m_CompDims.size() - 1)
       {
-        compDimStr = compDimStr + QString(", ");
+        compDimStr += ", ";
       }
     }
     compDimStr = compDimStr + ")";
@@ -1422,57 +1255,15 @@ int EbsdDataArray<T>::readH5Data(hid_t parentId)
 
 #endif
 
-#if 0
 // -----------------------------------------------------------------------------
 template <typename T>
 void EbsdDataArray<T>::byteSwapElements()
 {
-  char* ptr = reinterpret_cast<char*>(m_Array);
-  char t[8];
-  size_t size = getTypeSize();
-  for(uint64_t var = 0; var < m_Size; ++var)
+  for(auto& value : *this)
   {
-    if(sizeof(T) == 2)
-    {
-      DA_BYTE_SWAP(0, 1, t)
-    }
-    else if(sizeof(T) == 4)
-    {
-      DA_BYTE_SWAP(0, 3, t) DA_BYTE_SWAP(1, 2, t)
-    }
-    else if(sizeof(T) == 8)
-    {
-      DA_BYTE_SWAP(0, 7, t) DA_BYTE_SWAP(1, 6, t) DA_BYTE_SWAP(2, 5, t) DA_BYTE_SWAP(3, 4, t)
-    }
-    ptr += size; // increment the pointer
+    value = byteSwap(value);
   }
 }
-
-#else
-// -----------------------------------------------------------------------------
-template <typename T>
-void EbsdDataArray<T>::byteSwapElements()
-{
-  for(size_t i = 0; i < m_Size; ++i)
-  {
-    if(sizeof(T) == 2)
-    {
-      m_Array[i] = EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_2(m_Array[i]);
-    }
-    else if(sizeof(T) == 4)
-    {
-      uint32_t* ptr = reinterpret_cast<uint32_t*>(m_Array + i);
-      *ptr = EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_4(*ptr);
-    }
-    else if(sizeof(T) == 8)
-    {
-      uint64_t* ptr = reinterpret_cast<uint64_t*>(m_Array + i);
-      *ptr = EBSDLIB_ENDIAN_INTRINSIC_BYTE_SWAP_8(*ptr);
-    }
-  }
-}
-
-#endif
 
 template <typename T>
 typename EbsdDataArray<T>::iterator EbsdDataArray<T>::begin()
@@ -1497,12 +1288,89 @@ typename EbsdDataArray<T>::const_iterator EbsdDataArray<T>::end() const
   return const_iterator(m_Array + m_Size);
 }
 
-// rbegin
-// rend
-// cbegin
-// cend
-// crbegin
-// crend
+template <typename T>
+typename EbsdDataArray<T>::const_iterator EbsdDataArray<T>::cbegin() const
+{
+  return begin();
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_iterator EbsdDataArray<T>::cend() const
+{
+  return end();
+}
+
+template <typename T>
+typename EbsdDataArray<T>::reverse_iterator EbsdDataArray<T>::rbegin()
+{
+  return std::make_reverse_iterator(end());
+}
+
+template <typename T>
+typename EbsdDataArray<T>::reverse_iterator EbsdDataArray<T>::rend()
+{
+  return std::make_reverse_iterator(begin());
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_reverse_iterator EbsdDataArray<T>::rbegin() const
+{
+  return std::make_reverse_iterator(end());
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_reverse_iterator EbsdDataArray<T>::rend() const
+{
+  return std::make_reverse_iterator(begin());
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_reverse_iterator EbsdDataArray<T>::crbegin() const
+{
+  return rbegin();
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_reverse_iterator EbsdDataArray<T>::crend() const
+{
+  return rend();
+}
+
+template <typename T>
+typename EbsdDataArray<T>::tuple_iterator EbsdDataArray<T>::tupleBegin()
+{
+  return tuple_iterator(m_Array, m_NumComponents);
+}
+
+template <typename T>
+typename EbsdDataArray<T>::tuple_iterator EbsdDataArray<T>::tupleEnd()
+{
+  return tuple_iterator(m_Array + m_Size, m_NumComponents);
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_tuple_iterator EbsdDataArray<T>::tupleBegin() const
+{
+  return const_tuple_iterator(m_Array, m_NumComponents);
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_tuple_iterator EbsdDataArray<T>::tupleEnd() const
+{
+  return const_tuple_iterator(m_Array + m_Size, m_NumComponents);
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_tuple_iterator EbsdDataArray<T>::constTupleBegin() const
+{
+  return tupleBegin();
+}
+
+template <typename T>
+typename EbsdDataArray<T>::const_tuple_iterator EbsdDataArray<T>::constTupleEnd() const
+{
+  return tupleEnd();
+}
 
 // ######### Capacity #########
 template <typename T>
@@ -1510,16 +1378,7 @@ typename EbsdDataArray<T>::size_type EbsdDataArray<T>::size() const
 {
   return m_Size;
 }
-template <typename T>
-typename EbsdDataArray<T>::size_type EbsdDataArray<T>::max_size() const
-{
-  return m_Size;
-}
-//  void resize(size_type n)
-//  {
-//    resizeAndExtend(n);
-//  }
-// void resize (size_type n, const value_type& val);
+
 template <typename T>
 typename EbsdDataArray<T>::size_type EbsdDataArray<T>::capacity() const noexcept
 {
@@ -1531,8 +1390,6 @@ bool EbsdDataArray<T>::empty() const noexcept
 {
   return (m_Size == 0);
 }
-// reserve()
-// shrink_to_fit()
 
 // ######### Element Access #########
 
@@ -1543,10 +1400,7 @@ template <typename T>
 void EbsdDataArray<T>::assign(size_type n, const value_type& val) // fill (2)
 {
   resizeAndExtend(n);
-  for(size_t i = 0; i < n; i++)
-  {
-    m_Array[i] = val;
-  }
+  std::fill(begin(), end(), val);
 }
 
 // -----------------------------------------------------------------------------
@@ -1577,10 +1431,6 @@ void EbsdDataArray<T>::pop_back()
 {
   resizeAndExtend(m_Size - 1);
 }
-// insert
-// iterator erase (const_iterator position)
-// iterator erase (const_iterator first, const_iterator last);
-// swap
 
 // -----------------------------------------------------------------------------
 template <typename T>
@@ -1597,8 +1447,6 @@ void EbsdDataArray<T>::clear()
   m_IsAllocated = false;
   m_NumTuples = 0;
 }
-// emplace
-// emplace_back
 
 // =================================== END STL COMPATIBLE INTERFACe ===================================================
 
@@ -1606,6 +1454,7 @@ void EbsdDataArray<T>::clear()
 template <typename T>
 void EbsdDataArray<T>::deallocate()
 {
+#ifndef NDEBUG
   // We are going to splat 0xABABAB across the first value of the array as a debugging aid
   auto cptr = reinterpret_cast<unsigned char*>(m_Array);
   if(nullptr != cptr)
@@ -1634,6 +1483,7 @@ void EbsdDataArray<T>::deallocate()
       }
     }
   }
+#endif
 #if 0
       if (MUD_FLAP_0 != 0xABABABABABABABABul
           || MUD_FLAP_1 != 0xABABABABABABABABul
@@ -1645,6 +1495,7 @@ void EbsdDataArray<T>::deallocate()
         Q_ASSERT(false);
       }
 #endif
+
   delete[](m_Array);
 
   m_Array = nullptr;
@@ -1677,7 +1528,8 @@ T* EbsdDataArray<T>::resizeAndExtend(size_t size)
   size_t newSize = 0;
   size_t oldSize = 0;
 
-  if(size == m_Size) // Requested size is equal to current size.  Do nothing.
+  // Requested size is equal to current size.  Do nothing.
+  if(size == m_Size)
   {
     return m_Array;
   }
@@ -1701,7 +1553,9 @@ T* EbsdDataArray<T>::resizeAndExtend(size_t size)
   // Copy the data from the old array.
   if(m_Array != nullptr)
   {
-    std::memcpy(newArray, m_Array, (newSize < m_Size ? newSize : m_Size) * sizeof(T));
+    auto srcBegin = begin();
+    auto srcEnd = srcBegin + (newSize < m_Size ? newSize : m_Size);
+    std::copy(srcBegin, srcEnd, newArray);
   }
 
   // Allocate a new array if we DO NOT own the current array
