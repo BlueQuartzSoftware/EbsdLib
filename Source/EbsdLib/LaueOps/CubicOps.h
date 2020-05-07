@@ -39,7 +39,6 @@
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
