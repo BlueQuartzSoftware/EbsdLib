@@ -60,7 +60,7 @@
      too, hence the sequence as it is: load math.h, then see what's lacking still.
   */
 #ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES 1
+  #define _USE_MATH_DEFINES 1
 #endif
 
 /*
@@ -137,6 +137,11 @@
 
 #ifndef M_2PI
 #define M_2PI           6.283185307179586232    /* 2*pi  */
+#endif
+
+// This next bit is for MSVC compilers. We need to tell it that we already defined some math constants
+#ifndef _MATH_DEFINES_DEFINED
+#define _MATH_DEFINES_DEFINED
 #endif
 
 namespace EbsdLib

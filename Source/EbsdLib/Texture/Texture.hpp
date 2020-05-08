@@ -117,8 +117,8 @@ public:
     {
       bin = TextureBins[i];
       bin1 = bin % odfNumBins[0];
-      bin2 = (bin / odfNumBins[0]) % odfNumBins[1];
-      bin3 = bin / (odfNumBins[0] * odfNumBins[1]);
+      bin2 = static_cast<int32_t>((bin / odfNumBins[0]) % odfNumBins[1]);
+      bin3 = bin / static_cast<int32_t>((odfNumBins[0] * odfNumBins[1]));
       for(int j = -sigmas[i]; j <= sigmas[i]; j++)
       {
         int jsqrd = j * j;

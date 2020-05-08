@@ -365,7 +365,7 @@ public:
     xyz1[2] = xyz2[2];
 
     // inverse M_1
-    OMHelperType::scalarDivide(xyz1, LPs::sc);
+    OMHelperType::scalarDivide(xyz1, static_cast<K>(LPs::sc));
 
     // reverse the coordinates back to the regular order according to the original pyramid number
     switch(p)

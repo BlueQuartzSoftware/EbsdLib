@@ -745,15 +745,16 @@ template <typename InputType, typename OutputType>
 OutputType eu2ax(const InputType& e)
 {
   OutputType res(4);
-  typename OutputType::value_type thr = static_cast<typename OutputType::value_type>(1.0E-6);
-  typename OutputType::value_type alpha = 0.0f;
-  typename OutputType::value_type t = tan(e[1] * 0.5);
-  typename OutputType::value_type sig = 0.5 * (e[0] + e[2]);
-  typename OutputType::value_type del = 0.5 * (e[0] - e[2]);
-  typename OutputType::value_type tau = std::sqrt(t * t + sin(sig) * sin(sig));
+  using value_type = typename OutputType::value_type;
+  value_type thr = static_cast<value_type>(1.0E-6);
+  value_type alpha = static_cast<value_type>(0.0);
+  value_type t = static_cast<value_type>(tan(e[1] * 0.5));
+  value_type sig =static_cast<value_type>(0.5 * (e[0] + e[2]));
+  value_type del = static_cast<value_type>(0.5 * (e[0] - e[2]));
+  value_type tau = static_cast<value_type>(std::sqrt(t * t + sin(sig) * sin(sig)));
   if(EbsdLibMath::closeEnough(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2), static_cast<typename OutputType::value_type>(1.0E-6L)))
   {
-    alpha = EbsdLib::Constants::k_Pi;
+    alpha = static_cast<value_type>(EbsdLib::Constants::k_Pi);
   }
   else
   {
@@ -1185,7 +1186,7 @@ OutputType ho2ax(const InputType& h)
     typename OutputType::value_type delta = std::fabs(s - EbsdLib::Constants::k_Pi);
     if(delta < thr)
     {
-      res[3] = EbsdLib::Constants::k_Pi;
+      res[3] = static_cast<value_type>(EbsdLib::Constants::k_Pi);
     }
     else
     {
@@ -1550,7 +1551,7 @@ OutputType ro2ho(const InputType& r)
   }
   if(r[3] == std::numeric_limits<typename OutputType::value_type>::infinity())
   {
-    f = 0.75 * EbsdLib::Constants::k_Pi;
+    f = static_cast<value_type>(0.75 * EbsdLib::Constants::k_Pi);
   }
   else
   {
