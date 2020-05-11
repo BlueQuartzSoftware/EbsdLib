@@ -22,7 +22,8 @@ namespace OrientationPrinters
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T> void Print_EU(const T& om)
+template <typename T>
+void Print_EU(const T& om)
 {
   printf("EU:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
@@ -30,7 +31,8 @@ template <typename T> void Print_EU(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T> void Print_OM(const T& om)
+template <typename T>
+void Print_OM(const T& om)
 {
   printf("OM: /    % 3.16f    % 3.16f    % 3.16f    \\\n", om[0], om[1], om[2]);
   printf("OM: |    % 3.16f    % 3.16f    % 3.16f    |\n", om[3], om[4], om[5]);
@@ -40,7 +42,8 @@ template <typename T> void Print_OM(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T> void Print_AX(const T& om)
+template <typename T>
+void Print_AX(const T& om)
 {
   printf("Ax:<% 3.16f % 3.16f % 3.16f>% 3.16f\n", om[0], om[1], om[2], om[3]);
 }
@@ -48,7 +51,8 @@ template <typename T> void Print_AX(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void Print_RO(const T& om)
+template <typename T, typename K>
+void Print_RO(const T& om)
 {
   // if(om[3] != std::numeric_limits<K>::infinity())
   //  printf("Rodrigues vector                 :   % 3.6f    % 3.6f    % 3.6f\n", om[0], om[1], om[2] );
@@ -59,7 +63,8 @@ template <typename T, typename K> void Print_RO(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void Print_HO(const T& om)
+template <typename T, typename K>
+void Print_HO(const T& om)
 {
   printf("Ho:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
@@ -84,7 +89,8 @@ void Print_QU(const T& om, typename Quaternion<K>::Order layout = Quaternion<K>:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T> void Print_HO(const T& om)
+template <typename T>
+void Print_HO(const T& om)
 {
   printf("Ho:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
@@ -92,7 +98,8 @@ template <typename T> void Print_HO(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T> void Print_CU(const T& om)
+template <typename T>
+void Print_CU(const T& om)
 {
   printf("Cu:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
@@ -119,5 +126,4 @@ void PrintTuple(typename DataArrayClass::Pointer data, size_t t)
   }
   printf("\n");
 }
-}
-
+} // namespace OrientationPrinters

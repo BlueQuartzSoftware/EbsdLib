@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "CubicLowOps.h"
 
@@ -44,7 +44,6 @@
 #include <tbb/task_group.h>
 #include <tbb/task.h>
 #endif
-
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
@@ -459,22 +458,22 @@ void CubicLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double d
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < CubicLow::k_NumSymQuats; i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = CubicLow::CubicLowMatSym[i][2][0] * plane[0] + CubicLow::CubicLowMatSym[i][2][1] * plane[1] + CubicLow::CubicLowMatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = CubicLow::CubicLowMatSym[i][0][0] * plane[0] + CubicLow::CubicLowMatSym[i][0][1] * plane[1] + CubicLow::CubicLowMatSym[i][0][2] * plane[2];
       slipPlane[1] = CubicLow::CubicLowMatSym[i][1][0] * plane[0] + CubicLow::CubicLowMatSym[i][1][1] * plane[1] + CubicLow::CubicLowMatSym[i][1][2] * plane[2];
@@ -522,173 +521,170 @@ double CubicLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], 
 //
 // -----------------------------------------------------------------------------
 
-  namespace CubicLow
+namespace CubicLow
+{
+class GenerateSphereCoordsImpl
+{
+  EbsdLib::FloatArrayType* m_Eulers;
+  EbsdLib::FloatArrayType* m_xyz001;
+  EbsdLib::FloatArrayType* m_xyz011;
+  EbsdLib::FloatArrayType* m_xyz111;
+
+public:
+  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
+  : m_Eulers(eulerAngles)
+  , m_xyz001(xyz001Coords)
+  , m_xyz011(xyz011Coords)
+  , m_xyz111(xyz111Coords)
   {
-    class GenerateSphereCoordsImpl
+  }
+  virtual ~GenerateSphereCoordsImpl() = default;
+
+  void generate(size_t start, size_t end) const
+  {
+    double g[3][3];
+    double gTranpose[3][3];
+    double direction[3] = {0.0, 0.0, 0.0};
+
+    for(size_t i = start; i < end; ++i)
     {
-      EbsdLib::FloatArrayType* m_Eulers;
-      EbsdLib::FloatArrayType* m_xyz001;
-      EbsdLib::FloatArrayType* m_xyz011;
-      EbsdLib::FloatArrayType* m_xyz111;
+      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-    public:
-      GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
-      : m_Eulers(eulerAngles)
-      , m_xyz001(xyz001Coords)
-      , m_xyz011(xyz011Coords)
-      , m_xyz111(xyz111Coords)
-      {
-      }
-        virtual ~GenerateSphereCoordsImpl() = default;
+      EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
-        void generate(size_t start, size_t end) const
-        {
-          double g[3][3];
-          double gTranpose[3][3];
-          double direction[3] = {0.0, 0.0, 0.0};
+      // -----------------------------------------------------------------------------
+      // 001 Family
+      direction[0] = 1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
+      direction[0] = 0.0;
+      direction[1] = 1.0;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
+      direction[0] = 0.0;
+      direction[1] = 0.0;
+      direction[2] = 1.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
 
-          for(size_t i = start; i < end; ++i)
-          {
-            OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-            OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+      // -----------------------------------------------------------------------------
+      // 011 Family
+      direction[0] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
+      direction[0] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = 0.0;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
+      direction[0] = 0.0;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = 0.0;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
+      direction[0] = 0.0;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
 
-            EbsdMatrixMath::Transpose3x3(g, gTranpose);
-
-            // -----------------------------------------------------------------------------
-            // 001 Family
-            direction[0] = 1.0;
-            direction[1] = 0.0;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18));
-            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
-            direction[0] = 0.0;
-            direction[1] = 1.0;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 6));
-            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
-            direction[0] = 0.0;
-            direction[1] = 0.0;
-            direction[2] = 1.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 12));
-            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 011 Family
-            direction[0] = EbsdLib::Constants::k_1OverRoot2;
-            direction[1] = EbsdLib::Constants::k_1OverRoot2;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
-            direction[0] = EbsdLib::Constants::k_1OverRoot2;
-            direction[1] = 0.0;
-            direction[2] = EbsdLib::Constants::k_1OverRoot2;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
-            direction[0] = 0.0;
-            direction[1] = EbsdLib::Constants::k_1OverRoot2;
-            direction[2] = EbsdLib::Constants::k_1OverRoot2;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
-            direction[0] = -EbsdLib::Constants::k_1OverRoot2;
-            direction[1] = -EbsdLib::Constants::k_1OverRoot2;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
-            direction[0] = -EbsdLib::Constants::k_1OverRoot2;
-            direction[1] = 0.0;
-            direction[2] = EbsdLib::Constants::k_1OverRoot2;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
-            direction[0] = 0.0;
-            direction[1] = -EbsdLib::Constants::k_1OverRoot2;
-            direction[2] = EbsdLib::Constants::k_1OverRoot2;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 111 Family
-            direction[0] = EbsdLib::Constants::k_1OverRoot3;
-            direction[1] = EbsdLib::Constants::k_1OverRoot3;
-            direction[2] = EbsdLib::Constants::k_1OverRoot3;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
-            direction[0] = -EbsdLib::Constants::k_1OverRoot3;
-            direction[1] = EbsdLib::Constants::k_1OverRoot3;
-            direction[2] = EbsdLib::Constants::k_1OverRoot3;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
-            direction[0] = EbsdLib::Constants::k_1OverRoot3;
-            direction[1] = -EbsdLib::Constants::k_1OverRoot3;
-            direction[2] = EbsdLib::Constants::k_1OverRoot3;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
-            direction[0] = EbsdLib::Constants::k_1OverRoot3;
-            direction[1] = EbsdLib::Constants::k_1OverRoot3;
-            direction[2] = -EbsdLib::Constants::k_1OverRoot3;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
-          }
-
-        }
+      // -----------------------------------------------------------------------------
+      // 111 Family
+      direction[0] = EbsdLib::Constants::k_1OverRoot3;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
+      direction[0] = -EbsdLib::Constants::k_1OverRoot3;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
+      direction[0] = EbsdLib::Constants::k_1OverRoot3;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot3;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
+      direction[0] = EbsdLib::Constants::k_1OverRoot3;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3;
+      direction[2] = -EbsdLib::Constants::k_1OverRoot3;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
+    }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-        void operator()(const tbb::blocked_range<size_t>& r) const
-        {
-          generate(r.begin(), r.end());
-        }
-#endif
-    };
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    generate(r.begin(), r.end());
   }
+#endif
+};
+} // namespace CubicLow
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-  void CubicLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
-  {
-    size_t nOrientations = eulers->getNumberOfTuples();
+void CubicLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
+{
+  size_t nOrientations = eulers->getNumberOfTuples();
 
-    // Sanity Check the size of the arrays
-    if(xyz001->getNumberOfTuples() < nOrientations * CubicLow::symSize0)
-    {
-      xyz001->resizeTuples(nOrientations * CubicLow::symSize0 * 3);
-    }
-    if(xyz011->getNumberOfTuples() < nOrientations * CubicLow::symSize1)
-    {
-      xyz011->resizeTuples(nOrientations * CubicLow::symSize1 * 3);
-    }
-    if(xyz111->getNumberOfTuples() < nOrientations * CubicLow::symSize2)
-    {
-      xyz111->resizeTuples(nOrientations * CubicLow::symSize2 * 3);
-    }
+  // Sanity Check the size of the arrays
+  if(xyz001->getNumberOfTuples() < nOrientations * CubicLow::symSize0)
+  {
+    xyz001->resizeTuples(nOrientations * CubicLow::symSize0 * 3);
+  }
+  if(xyz011->getNumberOfTuples() < nOrientations * CubicLow::symSize1)
+  {
+    xyz011->resizeTuples(nOrientations * CubicLow::symSize1 * 3);
+  }
+  if(xyz111->getNumberOfTuples() < nOrientations * CubicLow::symSize2)
+  {
+    xyz111->resizeTuples(nOrientations * CubicLow::symSize2 * 3);
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    bool doParallel = true;
-    if(doParallel)
-    {
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), CubicLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
-    }
-    else
+  bool doParallel = true;
+  if(doParallel)
+  {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), CubicLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
+  }
+  else
 #endif
   {
     CubicLow::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
     serial.generate(0, nOrientations);
   }
-
 }
-
 
 /**
  * @brief Sorts the 3 values from low to high
@@ -697,13 +693,13 @@ double CubicLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], 
  * @param c
  * @param sorted The array to store the sorted values.
  */
-template<typename T>
+template <typename T>
 void _TripletSort(T a, T b, T c, T* sorted)
 {
-  if ( a > b && a > c)
+  if(a > b && a > c)
   {
     sorted[2] = a;
-    if (b > c)
+    if(b > c)
     {
       sorted[1] = b;
       sorted[0] = c;
@@ -714,10 +710,10 @@ void _TripletSort(T a, T b, T c, T* sorted)
       sorted[0] = b;
     }
   }
-  else if ( b > a && b > c)
+  else if(b > a && b > c)
   {
     sorted[2] = b;
-    if (a > c)
+    if(a > c)
     {
       sorted[1] = a;
       sorted[0] = c;
@@ -728,13 +724,13 @@ void _TripletSort(T a, T b, T c, T* sorted)
       sorted[0] = a;
     }
   }
-  else if ( a > b )
+  else if(a > b)
   {
     sorted[1] = a;
     sorted[0] = b;
     sorted[2] = c;
   }
-  else if (a >= c && b >= c)
+  else if(a >= c && b >= c)
   {
     sorted[0] = c;
     sorted[1] = a;
@@ -757,13 +753,13 @@ void _TripletSort(T a, T b, T c, T* sorted)
  * @param y Output
  * @param z Output
  */
-template<typename T>
+template <typename T>
 void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
 {
-  if ( a > b && a > c)
+  if(a > b && a > c)
   {
     z = a;
-    if (b > c)
+    if(b > c)
     {
       y = b;
       x = c;
@@ -774,10 +770,10 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
       x = b;
     }
   }
-  else if ( b > a && b > c)
+  else if(b > a && b > c)
   {
     z = b;
-    if (a > c)
+    if(a > c)
     {
       y = a;
       x = c;
@@ -788,13 +784,13 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
       x = a;
     }
   }
-  else if ( a > b )
+  else if(a > b)
   {
     y = a;
     x = b;
     z = c;
   }
-  else if (a >= c && b >= c)
+  else if(a >= c && b >= c)
   {
     x = c;
     y = a;
@@ -807,8 +803,6 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
     z = c;
   }
 }
-
-
 
 // -----------------------------------------------------------------------------
 //
@@ -950,8 +944,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -969,7 +969,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   // Generate the coords on the sphere **** Parallelized
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
-
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
   EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
@@ -985,7 +984,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
     g->run(ComputeStereographicProjection(xyz011.get(), &config, intensity011.get()));
     g->run(ComputeStereographicProjection(xyz111.get(), &config, intensity111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1006,26 +1004,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1035,11 +1032,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1076,7 +1073,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
     g->run(GeneratePoleFigureRgbaImageImpl(intensity011.get(), &config, image011.get()));
     g->run(GeneratePoleFigureRgbaImageImpl(intensity111.get(), &config, image111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1122,7 +1118,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
 
   OrientationD axisAngle = calculateMisorientation(q1, q2);
 
-  //eq c7.1
+  // eq c7.1
   k = tan(axisAngle[3] / 2.0);
   x = axisAngle[0];
   y = axisAngle[1];
@@ -1134,7 +1130,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
   z = rod[2];
   k = rod[3];
 
-  //eq c7.2
+  // eq c7.2
   k = atan2(y, x);
   if(k < M_PI_4)
   {
@@ -1149,25 +1145,25 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
     z1 = x;
   }
 
-  //eq c7.3
-  //3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
-  //g1*g2*g3 = {{sqrt(2/3), 0, 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)}}
+  // eq c7.3
+  // 3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
+  // g1*g2*g3 = {{sqrt(2/3), 0, 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)}}
   x2 = x1 * sqrt(2.0f / 3.0) - (y1 + z1) / sqrt(6.0);
   y2 = (y1 - z1) / sqrt(2.0);
   z2 = (x1 + y1 + z1) / sqrt(3.0);
 
-  //eq c7.4
+  // eq c7.4
   k = (sqrt(3.0) * y2 + x2) / (2.0f * pow(x2 * x2 + y2 * y2, 1.5f));
   x3 = x2 * (x2 + sqrt(3.0) * y2) * (x2 - sqrt(3.0) * y2) * k;
   y3 = y2 * (y2 + sqrt(3.0) * x2) * (sqrt(3.0) * x2 - y2) * k;
   z3 = z2 * sqrt(3.0);
 
-  //eq c7.5 these hsv are from 0 to 1 in cartesian coordinates
+  // eq c7.5 these hsv are from 0 to 1 in cartesian coordinates
   x4 = -x3;
   y4 = -y3;
   z4 = z3;
 
-  //convert to traditional hsv (0-1)
+  // convert to traditional hsv (0-1)
   h = fmod(atan2f(y4, x4) + 2.0f * M_PI, 2.0f * M_PI) / (2.0f * M_PI);
   s = sqrt(x4 * x4 + y4 * y4);
   v = z4;
@@ -1176,9 +1172,9 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
     s = s / v;
   }
 
-  //hsv to rgb (from wikipedia hsv/hsl page)
+  // hsv to rgb (from wikipedia hsv/hsl page)
   c = v * s;
-  k = c * (1 - fabs(fmod(h * 6, 2) - 1)); //x in wiki article
+  k = c * (1 - fabs(fmod(h * 6, 2) - 1)); // x in wiki article
   h = h * 6;
   r = 0;
   g = 0;
@@ -1206,7 +1202,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
       g = k;
       b = c;
     }
-    else if (h < 5)
+    else if(h < 5)
     {
       r = k;
       b = c;
@@ -1218,7 +1214,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
     }
   }
 
-  //adjust lumosity and invert
+  // adjust lumosity and invert
   r = (r + (v - c));
   g = (g + (v - c));
   b = (b + (v - c));

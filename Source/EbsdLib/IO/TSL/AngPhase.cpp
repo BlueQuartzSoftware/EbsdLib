@@ -39,10 +39,10 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AngPhase::AngPhase() :
-  m_PhaseIndex(-1),
-  m_Symmetry(0),
-  m_NumberFamilies(0)
+AngPhase::AngPhase()
+: m_PhaseIndex(-1)
+, m_Symmetry(0)
+, m_NumberFamilies(0)
 {
 }
 
@@ -90,7 +90,7 @@ void AngPhase::parseInfo(QList<QByteArray>& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void AngPhase::parseSymmetry(char* value, size_t start, size_t length)
+// void AngPhase::parseSymmetry(char* value, size_t start, size_t length)
 //{
 //  if (value[start] == ':')
 //  {
@@ -109,19 +109,18 @@ void AngPhase::parseLatticeConstants(QList<QByteArray>& tokens)
   m_LatticeConstants.clear();
 
   bool ok = false;
-  m_LatticeConstants.push_back(tokens[1].toFloat(&ok)); //A
-  m_LatticeConstants.push_back(tokens[2].toFloat(&ok)); //B
-  m_LatticeConstants.push_back(tokens[3].toFloat(&ok)); //C
+  m_LatticeConstants.push_back(tokens[1].toFloat(&ok)); // A
+  m_LatticeConstants.push_back(tokens[2].toFloat(&ok)); // B
+  m_LatticeConstants.push_back(tokens[3].toFloat(&ok)); // C
   m_LatticeConstants.push_back(tokens[4].toFloat(&ok)); // Alpha
   m_LatticeConstants.push_back(tokens[5].toFloat(&ok)); // Beta
   m_LatticeConstants.push_back(tokens[6].toFloat(&ok)); // Gamma
-
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-//void AngPhase::parseNumberFamilies(char* value, size_t start, size_t length)
+// void AngPhase::parseNumberFamilies(char* value, size_t start, size_t length)
 //{
 //  if (value[start] == ':')
 //  {
@@ -145,12 +144,18 @@ void AngPhase::parseHKLFamilies(QList<QByteArray>& tokens)
   family->l = tokens[3].toInt(&ok, 10);
   family->s1 = tokens[4].toInt(&ok, 10);
   family->diffractionIntensity = tokens[5].toFloat(&ok);
-  if (tokens.size() > 6)
+  if(tokens.size() > 6)
   {
     family->s2 = tokens[6].toInt(&ok, 10);
   }
-  if (family->s1 > 1) { family->s1 = 1; }
-  if (family->s2 > 1) { family->s2 = 1; }
+  if(family->s1 > 1)
+  {
+    family->s1 = 1;
+  }
+  if(family->s2 > 1)
+  {
+    family->s2 = 1;
+  }
   m_HKLFamilies.push_back(family);
 }
 
@@ -204,7 +209,6 @@ void AngPhase::printSelf(QTextStream& stream)
     stream << " " << category;
   }
   stream << QString("\n");
-
 }
 
 // -----------------------------------------------------------------------------
@@ -255,7 +259,6 @@ unsigned int AngPhase::determineLaueGroup()
 
   default:
     crystal_structure = EbsdLib::CrystalStructure::UnknownCrystalStructure;
-
   }
   return crystal_structure;
 }
@@ -282,7 +285,6 @@ void AngPhase::setLatticeConstantB(float a)
 void AngPhase::setLatticeConstantC(float a)
 {
   m_LatticeConstants[2] = a;
-
 }
 
 // -----------------------------------------------------------------------------
@@ -380,5 +382,3 @@ QString HKLFamily::ClassName()
 {
   return QString("HKLFamily");
 }
-
-

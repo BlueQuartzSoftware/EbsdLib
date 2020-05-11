@@ -36,45 +36,42 @@
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 /**
-* @class ComputeStereographicProjection This class is a wrapper around simply generating a stereo graphically projected intensity "image" (2D Array) based
-* off the intended final size of an image and a modified Lambert projection for a set of XYZ coordinates that represent
-* the Coords generated from Euler Angles. This all feeds into generating a pole figure.
-*/
+ * @class ComputeStereographicProjection This class is a wrapper around simply generating a stereo graphically projected intensity "image" (2D Array) based
+ * off the intended final size of an image and a modified Lambert projection for a set of XYZ coordinates that represent
+ * the Coords generated from Euler Angles. This all feeds into generating a pole figure.
+ */
 class EbsdLib_EXPORT ComputeStereographicProjection
 {
-  public:
-    /**
-     * @brief ComputeStereographicProjection
-     * @param xyzCoords
-     * @param config
-     * @param intensity
-     */
-    ComputeStereographicProjection(EbsdLib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, EbsdLib::DoubleArrayType* intensity);
+public:
+  /**
+   * @brief ComputeStereographicProjection
+   * @param xyzCoords
+   * @param config
+   * @param intensity
+   */
+  ComputeStereographicProjection(EbsdLib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, EbsdLib::DoubleArrayType* intensity);
 
-    virtual ~ComputeStereographicProjection();
+  virtual ~ComputeStereographicProjection();
 
-    /**
-     * @brief operator ()
-     */
-    void operator()() const;
+  /**
+   * @brief operator ()
+   */
+  void operator()() const;
 
-  protected:
+protected:
+  /**
+   * @brief ComputeStereographicProjection
+   */
+  ComputeStereographicProjection();
 
-    /**
-     * @brief ComputeStereographicProjection
-     */
-    ComputeStereographicProjection();
+private:
+  EbsdLib::FloatArrayType* m_XYZCoords = nullptr;
+  PoleFigureConfiguration_t* m_Config = nullptr;
+  EbsdLib::DoubleArrayType* m_Intensity = nullptr;
 
-  private:
-    EbsdLib::FloatArrayType* m_XYZCoords = nullptr;
-    PoleFigureConfiguration_t* m_Config = nullptr;
-    EbsdLib::DoubleArrayType* m_Intensity = nullptr;
-
-  public:
-    ComputeStereographicProjection(const ComputeStereographicProjection&) = delete; // Copy Constructor Not Implemented
-    ComputeStereographicProjection(ComputeStereographicProjection&&) = default;
-    ComputeStereographicProjection& operator=(const ComputeStereographicProjection&) = delete; // Copy Assignment Not Implemented
-    ComputeStereographicProjection& operator=(ComputeStereographicProjection&&) = delete;      // Move Assignment Not Implemented
+public:
+  ComputeStereographicProjection(const ComputeStereographicProjection&) = delete; // Copy Constructor Not Implemented
+  ComputeStereographicProjection(ComputeStereographicProjection&&) = default;
+  ComputeStereographicProjection& operator=(const ComputeStereographicProjection&) = delete; // Copy Assignment Not Implemented
+  ComputeStereographicProjection& operator=(ComputeStereographicProjection&&) = delete;      // Move Assignment Not Implemented
 };
-
-

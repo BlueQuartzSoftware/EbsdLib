@@ -105,7 +105,7 @@ int32_t LambertUtilities::LambertSquareVertToSphereVert(float* vert, Hemisphere 
   vert[0] = x;
   vert[1] = y;
   vert[2] = z;
-  return  0;
+  return 0;
 }
 
 // -----------------------------------------------------------------------------

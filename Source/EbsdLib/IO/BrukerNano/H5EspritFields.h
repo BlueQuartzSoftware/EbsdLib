@@ -54,9 +54,9 @@ class EbsdLib_EXPORT H5EspritFields : public AbstractEbsdFields
 public:
   H5EspritFields();
   ~H5EspritFields() override;
-    /**
-    * @brief Returns the name of the class for _SUPERH5EspritFields
-    */
+  /**
+   * @brief Returns the name of the class for _SUPERH5EspritFields
+   */
   QString getNameOfClass() const;
   /**
    * @brief Returns the name of the class for _SUPERH5EspritFields
@@ -65,7 +65,8 @@ public:
 
   QVector<QString> getFieldNames() override;
 
-  template <typename T> T getFilterFeatures()
+  template <typename T>
+  T getFilterFeatures()
   {
     T features;
     // features.push_back(EbsdLib::H5Esprit::DD);
@@ -94,6 +95,5 @@ public:
   H5EspritFields& operator=(const H5EspritFields&) = delete; // Copy Assignment Not Implemented
   H5EspritFields& operator=(H5EspritFields&&) = delete;      // Move Assignment Not Implemented
 
-  private:
-
+private:
 };

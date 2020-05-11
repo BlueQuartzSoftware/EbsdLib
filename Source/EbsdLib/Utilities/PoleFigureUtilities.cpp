@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "PoleFigureUtilities.h"
 
@@ -40,13 +40,10 @@
 
 #include "EbsdLib/Utilities/ColorTable.h"
 
-
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/LaueOps/OrthoRhombicOps.h"
-
-
 
 #define WRITE_XYZ_SPHERE_COORD_VTK 0
 #define WRITE_LAMBERT_SQUARES 0
@@ -68,7 +65,7 @@ int writeVtkFile(EbsdLib::FloatArrayType* xyz, const QString& filename)
 {
 
   QFile in(filename);
-  if (!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     return -100;
   }
@@ -113,8 +110,8 @@ EbsdLib::UInt8ArrayType::Pointer PoleFigureUtilities::CreateColorImage(EbsdLib::
 // -----------------------------------------------------------------------------
 void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleFigureConfiguration_t& config, EbsdLib::UInt8ArrayType* image)
 {
-  int width = config.imageDim ;
-  int height = config.imageDim ;
+  int width = config.imageDim;
+  int height = config.imageDim;
 
   int halfWidth = width / 2;
   int halfHeight = height / 2;
@@ -140,14 +137,14 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
   size_t idx = 0;
   double value;
   int bin;
-  for (int64_t y = 0; y < height; y++)
+  for(int64_t y = 0; y < height; y++)
   {
-    for (int64_t x = 0; x < width; x++)
+    for(int64_t x = 0; x < width; x++)
     {
       xtmp = float(x - halfWidth) * xres + (xres * 0.5f);
       ytmp = float(y - halfHeight) * yres + (yres * 0.5f);
       idx = (width * y) + x;
-      if( ( xtmp * xtmp + ytmp * ytmp) <= 1.0) // Inside the circle
+      if((xtmp * xtmp + ytmp * ytmp) <= 1.0) // Inside the circle
       {
         value = dataPtr[y * width + x];
         value = (value - min) / (max - min);
@@ -156,7 +153,7 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
         {
           bin = numColors - 1;
         }
-        if (bin < 0 || bin >= colors.size())
+        if(bin < 0 || bin >= colors.size())
         {
           r = 0x00;
           b = 0x00;
@@ -188,7 +185,6 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
       }
     }
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -227,7 +223,7 @@ void PoleFigureUtilities::GenerateHexPoleFigures(EbsdLib::FloatArrayType* eulers
   intensity0001.swap(poleFigurePtr);
 
 #if WRITE_LAMBERT_SQUARES
-  size_t dims[3] = {lambert->getDimension(), lambert->getDimension(), 1 };
+  size_t dims[3] = {lambert->getDimension(), lambert->getDimension(), 1};
   FloatVec3Type res = {lambert->getStepSize(), lambert->getStepSize(), lambert->getStepSize()};
   EbsdLib::DoubleArrayType::Pointer north = lambert->getNorthSquare();
   EbsdLib::DoubleArrayType::Pointer south = lambert->getSouthSquare();
@@ -235,8 +231,7 @@ void PoleFigureUtilities::GenerateHexPoleFigures(EbsdLib::FloatArrayType* eulers
   VtkRectilinearGridWriter::WriteDataArrayToFile("/tmp/ModifiedLambert_South.vtk", south.get(), dims, res, "double", true);
 #endif
 
-
-// Generate the <011> pole figure which will generate a new set of Lambert Squares
+  // Generate the <011> pole figure which will generate a new set of Lambert Squares
   lambert = ModifiedLambertProjection::LambertBallToSquare(xyz1010.get(), lambertDimension, sphereRadius);
   poleFigurePtr = lambert->createStereographicProjection(poleFigureDim);
   poleFigurePtr->setName("PoleFigure_<1010>");
@@ -285,7 +280,7 @@ void PoleFigureUtilities::GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eule
   intensity100.swap(poleFigurePtr);
 
 #if WRITE_LAMBERT_SQUARES
-  size_t dims[3] = {lambert->getDimension(), lambert->getDimension(), 1 };
+  size_t dims[3] = {lambert->getDimension(), lambert->getDimension(), 1};
   FloatVec3Type res = {lambert->getStepSize(), lambert->getStepSize(), lambert->getStepSize()};
   EbsdLib::DoubleArrayType::Pointer north = lambert->getNorthSquare();
   EbsdLib::DoubleArrayType::Pointer south = lambert->getSouthSquare();
@@ -293,8 +288,7 @@ void PoleFigureUtilities::GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eule
   VtkRectilinearGridWriter::WriteDataArrayToFile("/tmp/ModifiedLambert_South.vtk", south.get(), dims, res, "double", true);
 #endif
 
-
-// Generate the <011> pole figure which will generate a new set of Lambert Squares
+  // Generate the <011> pole figure which will generate a new set of Lambert Squares
   lambert = ModifiedLambertProjection::LambertBallToSquare(xyz010.get(), lambertDimension, sphereRadius);
   poleFigurePtr = lambert->createStereographicProjection(poleFigureDim);
   poleFigurePtr->setName("PoleFigure_<010>");
@@ -310,7 +304,7 @@ void PoleFigureUtilities::GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eule
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GeneratePoleFigureRgbaImageImpl::GeneratePoleFigureRgbaImageImpl()= default;
+GeneratePoleFigureRgbaImageImpl::GeneratePoleFigureRgbaImageImpl() = default;
 
 GeneratePoleFigureRgbaImageImpl::GeneratePoleFigureRgbaImageImpl(EbsdLib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, EbsdLib::UInt8ArrayType* rgba)
 : m_Intensity(intensity)

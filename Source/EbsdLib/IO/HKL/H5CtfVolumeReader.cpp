@@ -43,7 +43,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/HKL/H5CtfReader.h"
 
-#if defined (H5Support_NAMESPACE)
+#if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
 
@@ -99,17 +99,17 @@ void H5CtfVolumeReader::initPointers(size_t numElements)
 // -----------------------------------------------------------------------------
 void H5CtfVolumeReader::deletePointers()
 {
-  this->deallocateArrayData<int > (m_Phase);
-  this->deallocateArrayData<float > (m_X);
-  this->deallocateArrayData<float > (m_Y);
-  this->deallocateArrayData<int > (m_Bands);
-  this->deallocateArrayData<int > (m_Error);
-  this->deallocateArrayData<float > (m_Euler1);
-  this->deallocateArrayData<float > (m_Euler2);
-  this->deallocateArrayData<float > (m_Euler3);
-  this->deallocateArrayData<float > (m_MAD);
-  this->deallocateArrayData<int > (m_BC);
-  this->deallocateArrayData<int > (m_BS);
+  this->deallocateArrayData<int>(m_Phase);
+  this->deallocateArrayData<float>(m_X);
+  this->deallocateArrayData<float>(m_Y);
+  this->deallocateArrayData<int>(m_Bands);
+  this->deallocateArrayData<int>(m_Error);
+  this->deallocateArrayData<float>(m_Euler1);
+  this->deallocateArrayData<float>(m_Euler2);
+  this->deallocateArrayData<float>(m_Euler3);
+  this->deallocateArrayData<float>(m_MAD);
+  this->deallocateArrayData<int>(m_BC);
+  this->deallocateArrayData<int>(m_BS);
 }
 
 // -----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
 
   // Open the hdf5 file and read the data
   hid_t fileId = QH5Utilities::openFile(getFileName(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
     std::cout << "Error" << std::endl;
     return m_Phases;
@@ -239,9 +239,9 @@ QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
   H5CtfReader::Pointer reader = H5CtfReader::New();
   reader->setHDF5Path(index);
   err = reader->readHeader(gid);
-  if (err < 0)
+  if(err < 0)
   {
-    std::cout  << "Error reading the header information from the .h5ebsd file" << std::endl;
+    std::cout << "Error reading the header information from the .h5ebsd file" << std::endl;
     err = H5Gclose(gid);
     err = QH5Utilities::closeFile(fileId);
     return m_Phases;
@@ -255,14 +255,11 @@ QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int H5CtfVolumeReader::loadData(int64_t xpoints,
-                                int64_t ypoints,
-                                int64_t zpoints,
-                                uint32_t ZDir)
+int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoints, uint32_t ZDir)
 {
   int index = 0;
   int err = -1;
-// Initialize all the pointers
+  // Initialize all the pointers
   initPointers(xpoints * ypoints * zpoints);
 
   int readerIndex = 0;
@@ -272,13 +269,12 @@ int H5CtfVolumeReader::loadData(int64_t xpoints,
   int64_t ypointstemp = 0;
   int zval = 0;
 
-
   int xstartspot = 0;
   int ystartspot = 0;
 
   err = readVolumeInfo();
 
-  for (int slice = 0; slice < zpoints; ++slice)
+  for(int slice = 0; slice < zpoints; ++slice)
   {
     H5CtfReader::Pointer reader = H5CtfReader::New();
     reader->setFileName(getFileName());
@@ -292,7 +288,7 @@ int H5CtfVolumeReader::loadData(int64_t xpoints,
     reader->setArraysToRead(getArraysToRead());
 
     err = reader->readFile();
-    if (err < 0)
+    if(err < 0)
     {
       std::cout << "H5CtfVolumeReader Error: There was an issue loading the data from the hdf5 file." << std::endl;
       return -77000;
@@ -314,34 +310,73 @@ int H5CtfVolumeReader::loadData(int64_t xpoints,
 
     xpointstemp = xpoints;
     ypointstemp = ypoints;
-    xstartspot = static_cast<int>( (xpointstemp - xpointsslice) / 2 );
-    ystartspot = static_cast<int>( (ypointstemp - ypointsslice) / 2 );
+    xstartspot = static_cast<int>((xpointstemp - xpointsslice) / 2);
+    ystartspot = static_cast<int>((ypointstemp - ypointsslice) / 2);
 
     // If no stacking order preference was passed, read it from the file and use that value
     if(ZDir == EbsdLib::RefFrameZDir::UnknownRefFrameZDirection)
     {
       ZDir = getStackingOrder();
     }
-    if (ZDir == 0) { zval = slice; }
-    if (ZDir == 1) { zval = static_cast<int>( (zpoints - 1) - slice ); }
+    if(ZDir == 0)
+    {
+      zval = slice;
+    }
+    if(ZDir == 1)
+    {
+      zval = static_cast<int>((zpoints - 1) - slice);
+    }
 
     // Copy the data from the current storage into the Storage Location
-    for (int j = 0; j < ypointsslice; j++)
+    for(int j = 0; j < ypointsslice; j++)
     {
-      for (int i = 0; i < xpointsslice; i++)
+      for(int i = 0; i < xpointsslice; i++)
       {
-        index = static_cast<int>( (zval * xpointstemp * ypointstemp) + ((j + ystartspot) * xpointstemp) + (i + xstartspot) );
-        if (nullptr != phasePtr) {m_Phase[index] = phasePtr[readerIndex];}
-        if (nullptr != xPtr) {m_X[index] = xPtr[readerIndex];}
-        if (nullptr != yPtr) {m_Y[index] = yPtr[readerIndex];}
-        if (nullptr != bandPtr) {m_Bands[index] = bandPtr[readerIndex];}
-        if (nullptr != errorPtr) {m_Error[index] = errorPtr[readerIndex];}
-        if (nullptr != euler1Ptr) {m_Euler1[index] = euler1Ptr[readerIndex];}
-        if (nullptr != euler2Ptr) {m_Euler2[index] = euler2Ptr[readerIndex];}
-        if (nullptr != euler3Ptr) {m_Euler3[index] = euler3Ptr[readerIndex];}
-        if (nullptr != madPtr) {m_MAD[index] = madPtr[readerIndex];}
-        if (nullptr != bcPtr) {m_BC[index] = bcPtr[readerIndex];}
-        if (nullptr != bsPtr) {m_BS[index] = bsPtr[readerIndex];}
+        index = static_cast<int>((zval * xpointstemp * ypointstemp) + ((j + ystartspot) * xpointstemp) + (i + xstartspot));
+        if(nullptr != phasePtr)
+        {
+          m_Phase[index] = phasePtr[readerIndex];
+        }
+        if(nullptr != xPtr)
+        {
+          m_X[index] = xPtr[readerIndex];
+        }
+        if(nullptr != yPtr)
+        {
+          m_Y[index] = yPtr[readerIndex];
+        }
+        if(nullptr != bandPtr)
+        {
+          m_Bands[index] = bandPtr[readerIndex];
+        }
+        if(nullptr != errorPtr)
+        {
+          m_Error[index] = errorPtr[readerIndex];
+        }
+        if(nullptr != euler1Ptr)
+        {
+          m_Euler1[index] = euler1Ptr[readerIndex];
+        }
+        if(nullptr != euler2Ptr)
+        {
+          m_Euler2[index] = euler2Ptr[readerIndex];
+        }
+        if(nullptr != euler3Ptr)
+        {
+          m_Euler3[index] = euler3Ptr[readerIndex];
+        }
+        if(nullptr != madPtr)
+        {
+          m_MAD[index] = madPtr[readerIndex];
+        }
+        if(nullptr != bcPtr)
+        {
+          m_BC[index] = bcPtr[readerIndex];
+        }
+        if(nullptr != bsPtr)
+        {
+          m_BS[index] = bsPtr[readerIndex];
+        }
 
         /* For HKL OIM Files if there is a single phase then the value of the phase
          * data is one (1). If there are 2 or more phases then the lowest value
@@ -352,27 +387,23 @@ int H5CtfVolumeReader::loadData(int64_t xpoints,
          * even if there is only a single phase. The next if statement converts all zeros to ones
          * if there is a single phase in the OIM data.
          */
-//        if(nullptr != phasePtr && m_Phase[index] < 1)
-//        {
-//          m_Phase[index] = 1;
-//        }
+        //        if(nullptr != phasePtr && m_Phase[index] < 1)
+        //        {
+        //          m_Phase[index] = 1;
+        //        }
 
         ++readerIndex;
       }
     }
   }
   return err;
-
 }
-
 
 // -----------------------------------------------------------------------------
 H5CtfVolumeReader::Pointer H5CtfVolumeReader::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
-
-
 
 // -----------------------------------------------------------------------------
 QString H5CtfVolumeReader::getNameOfClass() const
@@ -385,5 +416,3 @@ QString H5CtfVolumeReader::ClassName()
 {
   return QString("_SUPERH5CtfVolumeReader");
 }
-
-

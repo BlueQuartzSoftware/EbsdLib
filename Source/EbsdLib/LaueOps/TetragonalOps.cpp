@@ -154,7 +154,8 @@ std::array<size_t, 3> TetragonalOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 QString TetragonalOps::getSymmetryName() const
 {
-  return "Tetragonal 4/mmm";;
+  return "Tetragonal 4/mmm";
+  ;
 }
 
 // -----------------------------------------------------------------------------
@@ -216,7 +217,7 @@ void TetragonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TetragonalOps::getODFFZRod(const OrientationType& rod) const
 {
-  int  numsym = 8;
+  int numsym = 8;
 
   return _calcRodNearestOrigin(TetragonalHigh::RodSym, numsym, rod);
 }
@@ -309,7 +310,6 @@ OrientationType TetragonalOps::determineEulerAngles(double random[3], int choose
   return eu;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -385,22 +385,22 @@ void TetragonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < TetragonalHigh::k_NumSymQuats; i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = TetragonalHigh::MatSym[i][2][0] * plane[0] + TetragonalHigh::MatSym[i][2][1] * plane[1] + TetragonalHigh::MatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = TetragonalHigh::MatSym[i][0][0] * plane[0] + TetragonalHigh::MatSym[i][0][1] * plane[1] + TetragonalHigh::MatSym[i][0][2] * plane[2];
       slipPlane[1] = TetragonalHigh::MatSym[i][1][0] * plane[0] + TetragonalHigh::MatSym[i][1][1] * plane[1] + TetragonalHigh::MatSym[i][1][2] * plane[2];
@@ -562,7 +562,6 @@ void TetragonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eule
     TetragonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
     serial.generate(0, nOrientations);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -648,11 +647,11 @@ EbsdLib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi
   _rgb[2] = sqrt(_rgb[2]);
 
   double max = _rgb[0];
-  if (_rgb[1] > max)
+  if(_rgb[1] > max)
   {
     max = _rgb[1];
   }
-  if (_rgb[2] > max)
+  if(_rgb[2] > max)
   {
     max = _rgb[2];
   }
@@ -662,7 +661,6 @@ EbsdLib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi
   _rgb[2] = _rgb[2] / max;
 
   return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -686,7 +684,6 @@ EbsdLib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
   blue = blue / max2;
 
   return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -701,8 +698,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -720,7 +723,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   // Generate the coords on the sphere **** Parallelized
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
-
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
   EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
@@ -736,7 +738,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
     g->run(ComputeStereographicProjection(xyz011.get(), &config, intensity011.get()));
     g->run(ComputeStereographicProjection(xyz111.get(), &config, intensity111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -757,26 +758,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -786,11 +786,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -827,7 +827,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
     g->run(GeneratePoleFigureRgbaImageImpl(intensity011.get(), &config, image011.get()));
     g->run(GeneratePoleFigureRgbaImageImpl(intensity111.get(), &config, image111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -874,10 +873,10 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
-  for (int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
+  for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
 
-    for (int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
+    for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
 
@@ -889,11 +888,11 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
       {
         color = 0xFFFFFFFF;
       }
-      else if ( sumSquares > (rad-2*xInc) && sumSquares < (rad+2*xInc)) // Black border on the edges
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black border on the edges
       {
         color = 0xFF000000;
       }
-      else if (xIndex == 0 || yIndex == 0 || xIndex == yIndex) // Black border on the edges
+      else if(xIndex == 0 || yIndex == 0 || xIndex == yIndex) // Black border on the edges
       {
         color = 0xFF000000;
       }
@@ -922,7 +921,6 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
   }
   return image;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -992,14 +990,14 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   QuatType q1 = q;
   QuatType q2 = refFrame;
 
-  //get misorientation
+  // get misorientation
   OrientationD axisAngle = calculateMisorientation(q1, q2);
 
   axisAngle[0] = fabs(axisAngle[0]);
   axisAngle[1] = fabs(axisAngle[1]);
   axisAngle[2] = fabs(axisAngle[2]);
 
-  //eq c5.1
+  // eq c5.1
   k = tan(axisAngle[3] / 2.0);
   xo = axisAngle[0];
   yo = axisAngle[1];
@@ -1012,7 +1010,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   zo = rod[2];
   k = rod[3];
 
-  //eq c3.2
+  // eq c3.2
   k = atan2(yo, xo);
   if(k <= M_PI / 8.0)
   {
@@ -1042,24 +1040,24 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   yo1 = yo * k;
   zo1 = zo / tan(M_PI / 8);
 
-  //eq c3.3
+  // eq c3.3
   k = 2.0f * atan2(yo1, xo1);
   xo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * cos(k);
   yo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * sin(k);
   zo2 = zo1;
 
-  //eq c3.4
+  // eq c3.4
   k = sqrtf(xo2 * xo2 + yo2 * yo2) / std::max(xo2, yo2);
   xo3 = xo2 * k;
   yo3 = yo2 * k;
   zo3 = zo2;
 
-  //substitute c5.4 results into c1.1
+  // substitute c5.4 results into c1.1
   x = xo3;
   y = yo3;
   z = zo3;
 
-  //eq c1.2
+  // eq c1.2
   k = std::max(x, y);
   k = std::max(k, z);
   k = (k * sqrt(3.0)) / (x + y + z);
@@ -1067,26 +1065,26 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   y1 = y * k;
   z1 = z * k;
 
-  //eq c1.3
-  //3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
-  //g1*g2*g3 = {{sqrt(2/3), 0, 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)}}
+  // eq c1.3
+  // 3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
+  // g1*g2*g3 = {{sqrt(2/3), 0, 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)},{-1/sqrt(6), 1/sqrt(2), 1/sqrt(3)}}
   x2 = x1 * sqrt(2.0f / 3.0) - (y1 + z1) / sqrt(6.0);
   y2 = (y1 - z1) / sqrt(2.0);
   z2 = (x1 + y1 + z1) / sqrt(3.0);
 
-  //eq c1.4
+  // eq c1.4
   k = fmod(atan2(y2, x2) + 2.0 * EbsdLib::Constants::k_Pi, 2.0 * EbsdLib::Constants::k_Pi);
   x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0 * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
   y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0 * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
   z3 = z2 - 1.0f;
 
-  //eq c1.5
+  // eq c1.5
   k = (sqrt(x3 * x3 + y3 * y3) - z3) / sqrt(x3 * x3 + y3 * y3 + z3 * z3);
   x4 = x3 * k;
   y4 = y3 * k;
   z4 = z3 * k;
 
-  //eq c1.6, 7, and 8 (from matlab code not paper)
+  // eq c1.6, 7, and 8 (from matlab code not paper)
   k = fmod(atan2(y4, x4) + 2 * M_PI, 2 * M_PI);
 
   int type;
@@ -1102,7 +1100,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
     x5 = x4;
     y5 = y4;
   }
-  else//k>=4*pi/3 && <2*pi
+  else // k>=4*pi/3 && <2*pi
   {
     type = 3;
     x5 = (x4 - y4 * sqrt(3.0)) / 2.0f;
@@ -1135,21 +1133,21 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
     x9 = x8;
     y9 = y8;
   }
-  else//type==3;
+  else // type==3;
   {
     x9 = (x8 + y8 * sqrt(3.0)) / 2.0f;
     y9 = (-x8 * sqrt(3.0) + y8) / 2.0f;
   }
   z9 = z8;
 
-  //c1.9
+  // c1.9
   x10 = (x9 - y9 * sqrt(3.0)) / 2.0f;
   y10 = (x9 * sqrt(3.0) + y9) / 2.0f;
   z10 = z9;
 
-  //cartesian to traditional hsv
-  x11 = sqrt(x10 * x10 + y10 * y10 + z10 * z10); //r
-  y11 = acos(z10 / x11) / M_PI; //theta
+  // cartesian to traditional hsv
+  x11 = sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                                                 // r
+  y11 = acos(z10 / x11) / M_PI;                                                                                  // theta
   z11 = fmod(fmod(atan2(y10, x10) + 2.0f * M_PI, 2.0f * M_PI) + 4.0f * M_PI / 3.0, 2.0f * M_PI) / (2.0f * M_PI); // rho
 
   if(x11 == 0)
@@ -1175,9 +1173,9 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
     v = 0.5f + x11 / 2;
   }
 
-  //hsv to rgb (from wikipedia hsv/hsl page)
+  // hsv to rgb (from wikipedia hsv/hsl page)
   c = v * s;
-  k = c * (1 - fabs(fmod(h * 6, 2) - 1)); //x in wiki article
+  k = c * (1 - fabs(fmod(h * 6, 2) - 1)); // x in wiki article
   h = h * 6;
   r = 0;
   g = 0;
@@ -1205,7 +1203,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
       g = k;
       b = c;
     }
-    else if (h < 5)
+    else if(h < 5)
     {
       r = k;
       b = c;
@@ -1217,7 +1215,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
     }
   }
 
-  //adjust lumosity and invert
+  // adjust lumosity and invert
   r = 1 - (r + (v - c));
   g = 1 - (g + (v - c));
   b = 1 - (b + (v - c));
@@ -1251,5 +1249,3 @@ TetragonalOps::Pointer TetragonalOps::New()
   Pointer sharedPtr(new(TetragonalOps));
   return sharedPtr;
 }
-
-

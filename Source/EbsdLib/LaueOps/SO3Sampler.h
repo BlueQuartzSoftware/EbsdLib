@@ -46,79 +46,76 @@
  */
 class EbsdLib_EXPORT SO3Sampler
 {
-  public:
-    using Self = SO3Sampler;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<const Self>;
-    static Pointer NullPointer();
+public:
+  using Self = SO3Sampler;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+  static Pointer NullPointer();
 
-    static Pointer New();
+  static Pointer New();
 
-    /**
-     * @brief Returns the name of the class for SO3Sampler
-     */
-    virtual QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for SO3Sampler
+   */
+  virtual QString getNameOfClass() const;
 
-    /**
-     * @brief Returns the name of the class for SO3Sampler
-     */
-    static QString ClassName();
+  /**
+   * @brief Returns the name of the class for SO3Sampler
+   */
+  static QString ClassName();
 
-    virtual ~SO3Sampler();
+  virtual ~SO3Sampler();
 
-    /**
-     * @brief OrientationListArrayType
-     */
-    using OrientationListArrayType = std::list<OrientationType>;
+  /**
+   * @brief OrientationListArrayType
+   */
+  using OrientationListArrayType = std::list<OrientationType>;
 
-    // sampler routine
-    OrientationListArrayType SampleRFZ(int nsteps,int pgnum);
+  // sampler routine
+  OrientationListArrayType SampleRFZ(int nsteps, int pgnum);
 
-    /**
-     * @brief IsinsideFZ
-     * @param rod
-     * @param FZtype
-     * @param FZorder
-     * @return
-     */
-    bool IsinsideFZ(double* rod, int FZtype, int FZorder);
+  /**
+   * @brief IsinsideFZ
+   * @param rod
+   * @param FZtype
+   * @param FZorder
+   * @return
+   */
+  bool IsinsideFZ(double* rod, int FZtype, int FZorder);
 
-    /**
-     * @brief insideCubicFZ
-     * @param rod
-     * @param symType
-     * @return
-     */
-    bool insideCubicFZ(double* rod, int symType);
+  /**
+   * @brief insideCubicFZ
+   * @param rod
+   * @param symType
+   * @return
+   */
+  bool insideCubicFZ(double* rod, int symType);
 
-    /**
-     * @brief insideCyclicFZ
-     * @param rod
-     * @param order
-     * @return
-     */
-    bool insideCyclicFZ(double* rod, int order);
+  /**
+   * @brief insideCyclicFZ
+   * @param rod
+   * @param order
+   * @return
+   */
+  bool insideCyclicFZ(double* rod, int order);
 
-    /**
-     * @brief insideDihedralFZ
-     * @param rod
-     * @param order
-     * @return
-     */
-    bool insideDihedralFZ(double* rod, int order);
+  /**
+   * @brief insideDihedralFZ
+   * @param rod
+   * @param order
+   * @return
+   */
+  bool insideDihedralFZ(double* rod, int order);
 
-  private:
-  protected:
-    SO3Sampler();
+private:
+protected:
+  SO3Sampler();
 
-  public:
-    SO3Sampler(const SO3Sampler&) = delete;     // Copy Constructor Not Implemented
-    SO3Sampler(SO3Sampler&&) = delete;          // Move Constructor Not Implemented
-    SO3Sampler& operator=(const SO3Sampler&) = delete; // Copy Assignment Not Implemented
-    SO3Sampler& operator=(SO3Sampler&&) = delete;      // Move Assignment Not Implemented
+public:
+  SO3Sampler(const SO3Sampler&) = delete;            // Copy Constructor Not Implemented
+  SO3Sampler(SO3Sampler&&) = delete;                 // Move Constructor Not Implemented
+  SO3Sampler& operator=(const SO3Sampler&) = delete; // Copy Assignment Not Implemented
+  SO3Sampler& operator=(SO3Sampler&&) = delete;      // Move Assignment Not Implemented
 };
-
-
-

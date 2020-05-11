@@ -50,7 +50,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 
-#if defined (H5Support_NAMESPACE)
+#if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
 
@@ -80,14 +80,14 @@ int H5AngReader::readFile()
   }
 
   hid_t fileId = QH5Utilities::openFile(getFileName(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
     qDebug() << "H5AngReader Error: Could not open HDF5 file '" << getFileName() << "'";
     return err;
   }
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     qDebug() << "H5AngReader Error: Could not open path '" << m_HDF5Path << "'";
     err = QH5Utilities::closeFile(fileId);
@@ -144,7 +144,7 @@ int H5AngReader::readHeaderOnly()
   }
 
   hid_t fileId = QH5Utilities::openFile(getFileName().toLatin1().data(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
     qDebug() << "H5AngReader Error: Could not open HDF5 file '" << getFileName() << "'";
     return -1;
@@ -153,7 +153,7 @@ int H5AngReader::readHeaderOnly()
   H5ScopedFileSentinel sentinel(&fileId, true);
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     qDebug() << "H5AngReader Error: Could not open path '" << m_HDF5Path << "'";
     err = QH5Utilities::closeFile(fileId);
@@ -173,7 +173,7 @@ int H5AngReader::readHeader(hid_t parId)
 {
   int err = -1;
   hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Header.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     setErrorCode(-90008);
     setErrorMessage("H5AngReader Error: Could not open 'Header' Group");
@@ -196,7 +196,7 @@ int H5AngReader::readHeader(hid_t parId)
   READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, QString, SCANID, EbsdLib::Ang::SCANID, gid)
 
   hid_t phasesGid = H5Gopen(gid, EbsdLib::H5OIM::Phases.toLatin1().data(), H5P_DEFAULT);
-  if (phasesGid < 0)
+  if(phasesGid < 0)
   {
     setErrorCode(-90007);
     setErrorMessage("H5AngReader Error: Could not open Header/Phases HDF Group.");
@@ -229,7 +229,7 @@ int H5AngReader::readHeader(hid_t parId)
     READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, EbsdLib::Ang::LatticeConstants, LatticeConstants, m_CurrentPhase)
     READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::NumberFamilies, NumberFamilies, m_CurrentPhase)
 
-    if (m_CurrentPhase->getNumberFamilies() > 0)
+    if(m_CurrentPhase->getNumberFamilies() > 0)
     {
       hid_t hklGid = H5Gopen(pid, EbsdLib::Ang::HKLFamilies.toLatin1().data(), H5P_DEFAULT);
       // Only read the HKL Families if they are there. Trying to open the group will tell us if there
@@ -237,7 +237,13 @@ int H5AngReader::readHeader(hid_t parId)
 
       err = readHKLFamilies(hklGid, m_CurrentPhase);
       err = H5Gclose(hklGid);
-      if (getErrorCode() < 0) { err = H5Gclose(pid); H5Gclose(phasesGid); H5Gclose(gid); return -1; }
+      if(getErrorCode() < 0)
+      {
+        err = H5Gclose(pid);
+        H5Gclose(phasesGid);
+        H5Gclose(gid);
+        return -1;
+      }
     }
     /* The 'Categories' header may actually be missing from certain types of .ang files */
     if(QH5Lite::datasetExists(pid, EbsdLib::Ang::Categories))
@@ -250,7 +256,7 @@ int H5AngReader::readHeader(hid_t parId)
 
   QString completeHeader;
   err = QH5Lite::readStringDataset(gid, EbsdLib::H5OIM::OriginalHeader, completeHeader);
-  if (err < 0)
+  if(err < 0)
   {
     setErrorCode(-90010);
     setErrorMessage("The dataset 'Original Header' was missing from the HDF5 file.");
@@ -272,22 +278,22 @@ int H5AngReader::readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase)
   herr_t status = 1;
   HKLFamily_t data;
   QVector<HKLFamily::Pointer> families;
-  for (int i = 0; i < phase->getNumberFamilies(); ++i)
+  for(int i = 0; i < phase->getNumberFamilies(); ++i)
   {
     QString dsetName = QString::number(i);
 
     dataset = H5Dopen(hklGid, dsetName.toLatin1().data(), H5P_DEFAULT);
 
-    memtype = H5Tcreate (H5T_COMPOUND, sizeof (HKLFamily_t));
-    status = H5Tinsert(memtype, "H", HOFFSET (HKLFamily_t, h), H5T_NATIVE_INT);
-    status = H5Tinsert(memtype, "K", HOFFSET (HKLFamily_t, k), H5T_NATIVE_INT);
-    status = H5Tinsert(memtype, "L", HOFFSET (HKLFamily_t, l), H5T_NATIVE_INT);
-    status = H5Tinsert(memtype, "Solution 1", HOFFSET (HKLFamily_t, s1), H5T_NATIVE_CHAR);
-    status = H5Tinsert(memtype, "Diffraction Intensity", HOFFSET (HKLFamily_t, diffractionIntensity), H5T_NATIVE_FLOAT);
-    status = H5Tinsert(memtype, "Solution 2", HOFFSET (HKLFamily_t, s2), H5T_NATIVE_CHAR);
+    memtype = H5Tcreate(H5T_COMPOUND, sizeof(HKLFamily_t));
+    status = H5Tinsert(memtype, "H", HOFFSET(HKLFamily_t, h), H5T_NATIVE_INT);
+    status = H5Tinsert(memtype, "K", HOFFSET(HKLFamily_t, k), H5T_NATIVE_INT);
+    status = H5Tinsert(memtype, "L", HOFFSET(HKLFamily_t, l), H5T_NATIVE_INT);
+    status = H5Tinsert(memtype, "Solution 1", HOFFSET(HKLFamily_t, s1), H5T_NATIVE_CHAR);
+    status = H5Tinsert(memtype, "Diffraction Intensity", HOFFSET(HKLFamily_t, diffractionIntensity), H5T_NATIVE_FLOAT);
+    status = H5Tinsert(memtype, "Solution 2", HOFFSET(HKLFamily_t, s2), H5T_NATIVE_CHAR);
 
     status = H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)(&data));
-    if (status < 0)
+    if(status < 0)
     {
       setErrorCode(-90011);
       QString ss = QObject::tr("H5AngReader Error: Could not read the HKLFamily data for family number ").arg(i);
@@ -319,7 +325,7 @@ int H5AngReader::readData(hid_t parId)
   size_t nEvenCols = getNumEvenCols();
   size_t nRows = getNumRows();
 
-  if (nRows < 1)
+  if(nRows < 1)
   {
     err = -200;
     setErrorMessage("H5AngReader Error: The number of Rows was < 1.");
@@ -329,11 +335,11 @@ int H5AngReader::readData(hid_t parId)
   if(grid.startsWith(EbsdLib::Ang::SquareGrid))
   {
     // if (nCols > 0) { numElements = nRows * nCols; }
-    if (nOddCols > 0)
+    if(nOddCols > 0)
     {
-      totalDataRows = nRows * nOddCols;/* nCols = nOddCols;*/
+      totalDataRows = nRows * nOddCols; /* nCols = nOddCols;*/
     }
-    else if (nEvenCols > 0)
+    else if(nEvenCols > 0)
     {
       totalDataRows = nRows * nEvenCols; /* nCols = nEvenCols; */
     }
@@ -356,7 +362,7 @@ int H5AngReader::readData(hid_t parId)
   }
 
   hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Data.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     setErrorMessage("H5AngReader Error: Could not open 'Data' Group");
     setErrorCode(-90012);
@@ -386,13 +392,13 @@ int H5AngReader::readData(hid_t parId)
   ANG_READER_ALLOCATE_AND_READ(XPosition, EbsdLib::Ang::XPosition, float);
   ANG_READER_ALLOCATE_AND_READ(YPosition, EbsdLib::Ang::YPosition, float);
   ANG_READER_ALLOCATE_AND_READ(Fit, EbsdLib::Ang::Fit, float);
-  if (err < 0)
+  if(err < 0)
   {
     setNumFeatures(9);
   }
 
   ANG_READER_ALLOCATE_AND_READ(SEMSignal, EbsdLib::Ang::SEMSignal, float);
-  if (err < 0)
+  if(err < 0)
   {
     setNumFeatures(8);
   }
@@ -401,7 +407,6 @@ int H5AngReader::readData(hid_t parId)
 
   return err;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -424,8 +429,6 @@ H5AngReader::Pointer H5AngReader::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
-
-
 
 // -----------------------------------------------------------------------------
 void H5AngReader::setHDF5Path(const QString& value)
@@ -450,5 +453,3 @@ QString H5AngReader::ClassName()
 {
   return QString("_SUPERH5AngReader");
 }
-
-

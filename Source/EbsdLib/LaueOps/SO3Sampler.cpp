@@ -54,10 +54,9 @@ const int TwoFoldAxisOrder = 2;
 const int ThreeFoldAxisOrder = 3;
 const int FourFoldAxisOrder = 4;
 const int SixFoldAxisOrder = 6;
-}
+} // namespace
 
 // Following numbers are coefficients used to calculate the exponential of a matrix
-
 
 // The following two arrays are used to determine the FZtype (FZtarray) and primary rotation axis order (FZoarray)
 // for each of the 32 crystallographic point group symmetries (in the order of the International Tables)
@@ -86,20 +85,14 @@ const int SixFoldAxisOrder = 6;
 //
 // these parameters are used in the so3 module
 //
-static const int FZtarray[32] = { AnorthicType, AnorthicType,CyclicType,CyclicType,CyclicType,
-                                  DihedralType,DihedralType,DihedralType,CyclicType,CyclicType,CyclicType,
-                                  DihedralType,DihedralType,DihedralType,DihedralType,CyclicType,CyclicType,
-                                  DihedralType,DihedralType,DihedralType,CyclicType,CyclicType,CyclicType,
-                                  DihedralType,DihedralType,DihedralType,DihedralType,TetrahedralType,
-                                  TetrahedralType,OctahedralType,TetrahedralType,OctahedralType };
+static const int FZtarray[32] = {AnorthicType, AnorthicType, CyclicType,   CyclicType,   CyclicType,   DihedralType,    DihedralType,    DihedralType,   CyclicType,      CyclicType,    CyclicType,
+                                 DihedralType, DihedralType, DihedralType, DihedralType, CyclicType,   CyclicType,      DihedralType,    DihedralType,   DihedralType,    CyclicType,    CyclicType,
+                                 CyclicType,   DihedralType, DihedralType, DihedralType, DihedralType, TetrahedralType, TetrahedralType, OctahedralType, TetrahedralType, OctahedralType};
 
-static const int FZoarray[32] = { NoAxisOrder,NoAxisOrder,TwoFoldAxisOrder,TwoFoldAxisOrder,
-                                  TwoFoldAxisOrder,TwoFoldAxisOrder,TwoFoldAxisOrder,TwoFoldAxisOrder,FourFoldAxisOrder,
-                                  FourFoldAxisOrder,FourFoldAxisOrder,FourFoldAxisOrder,FourFoldAxisOrder,FourFoldAxisOrder,
-                                  FourFoldAxisOrder,ThreeFoldAxisOrder,ThreeFoldAxisOrder,ThreeFoldAxisOrder,ThreeFoldAxisOrder,
-                                  ThreeFoldAxisOrder,SixFoldAxisOrder,SixFoldAxisOrder,SixFoldAxisOrder,SixFoldAxisOrder,SixFoldAxisOrder,
-                                  SixFoldAxisOrder,SixFoldAxisOrder,NoAxisOrder,NoAxisOrder,NoAxisOrder,NoAxisOrder,NoAxisOrder};
-
+static const int FZoarray[32] = {NoAxisOrder,        NoAxisOrder,        TwoFoldAxisOrder,   TwoFoldAxisOrder,   TwoFoldAxisOrder,  TwoFoldAxisOrder,  TwoFoldAxisOrder,  TwoFoldAxisOrder,
+                                 FourFoldAxisOrder,  FourFoldAxisOrder,  FourFoldAxisOrder,  FourFoldAxisOrder,  FourFoldAxisOrder, FourFoldAxisOrder, FourFoldAxisOrder, ThreeFoldAxisOrder,
+                                 ThreeFoldAxisOrder, ThreeFoldAxisOrder, ThreeFoldAxisOrder, ThreeFoldAxisOrder, SixFoldAxisOrder,  SixFoldAxisOrder,  SixFoldAxisOrder,  SixFoldAxisOrder,
+                                 SixFoldAxisOrder,   SixFoldAxisOrder,   SixFoldAxisOrder,   NoAxisOrder,        NoAxisOrder,       NoAxisOrder,       NoAxisOrder,       NoAxisOrder};
 
 // -----------------------------------------------------------------------------
 //
@@ -156,7 +149,6 @@ SO3Sampler::~SO3Sampler() = default;
 //> @date 01/01/15 MDG 2.1 added IsinsideFZ function, also used in dictionary indexing approach
 //--------------------------------------------------------------------------
 
-
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 // We define a number of logical routines, that decide whether or not
@@ -191,38 +183,36 @@ bool SO3Sampler::IsinsideFZ(double* rod, int FZtype, int FZorder)
   // FZtypes 0 and 1; the other FZs are always finite.
   switch(FZtype)
   {
-    case AnorthicType:
-      insideFZ = true;   // all points are inside the FZ
-      break;
-    case CyclicType:
-      insideFZ = insideCyclicFZ(rod,FZorder);      // infinity is checked inside this function
-      break;
-    case DihedralType:
-      if(rod[3] != std::numeric_limits<double>::infinity())
-      {
-        insideFZ = insideDihedralFZ(rod, FZorder);
-      }
-      break;
-    case TetrahedralType:
-      if(rod[3] != std::numeric_limits<double>::infinity())
-      {
-        insideFZ = insideCubicFZ(rod, TetrahedralType);
-      }
-      break;
-    case OctahedralType:
-      if(rod[3] != std::numeric_limits<double>::infinity())
-      {
-        insideFZ = insideCubicFZ(rod, OctahedralType);
-      }
-      break;
-    default:
-      insideFZ = false;
-      break;
-
+  case AnorthicType:
+    insideFZ = true; // all points are inside the FZ
+    break;
+  case CyclicType:
+    insideFZ = insideCyclicFZ(rod, FZorder); // infinity is checked inside this function
+    break;
+  case DihedralType:
+    if(rod[3] != std::numeric_limits<double>::infinity())
+    {
+      insideFZ = insideDihedralFZ(rod, FZorder);
+    }
+    break;
+  case TetrahedralType:
+    if(rod[3] != std::numeric_limits<double>::infinity())
+    {
+      insideFZ = insideCubicFZ(rod, TetrahedralType);
+    }
+    break;
+  case OctahedralType:
+    if(rod[3] != std::numeric_limits<double>::infinity())
+    {
+      insideFZ = insideCubicFZ(rod, OctahedralType);
+    }
+    break;
+  default:
+    insideFZ = false;
+    break;
   }
   return insideFZ;
 }
-
 
 //--------------------------------------------------------------------------
 //
@@ -244,12 +234,12 @@ bool SO3Sampler::insideCyclicFZ(double* rod, int order)
 
   bool insideFZ = false;
 
-  if (rod[3] != std::numeric_limits<double>::infinity())
+  if(rod[3] != std::numeric_limits<double>::infinity())
   {
     // check the z-component vs. tan(pi/2n)
-    insideFZ = fabs(rod[2]*rod[3]) <= LPs::BP[order - 1];
+    insideFZ = fabs(rod[2] * rod[3]) <= LPs::BP[order - 1];
   }
-  else if (rod[2] == 0.0)
+  else if(rod[2] == 0.0)
   {
     insideFZ = true;
   }
@@ -276,43 +266,42 @@ bool SO3Sampler::insideCyclicFZ(double* rod, int order)
 bool SO3Sampler::insideDihedralFZ(double* rod, int order)
 {
 
-
-  bool                                  res = false, c1 = false, c2 = false;
-  double                     r[3] = { rod[0] * rod[3], rod[1] * rod[3], rod[2] * rod[3]};
+  bool res = false, c1 = false, c2 = false;
+  double r[3] = {rod[0] * rod[3], rod[1] * rod[3], rod[2] * rod[3]};
   const double r1 = 1.0;
 
   // first, check the z-component vs. tan(pi/2n)  (same as insideCyclicFZ)
-  c1 = fabs(r[2]) <= LPs::BP[order -1];
+  c1 = fabs(r[2]) <= LPs::BP[order - 1];
   res = false;
 
   // check the square boundary planes if c1=true
-  if (c1) {
-    switch (order)
+  if(c1)
+  {
+    switch(order)
     {
-      case TwoFoldAxisOrder:
-        c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
-        break;
-      case ThreeFoldAxisOrder:
-        c2 = fabs( LPs::srt*r[0]+0.50*r[1]) <= r1;
-        c2 = c2 && ( fabs( LPs::srt*r[0]-0.50*r[1]) <= r1 );
-        c2 = c2 && ( fabs(r[1]) <= r1 );
-        break;
-      case FourFoldAxisOrder:
-        c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
-        c2 = c2 && ((LPs::r22*fabs(r[0]+r[1]) <= r1) && (LPs::r22*fabs(r[0]-r[1]) <= r1));
-        break;
-      case SixFoldAxisOrder:
-        c2 =          fabs( 0.50*r[0]+LPs::srt*r[1]) <= r1;
-        c2 = c2 && ( fabs( LPs::srt*r[0]+0.50*r[1]) <= r1 );
-        c2 = c2 && ( fabs( LPs::srt*r[0]-0.50*r[1]) <= r1 );
-        c2 = c2 && ( fabs( 0.50*r[0]-LPs::srt*r[1]) <= r1 );
-        c2 = c2 && ( fabs(r[1]) <= r1 );
-        c2 = c2 && ( fabs(r[0]) <= r1 );
-        break;
-      default:
-        res = false;
-        break;
-
+    case TwoFoldAxisOrder:
+      c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
+      break;
+    case ThreeFoldAxisOrder:
+      c2 = fabs(LPs::srt * r[0] + 0.50 * r[1]) <= r1;
+      c2 = c2 && (fabs(LPs::srt * r[0] - 0.50 * r[1]) <= r1);
+      c2 = c2 && (fabs(r[1]) <= r1);
+      break;
+    case FourFoldAxisOrder:
+      c2 = (fabs(r[0]) <= r1) && (fabs(r[1]) <= r1);
+      c2 = c2 && ((LPs::r22 * fabs(r[0] + r[1]) <= r1) && (LPs::r22 * fabs(r[0] - r[1]) <= r1));
+      break;
+    case SixFoldAxisOrder:
+      c2 = fabs(0.50 * r[0] + LPs::srt * r[1]) <= r1;
+      c2 = c2 && (fabs(LPs::srt * r[0] + 0.50 * r[1]) <= r1);
+      c2 = c2 && (fabs(LPs::srt * r[0] - 0.50 * r[1]) <= r1);
+      c2 = c2 && (fabs(0.50 * r[0] - LPs::srt * r[1]) <= r1);
+      c2 = c2 && (fabs(r[1]) <= r1);
+      c2 = c2 && (fabs(r[0]) <= r1);
+      break;
+    default:
+      res = false;
+      break;
     }
     res = c2;
   }
@@ -356,10 +345,13 @@ bool SO3Sampler::insideCubicFZ(double* rod, int ot)
   }
 
   // octahedral truncation planes, both for tetrahedral and octahedral point groups
-  c2 = ((fabs(r[0])+fabs(r[1])+fabs(r[2])) <= r1);
+  c2 = ((fabs(r[0]) + fabs(r[1]) + fabs(r[2])) <= r1);
 
   // if both c1 and c2, then the point is inside
-  if (c1 && c2) { res = true;}
+  if(c1 && c2)
+  {
+    res = true;
+  }
 
   return res;
 }
@@ -417,19 +409,19 @@ bool SO3Sampler::insideCubicFZ(double* rod, int ot)
 //> @date 05/12/14  MDG 1.0 original
 //> @date 10/02/14  MDG 2.0 rewrite, removed all globals, added function arguments
 //--------------------------------------------------------------------------
-SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
+SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps, int pgnum)
 {
 
-  double                        x, y, z, delta;
-  OrientationListArrayType              FZlist;
-  int32_t                 FZtype, FZorder;
+  double x, y, z, delta;
+  OrientationListArrayType FZlist;
+  int32_t FZtype, FZorder;
 
   // step size for sampling of grid; total number of samples = (2*nsteps+1)**3
-  delta = ( 0.50 * LPs::ap)/static_cast<double>(nsteps);
+  delta = (0.50 * LPs::ap) / static_cast<double>(nsteps);
 
   // determine which function we should call for this point group symmetry
-  FZtype = FZtarray[pgnum-1];
-  FZorder = FZoarray[pgnum-1];
+  FZtype = FZtarray[pgnum - 1];
+  FZorder = FZoarray[pgnum - 1];
 
   // loop over the cube of volume pi^2; note that we do not want to include
   // the opposite edges/facets of the cube, to avoid double counting rotations
@@ -442,7 +434,7 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
     {
       y = static_cast<double>(j) * delta;
 
-      for (int k = -nsteps; k < nsteps; k++)
+      for(int k = -nsteps; k < nsteps; k++)
       {
         z = static_cast<double>(k) * delta;
 
@@ -453,11 +445,10 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps,int pgnum)
         // If insideFZ=true, then add this point to the linked list FZlist and keep
         // track of how many points there are on this list
         bool b = IsinsideFZ(rod.data(), FZtype, FZorder);
-        if (b)
+        if(b)
         {
           FZlist.push_back(rod);
         }
-
       }
     }
   }

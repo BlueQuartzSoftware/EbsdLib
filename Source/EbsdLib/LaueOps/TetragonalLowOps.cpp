@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "TetragonalLowOps.h"
 
 #include <memory>
@@ -139,7 +139,8 @@ std::array<size_t, 3> TetragonalLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 QString TetragonalLowOps::getSymmetryName() const
 {
-  return "Tetragonal 4/m";;
+  return "Tetragonal 4/m";
+  ;
 }
 
 OrientationD TetragonalLowOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
@@ -199,7 +200,7 @@ void TetragonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TetragonalLowOps::getODFFZRod(const OrientationType& rod) const
 {
-  int  numsym = 4;
+  int numsym = 4;
   return _calcRodNearestOrigin(TetragonalLow::RodSym, numsym, rod);
 }
 // -----------------------------------------------------------------------------
@@ -364,22 +365,22 @@ void TetragonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], dou
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < TetragonalLow::k_NumSymQuats; i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = TetragonalLow::MatSym[i][2][0] * plane[0] + TetragonalLow::MatSym[i][2][1] * plane[1] + TetragonalLow::MatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = TetragonalLow::MatSym[i][0][0] * plane[0] + TetragonalLow::MatSym[i][0][1] * plane[1] + TetragonalLow::MatSym[i][0][2] * plane[2];
       slipPlane[1] = TetragonalLow::MatSym[i][1][0] * plane[0] + TetragonalLow::MatSym[i][1][1] * plane[1] + TetragonalLow::MatSym[i][1][2] * plane[2];
@@ -428,104 +429,104 @@ double TetragonalLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD
 //
 // -----------------------------------------------------------------------------
 
-  namespace TetragonalLow
+namespace TetragonalLow
+{
+class GenerateSphereCoordsImpl
+{
+  EbsdLib::FloatArrayType* m_Eulers;
+  EbsdLib::FloatArrayType* m_xyz001;
+  EbsdLib::FloatArrayType* m_xyz011;
+  EbsdLib::FloatArrayType* m_xyz111;
+
+public:
+  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
+  : m_Eulers(eulerAngles)
+  , m_xyz001(xyz001Coords)
+  , m_xyz011(xyz011Coords)
+  , m_xyz111(xyz111Coords)
   {
-    class GenerateSphereCoordsImpl
+  }
+  virtual ~GenerateSphereCoordsImpl() = default;
+
+  void generate(size_t start, size_t end) const
+  {
+    double g[3][3];
+    double gTranpose[3][3];
+    double direction[3] = {0.0, 0.0, 0.0};
+
+    for(size_t i = start; i < end; ++i)
     {
-      EbsdLib::FloatArrayType* m_Eulers;
-      EbsdLib::FloatArrayType* m_xyz001;
-      EbsdLib::FloatArrayType* m_xyz011;
-      EbsdLib::FloatArrayType* m_xyz111;
+      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-    public:
-      GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
-      : m_Eulers(eulerAngles)
-      , m_xyz001(xyz001Coords)
-      , m_xyz011(xyz011Coords)
-      , m_xyz111(xyz111Coords)
-      {
-      }
-        virtual ~GenerateSphereCoordsImpl() = default;
+      EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
-        void generate(size_t start, size_t end) const
-        {
-          double g[3][3];
-          double gTranpose[3][3];
-          double direction[3] = {0.0, 0.0, 0.0};
+      // -----------------------------------------------------------------------------
+      // 001 Family
+      direction[0] = 0.0;
+      direction[1] = 0.0;
+      direction[2] = 1.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
 
-          for(size_t i = start; i < end; ++i)
-          {
-            OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-            OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+      // -----------------------------------------------------------------------------
+      // 011 Family
+      direction[0] = 1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
 
-            EbsdMatrixMath::Transpose3x3(g, gTranpose);
-
-            // -----------------------------------------------------------------------------
-            // 001 Family
-            direction[0] = 0.0;
-            direction[1] = 0.0;
-            direction[2] = 1.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
-            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 011 Family
-            direction[0] = 1.0;
-            direction[1] = 0.0;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 111 Family
-            direction[0] = 0.0;
-            direction[1] = 1.0;
-            direction[2] = 0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
-          }
-        }
-
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-        void operator()(const tbb::blocked_range<size_t>& r) const
-        {
-          generate(r.begin(), r.end());
-        }
-#endif
-    };
-    } // namespace TetragonalLow
-
-    // -----------------------------------------------------------------------------
-    //
-    // -----------------------------------------------------------------------------
-    void TetragonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
-    {
-      size_t nOrientations = eulers->getNumberOfTuples();
-
-      // Sanity Check the size of the arrays
-      if(xyz001->getNumberOfTuples() < nOrientations * TetragonalLow::symSize0)
-      {
-        xyz001->resizeTuples(nOrientations * TetragonalLow::symSize0 * 3);
-      }
-      if(xyz011->getNumberOfTuples() < nOrientations * TetragonalLow::symSize1)
-      {
-        xyz011->resizeTuples(nOrientations * TetragonalLow::symSize1 * 3);
-      }
-      if(xyz111->getNumberOfTuples() < nOrientations * TetragonalLow::symSize2)
-      {
-        xyz111->resizeTuples(nOrientations * TetragonalLow::symSize2 * 3);
-      }
-
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TetragonalLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
-#else
-      TetragonalLow::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
-      serial.generate(0, nOrientations);
-#endif
+      // -----------------------------------------------------------------------------
+      // 111 Family
+      direction[0] = 0.0;
+      direction[1] = 1.0;
+      direction[2] = 0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
     }
+  }
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    generate(r.begin(), r.end());
+  }
+#endif
+};
+} // namespace TetragonalLow
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void TetragonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
+{
+  size_t nOrientations = eulers->getNumberOfTuples();
+
+  // Sanity Check the size of the arrays
+  if(xyz001->getNumberOfTuples() < nOrientations * TetragonalLow::symSize0)
+  {
+    xyz001->resizeTuples(nOrientations * TetragonalLow::symSize0 * 3);
+  }
+  if(xyz011->getNumberOfTuples() < nOrientations * TetragonalLow::symSize1)
+  {
+    xyz011->resizeTuples(nOrientations * TetragonalLow::symSize1 * 3);
+  }
+  if(xyz111->getNumberOfTuples() < nOrientations * TetragonalLow::symSize2)
+  {
+    xyz111->resizeTuples(nOrientations * TetragonalLow::symSize2 * 3);
+  }
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TetragonalLow::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
+#else
+  TetragonalLow::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
+  serial.generate(0, nOrientations);
+#endif
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -610,11 +611,11 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double 
   _rgb[2] = sqrt(_rgb[2]);
 
   double max = _rgb[0];
-  if (_rgb[1] > max)
+  if(_rgb[1] > max)
   {
     max = _rgb[1];
   }
-  if (_rgb[2] > max)
+  if(_rgb[2] > max)
   {
     max = _rgb[2];
   }
@@ -624,7 +625,6 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double 
   _rgb[2] = _rgb[2] / max;
 
   return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -648,7 +648,6 @@ EbsdLib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
   blue = blue / max2;
 
   return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -663,8 +662,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -682,7 +687,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   // Generate the coords on the sphere **** Parallelized
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
-
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
   EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
@@ -698,7 +702,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
     g->run(ComputeStereographicProjection(xyz011.get(), &config, intensity011.get()));
     g->run(ComputeStereographicProjection(xyz111.get(), &config, intensity111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -719,26 +722,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -748,11 +750,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -789,7 +791,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
     g->run(GeneratePoleFigureRgbaImageImpl(intensity011.get(), &config, image011.get()));
     g->run(GeneratePoleFigureRgbaImageImpl(intensity111.get(), &config, image111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -836,10 +837,10 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
-  for (int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
+  for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
 
-    for (int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
+    for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
 
@@ -851,11 +852,11 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int
       {
         color = 0xFFFFFFFF;
       }
-      else if ( sumSquares > (rad-2*xInc) && sumSquares < (rad+2*xInc))
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc))
       {
         color = 0xFF000000;
       }
-      else if (xIndex == 0 || yIndex == 0)
+      else if(xIndex == 0 || yIndex == 0)
       {
         color = 0xFF000000;
       }
@@ -884,7 +885,6 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int
   }
   return image;
 }
-
 
 // -----------------------------------------------------------------------------
 //

@@ -38,7 +38,6 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
 
-
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -46,17 +45,17 @@
 class EbsdLib_EXPORT EspritPhase
 {
 public:
-    using Self = EspritPhase;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+  using Self = EspritPhase;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
 
   EBSD_STATIC_NEW_MACRO(EspritPhase)
-    /**
-    * @brief Returns the name of the class for EspritPhase
-    */
+  /**
+   * @brief Returns the name of the class for EspritPhase
+   */
   QString getNameOfClass() const;
   /**
    * @brief Returns the name of the class for EspritPhase
@@ -67,39 +66,38 @@ public:
 
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
 
-    /**
-    * @brief Setter property for Formula
-    */
-    void setFormula(const QString& value) ;
-    /**
-    * @brief Getter property for Formula
-    * @return Value of Formula
-    */
-    QString getFormula() const ;
+  /**
+   * @brief Setter property for Formula
+   */
+  void setFormula(const QString& value);
+  /**
+   * @brief Getter property for Formula
+   * @return Value of Formula
+   */
+  QString getFormula() const;
 
   EBSD_INSTANCE_PROPERTY(int, IT)
   EBSD_INSTANCE_PROPERTY(QVector<float>, LatticeConstants)
-    /**
-    * @brief Setter property for Name
-    */
-    void setName(const QString& value) ;
-    /**
-    * @brief Getter property for Name
-    * @return Value of Name
-    */
-    QString getName() const ;
+  /**
+   * @brief Setter property for Name
+   */
+  void setName(const QString& value);
+  /**
+   * @brief Getter property for Name
+   * @return Value of Name
+   */
+  QString getName() const;
 
   EBSD_INSTANCE_PROPERTY(int, Setting)
-    /**
-    * @brief Setter property for SpaceGroup
-    */
-    void setSpaceGroup(const QString& value) ;
-    /**
-    * @brief Getter property for SpaceGroup
-    * @return Value of SpaceGroup
-    */
-    QString getSpaceGroup() const ;
-
+  /**
+   * @brief Setter property for SpaceGroup
+   */
+  void setSpaceGroup(const QString& value);
+  /**
+   * @brief Getter property for SpaceGroup
+   * @return Value of SpaceGroup
+   */
+  QString getSpaceGroup() const;
 
   QString getMaterialName();
 
@@ -138,13 +136,10 @@ struct Esprit_Private_Data
   QVector<EspritPhase::Pointer> phases;
   int32_t units;
 
-  private:
-
-    QString m_Formula = {};
-    QString m_Name = {};
-    QString m_SpaceGroup = {};
-
-
+private:
+  QString m_Formula = {};
+  QString m_Name = {};
+  QString m_SpaceGroup = {};
 };
 
 Q_DECLARE_METATYPE(Esprit_Private_Data)

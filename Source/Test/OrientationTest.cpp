@@ -508,13 +508,13 @@ ax2eu  eu2ax                                                     FAILED
   {
     using OrientType = Orientation<K>;
     using VectorType = std::vector<K>;
-  //  using QVectorType = QVector<K>;
+    //  using QVectorType = QVector<K>;
     {
       K eu[3] = {static_cast<K>(0.3926990816987242L), static_cast<K>(0.0L), static_cast<K>(0.0L)};
       OrientationPrinters::Print_EU<K*>(eu);
       EU_2_XXX<OrientType, K>(eu);
       EU_2_XXX<VectorType, K>(eu);
-   //   EU_2_XXX<QVectorType, K>(eu);
+      //   EU_2_XXX<QVectorType, K>(eu);
     }
   }
 

@@ -170,7 +170,8 @@ std::array<size_t, 3> HexagonalOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 QString HexagonalOps::getSymmetryName() const
 {
-  return "Hexagonal 6/mmm";;
+  return "Hexagonal 6/mmm";
+  ;
 }
 
 // -----------------------------------------------------------------------------
@@ -623,12 +624,12 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, do
   lambda9 = fabs(lambda9);
   lambda10 = ((l9nx * loadx) + (l9ny * loady) + (l9nz * loadz));
   lambda10 = fabs(lambda10);
-//  schmid7 = theta1 * lambda5;
-//  schmid8 = theta1 * lambda6;
-//  schmid9 = theta2 * lambda7;
-//  schmid10 = theta2 * lambda8;
-//  schmid11 = theta3 * lambda9;
-//  schmid12 = theta3 * lambda10;
+  //  schmid7 = theta1 * lambda5;
+  //  schmid8 = theta1 * lambda6;
+  //  schmid9 = theta2 * lambda7;
+  //  schmid10 = theta2 * lambda8;
+  //  schmid11 = theta3 * lambda9;
+  //  schmid12 = theta3 * lambda10;
   double t4x = (0.866025f * ph1sdx4) + (0.0f * ph1sdy4) + (0.0f * ph1sdz4);
   double t4y = (-0.5f * ph1sdx4) + (1.0f * ph1sdy4) + (0.0f * ph1sdz4);
   double t4z = (0.0f * ph1sdx4) + (0.0f * ph1sdy4) + (caratio * ph1sdz4);
@@ -683,18 +684,18 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, do
   t9z = t9z / denomt9;
   theta9 = ((t9x * loadx) + (t9y * loady) + (t9z * loadz));
   theta9 = fabs(theta9);
-//  schmid13 = theta7 * lambda6;
-//  schmid14 = theta8 * lambda6;
-//  schmid15 = theta6 * lambda9;
-//  schmid16 = theta4 * lambda9;
-//  schmid17 = theta6 * lambda8;
-//  schmid18 = theta7 * lambda8;
-//  schmid19 = theta4 * lambda5;
-//  schmid20 = theta5 * lambda5;
-//  schmid21 = theta8 * lambda10;
-//  schmid22 = theta9 * lambda10;
-//  schmid23 = theta9 * lambda7;
-//  schmid24 = theta5 * lambda7;
+  //  schmid13 = theta7 * lambda6;
+  //  schmid14 = theta8 * lambda6;
+  //  schmid15 = theta6 * lambda9;
+  //  schmid16 = theta4 * lambda9;
+  //  schmid17 = theta6 * lambda8;
+  //  schmid18 = theta7 * lambda8;
+  //  schmid19 = theta4 * lambda5;
+  //  schmid20 = theta5 * lambda5;
+  //  schmid21 = theta8 * lambda10;
+  //  schmid22 = theta9 * lambda10;
+  //  schmid23 = theta9 * lambda7;
+  //  schmid24 = theta5 * lambda7;
   if(schmid1 > schmidfactor)
   {
     schmidfactor = schmid1, slipsys = 1, angleComps[0] = theta1, angleComps[1] = lambda1;
@@ -719,24 +720,24 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, do
   {
     schmidfactor = schmid6, slipsys = 6, angleComps[0] = theta3, angleComps[1] = lambda4;
   }
-  //if(schmid7 > schmidfactor) schmidfactor = schmid7, slipsys = 7;
-  //if(schmid8 > schmidfactor) schmidfactor = schmid8, slipsys = 8;
-  //if(schmid9 > schmidfactor) schmidfactor = schmid9, slipsys = 9;
-  //if(schmid10 > schmidfactor) schmidfactor = schmid10, slipsys = 10;
-  //if(schmid11 > schmidfactor) schmidfactor = schmid11, slipsys = 11;
-  //if(schmid12 > schmidfactor) schmidfactor = schmid12, slipsys = 12;
-  //if(schmid13 > schmidfactor) schmidfactor = schmid13, slipsys = 13;
-  //if(schmid14 > schmidfactor) schmidfactor = schmid14, slipsys = 14;
-  //if(schmid15 > schmidfactor) schmidfactor = schmid15, slipsys = 15;
-  //if(schmid16 > schmidfactor) schmidfactor = schmid16, slipsys = 16;
-  //if(schmid17 > schmidfactor) schmidfactor = schmid17, slipsys = 17;
-  //if(schmid18 > schmidfactor) schmidfactor = schmid18, slipsys = 18;
-  //if(schmid19 > schmidfactor) schmidfactor = schmid19, slipsys = 19;
-  //if(schmid20 > schmidfactor) schmidfactor = schmid20, slipsys = 20;
-  //if(schmid21 > schmidfactor) schmidfactor = schmid21, slipsys = 21;
-  //if(schmid22 > schmidfactor) schmidfactor = schmid22, slipsys = 22;
-  //if(schmid23 > schmidfactor) schmidfactor = schmid23, slipsys = 23;
-  //if(schmid24 > schmidfactor) schmidfactor = schmid24, slipsys = 24;
+  // if(schmid7 > schmidfactor) schmidfactor = schmid7, slipsys = 7;
+  // if(schmid8 > schmidfactor) schmidfactor = schmid8, slipsys = 8;
+  // if(schmid9 > schmidfactor) schmidfactor = schmid9, slipsys = 9;
+  // if(schmid10 > schmidfactor) schmidfactor = schmid10, slipsys = 10;
+  // if(schmid11 > schmidfactor) schmidfactor = schmid11, slipsys = 11;
+  // if(schmid12 > schmidfactor) schmidfactor = schmid12, slipsys = 12;
+  // if(schmid13 > schmidfactor) schmidfactor = schmid13, slipsys = 13;
+  // if(schmid14 > schmidfactor) schmidfactor = schmid14, slipsys = 14;
+  // if(schmid15 > schmidfactor) schmidfactor = schmid15, slipsys = 15;
+  // if(schmid16 > schmidfactor) schmidfactor = schmid16, slipsys = 16;
+  // if(schmid17 > schmidfactor) schmidfactor = schmid17, slipsys = 17;
+  // if(schmid18 > schmidfactor) schmidfactor = schmid18, slipsys = 18;
+  // if(schmid19 > schmidfactor) schmidfactor = schmid19, slipsys = 19;
+  // if(schmid20 > schmidfactor) schmidfactor = schmid20, slipsys = 20;
+  // if(schmid21 > schmidfactor) schmidfactor = schmid21, slipsys = 21;
+  // if(schmid22 > schmidfactor) schmidfactor = schmid22, slipsys = 22;
+  // if(schmid23 > schmidfactor) schmidfactor = schmid23, slipsys = 23;
+  // if(schmid24 > schmidfactor) schmidfactor = schmid24, slipsys = 24;
 }
 
 void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const
@@ -746,22 +747,22 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < getNumSymOps(); i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = HexagonalHigh::MatSym[i][2][0] * plane[0] + HexagonalHigh::MatSym[i][2][1] * plane[1] + HexagonalHigh::MatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = HexagonalHigh::MatSym[i][0][0] * plane[0] + HexagonalHigh::MatSym[i][0][1] * plane[1] + HexagonalHigh::MatSym[i][0][2] * plane[2];
       slipPlane[1] = HexagonalHigh::MatSym[i][1][0] * plane[0] + HexagonalHigh::MatSym[i][1][1] * plane[1] + HexagonalHigh::MatSym[i][1][2] * plane[2];
@@ -1053,102 +1054,101 @@ double HexagonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3],
 // -----------------------------------------------------------------------------
 namespace Detail
 {
-  namespace HexagonalHigh
+namespace HexagonalHigh
+{
+class GenerateSphereCoordsImpl
+{
+  EbsdLib::FloatArrayType* m_Eulers;
+  EbsdLib::FloatArrayType* m_xyz001;
+  EbsdLib::FloatArrayType* m_xyz011;
+  EbsdLib::FloatArrayType* m_xyz111;
+
+public:
+  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz0001Coords, EbsdLib::FloatArrayType* xyz1010Coords, EbsdLib::FloatArrayType* xyz1120Coords)
+  : m_Eulers(eulerAngles)
+  , m_xyz001(xyz0001Coords)
+  , m_xyz011(xyz1010Coords)
+  , m_xyz111(xyz1120Coords)
   {
-    class GenerateSphereCoordsImpl
+  }
+  virtual ~GenerateSphereCoordsImpl() = default;
+
+  void generate(size_t start, size_t end) const
+  {
+    double g[3][3];
+    double gTranpose[3][3];
+    double direction[3] = {0.0, 0.0, 0.0};
+
+    // Geneate all the Coordinates
+    for(size_t i = start; i < end; ++i)
     {
-      EbsdLib::FloatArrayType* m_Eulers;
-      EbsdLib::FloatArrayType* m_xyz001;
-      EbsdLib::FloatArrayType* m_xyz011;
-      EbsdLib::FloatArrayType* m_xyz111;
+      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
 
-    public:
-      GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz0001Coords, EbsdLib::FloatArrayType* xyz1010Coords, EbsdLib::FloatArrayType* xyz1120Coords)
-      : m_Eulers(eulerAngles)
-      , m_xyz001(xyz0001Coords)
-      , m_xyz011(xyz1010Coords)
-      , m_xyz111(xyz1120Coords)
-      {
-      }
-        virtual ~GenerateSphereCoordsImpl() = default;
+      EbsdMatrixMath::Transpose3x3(g, gTranpose);
 
-        void generate(size_t start, size_t end) const
-        {
-          double g[3][3];
-          double gTranpose[3][3];
-          double direction[3] = {0.0, 0.0, 0.0};
+      // -----------------------------------------------------------------------------
+      // 0001 Family
+      direction[0] = 0.0;
+      direction[1] = 0.0;
+      direction[2] = 1.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
+      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
 
-          // Geneate all the Coordinates
-          for(size_t i = start; i < end; ++i)
-          {
-            OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-            OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+      // -----------------------------------------------------------------------------
+      // 1010 Family
+      direction[0] = EbsdLib::Constants::k_Root3Over2;
+      direction[1] = 0.5;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 3), -1.0f);
+      direction[0] = 0.0;
+      direction[1] = 1.0;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
+      direction[0] = -EbsdLib::Constants::k_Root3Over2;
+      direction[1] = 0.5;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 15), -1.0f);
 
-            EbsdMatrixMath::Transpose3x3(g, gTranpose);
-
-            // -----------------------------------------------------------------------------
-            // 0001 Family
-            direction[0] = 0.0;
-            direction[1] = 0.0;
-            direction[2] = 1.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
-            EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 1010 Family
-            direction[0] = EbsdLib::Constants::k_Root3Over2;
-            direction[1] = 0.5;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 3), -1.0f);
-            direction[0] = 0.0;
-            direction[1] = 1.0;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 6));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
-            direction[0] = -EbsdLib::Constants::k_Root3Over2;
-            direction[1] = 0.5;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 12));
-            EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 15), -1.0f);
-
-            // -----------------------------------------------------------------------------
-            // 1120 Family
-            direction[0] = 1.0;
-            direction[1] = 0.0;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
-            direction[0] = 0.5;
-            direction[1] = EbsdLib::Constants::k_Root3Over2;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 6));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
-            direction[0] = -0.5;
-            direction[1] = EbsdLib::Constants::k_Root3Over2;
-            direction[2] = 0.0;
-            EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 12));
-            EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
-            EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 15), -1.0f);
-          }
-
-        }
+      // -----------------------------------------------------------------------------
+      // 1120 Family
+      direction[0] = 1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
+      direction[0] = 0.5;
+      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 6));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
+      direction[0] = -0.5;
+      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[2] = 0.0;
+      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 12));
+      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
+      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 15), -1.0f);
+    }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-        void operator()(const tbb::blocked_range<size_t>& r) const
-        {
-          generate(r.begin(), r.end());
-        }
-#endif
-    };
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    generate(r.begin(), r.end());
   }
-}
+#endif
+};
+} // namespace HexagonalHigh
+} // namespace Detail
 
 // -----------------------------------------------------------------------------
 //
@@ -1156,7 +1156,6 @@ namespace Detail
 void HexagonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz0001, EbsdLib::FloatArrayType* xyz1010, EbsdLib::FloatArrayType* xyz1120) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
-
 
   // Sanity Check the size of the arrays
   if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize0)
@@ -1184,7 +1183,6 @@ void HexagonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* euler
     Detail::HexagonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120);
     serial.generate(0, nOrientations);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -1270,11 +1268,11 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
   _rgb[2] = sqrt(_rgb[2]);
 
   double max = _rgb[0];
-  if (_rgb[1] > max)
+  if(_rgb[1] > max)
   {
     max = _rgb[1];
   }
-  if (_rgb[2] > max)
+  if(_rgb[2] > max)
   {
     max = _rgb[2];
   }
@@ -1321,8 +1319,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -1340,7 +1344,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   // Generate the coords on the sphere **** Parallelized
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
-
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
   EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
@@ -1356,7 +1359,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
     g->run(ComputeStereographicProjection(xyz011.get(), &config, intensity011.get()));
     g->run(ComputeStereographicProjection(xyz111.get(), &config, intensity111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1377,26 +1379,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1406,11 +1407,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1447,7 +1448,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
     g->run(GeneratePoleFigureRgbaImageImpl(intensity011.get(), &config, image011.get()));
     g->run(GeneratePoleFigureRgbaImageImpl(intensity111.get(), &config, image111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1493,14 +1493,14 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
 
   EbsdLib::Rgb color;
   size_t idx = 0;
-  size_t yScanLineIndex = imageDim-1; // We use this to control where the data
+  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data
   // is drawn. Otherwise the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
-  for (int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
+  for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
 
-    for (int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
+    for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
 
@@ -1508,19 +1508,19 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
       y = yIndex * yInc;
 
       double sumSquares = (x * x) + (y * y);
-      if( sumSquares > 1.0f || x < y/m) // Outside unit circle
+      if(sumSquares > 1.0f || x < y / m) // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
-      else if ( sumSquares > (rad-2*xInc) && sumSquares < (rad+2*xInc)) // Black Border line
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Border line
       {
         color = 0xFF000000;
       }
-      else if( x - y/m < 0.001)
+      else if(x - y / m < 0.001)
       {
         color = 0xFF000000;
       }
-      else if (xIndex == 0 || yIndex == 0 )
+      else if(xIndex == 0 || yIndex == 0)
       {
         color = 0xFF000000;
       }
@@ -1563,10 +1563,10 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   QuatType q1 = q;
   QuatType q2 = refFrame;
 
-  //get misorientation
+  // get misorientation
   OrientationD axisAngle = calculateMisorientation(q1, q2);
 
-  //eq c5.1
+  // eq c5.1
   k = tan(axisAngle[3] / 2.0);
   xo = axisAngle[0];
   yo = axisAngle[1];
@@ -1579,7 +1579,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   zo = rod[2];
   k = rod[3];
 
-  //eq c5.2
+  // eq c5.2
 
   if(k <= M_PI / 12.0)
   {
@@ -1609,13 +1609,13 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   yo1 = yo * k;
   zo1 = zo / (2.0f - EbsdLib::Constants::k_Sqrt3);
 
-  //eq c5.3
+  // eq c5.3
   k = 3.0f * atan2(yo1, xo1);
   xo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * cos(k);
   yo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * sin(k);
   zo2 = zo1;
 
-  //eq c5.4
+  // eq c5.4
   k = std::max(xo2, yo2);
   if(fabs(k) > 0)
   {
@@ -1629,12 +1629,12 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   yo3 = yo2 * k;
   zo3 = zo2;
 
-  //substitute c5.4 results into c1.1
+  // substitute c5.4 results into c1.1
   x = xo3;
   y = yo3;
   z = zo3;
 
-  //eq c1.2
+  // eq c1.2
   k = std::max(x, y);
   k = std::max(k, z);
   k = (k * EbsdLib::Constants::k_Sqrt3) / (x + y + z);
@@ -1642,20 +1642,20 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   y1 = y * k;
   z1 = z * k;
 
-  //eq c1.3
-  //3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
-  //g1*g2*g3 = {{sqrt(2/3), -1/sqrt(6), -1/sqrt(6)},{0, 1/sqrt(2), -1/sqrt(2)},{1/sqrt(3), 1/sqrt(3), 1/sqrt(3)}}
+  // eq c1.3
+  // 3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
+  // g1*g2*g3 = {{sqrt(2/3), -1/sqrt(6), -1/sqrt(6)},{0, 1/sqrt(2), -1/sqrt(2)},{1/sqrt(3), 1/sqrt(3), 1/sqrt(3)}}
   x2 = x1 * (EbsdLib::Constants::k_Sqrt2 / EbsdLib::Constants::k_Sqrt3) - (y1 + z1) / (EbsdLib::Constants::k_Sqrt2 * EbsdLib::Constants::k_Sqrt3);
   y2 = (y1 - z1) / EbsdLib::Constants::k_Sqrt2;
   z2 = (x1 + y1 + z1) / EbsdLib::Constants::k_Sqrt3;
 
-  //eq c1.4
+  // eq c1.4
   k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
   x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
   y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
   z3 = z2 - 1.0f;
 
-  //eq c1.5
+  // eq c1.5
   k = sqrt(x3 * x3 + y3 * y3 + z3 * z3);
   if(k > 0)
   {
@@ -1669,7 +1669,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
   y4 = y3 * k;
   z4 = z3 * k;
 
-  //eq c1.6, 7, and 8 (from matlab code not paper)
+  // eq c1.6, 7, and 8 (from matlab code not paper)
   k = fmod(atan2(y4, x4) + 2 * M_PI, 2 * M_PI);
 
   int type;
@@ -1685,7 +1685,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
     x5 = x4;
     y5 = y4;
   }
-  else//k>=4*pi/3 && <2*pi
+  else // k>=4*pi/3 && <2*pi
   {
     type = 3;
     x5 = (x4 - y4 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
@@ -1718,21 +1718,21 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
     x9 = x8;
     y9 = y8;
   }
-  else//type==3;
+  else // type==3;
   {
     x9 = (x8 + y8 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
     y9 = (-x8 * EbsdLib::Constants::k_Sqrt3 + y8) / 2.0f;
   }
   z9 = z8;
 
-  //c1.9
+  // c1.9
   x10 = (x9 - y9 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
   y10 = (x9 * EbsdLib::Constants::k_Sqrt3 + y9) / 2.0f;
   z10 = z9;
 
-  //cartesian to traditional hsv
-  x11 = sqrt(x10 * x10 + y10 * y10 + z10 * z10); //r
-  y11 = acos(z10 / x11) / M_PI; //theta
+  // cartesian to traditional hsv
+  x11 = sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                         // r
+  y11 = acos(z10 / x11) / M_PI;                                                          // theta
   z11 = fmod(fmod(atan2(y10, x10) + M_2PI, M_2PI) + 4.0f * M_PI / 3.0, M_2PI) / (M_2PI); // rho
 
   if(x11 == 0)
@@ -1760,7 +1760,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const 
 
   EbsdLib::Rgb rgb = ColorUtilities::ConvertHSVtoRgb(h, s, v);
 
-  //now standard 0-255 rgb, needs inversion
+  // now standard 0-255 rgb, needs inversion
   return RgbColor::dRgb(255 - RgbColor::dRed(rgb), 255 - RgbColor::dGreen(rgb), 255 - RgbColor::dBlue(rgb), 0);
 }
 

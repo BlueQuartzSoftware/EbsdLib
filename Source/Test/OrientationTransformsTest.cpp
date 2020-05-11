@@ -303,7 +303,7 @@ public:
       DataSetTypes.clear();
 
       GenerateFunctionList::EntryType entry = entryRef;
-      //QVector<QString> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
+      // QVector<QString> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
 
       std::stringstream ss;
       for(int e = 0; e < entry.size() - 1; e++)

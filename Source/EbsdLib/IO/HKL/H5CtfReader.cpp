@@ -1,39 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "H5CtfReader.h"
 
@@ -45,7 +43,7 @@
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 
-#if defined (H5Support_NAMESPACE)
+#if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
 
@@ -157,7 +155,7 @@ int H5CtfReader::readHeaderOnly()
   }
 
   hid_t fileId = QH5Utilities::openFile(getFileName(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
     qDebug() << "H5CtfReader Error: Could not open HDF5 file '" << getFileName() << "'";
     return -1;
@@ -166,7 +164,7 @@ int H5CtfReader::readHeaderOnly()
   H5ScopedFileSentinel sentinel(&fileId, true);
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     qDebug() << "H5CtfReader Error: Could not open path '" << m_HDF5Path << "'";
     err = QH5Utilities::closeFile(fileId);
@@ -192,14 +190,14 @@ int H5CtfReader::readFile()
   }
 
   hid_t fileId = QH5Utilities::openFile(getFileName(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
     qDebug() << "H5CtfReader Error: Could not open HDF5 file '" << getFileName() << "'";
     return -1;
   }
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     qDebug() << "H5CtfReader Error: Could not open path '" << m_HDF5Path << "'";
     err = QH5Utilities::closeFile(fileId);
@@ -218,7 +216,6 @@ int H5CtfReader::readFile()
   return err;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -228,7 +225,7 @@ int H5CtfReader::readHeader(hid_t parId)
   QTextStream ss(&sBuf);
   int err = -1;
   hid_t gid = H5Gopen(parId, EbsdLib::H5Aztec::Header.toLatin1().data(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     qDebug() << "H5CtfReader Error: Could not open 'Header' Group";
     return -1;
@@ -253,7 +250,7 @@ int H5CtfReader::readHeader(hid_t parId)
   READ_EBSD_HEADER_DATA("H5CtfReader", CtfHeaderEntry<float>, float, TiltAxis, EbsdLib::Ctf::TiltAxis, gid)
 
   hid_t phasesGid = H5Gopen(gid, EbsdLib::H5Aztec::Phases.toLatin1().data(), H5P_DEFAULT);
-  if (phasesGid < 0)
+  if(phasesGid < 0)
   {
     setErrorCode(-90007);
     setErrorMessage("H5CtfReader Error: Could not open Header/Phases HDF Group.");
@@ -318,7 +315,7 @@ int H5CtfReader::readData(hid_t parId)
   size_t yCells = getYCells();
   size_t xCells = getXCells();
   size_t totalDataRows = yCells * xCells;
-  if( totalDataRows == 0)
+  if(totalDataRows == 0)
   {
     setErrorCode(-1);
     setErrorMessage(QString("TotalDataRows = 0;"));
@@ -326,7 +323,7 @@ int H5CtfReader::readData(hid_t parId)
   }
 
   hid_t gid = H5Gopen(parId, EbsdLib::H5Aztec::Data.toLatin1(), H5P_DEFAULT);
-  if (gid < 0)
+  if(gid < 0)
   {
     setErrorMessage("H5CtfReader Error: Could not open 'Data' Group");
     setErrorCode(-90012);
@@ -388,8 +385,6 @@ H5CtfReader::Pointer H5CtfReader::NullPointer()
   return Pointer(static_cast<Self*>(nullptr));
 }
 
-
-
 // -----------------------------------------------------------------------------
 void H5CtfReader::setHDF5Path(const QString& value)
 {
@@ -402,8 +397,6 @@ QString H5CtfReader::getHDF5Path() const
   return m_HDF5Path;
 }
 
-
-
 // -----------------------------------------------------------------------------
 QString H5CtfReader::getNameOfClass() const
 {
@@ -415,5 +408,3 @@ QString H5CtfReader::ClassName()
 {
   return QString("_SUPERH5CtfReader");
 }
-
-

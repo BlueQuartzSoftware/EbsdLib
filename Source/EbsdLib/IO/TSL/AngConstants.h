@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
 #include <QtCore/QString>
@@ -46,46 +46,45 @@
 // -----------------------------------------------------------------------------
 //  These defines are needed for the pure "C" parser
 // -----------------------------------------------------------------------------
-#define ANG_TEM_PIXPERUM     "TEM_PIXperUM"
-#define ANG_X_STAR           "x-star"
-#define ANG_Y_STAR           "y-star"
-#define ANG_Z_STAR           "z-star"
+#define ANG_TEM_PIXPERUM "TEM_PIXperUM"
+#define ANG_X_STAR "x-star"
+#define ANG_Y_STAR "y-star"
+#define ANG_Z_STAR "z-star"
 #define ANG_PATTERN_CENTER_CALIBRATION "Pattern Center Calibration"
-#define ANG_WORKINGDISTANCE   "WorkingDistance"
-#define ANG_WORKING_DISTANCe  "Working Distance"
-#define ANG_PHASE             "Phase"
-#define ANG_PHASE_NAME        "PhaseName"
-#define ANG_MATERIAL_NAME     "MaterialName"
-#define ANG_FORMULA           "Formula"
-#define ANG_INFO              "Info"
-#define ANG_SYMMETRY          "Symmetry"
+#define ANG_WORKINGDISTANCE "WorkingDistance"
+#define ANG_WORKING_DISTANCe "Working Distance"
+#define ANG_PHASE "Phase"
+#define ANG_PHASE_NAME "PhaseName"
+#define ANG_MATERIAL_NAME "MaterialName"
+#define ANG_FORMULA "Formula"
+#define ANG_INFO "Info"
+#define ANG_SYMMETRY "Symmetry"
 #define ANG_LATTICE_CONSTANTS "LatticeConstants"
-#define ANG_NUMBER_FAMILIES   "NumberFamilies"
-#define ANG_HKLFAMILIES       "hklFamilies"
-#define ANG_HKL_FAMILIES      "hkl Families"
-#define ANG_CATEGORIES        "Categories"
-#define ANG_GRID              "GRID"
-#define ANG_GRID_TYPE         "Grid Type"
-#define ANG_X_STEP            "XSTEP"
-#define ANG_Y_STEP            "YSTEP"
-#define ANG_STEP_X            "Step X"
-#define ANG_STEP_Y            "Step Y"
-#define ANG_NCOLS_ODD         "NCOLS_ODD"
-#define ANG_NCOLS_EVEN        "NCOLS_EVEN"
-#define ANG_NROWS             "NROWS"
-#define ANG_nColumns          "nColumns"
-#define ANG_nROWS             "nRows"
-#define ANG_OPERATOR          "OPERATOR"
-#define ANG_SAMPLE_ID         "SAMPLEID"
-#define ANG_SCAN_ID           "SCANID"
-#define ANG_Scan_ID            "Scan ID"
+#define ANG_NUMBER_FAMILIES "NumberFamilies"
+#define ANG_HKLFAMILIES "hklFamilies"
+#define ANG_HKL_FAMILIES "hkl Families"
+#define ANG_CATEGORIES "Categories"
+#define ANG_GRID "GRID"
+#define ANG_GRID_TYPE "Grid Type"
+#define ANG_X_STEP "XSTEP"
+#define ANG_Y_STEP "YSTEP"
+#define ANG_STEP_X "Step X"
+#define ANG_STEP_Y "Step Y"
+#define ANG_NCOLS_ODD "NCOLS_ODD"
+#define ANG_NCOLS_EVEN "NCOLS_EVEN"
+#define ANG_NROWS "NROWS"
+#define ANG_nColumns "nColumns"
+#define ANG_nROWS "nRows"
+#define ANG_OPERATOR "OPERATOR"
+#define ANG_SAMPLE_ID "SAMPLEID"
+#define ANG_SCAN_ID "SCANID"
+#define ANG_Scan_ID "Scan ID"
 
-#define ANG_Operator          "Operator"
-#define ANG_Sample_ID         "Sample ID"
+#define ANG_Operator "Operator"
+#define ANG_Sample_ID "Sample ID"
 
-#define ANG_SQUARE_GRID       "SqrGrid"
-#define ANG_HEX_GRID          "HexGrid"
-
+#define ANG_SQUARE_GRID "SqrGrid"
+#define ANG_HEX_GRID "HexGrid"
 
 #define ANG_PHI1 "Phi1"
 #define ANG_PHI "Phi"
@@ -148,25 +147,25 @@ const QString EDAX("EDAX");
 /* These are courtesy of TSL */
 // LAUE Symmetry Identifiers
 
-#define OH  43        // cubic            Oh         a=b=c     a=b=g=90
+#define OH 43 // cubic            Oh         a=b=c     a=b=g=90
 
-#define TH  23        // tetrahedral      Th         a=b=c     a=b=g=90
-#define D4H 42        // ditetragonal     D4h        a=b!=c    a=b=g=90
-#define C4H 4         // tetragonal       C4h        a=b!=c    a=b=g=90
+#define TH 23  // tetrahedral      Th         a=b=c     a=b=g=90
+#define D4H 42 // ditetragonal     D4h        a=b!=c    a=b=g=90
+#define C4H 4  // tetragonal       C4h        a=b!=c    a=b=g=90
 
-#define D2H 22        // orthrohombic     D2h        a!=b!=c   a=b=g=90
+#define D2H 22 // orthrohombic     D2h        a!=b!=c   a=b=g=90
 
-#define C2H_c 2       // monoclinic       C2h        a!=b!=c   a=b=90!=g
-#define C2H_b 20      // monoclinic       C2h        a!=b!=c   a=g=90!=b
-#define C2H_a 21      // monoclinic       C2h        a!=b!=c   b=g=90!=a
+#define C2H_c 2  // monoclinic       C2h        a!=b!=c   a=b=90!=g
+#define C2H_b 20 // monoclinic       C2h        a!=b!=c   a=g=90!=b
+#define C2H_a 21 // monoclinic       C2h        a!=b!=c   b=g=90!=a
 
-#define D6H 62        // dihexagonal      D6h        a=b!=c    a=b=90 g=120
-#define C6H 6         // hexagonal        C6h        a=b! =c   a=b=90 g=120
+#define D6H 62 // dihexagonal      D6h        a=b!=c    a=b=90 g=120
+#define C6H 6  // hexagonal        C6h        a=b! =c   a=b=90 g=120
 
-#define D3D 32        // ditrigonal       D3d        a=b=c     a=b=g!=90
-#define C3I 3         // trigonal         C3i        a=b=c     a=b=g!=90
+#define D3D 32 // ditrigonal       D3d        a=b=c     a=b=g!=90
+#define C3I 3  // trigonal         C3i        a=b=c     a=b=g!=90
 
-#define CIs 1         // triclinic        Ci         a!=b!=c  a!=b!=g!=90
+#define CIs 1 // triclinic        Ci         a!=b!=c  a!=b!=g!=90
 
 namespace PhaseSymmetry
 {
@@ -244,7 +243,7 @@ const QString ZPos(ANG_Z_POS);
 const QString ZMax(ANG_Z_MAX);
 
 } // namespace Ang
-}
+} // namespace EbsdLib
 
 #if 1
 // -----------------------------------------------------------------------------
@@ -353,7 +352,5 @@ const QString MaterialName("MaterialName");
 const QString LatticeConstants("LatticeConstants");
 const QString BravaisLattice("BravaisLattice");
 } // namespace AngFile
-}
+} // namespace EbsdLib
 #endif
-
-

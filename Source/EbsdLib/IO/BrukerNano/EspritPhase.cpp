@@ -158,8 +158,6 @@ EspritPhase::Pointer EspritPhase::NullPointer()
   return Pointer(static_cast<Self*>(nullptr));
 }
 
-
-
 // -----------------------------------------------------------------------------
 void EspritPhase::setFormula(const QString& value)
 {
@@ -196,8 +194,6 @@ QString EspritPhase::getSpaceGroup() const
   return m_SpaceGroup;
 }
 
-
-
 // -----------------------------------------------------------------------------
 QString EspritPhase::getNameOfClass() const
 {
@@ -209,5 +205,3 @@ QString EspritPhase::ClassName()
 {
   return QString("EspritPhase");
 }
-
-

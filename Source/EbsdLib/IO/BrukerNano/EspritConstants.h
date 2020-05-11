@@ -143,4 +143,4 @@ const QString SEM_YResolution("SEM YResolution");
 const QString SEM_ZOffset("SEM ZOffset");
 
 } // namespace H5Esprit
-} // namespace Ebsd
+} // namespace EbsdLib

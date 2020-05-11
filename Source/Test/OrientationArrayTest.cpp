@@ -48,7 +48,8 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T> T transfer_sign(T a, T b)
+  template <typename T>
+  T transfer_sign(T a, T b)
   {
     if(a > 0.0 && b > 0.0)
     {
@@ -533,7 +534,8 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void GenRotTest(K* in, K omega)
+  template <typename T, typename K>
+  void GenRotTest(K* in, K omega)
   {
     T eu(3);
     eu[0] = in[0];
@@ -559,7 +561,8 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename FloatType> void EU_2_XXX(FloatType* in)
+  template <typename T, typename FloatType>
+  void EU_2_XXX(FloatType* in)
   {
 
     T eu(3);
@@ -664,7 +667,8 @@ ax2eu  eu2ax                                                     FAILED
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename K> void Test_eu2_XXX()
+  template <typename K>
+  void Test_eu2_XXX()
   {
     typedef OrientationArray<K> OrientType;
     typedef std::vector<K> VectorType;
@@ -681,7 +685,8 @@ ax2eu  eu2ax                                                     FAILED
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void OM_2_XXX(K* in)
+  template <typename T, typename K>
+  void OM_2_XXX(K* in)
   {
     std::cout << "   " << std::endl;
     T om(9);
@@ -748,7 +753,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void RO_2_XXX(K* in)
+  template <typename T, typename K>
+  void RO_2_XXX(K* in)
   {
     T ro(9);
     for(size_t i = 0; i < 4; i++)
@@ -806,7 +812,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void AX_2_XXX(K* in)
+  template <typename T, typename K>
+  void AX_2_XXX(K* in)
   {
     T ax(4);
     ax[0] = in[0];
@@ -857,7 +864,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void QU_2_XXX(K* in, typename QuaternionMath<K>::Order layout = QuaternionMath<K>::QuaternionVectorScalar)
+  template <typename T, typename K>
+  void QU_2_XXX(K* in, typename QuaternionMath<K>::Order layout = QuaternionMath<K>::QuaternionVectorScalar)
   {
     T qu(4);
     qu[0] = in[0];
@@ -924,7 +932,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename K> void HO_2_XXX(K* in)
+  template <typename T, typename K>
+  void HO_2_XXX(K* in)
   {
     T ho(3);
     ho[0] = in[0];

@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "HexagonalLowOps.h"
 
@@ -150,7 +150,8 @@ std::array<size_t, 3> HexagonalLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 QString HexagonalLowOps::getSymmetryName() const
 {
-  return "Hexagonal 6/m";;
+  return "Hexagonal 6/m";
+  ;
 }
 
 OrientationD HexagonalLowOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
@@ -694,24 +695,24 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double& schmidfactor,
   {
     schmidfactor = schmid6, slipsys = 6, angleComps[0] = theta3, angleComps[1] = lambda4;
   }
-  //if(schmid7 > schmidfactor) { schmidfactor = schmid7, slipsys = 7; }
-  //if(schmid8 > schmidfactor) { schmidfactor = schmid8, slipsys = 8; }
-  //if(schmid9 > schmidfactor) { schmidfactor = schmid9, slipsys = 9; }
-  //if(schmid10 > schmidfactor) { schmidfactor = schmid10, slipsys = 10; }
-  //if(schmid11 > schmidfactor) { schmidfactor = schmid11, slipsys = 11; }
-  //if(schmid12 > schmidfactor) { schmidfactor = schmid12, slipsys = 12; }
-  //if(schmid13 > schmidfactor) { schmidfactor = schmid13, slipsys = 13; }
-  //if(schmid14 > schmidfactor) { schmidfactor = schmid14, slipsys = 14; }
-  //if(schmid15 > schmidfactor) { schmidfactor = schmid15, slipsys = 15; }
-  //if(schmid16 > schmidfactor) { schmidfactor = schmid16, slipsys = 16; }
-  //if(schmid17 > schmidfactor) { schmidfactor = schmid17, slipsys = 17; }
-  //if(schmid18 > schmidfactor) { schmidfactor = schmid18, slipsys = 18; }
-  //if(schmid19 > schmidfactor) { schmidfactor = schmid19, slipsys = 19; }
-  //if(schmid20 > schmidfactor) { schmidfactor = schmid20, slipsys = 20; }
-  //if(schmid21 > schmidfactor) { schmidfactor = schmid21, slipsys = 21; }
-  //if(schmid22 > schmidfactor) { schmidfactor = schmid22, slipsys = 22; }
-  //if(schmid23 > schmidfactor) { schmidfactor = schmid23, slipsys = 23; }
-  //if(schmid24 > schmidfactor) { schmidfactor = schmid24, slipsys = 24; }
+  // if(schmid7 > schmidfactor) { schmidfactor = schmid7, slipsys = 7; }
+  // if(schmid8 > schmidfactor) { schmidfactor = schmid8, slipsys = 8; }
+  // if(schmid9 > schmidfactor) { schmidfactor = schmid9, slipsys = 9; }
+  // if(schmid10 > schmidfactor) { schmidfactor = schmid10, slipsys = 10; }
+  // if(schmid11 > schmidfactor) { schmidfactor = schmid11, slipsys = 11; }
+  // if(schmid12 > schmidfactor) { schmidfactor = schmid12, slipsys = 12; }
+  // if(schmid13 > schmidfactor) { schmidfactor = schmid13, slipsys = 13; }
+  // if(schmid14 > schmidfactor) { schmidfactor = schmid14, slipsys = 14; }
+  // if(schmid15 > schmidfactor) { schmidfactor = schmid15, slipsys = 15; }
+  // if(schmid16 > schmidfactor) { schmidfactor = schmid16, slipsys = 16; }
+  // if(schmid17 > schmidfactor) { schmidfactor = schmid17, slipsys = 17; }
+  // if(schmid18 > schmidfactor) { schmidfactor = schmid18, slipsys = 18; }
+  // if(schmid19 > schmidfactor) { schmidfactor = schmid19, slipsys = 19; }
+  // if(schmid20 > schmidfactor) { schmidfactor = schmid20, slipsys = 20; }
+  // if(schmid21 > schmidfactor) { schmidfactor = schmid21, slipsys = 21; }
+  // if(schmid22 > schmidfactor) { schmidfactor = schmid22, slipsys = 22; }
+  // if(schmid23 > schmidfactor) { schmidfactor = schmid23, slipsys = 23; }
+  // if(schmid24 > schmidfactor) { schmidfactor = schmid24, slipsys = 24; }
 }
 
 void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const
@@ -721,22 +722,22 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < HexagonalLow::k_NumSymQuats; i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = HexagonalLow::MatSym[i][2][0] * plane[0] + HexagonalLow::MatSym[i][2][1] * plane[1] + HexagonalLow::MatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = HexagonalLow::MatSym[i][0][0] * plane[0] + HexagonalLow::MatSym[i][0][1] * plane[1] + HexagonalLow::MatSym[i][0][2] * plane[2];
       slipPlane[1] = HexagonalLow::MatSym[i][1][0] * plane[0] + HexagonalLow::MatSym[i][1][1] * plane[1] + HexagonalLow::MatSym[i][1][2] * plane[2];
@@ -798,7 +799,7 @@ double HexagonalLowOps::getmPrime(const QuatType& q1, const QuatType& q2, double
   directionmisalignment = fabs((u1 * u2 + v1 * v2 + w1 * w2) / (denomuvw1 * denomuvw2));
   mPrime = planemisalignment * directionmisalignment;
 #endif
-return 0.0;
+  return 0.0;
 }
 
 double HexagonalLowOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
@@ -1104,7 +1105,6 @@ void HexagonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eu
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
-
   // Sanity Check the size of the arrays
   if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalLow::symSize0)
   {
@@ -1131,7 +1131,6 @@ void HexagonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eu
     HexagonalLow::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120);
     serial.generate(0, nOrientations);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -1217,11 +1216,11 @@ EbsdLib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
   _rgb[2] = sqrt(_rgb[2]);
 
   double max = _rgb[0];
-  if (_rgb[1] > max)
+  if(_rgb[1] > max)
   {
     max = _rgb[1];
   }
-  if (_rgb[2] > max)
+  if(_rgb[2] > max)
   {
     max = _rgb[2];
   }
@@ -1268,8 +1267,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -1287,7 +1292,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   // Generate the coords on the sphere **** Parallelized
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
-
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
   EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
@@ -1303,7 +1307,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
     g->run(ComputeStereographicProjection(xyz011.get(), &config, intensity011.get()));
     g->run(ComputeStereographicProjection(xyz111.get(), &config, intensity111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1324,26 +1327,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1353,11 +1355,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1393,7 +1395,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
     g->run(GeneratePoleFigureRgbaImageImpl(intensity011.get(), &config, image011.get()));
     g->run(GeneratePoleFigureRgbaImageImpl(intensity111.get(), &config, image111.get()));
     g->wait(); // Wait for all the threads to complete before moving on.
-
   }
   else
 #endif
@@ -1440,13 +1441,13 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
 
   EbsdLib::Rgb color;
   size_t idx = 0;
-  size_t yScanLineIndex = imageDim-1; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
+  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
-  for (int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
+  for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
 
-    for (int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
+    for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
 
@@ -1454,19 +1455,19 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
       y = yIndex * yInc;
 
       double sumSquares = (x * x) + (y * y);
-      if( sumSquares > 1.0f || x < y/m) // Outside unit circle
+      if(sumSquares > 1.0f || x < y / m) // Outside unit circle
       {
         color = 0xFFFFFFF;
       }
-      else if ( sumSquares > (rad-2*xInc) && sumSquares < (rad+2*xInc)) // Black Border line
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Border line
       {
         color = 0xFF000000;
       }
-      else if( x - y/m < 0.001)
+      else if(x - y / m < 0.001)
       {
         color = 0xFF000000;
       }
-      else if (xIndex == 0 || yIndex == 0 )
+      else if(xIndex == 0 || yIndex == 0)
       {
         color = 0xFF000000;
       }
@@ -1532,5 +1533,3 @@ HexagonalLowOps::Pointer HexagonalLowOps::New()
   Pointer sharedPtr(new(HexagonalLowOps));
   return sharedPtr;
 }
-
-

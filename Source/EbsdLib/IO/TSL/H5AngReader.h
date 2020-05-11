@@ -1,41 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-
-
-
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
@@ -103,110 +99,107 @@
  */
 class EbsdLib_EXPORT H5AngReader : public AngReader
 {
-  public:
-    using Self = H5AngReader;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+public:
+  using Self = H5AngReader;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
 
-    EBSD_STATIC_NEW_MACRO(H5AngReader)
-    /**
-    * @brief Returns the name of the class for _SUPERH5AngReader
-    */
-    QString getNameOfClass() const;
-    /**
-    * @brief Returns the name of the class for _SUPERH5AngReader
-    */
-    static QString ClassName();
+  EBSD_STATIC_NEW_MACRO(H5AngReader)
+  /**
+   * @brief Returns the name of the class for _SUPERH5AngReader
+   */
+  QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for _SUPERH5AngReader
+   */
+  static QString ClassName();
 
+  ~H5AngReader() override;
 
-    ~H5AngReader() override;
+  /**
+   * @brief The HDF5 path to find the EBSD data
+   */
+  /**
+   * @brief Setter property for HDF5Path
+   */
+  void setHDF5Path(const QString& value);
+  /**
+   * @brief Getter property for HDF5Path
+   * @return Value of HDF5Path
+   */
+  QString getHDF5Path() const;
 
-    /**
-     * @brief The HDF5 path to find the EBSD data
-     */
-    /**
-    * @brief Setter property for HDF5Path
-    */
-    void setHDF5Path(const QString& value) ;
-    /**
-    * @brief Getter property for HDF5Path
-    * @return Value of HDF5Path
-    */
-    QString getHDF5Path() const ;
+  /**
+   * @brief Reads the file
+   * @return error condition
+   */
+  int readFile() override;
 
+  /**
+   * @brief Reads the header section of the file
+   * @param Valid HDF5 Group ID
+   * @return error condition
+   */
+  int readHeader(hid_t parId);
 
-    /**
-     * @brief Reads the file
-     * @return error condition
-     */
-    int readFile() override;
+  /**
+   * @brief Reads ONLY the header portion of the TSL .ang file
+   * @return 1 on success
+   */
+  int readHeaderOnly() override;
 
-    /**
-     * @brief Reads the header section of the file
-     * @param Valid HDF5 Group ID
-     * @return error condition
-     */
-    int readHeader(hid_t parId);
+  /**
+   * @brief Returns a vector of AngPhase objects corresponding to the phases
+   * present in the file
+   */
+  QVector<AngPhase::Pointer> getPhases()
+  {
+    return m_Phases;
+  }
 
-    /**
-    * @brief Reads ONLY the header portion of the TSL .ang file
-    * @return 1 on success
-    */
-    int readHeaderOnly() override;
+  /**
+   * @brief Sets the names of the arrays to read out of the file
+   * @param names
+   */
+  void setArraysToRead(const QSet<QString>& names);
 
-    /**
-     * @brief Returns a vector of AngPhase objects corresponding to the phases
-     * present in the file
-     */
-    QVector<AngPhase::Pointer> getPhases() { return m_Phases; }
+  /**
+   * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
+   * ArrayNames to read is empty and this is true then all arrays will be read.
+   * @param b
+   */
+  void readAllArrays(bool b);
 
-    /**
-     * @brief Sets the names of the arrays to read out of the file
-     * @param names
-     */
-    void setArraysToRead(const QSet<QString>& names);
+protected:
+  H5AngReader();
 
-    /**
-     * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
-     * ArrayNames to read is empty and this is true then all arrays will be read.
-     * @param b
-     */
-    void readAllArrays(bool b);
+  /**
+   * @brief Reads the data associated with HKL Families for a given phase.
+   * @param hklGid Valid HDF5 Group ID where the HKL Family data is located.
+   * @param phase The AngPhase to parse the HKL Family data
+   */
+  int readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase);
 
-  protected:
-    H5AngReader();
+  /**
+   * @brief Reads the data section of the file
+   * @param Valid HDF5 Group ID
+   * @return error condition
+   */
+  int readData(hid_t parId);
 
-    /**
-     * @brief Reads the data associated with HKL Families for a given phase.
-     * @param hklGid Valid HDF5 Group ID where the HKL Family data is located.
-     * @param phase The AngPhase to parse the HKL Family data
-     */
-    int readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase);
+private:
+  QString m_HDF5Path = {};
 
-    /**
-     * @brief Reads the data section of the file
-     * @param Valid HDF5 Group ID
-     * @return error condition
-     */
-    int readData(hid_t parId);
+  QVector<AngPhase::Pointer> m_Phases;
+  QSet<QString> m_ArrayNames;
+  bool m_ReadAllArrays;
 
-  private:
-
-    QString m_HDF5Path = {};
-
-
-    QVector<AngPhase::Pointer> m_Phases;
-    QSet<QString>         m_ArrayNames;
-    bool                  m_ReadAllArrays;
-
-  public:
-    H5AngReader(const H5AngReader&) = delete;    // Copy Constructor Not Implemented
-    H5AngReader(H5AngReader&&) = delete;         // Move Constructor Not Implemented
-    H5AngReader& operator=(const H5AngReader&) = delete; // Copy Assignment Not Implemented
-    H5AngReader& operator=(H5AngReader&&) = delete;      // Move Assignment Not Implemented
+public:
+  H5AngReader(const H5AngReader&) = delete;            // Copy Constructor Not Implemented
+  H5AngReader(H5AngReader&&) = delete;                 // Move Constructor Not Implemented
+  H5AngReader& operator=(const H5AngReader&) = delete; // Copy Assignment Not Implemented
+  H5AngReader& operator=(H5AngReader&&) = delete;      // Move Assignment Not Implemented
 };
-
-

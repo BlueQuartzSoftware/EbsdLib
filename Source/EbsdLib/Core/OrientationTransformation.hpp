@@ -749,7 +749,7 @@ OutputType eu2ax(const InputType& e)
   value_type thr = static_cast<value_type>(1.0E-6);
   value_type alpha = static_cast<value_type>(0.0);
   value_type t = static_cast<value_type>(tan(e[1] * 0.5));
-  value_type sig =static_cast<value_type>(0.5 * (e[0] + e[2]));
+  value_type sig = static_cast<value_type>(0.5 * (e[0] + e[2]));
   value_type del = static_cast<value_type>(0.5 * (e[0] - e[2]));
   value_type tau = static_cast<value_type>(std::sqrt(t * t + sin(sig) * sin(sig)));
   if(EbsdLibMath::closeEnough(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2), static_cast<typename OutputType::value_type>(1.0E-6L)))

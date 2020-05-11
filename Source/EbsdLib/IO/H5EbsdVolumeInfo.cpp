@@ -46,12 +46,13 @@
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 
-#define EBSD_VOLREADER_READ_HEADER(fileId, path, var)\
-  err = H5Lite::readScalarDataset(fileId, path.toStdString(), var);\
-  if (err < 0) {\
-    qDebug() << "H5EbsdVolumeInfo Error: Could not load header value for " << path ;\
-    err = H5Utilities::closeFile(fileId);\
-    return err;\
+#define EBSD_VOLREADER_READ_HEADER(fileId, path, var)                                                                                                                                                  \
+  err = H5Lite::readScalarDataset(fileId, path.toStdString(), var);                                                                                                                                    \
+  if(err < 0)                                                                                                                                                                                          \
+  {                                                                                                                                                                                                    \
+    qDebug() << "H5EbsdVolumeInfo Error: Could not load header value for " << path;                                                                                                                    \
+    err = H5Utilities::closeFile(fileId);                                                                                                                                                              \
+    return err;                                                                                                                                                                                        \
   }
 
 #define EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, path, var, type)                                                                                                                                    \
@@ -65,20 +66,22 @@
     }                                                                                                                                                                                                  \
   }
 
-#define EBSD_VOLREADER_READ_HEADER_CAST(fileId, path, var, m_msgType, cast)\
-  { cast t;\
-    err = H5Lite::readScalarDataset(fileId, path.toStdString(), t);\
-    if (err < 0) {\
-      qDebug() << "H5EbsdVolumeInfo Error: Could not load header value (with cast) for " << path ;\
-      err = H5Utilities::closeFile(fileId);\
-      return err;\
-    }\
-    var = static_cast<m_msgType>(t); }
+#define EBSD_VOLREADER_READ_HEADER_CAST(fileId, path, var, m_msgType, cast)                                                                                                                            \
+  {                                                                                                                                                                                                    \
+    cast t;                                                                                                                                                                                            \
+    err = H5Lite::readScalarDataset(fileId, path.toStdString(), t);                                                                                                                                    \
+    if(err < 0)                                                                                                                                                                                        \
+    {                                                                                                                                                                                                  \
+      qDebug() << "H5EbsdVolumeInfo Error: Could not load header value (with cast) for " << path;                                                                                                      \
+      err = H5Utilities::closeFile(fileId);                                                                                                                                                            \
+      return err;                                                                                                                                                                                      \
+    }                                                                                                                                                                                                  \
+    var = static_cast<m_msgType>(t);                                                                                                                                                                   \
+  }
 
-#if defined (H5Support_NAMESPACE)
+#if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
-
 
 // -----------------------------------------------------------------------------
 //
@@ -112,7 +115,6 @@ void H5EbsdVolumeInfo::invalidateCache()
   m_Manufacturer = "";
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -121,9 +123,9 @@ int H5EbsdVolumeInfo::updateToLatestVersion()
   invalidateCache();
   // Open the file with Read/Write access
   hid_t fileId = H5Utilities::openFile(m_FileName.toStdString(), false);
-  if (fileId < 0)
+  if(fileId < 0)
   {
-    //std::cout << "Error Opening file '" << m_FileName << "'" << std::endl;
+    // std::cout << "Error Opening file '" << m_FileName << "'" << std::endl;
     return -1;
   }
   // This sentinel will make sure the file is closed and the errors turned back on when we
@@ -144,9 +146,9 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   m_ValuesAreCached = false;
   int retErr = 0;
   hid_t fileId = H5Utilities::openFile(m_FileName.toStdString(), true);
-  if (fileId < 0)
+  if(fileId < 0)
   {
-    //std::cout << "Error Opening file '" << m_FileName << "'" << std::endl;
+    // std::cout << "Error Opening file '" << m_FileName << "'" << std::endl;
     return -1;
   }
   H5ScopedFileSentinel sentinel(&fileId, true);
@@ -175,7 +177,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   m_Manufacturer = "";
   std::string data;
   err = H5Lite::readStringDataset(fileId, EbsdLib::H5Ebsd::Manufacturer.toStdString(), data);
-  if (err < 0)
+  if(err < 0)
   {
     std::cout << "H5EbsdVolumeInfo Error: Could not load header value for " << EbsdLib::H5Ebsd::Manufacturer.toStdString() << std::endl;
     err = H5Utilities::closeFile(fileId);
@@ -188,19 +190,19 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   // will cause an infinite recursion to occur.
   QString index = QString::number(m_ZStart);
   hid_t gid = H5Gopen(fileId, index.toStdString().c_str(), H5P_DEFAULT);
-  if (gid > 0)
+  if(gid > 0)
   {
     hid_t headerId = H5Gopen(gid, EbsdLib::H5Ebsd::Header.toStdString().c_str(), H5P_DEFAULT);
-    if (headerId > 0)
+    if(headerId > 0)
     {
       hid_t phasesGid = H5Gopen(headerId, EbsdLib::H5Ebsd::Phases.toStdString().c_str(), H5P_DEFAULT);
-      if (phasesGid > 0)
+      if(phasesGid > 0)
       {
         std::list<std::string> names;
         err = H5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
-        if (err >= 0)
+        if(err >= 0)
         {
-          m_NumPhases = static_cast<int>( names.size() );
+          m_NumPhases = static_cast<int>(names.size());
         }
         H5Gclose(phasesGid);
       }
@@ -214,7 +216,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
     {
       std::list<std::string> names;
       err = H5Utilities::getGroupObjects(dataGid, H5Utilities::CustomHDFDataTypes::Dataset, names);
-      if (err >= 0)
+      if(err >= 0)
       {
         for(auto& name : names)
         {
@@ -226,7 +228,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
     H5Gclose(gid);
   }
 
-// we are going to selectively replace some of the data array names with some common names instead
+  // we are going to selectively replace some of the data array names with some common names instead
   if(m_Manufacturer.compare(EbsdLib::Ang::Manufacturer) == 0)
   {
     if(m_DataArrayNames.contains(EbsdLib::Ang::Phi1) && m_DataArrayNames.contains(EbsdLib::Ang::Phi) && m_DataArrayNames.contains(EbsdLib::Ang::Phi2))
@@ -258,8 +260,6 @@ int H5EbsdVolumeInfo::readVolumeInfo()
     }
   }
 
-
-
   m_ValuesAreCached = true;
   err = H5Utilities::closeFile(fileId);
   fileId = -1;
@@ -275,23 +275,27 @@ uint32_t H5EbsdVolumeInfo::getFileVersion()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0; }
+    if(err < 0)
+    {
+      return 0;
+    }
   }
   return m_FileVersion;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int H5EbsdVolumeInfo::getDimsAndResolution(int64_t& xDim, int64_t& yDim, int64_t& zDim,
-                                           float& xRes, float& yRes, float& zRes)
+int H5EbsdVolumeInfo::getDimsAndResolution(int64_t& xDim, int64_t& yDim, int64_t& zDim, float& xRes, float& yRes, float& zRes)
 {
   int err = -1;
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return -1; }
+    if(err < 0)
+    {
+      return -1;
+    }
   }
   if(m_ValuesAreCached)
   {
@@ -315,7 +319,10 @@ int H5EbsdVolumeInfo::getDims(int64_t& xDim, int64_t& yDim, int64_t& zDim)
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return -1; }
+    if(err < 0)
+    {
+      return -1;
+    }
   }
   if(m_ValuesAreCached)
   {
@@ -336,7 +343,10 @@ int H5EbsdVolumeInfo::getSpacing(float& xRes, float& yRes, float& zRes)
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return -1; }
+    if(err < 0)
+    {
+      return -1;
+    }
   }
   if(m_ValuesAreCached)
   {
@@ -357,7 +367,10 @@ QString H5EbsdVolumeInfo::getManufacturer()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return QString(""); }
+    if(err < 0)
+    {
+      return QString("");
+    }
   }
   return m_Manufacturer;
 }
@@ -371,7 +384,10 @@ int H5EbsdVolumeInfo::getNumSlices()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0; }
+    if(err < 0)
+    {
+      return 0;
+    }
   }
   return m_ZDim;
 }
@@ -385,7 +401,10 @@ int H5EbsdVolumeInfo::getZStart()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0; }
+    if(err < 0)
+    {
+      return 0;
+    }
   }
   return m_ZStart;
 }
@@ -399,7 +418,10 @@ int H5EbsdVolumeInfo::getZEnd()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0; }
+    if(err < 0)
+    {
+      return 0;
+    }
   }
   return m_ZEnd;
 }
@@ -413,7 +435,10 @@ int H5EbsdVolumeInfo::getNumPhases()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0; }
+    if(err < 0)
+    {
+      return 0;
+    }
   }
   return m_NumPhases;
 }
@@ -444,7 +469,10 @@ float H5EbsdVolumeInfo::getSampleTransformationAngle()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0.0; }
+    if(err < 0)
+    {
+      return 0.0;
+    }
   }
   return m_SampleTransformationAngle;
 }
@@ -458,7 +486,7 @@ std::array<float, 3> H5EbsdVolumeInfo::getSampleTransformationAxis()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0)
+    if(err < 0)
     {
       std::array<float, 3> axis;
       axis[0] = 0.0;
@@ -478,7 +506,10 @@ float H5EbsdVolumeInfo::getEulerTransformationAngle()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return 0.0; }
+    if(err < 0)
+    {
+      return 0.0;
+    }
   }
   return m_EulerTransformationAngle;
 }
@@ -491,7 +522,7 @@ std::array<float, 3> H5EbsdVolumeInfo::getEulerTransformationAxis()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0)
+    if(err < 0)
     {
       std::array<float, 3> axis;
       axis[0] = 0.0;
@@ -513,7 +544,10 @@ QSet<QString> H5EbsdVolumeInfo::getDataArrayNames()
   if(!m_ValuesAreCached)
   {
     err = readVolumeInfo();
-    if (err < 0) { return empty; }
+    if(err < 0)
+    {
+      return empty;
+    }
   }
   return m_DataArrayNames;
 }
@@ -523,8 +557,6 @@ H5EbsdVolumeInfo::Pointer H5EbsdVolumeInfo::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
-
-
 
 // -----------------------------------------------------------------------------
 void H5EbsdVolumeInfo::setErrorMessage(const QString& value)
@@ -550,8 +582,6 @@ QString H5EbsdVolumeInfo::getFileName() const
   return m_FileName;
 }
 
-
-
 // -----------------------------------------------------------------------------
 QString H5EbsdVolumeInfo::getNameOfClass() const
 {
@@ -563,5 +593,3 @@ QString H5EbsdVolumeInfo::ClassName()
 {
   return QString("H5EbsdVolumeInfo");
 }
-
-

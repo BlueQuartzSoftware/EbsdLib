@@ -9,8 +9,6 @@
 #include "SO3SamplerTest.cpp"
 #include "OrientationTransformsTest.cpp"
 
-
-
 // -----------------------------------------------------------------------------
 //  Use test framework
 // -----------------------------------------------------------------------------
@@ -29,9 +27,6 @@ int main(int argc, char** argv)
 
   // Send progress messages from PipelineBuilder to this object for display
   QMetaObjectUtilities::RegisterMetaTypes();
-
-
-
 
   TextureTest()();
   ODFTest()();

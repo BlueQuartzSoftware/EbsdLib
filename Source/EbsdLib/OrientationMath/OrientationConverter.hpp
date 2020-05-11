@@ -316,7 +316,8 @@ private:
  * @brief This contains all the functors that represent all possible conversion routines
  * between orientation representations
  */
-namespace Convertors {
+namespace Convertors
+{
 /* Euler Functors  */
 OC_CONVERTOR_FUNCTOR(Eu2Om, 3, 9, eu2om)
 OC_CONVERTOR_FUNCTOR(Eu2Qu, 3, 4, eu2qu)
@@ -339,7 +340,7 @@ OC_CONVERTOR_FUNCTOR(Qu2Om, 4, 9, qu2om)
 OC_CONVERTOR_FUNCTOR(Qu2Ax, 4, 4, qu2ax)
 OC_CONVERTOR_FUNCTOR(Qu2Ro, 4, 4, qu2ro)
 OC_CONVERTOR_FUNCTOR(Qu2Ho, 4, 3, qu2ho)
-OC_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu) 
+OC_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu)
 
 /* AxisAngles Functors */
 OC_CONVERTOR_FUNCTOR(Ax2Eu, 4, 3, ax2eu)
@@ -355,7 +356,7 @@ OC_CONVERTOR_FUNCTOR(Ro2Om, 4, 9, ro2om)
 OC_CONVERTOR_FUNCTOR(Ro2Qu, 4, 4, ro2qu)
 OC_CONVERTOR_FUNCTOR(Ro2Ax, 4, 4, ro2ax)
 OC_CONVERTOR_FUNCTOR(Ro2Ho, 4, 3, ro2ho)
-OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)  
+OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)
 
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Ho2Eu, 3, 3, ho2eu)
@@ -363,7 +364,7 @@ OC_CONVERTOR_FUNCTOR(Ho2Om, 3, 9, ho2om)
 OC_CONVERTOR_FUNCTOR(Ho2Qu, 3, 4, ho2qu)
 OC_CONVERTOR_FUNCTOR(Ho2Ax, 3, 4, ho2ax)
 OC_CONVERTOR_FUNCTOR(Ho2Ro, 3, 4, ho2ro)
-OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)      
+OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)
 
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Cu2Eu, 3, 3, cu2eu)
@@ -371,58 +372,59 @@ OC_CONVERTOR_FUNCTOR(Cu2Om, 3, 9, cu2om)
 OC_CONVERTOR_FUNCTOR(Cu2Qu, 3, 4, cu2qu)
 OC_CONVERTOR_FUNCTOR(Cu2Ax, 3, 4, cu2ax)
 OC_CONVERTOR_FUNCTOR(Cu2Ro, 3, 4, cu2ro)
-OC_CONVERTOR_FUNCTOR(Cu2Ho, 3, 3, cu2ho)   
+OC_CONVERTOR_FUNCTOR(Cu2Ho, 3, 3, cu2ho)
 
-}
+} // namespace Convertors
 
 /**
- * @brief This templated class is a functor class that is used for 
+ * @brief This templated class is a functor class that is used for
  * the TBB classes to use to parallelize the conversion of orientation
  * representations
  */
 template <typename T, class Converter>
 class ConvertRepresentation
 {
-  public:
-    ConvertRepresentation(T* inPtr, T* outPtr, size_t inStride, size_t outStride) :
-      m_InPtr(inPtr)
-    , m_OutPtr(outPtr)
-    , m_InStride(inStride)
-    , m_OutStride(outStride)
-    {}
-    virtual ~ConvertRepresentation() = default;
+public:
+  ConvertRepresentation(T* inPtr, T* outPtr, size_t inStride, size_t outStride)
+  : m_InPtr(inPtr)
+  , m_OutPtr(outPtr)
+  , m_InStride(inStride)
+  , m_OutStride(outStride)
+  {
+  }
+  virtual ~ConvertRepresentation() = default;
 
-    /**
-     * @brief This is the main conversion routine
-     * @param start Starting index
-     * @param end Ending index
-     */
-    void convert(size_t start, size_t end) const
+  /**
+   * @brief This is the main conversion routine
+   * @param start Starting index
+   * @param end Ending index
+   */
+  void convert(size_t start, size_t end) const
+  {
+    Converter conv;
+    T* input = m_InPtr + (start * m_InStride);
+    T* output = m_OutPtr + (start * m_OutStride);
+    for(size_t i = start; i < end; ++i)
     {
-      Converter conv;
-      T* input = m_InPtr + (start * m_InStride);
-      T* output = m_OutPtr + (start * m_OutStride);
-      for (size_t i = start; i < end; ++i) { 
-        conv(input, output);
-        input = input + m_InStride; /* Increment input pointer */ 
-        output = output + m_OutStride; /* Increment output pointer*/ 
-      }
+      conv(input, output);
+      input = input + m_InStride;    /* Increment input pointer */
+      output = output + m_OutStride; /* Increment output pointer*/
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      convert(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    convert(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_InPtr = nullptr;
-    T* m_OutPtr = nullptr;
-    size_t m_InStride = 0;
-    size_t m_OutStride = 0;
-};
 
+private:
+  T* m_InPtr = nullptr;
+  T* m_OutPtr = nullptr;
+  size_t m_InStride = 0;
+  size_t m_OutStride = 0;
+};
 
 /**
  * @brief OC_CONVERT_BODY Generates the body of method that will perform the conversion
@@ -462,7 +464,6 @@ class ConvertRepresentation
 
 #endif
 
-
 /* =============================================================================
  *
  * ===========================================================================*/
@@ -470,51 +471,52 @@ class ConvertRepresentation
 template <typename T>
 class EulerSanityCheck
 {
-  public:
-    EulerSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~EulerSanityCheck() = default;
+public:
+  EulerSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~EulerSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
+      inPtr[0] = fmod(inPtr[0], EbsdLib::Constants::k_2Pi);
+      inPtr[1] = fmod(inPtr[1], EbsdLib::Constants::k_Pi);
+      inPtr[2] = fmod(inPtr[2], EbsdLib::Constants::k_2Pi);
+
+      if(inPtr[0] < 0.0)
       {
-        inPtr[0] = fmod(inPtr[0], EbsdLib::Constants::k_2Pi);
-        inPtr[1] = fmod(inPtr[1], EbsdLib::Constants::k_Pi);
-        inPtr[2] = fmod(inPtr[2], EbsdLib::Constants::k_2Pi);
-
-        if(inPtr[0] < 0.0)
-        {
-          inPtr[0] *= static_cast<T>(-1.0);
-        }
-        if(inPtr[1] < 0.0)
-        {
-          inPtr[1] *= static_cast<T>(-1.0);
-        }
-        if(inPtr[2] < 0.0)
-        {
-          inPtr[2] *= static_cast<T>(-1.0);
-        }
-
-        inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
+        inPtr[0] *= static_cast<T>(-1.0);
       }
+      if(inPtr[1] < 0.0)
+      {
+        inPtr[1] *= static_cast<T>(-1.0);
+      }
+      if(inPtr[2] < 0.0)
+      {
+        inPtr[2] *= static_cast<T>(-1.0);
+      }
+
+      inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
-    
-};
 
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
+};
 
 // -----------------------------------------------------------------------------
 //
@@ -584,10 +586,10 @@ public:
     }
     else
 #endif
-      {
-        EulerSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
-      }
+    {
+      EulerSanityCheck<T> serial(inPtr, inStride);
+      serial.sanityCheck(0, nTuples);
+    }
   }
 
   /**
@@ -635,11 +637,11 @@ protected:
     this->setInputData(data);
   }
 
-  public:
-    EulerConverter(const EulerConverter&) = delete;            // Copy Constructor Not Implemented
-    EulerConverter(EulerConverter&&) = delete;                 // Move Constructor Not Implemented
-    EulerConverter& operator=(const EulerConverter&) = delete; // Copy Assignment Not Implemented
-    EulerConverter& operator=(EulerConverter&&) = delete;      // Move Assignment Not Implemented
+public:
+  EulerConverter(const EulerConverter&) = delete;            // Copy Constructor Not Implemented
+  EulerConverter(EulerConverter&&) = delete;                 // Move Constructor Not Implemented
+  EulerConverter& operator=(const EulerConverter&) = delete; // Copy Assignment Not Implemented
+  EulerConverter& operator=(EulerConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -648,57 +650,60 @@ protected:
 template <typename T>
 class OrientationMatrixSanityCheck
 {
-  public:
-    OrientationMatrixSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~OrientationMatrixSanityCheck() = default;
+public:
+  OrientationMatrixSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~OrientationMatrixSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
+      using Orientation_Type = Orientation<T>;
+      using ResultType = OrientationTransformation::ResultType;
+
+      Orientation_Type oaType(inPtr, 9);
+
+      ResultType res = OrientationTransformation::om_check(oaType);
+      if(res.result <= 0)
       {
-        using Orientation_Type = Orientation<T>;
-        using ResultType = OrientationTransformation::ResultType;
-
-        Orientation_Type oaType(inPtr, 9);
-
-        ResultType res = OrientationTransformation::om_check(oaType);
-        if(res.result <= 0)
-        {
-          std::cout << res.msg << std::endl;
-          printRepresentation(std::cout, inPtr, std::string("Bad OM"));
-        }
-        
-        inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
+        std::cout << res.msg << std::endl;
+        printRepresentation(std::cout, inPtr, std::string("Bad OM"));
       }
+
+      inPtr = inPtr + m_Stride; // This is Pointer arithmetic!!
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param om
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* om, const std::string& label = std::string("Om")) const
-    {
-      out.precision(16);
-      out << label << om[0] << '\t' << om[1] << '\t' << om[2] << std::endl;
-      out << label << om[3] << '\t' << om[4] << '\t' << om[5] << std::endl;
-      out << label << om[6] << '\t' << om[7] << '\t' << om[8] << std::endl;
-    }
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param om
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* om, const std::string& label = std::string("Om")) const
+  {
+    out.precision(16);
+    out << label << om[0] << '\t' << om[1] << '\t' << om[2] << std::endl;
+    out << label << om[3] << '\t' << om[4] << '\t' << om[5] << std::endl;
+    out << label << om[6] << '\t' << om[7] << '\t' << om[8] << std::endl;
+  }
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
@@ -771,10 +776,10 @@ public:
     }
     else
 #endif
-      {
-        OrientationMatrixSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
-      }
+    {
+      OrientationMatrixSanityCheck<T> serial(inPtr, inStride);
+      serial.sanityCheck(0, nTuples);
+    }
   }
 
   /**
@@ -812,21 +817,22 @@ public:
     out << label << om[6] << '\t' << om[7] << '\t' << om[8] << std::endl;
   }
 
-  protected:
-    OrientationMatrixConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {}
-    explicit OrientationMatrixConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+protected:
+  OrientationMatrixConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
+  explicit OrientationMatrixConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
 
-  public:
-    OrientationMatrixConverter(const OrientationMatrixConverter&) = delete;            // Copy Constructor Not Implemented
-    OrientationMatrixConverter(OrientationMatrixConverter&&) = delete;                 // Move Constructor Not Implemented
-    OrientationMatrixConverter& operator=(const OrientationMatrixConverter&) = delete; // Copy Assignment Not Implemented
-    OrientationMatrixConverter& operator=(OrientationMatrixConverter&&) = delete;      // Move Assignment Not Implemented
+public:
+  OrientationMatrixConverter(const OrientationMatrixConverter&) = delete;            // Copy Constructor Not Implemented
+  OrientationMatrixConverter(OrientationMatrixConverter&&) = delete;                 // Move Constructor Not Implemented
+  OrientationMatrixConverter& operator=(const OrientationMatrixConverter&) = delete; // Copy Assignment Not Implemented
+  OrientationMatrixConverter& operator=(OrientationMatrixConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -836,87 +842,89 @@ public:
 template <typename T>
 class QuaternionSanityCheck
 {
-  public:
-    QuaternionSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~QuaternionSanityCheck() = default;
+public:
+  QuaternionSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~QuaternionSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
-      {
-        
-      }
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
 class QuaternionConverter : public OrientationConverter<DataArrayType, T>
 {
-  public:
-    OC_CLASS_DEFINES(QuaternionConverter)
+public:
+  OC_CLASS_DEFINES(QuaternionConverter)
 
-    virtual ~QuaternionConverter() = default;
+  virtual ~QuaternionConverter() = default;
 
-    OrientationRepresentation::Type getOrientationRepresentation()
-    {
-      return OrientationRepresentation::Type::Quaternion;
-    }
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::Quaternion;
+  }
 
-    void toEulers()
-    {
-      OC_CONVERT_BODY(3, Eulers, qu2eu, Qu2Eu)
-    }
+  void toEulers()
+  {
+    OC_CONVERT_BODY(3, Eulers, qu2eu, Qu2Eu)
+  }
 
-    void toOrientationMatrix()
-    {
-      OC_CONVERT_BODY(9, OrientationMatrix, qu2om, Qu2Om)
-    }
+  void toOrientationMatrix()
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, qu2om, Qu2Om)
+  }
 
-    void toQuaternion()
-    {
-      using PointerType = DataArrayPointerType;
-      PointerType input = this->getInputData();
-      PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
-      this->setOutputData(output);
-    }
+  void toQuaternion()
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
 
-    void toAxisAngle()
-    {
-      OC_CONVERT_BODY(4, AxisAngle, qu2ax, Qu2Ax)
-    }
+  void toAxisAngle()
+  {
+    OC_CONVERT_BODY(4, AxisAngle, qu2ax, Qu2Ax)
+  }
 
-    void toRodrigues()
-    {
-      OC_CONVERT_BODY(4, Rodrigues, qu2ro, Qu2Ro)
-    }
+  void toRodrigues()
+  {
+    OC_CONVERT_BODY(4, Rodrigues, qu2ro, Qu2Ro)
+  }
 
-    void toHomochoric()
-    {
-      OC_CONVERT_BODY(3, Homochoric, qu2ho, Qu2Ho)
-    }
+  void toHomochoric()
+  {
+    OC_CONVERT_BODY(3, Homochoric, qu2ho, Qu2Ho)
+  }
 
-    void toCubochoric()
-    {
-      OC_CONVERT_BODY(3, Cubochoric, qu2cu, Qu2Cu)
-    }
+  void toCubochoric()
+  {
+    OC_CONVERT_BODY(3, Cubochoric, qu2cu, Qu2Cu)
+  }
 
-    void sanityCheckInputData()
-    {
-      /* Apparently there is no sanity check for Quaternions, Odd. We place this
+  void sanityCheckInputData()
+  {
+    /* Apparently there is no sanity check for Quaternions, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */
@@ -933,53 +941,57 @@ class QuaternionConverter : public OrientationConverter<DataArrayType, T>
         serial.sanityCheck(0, nTuples);
 #endif
 #endif
-    }
+  }
 
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param qu
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* qu, const std::string& label = std::string("Qu"))
-    {
-      out.precision(16);
-      out << label << qu[0] << '\t' << qu[1] << '\t' << qu[2] << '\t' << qu[3] << std::endl;
-    }
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param qu
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* qu, const std::string& label = std::string("Qu"))
+  {
+    out.precision(16);
+    out << label << qu[0] << '\t' << qu[1] << '\t' << qu[2] << '\t' << qu[3] << std::endl;
+  }
 
-    /**
-     * @brief compareRepresentations
-     * @param a
-     * @param b
-     * @param epsilon
-     * @return
-     */
-    bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 4; i++)
     {
-      bool close = false;
-      for(int i = 0; i < 4; i++)
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
       {
-        close = (epsilon > std::fabs(a[i] - b[i]));
-        if(!close) { return close; }
+        return close;
       }
-      return close;
     }
+    return close;
+  }
 
-  protected:
-    QuaternionConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {}
-    explicit QuaternionConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+protected:
+  QuaternionConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
+  explicit QuaternionConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
 
-  public:
-    QuaternionConverter(const QuaternionConverter&) = delete;            // Copy Constructor Not Implemented
-    QuaternionConverter(QuaternionConverter&&) = delete;                 // Move Constructor Not Implemented
-    QuaternionConverter& operator=(const QuaternionConverter&) = delete; // Copy Assignment Not Implemented
-    QuaternionConverter& operator=(QuaternionConverter&&) = delete;      // Move Assignment Not Implemented
+public:
+  QuaternionConverter(const QuaternionConverter&) = delete;            // Copy Constructor Not Implemented
+  QuaternionConverter(QuaternionConverter&&) = delete;                 // Move Constructor Not Implemented
+  QuaternionConverter& operator=(const QuaternionConverter&) = delete; // Copy Assignment Not Implemented
+  QuaternionConverter& operator=(QuaternionConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -988,87 +1000,89 @@ class QuaternionConverter : public OrientationConverter<DataArrayType, T>
 template <typename T>
 class AxisAngleSanityCheck
 {
-  public:
-    AxisAngleSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~AxisAngleSanityCheck() = default;
+public:
+  AxisAngleSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~AxisAngleSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
-      {
-        
-      }
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
 class AxisAngleConverter : public OrientationConverter<DataArrayType, T>
 {
-  public:
-    OC_CLASS_DEFINES(AxisAngleConverter)
+public:
+  OC_CLASS_DEFINES(AxisAngleConverter)
 
-    virtual ~AxisAngleConverter() = default;
+  virtual ~AxisAngleConverter() = default;
 
-    OrientationRepresentation::Type getOrientationRepresentation()
-    {
-      return OrientationRepresentation::Type::AxisAngle;
-    }
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::AxisAngle;
+  }
 
-    void toEulers()
-    {
-      OC_CONVERT_BODY(3, Eulers, ax2eu, Ax2Eu)
-    }
+  void toEulers()
+  {
+    OC_CONVERT_BODY(3, Eulers, ax2eu, Ax2Eu)
+  }
 
-    void toOrientationMatrix()
-    {
-      OC_CONVERT_BODY(9, OrientationMatrix, ax2om, Ax2Om)
-    }
+  void toOrientationMatrix()
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, ax2om, Ax2Om)
+  }
 
-    void toQuaternion()
-    {
-      OC_CONVERT_BODY(4, Quaternions, ax2qu, Ax2Qu)
-    }
+  void toQuaternion()
+  {
+    OC_CONVERT_BODY(4, Quaternions, ax2qu, Ax2Qu)
+  }
 
-    void toAxisAngle()
-    {
-      using PointerType = DataArrayPointerType;
-      PointerType input = this->getInputData();
-      PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
-      this->setOutputData(output);
-    }
+  void toAxisAngle()
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
 
-    void toRodrigues()
-    {
-      OC_CONVERT_BODY(4, Rodrigues, ax2ro, Ax2Ro)
-    }
+  void toRodrigues()
+  {
+    OC_CONVERT_BODY(4, Rodrigues, ax2ro, Ax2Ro)
+  }
 
-    void toHomochoric()
-    {
-      OC_CONVERT_BODY(3, Homochoric, ax2ho, Ax2Ho)
-    }
+  void toHomochoric()
+  {
+    OC_CONVERT_BODY(3, Homochoric, ax2ho, Ax2Ho)
+  }
 
-    void toCubochoric()
-    {
-      OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
-    }
+  void toCubochoric()
+  {
+    OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
+  }
 
-    void sanityCheckInputData()
-    {
-      /* Apparently there is no sanity check for AxisAngle, Odd. We place this
+  void sanityCheckInputData()
+  {
+    /* Apparently there is no sanity check for AxisAngle, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */
@@ -1084,55 +1098,58 @@ class AxisAngleConverter : public OrientationConverter<DataArrayType, T>
         serial.sanityCheck(0, nTuples);
 #endif
 #endif
-    }
-    
-    /**
-     * @brief compareRepresentations
-     * @param a
-     * @param b
-     * @param epsilon
-     * @return 
-     */
-    bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  }
+
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 4; i++)
     {
-      bool close = false;
-      for(int i = 0; i < 4; i++)
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
       {
-        close = (epsilon > std::fabs(a[i] - b[i]));
-        if(!close) { return close; }
+        return close;
       }
-      return close;
     }
+    return close;
+  }
 
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param ax
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* ax, const std::string& label = std::string("Ax"))
-    {
-      out.precision(16);
-      out << label << "<" << ax[0] << '\t' << ax[1] << '\t' << ax[2] << ">\t" << ax[3] << std::endl;
-    }
-    
-  protected:
-    AxisAngleConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {
-    }
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param ax
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* ax, const std::string& label = std::string("Ax"))
+  {
+    out.precision(16);
+    out << label << "<" << ax[0] << '\t' << ax[1] << '\t' << ax[2] << ">\t" << ax[3] << std::endl;
+  }
 
-    explicit AxisAngleConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+protected:
+  AxisAngleConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
 
-  public:
-    AxisAngleConverter(const AxisAngleConverter&) = delete;            // Copy Constructor Not Implemented
-    AxisAngleConverter(AxisAngleConverter&&) = delete;                 // Move Constructor Not Implemented
-    AxisAngleConverter& operator=(const AxisAngleConverter&) = delete; // Copy Assignment Not Implemented
-    AxisAngleConverter& operator=(AxisAngleConverter&&) = delete;      // Move Assignment Not Implemented
+  explicit AxisAngleConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
+
+public:
+  AxisAngleConverter(const AxisAngleConverter&) = delete;            // Copy Constructor Not Implemented
+  AxisAngleConverter(AxisAngleConverter&&) = delete;                 // Move Constructor Not Implemented
+  AxisAngleConverter& operator=(const AxisAngleConverter&) = delete; // Copy Assignment Not Implemented
+  AxisAngleConverter& operator=(AxisAngleConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -1142,87 +1159,89 @@ class AxisAngleConverter : public OrientationConverter<DataArrayType, T>
 template <typename T>
 class RodriguesSanityCheck
 {
-  public:
-    RodriguesSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~RodriguesSanityCheck() = default;
+public:
+  RodriguesSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~RodriguesSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
-      {
-        
-      }
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
 class RodriguesConverter : public OrientationConverter<DataArrayType, T>
 {
-  public:
-    OC_CLASS_DEFINES(RodriguesConverter)
+public:
+  OC_CLASS_DEFINES(RodriguesConverter)
 
-    virtual ~RodriguesConverter() = default;
+  virtual ~RodriguesConverter() = default;
 
-    OrientationRepresentation::Type getOrientationRepresentation()
-    {
-      return OrientationRepresentation::Type::Rodrigues;
-    }
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::Rodrigues;
+  }
 
-    void toEulers()
-    {
-      OC_CONVERT_BODY(3, Eulers, ro2eu, Ro2Eu)
-    }
+  void toEulers()
+  {
+    OC_CONVERT_BODY(3, Eulers, ro2eu, Ro2Eu)
+  }
 
-    void toOrientationMatrix()
-    {
-      OC_CONVERT_BODY(9, OrientationMatrix, ro2om, Ro2Om)
-    }
+  void toOrientationMatrix()
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, ro2om, Ro2Om)
+  }
 
-    void toQuaternion()
-    {
-      OC_CONVERT_BODY(4, Quaternions, ro2qu, Ro2Qu)
-    }
+  void toQuaternion()
+  {
+    OC_CONVERT_BODY(4, Quaternions, ro2qu, Ro2Qu)
+  }
 
-    void toAxisAngle()
-    {
-      OC_CONVERT_BODY(4, AxisAngle, ro2ax, Ro2Ax)
-    }
+  void toAxisAngle()
+  {
+    OC_CONVERT_BODY(4, AxisAngle, ro2ax, Ro2Ax)
+  }
 
-    void toRodrigues()
-    {
-      using PointerType = DataArrayPointerType;
-      PointerType input = this->getInputData();
-      PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
-      this->setOutputData(output);
-    }
+  void toRodrigues()
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
 
-    void toHomochoric()
-    {
-      OC_CONVERT_BODY(3, Homochoric, ro2ho, Ro2Ho)
-    }
+  void toHomochoric()
+  {
+    OC_CONVERT_BODY(3, Homochoric, ro2ho, Ro2Ho)
+  }
 
-    void toCubochoric()
-    {
-      OC_CONVERT_BODY(3, Cubochoric, ro2cu, Ro2Cu)
-    }
+  void toCubochoric()
+  {
+    OC_CONVERT_BODY(3, Cubochoric, ro2cu, Ro2Cu)
+  }
 
-    void sanityCheckInputData()
-    {
-      /* Apparently there is no sanity check for Rodrigues, Odd. We place this
+  void sanityCheckInputData()
+  {
+    /* Apparently there is no sanity check for Rodrigues, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */
@@ -1238,55 +1257,58 @@ class RodriguesConverter : public OrientationConverter<DataArrayType, T>
       serial.sanityCheck(0, nTuples);
 #endif
 #endif
-    }
-    
-    /**
-     * @brief compareRepresentations
-     * @param a
-     * @param b
-     * @param epsilon
-     * @return 
-     */
-    bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  }
+
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 4; i++)
     {
-      bool close = false;
-      for(int i = 0; i < 4; i++)
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
       {
-        close = (epsilon > std::fabs(a[i] - b[i]));
-        if(!close) { return close; }
+        return close;
       }
-      return close;
     }
+    return close;
+  }
 
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param ro
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* ro, const std::string& label = std::string("Ro"))
-    {
-      out.precision(16);
-      out << label << ro[0] << '\t' << ro[1] << '\t' << ro[2] << "\t" << ro[3] << std::endl;
-    }
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param ro
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* ro, const std::string& label = std::string("Ro"))
+  {
+    out.precision(16);
+    out << label << ro[0] << '\t' << ro[1] << '\t' << ro[2] << "\t" << ro[3] << std::endl;
+  }
 
-  protected:
-    RodriguesConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {
-    }
+protected:
+  RodriguesConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
 
-    explicit RodriguesConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+  explicit RodriguesConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
 
-  public:
-    RodriguesConverter(const RodriguesConverter&) = delete;            // Copy Constructor Not Implemented
-    RodriguesConverter(RodriguesConverter&&) = delete;                 // Move Constructor Not Implemented
-    RodriguesConverter& operator=(const RodriguesConverter&) = delete; // Copy Assignment Not Implemented
-    RodriguesConverter& operator=(RodriguesConverter&&) = delete;      // Move Assignment Not Implemented
+public:
+  RodriguesConverter(const RodriguesConverter&) = delete;            // Copy Constructor Not Implemented
+  RodriguesConverter(RodriguesConverter&&) = delete;                 // Move Constructor Not Implemented
+  RodriguesConverter& operator=(const RodriguesConverter&) = delete; // Copy Assignment Not Implemented
+  RodriguesConverter& operator=(RodriguesConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -1296,87 +1318,89 @@ class RodriguesConverter : public OrientationConverter<DataArrayType, T>
 template <typename T>
 class HomochoricSanityCheck
 {
-  public:
-    HomochoricSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~HomochoricSanityCheck() = default;
+public:
+  HomochoricSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~HomochoricSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
-      {
-        
-      }
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
 class HomochoricConverter : public OrientationConverter<DataArrayType, T>
 {
-  public:
-    OC_CLASS_DEFINES(HomochoricConverter)
+public:
+  OC_CLASS_DEFINES(HomochoricConverter)
 
-    virtual ~HomochoricConverter() = default;
+  virtual ~HomochoricConverter() = default;
 
-    OrientationRepresentation::Type getOrientationRepresentation()
-    {
-      return OrientationRepresentation::Type::Homochoric;
-    }
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::Homochoric;
+  }
 
-    void toEulers()
-    {
-      OC_CONVERT_BODY(3, Eulers, ho2eu, Ho2Eu)
-    }
+  void toEulers()
+  {
+    OC_CONVERT_BODY(3, Eulers, ho2eu, Ho2Eu)
+  }
 
-    void toOrientationMatrix()
-    {
-      OC_CONVERT_BODY(9, OrientationMatrix, ho2om, Ho2Om)
-    }
+  void toOrientationMatrix()
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, ho2om, Ho2Om)
+  }
 
-    void toQuaternion()
-    {
-      OC_CONVERT_BODY(4, Quaternions, ho2qu, Ho2Qu)
-    }
+  void toQuaternion()
+  {
+    OC_CONVERT_BODY(4, Quaternions, ho2qu, Ho2Qu)
+  }
 
-    void toAxisAngle()
-    {
-      OC_CONVERT_BODY(4, AxisAngle, ho2ax, Ho2Ax)
-    }
+  void toAxisAngle()
+  {
+    OC_CONVERT_BODY(4, AxisAngle, ho2ax, Ho2Ax)
+  }
 
-    void toRodrigues()
-    {
-      OC_CONVERT_BODY(4, Rodrigues, ho2ro, Ho2Ro)
-    }
+  void toRodrigues()
+  {
+    OC_CONVERT_BODY(4, Rodrigues, ho2ro, Ho2Ro)
+  }
 
-    void toHomochoric()
-    {
-      using PointerType = DataArrayPointerType;
-      PointerType input = this->getInputData();
-      PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
-      this->setOutputData(output);
-    }
+  void toHomochoric()
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
 
-    void toCubochoric()
-    {
-      OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
-    }
+  void toCubochoric()
+  {
+    OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
+  }
 
-    void sanityCheckInputData()
-    {
-      /* Apparently there is no sanity check for Homochoric, Odd. We place this
+  void sanityCheckInputData()
+  {
+    /* Apparently there is no sanity check for Homochoric, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */
@@ -1392,56 +1416,59 @@ class HomochoricConverter : public OrientationConverter<DataArrayType, T>
         HomochoricSanityCheck<T> serial(inPtr, inStride);
         serial.sanityCheck(0, nTuples);
 #endif
-#endif    
-    }
-    
-    /**
-     * @brief compareRepresentations
-     * @param a
-     * @param b
-     * @param epsilon
-     * @return 
-     */
-    bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+#endif
+  }
+
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 3; i++)
     {
-      bool close = false;
-      for(int i = 0; i < 3; i++)
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
       {
-        close = (epsilon > std::fabs(a[i] - b[i]));
-        if(!close) { return close; }
+        return close;
       }
-      return close;
     }
+    return close;
+  }
 
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param ho
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* ho, const std::string& label = std::string("No"))
-    {
-      out.precision(16);
-      out << label << ho[0] << '\t' << ho[1] << '\t' << ho[2] << std::endl;
-    }
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param ho
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* ho, const std::string& label = std::string("No"))
+  {
+    out.precision(16);
+    out << label << ho[0] << '\t' << ho[1] << '\t' << ho[2] << std::endl;
+  }
 
-  protected:
-    HomochoricConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {
-    }
+protected:
+  HomochoricConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
 
-    explicit HomochoricConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+  explicit HomochoricConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
 
-  public:
-    HomochoricConverter(const HomochoricConverter&) = delete;            // Copy Constructor Not Implemented
-    HomochoricConverter(HomochoricConverter&&) = delete;                 // Move Constructor Not Implemented
-    HomochoricConverter& operator=(const HomochoricConverter&) = delete; // Copy Assignment Not Implemented
-    HomochoricConverter& operator=(HomochoricConverter&&) = delete;      // Move Assignment Not Implemented
+public:
+  HomochoricConverter(const HomochoricConverter&) = delete;            // Copy Constructor Not Implemented
+  HomochoricConverter(HomochoricConverter&&) = delete;                 // Move Constructor Not Implemented
+  HomochoricConverter& operator=(const HomochoricConverter&) = delete; // Copy Assignment Not Implemented
+  HomochoricConverter& operator=(HomochoricConverter&&) = delete;      // Move Assignment Not Implemented
 };
 
 /* =============================================================================
@@ -1451,87 +1478,89 @@ class HomochoricConverter : public OrientationConverter<DataArrayType, T>
 template <typename T>
 class CubochoricSanityCheck
 {
-  public:
-    CubochoricSanityCheck(T* input, size_t stride) : m_Input(input), m_Stride(stride)
-    {}
-    virtual ~CubochoricSanityCheck() = default;
+public:
+  CubochoricSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~CubochoricSanityCheck() = default;
 
-    void sanityCheck(size_t start, size_t end) const
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
     {
-      T* inPtr = m_Input + (start * m_Stride);
-      
-      for (size_t i = start; i < end; ++i)
-      {
-        
-      }
     }
+  }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-    void operator()(const tbb::blocked_range<size_t>& r) const
-    {
-      sanityCheck(r.begin(), r.end());
-    }
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
 #endif
-    
-  private:
-    T* m_Input = nullptr;
-    size_t m_Stride = 0;
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
 };
 
 template <class DataArrayType, typename T>
 class CubochoricConverter : public OrientationConverter<DataArrayType, T>
 {
-  public:
-    OC_CLASS_DEFINES(CubochoricConverter)
+public:
+  OC_CLASS_DEFINES(CubochoricConverter)
 
-    virtual ~CubochoricConverter() = default;
+  virtual ~CubochoricConverter() = default;
 
-    OrientationRepresentation::Type getOrientationRepresentation()
-    {
-      return OrientationRepresentation::Type::Cubochoric;
-    }
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::Cubochoric;
+  }
 
-    void toEulers()
-    {
-      OC_CONVERT_BODY(3, Eulers, cu2eu, Cu2Eu)
-    }
+  void toEulers()
+  {
+    OC_CONVERT_BODY(3, Eulers, cu2eu, Cu2Eu)
+  }
 
-    void toOrientationMatrix()
-    {
-      OC_CONVERT_BODY(9, OrientationMatrix, cu2om, Cu2Om)
-    }
+  void toOrientationMatrix()
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, cu2om, Cu2Om)
+  }
 
-    void toQuaternion()
-    {
-      OC_CONVERT_BODY(4, Quaternions, cu2qu, Cu2Qu)
-    }
+  void toQuaternion()
+  {
+    OC_CONVERT_BODY(4, Quaternions, cu2qu, Cu2Qu)
+  }
 
-    void toAxisAngle()
-    {
-      OC_CONVERT_BODY(4, AxisAngle, cu2ax, Cu2Ax)
-    }
+  void toAxisAngle()
+  {
+    OC_CONVERT_BODY(4, AxisAngle, cu2ax, Cu2Ax)
+  }
 
-    void toRodrigues()
-    {
-      OC_CONVERT_BODY(4, Rodrigues, cu2ro, Cu2Ro)
-    }
+  void toRodrigues()
+  {
+    OC_CONVERT_BODY(4, Rodrigues, cu2ro, Cu2Ro)
+  }
 
-    void toHomochoric()
-    {
-      OC_CONVERT_BODY(3, Homochoric, cu2ho, Cu2Ho)
-    }
+  void toHomochoric()
+  {
+    OC_CONVERT_BODY(3, Homochoric, cu2ho, Cu2Ho)
+  }
 
-    void toCubochoric()
-    {
-      using PointerType = DataArrayPointerType;
-      PointerType input = this->getInputData();
-      PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
-      this->setOutputData(output);
-    }
+  void toCubochoric()
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
 
-    void sanityCheckInputData()
-    {
-      /* Apparently there is no sanity check for Cubochoric, Odd. We place this
+  void sanityCheckInputData()
+  {
+    /* Apparently there is no sanity check for Cubochoric, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */
@@ -1547,53 +1576,56 @@ class CubochoricConverter : public OrientationConverter<DataArrayType, T>
       serial.sanityCheck(0, nTuples);
 #endif
 #endif
-    }
-    
-    /**
-     * @brief compareRepresentations
-     * @param a
-     * @param b
-     * @param epsilon
-     * @return 
-     */
-    bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  }
+
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 3; i++)
     {
-      bool close = false;
-      for(int i = 0; i < 3; i++)
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
       {
-        close = (epsilon > std::fabs(a[i] - b[i]));
-        if(!close) { return close; }
+        return close;
       }
-      return close;
     }
+    return close;
+  }
 
-    /**
-     * @brief printRepresentation
-     * @param out
-     * @param cu
-     * @param label
-     */
-    void printRepresentation(std::ostream& out, T* cu, const std::string& label = std::string("Cu"))
-    {
-      out.precision(16);
-      out << label << cu[0] << '\t' << cu[1] << '\t' << cu[2] << std::endl;
-    }
-    
-  protected:
-    CubochoricConverter()
-    : OrientationConverter<DataArrayType, T>()
-    {
-    }
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param cu
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* cu, const std::string& label = std::string("Cu"))
+  {
+    out.precision(16);
+    out << label << cu[0] << '\t' << cu[1] << '\t' << cu[2] << std::endl;
+  }
 
-    explicit CubochoricConverter(DataArrayPointerType data)
-    : OrientationConverter<DataArrayType, T>()
-    {
-      this->setInputData(data);
-    }
+protected:
+  CubochoricConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
 
-  public:
-    CubochoricConverter(const CubochoricConverter&) = delete;            // Copy Constructor Not Implemented
-    CubochoricConverter(CubochoricConverter&&) = delete;                 // Move Constructor Not Implemented
-    CubochoricConverter& operator=(const CubochoricConverter&) = delete; // Copy Assignment Not Implemented
-    CubochoricConverter& operator=(CubochoricConverter&&) = delete;      // Move Assignment Not Implemented
+  explicit CubochoricConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
+
+public:
+  CubochoricConverter(const CubochoricConverter&) = delete;            // Copy Constructor Not Implemented
+  CubochoricConverter(CubochoricConverter&&) = delete;                 // Move Constructor Not Implemented
+  CubochoricConverter& operator=(const CubochoricConverter&) = delete; // Copy Assignment Not Implemented
+  CubochoricConverter& operator=(CubochoricConverter&&) = delete;      // Move Assignment Not Implemented
 };

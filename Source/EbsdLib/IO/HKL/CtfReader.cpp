@@ -52,9 +52,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CtfReader::CtfReader() :
-  EbsdReader(),
-  m_SingleSliceRead(-1)
+CtfReader::CtfReader()
+: EbsdReader()
+, m_SingleSliceRead(-1)
 {
 
   // Initialize the map of header key to header value
@@ -83,9 +83,7 @@ CtfReader::CtfReader() :
   setXCells(0);
   setYCells(0);
   setZCells(1);
-
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -356,7 +354,7 @@ int CtfReader::readHeaderOnly()
   QByteArray buf;
   QFile in(getFileName());
   setHeaderIsComplete(false);
-  if (!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString msg = QString("Ctf file could not be opened: ") + getFileName();
     setErrorCode(-100);
@@ -386,7 +384,7 @@ int CtfReader::readFile()
   QByteArray buf;
   QFile in(getFileName());
   setHeaderIsComplete(false);
-  if (!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString msg = QString("Ctf file could not be opened: ") + getFileName();
     setErrorCode(-100);
@@ -400,18 +398,23 @@ int CtfReader::readFile()
   // Parse the header
   QList<QByteArray> headerLines;
   err = getHeaderLines(in, headerLines);
-  if (err < 0) { return err;}
+  if(err < 0)
+  {
+    return err;
+  }
   err = parseHeaderLines(headerLines);
-  if (err < 0) { return err;}
+  if(err < 0)
+  {
+    return err;
+  }
 
-
-  if (getXStep() == 0.0 || getYStep() == 0.0f )
+  if(getXStep() == 0.0 || getYStep() == 0.0f)
   {
     setErrorMessage("Either the X Step or Y Step was Zero (0.0) which is NOT allowed. Please update the CTF file header with appropriate values.");
     return -102;
   }
 
-  if (getXCells() == 0 || getYCells() == 0 )
+  if(getXCells() == 0 || getYCells() == 0)
   {
     setErrorMessage("Either the X Cells or Y Cells was Zero (0) which is NOT allowed. Please update the CTF file header with appropriate values.");
     return -103;
@@ -437,7 +440,7 @@ int CtfReader::readData(QFile& in)
 {
   QString sBuf;
   QTextStream ss(&sBuf);
-// Initialize new pointers
+  // Initialize new pointers
   int32_t xCells = getXCells();
   if(xCells < 0)
   {
@@ -487,7 +490,7 @@ int CtfReader::readData(QFile& in)
   EbsdLib::NumericTypes::Type pType = EbsdLib::NumericTypes::Type::UnknownNumType;
   qint32 size = tokens.size();
   bool didAllocate = false;
-  for (qint32 i = 0; i < size; ++i)
+  for(qint32 i = 0; i < size; ++i)
   {
     QString name = QString::fromLatin1(tokens[i]);
     pType = getPointerType(name);
@@ -495,7 +498,7 @@ int CtfReader::readData(QFile& in)
     {
       Int32Parser::Pointer dparser = Int32Parser::New(nullptr, totalScanPoints, name, i);
       didAllocate = dparser->allocateArray(totalScanPoints);
-      //Q_ASSERT_X(dparser->getVoidPointer() != nullptr, __FILE__, "Could not allocate memory for Integer data in CTF File.");
+      // Q_ASSERT_X(dparser->getVoidPointer() != nullptr, __FILE__, "Could not allocate memory for Integer data in CTF File.");
       if(didAllocate)
       {
         ::memset(dparser->getVoidPointer(), 0xAB, sizeof(int32_t) * totalScanPoints);
@@ -506,7 +509,7 @@ int CtfReader::readData(QFile& in)
     {
       FloatParser::Pointer dparser = FloatParser::New(nullptr, totalScanPoints, name, i);
       didAllocate = dparser->allocateArray(totalScanPoints);
-      //Q_ASSERT_X(dparser->getVoidPointer() != nullptr, __FILE__, "Could not allocate memory for Integer data in CTF File.");
+      // Q_ASSERT_X(dparser->getVoidPointer() != nullptr, __FILE__, "Could not allocate memory for Integer data in CTF File.");
       if(didAllocate)
       {
         ::memset(dparser->getVoidPointer(), 0xAB, sizeof(float) * totalScanPoints);
@@ -534,22 +537,21 @@ int CtfReader::readData(QFile& in)
       setErrorMessage(msg);
       return -106; // Could not allocate the memory
     }
-
   }
 
   // Now start reading the data line by line
   int err = 0;
   size_t counter = 0;
-  for (int slice = zStart; slice < zEnd; ++slice)
+  for(int slice = zStart; slice < zEnd; ++slice)
   {
-    for (size_t row = 0; row < yCells; ++row)
+    for(size_t row = 0; row < yCells; ++row)
     {
-      for (size_t col = 0; col < xCells; ++col)
+      for(size_t col = 0; col < xCells; ++col)
       {
         buf = in.readLine(); // Read the line into a QByteArray including the newline
         buf = buf.trimmed(); // Remove leading and trailing whitespace
 
-        if ( (m_SingleSliceRead < 0) || (m_SingleSliceRead >= 0 && slice == m_SingleSliceRead) )
+        if((m_SingleSliceRead < 0) || (m_SingleSliceRead >= 0 && slice == m_SingleSliceRead))
         {
 
           if(in.atEnd() && buf.isEmpty()) // We have to have read to the end of the file AND the buffer is empty
@@ -559,10 +561,12 @@ int CtfReader::readData(QFile& in)
             break;
           }
           err = parseDataLine(buf, row, col, counter, xCells, yCells);
-          if (err < 0) { return err; }
+          if(err < 0)
+          {
+            return err;
+          }
           ++counter;
         }
-
       }
       if(in.atEnd())
       {
@@ -579,8 +583,7 @@ int CtfReader::readData(QFile& in)
   if(counter != getNumberOfElements() && in.atEnd())
   {
     sBuf.clear();
-    ss << "Premature End Of File reached.\n" << getFileName() << "\nNumRows=" << getNumberOfElements() << "\ncounter=" << counter
-       << "\nTotal Data Points Read=" << counter << "\n";
+    ss << "Premature End Of File reached.\n" << getFileName() << "\nNumRows=" << getNumberOfElements() << "\ncounter=" << counter << "\nTotal Data Points Read=" << counter << "\n";
     setErrorMessage(sBuf);
     setErrorCode(-105);
     return -105;
@@ -589,8 +592,8 @@ int CtfReader::readData(QFile& in)
 }
 
 #if 0
-#define PRINT_HTML_TABLE_ROW(p)\
-  std::cout << "<tr>\n    <td>" << p->getKey() << "</td>\n    <td>" << p->getHDFType() << "</td>\n";\
+#define PRINT_HTML_TABLE_ROW(p)                                                                                                                                                                        \
+  std::cout << "<tr>\n    <td>" << p->getKey() << "</td>\n    <td>" << p->getHDFType() << "</td>\n";                                                                                                   \
   std::cout << "    <td colspan=\"2\"> Contains value for the header entry " << p->getKey() << "</td>\n</tr>" << std::endl;
 #else
 #define PRINT_HTML_TABLE_ROW(p)
@@ -603,14 +606,14 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
 {
   int err = 0;
   qint32 size = headerLines.size();
-  for (qint32 i = 0; i < size; ++i)
+  for(qint32 i = 0; i < size; ++i)
   {
     QByteArray line = headerLines[i];
-    QString sLine = line; // Turn the line into a QString
- //   QList<QByteArray> spcTokens = line.split(' '); // Space Delimit the line
+    QString sLine = line;                           // Turn the line into a QString
+                                                    //   QList<QByteArray> spcTokens = line.split(' '); // Space Delimit the line
     QList<QByteArray> tabTokens = line.split('\t'); // Tab Delimit the line
 
-    if(line.startsWith("Prj"))  // This is a special case/bug in HKL's writing code. This line is space delimited
+    if(line.startsWith("Prj")) // This is a special case/bug in HKL's writing code. This line is space delimited
     {
       line = line.trimmed();
       line = line.simplified();
@@ -635,7 +638,7 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
       p->parseValue(tabTokens[1]);
       int nPhases = getNumPhases();
       // We start the Phase Index at "1" instead of Zero by convention
-      for (int p = 1; p <= nPhases; ++p)
+      for(int p = 1; p <= nPhases; ++p)
       {
         ++i; // Increment the outer loop
         line = headerLines[i];
@@ -650,27 +653,27 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
     else if(sLine.startsWith("Euler angles refer to Sample Coordinate system (CS0)!"))
     {
       // We parse out lots of stuff from this one line
-      //Mag
+      // Mag
       EbsdHeaderEntry::Pointer p0 = m_HeaderMap[tabTokens[1]];
       p0->parseValue(tabTokens[2]);
       PRINT_HTML_TABLE_ROW(p0);
-      //Coverage
+      // Coverage
       EbsdHeaderEntry::Pointer p1 = m_HeaderMap[tabTokens[3]];
       p1->parseValue(tabTokens[4]);
       PRINT_HTML_TABLE_ROW(p1);
-      //Device
+      // Device
       EbsdHeaderEntry::Pointer p2 = m_HeaderMap[tabTokens[5]];
       p2->parseValue(tabTokens[6]);
       PRINT_HTML_TABLE_ROW(p2);
-      //KV
+      // KV
       EbsdHeaderEntry::Pointer p3 = m_HeaderMap[tabTokens[7]];
       p3->parseValue(tabTokens[8]);
       PRINT_HTML_TABLE_ROW(p3);
-      //TiltAngle
+      // TiltAngle
       EbsdHeaderEntry::Pointer p4 = m_HeaderMap[tabTokens[9]];
       p4->parseValue(tabTokens[10]);
       PRINT_HTML_TABLE_ROW(p4);
-      //TiltAxis
+      // TiltAxis
       EbsdHeaderEntry::Pointer p5 = m_HeaderMap[tabTokens[11]];
       p5->parseValue(tabTokens[12]);
       PRINT_HTML_TABLE_ROW(p5);
@@ -695,24 +698,21 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
       }
       else
       {
-        if (line.size() > 1)
+        if(line.size() > 1)
         {
           p->parseValue(tabTokens[1]);
           PRINT_HTML_TABLE_ROW(p)
         }
       }
     }
-
   }
   return err;
 }
 
-
-
 // -----------------------------------------------------------------------------
 //  Read the data part of the .ctf file
 // -----------------------------------------------------------------------------
-int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t offset, size_t xCells, size_t yCells )
+int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t offset, size_t xCells, size_t yCells)
 {
   /* When reading the data there should be at least 11 cols of data.
    */
@@ -723,7 +723,7 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
   // Filter the line to convert European command style decimals to US/UK style points
   //  QVector<char> cLine(line.size()+1);
   //  ::memcpy( &(cLine.front()), line.c_str(), line.size() + 1);
-  for (int c = 0; c < line.size(); ++c)
+  for(int c = 0; c < line.size(); ++c)
   {
     if(line.at(c) == ',')
     {
@@ -747,7 +747,7 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
     return -106; // Could not allocate the memory
   }
   QMapIterator<QString, DataParser::Pointer> iter(m_NamePointerMap);
-  while (iter.hasNext())
+  while(iter.hasNext())
   {
     iter.next();
 
@@ -781,7 +781,6 @@ QVector<QString> CtfReader::tokenize(char* buf, char delimiter)
   return output;
 }
 #endif
-
 
 // -----------------------------------------------------------------------------
 //
@@ -827,16 +826,21 @@ int CtfReader::getHeaderLines(QFile& reader, QList<QByteArray>& headerLines)
 // -----------------------------------------------------------------------------
 bool CtfReader::isDataHeaderLine(QVector<QString>& columns)
 {
-  if (columns.size() != 11)
-  { return false; }
-  if (columns[0].compare("Phase") != 0)
-  { return false; }
-  if (columns[9].compare("BC") != 0)
-  { return false; }
+  if(columns.size() != 11)
+  {
+    return false;
+  }
+  if(columns[0].compare("Phase") != 0)
+  {
+    return false;
+  }
+  if(columns[9].compare("BC") != 0)
+  {
+    return false;
+  }
 
   return true;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -870,14 +874,14 @@ void CtfReader::setYDimension(int ydim)
   setYCells(ydim);
 }
 
-#define CTF_SHUFFLE_ARRAY(tempPtr, var, m_msgType, numRows)\
-  for (size_t i = 0; i < numRows; ++i) {\
-    size_t nIdx = shuffleTable[i];\
-    tempPtr[nIdx] = var[i];\
-  }\
-  /* Copy the values back into the array over writing the original values*/\
+#define CTF_SHUFFLE_ARRAY(tempPtr, var, m_msgType, numRows)                                                                                                                                            \
+  for(size_t i = 0; i < numRows; ++i)                                                                                                                                                                  \
+  {                                                                                                                                                                                                    \
+    size_t nIdx = shuffleTable[i];                                                                                                                                                                     \
+    tempPtr[nIdx] = var[i];                                                                                                                                                                            \
+  }                                                                                                                                                                                                    \
+  /* Copy the values back into the array over writing the original values*/                                                                                                                            \
   ::memcpy(var, tempPtr, numRows * sizeof(m_msgType));
-
 
 // -----------------------------------------------------------------------------
 //
@@ -887,11 +891,9 @@ QList<QString> CtfReader::getColumnNames()
   return m_NamePointerMap.keys();
 }
 
-#define CTF_PRINT_QSTRING(var, out)\
-  out << #var << ": " << get##var().toStdString() << std::endl;
+#define CTF_PRINT_QSTRING(var, out) out << #var << ": " << get##var().toStdString() << std::endl;
 
-#define CTF_PRINT_HEADER_VALUE(var, out)\
-  out << #var << ": " << get##var() << std::endl;
+#define CTF_PRINT_HEADER_VALUE(var, out) out << #var << ": " << get##var() << std::endl;
 
 // -----------------------------------------------------------------------------
 //
@@ -919,7 +921,7 @@ void CtfReader::printHeader(std::ostream& out)
   CTF_PRINT_HEADER_VALUE(TiltAxis, out);
   CTF_PRINT_HEADER_VALUE(NumPhases, out);
   int nPhases = getNumPhases();
-  for (int p = 0; p < nPhases; ++p)
+  for(int p = 0; p < nPhases; ++p)
   {
     out << "### Phase " << p << std::endl;
     m_PhaseVector[p]->printSelf(out);
@@ -960,7 +962,7 @@ int CtfReader::writeFile(const QString& filepath)
   std::vector<ColInfoType> colInfos(colNames.count());
 
   QListIterator<QString> iter(colNames);
-  while (iter.hasNext())
+  while(iter.hasNext())
   {
 
     ColInfoType colInfo;
@@ -988,11 +990,11 @@ int CtfReader::writeFile(const QString& filepath)
   }
 
   size_t counter = 0;
-  for (int slice = zStart; slice < zEnd; ++slice)
+  for(int slice = zStart; slice < zEnd; ++slice)
   {
-    for (int row = 0; row < yCells; ++row)
+    for(int row = 0; row < yCells; ++row)
     {
-      for (int col = 0; col < xCells; ++col)
+      for(int col = 0; col < xCells; ++col)
       {
 
         for(size_t n = 0; n < colInfos.size(); n++)
@@ -1015,14 +1017,12 @@ int CtfReader::writeFile(const QString& filepath)
         }
         counter++;
         fprintf(f, "\n");
-
       }
     }
   }
 
   fclose(f);
   f = nullptr;
-
 
   return error;
 }
@@ -1038,5 +1038,3 @@ QString CtfReader::ClassName()
 {
   return QString("_SUPERCtfReader");
 }
-
-

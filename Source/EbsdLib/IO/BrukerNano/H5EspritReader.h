@@ -44,7 +44,6 @@
 #include "EbsdLib/IO/TSL/AngHeaderEntry.h"
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 
-
 /**
  * @class H5EspritReader H5EspritReader.h EbsdLib/BrukerNano/H5EspritReader.h
  * @brief
@@ -55,17 +54,17 @@
 class EbsdLib_EXPORT H5EspritReader : public EbsdReader
 {
 public:
-    using Self = H5EspritReader;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+  using Self = H5EspritReader;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
 
   EBSD_STATIC_NEW_MACRO(H5EspritReader)
-    /**
-    * @brief Returns the name of the class for H5EspritReader
-    */
+  /**
+   * @brief Returns the name of the class for H5EspritReader
+   */
   QString getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5EspritReader
@@ -77,16 +76,15 @@ public:
   /**
    * @brief The HDF5 path to find the EBSD data
    */
-    /**
-    * @brief Setter property for HDF5Path
-    */
-    void setHDF5Path(const QString& value) ;
-    /**
-    * @brief Getter property for HDF5Path
-    * @return Value of HDF5Path
-    */
-    QString getHDF5Path() const ;
-
+  /**
+   * @brief Setter property for HDF5Path
+   */
+  void setHDF5Path(const QString& value);
+  /**
+   * @brief Getter property for HDF5Path
+   * @return Value of HDF5Path
+   */
+  QString getHDF5Path() const;
 
   EBSD_INSTANCE_PROPERTY(bool, ReadPatternData)
 

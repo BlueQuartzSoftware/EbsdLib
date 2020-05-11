@@ -39,57 +39,54 @@
 
 class EbsdLib_EXPORT LambertUtilities
 {
-  public:
-    using Self = LambertUtilities;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<const Self>;
-    static Pointer NullPointer();
+public:
+  using Self = LambertUtilities;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+  static Pointer NullPointer();
 
-    static Pointer New();
+  static Pointer New();
 
-    /**
-     * @brief Returns the name of the class for LambertUtilities
-     */
-    virtual QString getNameOfClass() const;
-    /**
-     * @brief Returns the name of the class for LambertUtilities
-     */
-    static QString ClassName();
+  /**
+   * @brief Returns the name of the class for LambertUtilities
+   */
+  virtual QString getNameOfClass() const;
+  /**
+   * @brief Returns the name of the class for LambertUtilities
+   */
+  static QString ClassName();
 
-    virtual ~LambertUtilities();
+  virtual ~LambertUtilities();
 
-    using EnumType = unsigned int;
+  using EnumType = unsigned int;
 
-    enum class Hemisphere : EnumType
-    {
-      North = 0,
-      South = 1
-    };
+  enum class Hemisphere : EnumType
+  {
+    North = 0,
+    South = 1
+  };
 
-    /**
-     * @brief This function will convert a vertex that is assumed to be part of a
-     * LambertSquare (a,b,0) to a Sphere with (x, y, z) cartesian coordiate. The
-     * input vertex value should fall between -sqrt(PI/2) <= (x,y) <= sqrt(PI/2)
-     * otherwise it is undefined behavior.
-     * @param vert Input vertex which will be over written
-     * @param hemi
-     * @return
-     */
-    static int32_t LambertSquareVertToSphereVert(float* vert, Hemisphere hemi);
+  /**
+   * @brief This function will convert a vertex that is assumed to be part of a
+   * LambertSquare (a,b,0) to a Sphere with (x, y, z) cartesian coordiate. The
+   * input vertex value should fall between -sqrt(PI/2) <= (x,y) <= sqrt(PI/2)
+   * otherwise it is undefined behavior.
+   * @param vert Input vertex which will be over written
+   * @param hemi
+   * @return
+   */
+  static int32_t LambertSquareVertToSphereVert(float* vert, Hemisphere hemi);
 
+protected:
+  LambertUtilities();
 
-    protected:
-      LambertUtilities();
+public:
+  LambertUtilities(const LambertUtilities&) = delete;            // Copy Constructor Not Implemented
+  LambertUtilities(LambertUtilities&&) = delete;                 // Move Constructor Not Implemented
+  LambertUtilities& operator=(const LambertUtilities&) = delete; // Copy Assignment Not Implemented
+  LambertUtilities& operator=(LambertUtilities&&) = delete;      // Move Assignment Not Implemented
 
-
-  public:
-    LambertUtilities(const LambertUtilities&) = delete; // Copy Constructor Not Implemented
-    LambertUtilities(LambertUtilities&&) = delete;      // Move Constructor Not Implemented
-    LambertUtilities& operator=(const LambertUtilities&) = delete; // Copy Assignment Not Implemented
-    LambertUtilities& operator=(LambertUtilities&&) = delete;      // Move Assignment Not Implemented
-
-  private:
+private:
 };
-

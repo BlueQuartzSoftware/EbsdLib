@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
@@ -61,18 +61,18 @@
 typedef struct
 {
   EbsdLib::FloatArrayType* eulers; ///<* The Euler Angles (in Radians) to use for the pole figure
-  int imageDim;                ///<* The height/width of the generated pole figure
-  int lambertDim;              ///<* The dimensions in voxels of the Lambert Square used for interpolation
-  int numColors;               ///<* The number of colors to use in the Pole figure
-  double minScale;             ///<* The minimum scale of the Pole Figure
-  double maxScale;             ///<* The maximum scale of the Pole Figure
-  float sphereRadius;          ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
-  bool discrete;               ///<* Should the Pole Figure be generated as a discrete plot
-  bool discreteHeatMap;        ///<* Should the discrete be colored via a heat map style coloring
-  QString colorMap;            ///<* Name of the ColorMap to use
-  QVector<QString> labels;     ///<* The labels for each of the 3 Pole Figures
-  QVector<unsigned int> order; ///<* The order that the pole figures should appear in.
-  QString phaseName;           ///<* The Names of the phase
+  int imageDim;                    ///<* The height/width of the generated pole figure
+  int lambertDim;                  ///<* The dimensions in voxels of the Lambert Square used for interpolation
+  int numColors;                   ///<* The number of colors to use in the Pole figure
+  double minScale;                 ///<* The minimum scale of the Pole Figure
+  double maxScale;                 ///<* The maximum scale of the Pole Figure
+  float sphereRadius;              ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
+  bool discrete;                   ///<* Should the Pole Figure be generated as a discrete plot
+  bool discreteHeatMap;            ///<* Should the discrete be colored via a heat map style coloring
+  QString colorMap;                ///<* Name of the ColorMap to use
+  QVector<QString> labels;         ///<* The labels for each of the 3 Pole Figures
+  QVector<unsigned int> order;     ///<* The order that the pole figures should appear in.
+  QString phaseName;               ///<* The Names of the phase
 } PoleFigureConfiguration_t;
 
 /**
@@ -84,61 +84,61 @@ typedef struct
  */
 class EbsdLib_EXPORT PoleFigureUtilities
 {
-  public:
-    PoleFigureUtilities();
-    virtual ~PoleFigureUtilities();
+public:
+  PoleFigureUtilities();
+  virtual ~PoleFigureUtilities();
 
-    /**
-     * @brief CreateColorImage
-     * @param data
-     * @param width
-     * @param height
-     * @param nColors
-     * @param name
-     * @param min
-     * @param max
-     * @return
-     */
-    static EbsdLib::UInt8ArrayType::Pointer CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const QString& name, double min, double max);
+  /**
+   * @brief CreateColorImage
+   * @param data
+   * @param width
+   * @param height
+   * @param nColors
+   * @param name
+   * @param min
+   * @param max
+   * @return
+   */
+  static EbsdLib::UInt8ArrayType::Pointer CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const QString& name, double min, double max);
 
-    /**
-     * @brief CreateColorImage
-     * @param data
-     * @param config
-     * @param image
-     */
-    static void CreateColorImage(EbsdLib::DoubleArrayType* data, PoleFigureConfiguration_t& config, EbsdLib::UInt8ArrayType* image);
+  /**
+   * @brief CreateColorImage
+   * @param data
+   * @param config
+   * @param image
+   */
+  static void CreateColorImage(EbsdLib::DoubleArrayType* data, PoleFigureConfiguration_t& config, EbsdLib::UInt8ArrayType* image);
 
-  private:
-    /**
-     * @brief GenerateHexPoleFigures
-     * @param eulers
-     * @param lambertDimension
-     * @param poleFigureDim
-     * @param intensity0001 [output]
-     * @param intensity1010 [output]
-     * @param intensity1120 [output]
-     */
-    void GenerateHexPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity0001,
-                                EbsdLib::DoubleArrayType::Pointer& intensity1010, EbsdLib::DoubleArrayType::Pointer& intensity1120);
+private:
+  /**
+   * @brief GenerateHexPoleFigures
+   * @param eulers
+   * @param lambertDimension
+   * @param poleFigureDim
+   * @param intensity0001 [output]
+   * @param intensity1010 [output]
+   * @param intensity1120 [output]
+   */
+  void GenerateHexPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity0001,
+                              EbsdLib::DoubleArrayType::Pointer& intensity1010, EbsdLib::DoubleArrayType::Pointer& intensity1120);
 
-    /**
-     * @brief GenerateHexPoleFigures
-     * @param eulers
-     * @param lambertDimension
-     * @param poleFigureDim
-     * @param intensity100 [output]
-     * @param intensity010 [output]
-     * @param intensity001 [output]
-     */
-    void GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity100,
-                                  EbsdLib::DoubleArrayType::Pointer& intensity010, EbsdLib::DoubleArrayType::Pointer& intensity001);
+  /**
+   * @brief GenerateHexPoleFigures
+   * @param eulers
+   * @param lambertDimension
+   * @param poleFigureDim
+   * @param intensity100 [output]
+   * @param intensity010 [output]
+   * @param intensity001 [output]
+   */
+  void GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity100,
+                                EbsdLib::DoubleArrayType::Pointer& intensity010, EbsdLib::DoubleArrayType::Pointer& intensity001);
 
-  public:
-    PoleFigureUtilities(const PoleFigureUtilities&) = delete; // Copy Constructor Not Implemented
-    PoleFigureUtilities(PoleFigureUtilities&&) = delete;      // Move Constructor Not Implemented
-    PoleFigureUtilities& operator=(const PoleFigureUtilities&) = delete; // Copy Assignment Not Implemented
-    PoleFigureUtilities& operator=(PoleFigureUtilities&&) = delete;      // Move Assignment Not Implemented
+public:
+  PoleFigureUtilities(const PoleFigureUtilities&) = delete;            // Copy Constructor Not Implemented
+  PoleFigureUtilities(PoleFigureUtilities&&) = delete;                 // Move Constructor Not Implemented
+  PoleFigureUtilities& operator=(const PoleFigureUtilities&) = delete; // Copy Assignment Not Implemented
+  PoleFigureUtilities& operator=(PoleFigureUtilities&&) = delete;      // Move Assignment Not Implemented
 };
 
 /**
@@ -147,21 +147,17 @@ class EbsdLib_EXPORT PoleFigureUtilities
  */
 class GeneratePoleFigureRgbaImageImpl
 {
-  public:
-    GeneratePoleFigureRgbaImageImpl(EbsdLib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, EbsdLib::UInt8ArrayType* rgba);
-    virtual ~GeneratePoleFigureRgbaImageImpl();
+public:
+  GeneratePoleFigureRgbaImageImpl(EbsdLib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, EbsdLib::UInt8ArrayType* rgba);
+  virtual ~GeneratePoleFigureRgbaImageImpl();
 
-    void operator()() const;
+  void operator()() const;
 
-  protected:
-    GeneratePoleFigureRgbaImageImpl();
+protected:
+  GeneratePoleFigureRgbaImageImpl();
 
-  private:
-    EbsdLib::DoubleArrayType* m_Intensity = nullptr;
-    PoleFigureConfiguration_t* m_Config = nullptr;
-    EbsdLib::UInt8ArrayType* m_Rgba = nullptr;
+private:
+  EbsdLib::DoubleArrayType* m_Intensity = nullptr;
+  PoleFigureConfiguration_t* m_Config = nullptr;
+  EbsdLib::UInt8ArrayType* m_Rgba = nullptr;
 };
-
-
-
-

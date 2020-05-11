@@ -40,12 +40,11 @@
 
 namespace LPs = EbsdLib::LambertParametersType;
 
-
 /**
  * @brief The ModifiedLambertProjection3D class provides methods to convert between
  * a 3D Lambert Cube and a Sphere (XYZ) coordinates.
  */
-template<typename T, typename K>
+template <typename T, typename K>
 class ModifiedLambertProjection3D
 {
 public:

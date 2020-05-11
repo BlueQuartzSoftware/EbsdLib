@@ -344,7 +344,6 @@ int H5OIMReader::readScanNames(QStringList& names)
   return err;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -549,7 +548,6 @@ int H5OIMReader::readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase)
   return status;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -726,8 +724,6 @@ H5OIMReader::Pointer H5OIMReader::NullPointer()
   return Pointer(static_cast<Self*>(nullptr));
 }
 
-
-
 // -----------------------------------------------------------------------------
 void H5OIMReader::setHDF5Path(const QString& value)
 {
@@ -740,8 +736,6 @@ QString H5OIMReader::getHDF5Path() const
   return m_HDF5Path;
 }
 
-
-
 // -----------------------------------------------------------------------------
 QString H5OIMReader::getNameOfClass() const
 {
@@ -753,5 +747,3 @@ QString H5OIMReader::ClassName()
 {
   return QString("H5OIMReader");
 }
-
-

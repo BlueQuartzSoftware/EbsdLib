@@ -45,8 +45,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::ModifiedLambertProjectionArray() :
-  m_Name("")
+ModifiedLambertProjectionArray::ModifiedLambertProjectionArray()
+: m_Name("")
 {
   m_IsAllocated = true;
 }
@@ -129,7 +129,7 @@ void ModifiedLambertProjectionArray::setModifiedLambertProjection(int index, Mod
 void ModifiedLambertProjectionArray::fillArrayWithNewModifiedLambertProjection(size_t n)
 {
   m_ModifiedLambertProjectionArray.resize(n);
-  for (size_t i = 0; i < n; ++i)
+  for(size_t i = 0; i < n; ++i)
   {
     if(m_ModifiedLambertProjectionArray[i] == nullptr)
     {
@@ -234,7 +234,7 @@ size_t ModifiedLambertProjectionArray::getSize() const
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::SetNumberOfComponents(int nc)
 {
-  if (nc != 1)
+  if(nc != 1)
   {
     Q_ASSERT(false);
   }
@@ -293,7 +293,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
     return 0;
   }
 
-  if (static_cast<size_t>(idxs.size()) >= getNumberOfTuples() )
+  if(static_cast<size_t>(idxs.size()) >= getNumberOfTuples())
   {
     resizeTuples(0);
     return 0;
@@ -303,7 +303,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
   // off the end of the array and return an error code.
   for(std::vector<size_t>::size_type i = 0; i < idxs.size(); ++i)
   {
-    if (idxs[i] >= static_cast<size_t>(m_ModifiedLambertProjectionArray.size()))
+    if(idxs[i] >= static_cast<size_t>(m_ModifiedLambertProjectionArray.size()))
     {
       return -100;
     }
@@ -315,7 +315,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
   size_t count = static_cast<size_t>(m_ModifiedLambertProjectionArray.size());
   for(size_t dIdx = 0; dIdx < count; ++dIdx)
   {
-    if (dIdx != idxs[idxsIndex])
+    if(dIdx != idxs[idxsIndex])
     {
       replacement[rIdx] = m_ModifiedLambertProjectionArray[dIdx];
       ++rIdx;
@@ -323,7 +323,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
     else
     {
       ++idxsIndex;
-      if (idxsIndex == idxs.size() )
+      if(idxsIndex == idxs.size())
       {
         idxsIndex--;
       }
@@ -365,7 +365,10 @@ bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, Modif
   }
   Self* source = dynamic_cast<Self*>(sourceArray.get());
 
-  if(sourceArray->getNumberOfComponents() != getNumberOfComponents()) { return false; }
+  if(sourceArray->getNumberOfComponents() != getNumberOfComponents())
+  {
+    return false;
+  }
 
   if(srcTupleOffset + totalSrcTuples > sourceArray->getNumberOfTuples())
   {
@@ -403,7 +406,6 @@ void ModifiedLambertProjectionArray::initializeWithZeros()
   {
     m_ModifiedLambertProjectionArray[i]->initializeSquares(1, 1);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -462,10 +464,10 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
 {
   hid_t dataspace = -1, dataset = -1;
   hid_t filespace = -1;
-  hsize_t currentDims[2] = { 1, 0 };
+  hsize_t currentDims[2] = {1, 0};
   hsize_t newDims[2];
   hsize_t offset[2];
-  hsize_t hyperDims[2] = { 1, 0 };
+  hsize_t hyperDims[2] = {1, 0};
   int rank = 0;
   herr_t status = -1;
   /*  printf("CPU [%d,%d] Expanding '%s' array with additional Row \n", home->myDomain, home->cycle, dsetName);
@@ -482,9 +484,9 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
 
   //  printf("dataset '%s' rank %d, size %lu x %lu \n", dsetName.toLatin1().data(), rank, (unsigned long)(newDims[0]), (unsigned long)(newDims[1]));
   status = H5Dset_extent(dataset, newDims);
-  if (status < 0)
+  if(status < 0)
   {
-    qDebug() << "Error Extending Data set" ;
+    qDebug() << "Error Extending Data set";
     Q_ASSERT(false);
   }
   /*// Select a hyperslab.*/
@@ -492,7 +494,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   offset[0] = currentDims[0];
   offset[1] = 0; // Start of Row
   /*  printf("dataset '%s' rank %d, offset %lu x %lu \n", dsetName, rank, (unsigned long)(offset[0]), (unsigned long)(offset[1]));*/
-  hyperDims[0] = 1; /* We want 1 single row - so force the dimension correctly */
+  hyperDims[0] = 1;                  /* We want 1 single row - so force the dimension correctly */
   hyperDims[1] = currentDims[1] / 2; /* We DO want how ever many columns are needed. */
   /*  printf("dataset '%s' rank %d, dims1 %lu x %lu \n", dsetName, rank, (unsigned long)(dims1[0]), (unsigned long)(dims1[1]));*/
   status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, nullptr, hyperDims, nullptr);
@@ -503,25 +505,23 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   /* Write the data to the hyperslab.*/
   /*  printf("dataset '%s' rank %d, dims %lu x %lu \n", dsetName, rank, (unsigned long)(dims[0]), (unsigned long)(dims[1]));*/
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, north);
-  if (status < 0)
+  if(status < 0)
   {
-    qDebug() << "Error appending north square" ;
+    qDebug() << "Error appending north square";
   }
 
-
   filespace = H5Dget_space(dataset);
-  //offset[0] = currentDims[0]; // Offset to current row being added
+  // offset[0] = currentDims[0]; // Offset to current row being added
   offset[1] = lambertSize; // Offset 0 Column
   status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, nullptr, hyperDims, nullptr);
   /*
    * Write the data to the hyperslab.
    */
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, south);
-  if (status < 0)
+  if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file" ;
+    qDebug() << "Error Writing Chunked Data set to file";
   }
-
 
   H5Dclose(dataset);
   H5Sclose(dataspace);
@@ -530,8 +530,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
 /* -----------------------------------------------------------------------------
 //
 // -------------------------------------------------------------------------- */
-void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSize, hsize_t chunk_dim,
-                               double* north, double* south)
+void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSize, hsize_t chunk_dim, double* north, double* south)
 {
 
   hid_t dataspace = -1;
@@ -539,19 +538,19 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
   hid_t dataset = -1;
   hid_t cparms = -1;
   herr_t status = -1;
-  hsize_t maxdims[2] = { H5S_UNLIMITED, H5S_UNLIMITED }; // Allow for 2D Arrays
-  hsize_t chunk_dims[2] =  { 1, chunk_dim };
-  hsize_t dims[2] = { 1ULL, static_cast<hsize_t>(lambertSize) };
+  hsize_t maxdims[2] = {H5S_UNLIMITED, H5S_UNLIMITED}; // Allow for 2D Arrays
+  hsize_t chunk_dims[2] = {1, chunk_dim};
+  hsize_t dims[2] = {1ULL, static_cast<hsize_t>(lambertSize)};
   hsize_t size[2];
   hsize_t offset[2];
-  hsize_t hyperDims[2] =  { 1ULL, static_cast<hsize_t>(lambertSize) };
+  hsize_t hyperDims[2] = {1ULL, static_cast<hsize_t>(lambertSize)};
   double fillvalue = -1.0;
   int rank = 2;
   //  int i = 0;
   //  int strSize = 0;
   //  char buffer[32];
 
-  if (lambertSize == 1)
+  if(lambertSize == 1)
   {
     rank = 1;
   }
@@ -570,7 +569,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
   //  dataset = H5Dcreate(gid, dsetName, H5T_NATIVE_DOUBLE, dataspace, cparms, H5P_DEFAULT, H5P_DEFAULT);
   dataset = H5Dcreate2(gid, dsetName.toLatin1().data(), H5T_NATIVE_DOUBLE, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
   /*  Extend the dataset. This call assures that dataset is at least 1 */
-  size[0] = 1; // Single Row
+  size[0] = 1;         // Single Row
   size[1] = chunk_dim; // N Columns - What ever the user asked for
   status = H5Dset_extent(dataset, size);
   /* Select a hyperslab. */
@@ -583,13 +582,13 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
    * Write the data to the hyperslab.
    */
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, north);
-  if (status < 0)
+  if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file" ;
+    qDebug() << "Error Writing Chunked Data set to file";
   }
 
   filespace = H5Dget_space(dataset);
-  offset[0] = 0; // Offset 0 row
+  offset[0] = 0;           // Offset 0 row
   offset[1] = lambertSize; // Offset 0 Column
   status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, nullptr, hyperDims, nullptr);
 
@@ -597,16 +596,15 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
    * Write the data to the hyperslab.
    */
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, south);
-  if (status < 0)
+  if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file" ;
+    qDebug() << "Error Writing Chunked Data set to file";
   }
 
   H5Dclose(dataset);
   H5Sclose(dataspace);
   H5Sclose(filespace);
   H5Pclose(cparms);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -620,7 +618,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
     return -2;
   }
   hid_t gid = QH5Utilities::createGroup(parentId, EbsdLib::StringConstants::GBCD);
-  if (gid < 0)
+  if(gid < 0)
   {
     return -1;
   }
@@ -629,10 +627,10 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
   ModifiedLambertProjection::Pointer tmp = m_ModifiedLambertProjectionArray[0];
   tmp->getDimension();
   int lambertDimension = tmp->getDimension();
-  hsize_t lambertElements =  tmp->getDimension() * tmp->getDimension();
+  hsize_t lambertElements = tmp->getDimension() * tmp->getDimension();
   float sphereRadius = tmp->getSphereRadius();
 
-  Create2DExpandableDataset(gid, dsetName, lambertElements, lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0) );
+  Create2DExpandableDataset(gid, dsetName, lambertElements, lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0));
 
   EbsdLib::DoubleArrayType* north = nullptr;
   EbsdLib::DoubleArrayType* south = nullptr;
@@ -658,7 +656,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
 // -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 {
-  //bool ok = false;
+  // bool ok = false;
   int err = 0;
   QString statsType;
   hid_t gid = QH5Utilities::openHDF5Object(parentId, EbsdLib::StringConstants::Statistics);
@@ -675,11 +673,11 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
     return err;
   }
 
-  for (QList<QString>::iterator iter = names.begin(); iter != names.end(); ++iter)
+  for(QList<QString>::iterator iter = names.begin(); iter != names.end(); ++iter)
   {
-    //int index = 0;
+    // int index = 0;
     statsType = "";
-    //index = QString( *iter ).toInt(&ok, 10);
+    // index = QString( *iter ).toInt(&ok, 10);
     QH5Lite::readStringAttribute(gid, *iter, EbsdLib::StringConstants::StatsType, statsType);
     hid_t statId = QH5Utilities::openHDF5Object(gid, *iter);
     if(statId < 0)

@@ -50,9 +50,8 @@
  */
 class EbsdLib_EXPORT OrientationMath
 {
-  public:
-
-    virtual ~OrientationMath();
+public:
+  virtual ~OrientationMath();
 
 #if 0
     /**
@@ -121,61 +120,58 @@ class EbsdLib_EXPORT OrientationMath
     static QuatF ActiveRotation(float angle, float xAxis, float yAxis, float zAxis, float x, float y, float z);
 
 #endif
-    /**
-    * @brief Converts lattice parameters to metric tensor
-    * @param lattive parameters as a, b, c, alpha, beta, gamma
-    * @param Output metric tensor
-    */
-    static void MetricTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float mt[3][3]);
+  /**
+   * @brief Converts lattice parameters to metric tensor
+   * @param lattive parameters as a, b, c, alpha, beta, gamma
+   * @param Output metric tensor
+   */
+  static void MetricTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float mt[3][3]);
 
-    /**
-    * @brief Converts lattice parameters to metric tensor
-    * @param lattive parameters as a, b, c, alpha, beta, gamma
-    * @param Output metric tensor
-    */
-    static void RootTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float rt[3][3]);
+  /**
+   * @brief Converts lattice parameters to metric tensor
+   * @param lattive parameters as a, b, c, alpha, beta, gamma
+   * @param Output metric tensor
+   */
+  static void RootTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float rt[3][3]);
 
-    /**
-    * @brief Converts 4 parameter Miller-Bravais lattice coordinates direction to 3 parameter Miller lattice
-    * coordinates direction
-    * @param millerBravais Input Vector (UVTW)
-    * @param miller Output Vector (UVW)
-    */
-    static void MillerBravaisToMillerDirection(const int32_t millerBravais[4], int32_t miller[3]);
+  /**
+   * @brief Converts 4 parameter Miller-Bravais lattice coordinates direction to 3 parameter Miller lattice
+   * coordinates direction
+   * @param millerBravais Input Vector (UVTW)
+   * @param miller Output Vector (UVW)
+   */
+  static void MillerBravaisToMillerDirection(const int32_t millerBravais[4], int32_t miller[3]);
 
-    /**
-    * @brief Converts 3 parameter Miller lattice coordinates direction to 4 parameter Miller-Bravais lattice
-    * coordinates direction
-    * @param miller Input Vector (UVW)
-    * @param millerBravais Output Vector (UVTW)
-    */
-    static void MillerToMillerBravaisDirection(const int32_t miller[3], int32_t millerBravais[4]);
+  /**
+   * @brief Converts 3 parameter Miller lattice coordinates direction to 4 parameter Miller-Bravais lattice
+   * coordinates direction
+   * @param miller Input Vector (UVW)
+   * @param millerBravais Output Vector (UVTW)
+   */
+  static void MillerToMillerBravaisDirection(const int32_t miller[3], int32_t millerBravais[4]);
 
-    /**
-    * @brief Converts 4 parameter Miller-Bravais lattice coordinates plane to 3 parameter Miller lattice
-    * coordinates plane
-    * @param millerBravais Input Vector (HKIL)
-    * @param miller Output Vector (HKL)
-    */
-    static void MillerBravaisToMillerPlane(const int32_t millerBravais[4], int32_t miller[3]);
+  /**
+   * @brief Converts 4 parameter Miller-Bravais lattice coordinates plane to 3 parameter Miller lattice
+   * coordinates plane
+   * @param millerBravais Input Vector (HKIL)
+   * @param miller Output Vector (HKL)
+   */
+  static void MillerBravaisToMillerPlane(const int32_t millerBravais[4], int32_t miller[3]);
 
-    /**
-    * @brief Converts 3 parameter Miller lattice coordinates plane to 4 parameter Miller-Bravais lattice
-    * coordinates plane
-    * @param miller Input Vector (HKL)
-    * @param millerBravais Output Vector (HKIL)
-    */
-    static void MillerToMillerBravaisPlane(const int32_t miller[3], int32_t millerBravais[4]);
+  /**
+   * @brief Converts 3 parameter Miller lattice coordinates plane to 4 parameter Miller-Bravais lattice
+   * coordinates plane
+   * @param miller Input Vector (HKL)
+   * @param millerBravais Output Vector (HKIL)
+   */
+  static void MillerToMillerBravaisPlane(const int32_t miller[3], int32_t millerBravais[4]);
 
-  protected:
-    OrientationMath();
+protected:
+  OrientationMath();
 
-
-  public:
-    OrientationMath(const OrientationMath&) = delete; // Copy Constructor Not Implemented
-    OrientationMath(OrientationMath&&) = delete;      // Move Constructor Not Implemented
-    OrientationMath& operator=(const OrientationMath&) = delete; // Copy Assignment Not Implemented
-    OrientationMath& operator=(OrientationMath&&) = delete;      // Move Assignment Not Implemented
+public:
+  OrientationMath(const OrientationMath&) = delete;            // Copy Constructor Not Implemented
+  OrientationMath(OrientationMath&&) = delete;                 // Move Constructor Not Implemented
+  OrientationMath& operator=(const OrientationMath&) = delete; // Copy Assignment Not Implemented
+  OrientationMath& operator=(OrientationMath&&) = delete;      // Move Assignment Not Implemented
 };
-
-

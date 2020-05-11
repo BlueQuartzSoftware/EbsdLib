@@ -67,7 +67,7 @@ const QString Statistics("Statistics");
 const QString StatsData("StatsData");
 const QString StatsType("StatsType");
 const QString GBCD("GBCD");
-}
+} // namespace StringConstants
 
 namespace NumericTypes
 {

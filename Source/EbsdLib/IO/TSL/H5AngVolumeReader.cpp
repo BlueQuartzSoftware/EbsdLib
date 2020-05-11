@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "H5AngVolumeReader.h"
 
 #include <cmath>
@@ -44,7 +44,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/TSL/H5AngReader.h"
 
-#if defined (H5Support_NAMESPACE)
+#if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
 #endif
 
@@ -112,16 +112,16 @@ void H5AngVolumeReader::initPointers(size_t numElements)
 // -----------------------------------------------------------------------------
 void H5AngVolumeReader::deletePointers()
 {
-  this->deallocateArrayData<float > (m_Phi1);
-  this->deallocateArrayData<float > (m_Phi);
-  this->deallocateArrayData<float > (m_Phi2);
-  this->deallocateArrayData<float > (m_Iq);
-  this->deallocateArrayData<float > (m_Ci);
-  this->deallocateArrayData<int > (m_PhaseData);
-  this->deallocateArrayData<float > (m_X);
-  this->deallocateArrayData<float > (m_Y);
-  this->deallocateArrayData<float > (m_SEMSignal);
-  this->deallocateArrayData<float > (m_Fit);
+  this->deallocateArrayData<float>(m_Phi1);
+  this->deallocateArrayData<float>(m_Phi);
+  this->deallocateArrayData<float>(m_Phi2);
+  this->deallocateArrayData<float>(m_Iq);
+  this->deallocateArrayData<float>(m_Ci);
+  this->deallocateArrayData<int>(m_PhaseData);
+  this->deallocateArrayData<float>(m_X);
+  this->deallocateArrayData<float>(m_Y);
+  this->deallocateArrayData<float>(m_SEMSignal);
+  this->deallocateArrayData<float>(m_Fit);
 }
 
 // -----------------------------------------------------------------------------
@@ -220,7 +220,6 @@ EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const QString& fea
   return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -259,21 +258,15 @@ QVector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
   return m_Phases;
 }
 
-
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int H5AngVolumeReader::loadData(int64_t xpoints,
-                                int64_t ypoints,
-                                int64_t zpoints,
-                                uint32_t ZDir )
+int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoints, uint32_t ZDir)
 {
   int index = 0;
   int err = -1;
   // Initialize all the pointers
   initPointers(xpoints * ypoints * zpoints);
-
 
   int readerIndex = 0;
   int xpointsslice = 0;
@@ -288,7 +281,7 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
   int ystartspot = 0;
   int numPhases = getNumPhases();
   err = readVolumeInfo();
-  for (int slice = 0; slice < zpoints; ++slice)
+  for(int slice = 0; slice < zpoints; ++slice)
   {
     H5AngReader::Pointer reader = H5AngReader::New();
     reader->setFileName(getFileName());
@@ -311,7 +304,12 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
     xpointsslice = reader->getNumEvenCols();
     ypointsslice = reader->getNumRows();
     float* euler1Ptr = reader->getPhi1Pointer();
-    if (nullptr == euler1Ptr) { setErrorCode(-99090); setErrorMessage("Euler1 Pointer was nullptr from Reader"); return getErrorCode(); }
+    if(nullptr == euler1Ptr)
+    {
+      setErrorCode(-99090);
+      setErrorMessage("Euler1 Pointer was nullptr from Reader");
+      return getErrorCode();
+    }
     float* euler2Ptr = reader->getPhiPointer();
     float* euler3Ptr = reader->getPhi2Pointer();
     float* xPtr = reader->getXPositionPointer();
@@ -344,21 +342,51 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
     }
 
     // Copy the data from the current storage into the new memory Location
-    for (int j = 0; j < ystop; j++)
+    for(int j = 0; j < ystop; j++)
     {
-      for (int i = 0; i < xstop; i++)
+      for(int i = 0; i < xstop; i++)
       {
         index = (zval * xpointstemp * ypointstemp) + ((j + ystartspot) * xpointstemp) + (i + xstartspot);
-        if (nullptr != euler1Ptr) {m_Phi1[index] = euler1Ptr[readerIndex];}
-        if (nullptr != euler2Ptr) {m_Phi[index] = euler2Ptr[readerIndex];}
-        if (nullptr != euler3Ptr) {m_Phi2[index] = euler3Ptr[readerIndex];}
-        if (nullptr != xPtr) {m_X[index] = xPtr[readerIndex];}
-        if (nullptr != yPtr) {m_Y[index] = yPtr[readerIndex];}
-        if (nullptr != iqPtr) {m_Iq[index] = iqPtr[readerIndex];}
-        if (nullptr != ciPtr) {m_Ci[index] = ciPtr[readerIndex];}
-        if (nullptr != phasePtr) {m_PhaseData[index] = phasePtr[readerIndex];} // Phase
-        if (nullptr != sigPtr) {m_SEMSignal[index] = sigPtr[readerIndex];}
-        if (nullptr != fitPtr) {m_Fit[index] = fitPtr[readerIndex];}
+        if(nullptr != euler1Ptr)
+        {
+          m_Phi1[index] = euler1Ptr[readerIndex];
+        }
+        if(nullptr != euler2Ptr)
+        {
+          m_Phi[index] = euler2Ptr[readerIndex];
+        }
+        if(nullptr != euler3Ptr)
+        {
+          m_Phi2[index] = euler3Ptr[readerIndex];
+        }
+        if(nullptr != xPtr)
+        {
+          m_X[index] = xPtr[readerIndex];
+        }
+        if(nullptr != yPtr)
+        {
+          m_Y[index] = yPtr[readerIndex];
+        }
+        if(nullptr != iqPtr)
+        {
+          m_Iq[index] = iqPtr[readerIndex];
+        }
+        if(nullptr != ciPtr)
+        {
+          m_Ci[index] = ciPtr[readerIndex];
+        }
+        if(nullptr != phasePtr)
+        {
+          m_PhaseData[index] = phasePtr[readerIndex];
+        } // Phase
+        if(nullptr != sigPtr)
+        {
+          m_SEMSignal[index] = sigPtr[readerIndex];
+        }
+        if(nullptr != fitPtr)
+        {
+          m_Fit[index] = fitPtr[readerIndex];
+        }
 
         /* For TSL OIM Files if there is a single phase then the value of the phase
          * data is zero (0). If there are 2 or more phases then the lowest value
@@ -367,7 +395,7 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
          * phase. The next if statement converts all zeros to ones if there is a single
          * phase in the OIM data.
          */
-        if (numPhases == 1 && nullptr != phasePtr && m_PhaseData[index] < 1)
+        if(numPhases == 1 && nullptr != phasePtr && m_PhaseData[index] < 1)
         {
           m_PhaseData[index] = 1;
         }
@@ -379,12 +407,8 @@ int H5AngVolumeReader::loadData(int64_t xpoints,
   return err;
 }
 
-
-
 // -----------------------------------------------------------------------------
 H5AngVolumeReader::Pointer H5AngVolumeReader::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
-
-

@@ -453,13 +453,13 @@ OrientationD CubicOps::calculateMisorientationInternal(const QuatType* quatsym, 
     wmin = ((qco.x() + qco.y() + qco.z() + qco.w()) / 2);
     type = 3;
   }
-  if (wmin < -1.0)
+  if(wmin < -1.0)
   {
     //  wmin = -1.0;
     wmin = EbsdLib::Constants::k_ACosNeg1;
     sin_wmin_over_2 = sinf(wmin);
   }
-  else if (wmin > 1.0)
+  else if(wmin > 1.0)
   {
     //   wmin = 1.0;
     wmin = EbsdLib::Constants::k_ACos1;
@@ -800,77 +800,77 @@ void CubicOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double
   angleComps[0] = theta1;
   angleComps[1] = lambda6;
 
-  if (schmid2 > schmidfactor)
+  if(schmid2 > schmidfactor)
   {
     schmidfactor = schmid2;
     slipsys = 1;
     angleComps[0] = theta1;
     angleComps[1] = lambda4;
   }
-  if (schmid3 > schmidfactor)
+  if(schmid3 > schmidfactor)
   {
     schmidfactor = schmid3;
     slipsys = 2;
     angleComps[0] = theta1;
     angleComps[1] = lambda3;
   }
-  if (schmid4 > schmidfactor)
+  if(schmid4 > schmidfactor)
   {
     schmidfactor = schmid4;
     slipsys = 3;
     angleComps[0] = theta2;
     angleComps[1] = lambda3;
   }
-  if (schmid5 > schmidfactor)
+  if(schmid5 > schmidfactor)
   {
     schmidfactor = schmid5;
     slipsys = 4;
     angleComps[0] = theta2;
     angleComps[1] = lambda2;
   }
-  if (schmid6 > schmidfactor)
+  if(schmid6 > schmidfactor)
   {
     schmidfactor = schmid6;
     slipsys = 5;
     angleComps[0] = theta2;
     angleComps[1] = lambda5;
   }
-  if (schmid7 > schmidfactor)
+  if(schmid7 > schmidfactor)
   {
     schmidfactor = schmid7;
     slipsys = 6;
     angleComps[0] = theta3;
     angleComps[1] = lambda1;
   }
-  if (schmid8 > schmidfactor)
+  if(schmid8 > schmidfactor)
   {
     schmidfactor = schmid8;
     slipsys = 7;
     angleComps[0] = theta3;
     angleComps[1] = lambda5;
   }
-  if (schmid9 > schmidfactor)
+  if(schmid9 > schmidfactor)
   {
     schmidfactor = schmid9;
     slipsys = 8;
     angleComps[0] = theta3;
     angleComps[1] = lambda4;
   }
-  if (schmid10 > schmidfactor)
+  if(schmid10 > schmidfactor)
   {
     schmidfactor = schmid10;
     slipsys = 9;
     angleComps[0] = theta4;
     angleComps[1] = lambda1;
   }
-  if (schmid11 > schmidfactor)
+  if(schmid11 > schmidfactor)
   {
     schmidfactor = schmid11;
     slipsys = 10;
     angleComps[0] = theta4;
     angleComps[1] = lambda2;
   }
-  if (schmid12 > schmidfactor)
+  if(schmid12 > schmidfactor)
   {
     schmidfactor = schmid12;
     slipsys = 11;
@@ -886,22 +886,22 @@ void CubicOps::getSchmidFactorAndSS(double load[3], double plane[3], double dire
   angleComps[0] = 0;
   angleComps[1] = 0;
 
-  //compute mags
+  // compute mags
   double loadMag = std::sqrt(load[0] * load[0] + load[1] * load[1] + load[2] * load[2]);
   double planeMag = std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
   double directionMag = std::sqrt(direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]);
   planeMag *= loadMag;
   directionMag *= loadMag;
 
-  //loop over symmetry operators finding highest schmid factor
+  // loop over symmetry operators finding highest schmid factor
   for(int i = 0; i < CubicHigh::k_NumSymQuats; i++)
   {
-    //compute slip system
+    // compute slip system
     double slipPlane[3] = {0};
     slipPlane[2] = CubicHigh::MatSym[i][2][0] * plane[0] + CubicHigh::MatSym[i][2][1] * plane[1] + CubicHigh::MatSym[i][2][2] * plane[2];
 
-    //dont consider negative z planes (to avoid duplicates)
-    if( slipPlane[2] >= 0)
+    // dont consider negative z planes (to avoid duplicates)
+    if(slipPlane[2] >= 0)
     {
       slipPlane[0] = CubicHigh::MatSym[i][0][0] * plane[0] + CubicHigh::MatSym[i][0][1] * plane[1] + CubicHigh::MatSym[i][0][2] * plane[2];
       slipPlane[1] = CubicHigh::MatSym[i][1][0] * plane[0] + CubicHigh::MatSym[i][1][1] * plane[1] + CubicHigh::MatSym[i][1][2] * plane[2];
@@ -1425,7 +1425,6 @@ void CubicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, E
     CubicHigh::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
     serial.generate(0, nOrientations);
   }
-
 }
 
 /**
@@ -1435,13 +1434,13 @@ void CubicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, E
  * @param c
  * @param sorted The array to store the sorted values.
  */
-template<typename T>
+template <typename T>
 void _TripletSort(T a, T b, T c, T* sorted)
 {
-  if ( a > b && a > c)
+  if(a > b && a > c)
   {
     sorted[2] = a;
-    if (b > c)
+    if(b > c)
     {
       sorted[1] = b;
       sorted[0] = c;
@@ -1452,10 +1451,10 @@ void _TripletSort(T a, T b, T c, T* sorted)
       sorted[0] = b;
     }
   }
-  else if ( b > a && b > c)
+  else if(b > a && b > c)
   {
     sorted[2] = b;
-    if (a > c)
+    if(a > c)
     {
       sorted[1] = a;
       sorted[0] = c;
@@ -1466,13 +1465,13 @@ void _TripletSort(T a, T b, T c, T* sorted)
       sorted[0] = a;
     }
   }
-  else if ( a > b )
+  else if(a > b)
   {
     sorted[1] = a;
     sorted[0] = b;
     sorted[2] = c;
   }
-  else if (a >= c && b >= c)
+  else if(a >= c && b >= c)
   {
     sorted[0] = c;
     sorted[1] = a;
@@ -1486,7 +1485,6 @@ void _TripletSort(T a, T b, T c, T* sorted)
   }
 }
 
-
 /**
  * @brief Sorts the 3 values from low to high
  * @param a Input
@@ -1496,13 +1494,13 @@ void _TripletSort(T a, T b, T c, T* sorted)
  * @param y Output
  * @param z Output
  */
-template<typename T>
+template <typename T>
 void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
 {
-  if ( a > b && a > c)
+  if(a > b && a > c)
   {
     z = a;
-    if (b > c)
+    if(b > c)
     {
       y = b;
       x = c;
@@ -1513,10 +1511,10 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
       x = b;
     }
   }
-  else if ( b > a && b > c)
+  else if(b > a && b > c)
   {
     z = b;
-    if (a > c)
+    if(a > c)
     {
       y = a;
       x = c;
@@ -1527,13 +1525,13 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
       x = a;
     }
   }
-  else if ( a > b )
+  else if(a > b)
   {
     y = a;
     x = b;
     z = c;
   }
-  else if (a >= c && b >= c)
+  else if(a >= c && b >= c)
   {
     x = c;
     y = a;
@@ -1666,11 +1664,11 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   _rgb[2] = std::sqrt(_rgb[2]);
 
   double max = _rgb[0];
-  if (_rgb[1] > max)
+  if(_rgb[1] > max)
   {
     max = _rgb[1];
   }
-  if (_rgb[2] > max)
+  if(_rgb[2] > max)
   {
     max = _rgb[2];
   }
@@ -1678,7 +1676,6 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   _rgb[0] = _rgb[0] / max;
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
-
 
   return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
 }
@@ -1713,8 +1710,14 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
   {
     label0 = config.labels.at(0);
   }
-  if(config.labels.size() > 1) { label1 = config.labels.at(1); }
-  if(config.labels.size() > 2) { label2 = config.labels.at(2); }
+  if(config.labels.size() > 1)
+  {
+    label1 = config.labels.at(1);
+  }
+  if(config.labels.size() > 2)
+  {
+    label2 = config.labels.at(2);
+  }
 
   size_t numOrientations = config.eulers->getNumberOfTuples();
 
@@ -1768,26 +1771,25 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
   size_t count = intensity001->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
   }
 
-
   dPtr = intensity011->getPointer(0);
   count = intensity011->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1797,11 +1799,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
   count = intensity111->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    if (dPtr[i] > max)
+    if(dPtr[i] > max)
     {
       max = dPtr[i];
     }
-    if (dPtr[i] < min)
+    if(dPtr[i] < min)
     {
       min = dPtr[i];
     }
@@ -1849,7 +1851,6 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
     GeneratePoleFigureRgbaImageImpl m111(intensity111.get(), &config, image111.get());
     m111();
   }
-
 
 #if 0
   size_t dim[3] = {config.imageDim, config.imageDim, 1};
@@ -1900,10 +1901,10 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
   size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
-  for (int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
+  for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
     yScanLineIndex--;
-    for (int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
+    for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
 
@@ -1930,15 +1931,13 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
       x1alt = x1alt / sqrt((x1alt * x1alt) + (y1 * y1));
       theta = acos(x1alt);
 
-      if (phi < (45.0f * EbsdLib::Constants::k_PiOver180) ||
-          phi > (90.0f * EbsdLib::Constants::k_PiOver180) ||
-          theta > (35.26f * EbsdLib::Constants::k_PiOver180))
+      if(phi < (45.0f * EbsdLib::Constants::k_PiOver180) || phi > (90.0f * EbsdLib::Constants::k_PiOver180) || theta > (35.26f * EbsdLib::Constants::k_PiOver180))
       {
         color = 0xFFFFFFFF;
       }
       else
       {
-        //3) move that direction to a single standard triangle - using the 001-011-111 triangle)
+        // 3) move that direction to a single standard triangle - using the 001-011-111 triangle)
         cd[0] = std::fabs(x1);
         cd[1] = std::fabs(y1);
         cd[2] = std::fabs(z1);
@@ -1953,7 +1952,6 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
   }
   return image;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -1978,13 +1976,13 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const Quat
 
   _TripletSort(n1, n2, n3, z, y, x);
 
-  //eq c9.1
+  // eq c9.1
   k = tan(w / 2.0);
   x = x * k;
   y = y * k;
   z = z * k;
 
-  //eq c9.2
+  // eq c9.2
   x1 = x;
   y1 = y;
   z1 = z;
@@ -1994,39 +1992,39 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const Quat
     z1 = (x * z * (y + z)) / (y * (1.0f - x));
   }
 
-  //eq c9.3
+  // eq c9.3
   x2 = x1 - EbsdLib::Constants::k_Tan_OneEigthPi;
   y2 = y1 * EbsdLib::Constants::k_Cos_ThreeEightPi - z1 * EbsdLib::Constants::k_Sin_ThreeEightPi;
   z2 = y1 * EbsdLib::Constants::k_Sin_ThreeEightPi + z1 * EbsdLib::Constants::k_Cos_ThreeEightPi;
 
-  //eq c9.4
+  // eq c9.4
   x3 = x2;
   y3 = y2 * (1 + (y2 / z2) * EbsdLib::Constants::k_Tan_OneEigthPi);
   z3 = z2 + y2 * EbsdLib::Constants::k_Tan_OneEigthPi;
 
-  //eq c9.5
+  // eq c9.5
   x4 = x3;
   y4 = (y3 * EbsdLib::Constants::k_Cos_OneEigthPi) / EbsdLib::Constants::k_Tan_OneEigthPi;
   z4 = z3 - x3 / EbsdLib::Constants::k_Cos_OneEigthPi;
 
-  //eq c9.6
+  // eq c9.6
   k = atan2(-x4, y4);
   x5 = x4 * (sin(k) + std::fabs(cos(k)));
   y5 = y4 * (sin(k) + std::fabs(cos(k)));
   z5 = z4;
 
-  //eq c9.7
+  // eq c9.7
   k = atan2(-x5, y5);
   x6 = -sqrt(x5 * x5 + y5 * y5) * sin(2.0f * k);
   y6 = sqrt(x5 * x5 + y5 * y5) * cos(2.0f * k);
   z6 = z5;
 
-  //eq c9.8 these hsv are from 0 to 1 in cartesian coordinates
+  // eq c9.8 these hsv are from 0 to 1 in cartesian coordinates
   x7 = (x6 * EbsdLib::Constants::k_Sqrt3 - y6) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPi);
   y7 = (x6 + y6 * EbsdLib::Constants::k_Sqrt3) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPi);
   z7 = z6 * (EbsdLib::Constants::k_Cos_OneEigthPi / EbsdLib::Constants::k_Tan_OneEigthPi);
 
-  //convert to traditional hsv (0-1)
+  // convert to traditional hsv (0-1)
   h = fmod(atan2f(y7, x7) + M_2PI, M_2PI) / M_2PI;
   s = sqrt(x7 * x7 + y7 * y7);
   v = z7;
@@ -2037,7 +2035,7 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const Quat
 
   EbsdLib::Rgb rgb = ColorUtilities::ConvertHSVtoRgb(h, s, v);
 
-  //now standard 0-255 rgb, needs rotation
+  // now standard 0-255 rgb, needs rotation
   return RgbColor::dRgb(255 - RgbColor::dGreen(rgb), RgbColor::dBlue(rgb), RgbColor::dRed(rgb), 0);
 }
 
@@ -2790,14 +2788,14 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateMisorientationTriangleLegend(
   return image;
 }
 
-std::vector< std::pair<double, double> > CubicOps::rodri2pair(std::vector<double> x, std::vector<double> y, std::vector<double> z)
+std::vector<std::pair<double, double>> CubicOps::rodri2pair(std::vector<double> x, std::vector<double> y, std::vector<double> z)
 {
-  std::vector< std::pair<double, double> > result;
+  std::vector<std::pair<double, double>> result;
   double q0, q1, q2, q3, ang, r, x1, y1, z1, rad, xPair, yPair, k;
 
   for(std::vector<double>::size_type i = 0; i < x.size(); i++)
   {
-    //rodri2volpreserv
+    // rodri2volpreserv
     q0 = sqrt(1 / (1 + x[i] * x[i] + y[i] * y[i] + z[i] * z[i]));
     q1 = x[i] * q0;
     q2 = y[i] * q0;
@@ -2814,7 +2812,7 @@ std::vector< std::pair<double, double> > CubicOps::rodri2pair(std::vector<double
       z1 = z1 / sin(ang);
     }
 
-    //areapreservingx
+    // areapreservingx
     rad = sqrt(x1 * x1 + y1 * y1 + z1 * z1);
     if(rad == 0)
     {

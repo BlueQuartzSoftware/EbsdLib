@@ -64,117 +64,117 @@
  */
 class TextureTest
 {
-  public:
-    TextureTest() = default;
-    ~TextureTest() = default;
+public:
+  TextureTest() = default;
+  ~TextureTest() = default;
 
-    template <class LaueOps>
-    void TestTextureMdf()
+  template <class LaueOps>
+  void TestTextureMdf()
+  {
+    LaueOps ops;
+    std::cout << "======================================================" << std::endl;
+    std::cout << ops.getNameOfClass().toStdString() << " MDF Plot Values" << std::endl;
+
+    std::vector<float> odf;
+
+    int size = 10000;
+    std::vector<float> e1s;
+    std::vector<float> e2s;
+    std::vector<float> e3s;
+    std::vector<float> sigmas;
+    std::vector<float> angles;
+    std::vector<float> axes;
+    std::vector<float> weights;
+    size_t numEntries = static_cast<size_t>(e1s.size());
+    std::cout << "   Generating ODF....." << std::endl;
+    Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+
+    // Allocate a new vector to hold the mdf data
+    std::vector<float> mdf;
+
+    std::cout << "   Generating MDF....." << std::endl;
+
+    // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
+    Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
+    // Now generate the actual XY point data that gets plotted.
+    // These are the output vectors
+
+    int npoints = 36;
+    std::vector<float> x(npoints);
+    std::vector<float> y(npoints);
+    std::cout << "   Generating MDF Plot Data....." << std::endl;
+
+    int32_t err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
+    if(err < 0)
     {
-      LaueOps ops;
-      std::cout << "======================================================" << std::endl;
-      std::cout << ops.getNameOfClass().toStdString() << " MDF Plot Values" << std::endl;
-
-      std::vector<float> odf;
-
-      int size = 10000;
-      std::vector<float> e1s;
-      std::vector<float> e2s;
-      std::vector<float> e3s;
-      std::vector<float> sigmas;
-      std::vector<float> angles;
-      std::vector<float> axes;
-      std::vector<float> weights;
-      size_t numEntries = static_cast<size_t>(e1s.size());
-      std::cout << "   Generating ODF....." << std::endl;
-      Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
-
-      // Allocate a new vector to hold the mdf data
-      std::vector<float> mdf;
-
-      std::cout << "   Generating MDF....." << std::endl;
-
-      // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
-      Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
-      // Now generate the actual XY point data that gets plotted.
-      // These are the output vectors
-
-      int npoints = 36;
-      std::vector<float> x(npoints);
-      std::vector<float> y(npoints);
-      std::cout << "   Generating MDF Plot Data....." << std::endl;
-
-      int32_t err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
-      if(err < 0)
-      {
-        std::cout << "Error Generating MDF Plot Valeus" << std::endl;
-        return;
-      }
-
-      std::cout << "    npoints: " << x.size() << std::endl;
-      for(size_t i = 0; i < x.size(); i++)
-      {
-        std::cout << x[i] << ", " << y[i] << std::endl;
-      }
+      std::cout << "Error Generating MDF Plot Valeus" << std::endl;
+      return;
     }
 
-    void TestMdfGeneration()
+    std::cout << "    npoints: " << x.size() << std::endl;
+    for(size_t i = 0; i < x.size(); i++)
     {
-      TestTextureMdf<CubicLowOps>();
-      TestTextureMdf<CubicOps>();
-      TestTextureMdf<HexagonalLowOps>();
-      TestTextureMdf<HexagonalOps>();
-      TestTextureMdf<MonoclinicOps>();
-      TestTextureMdf<OrthoRhombicOps>();
-      TestTextureMdf<TetragonalLowOps>();
-      TestTextureMdf<TetragonalOps>();
-      TestTextureMdf<TriclinicOps>();
-      TestTextureMdf<TrigonalLowOps>();
-      TestTextureMdf<TrigonalOps>();
+      std::cout << x[i] << ", " << y[i] << std::endl;
     }
+  }
 
-    template <class LaueOps>
-    void TestTextureOdf()
-    {
-      std::vector<float> e1s;
-      std::vector<float> e2s;
-      std::vector<float> e3s;
-      std::vector<float> weights;
-      std::vector<float> sigmas;
-      std::vector<float> odf;
+  void TestMdfGeneration()
+  {
+    TestTextureMdf<CubicLowOps>();
+    TestTextureMdf<CubicOps>();
+    TestTextureMdf<HexagonalLowOps>();
+    TestTextureMdf<HexagonalOps>();
+    TestTextureMdf<MonoclinicOps>();
+    TestTextureMdf<OrthoRhombicOps>();
+    TestTextureMdf<TetragonalLowOps>();
+    TestTextureMdf<TetragonalOps>();
+    TestTextureMdf<TriclinicOps>();
+    TestTextureMdf<TrigonalLowOps>();
+    TestTextureMdf<TrigonalOps>();
+  }
 
-      LaueOps ops;
-      size_t numEntries = e1s.size();
-      Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
-    }
+  template <class LaueOps>
+  void TestTextureOdf()
+  {
+    std::vector<float> e1s;
+    std::vector<float> e2s;
+    std::vector<float> e3s;
+    std::vector<float> weights;
+    std::vector<float> sigmas;
+    std::vector<float> odf;
 
-    void TestOdfGeneration()
-    {
-      TestTextureOdf<CubicLowOps>();
-      TestTextureOdf<CubicOps>();
-      TestTextureOdf<HexagonalLowOps>();
-      TestTextureOdf<HexagonalOps>();
-      TestTextureOdf<MonoclinicOps>();
-      TestTextureOdf<OrthoRhombicOps>();
-      TestTextureOdf<TetragonalLowOps>();
-      TestTextureOdf<TetragonalOps>();
-      TestTextureOdf<TriclinicOps>();
-      TestTextureOdf<TrigonalLowOps>();
-      TestTextureOdf<TrigonalOps>();
-    }
+    LaueOps ops;
+    size_t numEntries = e1s.size();
+    Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+  }
 
-    void operator()()
-    {
-      std::cout << "#### TextureTest Starting ####" << std::endl;
+  void TestOdfGeneration()
+  {
+    TestTextureOdf<CubicLowOps>();
+    TestTextureOdf<CubicOps>();
+    TestTextureOdf<HexagonalLowOps>();
+    TestTextureOdf<HexagonalOps>();
+    TestTextureOdf<MonoclinicOps>();
+    TestTextureOdf<OrthoRhombicOps>();
+    TestTextureOdf<TetragonalLowOps>();
+    TestTextureOdf<TetragonalOps>();
+    TestTextureOdf<TriclinicOps>();
+    TestTextureOdf<TrigonalLowOps>();
+    TestTextureOdf<TrigonalOps>();
+  }
 
-      int err = EXIT_SUCCESS;
-      DREAM3D_REGISTER_TEST(TestOdfGeneration())
-      DREAM3D_REGISTER_TEST(TestMdfGeneration())
-    }
+  void operator()()
+  {
+    std::cout << "#### TextureTest Starting ####" << std::endl;
 
-  public:
-    TextureTest(const TextureTest&) = delete;            // Copy Constructor Not Implemented
-    TextureTest(TextureTest&&) = delete;                 // Move Constructor Not Implemented
-    TextureTest& operator=(const TextureTest&) = delete; // Copy Assignment Not Implemented
-    TextureTest& operator=(TextureTest&&) = delete;      // Move Assignment Not Implemented
+    int err = EXIT_SUCCESS;
+    DREAM3D_REGISTER_TEST(TestOdfGeneration())
+    DREAM3D_REGISTER_TEST(TestMdfGeneration())
+  }
+
+public:
+  TextureTest(const TextureTest&) = delete;            // Copy Constructor Not Implemented
+  TextureTest(TextureTest&&) = delete;                 // Move Constructor Not Implemented
+  TextureTest& operator=(const TextureTest&) = delete; // Copy Assignment Not Implemented
+  TextureTest& operator=(TextureTest&&) = delete;      // Move Assignment Not Implemented
 };

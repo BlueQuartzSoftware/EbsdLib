@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
 #include <QtCore/QVector>
@@ -57,7 +57,6 @@ using HKLFamily_t = struct
   char s2;
 };
 
-
 /**
  * @class HKLFamily HKLFamily.h EbsdLib/IO/TSL/HKLFamily.h
  * @brief Class to hold the information associated with a HKL Family value
@@ -77,12 +76,12 @@ public:
 
   EBSD_STATIC_NEW_MACRO(HKLFamily)
   /**
-    * @brief Returns the name of the class for HKLFamily
-    */
+   * @brief Returns the name of the class for HKLFamily
+   */
   QString getNameOfClass() const;
   /**
-    * @brief Returns the name of the class for HKLFamily
-    */
+   * @brief Returns the name of the class for HKLFamily
+   */
   static QString ClassName();
 
   virtual ~HKLFamily() = default;
@@ -95,9 +94,9 @@ public:
   char s2;
 
   /**
-     * @brief Prints this class to the output stream. Useful for debuggin
-     * @param stream The stream to print to
-     */
+   * @brief Prints this class to the output stream. Useful for debuggin
+   * @param stream The stream to print to
+   */
   void printSelf(QTextStream& stream)
   {
     stream << EbsdLib::Ang::HKLFamilies;
@@ -105,9 +104,9 @@ public:
   }
 
   /**
-     * @brief Copies the content of this instance to another class instance
-     * @param ptr The destination of the copied contents
-     */
+   * @brief Copies the content of this instance to another class instance
+   * @param ptr The destination of the copied contents
+   */
   void copyToStruct(HKLFamily_t* ptr)
   {
     ptr->h = h;
@@ -119,10 +118,10 @@ public:
   }
 
   /**
-     * @brief Copies the content <b>from</b> another structure into this structure
-     * @param ptr The source of the copy, ie, the values from <i>ptr</i> will be copied
-     * into this instance.
-     */
+   * @brief Copies the content <b>from</b> another structure into this structure
+   * @param ptr The source of the copy, ie, the values from <i>ptr</i> will be copied
+   * into this instance.
+   */
   void copyFromStruct(HKLFamily_t* ptr)
   {
     h = ptr->h;
@@ -162,45 +161,45 @@ public:
 
   EBSD_STATIC_NEW_MACRO(AngPhase)
   /**
-    * @brief Returns the name of the class for AngPhase
-    */
+   * @brief Returns the name of the class for AngPhase
+   */
   QString getNameOfClass() const;
   /**
-    * @brief Returns the name of the class for AngPhase
-    */
+   * @brief Returns the name of the class for AngPhase
+   */
   static QString ClassName();
 
   virtual ~AngPhase();
 
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
   /**
-    * @brief Setter property for MaterialName
-    */
+   * @brief Setter property for MaterialName
+   */
   void setMaterialName(const QString& value);
   /**
-    * @brief Getter property for MaterialName
-    * @return Value of MaterialName
-    */
+   * @brief Getter property for MaterialName
+   * @return Value of MaterialName
+   */
   QString getMaterialName() const;
 
   /**
-    * @brief Setter property for Formula
-    */
+   * @brief Setter property for Formula
+   */
   void setFormula(const QString& value);
   /**
-    * @brief Getter property for Formula
-    * @return Value of Formula
-    */
+   * @brief Getter property for Formula
+   * @return Value of Formula
+   */
   QString getFormula() const;
 
   /**
-    * @brief Setter property for Info
-    */
+   * @brief Setter property for Info
+   */
   void setInfo(const QString& value);
   /**
-    * @brief Getter property for Info
-    * @return Value of Info
-    */
+   * @brief Getter property for Info
+   * @return Value of Info
+   */
   QString getInfo() const;
 
   EBSD_INSTANCE_PROPERTY(uint32_t, Symmetry)
@@ -226,8 +225,8 @@ public:
   void printSelf(QTextStream& stream);
 
   /**
-     * @brief Returns the type of crystal structure for this phase.
-     */
+   * @brief Returns the type of crystal structure for this phase.
+   */
   unsigned int determineLaueGroup();
 
 protected:

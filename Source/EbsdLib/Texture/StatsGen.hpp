@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2016 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
-* contributors may be used to endorse or promote products derived from this software
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
@@ -71,7 +71,8 @@ public:
    * @param size Number of points in the scatter plot
    * @return Error Code. 0 is NO ERROR.
    */
-  template <typename Vector> static int GenBetaPlotData(float alpha, float beta, Vector& x, Vector& y, int size)
+  template <typename Vector>
+  static int GenBetaPlotData(float alpha, float beta, Vector& x, Vector& y, int size)
   {
     int err = 0;
     float total = 0;
@@ -111,7 +112,8 @@ public:
    f(x) = w*\frac{1}{x\sigma\sqrt{2\pi}}e^{-\frac{(ln(x) - \mu)^2}{2\sigma^2}}
   * @return
   */
-  template <typename Vector> static int GenLogNormalPlotData(float mu, float sigma, Vector& x, Vector& y, int size, float minCutOff = 5.0f, float maxCutOff = 5.0f)
+  template <typename Vector>
+  static int GenLogNormalPlotData(float mu, float sigma, Vector& x, Vector& y, int size, float minCutOff = 5.0f, float maxCutOff = 5.0f)
   {
     int err = 0;
     float max, min;
@@ -151,7 +153,8 @@ public:
    * @param size
    * @return
    */
-  template <typename Vector> static int GenPowerLawPlotData(float alpha, float k, float beta, Vector& x, Vector& y, int size)
+  template <typename Vector>
+  static int GenPowerLawPlotData(float alpha, float k, float beta, Vector& x, Vector& y, int size)
   {
     int err = 0;
     float in, out, max, min;
@@ -203,7 +206,8 @@ public:
    * @param binsizes Type that adheres to the QVector API. Will be resized to numsizebins and filled with the lower value of each bin.
    * @return
    */
-  template <typename J, typename Vector> static int GenCutOff(J mu, J sigma, J minCutOff, J maxCutOff, J binstep, Vector& x, Vector& y, J yMax, int& numSizeBins, Vector& binSizes)
+  template <typename J, typename Vector>
+  static int GenCutOff(J mu, J sigma, J minCutOff, J maxCutOff, J binstep, Vector& x, Vector& y, J yMax, int& numSizeBins, Vector& binSizes)
   {
     J max, min;
     numSizeBins = StatsGen::ComputeNumberOfBins(mu, sigma, minCutOff, maxCutOff, binstep, max, min);
@@ -441,7 +445,8 @@ public:
    * @param yC Y Values of the C axis PF Scatter plot (Output). This memory must already be preallocated.
    * @param size The number of points for the Scatter Plot
    */
-  template <typename T> static int GenAxisODFPlotData(T* odf, T* eulers, int npoints)
+  template <typename T>
+  static int GenAxisODFPlotData(T* odf, T* eulers, int npoints)
   {
 
     std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine

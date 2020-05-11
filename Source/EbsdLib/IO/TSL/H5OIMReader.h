@@ -87,17 +87,17 @@
 class EbsdLib_EXPORT H5OIMReader : public AngReader
 {
 public:
-    using Self = H5OIMReader;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<Self>;
-    static Pointer NullPointer();
+  using Self = H5OIMReader;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
 
   EBSD_STATIC_NEW_MACRO(H5OIMReader)
-    /**
-    * @brief Returns the name of the class for H5OIMReader
-    */
+  /**
+   * @brief Returns the name of the class for H5OIMReader
+   */
   QString getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5OIMReader
@@ -109,16 +109,15 @@ public:
   /**
    * @brief The HDF5 path to find the EBSD data
    */
-    /**
-    * @brief Setter property for HDF5Path
-    */
-    void setHDF5Path(const QString& value) ;
-    /**
-    * @brief Getter property for HDF5Path
-    * @return Value of HDF5Path
-    */
-    QString getHDF5Path() const ;
-
+  /**
+   * @brief Setter property for HDF5Path
+   */
+  void setHDF5Path(const QString& value);
+  /**
+   * @brief Getter property for HDF5Path
+   * @return Value of HDF5Path
+   */
+  QString getHDF5Path() const;
 
   EBSD_INSTANCE_PROPERTY(bool, ReadPatternData)
 
@@ -207,9 +206,7 @@ protected:
   int readData(hid_t parId);
 
 private:
-
-    QString m_HDF5Path = {};
-
+  QString m_HDF5Path = {};
 
   QSet<QString> m_ArrayNames;
   bool m_ReadAllArrays = true;

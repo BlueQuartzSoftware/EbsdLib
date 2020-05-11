@@ -962,8 +962,6 @@ H5EspritReader::Pointer H5EspritReader::NullPointer()
   return Pointer(static_cast<Self*>(nullptr));
 }
 
-
-
 // -----------------------------------------------------------------------------
 void H5EspritReader::setHDF5Path(const QString& value)
 {
@@ -976,8 +974,6 @@ QString H5EspritReader::getHDF5Path() const
   return m_HDF5Path;
 }
 
-
-
 // -----------------------------------------------------------------------------
 QString H5EspritReader::getNameOfClass() const
 {
@@ -989,5 +985,3 @@ QString H5EspritReader::ClassName()
 {
   return QString("H5EspritReader");
 }
-
-

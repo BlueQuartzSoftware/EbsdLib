@@ -165,6 +165,6 @@ QString ToolTipGenerator::rowToHTML(const RowItem& row) const
     ss << R"(<tr bgcolor=")" << m_RowColorStr << R"("><td></td><td></td></tr>)";
     break;
   }
-  
+
   return html;
 }

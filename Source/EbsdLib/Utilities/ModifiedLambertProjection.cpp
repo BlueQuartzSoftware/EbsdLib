@@ -35,8 +35,6 @@
 
 #include "ModifiedLambertProjection.h"
 
-
-
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 
@@ -45,12 +43,12 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::ModifiedLambertProjection() :
-  m_Dimension(0),
-  m_StepSize(0.0f),
-  m_SphereRadius(1.0f),
-  m_MaxCoord(0.0),
-  m_MinCoord(0.0)
+ModifiedLambertProjection::ModifiedLambertProjection()
+: m_Dimension(0)
+, m_StepSize(0.0f)
+, m_SphereRadius(1.0f)
+, m_MaxCoord(0.0)
+, m_MinCoord(0.0)
 {
 }
 
@@ -68,10 +66,9 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
   size_t npoints = coords->getNumberOfTuples();
   bool nhCheck = false;
   float sqCoord[2];
-  //int sqIndex = 0;
+  // int sqIndex = 0;
   ModifiedLambertProjection::Pointer squareProj = ModifiedLambertProjection::New();
   squareProj->initializeSquares(dimension, sphereRadius);
-
 
 #if WRITE_LAMBERT_SQUARE_COORD_VTK
   QString ss;
@@ -92,31 +89,31 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
   fprintf(f, "ASCII");
   fprintf(f, "\n");
 
-  fprintf(f, "DATASET UNSTRUCTURED_GRID\nPOINTS %lu float\n", coords->getNumberOfTuples() );
+  fprintf(f, "DATASET UNSTRUCTURED_GRID\nPOINTS %lu float\n", coords->getNumberOfTuples());
 #endif
 
   for(size_t i = 0; i < npoints; ++i)
   {
     sqCoord[0] = 0.0;
     sqCoord[1] = 0.0;
-    //get coordinates in square projection of crystal normal parallel to boundary normal
+    // get coordinates in square projection of crystal normal parallel to boundary normal
     nhCheck = squareProj->getSquareCoord(coords->getPointer(i * 3), sqCoord);
 #if WRITE_LAMBERT_SQUARE_COORD_VTK
     fprintf(f, "%f %f 0\n", sqCoord[0], sqCoord[1]);
 #endif
 
     // Based on the XY coordinate, get the pointer index that the value corresponds to in the proper square
-//    sqIndex = squareProj->getSquareIndex(sqCoord);
+    //    sqIndex = squareProj->getSquareIndex(sqCoord);
     if(nhCheck)
     {
-      //north increment by 1
-//      squareProj->addValue(ModifiedLambertProjection::NorthSquare, sqIndex, 1.0);
+      // north increment by 1
+      //      squareProj->addValue(ModifiedLambertProjection::NorthSquare, sqIndex, 1.0);
       squareProj->addInterpolatedValues(ModifiedLambertProjection::NorthSquare, sqCoord, 1.0);
     }
     else
     {
       // south increment by 1
-//      squareProj->addValue(ModifiedLambertProjection::SouthSquare, sqIndex, 1.0);
+      //      squareProj->addValue(ModifiedLambertProjection::SouthSquare, sqIndex, 1.0);
       squareProj->addInterpolatedValues(ModifiedLambertProjection::SouthSquare, sqCoord, 1.0);
     }
   }
@@ -152,8 +149,6 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
   m_NorthSquare->initializeWithZeros();
   m_SouthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
   m_SouthSquare->initializeWithZeros();
-
-
 }
 #ifdef EbsdLib_ENABLE_HDF5
 // -----------------------------------------------------------------------------
@@ -162,13 +157,13 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 {
   int err = -1;
-  #if 0
+#if 0
   std::vector<size_t> dims = { static_cast<size_t>(m_Dimension), static_cast<size_t>(m_Dimension), 1};
   err = m_NorthSquare->writeH5Data(groupId, dims);
   std::cout << "Err: " << err << std::endl;
   err = m_SouthSquare->writeH5Data(groupId, dims);
   std::cout << "Err: " << err << std::endl;
-  #endif
+#endif
 
   return err;
 }
@@ -193,10 +188,10 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
   int abin3 = 0, bbin3 = 0;
   int abin4 = 0, bbin4 = 0;
   int abinSign, bbinSign;
-  float modX = (sqCoord[0] + m_HalfDimensionTimesStepSize ) / m_StepSize;
-  float modY = (sqCoord[1] + m_HalfDimensionTimesStepSize ) / m_StepSize;
-  int abin = (int) modX;
-  int bbin = (int) modY;
+  float modX = (sqCoord[0] + m_HalfDimensionTimesStepSize) / m_StepSize;
+  float modY = (sqCoord[1] + m_HalfDimensionTimesStepSize) / m_StepSize;
+  int abin = (int)modX;
+  int bbin = (int)modY;
   modX -= abin;
   modY -= bbin;
   modX -= 0.5;
@@ -252,7 +247,7 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
   int index2 = bbin2 * m_Dimension + abin2;
   int index3 = bbin3 * m_Dimension + abin3;
   int index4 = bbin4 * m_Dimension + abin4;
-  if (square == NorthSquare)
+  if(square == NorthSquare)
   {
     double v1 = m_NorthSquare->getValue(index1) + value * (1.0 - modX) * (1.0 - modY);
     double v2 = m_NorthSquare->getValue(index2) + value * (modX) * (1.0 - modY);
@@ -281,7 +276,7 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::addValue(Square square, int index, double value)
 {
-  if (square == NorthSquare)
+  if(square == NorthSquare)
   {
     double v = m_NorthSquare->getValue(index) + value;
     m_NorthSquare->setValue(index, v);
@@ -298,7 +293,7 @@ void ModifiedLambertProjection::addValue(Square square, int index, double value)
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::setValue(Square square, int index, double value)
 {
-  if (square == NorthSquare)
+  if(square == NorthSquare)
   {
     m_NorthSquare->setValue(index, value);
   }
@@ -313,12 +308,12 @@ void ModifiedLambertProjection::setValue(Square square, int index, double value)
 // -----------------------------------------------------------------------------
 double ModifiedLambertProjection::getValue(Square square, int index)
 {
-  if (square == NorthSquare)
+  if(square == NorthSquare)
   {
     return m_NorthSquare->getValue(index);
   }
 
-    return m_SouthSquare->getValue(index);
+  return m_SouthSquare->getValue(index);
 }
 
 // -----------------------------------------------------------------------------
@@ -326,16 +321,16 @@ double ModifiedLambertProjection::getValue(Square square, int index)
 // -----------------------------------------------------------------------------
 double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqCoord)
 {
-// float sqCoord[2] = { sqCoord0[0] - 0.5*m_StepSize, sqCoord0[1] - 0.5*m_StepSize};
+  // float sqCoord[2] = { sqCoord0[0] - 0.5*m_StepSize, sqCoord0[1] - 0.5*m_StepSize};
   int abin1, bbin1;
   int abin2, bbin2;
   int abin3, bbin3;
   int abin4, bbin4;
   int abinSign, bbinSign;
-  float modX = (sqCoord[0] + m_HalfDimensionTimesStepSize ) / m_StepSize;
-  float modY = (sqCoord[1] + m_HalfDimensionTimesStepSize ) / m_StepSize;
-  int abin = (int) modX;
-  int bbin = (int) modY;
+  float modX = (sqCoord[0] + m_HalfDimensionTimesStepSize) / m_StepSize;
+  float modY = (sqCoord[1] + m_HalfDimensionTimesStepSize) / m_StepSize;
+  int abin = (int)modX;
+  int bbin = (int)modY;
   modX -= abin;
   modY -= bbin;
   modX -= 0.5;
@@ -386,7 +381,7 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqC
   }
   modX = fabs(modX);
   modY = fabs(modY);
-  if (square == NorthSquare)
+  if(square == NorthSquare)
   {
     float intensity1 = m_NorthSquare->getValue((abin1) + (bbin1 * m_Dimension));
     float intensity2 = m_NorthSquare->getValue((abin2) + (bbin2 * m_Dimension));
@@ -396,12 +391,12 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqC
     return interpolatedIntensity;
   }
 
-    float intensity1 = m_SouthSquare->getValue((abin1) + (bbin1 * m_Dimension));
-    float intensity2 = m_SouthSquare->getValue((abin2) + (bbin2 * m_Dimension));
-    float intensity3 = m_SouthSquare->getValue((abin3) + (bbin3 * m_Dimension));
-    float intensity4 = m_SouthSquare->getValue((abin4) + (bbin4 * m_Dimension));
-    float interpolatedIntensity = ((intensity1 * (1 - modX) * (1 - modY)) + (intensity2 * (modX) * (1 - modY)) + (intensity3 * (1 - modX) * (modY)) + (intensity4 * (modX) * (modY)));
-    return interpolatedIntensity;
+  float intensity1 = m_SouthSquare->getValue((abin1) + (bbin1 * m_Dimension));
+  float intensity2 = m_SouthSquare->getValue((abin2) + (bbin2 * m_Dimension));
+  float intensity3 = m_SouthSquare->getValue((abin3) + (bbin3 * m_Dimension));
+  float intensity4 = m_SouthSquare->getValue((abin4) + (bbin4 * m_Dimension));
+  float interpolatedIntensity = ((intensity1 * (1 - modX) * (1 - modY)) + (intensity2 * (modX) * (1 - modY)) + (intensity3 * (1 - modX) * (modY)) + (intensity4 * (modX) * (modY)));
+  return interpolatedIntensity;
 }
 
 // -----------------------------------------------------------------------------
@@ -424,22 +419,22 @@ bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
   }
   if(fabs(xyz[0]) >= fabs(xyz[1]))
   {
-    sqCoord[0] = (xyz[0] / fabs(xyz[0]) ) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust) ) ) * EbsdLib::Constants::k_HalfOfSqrtPi;
-    sqCoord[1] = (xyz[0] / fabs(xyz[0]) ) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust) ) ) * ((EbsdLib::Constants::k_2OverSqrtPi) * atan(xyz[1] / xyz[0]));
+    sqCoord[0] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPi;
+    sqCoord[1] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPi)*atan(xyz[1] / xyz[0]));
   }
   else
   {
-    sqCoord[0] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPi) * atan(xyz[0] / xyz[1]));
+    sqCoord[0] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPi)*atan(xyz[0] / xyz[1]));
     sqCoord[1] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPi);
   }
 
-  if (sqCoord[0] >= m_MaxCoord)
+  if(sqCoord[0] >= m_MaxCoord)
   {
-    sqCoord[0] = (m_MaxCoord) - .0001;
+    sqCoord[0] = (m_MaxCoord)-.0001;
   }
-  if (sqCoord[1] >= m_MaxCoord)
+  if(sqCoord[1] >= m_MaxCoord)
   {
-    sqCoord[1] = (m_MaxCoord) - .0001;
+    sqCoord[1] = (m_MaxCoord)-.0001;
   }
   return nhCheck;
 }
@@ -449,21 +444,21 @@ bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
 // -----------------------------------------------------------------------------
 int ModifiedLambertProjection::getSquareIndex(float* sqCoord)
 {
-  int x = (int)( (sqCoord[0] + m_MaxCoord) / m_StepSize);
-  if (x >= m_Dimension)
+  int x = (int)((sqCoord[0] + m_MaxCoord) / m_StepSize);
+  if(x >= m_Dimension)
   {
     x = m_Dimension - 1;
   }
-  if (x < 0)
+  if(x < 0)
   {
     x = 0;
   }
-  int y = (int)( (sqCoord[1] + m_MaxCoord) / m_StepSize);
-  if (y >= m_Dimension)
+  int y = (int)((sqCoord[1] + m_MaxCoord) / m_StepSize);
+  if(y >= m_Dimension)
   {
     y = m_Dimension - 1;
   }
-  if (y < 0)
+  if(y < 0)
   {
     y = 0;
   }
@@ -471,7 +466,6 @@ int ModifiedLambertProjection::getSquareIndex(float* sqCoord)
   Q_ASSERT(index < m_Dimension * m_Dimension);
   return index;
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -501,7 +495,6 @@ void ModifiedLambertProjection::normalizeSquares()
     north[i] = (north[i] * oneOverNTotal);
     south[i] = (south[i] * oneOverSTotal);
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -522,7 +515,6 @@ void ModifiedLambertProjection::normalizeSquaresToMRD()
     north[i] = north[i] * dimSqrd;
     south[i] = south[i] * dimSqrd;
   }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -545,46 +537,45 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::
 
   stereoIntensity->initializeWithZeros();
   double* intensity = stereoIntensity->getPointer(0);
-// int sqIndex = 0;
+  // int sqIndex = 0;
 
-  for (int64_t y = 0; y < ypoints; y++)
+  for(int64_t y = 0; y < ypoints; y++)
   {
-    for (int64_t x = 0; x < xpoints; x++)
+    for(int64_t x = 0; x < xpoints; x++)
     {
-      //get (x,y) for stereographic projection pixel
+      // get (x,y) for stereographic projection pixel
       xtmp = float(x - xpointshalf) * xres + (xres * 0.5);
       ytmp = float(y - ypointshalf) * yres + (yres * 0.5);
       int index = y * xpoints + x;
       if((xtmp * xtmp + ytmp * ytmp) <= 1.0)
       {
-        //project xy from stereo projection to the unit spehere
+        // project xy from stereo projection to the unit spehere
         xyz[2] = -((xtmp * xtmp + ytmp * ytmp) - 1) / ((xtmp * xtmp + ytmp * ytmp) + 1);
         xyz[0] = xtmp * (1 + xyz[2]);
         xyz[1] = ytmp * (1 + xyz[2]);
 
-
-        for( int64_t m = 0; m < 2; m++)
+        for(int64_t m = 0; m < 2; m++)
         {
           if(m == 1)
           {
             EbsdMatrixMath::Multiply3x1withConstant(xyz, -1.0f);
           }
           nhCheck = getSquareCoord(xyz, sqCoord);
-          //sqIndex = getSquareIndex(sqCoord);
+          // sqIndex = getSquareIndex(sqCoord);
           if(nhCheck)
           {
-            //get Value from North square
+            // get Value from North square
             intensity[index] += getInterpolatedValue(ModifiedLambertProjection::NorthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::NorthSquare, sqIndex);
+            // intensity[index] += getValue(ModifiedLambertProjection::NorthSquare, sqIndex);
           }
           else
           {
-            //get Value from South square
+            // get Value from South square
             intensity[index] += getInterpolatedValue(ModifiedLambertProjection::SouthSquare, sqCoord);
-            //intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
+            // intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
           }
         }
-        intensity[index]  = intensity[index] * 0.5;
+        intensity[index] = intensity[index] * 0.5;
       }
     }
   }

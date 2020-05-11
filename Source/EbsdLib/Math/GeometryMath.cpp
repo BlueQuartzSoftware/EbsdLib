@@ -601,7 +601,10 @@ void GeometryMath::FindBoundingBoxOfRotatedFace(TriangleGeom* faces, int faceId,
 void GeometryMath::FindPolygonNormal(const float* vertices, const int64_t numVerts, float n[3])
 {
   // Return immediately if the  number of vertices cannot form a polygon
-  if(numVerts < 3) { return; }
+  if(numVerts < 3)
+  {
+    return;
+  }
 
   // If the polygon is a triangle, then just compute its normal using simple cross product
   if(numVerts == 3)
@@ -821,28 +824,28 @@ char GeometryMath::RayIntersectsPlane(const float* a, const float* b, const floa
       return 'p';
     }
 
-      return '0';
+    return '0';
   }
 
-    t = num / denom;
-    for(int i = 0; i < 3; i++)
-    {
-      p[i] = q[i] + (t * (r[i] - q[i]));
-    }
-    if(t > 0.0 && t < 1.0)
-    {
-      return '1';
-    }
-    if(num == 0.0)
-    {
-      return 'q';
-    }
-    if(num == denom)
-    {
-      return 'r';
-    }
+  t = num / denom;
+  for(int i = 0; i < 3; i++)
+  {
+    p[i] = q[i] + (t * (r[i] - q[i]));
+  }
+  if(t > 0.0 && t < 1.0)
+  {
+    return '1';
+  }
+  if(num == 0.0)
+  {
+    return 'q';
+  }
+  if(num == denom)
+  {
+    return 'r';
+  }
 
-      return '0';
+  return '0';
 }
 
 // -----------------------------------------------------------------------------
@@ -866,28 +869,28 @@ char GeometryMath::RayIntersectsPlane(const float* n, const float d, const float
       return 'p';
     }
 
-      return '0';
+    return '0';
   }
 
-    t = num / denom;
-    for(int i = 0; i < 3; i++)
-    {
-      p[i] = q[i] + (t * (r[i] - q[i]));
-    }
-    if(t > 0.0 && t < 1.0)
-    {
-      return '1';
-    }
-    if(num == 0.0)
-    {
-      return 'q';
-    }
-    if(num == denom)
-    {
-      return 'r';
-    }
+  t = num / denom;
+  for(int i = 0; i < 3; i++)
+  {
+    p[i] = q[i] + (t * (r[i] - q[i]));
+  }
+  if(t > 0.0 && t < 1.0)
+  {
+    return '1';
+  }
+  if(num == 0.0)
+  {
+    return 'q';
+  }
+  if(num == denom)
+  {
+    return 'r';
+  }
 
-      return '0';
+  return '0';
 }
 
 // -----------------------------------------------------------------------------

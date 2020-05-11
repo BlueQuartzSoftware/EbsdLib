@@ -49,21 +49,20 @@
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
-
 namespace Ebsd
 {
 namespace unittest
 {
-    static std::string CurrentMethod("");
-    static int numTestsPass = 0;
-    static int numTestFailed = 0;
-    static int numTests = 0;
+static std::string CurrentMethod("");
+static int numTestsPass = 0;
+static int numTestFailed = 0;
+static int numTests = 0;
 
-    static char TestMessage[NUM_COLS + 1];
-    static const char Passed[6] = {'P', 'A', 'S', 'S', 'E', 'D'};
-    static const char Failed[6] = {'F', 'A', 'I', 'L', 'E', 'D'};
-    static int SizeOfPassed = 6;
-    static int SizeOfFailed = 6;
+static char TestMessage[NUM_COLS + 1];
+static const char Passed[6] = {'P', 'A', 'S', 'S', 'E', 'D'};
+static const char Failed[6] = {'F', 'A', 'I', 'L', 'E', 'D'};
+static int SizeOfPassed = 6;
+static int SizeOfFailed = 6;
 } // namespace unittest
 } // namespace Ebsd
 
@@ -77,7 +76,6 @@ QTextStream& operator<<(QTextStream& out, const DataArrayPath& v)
   return out;
 }
 #endif
-
 
 // -----------------------------------------------------------------------------
 //
@@ -502,7 +500,7 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 #define DREAM3D_ASSERT(P) assert((P));
 
 #define DREAM3D_ENTER_TEST(test)                                                                                                                                                                       \
-  Ebsd::unittest::CurrentMethod = #test;                                                                                                                                                              \
+  Ebsd::unittest::CurrentMethod = #test;                                                                                                                                                               \
   Ebsd::unittest::numTests++;
 
 #define DREAM3D_LEAVE_TEST(test)                                                                                                                                                                       \
@@ -517,17 +515,17 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     DREAM3D_LEAVE_TEST(test)                                                                                                                                                                           \
   } catch(TestException & e)                                                                                                                                                                           \
   {                                                                                                                                                                                                    \
-    TestFailed(Ebsd::unittest::CurrentMethod);                                                                                                                                                        \
+    TestFailed(Ebsd::unittest::CurrentMethod);                                                                                                                                                         \
     std::cout << e.what() << std::endl;                                                                                                                                                                \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }
 
 #define PRINT_TEST_SUMMARY()                                                                                                                                                                           \
   std::cout << "Test Summary:" << std::endl;                                                                                                                                                           \
-  std::cout << "  Tests Passed: " << Ebsd::unittest::numTestsPass << std::endl;                                                                                                                       \
-  std::cout << "  Tests Failed: " << Ebsd::unittest::numTestFailed << std::endl;                                                                                                                      \
-  std::cout << "  Total Tests:  " << Ebsd::unittest::numTests << std::endl;                                                                                                                           \
-  if(Ebsd::unittest::numTestFailed > 0)                                                                                                                                                               \
+  std::cout << "  Tests Passed: " << Ebsd::unittest::numTestsPass << std::endl;                                                                                                                        \
+  std::cout << "  Tests Failed: " << Ebsd::unittest::numTestFailed << std::endl;                                                                                                                       \
+  std::cout << "  Total Tests:  " << Ebsd::unittest::numTests << std::endl;                                                                                                                            \
+  if(Ebsd::unittest::numTestFailed > 0)                                                                                                                                                                \
   {                                                                                                                                                                                                    \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }
@@ -535,7 +533,8 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void require_equal(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+template <typename T, typename K>
+void require_equal(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
 {
   if(l != r)
   {
@@ -552,7 +551,8 @@ template <typename T, typename K> void require_equal(T l, const QString& L, K r,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void require_less_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+template <typename T, typename K>
+void require_less_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
 {
   if(l >= r)
   {
@@ -568,7 +568,8 @@ template <typename T, typename K> void require_less_than(T l, const QString& L, 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K> void require_greater_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+template <typename T, typename K>
+void require_greater_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
 {
   if(l <= r)
   {

@@ -15,7 +15,7 @@
  * the [] operators, size() functions.
  * @param K The POD type such as float or double.
  */
-template<typename T, typename K>
+template <typename T, typename K>
 class ArrayHelpers
 {
 public:
@@ -148,10 +148,10 @@ public:
   }
 
   /**
-     * @brief print
-     * @param c
-     * @param out
-     */
+   * @brief print
+   * @param c
+   * @param out
+   */
   static void print(const T& c, std::ostream& out)
   {
     out.width(16);
