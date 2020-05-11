@@ -512,6 +512,7 @@ public:
     float random = 0.0f;
 
     LaueOpsType ops;
+    int32_t opsMdfSize = ops.getMDFSize();
     std::array<double, 3> randx3;
 
     for(int i = 0; i < yval.size(); i++)
@@ -526,7 +527,7 @@ public:
 
       choose = 0;
       totaldensity = 0;
-      for(int j = 0; j < ops.getMDFSize(); j++)
+      for(int j = 0; j < opsMdfSize; j++)
       {
         density = mdf[j];
         td1 = totaldensity;
@@ -545,7 +546,7 @@ public:
       OrientationD ax = OrientationTransformation::ro2ax<OrientationD, OrientationD>(rod);
 
       float w = ax[3] * radtodeg;
-      size_t index = static_cast<size_t>(w / 5.0f);
+      size_t index = static_cast<size_t>(w * 0.2f);
       if(index >= yval.size())
       {
         yval.resize(index + 1);

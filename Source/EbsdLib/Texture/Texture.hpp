@@ -215,11 +215,11 @@ public:
    * determined by calling the getODFSize and getMDFSize functions of the parameterized LaueOps class.
    */
   template <typename T, class LaueOps, class Container>
-  static void CalculateMDFData(Container& angles, Container& axes, Container& weights, Container& odf, Container& mdf, size_t numEntries)
+  static void CalculateMDFData(Container& angles, Container& axes, Container& weights, const Container& odf, Container& mdf, size_t numEntries)
   {
 
     LaueOps orientationOps;
-    const int odfsize = orientationOps.getODFSize();
+    const size_t odfsize = odf.size();
     const int mdfsize = orientationOps.getMDFSize();
     mdf.resize(orientationOps.getMDFSize());
     // uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
@@ -260,14 +260,13 @@ public:
 
     for(int i = 0; i < remainingcount; i++)
     {
-
       random1 = distribution(generator);
       random2 = distribution(generator);
       choose1 = 0;
       choose2 = 0;
 
       totaldensity = 0;
-      for(int j = 0; j < odfsize; j++)
+      for(size_t j = 0; j < odfsize; j++)
       {
         density = odf[j];
         float d = totaldensity;
