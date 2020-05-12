@@ -67,9 +67,9 @@ static const int symSize0 = 2;
 static const int symSize1 = 2;
 static const int symSize2 = 2;
 
-const int k_OdfSize = 62208;
-const int k_MdfSize = 62208;
-const int k_NumSymQuats = 6;
+static const int k_OdfSize = 62208;
+static const int k_MdfSize = 62208;
+static const int k_NumSymQuats = 6;
 
 static const QuatType QuatSym[k_NumSymQuats] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatType(0.000000000, 0.000000000, 0.500000000, 0.866025400),
                                                 QuatType(0.000000000, 0.000000000, 0.866025400, 0.500000000), QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000),

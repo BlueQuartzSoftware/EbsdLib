@@ -146,7 +146,6 @@ OrientationD TriclinicOps::calculateMisorientation(const QuatType& q1, const Qua
 
 // -----------------------------------------------------------------------------
 OrientationF TriclinicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-
 {
   QuatType q1 = q1f;
   QuatType q2 = q2f;
@@ -197,7 +196,6 @@ void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
 OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 {
   int numsym = 1;
-
   return _calcRodNearestOrigin(Triclinic::RodSym, numsym, rod);
 }
 
@@ -206,9 +204,12 @@ OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
+  throw std::runtime_error("TriclinicOps::getMDFFZRod not implemented");
+
   OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, 1, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  /// FIXME: Are we missing code for TriclinicOps MDF FZ Rodrigues calculation?
 
   return OrientationTransformation::ax2ro<OrientationType, OrientationType>(ax);
 }

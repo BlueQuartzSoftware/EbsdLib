@@ -209,6 +209,8 @@ OrientationType OrthoRhombicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 {
+  throw std::runtime_error("OrthoRhombicOps::getMDFFZRod not implemented");
+
   double w, n1, n2, n3;
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
 

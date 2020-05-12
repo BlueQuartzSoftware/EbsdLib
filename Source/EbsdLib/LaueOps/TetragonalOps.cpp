@@ -217,8 +217,7 @@ void TetragonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TetragonalOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 8;
-
+  int  numsym = 8;
   return _calcRodNearestOrigin(TetragonalHigh::RodSym, numsym, rod);
 }
 

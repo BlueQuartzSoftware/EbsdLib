@@ -214,7 +214,6 @@ void TrigonalOps::getMatSymOp(int i, float g[3][3]) const
 OrientationType TrigonalOps::getODFFZRod(const OrientationType& rod) const
 {
   int numsym = 6;
-
   return _calcRodNearestOrigin(TrigonalHigh::RodSym, numsym, rod);
 }
 
