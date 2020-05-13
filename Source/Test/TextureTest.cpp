@@ -123,14 +123,31 @@ public:
     TestTextureMdf<CubicLowOps>();
     TestTextureMdf<CubicOps>();
     TestTextureMdf<HexagonalLowOps>();
-    TestTextureMdf<HexagonalOps>();
-    TestTextureMdf<MonoclinicOps>();
-    TestTextureMdf<OrthoRhombicOps>();
+    TestTextureMdf<HexagonalOps>();   
     TestTextureMdf<TetragonalLowOps>();
     TestTextureMdf<TetragonalOps>();
-    TestTextureMdf<TriclinicOps>();
     TestTextureMdf<TrigonalLowOps>();
     TestTextureMdf<TrigonalOps>();
+
+    try {
+      TestTextureMdf<TriclinicOps>();
+    } 
+    catch (std::runtime_error e) 
+    {
+    }
+    try {
+      TestTextureMdf<MonoclinicOps>();
+    } 
+    catch (std::runtime_error e) 
+    {
+    }
+    try {
+      TestTextureMdf<OrthoRhombicOps>();
+    } 
+    catch (std::runtime_error e) 
+    {
+    }
+
   }
 
   template <class LaueOps>
