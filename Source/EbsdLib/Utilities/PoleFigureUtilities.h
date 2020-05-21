@@ -58,7 +58,7 @@
  * then this member can be set with a 3 Element QVector<QString> with the new labels.
  * Note that the new lables will REPLACE the default labels.
  */
-typedef struct
+struct PoleFigureConfiguration_t
 {
   EbsdLib::FloatArrayType* eulers; ///<* The Euler Angles (in Radians) to use for the pole figure
   int imageDim;                    ///<* The height/width of the generated pole figure
@@ -73,7 +73,7 @@ typedef struct
   QVector<QString> labels;         ///<* The labels for each of the 3 Pole Figures
   QVector<unsigned int> order;     ///<* The order that the pole figures should appear in.
   QString phaseName;               ///<* The Names of the phase
-} PoleFigureConfiguration_t;
+};
 
 /**
  * @class PoleFigureUtilities PoleFigureUtilities.h /Utilities/PoleFigureUtilities.h
