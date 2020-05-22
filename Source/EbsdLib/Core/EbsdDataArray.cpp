@@ -646,7 +646,7 @@ int32_t EbsdDataArray<T>::allocate()
   }
 
   size_t newSize = m_Size;
-  m_Array = new T[newSize]();
+  m_Array = new(std::nothrow) T[newSize]();
   if(!m_Array)
   {
     qDebug() << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
@@ -1543,7 +1543,7 @@ T* EbsdDataArray<T>::resizeAndExtend(size_t size)
     return m_Array;
   }
 
-  newArray = new T[newSize]();
+  newArray = new(std::nothrow) T[newSize]();
   if(!newArray)
   {
     qDebug() << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
