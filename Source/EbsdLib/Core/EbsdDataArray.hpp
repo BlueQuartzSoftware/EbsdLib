@@ -602,10 +602,8 @@ public:
       ptr_ += num_comps_;
       return *this;
     } // PREFIX
-    self_type operator++(int32_t unused)
+    self_type operator++([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_ += num_comps_;
       return i;
@@ -615,10 +613,8 @@ public:
       ptr_ -= num_comps_;
       return *this;
     } // PREFIX
-    self_type operator--(int32_t unused)
+    self_type operator--([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_ -= num_comps_;
       return i;
@@ -722,10 +718,8 @@ public:
       ptr_ += num_comps_;
       return *this;
     } // PREFIX
-    self_type operator++(int32_t unused)
+    self_type operator++([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_ += num_comps_;
       return i;
@@ -735,10 +729,8 @@ public:
       ptr_ -= num_comps_;
       return *this;
     } // PREFIX
-    self_type operator--(int32_t unused)
+    self_type operator--([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_ -= num_comps_;
       return i;
@@ -847,10 +839,8 @@ public:
       ptr_++;
       return *this;
     } // PREFIX
-    self_type operator++(int32_t unused)
+    self_type operator++([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_++;
       return i;
@@ -860,10 +850,8 @@ public:
       ptr_--;
       return *this;
     } // PREFIX
-    self_type operator--(int32_t unused)
+    self_type operator--([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_--;
       return i;
@@ -967,10 +955,8 @@ public:
       ptr_++;
       return *this;
     } // PREFIX
-    self_type operator++(int32_t unused)
+    self_type operator++([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_++;
       return i;
@@ -980,10 +966,8 @@ public:
       ptr_--;
       return *this;
     } // PREFIX
-    self_type operator--(int32_t unused)
+    self_type operator--([[maybe_unused]] int32_t unused)
     {
-      // Replace with [[maybe_unused]] in C++ 17
-      (void)unused;
       self_type i = *this;
       ptr_--;
       return i;

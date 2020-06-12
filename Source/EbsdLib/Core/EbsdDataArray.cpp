@@ -85,42 +85,39 @@ To bit_cast(const From& src) noexcept
   return dst;
 }
 
-// SFINAE can be replaced with if constexpr in C++ 17
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint8_t)>* = nullptr>
+template <class T>
 T byteSwap(T value)
 {
+  static_assert(std::is_arithmetic_v<T>, "byteSwap only works on arithmetic types");
+
+  if constexpr(sizeof(T) == sizeof(uint16_t))
+  {
+    return EBSD_BYTE_SWAP_16(value);
+  }
+  else if constexpr(sizeof(T) == sizeof(uint32_t))
+  {
+    if constexpr(std::is_floating_point_v<T>)
+    {
+      return bit_cast<T>(EBSD_BYTE_SWAP_32(bit_cast<uint32_t>(value)));
+    }
+    else
+    {
+      return EBSD_BYTE_SWAP_32(value);
+    }
+  }
+  else if constexpr(sizeof(T) == sizeof(uint64_t))
+  {
+    if constexpr(std::is_floating_point_v<T>)
+    {
+      return bit_cast<T>(EBSD_BYTE_SWAP_64(bit_cast<uint64_t>(value)));
+    }
+    else
+    {
+      return EBSD_BYTE_SWAP_64(value);
+    }
+  }
+
   return value;
-}
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint16_t)>* = nullptr>
-T byteSwap(T value)
-{
-  return EBSD_BYTE_SWAP_16(value);
-}
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint32_t) && !std::is_floating_point<T>::value>* = nullptr>
-T byteSwap(T value)
-{
-  return EBSD_BYTE_SWAP_32(value);
-}
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint32_t) && std::is_floating_point<T>::value>* = nullptr>
-T byteSwap(T value)
-{
-  return bit_cast<T>(EBSD_BYTE_SWAP_32(bit_cast<uint32_t>(value)));
-}
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint64_t) && !std::is_floating_point<T>::value>* = nullptr>
-T byteSwap(T value)
-{
-  return EBSD_BYTE_SWAP_64(value);
-}
-
-template <class T, std::enable_if_t<sizeof(T) == sizeof(uint64_t) && std::is_floating_point<T>::value>* = nullptr>
-T byteSwap(T value)
-{
-  return bit_cast<T>(EBSD_BYTE_SWAP_64(bit_cast<uint64_t>(value)));
 }
 
 } // namespace
@@ -424,47 +421,47 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::deepCopy(bool forceNoAlloca
 template <typename T>
 EbsdLib::NumericTypes::Type EbsdDataArray<T>::getType() const
 {
-  if(std::is_same<T, int8_t>::value)
+  if constexpr(std::is_same_v<T, int8_t>)
   {
     return EbsdLib::NumericTypes::Type::Int8;
   }
-  else if(std::is_same<T, uint8_t>::value)
+  else if constexpr(std::is_same_v<T, uint8_t>)
   {
     return EbsdLib::NumericTypes::Type::UInt8;
   }
-  else if(std::is_same<T, int16_t>::value)
+  else if constexpr(std::is_same_v<T, int16_t>)
   {
     return EbsdLib::NumericTypes::Type::Int16;
   }
-  else if(std::is_same<T, uint16_t>::value)
+  else if constexpr(std::is_same_v<T, uint16_t>)
   {
     return EbsdLib::NumericTypes::Type::UInt16;
   }
-  else if(std::is_same<T, int32_t>::value)
+  else if constexpr(std::is_same_v<T, int32_t>)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  else if(std::is_same<T, uint32_t>::value)
+  else if constexpr(std::is_same_v<T, uint32_t>)
   {
     return EbsdLib::NumericTypes::Type::UInt32;
   }
-  else if(std::is_same<T, int64_t>::value)
+  else if constexpr(std::is_same_v<T, int64_t>)
   {
     return EbsdLib::NumericTypes::Type::Int64;
   }
-  else if(std::is_same<T, uint64_t>::value)
+  else if constexpr(std::is_same_v<T, uint64_t>)
   {
     return EbsdLib::NumericTypes::Type::UInt64;
   }
-  else if(std::is_same<T, float>::value)
+  else if constexpr(std::is_same_v<T, float>)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  else if(std::is_same<T, double>::value)
+  else if constexpr(std::is_same_v<T, double>)
   {
     return EbsdLib::NumericTypes::Type::Double;
   }
-  else if(std::is_same<T, bool>::value)
+  else if constexpr(std::is_same_v<T, bool>)
   {
     return EbsdLib::NumericTypes::Type::Bool;
   }
@@ -479,57 +476,57 @@ void EbsdDataArray<T>::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision)
   xdmfTypeName = "UNKNOWN";
   precision = 0;
 
-  if(std::is_same<T, int8_t>::value)
+  if constexpr(std::is_same_v<T, int8_t>)
   {
     xdmfTypeName = "Char";
     precision = 1;
   }
-  else if(std::is_same<T, uint8_t>::value)
+  else if constexpr(std::is_same_v<T, uint8_t>)
   {
     xdmfTypeName = "UChar";
     precision = 1;
   }
-  else if(std::is_same<T, int16_t>::value)
+  else if constexpr(std::is_same_v<T, int16_t>)
   {
     xdmfTypeName = "Int";
     precision = 2;
   }
-  else if(std::is_same<T, uint16_t>::value)
+  else if constexpr(std::is_same_v<T, uint16_t>)
   {
     xdmfTypeName = "UInt";
     precision = 2;
   }
-  else if(std::is_same<T, int32_t>::value)
+  else if constexpr(std::is_same_v<T, int32_t>)
   {
     xdmfTypeName = "Int";
     precision = 4;
   }
-  else if(std::is_same<T, uint32_t>::value)
+  else if constexpr(std::is_same_v<T, uint32_t>)
   {
     xdmfTypeName = "UInt";
     precision = 4;
   }
-  else if(std::is_same<T, int64_t>::value)
+  else if constexpr(std::is_same_v<T, int64_t>)
   {
     xdmfTypeName = "Int";
     precision = 8;
   }
-  else if(std::is_same<T, uint64_t>::value)
+  else if constexpr(std::is_same_v<T, uint64_t>)
   {
     xdmfTypeName = "UInt";
     precision = 8;
   }
-  else if(std::is_same<T, float>::value)
+  else if constexpr(std::is_same_v<T, float>)
   {
     xdmfTypeName = "Float";
     precision = 4;
   }
-  else if(std::is_same<T, double>::value)
+  else if constexpr(std::is_same_v<T, double>)
   {
     xdmfTypeName = "Float";
     precision = 8;
   }
-  else if(std::is_same<T, bool>::value)
+  else if constexpr(std::is_same_v<T, bool>)
   {
     xdmfTypeName = "UChar";
     precision = 1;
@@ -1003,11 +1000,11 @@ template <typename T>
 void EbsdDataArray<T>::printTuple(QTextStream& out, size_t i, char delimiter) const
 {
   int32_t precision = out.realNumberPrecision();
-  if(std::is_same<T, float>::value)
+  if constexpr(std::is_same_v<T, float>)
   {
     out.setRealNumberPrecision(8);
   }
-  else if(std::is_same<T, double>::value)
+  else if constexpr(std::is_same_v<T, double>)
   {
     out.setRealNumberPrecision(16);
   }
@@ -1043,47 +1040,47 @@ QString EbsdDataArray<T>::getFullNameOfClass() const
 template <typename T>
 QString EbsdDataArray<T>::getTypeAsString() const
 {
-  if(std::is_same<T, int8_t>::value)
+  if constexpr(std::is_same_v<T, int8_t>)
   {
     return "int8_t";
   }
-  else if(std::is_same<T, uint8_t>::value)
+  else if constexpr(std::is_same_v<T, uint8_t>)
   {
     return "uint8_t";
   }
-  else if(std::is_same<T, int16_t>::value)
+  else if constexpr(std::is_same_v<T, int16_t>)
   {
     return "int16_t";
   }
-  else if(std::is_same<T, uint16_t>::value)
+  else if constexpr(std::is_same_v<T, uint16_t>)
   {
     return "uint16_t";
   }
-  else if(std::is_same<T, int32_t>::value)
+  else if constexpr(std::is_same_v<T, int32_t>)
   {
     return "int32_t";
   }
-  else if(std::is_same<T, uint32_t>::value)
+  else if constexpr(std::is_same_v<T, uint32_t>)
   {
     return "uint32_t";
   }
-  else if(std::is_same<T, int64_t>::value)
+  else if constexpr(std::is_same_v<T, int64_t>)
   {
     return "int64_t";
   }
-  else if(std::is_same<T, uint64_t>::value)
+  else if constexpr(std::is_same_v<T, uint64_t>)
   {
     return "uint64_t";
   }
-  else if(std::is_same<T, float>::value)
+  else if constexpr(std::is_same_v<T, float>)
   {
     return "float";
   }
-  else if(std::is_same<T, double>::value)
+  else if constexpr(std::is_same_v<T, double>)
   {
     return "double";
   }
-  else if(std::is_same<T, bool>::value)
+  else if constexpr(std::is_same_v<T, bool>)
   {
     return "bool";
   }
