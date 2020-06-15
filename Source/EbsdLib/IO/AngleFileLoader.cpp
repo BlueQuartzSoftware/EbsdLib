@@ -181,10 +181,10 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     else if(m_AngleRepresentation == QuaternionAngles)
     {
       QuatF quat(4);
-      quat[0] = tokens[0].trimmed().toFloat(&ok);
-      quat[1] = tokens[1].trimmed().toFloat(&ok);
-      quat[2] = tokens[2].trimmed().toFloat(&ok);
-      quat[3] = tokens[3].trimmed().toFloat(&ok);
+      quat.x() = tokens[0].trimmed().toFloat(&ok);
+      quat.y() = tokens[1].trimmed().toFloat(&ok);
+      quat.z() = tokens[2].trimmed().toFloat(&ok);
+      quat.w() = tokens[3].trimmed().toFloat(&ok);
       euler = OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
       weight = tokens[4].trimmed().toFloat(&ok);
       sigma = tokens[5].trimmed().toFloat(&ok);

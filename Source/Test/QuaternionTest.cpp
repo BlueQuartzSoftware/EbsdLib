@@ -39,9 +39,11 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/EbsdMatrixMath.h"
-#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/OrientationRepresentation.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -343,13 +345,24 @@ public:
     DREAM3D_REQUIRE_EQUAL(pass, true)
   }
 
+  void RotateByVectorTest()
+  {
+    using VectorType = std::array<float, 3>;
+    Quaternion<float> quat(0.32732683f, -0.54554468f, 0.76376259f, 0.10910894f);
+
+    std::array<float, 3> vec = {0.26726124, -0.53452247, 0.80178368};
+
+    VectorType outVec = quat.rotateVector(vec.data(), DREAM3D_PASSIVE);
+    std::cout << outVec[0] << ", " << outVec[1] << ", " << outVec[2] << std::endl;
+  }
+
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
   void operator()()
   {
     std::cout << "#### QuaternionTest Starting ####" << std::endl;
-
+    RotateByVectorTest();
     int err = EXIT_SUCCESS;
     DREAM3D_REGISTER_TEST(TestEbsdMatrixMath())
     DREAM3D_REGISTER_TEST(TestQuat_t())

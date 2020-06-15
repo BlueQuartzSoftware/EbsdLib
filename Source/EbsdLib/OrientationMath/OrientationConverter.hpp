@@ -312,6 +312,38 @@ private:
     }                                                                                                                                                                                                  \
   };
 
+#define OC_CONVERTOR_FUNCTOR_QU(CLASSNAME, INSTRIDE, OUTSTRIDE, CONVERSION_METHOD)                                                                                                                     \
+  template <typename NumericType>                                                                                                                                                                      \
+  class CLASSNAME                                                                                                                                                                                      \
+  {                                                                                                                                                                                                    \
+  public:                                                                                                                                                                                              \
+    CLASSNAME() = default;                                                                                                                                                                             \
+    void operator()(NumericType* input, NumericType* output)                                                                                                                                           \
+    {                                                                                                                                                                                                  \
+      using InputType = Orientation<NumericType>;                                                                                                                                                      \
+      using OutputType = Quaternion<NumericType>;                                                                                                                                                      \
+      InputType inputOrientation(input, INSTRIDE);                                                                                                                                                     \
+      OutputType outputOrientation(output);                                                                                                                                                            \
+      outputOrientation = OrientationTransformation::CONVERSION_METHOD<InputType, OutputType>(inputOrientation);                                                                                       \
+    }                                                                                                                                                                                                  \
+  };
+
+#define OC_QU_CONVERTOR_FUNCTOR(CLASSNAME, INSTRIDE, OUTSTRIDE, CONVERSION_METHOD)                                                                                                                     \
+  template <typename NumericType>                                                                                                                                                                      \
+  class CLASSNAME                                                                                                                                                                                      \
+  {                                                                                                                                                                                                    \
+  public:                                                                                                                                                                                              \
+    CLASSNAME() = default;                                                                                                                                                                             \
+    void operator()(NumericType* input, NumericType* output)                                                                                                                                           \
+    {                                                                                                                                                                                                  \
+      using InputType = Quaternion<NumericType>;                                                                                                                                                       \
+      using OutputType = Orientation<NumericType>;                                                                                                                                                     \
+      InputType inputOrientation(input);                                                                                                                                                               \
+      OutputType outputOrientation(output, OUTSTRIDE);                                                                                                                                                 \
+      outputOrientation = OrientationTransformation::CONVERSION_METHOD<InputType, OutputType>(inputOrientation);                                                                                       \
+    }                                                                                                                                                                                                  \
+  };
+
 /**
  * @brief This contains all the functors that represent all possible conversion routines
  * between orientation representations
@@ -320,7 +352,7 @@ namespace Convertors
 {
 /* Euler Functors  */
 OC_CONVERTOR_FUNCTOR(Eu2Om, 3, 9, eu2om)
-OC_CONVERTOR_FUNCTOR(Eu2Qu, 3, 4, eu2qu)
+OC_CONVERTOR_FUNCTOR_QU(Eu2Qu, 3, 4, eu2qu)
 OC_CONVERTOR_FUNCTOR(Eu2Ax, 3, 4, eu2ax)
 OC_CONVERTOR_FUNCTOR(Eu2Ro, 3, 4, eu2ro)
 OC_CONVERTOR_FUNCTOR(Eu2Ho, 3, 3, eu2ho)
@@ -328,24 +360,24 @@ OC_CONVERTOR_FUNCTOR(Eu2Cu, 3, 3, eu2cu)
 
 /* OrientationMatrix Functors */
 OC_CONVERTOR_FUNCTOR(Om2Eu, 9, 3, om2eu)
-OC_CONVERTOR_FUNCTOR(Om2Qu, 9, 4, om2qu)
+OC_CONVERTOR_FUNCTOR_QU(Om2Qu, 9, 4, om2qu)
 OC_CONVERTOR_FUNCTOR(Om2Ax, 9, 4, om2ax)
 OC_CONVERTOR_FUNCTOR(Om2Ro, 9, 4, om2ro)
 OC_CONVERTOR_FUNCTOR(Om2Ho, 9, 3, om2ho)
 OC_CONVERTOR_FUNCTOR(Om2Cu, 9, 3, om2cu)
 
 /* Quaterion Functors */
-OC_CONVERTOR_FUNCTOR(Qu2Eu, 4, 3, qu2eu)
-OC_CONVERTOR_FUNCTOR(Qu2Om, 4, 9, qu2om)
-OC_CONVERTOR_FUNCTOR(Qu2Ax, 4, 4, qu2ax)
-OC_CONVERTOR_FUNCTOR(Qu2Ro, 4, 4, qu2ro)
-OC_CONVERTOR_FUNCTOR(Qu2Ho, 4, 3, qu2ho)
-OC_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Eu, 4, 3, qu2eu)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Om, 4, 9, qu2om)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Ax, 4, 4, qu2ax)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Ro, 4, 4, qu2ro)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Ho, 4, 3, qu2ho)
+OC_QU_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu)
 
 /* AxisAngles Functors */
 OC_CONVERTOR_FUNCTOR(Ax2Eu, 4, 3, ax2eu)
 OC_CONVERTOR_FUNCTOR(Ax2Om, 4, 9, ax2om)
-OC_CONVERTOR_FUNCTOR(Ax2Qu, 4, 4, ax2qu)
+OC_CONVERTOR_FUNCTOR_QU(Ax2Qu, 4, 4, ax2qu)
 OC_CONVERTOR_FUNCTOR(Ax2Ro, 4, 4, ax2ro)
 OC_CONVERTOR_FUNCTOR(Ax2Ho, 4, 3, ax2ho)
 OC_CONVERTOR_FUNCTOR(Ax2Cu, 4, 3, ax2cu)
@@ -353,7 +385,7 @@ OC_CONVERTOR_FUNCTOR(Ax2Cu, 4, 3, ax2cu)
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Ro2Eu, 4, 3, ro2eu)
 OC_CONVERTOR_FUNCTOR(Ro2Om, 4, 9, ro2om)
-OC_CONVERTOR_FUNCTOR(Ro2Qu, 4, 4, ro2qu)
+OC_CONVERTOR_FUNCTOR_QU(Ro2Qu, 4, 4, ro2qu)
 OC_CONVERTOR_FUNCTOR(Ro2Ax, 4, 4, ro2ax)
 OC_CONVERTOR_FUNCTOR(Ro2Ho, 4, 3, ro2ho)
 OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)
@@ -361,7 +393,7 @@ OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Ho2Eu, 3, 3, ho2eu)
 OC_CONVERTOR_FUNCTOR(Ho2Om, 3, 9, ho2om)
-OC_CONVERTOR_FUNCTOR(Ho2Qu, 3, 4, ho2qu)
+OC_CONVERTOR_FUNCTOR_QU(Ho2Qu, 3, 4, ho2qu)
 OC_CONVERTOR_FUNCTOR(Ho2Ax, 3, 4, ho2ax)
 OC_CONVERTOR_FUNCTOR(Ho2Ro, 3, 4, ho2ro)
 OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)
@@ -369,7 +401,7 @@ OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Cu2Eu, 3, 3, cu2eu)
 OC_CONVERTOR_FUNCTOR(Cu2Om, 3, 9, cu2om)
-OC_CONVERTOR_FUNCTOR(Cu2Qu, 3, 4, cu2qu)
+OC_CONVERTOR_FUNCTOR_QU(Cu2Qu, 3, 4, cu2qu)
 OC_CONVERTOR_FUNCTOR(Cu2Ax, 3, 4, cu2ax)
 OC_CONVERTOR_FUNCTOR(Cu2Ro, 3, 4, cu2ro)
 OC_CONVERTOR_FUNCTOR(Cu2Ho, 3, 3, cu2ho)

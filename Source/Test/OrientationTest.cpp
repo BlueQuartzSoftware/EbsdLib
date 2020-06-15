@@ -405,8 +405,8 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  template <typename T, typename FloatType>
-  void EU_2_XXX(FloatType* in)
+  template <typename T, typename K>
+  void EU_2_XXX(K* in)
   {
 
     T eu(3);
@@ -435,7 +435,7 @@ public:
     }
 
     T ro = OrientationTransformation::eu2ro<T, T>(eu);
-    OrientationPrinters::Print_RO<T, FloatType>(ro);
+    OrientationPrinters::Print_RO<T, K>(ro);
     result = OrientationTransformation::ro_check(ro);
     if(result.result <= 0)
     {
@@ -443,7 +443,7 @@ public:
     }
 
     T ho = OrientationTransformation::eu2ho<T, T>(eu);
-    OrientationPrinters::Print_HO<T, FloatType>(ho);
+    OrientationPrinters::Print_HO<T, K>(ho);
     result = OrientationTransformation::ho_check(ho);
     if(result.result <= 0)
     {
@@ -467,8 +467,8 @@ public:
       std::cout << result.msg << std::endl;
     }
 
-    T qu = OrientationTransformation::eu2qu<T, T>(eu);
-    OrientationPrinters::Print_QU<T, FloatType>(qu);
+    Quaternion<K> qu = OrientationTransformation::eu2qu<T, Quaternion<K>>(eu);
+    OrientationPrinters::Print_QU<Quaternion<K>, K>(qu);
     result = OrientationTransformation::qu_check(qu);
     if(result.result <= 0)
     {
@@ -540,8 +540,8 @@ ax2eu  eu2ax                                                     FAILED
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res = OrientationTransformation::om2qu<T, T>(om);
-    OrientationPrinters::Print_QU<T, K>(res, Quaternion<K>::Order::ScalarVector);
+    Quaternion<K> qres = OrientationTransformation::om2qu<T, Quaternion<K>>(om);
+    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres, Quaternion<K>::Order::ScalarVector);
 
     // Convert to Axis Angle
     res = OrientationTransformation::om2ax<T, T>(om);
@@ -607,8 +607,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_AX<T>(res);
 
     // Convert to Quaternion
-    res = OrientationTransformation::ro2qu<T, T>(ro);
-    OrientationPrinters::Print_QU<T, K>(res);
+    Quaternion<K> qres = OrientationTransformation::ro2qu<T, Quaternion<K>>(ro);
+    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
 
     // Convert to Homochoric
     res = OrientationTransformation::ro2ho<T, T>(ro);
@@ -658,8 +658,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res = OrientationTransformation::ax2qu<T, T>(ax);
-    OrientationPrinters::Print_QU<T, K>(res);
+    Quaternion<K> qres = OrientationTransformation::ax2qu<T, Quaternion<K>>(ax);
+    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
 
     // Convert to homochoric
     res = OrientationTransformation::ax2ho<T, T>(ax);
@@ -694,31 +694,32 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     qu[2] = in[2];
     qu[3] = in[3];
 
-    T res(9);
+    using OrientationType = Orientation<K>;
+    OrientationType res(9);
 
     // Convert to Orientation Matrix
-    res = OrientationTransformation::qu2om<T, T>(qu, layout);
-    OrientationPrinters::Print_OM<T>(res);
+    res = OrientationTransformation::qu2om<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_OM<OrientationType>(res);
 
     // Convert to Axis Angle
-    res = OrientationTransformation::qu2eu<T, T>(qu, layout);
-    OrientationPrinters::Print_EU<T>(res);
+    res = OrientationTransformation::qu2eu<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_EU<OrientationType>(res);
 
     // Convert to Rodriques
-    res = OrientationTransformation::qu2ro<T, T>(qu, layout);
-    OrientationPrinters::Print_RO<T, K>(res);
+    res = OrientationTransformation::qu2ro<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_RO<OrientationType, K>(res);
 
     // Convert to Quaternion
-    res = OrientationTransformation::qu2ax<T, T>(qu, layout);
-    OrientationPrinters::Print_AX<T>(res);
+    res = OrientationTransformation::qu2ax<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_AX<OrientationType>(res);
 
     // Convert to Homochoric
-    res = OrientationTransformation::qu2ho<T, T>(qu, layout);
-    OrientationPrinters::Print_HO<T>(res);
+    res = OrientationTransformation::qu2ho<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_HO<OrientationType>(res);
 
     // Convert to HomoChoric
-    res = OrientationTransformation::qu2cu<T, T>(qu, layout);
-    OrientationPrinters::Print_CU<T>(res);
+    res = OrientationTransformation::qu2cu<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_CU<OrientationType>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -730,7 +731,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
       std::cout << "Test_qu2_XXX  (SCALAR, <X, Y, Z>) ***************************************" << std::endl;
       float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
       OrientationPrinters::Print_QU<float*, float>(qu, QuatF::Order::ScalarVector);
-      QU_2_XXX<OrientationF>(qu, QuatF::Order::ScalarVector);
+      using QuatFType = Quaternion<float>;
+      QU_2_XXX<QuatFType, float>(qu, QuatF::Order::ScalarVector);
       //  QU_2_XXX<std::vector<float> >(qu);
       //  QU_2_XXX<FloatQVectorType>(qu);
     }
@@ -739,7 +741,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
       std::cout << "Test_qu2_XXX  (<X, Y, Z>, SCALAR) ***************************************" << std::endl;
       float qu[4] = {0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2), static_cast<float>(EbsdLib::Constants::k_1OverRoot2)};
       OrientationPrinters::Print_QU<float*, float>(qu);
-      QU_2_XXX<OrientationF>(qu);
+      using QuatFType = Quaternion<float>;
+      QU_2_XXX<QuatFType, float>(qu);
       //  QU_2_XXX<std::vector<float> >(qu);
       //  QU_2_XXX<FloatQVectorType>(qu);
     }
@@ -775,8 +778,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res = OrientationTransformation::ho2qu<T, T>(ho);
-    OrientationPrinters::Print_QU<T, K>(res);
+    Quaternion<K> qres = OrientationTransformation::ho2qu<T, Quaternion<K>>(ho);
+    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
 
     // Convert to HomoChoric
     res = OrientationTransformation::ho2cu<T, T>(ho);
