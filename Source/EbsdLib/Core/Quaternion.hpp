@@ -80,7 +80,7 @@ public:
     }
   }
 
-  Quaternion(T x, T y, T z, T w)
+  Quaternion(const T& x, const T& y, const T& z, const T& w)
   {
     m_X = x;
     m_Y = y;
