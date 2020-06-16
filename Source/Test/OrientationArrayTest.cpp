@@ -18,18 +18,19 @@
 
 #include <QtCore/QVector>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
-#include "EbsdLib/OrientationMath/OrientationTransforms.hpp"
-#include "Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Math/ArrayHelpers.hpp"
-#include "EbsdLib/Math/EbsdMatrixMath.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/ArrayHelpers.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
+#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 
 #include "TestPrintFunctions.h"
 #include "UnitTestSupport.hpp"
+
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 using namespace EbsdLib::Constants;
 
@@ -39,7 +40,12 @@ public:
   OrientationArrayTest() = default;
   virtual ~OrientationArrayTest() = default;
 
-  using FOrientArrayType = OrientationArray<float>;
+  OrientationArrayTest(const OrientationArrayTest&) = delete;            // Copy Constructor Not Implemented
+  OrientationArrayTest(OrientationArrayTest&&) = delete;                 // Move Constructor Not Implemented
+  OrientationArrayTest& operator=(const OrientationArrayTest&) = delete; // Copy Assignment Not Implemented
+  OrientationArrayTest& operator=(OrientationArrayTest&&) = delete;      // Move Assignment Not Implemented
+
+  using FOrientArrayType = Orientation<float>;
   using FloatVectorType = std::vector<float>;
   using FloatQVectorType = QVector<float>;
   using DoubleVectorType = std::vector<double>;
@@ -99,44 +105,42 @@ public:
   void Test_eu_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      OrientationTransformation::ResultType result;
+      using TestType = FOrientArrayType;
       FOrientArrayType eu_r(3);
       eu_r[0] = 0.81585413f;
       eu_r[1] = 3.00f;
       eu_r[2] = 0.8661895f;
-      result = OrientationTransformType::eu_check(eu_r);
+      result = OrientationTransformation::eu_check<TestType>(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       eu_r[1] = eu_r[1] - EbsdLib::Constants::k_Pi;
-      result = OrientationTransformType::eu_check(eu_r);
+      result = OrientationTransformation::eu_check<TestType>(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatVectorType eu_v(3);
       eu_v[0] = 1.0f;
       eu_v[1] = 0.4f;
       eu_v[2] = 0.9f;
-      result = OrientationTransformType::eu_check(eu_v);
+      result = OrientationTransformation::eu_check<TestType>(eu_v);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       eu_v[0] = -1.0;
-      result = OrientationTransformType::eu_check(eu_v);
+      result = OrientationTransformation::eu_check<TestType>(eu_v);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType eu_q(3);
       eu_q[0] = 1.0f;
       eu_q[1] = 0.4f;
       eu_q[2] = 0.9f;
-      result = OrientationTransformType::eu_check(eu_q);
+      result = OrientationTransformation::eu_check<TestType>(eu_q);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       eu_q[0] = -1.0;
-      result = OrientationTransformType::eu_check(eu_q);
+      result = OrientationTransformation::eu_check<TestType>(eu_q);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
   }
@@ -147,25 +151,25 @@ public:
   void Test_ro_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      OrientationTransformation::ResultType result;
       FOrientArrayType ro(4);
+      using TestType = FOrientArrayType;
+
       ro[0] = 1.0f;
       ro[1] = 1.0f;
       ro[2] = 1.0f;
       ro[3] = 1.0f;
       EbsdMatrixMath::Normalize3x1(&(ro[0]));
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
 
       FloatVectorType ro(4);
       ro[0] = 1.0f;
@@ -173,27 +177,26 @@ public:
       ro[2] = 1.0f;
       ro[3] = 1.0f;
       EbsdMatrixMath::Normalize3x1(&(ro[0]));
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType ro(4);
       ro[0] = 1.0f;
       ro[1] = 1.0f;
       ro[2] = 1.0f;
       ro[3] = 1.0f;
       EbsdMatrixMath::Normalize3x1(&(ro[0]));
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ro[3] = -1.0;
-      result = OrientationTransformType::ro_check(ro);
+      result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
   }
@@ -204,47 +207,45 @@ public:
   void Test_ho_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = FOrientArrayType;
+      OrientationTransformation::ResultType result;
       FOrientArrayType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
       ho[2] = 0.5f;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ho[2] = 8.0;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
 
       FloatVectorType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
       ho[2] = 0.5f;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ho[2] = 8.0;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
       ho[2] = 0.5f;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       ho[2] = 8.0;
-      result = OrientationTransformType::ho_check(ho);
+      result = OrientationTransformation::ho_check<TestType>(ho);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
   }
@@ -255,46 +256,44 @@ public:
   void Test_cu_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = FOrientArrayType;
+      OrientationTransformation::ResultType result;
       FOrientArrayType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
       v[2] = 0.5f;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       v[2] = 8.0;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatVectorType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
       v[2] = 0.5f;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       v[2] = 8.0;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
       v[2] = 0.5f;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
       v[2] = 8.0;
-      result = OrientationTransformType::cu_check(v);
+      result = OrientationTransformation::cu_check<TestType>(v);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
   }
@@ -304,77 +303,75 @@ public:
   // -----------------------------------------------------------------------------
   void Test_qu_check()
   {
-    QuatF quat = QuaternionMathF::New(1.0, 1.0, 1.0, 0.0);
-    QuaternionMathF::UnitQuaternion(quat);
+    QuatF quat(1.0, 1.0, 1.0, 0.0);
+    quat = quat.unitQuaternion();
 
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = FOrientArrayType;
+      OrientationTransformation::ResultType result;
       FOrientArrayType qu(4);
-      qu[0] = quat.x;
-      qu[1] = quat.y;
-      qu[2] = quat.z;
-      qu[3] = quat.w;
+      qu[0] = quat.x();
+      qu[1] = quat.y();
+      qu[2] = quat.z();
+      qu[3] = quat.w();
       EbsdMatrixMath::Normalize3x1(&(qu[0]));
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       qu[0] = 1.5f;
       qu[1] = 3.0f;
       qu[2] = 2.0f;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       qu[0] = -1.0;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatVectorType qu(4);
-      qu[0] = quat.x;
-      qu[1] = quat.y;
-      qu[2] = quat.z;
-      qu[3] = quat.w;
+      qu[0] = quat.x();
+      qu[1] = quat.y();
+      qu[2] = quat.z();
+      qu[3] = quat.w();
       EbsdMatrixMath::Normalize3x1(&(qu[0]));
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       qu[0] = 1.5f;
       qu[1] = 3.0f;
       qu[2] = 2.0f;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       qu[0] = -1.0;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType qu(4);
-      qu[0] = quat.x;
-      qu[1] = quat.y;
-      qu[2] = quat.z;
-      qu[3] = quat.w;
+      qu[0] = quat.x();
+      qu[1] = quat.y();
+      qu[2] = quat.z();
+      qu[3] = quat.w();
       EbsdMatrixMath::Normalize3x1(&(qu[0]));
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       qu[0] = 1.5f;
       qu[1] = 3.0f;
       qu[2] = 2.0f;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       qu[0] = -1.0;
-      result = OrientationTransformType::qu_check(qu);
+      result = OrientationTransformation::qu_check<TestType>(qu);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
   }
@@ -385,64 +382,62 @@ public:
   void Test_ax_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = FOrientArrayType;
+      OrientationTransformation::ResultType result;
       FOrientArrayType ax(4);
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
       ax[3] = EbsdLib::Constants::k_Pi - 0.00001f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[0] = 1.0;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatVectorType ax(4);
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
       ax[3] = EbsdLib::Constants::k_Pi - 0.00001f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[0] = 1.0;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType ax(4);
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
       ax[3] = EbsdLib::Constants::k_Pi - 0.00001f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[0] = 1.0f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformType::ax_check(ax);
+      result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
   }
@@ -453,8 +448,8 @@ public:
   void Test_om_check()
   {
     {
-      typedef OrientationTransforms<FOrientArrayType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = FOrientArrayType;
+      OrientationTransformation::ResultType result;
       FOrientArrayType ax(9);
       ax[0] = 1.0f;
       ax[1] = 0.0f;
@@ -465,23 +460,22 @@ public:
       ax[6] = 0.0f;
       ax[7] = 0.0f;
       ax[8] = 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[1] = -16.0f;
       ax[6] = -12.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
 
     {
-      typedef std::vector<float> FloatVectorType;
-      typedef OrientationTransforms<FloatVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatVectorType ax(9);
       ax[0] = 1.0f;
       ax[1] = 0.0f;
@@ -492,23 +486,22 @@ public:
       ax[6] = 0.0f;
       ax[7] = 0.0f;
       ax[8] = 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[1] = -16.0f;
       ax[6] = -12.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
 
     {
-      typedef QVector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using TestType = QVector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType ax(9);
       ax[0] = 1.0f;
       ax[1] = 0.0f;
@@ -519,16 +512,16 @@ public:
       ax[6] = 0.0f;
       ax[7] = 0.0f;
       ax[8] = 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
       ax[1] = -16.0f;
       ax[6] = -12.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
       ax[3] = EbsdLib::Constants::k_Pi + 1.0f;
-      result = OrientationTransformType::om_check(ax);
+      result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
   }
@@ -567,6 +560,8 @@ public:
   void EU_2_XXX(FloatType* in)
   {
 
+    using TestType = T;
+
     T eu(3);
     eu[0] = in[0];
     eu[1] = in[1];
@@ -577,73 +572,70 @@ public:
     eu[2] = fmod(eu[2], EbsdLib::Constants::k_2Pi);
 
     T res(9);
-    typedef OrientationTransforms<T, FloatType> OrientationTransformType;
 
-    typename OrientationTransformType::ResultType result;
-    result = OrientationTransformType::eu_check(eu);
+    typename OrientationTransformation::ResultType result;
+    result = OrientationTransformation::eu_check<TestType>(eu);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
-    T ax(4);
-    OrientationTransformType::eu2ax(eu, ax);
+    T ax = OrientationTransformation::eu2ax<T, T>(eu);
     OrientationPrinters::Print_AX<T>(ax);
-    result = OrientationTransformType::ax_check(ax);
+    result = OrientationTransformation::ax_check<TestType>(ax);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
     T ro(4);
-    OrientationTransformType::eu2ro(eu, ro);
+    ro = OrientationTransformation::eu2ro<T, T>(eu);
     OrientationPrinters::Print_RO<T, FloatType>(ro);
-    result = OrientationTransformType::ro_check(ro);
+    result = OrientationTransformation::ro_check<TestType>(ro);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
     T ho(3);
-    OrientationTransformType::eu2ho(eu, ho);
+    ho = OrientationTransformation::eu2ho<T, T>(eu);
     OrientationPrinters::Print_HO<T, FloatType>(ho);
-    result = OrientationTransformType::ho_check(ho);
+    result = OrientationTransformation::ho_check<TestType>(ho);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
     T cu(3);
-    OrientationTransformType::eu2cu(eu, cu);
+    cu = OrientationTransformation::eu2cu<T, T>(eu);
     OrientationPrinters::Print_CU<T>(cu);
-    result = OrientationTransformType::cu_check(cu);
+    result = OrientationTransformation::cu_check<TestType>(cu);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    OrientationTransformType::ho2cu(ho, cu);
+    cu = OrientationTransformation::ho2cu<T, T>(ho);
     OrientationPrinters::Print_CU<T>(cu);
-    result = OrientationTransformType::cu_check(cu);
+    result = OrientationTransformation::cu_check<TestType>(cu);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
-    T qu(4);
-    OrientationTransformType::eu2qu(eu, qu);
-    OrientationPrinters::Print_QU<T, FloatType>(qu);
-    result = OrientationTransformType::qu_check(qu);
+    QuatF qu = OrientationTransformation::eu2qu<T, QuatF>(eu);
+    OrientationPrinters::Print_QU<QuatF>(qu);
+    result = OrientationTransformation::qu_check<QuatF>(qu);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
     }
 
     T om(9);
-    OrientationTransformType::eu2om(eu, om);
+    om = OrientationTransformation::eu2om<T, T>(eu);
     OrientationPrinters::Print_OM<T>(om);
-    result = OrientationTransformType::om_check(om);
+    result = OrientationTransformation::om_check<TestType>(om);
     if(result.result <= 0)
     {
       std::cout << result.msg << std::endl;
@@ -672,9 +664,9 @@ ax2eu  eu2ax                                                     FAILED
   template <typename K>
   void Test_eu2_XXX()
   {
-    typedef OrientationArray<K> OrientType;
-    typedef std::vector<K> VectorType;
-    typedef QVector<K> QVectorType;
+    using OrientType = Orientation<K>;
+    using VectorType = std::vector<K>;
+    using QVectorType = QVector<K>;
     {
       K eu[3] = {static_cast<K>(0.3926990816987242L), static_cast<K>(0.0L), static_cast<K>(0.0L)};
       OrientationPrinters::Print_EU<K*>(eu);
@@ -697,33 +689,28 @@ ax2eu  eu2ax                                                     FAILED
       om[i] = in[i];
     }
     T res(3); // Just size to 9 as we are going to reuse the variable
-    typedef OrientationTransforms<T, K> OrientationTransformType;
     // Convert to Euler
-    OrientationTransformType::om2eu(om, res);
+    res = OrientationTransformation::om2eu<T, T>(om);
     OrientationPrinters::Print_EU<T>(res);
 
     // Convert to Rodriques
-    res.resize(4);
-    OrientationTransformType::om2ro(om, res);
+    res = OrientationTransformation::om2ro<T, T>(om);
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res.resize(4);
-    OrientationTransformType::om2qu(om, res);
-    OrientationPrinters::Print_QU<T, K>(res, QuaternionMath<K>::QuaternionScalarVector);
+    Quaternion<K> quat = OrientationTransformation::om2qu<T, Quaternion<K>>(om);
+    OrientationPrinters::Print_QU<Quaternion<K>>(quat);
 
     // Convert to Axis Angle
-    res.resize(4);
-    OrientationTransformType::om2ax(om, res);
+    res = OrientationTransformation::om2ax<T, T>(om);
     OrientationPrinters::Print_AX<T>(res);
 
     // Convert to Homochoric
-    res.resize(3);
-    OrientationTransformType::om2ho(om, res);
+    res = OrientationTransformation::om2ho<T, T>(om);
     OrientationPrinters::Print_HO<T>(res);
 
     // Convert to HomoChoric
-    OrientationTransformType::om2cu(om, res);
+    res = OrientationTransformation::om2cu<T, T>(om);
     OrientationPrinters::Print_CU<T>(res);
   }
 
@@ -766,35 +753,30 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     T res(9); // Just size to 9 as we are going to reuse the variable
 
-    typedef OrientationTransforms<T, K> OrientationTransformType;
 
     // Convert to Euler
-    res.resize(3);
-    OrientationTransformType::ro2eu(ro, res);
+    res = OrientationTransformation::ro2eu<T, T>(ro);
     OrientationPrinters::Print_EU<T>(res);
 
     // Convert to Orientation Matrix
-    res.resize(9);
-    OrientationTransformType::ro2om(ro, res);
+    res = OrientationTransformation::ro2om<T, T>(ro);
     OrientationPrinters::Print_OM<T>(res);
 
     // Convert to Axis Angle
-    res.resize(4);
-    OrientationTransformType::ro2ax(ro, res);
+    res = OrientationTransformation::ro2ax<T, T>(ro);
     OrientationPrinters::Print_AX<T>(res);
 
     // Convert to Quaternion
-    res.resize(4);
-    OrientationTransformType::ro2qu(ro, res);
-    OrientationPrinters::Print_QU<T, K>(res);
+
+    Quaternion<K> quat = OrientationTransformation::ro2qu<T, Quaternion<K>>(ro);
+    OrientationPrinters::Print_QU<Quaternion<K>>(quat);
 
     // Convert to Homochoric
-    res.resize(3);
-    OrientationTransformType::ro2ho(ro, res);
+    res = OrientationTransformation::ro2ho<T, T>(ro);
     OrientationPrinters::Print_HO<T>(res);
 
     // Convert to HomoChoric
-    OrientationTransformType::ro2cu(ro, res);
+    res = OrientationTransformation::ro2cu<T, T>(ro);
     OrientationPrinters::Print_CU<T>(res);
   }
 
@@ -824,29 +806,28 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     ax[3] = in[3];
 
     T res(9);
-    typedef OrientationTransforms<T, K> OrientationTransformType;
     // Convert to Orientation Matrix
-    OrientationTransformType::ax2om(ax, res);
+    res = OrientationTransformation::ax2om<T, T>(ax);
     OrientationPrinters::Print_OM<T>(res);
 
     // Convert to Axis Angle
-    OrientationTransformType::ax2eu(ax, res);
+    res = OrientationTransformation::ax2eu<T, T>(ax);
     OrientationPrinters::Print_EU<T>(res);
 
     // Convert to Rodriques
-    OrientationTransformType::ax2ro(ax, res);
+    res = OrientationTransformation::ax2ro<T, T>(ax);
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    OrientationTransformType::ax2qu(ax, res);
-    OrientationPrinters::Print_QU<T, K>(res);
+    Quaternion<K> quat = OrientationTransformation::ax2qu<T, Quaternion<K>>(ax);
+    OrientationPrinters::Print_QU<Quaternion<K>>(quat);
 
     // Convert to homochoric
-    OrientationTransformType::ax2ho(ax, res);
+    res = OrientationTransformation::ax2ho<T, T>(ax);
     OrientationPrinters::Print_HO<T>(res);
 
     // Convert to HomoChoric
-    OrientationTransformType::ax2cu(ax, res);
+    res = OrientationTransformation::ax2cu<T, T>(ax);
     OrientationPrinters::Print_CU<T>(res);
   }
 
@@ -867,43 +848,33 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   //
   // -----------------------------------------------------------------------------
   template <typename T, typename K>
-  void QU_2_XXX(K* in, typename QuaternionMath<K>::Order layout = QuaternionMath<K>::QuaternionVectorScalar)
+  void QU_2_XXX(K* in, typename Quaternion<K>::Order layout = Quaternion<K>::Order::VectorScalar)
   {
-    T qu(4);
-    qu[0] = in[0];
-    qu[1] = in[1];
-    qu[2] = in[2];
-    qu[3] = in[3];
+    using QuatType = Quaternion<K>;
+    QuatType qu(in[0], in[1], in[2], in[3]);
 
-    T res(9);
-    typedef OrientationTransforms<T, K> OrientationTransformType;
     // Convert to Orientation Matrix
-    res.resize(9);
-    OrientationTransformType::qu2om(qu, res, layout);
+    T res = OrientationTransformation::qu2om<QuatType, T>(qu, layout);
     OrientationPrinters::Print_OM<T>(res);
 
     // Convert to Axis Angle
-    res.resize(4);
-    OrientationTransformType::qu2eu(qu, res, layout);
+    res = OrientationTransformation::qu2eu<QuatType, T>(qu, layout);
     OrientationPrinters::Print_EU<T>(res);
 
     // Convert to Rodriques
-    res.resize(4);
-    OrientationTransformType::qu2ro(qu, res, layout);
+    res = OrientationTransformation::qu2ro<QuatType, T>(qu, layout);
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res.resize(4);
-    OrientationTransformType::qu2ax(qu, res, layout);
+    res = OrientationTransformation::qu2ax<QuatType, T>(qu, layout);
     OrientationPrinters::Print_AX<T>(res);
 
     // Convert to Homochoric
-    res.resize(3);
-    OrientationTransformType::qu2ho(qu, res, layout);
+    res = OrientationTransformation::qu2ho<QuatType, T>(qu, layout);
     OrientationPrinters::Print_HO<T>(res);
 
     // Convert to HomoChoric
-    OrientationTransformType::qu2cu(qu, res, layout);
+    res = OrientationTransformation::qu2cu<QuatType, T>(qu, layout);
     OrientationPrinters::Print_CU<T>(res);
   }
 
@@ -915,8 +886,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     {
       std::cout << "Test_qu2_XXX  (SCALAR, <X, Y, Z>) ***************************************" << std::endl;
       float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
-      OrientationPrinters::Print_QU<float*, float>(qu, QuaternionMathF::QuaternionScalarVector);
-      QU_2_XXX<FOrientArrayType>(qu, QuaternionMathF::QuaternionScalarVector);
+      OrientationPrinters::Print_QU<float*, float>(qu, QuatF::Order::ScalarVector);
+      QU_2_XXX<FOrientArrayType>(qu, QuatF::Order::ScalarVector);
       //  QU_2_XXX<std::vector<float> >(qu);
       //  QU_2_XXX<FloatQVectorType>(qu);
     }
@@ -937,41 +908,37 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   template <typename T, typename K>
   void HO_2_XXX(K* in)
   {
+    using QuatType = Quaternion<K>;
+
     T ho(3);
     ho[0] = in[0];
     ho[1] = in[1];
     ho[2] = in[2];
 
     T res(9);
-    typedef OrientationTransforms<T, K> OrientationTransformType;
 
     // Convert to Euler
-    res.resize(3);
-    OrientationTransformType::ho2eu(ho, res);
+    res = OrientationTransformation::ho2eu<T, T>(ho);
     OrientationPrinters::Print_EU<T>(res);
 
     // Convert to Orientation Matrix
-    res.resize(9);
-    OrientationTransformType::ho2om(ho, res);
+    res = OrientationTransformation::ho2om<T, T>(ho);
     OrientationPrinters::Print_OM<T>(res);
 
     // Convert to Axis Angle
-    res.resize(4);
-    OrientationTransformType::ho2ax(ho, res);
+    res = OrientationTransformation::ho2ax<T, T>(ho);
     OrientationPrinters::Print_AX<T>(res);
 
     // Convert to Rodriques
-    res.resize(4);
-    OrientationTransformType::ho2ro(ho, res);
+    res = OrientationTransformation::ho2ro<T, T>(ho);
     OrientationPrinters::Print_RO<T, K>(res);
 
     // Convert to Quaternion
-    res.resize(4);
-    OrientationTransformType::ho2qu(ho, res);
-    OrientationPrinters::Print_QU<T, K>(res);
+    QuatType quat = OrientationTransformation::ho2qu<T, QuatType>(ho);
+    OrientationPrinters::Print_QU<QuatType>(quat);
 
     // Convert to HomoChoric
-    OrientationTransformType::ho2cu(ho, res);
+    res = OrientationTransformation::ho2cu<T, T>(ho);
     OrientationPrinters::Print_CU<T>(res);
   }
 
@@ -994,13 +961,13 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   void TestInputs()
   {
     std::vector<size_t> cDims(1, 3);
-    EbsdLib::FloatArrayType::Pointer data = EbsdLib::FloatArrayType::CreateArray(2, cDims, "Eulers");
+    EbsdLib::FloatArrayType::Pointer data = EbsdLib::FloatArrayType::CreateArray(2, cDims, "Eulers", true);
     data->initializeWithZeros();
     float* fPtr = data->getPointer(0);
     fPtr[0] = 90.0 * EbsdLib::Constants::k_PiOver180;
     fPtr[1] = 0.0;
     fPtr[2] = 0.0;
-    fPtr[3] = 90.0 * EbsdLib::Constants::k_PiOver180;
+    fPtr[3] = 90.0F * EbsdLib::Constants::k_PiOver180;
     fPtr[4] = 0.0;
     fPtr[5] = 0.0;
 
@@ -1031,9 +998,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     // Pointer Arithmetic, placing results directly into an array
     {
       FOrientArrayType ax(0.0f, 0.0f, -1.0f, EbsdLib::Constants::k_PiOver2);
-      FOrientArrayType eu(fPtr + 3, 3);
-      FOrientTransformsType::ax2eu(ax, eu);
-
+      FOrientArrayType eu = OrientationTransformation::ax2eu<FOrientArrayType, FOrientArrayType>(ax);
+      eu.copyInto(fPtr + 3, 3);
       DREAM3D_REQUIRE_EQUAL(eu[0], fPtr[3]);
       DREAM3D_REQUIRE_EQUAL(eu[1], fPtr[4]);
       DREAM3D_REQUIRE_EQUAL(eu[2], fPtr[5]);
@@ -1052,10 +1018,11 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   // -----------------------------------------------------------------------------
   void QuatTest()
   {
-    QuatF q = QuaternionMathF::New(-0.5f, -0.5f, -0.5f, 0.5f);
-    std::vector<float> qVec(4, -0.5f), gVec(9, 0);
-    qVec[3] = 0.5;
-    OrientationTransforms<std::vector<float>, float>::qu2om(qVec, gVec);
+    QuatF q(-0.5f, -0.5f, -0.5f, 0.5f);
+    using VecType = std::vector<float>;
+    VecType qVec = {-0.5f, -0.5f, -0.5f, 0.5f};
+
+    VecType gVec = OrientationTransformation::qu2om<VecType, VecType>(qVec);
 
     OrientationPrinters::Print_OM<std::vector<float>>(gVec);
 
@@ -1080,18 +1047,19 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
       }
     }
 
-    float vq[3], vg[3];
-    float v[3] = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> vg;
+    std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
 
     // Mathematically correct, results unintuitive
-    QuaternionMathF::MultiplyQuatVec(q, v, vq);
+    std::array<float, 3> vq = q.multiplyByVector(v.data());
 
     std::cout << "vq: " << vq[0] << "," << vq[1] << "," << vq[2] << std::endl;
 
-    EbsdMatrixMath::Multiply3x3with3x1(g, v, vg);
+    EbsdMatrixMath::Multiply3x3with3x1(g, v.data(), vg.data());
     std::cout << "vg: " << vg[0] << "," << vg[1] << "," << vg[2] << std::endl;
   }
 
+  // -----------------------------------------------------------------------------
   void operator()()
   {
     std::cout << "<===== Start " << getNameOfClass() << std::endl;
@@ -1119,8 +1087,4 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     DREAM3D_REGISTER_TEST(TestInputs());
   }
-
-private:
-  OrientationArrayTest(const OrientationArrayTest&); // Copy Constructor Not Implemented
-  void operator=(const OrientationArrayTest&);       // Move assignment Not Implemented
 };
