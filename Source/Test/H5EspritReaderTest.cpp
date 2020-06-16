@@ -27,6 +27,8 @@ public:
   H5EspritReaderTest() = default;
   ~H5EspritReaderTest() = default;
 
+  EBSD_GET_NAME_OF_CLASS_DECL(H5EspritReaderTest)
+
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
@@ -215,7 +217,7 @@ public:
   {
     int err = EXIT_SUCCESS;
 
-    std::cout << "#-- H5EspritReaderTest Starting" << std::endl;
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     DREAM3D_REGISTER_TEST(TestH5EspritReader())
 

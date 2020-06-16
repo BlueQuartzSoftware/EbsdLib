@@ -87,6 +87,13 @@ void Print_QU(const T& om, typename Quaternion<K>::Order layout = Quaternion<K>:
 }
 
 // -----------------------------------------------------------------------------
+template <typename QuaternionType>
+void Print_QU(const QuaternionType& q)
+{
+  printf("QU:<% 3.16f % 3.6f % 3.16f> % 3.16f\n", q.x(), q.y(), q.z(), q.w());
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 template <typename T>

@@ -51,8 +51,8 @@ public:
   EdaxOIMReaderTest() = default;
   virtual ~EdaxOIMReaderTest() = default;
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(EdaxOIMReaderTest)
+
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
@@ -121,7 +121,7 @@ public:
   void operator()()
   {
     int err = EXIT_SUCCESS;
-    std::cout << "#-- EdaxOIMReaderTest Starting " << std::endl;
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     DREAM3D_REGISTER_TEST(TestH5OIMReader())
 

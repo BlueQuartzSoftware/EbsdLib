@@ -52,8 +52,8 @@ public:
   CtfReaderTest() = default;
   virtual ~CtfReaderTest() = default;
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(CtfReaderTest)
+
   // -----------------------------------------------------------------------------
   void TestCtfReader()
   {
@@ -238,7 +238,7 @@ public:
   void operator()()
   {
     int err = EXIT_SUCCESS;
-    std::cout << "#-- CtfReaderTest Starting " << std::endl;
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     DREAM3D_REGISTER_TEST(TestCtfReader())
     DREAM3D_REGISTER_TEST(TestMultiplePhases_European())

@@ -155,6 +155,7 @@ void TestLoadingTabDelimited()
 // -----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+  std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
   int err = EXIT_SUCCESS;
   QDir dir(UnitTest::AngleFileLoaderTest::TestDir);

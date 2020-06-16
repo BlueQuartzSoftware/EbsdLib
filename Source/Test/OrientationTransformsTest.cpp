@@ -42,16 +42,14 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 
-#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/OrientationMath/OrientationArray.hpp"
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
-#include "EbsdLib/OrientationMath/OrientationTransforms.hpp"
 
 #include "GenerateFunctionList.h"
-#include "UnitTestSupport.hpp"
-#include "EbsdLibTestFileLocations.h"
 #include "TestPrintFunctions.h"
+#include "UnitTestSupport.hpp"
 
 /*
  *
@@ -80,6 +78,8 @@ public:
   std::vector<QString> DataSetNames;
   std::vector<int32_t> DataSetTypes;
 
+  EBSD_GET_NAME_OF_CLASS_DECL(OrientationTransformsTest)
+
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   template <typename T>
-  void GenerateEulers(size_t nSteps, std::map<QString, typename DataArray<T>::Pointer>& attrMat)
+  void GenerateEulers(size_t nSteps, std::map<QString, typename EbsdDataArray<T>::Pointer>& attrMat)
   {
     std::vector<size_t> cDims(1, 3);
 
@@ -111,14 +111,14 @@ public:
     T phi2_delta = (phi2_max - phi2_min) / static_cast<T>(nSteps);
 
     size_t nStepsCubed = (nSteps + 1) * (nSteps + 1) * (nSteps + 1);
-    typename DataArray<T>::Pointer eulers = DataArray<T>::CreateArray(nStepsCubed, cDims, k_InputNames[0]);
+    typename EbsdDataArray<T>::Pointer eulers = EbsdDataArray<T>::CreateArray(nStepsCubed, cDims, k_InputNames[0], true);
 
     size_t counter = 0;
-    for(int i = 0; i <= nSteps; i++)
+    for(size_t i = 0; i <= nSteps; i++)
     {
-      for(int j = 0; j <= nSteps; j++)
+      for(size_t j = 0; j <= nSteps; j++)
       {
-        for(int k = 0; k <= nSteps; k++)
+        for(size_t k = 0; k <= nSteps; k++)
         {
           //        std::cout << "Euler[" << counter << "]: "
           //                  << (phi1_min+i*phi1_delta)*DConst::k_180OverPi << ", "
@@ -148,17 +148,17 @@ public:
       }
     }
 
-    typename EulerConverter<T>::Pointer euConv = EulerConverter<T>::New();
+    typename EulerConverter<EbsdDataArray<T>, T>::Pointer euConv = EulerConverter<EbsdDataArray<T>, T>::New();
     euConv->setInputData(eulers);
 
     euConv->toOrientationMatrix();
-    typename DataArray<T>::Pointer om = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer om = euConv->getOutputData();
     om->setName(k_InputNames[1]);
     attrMat[k_InputNames[1]] = om;
 
     // Create an Orientation matrix from the Eulers and then transform BACK to Eulers to transform
     // the values of the Eulers into the convention set forth in the Rotations Paper.
-    typename OrientationMatrixConverter<T>::Pointer omConv = OrientationMatrixConverter<T>::New();
+    typename OrientationMatrixConverter<EbsdDataArray<T>, T>::Pointer omConv = OrientationMatrixConverter<EbsdDataArray<T>, T>::New();
     omConv->setInputData(om);
     omConv->toEulers();
     eulers = omConv->getOutputData();
@@ -168,27 +168,27 @@ public:
     attrMat[k_InputNames[0]] = eulers;
 
     euConv->toQuaternion();
-    typename DataArray<T>::Pointer q = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer q = euConv->getOutputData();
     q->setName(k_InputNames[2]);
     attrMat[k_InputNames[2]] = q;
 
     euConv->toAxisAngle();
-    typename DataArray<T>::Pointer ax = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer ax = euConv->getOutputData();
     ax->setName(k_InputNames[3]);
     attrMat[k_InputNames[3]] = ax;
 
     euConv->toRodrigues();
-    typename DataArray<T>::Pointer ro = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer ro = euConv->getOutputData();
     ro->setName(k_InputNames[4]);
     attrMat[k_InputNames[4]] = ro;
 
     euConv->toHomochoric();
-    typename DataArray<T>::Pointer ho = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer ho = euConv->getOutputData();
     ho->setName(k_InputNames[5]);
     attrMat[k_InputNames[5]] = ho;
 
     euConv->toCubochoric();
-    typename DataArray<T>::Pointer cu = euConv->getOutputData();
+    typename EbsdDataArray<T>::Pointer cu = euConv->getOutputData();
     cu->setName(k_InputNames[6]);
     attrMat[k_InputNames[6]] = cu;
   }
@@ -197,22 +197,22 @@ public:
   //
   // -----------------------------------------------------------------------------
   template <typename T>
-  std::shared_ptr<DataArray<T>> generateRepresentation(int32_t inputType, int32_t outputType, typename DataArray<T>::Pointer inputOrientations)
+  std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int32_t outputType, typename EbsdDataArray<T>::Pointer inputOrientations)
   {
-    using ArrayType = typename DataArray<T>::Pointer;
-    using OCType = OrientationConverter<T>;
+    // using ArrayType = typename EbsdDataArray<T>::Pointer;
+    using OCType = OrientationConverter<EbsdDataArray<T>, T>;
 
-    QVector<typename OCType::Pointer> converters(7);
+    std::vector<typename OCType::Pointer> converters(7);
 
-    converters[0] = EulerConverter<T>::New();
-    converters[1] = OrientationMatrixConverter<T>::New();
-    converters[2] = QuaternionConverter<T>::New();
-    converters[3] = AxisAngleConverter<T>::New();
-    converters[4] = RodriguesConverter<T>::New();
-    converters[5] = HomochoricConverter<T>::New();
-    converters[6] = CubochoricConverter<T>::New();
+    converters[0] = EulerConverter<EbsdDataArray<T>, T>::New();
+    converters[1] = OrientationMatrixConverter<EbsdDataArray<T>, T>::New();
+    converters[2] = QuaternionConverter<EbsdDataArray<T>, T>::New();
+    converters[3] = AxisAngleConverter<EbsdDataArray<T>, T>::New();
+    converters[4] = RodriguesConverter<EbsdDataArray<T>, T>::New();
+    converters[5] = HomochoricConverter<EbsdDataArray<T>, T>::New();
+    converters[6] = CubochoricConverter<EbsdDataArray<T>, T>::New();
 
-    QVector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
+    std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
 
     converters[inputType]->setInputData(inputOrientations);
     converters[inputType]->convertRepresentationTo(ocTypes[outputType]);
@@ -223,7 +223,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  QString ExecuteConvertFilter(std::map<QString, DataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const QString& outputName)
+  QString ExecuteConvertFilter(std::map<QString, EbsdDataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const QString& outputName)
   {
     QString inputName = outputName;
 
@@ -232,8 +232,8 @@ public:
       inputName = k_InputNames[entry[e]];
     }
 
-    DataArray<double>::Pointer inputData = attrMat[inputName];
-    DataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
+    EbsdDataArray<double>::Pointer inputData = attrMat[inputName];
+    EbsdDataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
     QString nextOutputName = QString::number(e) + QString("_") + k_InputNames[entry[e]] + QString("2") + k_InputNames[entry[e + 1]];
     attrMat[nextOutputName] = outputData;
 
@@ -246,34 +246,33 @@ public:
   template <typename K>
   void CheckRepresentation(K* data, int repType)
   {
-    using OrientationArrayType = OrientationArray<K>;
-    using OrTr_Type = OrientationTransforms<OrientationArray<K>, K>;
+    using OrientationType = Orientation<K>;
 
-    typename OrTr_Type::ResultType res;
+    typename OrientationTransformation::ResultType res;
 
-    OrientationArrayType wrapper(data, k_CompDims[repType]);
+    OrientationType wrapper(data, k_CompDims[repType]);
     switch(repType)
     {
     case 0:
-      res = OrTr_Type::eu_check(wrapper);
+      res = OrientationTransformation::eu_check<OrientationType>(wrapper);
       break;
     case 1:
-      res = OrTr_Type::om_check(wrapper);
+      res = OrientationTransformation::om_check<OrientationType>(wrapper);
       break;
     case 2:
-      res = OrTr_Type::qu_check(wrapper);
+      res = OrientationTransformation::qu_check<OrientationType>(wrapper);
       break;
     case 3:
-      res = OrTr_Type::ax_check(wrapper);
+      res = OrientationTransformation::ax_check<OrientationType>(wrapper);
       break;
     case 4:
-      res = OrTr_Type::ro_check(wrapper);
+      res = OrientationTransformation::ro_check<OrientationType>(wrapper);
       break;
     case 5:
-      res = OrTr_Type::ho_check(wrapper);
+      res = OrientationTransformation::ho_check<OrientationType>(wrapper);
       break;
     case 6:
-      res = OrTr_Type::cu_check(wrapper);
+      res = OrientationTransformation::cu_check<OrientationType>(wrapper);
       break;
     default:
       break;
@@ -292,10 +291,10 @@ public:
   void RunTestCase(GenerateFunctionList::EntryType& entryRef, size_t nSteps)
   {
 
-    using DataArrayType = DataArray<K>;
-    using DataArrayPointerType = typename DataArrayType::Pointer;
+    using EbsdDataArrayType = EbsdDataArray<K>;
+    using EbsdDataArrayPointerType = typename EbsdDataArrayType::Pointer;
 
-    std::map<QString, DataArrayPointerType> attrMat;
+    std::map<QString, EbsdDataArrayPointerType> attrMat;
 
     try
     {
@@ -306,7 +305,7 @@ public:
       // QVector<QString> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
 
       std::stringstream ss;
-      for(int e = 0; e < entry.size() - 1; e++)
+      for(size_t e = 0; e < entry.size() - 1; e++)
       {
         ss << k_InputNames[entry[e]].toStdString() << "2" << k_InputNames[entry[e + 1]].toStdString();
         if(e != entry.size() - 1)
@@ -318,11 +317,11 @@ public:
       // std::cout << ss.str() << std::endl;
       std::string testName = ss.str();
 
-      SIMPL::unittest::CurrentMethod = ss.str();
-      SIMPL::unittest::numTests++;
+      Ebsd::unittest::CurrentMethod = ss.str();
+      Ebsd::unittest::numTests++;
       std::cout << "Starting Test " << ss.str() << " -----------------------------------------------------" << std::endl;
 
-      size_t nStepsCubed = (nSteps + 1) * (nSteps + 1) * (nSteps + 1);
+      // size_t nStepsCubed = (nSteps + 1) * (nSteps + 1) * (nSteps + 1);
 
       // Make all the starting data
       GenerateEulers<K>(nSteps, attrMat);
@@ -338,8 +337,7 @@ public:
       }
       else
       {
-
-        for(int e = 0; e < entry.size(); e++)
+        for(size_t e = 0; e < entry.size(); e++)
         {
           if(entry[e] == 0)
           {
@@ -353,7 +351,7 @@ public:
       }
 
       QString outputName; // We need this a bit further down;
-      for(int e = 0; e < entry.size() - 1; e++)
+      for(size_t e = 0; e < entry.size() - 1; e++)
       {
         outputName = ExecuteConvertFilter(attrMat, entry, e, outputName);
       }
@@ -377,11 +375,11 @@ public:
           inputName = k_InputNames[entry[0]];
         }
 
-        DataArrayType& inputArray = *(attrMat[inputName]);
-        DataArrayType& outputArray = *(attrMat[outputName]);
+        EbsdDataArrayType& inputArray = *(attrMat[inputName]);
+        EbsdDataArrayType& outputArray = *(attrMat[outputName]);
 
-        DataArrayPointerType diffArray = inputArray.createNewArray(inputArray.getNumberOfTuples(), inputArray.getComponentDimensions(), "Difference");
-        DataArrayType& diff = *(diffArray);
+        EbsdDataArrayPointerType diffArray = inputArray.createNewArray(inputArray.getNumberOfTuples(), inputArray.getComponentDimensions(), "Difference", true);
+        EbsdDataArrayType& diff = *(diffArray);
         diff.initializeWithZeros();
 
         for(size_t i = 0; i < inputArray.getSize(); i++)
@@ -407,28 +405,28 @@ public:
             if(delta > thr)
             {
               numErrors++;
-              std::cout << "Delta Failed: " << delta << " DataArray: '" << diff.getName().toStdString() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
+              std::cout << "Delta Failed: " << delta << " EbsdDataArray: '" << diff.getName().toStdString() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
 
               // Get the AttributeMatrix:
-              //              dap = DataArrayPath(DCName, AMName, k_InputNames[0]);
+              //              dap = EbsdDataArrayPath(DCName, AMName, k_InputNames[0]);
               //              AttributeMatrix::Pointer attrMat = dca->getAttributeMatrix(dap);
 
               // Print the Euler Angle that we Started with
               // cDims[0] = k_CompDims[0];
-              DataArrayPointerType data = attrMat[k_InputNames[0]];
-              OrientationPrinters::PrintTuple<K>(data, t);
+              EbsdDataArrayPointerType data = attrMat[k_InputNames[0]];
+              OrientationPrinters::PrintTuple<EbsdDataArrayType>(data, t);
               CheckRepresentation<K>(data->getPointer(t), 0);
 
               // Print the starting representation
               data = attrMat[k_InputNames[entry[0]]];
-              OrientationPrinters::PrintTuple<K>(data, t);
+              OrientationPrinters::PrintTuple<EbsdDataArrayType>(data, t);
               CheckRepresentation<K>(data->getPointer(t), entry[0]);
 
               // Now print all the intermediate Representations
               for(int q = 0; q < DataSetNames.size(); q++)
               {
                 data = attrMat[DataSetNames[q]];
-                OrientationPrinters::PrintTuple<K>(data, t);
+                OrientationPrinters::PrintTuple<EbsdDataArrayType>(data, t);
                 CheckRepresentation<K>(data->getPointer(t), DataSetTypes[q]);
               }
 
@@ -446,7 +444,7 @@ public:
         entry.pop_back();
       }
 
-      typename DataArray<K>::Pointer junk = DataArray<K>::CreateArray(1, "Junk");
+      typename EbsdDataArray<K>::Pointer junk = EbsdDataArray<K>::CreateArray(1, "Junk", true);
       QString typeName = junk->getTypeAsString();
 #if 0
       {
@@ -485,11 +483,11 @@ public:
         ss.str("");
         ss << testName << "Type: " << typeName.toStdString();
         TestPassed(ss.str());
-        SIMPL::unittest::CurrentMethod = "";
+        Ebsd::unittest::CurrentMethod = "";
       }
     } catch(TestException& e)
     {
-      TestFailed(SIMPL::unittest::CurrentMethod);
+      TestFailed(Ebsd::unittest::CurrentMethod);
       std::cout << e.what() << std::endl;
     }
   }
@@ -550,6 +548,8 @@ public:
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = EXIT_SUCCESS;
 
     StartTest();

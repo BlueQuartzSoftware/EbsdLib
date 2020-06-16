@@ -45,6 +45,8 @@ public:
   using DoubleVectorType = std::vector<double>;
   using DoubleQVectorType = QVector<double>;
 
+  EBSD_GET_NAME_OF_CLASS_DECL(OrientationArrayTest)
+
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
@@ -1092,6 +1094,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = EXIT_SUCCESS;
     DREAM3D_REGISTER_TEST(TestRotArray());
     DREAM3D_REGISTER_TEST(Test_eu_check());
