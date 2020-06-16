@@ -14,7 +14,7 @@ class Quaternion
 public:
   using EnumType = unsigned int;
 
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type"); // disallow integers
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");      // disallow integers
   static_assert(std::numeric_limits<T>::has_infinity, "T must have infinity");        // must have ieee infinity
 
   enum class Order : EnumType
