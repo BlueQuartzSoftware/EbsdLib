@@ -278,19 +278,18 @@ float GeometryMath::LengthOfRayInBox(const float* p, const float* q, const float
 // -----------------------------------------------------------------------------
 void GeometryMath::GenerateRandomRay(float length, float ray[3])
 {
-  float w, t;
-
-  std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
-  std::mt19937_64 generator(randomDevice()); // Standard mersenne_twister_engine seeded with rd()
   std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
-  generator.seed(seed);
+  std::mt19937_64 generator(seed);
   std::uniform_real_distribution<> distribution(0.0, 1.0);
 
-  ray[2] = (2.0f * distribution(generator)) - 1.0f;
-  t = (EbsdLib::Constants::k_2Pi * distribution(generator));
-  w = sqrtf(1.0f - (ray[2] * ray[2]));
-  ray[0] = w * cosf(t);
-  ray[1] = w * sinf(t);
+  float rand1 = distribution(generator);
+  float rand2 = distribution(generator);
+
+  ray[2] = (2.0f * rand1) - 1.0f;
+  float t = static_cast<float>(EbsdLib::Constants::k_2Pi) * rand2;
+  float w = std::sqrt(1.0f - (ray[2] * ray[2]));
+  ray[0] = w * std::cos(t);
+  ray[1] = w * std::sin(t);
   ray[0] *= length;
   ray[1] *= length;
   ray[2] *= length;
