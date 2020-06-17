@@ -276,7 +276,7 @@ float GeometryMath::LengthOfRayInBox(const float* p, const float* q, const float
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void GeometryMath::GenerateRandomRay(float length, float ray[3])
+void GeometryMath::GenerateRandomRay(float length, float* ray)
 {
   std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
   std::mt19937_64 generator(seed);
