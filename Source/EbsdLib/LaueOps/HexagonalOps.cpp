@@ -72,11 +72,11 @@ static const int k_OdfSize = 15552;
 static const int k_MdfSize = 15552;
 static const int k_NumSymQuats = 12;
 
-static const QuatType QuatSym[12] = {
-    QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatType(0.000000000, 0.000000000, 0.500000000, 0.866025400), QuatType(0.000000000, 0.000000000, 0.866025400, 0.500000000),
-    QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000), QuatType(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatType(0.000000000, 0.000000000, 0.500000000, -0.86602540),
-    QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000), QuatType(0.866025400, 0.500000000, 0.000000000, 0.000000000), QuatType(0.500000000, 0.866025400, 0.000000000, 0.000000000),
-    QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatType(-0.50000000, 0.866025400, 0.000000000, 0.000000000), QuatType(-0.86602540, 0.500000000, 0.000000000, 0.000000000)};
+static const QuatD QuatSym[12] = {
+    QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.500000000, 0.866025400), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
+    QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(0.000000000, 0.000000000, 0.500000000, -0.86602540),
+    QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000), QuatD(0.866025400, 0.500000000, 0.000000000, 0.000000000), QuatD(0.500000000, 0.866025400, 0.000000000, 0.000000000),
+    QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(-0.50000000, 0.866025400, 0.000000000, 0.000000000), QuatD(-0.86602540, 0.500000000, 0.000000000, 0.000000000)};
 
 static const double RodSym[12][3] = {{0.0, 0.0, 0.0},
                                      {0.0, 0.0, 0.57735},
@@ -175,7 +175,7 @@ QString HexagonalOps::getSymmetryName() const
 }
 
 // -----------------------------------------------------------------------------
-OrientationD HexagonalOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
 }
@@ -183,13 +183,13 @@ OrientationD HexagonalOps::calculateMisorientation(const QuatType& q1, const Qua
 // -----------------------------------------------------------------------------
 OrientationF HexagonalOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
 
-QuatType HexagonalOps::getQuatSymOp(int32_t i) const
+QuatD HexagonalOps::getQuatSymOp(int32_t i) const
 {
   return HexagonalHigh::QuatSym[i];
   //  q.x = HexagonalHigh::QuatSym[i][0];
@@ -295,16 +295,16 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
   return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, w));
 }
 
-QuatType HexagonalOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD HexagonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
 }
 
 QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -312,7 +312,7 @@ QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatType HexagonalOps::getFZQuat(const QuatType& qr) const
+QuatD HexagonalOps::getFZQuat(const QuatD& qr) const
 {
   return _calcQuatNearestOrigin(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, qr);
 }
@@ -376,9 +376,9 @@ OrientationType HexagonalOps::determineEulerAngles(double random[3], int choose)
 OrientationType HexagonalOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = HexagonalHigh::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = HexagonalHigh::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -787,7 +787,7 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
   }
 }
 
-double HexagonalOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double HexagonalOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   Q_ASSERT(false);
 #if 0
@@ -827,7 +827,7 @@ double HexagonalOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD
   return 0.0;
 }
 
-double HexagonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double HexagonalOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   Q_ASSERT(false);
 #if 0
@@ -903,7 +903,7 @@ double HexagonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3],
 #endif
   return 0.0;
 }
-double HexagonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double HexagonalOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   Q_ASSERT(false);
 #if 0
@@ -981,7 +981,7 @@ double HexagonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[
   return 0.0;
 }
 
-double HexagonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double HexagonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   Q_ASSERT(false);
 #if 0
@@ -1221,12 +1221,12 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < HexagonalHigh::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -1553,15 +1553,15 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   double xo, xo1, xo2, xo3, x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11;
   double yo, yo1, yo2, yo3, y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11;
   double zo, zo1, zo2, zo3, z, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11;
   double k, h, s, v;
 
-  QuatType q1 = q;
-  QuatType q2 = refFrame;
+  QuatD q1 = q;
+  QuatD q2 = refFrame;
 
   // get misorientation
   OrientationD axisAngle = calculateMisorientation(q1, q2);

@@ -84,20 +84,20 @@ LaueOps::LaueOps() = default;
 LaueOps::~LaueOps() = default;
 
 // -----------------------------------------------------------------------------
-QuatType LaueOps::getFZQuat(const QuatType& qr) const
+QuatD LaueOps::getFZQuat(const QuatD& qr) const
 {
   Q_ASSERT(false);
-  return QuatType();
+  return QuatD();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD LaueOps::calculateMisorientationInternal(const QuatType* quatsym, size_t numsym, const QuatType& q1, const QuatType& q2) const
+OrientationD LaueOps::calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const
 {
   OrientationD axisAngleMin(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
-  QuatType qc;
-  QuatType qr = q1 * (q2.conjugate());
+  QuatD qc;
+  QuatD qr = q1 * (q2.conjugate());
 
   for(size_t i = 0; i < numsym; i++)
   {
@@ -112,7 +112,7 @@ OrientationD LaueOps::calculateMisorientationInternal(const QuatType* quatsym, s
       qc.w() = 1.0;
     }
 
-    OrientationD axisAngle = OrientationTransformation::qu2ax<QuatType, OrientationType>(qc);
+    OrientationD axisAngle = OrientationTransformation::qu2ax<QuatD, OrientationType>(qc);
     if(axisAngle[3] > EbsdLib::Constants::k_Pi)
     {
       axisAngle[3] = EbsdLib::Constants::k_2Pi - axisAngle[3];
@@ -183,16 +183,16 @@ OrientationType LaueOps::_calcRodNearestOrigin(const double rodsym[24][3], int n
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatType LaueOps::_calcNearestQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2) const
+QuatD LaueOps::_calcNearestQuat(const QuatD quatsym[24], int numsym, const QuatD& q1, const QuatD& q2) const
 {
-  QuatType out;
+  QuatD out;
   double dist = 0.0;
   double smallestdist = 1000000.0f;
-  QuatType qmax;
+  QuatD qmax;
 
   for(int i = 0; i < numsym; i++)
   {
-    QuatType qc = quatsym[i] * q2;
+    QuatD qc = quatsym[i] * q2;
     if(qc.w() < 0)
     {
       qc.negate();
@@ -212,15 +212,15 @@ QuatType LaueOps::_calcNearestQuat(const QuatType quatsym[24], int numsym, const
   return out;
 }
 
-QuatType LaueOps::_calcQuatNearestOrigin(const QuatType quatsym[24], int numsym, const QuatType& qr) const
+QuatD LaueOps::_calcQuatNearestOrigin(const QuatD quatsym[24], int numsym, const QuatD& qr) const
 {
   double dist = 0.0;
   double smallestdist = 1000000.0f;
-  QuatType qmax;
+  QuatD qmax;
 
   for(int i = 0; i < numsym; i++)
   {
-    QuatType qc = quatsym[i] * qr;
+    QuatD qc = quatsym[i] * qr;
 
     dist = 1 - (qc.w() * qc.w());
     if(dist < smallestdist)
@@ -229,7 +229,7 @@ QuatType LaueOps::_calcQuatNearestOrigin(const QuatType quatsym[24], int numsym,
       qmax = qc;
     }
   }
-  QuatType out = qmax;
+  QuatD out = qmax;
 
   if(out.w() < 0)
   {

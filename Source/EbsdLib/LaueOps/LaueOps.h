@@ -134,7 +134,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationD calculateMisorientation(const QuatType& q1, const QuatType& q2) const = 0;
+  virtual OrientationD calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -149,7 +149,7 @@ public:
    * @param i The index into the Symmetry operators array
    * @return The quaternion symmetry operator
    */
-  virtual QuatType getQuatSymOp(int i) const = 0;
+  virtual QuatD getQuatSymOp(int i) const = 0;
 
   /**
    * @brief getRodSymOp Returns a Rodrigues vector based on the symmetry operator at index i
@@ -175,7 +175,7 @@ public:
    */
   virtual OrientationType getMDFFZRod(const OrientationType& rod) const = 0;
 
-  virtual QuatType getNearestQuat(const QuatType& q1, const QuatType& q2) const = 0;
+  virtual QuatD getNearestQuat(const QuatD& q1, const QuatD& q2) const = 0;
   virtual QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const = 0;
 
   /**
@@ -183,7 +183,7 @@ public:
    * @param qr Input Quaternion
    * @return
    */
-  virtual QuatType getFZQuat(const QuatType& qr) const;
+  virtual QuatD getFZQuat(const QuatD& qr) const;
 
   /**
    * @brief getMisoBin Returns the misorientation bin that the input Rodregues vector lies in.
@@ -208,13 +208,13 @@ public:
 
   virtual void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const = 0;
 
-  virtual double getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const = 0;
+  virtual double getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const = 0;
 
-  virtual double getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+  virtual double getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
-  virtual double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+  virtual double getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
-  virtual double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const = 0;
+  virtual double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
   virtual void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const = 0;
 
@@ -255,7 +255,7 @@ public:
    * @param refDir A Quaternion representing the sample reference direction
    * @return A EbsdLib::Rgb value
    */
-  virtual EbsdLib::Rgb generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const = 0;
+  virtual EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const = 0;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -279,13 +279,13 @@ protected:
    * @param q2 Input Quaternion 2
    * @return Returns Axis-Angle <XYZ>W form.
    */
-  virtual OrientationD calculateMisorientationInternal(const QuatType* quatsym, size_t numsym, const QuatType& q1, const QuatType& q2) const;
+  virtual OrientationD calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const;
 
   OrientationType _calcRodNearestOrigin(const double rodsym[24][3], int numsym, const OrientationType& rod) const;
 
-  QuatType _calcNearestQuat(const QuatType quatsym[24], int numsym, const QuatType& q1, const QuatType& q2) const;
+  QuatD _calcNearestQuat(const QuatD quatsym[24], int numsym, const QuatD& q1, const QuatD& q2) const;
 
-  QuatType _calcQuatNearestOrigin(const QuatType quatsym[24], int numsym, const QuatType& qr) const;
+  QuatD _calcQuatNearestOrigin(const QuatD quatsym[24], int numsym, const QuatD& qr) const;
 
   int _calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
   void _calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;

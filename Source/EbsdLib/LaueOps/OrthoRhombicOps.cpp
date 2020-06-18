@@ -70,8 +70,8 @@ static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
 static const int k_NumSymQuats = 4;
 
-static const QuatType QuatSym[4] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                    QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000)};
+static const QuatD QuatSym[4] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                    QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000)};
 
 static const double RodSym[4][3] = {{0.0, 0.0, 0.0}, {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}};
 
@@ -142,7 +142,7 @@ QString OrthoRhombicOps::getSymmetryName() const
   ;
 }
 
-OrientationD OrthoRhombicOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
 }
@@ -151,13 +151,13 @@ OrientationD OrthoRhombicOps::calculateMisorientation(const QuatType& q1, const 
 OrientationF OrthoRhombicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
 
-QuatType OrthoRhombicOps::getQuatSymOp(int32_t i) const
+QuatD OrthoRhombicOps::getQuatSymOp(int32_t i) const
 {
   return OrthoRhombic::QuatSym[i];
 }
@@ -227,21 +227,21 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatType OrthoRhombicOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD OrthoRhombicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
 }
 
 QuatF OrthoRhombicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
 
-QuatType OrthoRhombicOps::getFZQuat(const QuatType& qr) const
+QuatD OrthoRhombicOps::getFZQuat(const QuatD& qr) const
 {
   return _calcQuatNearestOrigin(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, qr);
 }
@@ -304,9 +304,9 @@ OrientationType OrthoRhombicOps::determineEulerAngles(double random[3], int choo
 OrientationType OrthoRhombicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(OrthoRhombic::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = OrthoRhombic::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = OrthoRhombic::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -413,22 +413,22 @@ void OrthoRhombicOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   }
 }
 
-double OrthoRhombicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double OrthoRhombicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   return 0.0;
 }
 
-double OrthoRhombicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double OrthoRhombicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double OrthoRhombicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double OrthoRhombicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double OrthoRhombicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double OrthoRhombicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
@@ -571,12 +571,12 @@ EbsdLib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < OrthoRhombic::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -894,7 +894,7 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   throw std::out_of_range("OrthoRhombicOps::generateMisorientationColor NOT Implemented");
 
@@ -903,8 +903,8 @@ EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatType& q, con
   double z, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11;
   double k, h, s, v, c, r, g, b;
 
-  QuatType q1 = q;
-  QuatType q2 = refFrame;
+  QuatD q1 = q;
+  QuatD q2 = refFrame;
 
   // get disorientation
   OrientationD axisAngle = calculateMisorientation(q1, q2);

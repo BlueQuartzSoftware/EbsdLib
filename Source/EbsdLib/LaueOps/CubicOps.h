@@ -116,7 +116,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationD calculateMisorientation(const QuatType& q1, const QuatType& q2) const override;
+  virtual OrientationD calculateMisorientation(const QuatD& q1, const QuatD& q2) const override;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -126,7 +126,7 @@ public:
    */
   virtual OrientationF calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
 
-  QuatType getQuatSymOp(int i) const override;
+  QuatD getQuatSymOp(int i) const override;
   void getRodSymOp(int i, double* r) const override;
 
   void getMatSymOp(int i, double g[3][3]) const override;
@@ -135,10 +135,10 @@ public:
   OrientationType getODFFZRod(const OrientationType& rod) const override;
   OrientationType getMDFFZRod(const OrientationType& rod) const override;
 
-  QuatType getNearestQuat(const QuatType& q1, const QuatType& q2) const override;
+  QuatD getNearestQuat(const QuatD& q1, const QuatD& q2) const override;
   QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const override;
 
-  QuatType getFZQuat(const QuatType& qr) const override;
+  QuatD getFZQuat(const QuatD& qr) const override;
   int getMisoBin(const OrientationType& rod) const override;
   bool inUnitTriangle(double eta, double chi) const override;
   OrientationType determineEulerAngles(double random[3], int choose) const override;
@@ -147,10 +147,10 @@ public:
   int getOdfBin(const OrientationType& rod) const override;
   void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
   void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
-  double getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const override;
-  double getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
-  double getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
-  double getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const override;
+  double getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const override;
+  double getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
+  double getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
+  double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
   void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const override;
 
@@ -191,7 +191,7 @@ public:
    * @param refDir The sample reference direction
    * @return Returns the ARGB Quadruplet EbsdLib::Rgb
    */
-  EbsdLib::Rgb generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const override;
+  EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const override;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -229,7 +229,7 @@ protected:
    * @param q2
    * @return
    */
-  OrientationD calculateMisorientationInternal(const QuatType* quatsym, size_t numsym, const QuatType& q1, const QuatType& q2) const override;
+  OrientationD calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const override;
 
   /**
    * @brief area preserving projection of volume preserving transformation (for C. Shuch and S. Patala coloring legend generation)

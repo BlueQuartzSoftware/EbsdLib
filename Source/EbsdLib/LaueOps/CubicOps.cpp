@@ -72,30 +72,30 @@ static const int k_OdfSize = 5832;
 static const int k_MdfSize = 5832;
 static const int k_NumSymQuats = 24;
 
-static const QuatType QuatSym[24] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000),
-                                     QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                     QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000),
-                                     QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                     QuatType(EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(0.000000000, -EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatType(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                     QuatType(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                     QuatType(0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatType(0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatType(EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatType(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatType(0.500000000, 0.500000000, 0.500000000, 0.500000000),
-                                     QuatType(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
-                                     QuatType(0.500000000, -0.500000000, 0.500000000, 0.500000000),
-                                     QuatType(-0.500000000, 0.500000000, -0.500000000, 0.500000000),
-                                     QuatType(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
-                                     QuatType(0.500000000, -0.500000000, -0.500000000, 0.500000000),
-                                     QuatType(-0.500000000, -0.500000000, 0.500000000, 0.500000000),
-                                     QuatType(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
+static const QuatD QuatSym[24] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
+                                     QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                     QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
+                                     QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+                                     QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
+                                     QuatD(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
+                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
+                                     QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                     QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                     QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                     QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),
+                                     QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
+                                     QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),
+                                     QuatD(-0.500000000, 0.500000000, -0.500000000, 0.500000000),
+                                     QuatD(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
+                                     QuatD(0.500000000, -0.500000000, -0.500000000, 0.500000000),
+                                     QuatD(-0.500000000, -0.500000000, 0.500000000, 0.500000000),
+                                     QuatD(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
 
 static const double RodSym[24][3] = {{0.0, 0.0, 0.0},
                                      {10000000000.0, 0.0, 0.0},
@@ -237,7 +237,7 @@ QString CubicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD CubicOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD CubicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
 }
@@ -246,8 +246,8 @@ OrientationD CubicOps::calculateMisorientation(const QuatType& q1, const QuatTyp
 OrientationF CubicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
@@ -255,15 +255,15 @@ OrientationF CubicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD CubicOps::calculateMisorientationInternal(const QuatType* quatsym, size_t numsym, const QuatType& q1, const QuatType& q2) const
+OrientationD CubicOps::calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const
 {
   double wmin = 9999999.0f; //,na,nb,nc;
-  QuatType qco;
-  QuatType q2inv;
+  QuatD qco;
+  QuatD q2inv;
   int type = 1;
   double sin_wmin_over_2 = 0.0;
 
-  QuatType qc = q1 * (q2.conjugate());
+  QuatD qc = q1 * (q2.conjugate());
   qc.elementWiseAbs();
 
   // if qc.x() is smallest
@@ -510,7 +510,7 @@ OrientationD CubicOps::calculateMisorientationInternal(const QuatType* quatsym, 
   return axisAngle;
 }
 
-QuatType CubicOps::getQuatSymOp(int32_t i) const
+QuatD CubicOps::getQuatSymOp(int32_t i) const
 {
   return CubicHigh::QuatSym[i];
 }
@@ -616,21 +616,21 @@ OrientationType CubicOps::getMDFFZRod(const OrientationType& inRod) const
   return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
 }
 
-QuatType CubicOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD CubicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
 }
 
 QuatF CubicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
 
-QuatType CubicOps::getFZQuat(const QuatType& qr) const
+QuatD CubicOps::getFZQuat(const QuatD& qr) const
 {
   return _calcQuatNearestOrigin(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, qr);
 }
@@ -694,9 +694,9 @@ OrientationType CubicOps::determineEulerAngles(double random[3], int choose) con
 OrientationType CubicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(CubicHigh::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = CubicHigh::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = CubicHigh::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -926,7 +926,7 @@ void CubicOps::getSchmidFactorAndSS(double load[3], double plane[3], double dire
   }
 }
 
-double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   double g1[3][3];
   double g2[3][3];
@@ -939,8 +939,8 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
   double planeMisalignment = 0, directionMisalignment = 0;
   int ss1 = 0, ss2 = 0;
 
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
   EbsdMatrixMath::Transpose3x3(g1, g1);
   EbsdMatrixMath::Transpose3x3(g2, g2);
   for(int i = 0; i < 12; i++)
@@ -1012,7 +1012,7 @@ double CubicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3])
   return planeMisalignment * directionMisalignment;
 }
 
-double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   double g1[3][3];
   double g2[3][3];
@@ -1026,8 +1026,8 @@ double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], boo
   double maxF1 = 0.0;
   double F1 = 0.0;
 
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
   EbsdMatrixMath::Transpose3x3(g1, g1);
   EbsdMatrixMath::Transpose3x3(g2, g2);
 
@@ -1094,7 +1094,7 @@ double CubicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], boo
   return F1;
 }
 
-double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   double g1[3][3];
   double g2[3][3];
@@ -1108,8 +1108,8 @@ double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], 
   // s double directionComponent2 = 0, planeComponent2 = 0;
   double maxF1spt = 0.0;
   double F1spt = 0.0f;
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
   EbsdMatrixMath::Transpose3x3(g1, g1);
   EbsdMatrixMath::Transpose3x3(g2, g2);
 
@@ -1179,7 +1179,7 @@ double CubicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], 
   return F1spt;
 }
 
-double CubicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   double g1[3][3];
   double g2[3][3];
@@ -1195,8 +1195,8 @@ double CubicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], boo
   double maxF7 = 0.0;
   double F7 = 0.0f;
 
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatType, OrientationType>(q2).toGMatrix(g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
   EbsdMatrixMath::Transpose3x3(g1, g1);
   EbsdMatrixMath::Transpose3x3(g2, g2);
 
@@ -1610,12 +1610,12 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < CubicHigh::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -1956,7 +1956,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   double n1, n2, n3, w;
   double x, x1, x2, x3, x4, x5, x6, x7;
@@ -1964,8 +1964,8 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatType& q, const Quat
   double z, z1, z2, z3, z4, z5, z6, z7;
   double k, h, s, v;
 
-  QuatType q1 = q;
-  QuatType q2 = refFrame;
+  QuatD q1 = q;
+  QuatD q2 = refFrame;
 
   // get disorientation
   OrientationD axisAngle = calculateMisorientation(q, refFrame);
@@ -2349,7 +2349,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateMisorientationTriangleLegend(
   ///fill triangles
   for(std::vector< std::pair<double, double> >::size_type i = 0; i < ba.size(); i++)
   {
-    QuatType quat, refQuat;
+    QuatD quat, refQuat;
     refQuat.x() = 0;
     refQuat.y() = 0;
     refQuat.z(), () = 0;

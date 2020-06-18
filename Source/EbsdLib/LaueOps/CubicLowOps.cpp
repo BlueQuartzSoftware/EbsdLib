@@ -71,11 +71,11 @@ static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
 static const int k_NumSymQuats = 12;
 
-static const QuatType QuatSym[12] = {
-    QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000),   QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000),   QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000),
-    QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000),   QuatType(0.500000000, 0.500000000, 0.500000000, 0.500000000),   QuatType(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
-    QuatType(0.500000000, -0.500000000, 0.500000000, 0.500000000),  QuatType(-0.500000000, 0.500000000, -0.500000000, 0.500000000), QuatType(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
-    QuatType(0.500000000, -0.500000000, -0.500000000, 0.500000000), QuatType(-0.500000000, -0.500000000, 0.500000000, 0.500000000), QuatType(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
+static const QuatD QuatSym[12] = {
+    QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),   QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),   QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
+    QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),   QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),   QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
+    QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),  QuatD(-0.500000000, 0.500000000, -0.500000000, 0.500000000), QuatD(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
+    QuatD(0.500000000, -0.500000000, -0.500000000, 0.500000000), QuatD(-0.500000000, -0.500000000, 0.500000000, 0.500000000), QuatD(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
 
 static const double RodSym[12][3] = {{0.0, 0.0, 0.0},  {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}, {1.0, 1.0, 1.0},   {-1.0, -1.0, -1.0},
                                      {1.0, -1.0, 1.0}, {-1.0, 1.0, -1.0},         {-1.0, 1.0, 1.0},          {1.0, -1.0, -1.0},         {-1.0, -1.0, 1.0}, {1.0, 1.0, -1.0}};
@@ -192,7 +192,7 @@ QString CubicLowOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD CubicLowOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD CubicLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
 }
@@ -201,13 +201,13 @@ OrientationD CubicLowOps::calculateMisorientation(const QuatType& q1, const Quat
 OrientationF CubicLowOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
 
-QuatType CubicLowOps::getQuatSymOp(int32_t i) const
+QuatD CubicLowOps::getQuatSymOp(int32_t i) const
 {
   return CubicLow::QuatSym[i];
 }
@@ -314,16 +314,16 @@ OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
   return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
 }
 
-QuatType CubicLowOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD CubicLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
 }
 
 QuatF CubicLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -387,9 +387,9 @@ OrientationType CubicLowOps::determineEulerAngles(double random[3], int choose) 
 OrientationType CubicLowOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(CubicLow::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = CubicLow::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = CubicLow::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -498,22 +498,22 @@ void CubicLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double d
   }
 }
 
-double CubicLowOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double CubicLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   return 0.0;
 }
 
-double CubicLowOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   return 0.0;
 }
 
-double CubicLowOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicLowOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   return 0.0;
 }
 
-double CubicLowOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxSF) const
+double CubicLowOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
   return 0.0;
 }
@@ -852,12 +852,12 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < CubicLow::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -1103,7 +1103,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int imag
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   throw std::out_of_range("generateMisorientationColor::generateMisorientationColor NOT Implemented");
 
@@ -1113,8 +1113,8 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatType& q, const Q
   double z, z1, z2, z3, z4;
   double k, h, s, v, c, r, g, b;
 
-  QuatType q1 = q;
-  QuatType q2 = refFrame;
+  QuatD q1 = q;
+  QuatD q2 = refFrame;
 
   OrientationD axisAngle = calculateMisorientation(q1, q2);
 

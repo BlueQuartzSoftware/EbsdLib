@@ -71,7 +71,7 @@ static const int k_OdfSize = 186624;
 static const int k_MdfSize = 186624;
 static const int k_NumSymQuats = 2;
 
-static const QuatType QuatSym[2] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000)};
+static const QuatD QuatSym[2] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000)};
 
 static const double RodSym[2][3] = {{0.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}};
 
@@ -141,7 +141,7 @@ QString MonoclinicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD MonoclinicOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
 }
@@ -150,13 +150,13 @@ OrientationD MonoclinicOps::calculateMisorientation(const QuatType& q1, const Qu
 OrientationF MonoclinicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
 
-QuatType MonoclinicOps::getQuatSymOp(int32_t i) const
+QuatD MonoclinicOps::getQuatSymOp(int32_t i) const
 {
   return Monoclinic::QuatSym[i];
 }
@@ -226,16 +226,16 @@ OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatType MonoclinicOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD MonoclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
 }
 
 QuatF MonoclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -300,9 +300,9 @@ OrientationType MonoclinicOps::determineEulerAngles(double random[3], int choose
 OrientationType MonoclinicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(Monoclinic::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = Monoclinic::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = Monoclinic::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -409,22 +409,22 @@ void MonoclinicOps::getSchmidFactorAndSS(double load[3], double plane[3], double
   }
 }
 
-double MonoclinicOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double MonoclinicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   return 0.0;
 }
 
-double MonoclinicOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double MonoclinicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double MonoclinicOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double MonoclinicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double MonoclinicOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double MonoclinicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
@@ -568,12 +568,12 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < Monoclinic::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -894,7 +894,7 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int im
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb MonoclinicOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb MonoclinicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   Q_ASSERT(false);
   return RgbColor::dRgb(0, 0, 0, 0);

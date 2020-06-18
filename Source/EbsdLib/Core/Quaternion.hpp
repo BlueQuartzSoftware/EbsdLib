@@ -462,5 +462,5 @@ private:
   T m_W = 1.0;
 };
 
-using QuatType = Quaternion<double>;
+using QuatD = Quaternion<double>;
 using QuatF = Quaternion<float>;

@@ -74,14 +74,14 @@ static const int k_OdfSize = 23328;
 static const int k_MdfSize = 23328;
 static const int k_NumSymQuats = 8;
 
-static const QuatType QuatSym[8] = {QuatType(0.000000000, 0.000000000, 0.000000000, 1.000000000),
-                                    QuatType(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                    QuatType(0.000000000, 1.000000000, 0.000000000, 0.000000000),
-                                    QuatType(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                    QuatType(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, -EbsdLib::Constants::k_1OverRoot2),
-                                    QuatType(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                    QuatType(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                    QuatType(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000)};
+static const QuatD QuatSym[8] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
+                                    QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                    QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
+                                    QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+                                    QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, -EbsdLib::Constants::k_1OverRoot2),
+                                    QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
+                                    QuatD(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
+                                    QuatD(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000)};
 
 static const double MatSym[8][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
@@ -159,7 +159,7 @@ QString TetragonalOps::getSymmetryName() const
 }
 
 // -----------------------------------------------------------------------------
-OrientationD TetragonalOps::calculateMisorientation(const QuatType& q1, const QuatType& q2) const
+OrientationD TetragonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
 }
@@ -168,13 +168,13 @@ OrientationD TetragonalOps::calculateMisorientation(const QuatType& q1, const Qu
 OrientationF TetragonalOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f.to<double>();
-  QuatType q2 = q2f.to<double>();
+  QuatD q1 = q1f.to<double>();
+  QuatD q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
 
-QuatType TetragonalOps::getQuatSymOp(int32_t i) const
+QuatD TetragonalOps::getQuatSymOp(int32_t i) const
 {
   return TetragonalHigh::QuatSym[i];
 }
@@ -243,15 +243,15 @@ OrientationType TetragonalOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatType TetragonalOps::getNearestQuat(const QuatType& q1, const QuatType& q2) const
+QuatD TetragonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
   return _calcNearestQuat(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
 }
 QuatF TetragonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatType q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatType q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatType temp = _calcNearestQuat(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
+  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
+  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
+  QuatD temp = _calcNearestQuat(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -315,9 +315,9 @@ OrientationType TetragonalOps::determineEulerAngles(double random[3], int choose
 OrientationType TetragonalOps::randomizeEulerAngles(const OrientationType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TetragonalHigh::k_NumSymQuats);
-  QuatType quat = OrientationTransformation::eu2qu<OrientationType, QuatType>(synea);
-  QuatType qc = TetragonalHigh::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatType, OrientationType>(qc);
+  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD qc = TetragonalHigh::QuatSym[symOp] * quat;
+  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
 }
 
 // -----------------------------------------------------------------------------
@@ -424,22 +424,22 @@ void TetragonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double
   }
 }
 
-double TetragonalOps::getmPrime(const QuatType& q1, const QuatType& q2, double LD[3]) const
+double TetragonalOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   return 0.0;
 }
 
-double TetragonalOps::getF1(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double TetragonalOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double TetragonalOps::getF1spt(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double TetragonalOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
 
-double TetragonalOps::getF7(const QuatType& q1, const QuatType& q2, double LD[3], bool maxS) const
+double TetragonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
   return 0.0;
 }
@@ -599,12 +599,12 @@ EbsdLib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi
 
   OrientationType eu(phi1, phi, phi2);
   OrientationType om(9); // Reusable for the loop
-  QuatType q1 = OrientationTransformation::eu2qu<OrientationType, QuatType>(eu);
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
   for(int j = 0; j < TetragonalHigh::k_NumSymQuats; j++)
   {
-    QuatType qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatType, OrientationType>(qu).toGMatrix(g);
+    QuatD qu = getQuatSymOp(j) * q1;
+    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
 
     refDirection[0] = refDir0;
     refDirection[1] = refDir1;
@@ -924,7 +924,7 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const QuatType& refFrame) const
+EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   throw std::out_of_range("TetragonalOps::generateMisorientationColor NOT Implemented");
 
@@ -986,8 +986,8 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatType& q, const
   double g;
   double b;
 
-  QuatType q1 = q;
-  QuatType q2 = refFrame;
+  QuatD q1 = q;
+  QuatD q2 = refFrame;
 
   // get misorientation
   OrientationD axisAngle = calculateMisorientation(q1, q2);
