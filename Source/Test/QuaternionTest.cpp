@@ -113,7 +113,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(p.z(), out.z())
     DREAM3D_REQUIRE_EQUAL(p.w(), out.w())
 
-    out.identity();
+    out = QuatF::identity();
     DREAM3D_REQUIRE_EQUAL(out.x(), 0.0)
     DREAM3D_REQUIRE_EQUAL(out.y(), 0.0)
     DREAM3D_REQUIRE_EQUAL(out.z(), 0.0)

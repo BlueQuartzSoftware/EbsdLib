@@ -185,12 +185,9 @@ public:
    * @brief Identity Sets the quaternion q to the identity quaternion (<0,0,0>,1)
    * @param q
    */
-  void identity()
+  static Quaternion identity()
   {
-    m_X = 0.0;
-    m_Y = 0.0;
-    m_Z = 0.0;
-    m_W = 1.0;
+    return {0.0, 0.0, 0.0, 1.0};
   }
 
   /**
