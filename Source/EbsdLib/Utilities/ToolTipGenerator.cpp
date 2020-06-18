@@ -32,7 +32,7 @@
 
 #include "ToolTipGenerator.h"
 
-#include <QtCore/QTextStream>
+#include <sstream>
 
 using namespace EbsdLib;
 
@@ -52,7 +52,7 @@ ToolTipGenerator::~ToolTipGenerator()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ToolTipGenerator::addTitle(const QString& title)
+void ToolTipGenerator::addTitle(const std::string& title)
 {
   RowItem titleRow;
   titleRow.type = RowItem::Type::Title;
@@ -63,7 +63,7 @@ void ToolTipGenerator::addTitle(const QString& title)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ToolTipGenerator::addValue(const QString& name, const QString& value)
+void ToolTipGenerator::addValue(const std::string& name, const std::string& value)
 {
   RowItem valueRow;
   valueRow.type = RowItem::Type::Value;
@@ -105,7 +105,7 @@ void ToolTipGenerator::clear()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ToolTipGenerator::getRowColorStr() const
+std::string ToolTipGenerator::getRowColorStr() const
 {
   return m_RowColorStr;
 }
@@ -113,7 +113,7 @@ QString ToolTipGenerator::getRowColorStr() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ToolTipGenerator::setRowColorStr(const QString& color)
+void ToolTipGenerator::setRowColorStr(const std::string& color)
 {
   m_RowColorStr = color;
 }
@@ -121,13 +121,13 @@ void ToolTipGenerator::setRowColorStr(const QString& color)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ToolTipGenerator::generateHTML() const
+std::string ToolTipGenerator::generateHTML() const
 {
   RowItem spacer;
   spacer.type = RowItem::Type::Spacer;
 
-  QString html;
-  QTextStream ss(&html);
+  std::string html;
+  std::stringstream ss(html);
 
   ss << "<html><head></head>\n";
   ss << "<body>\n";
@@ -148,10 +148,10 @@ QString ToolTipGenerator::generateHTML() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ToolTipGenerator::rowToHTML(const RowItem& row) const
+std::string ToolTipGenerator::rowToHTML(const RowItem& row) const
 {
-  QString html;
-  QTextStream ss(&html);
+  std::string html;
+  std::stringstream ss(html);
 
   switch(row.type)
   {

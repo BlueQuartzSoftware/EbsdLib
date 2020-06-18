@@ -37,7 +37,7 @@
 
 #include <memory>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 //#include "EbsdLib/DataArrays/DynamicListArray.hpp"
@@ -66,11 +66,11 @@ public:
   /**
    * @brief Returns the name of the class for GeometryMath
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for GeometryMath
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~GeometryMath();
 

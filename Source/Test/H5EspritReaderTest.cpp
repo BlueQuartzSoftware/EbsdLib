@@ -1,6 +1,6 @@
 
-#include <QtCore/QFile>
-#include <QtCore/QString>
+#include <fstream>
+#include <string>
 
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5ScopedSentinel.h"
@@ -13,7 +13,7 @@
 
 #include "UnitTestSupport.hpp"
 
-QTextStream& operator<<(QTextStream& out, EbsdLib::NumericTypes::Type value)
+std::stringstream& operator<<(std::stringstream& out, EbsdLib::NumericTypes::Type value)
 {
   out << static_cast<int32_t>(value);
   return out;
@@ -21,7 +21,7 @@ QTextStream& operator<<(QTextStream& out, EbsdLib::NumericTypes::Type value)
 
 class H5EspritReaderTest
 {
-  const QString k_HDF5Path = QString("Section_435");
+  const std::string k_HDF5Path = std::string("Section_435");
 
 public:
   H5EspritReaderTest() = default;
@@ -33,7 +33,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-    QFile::remove(UnitTest::H5EspritReaderTest::OutputFile);
+   EbsdDir::remove(UnitTest::H5EspritReaderTest::OutputFile);
 #endif
   }
 
@@ -61,7 +61,7 @@ public:
     err = reader->getErrorCode();
     if(err < 0)
     {
-      qDebug() << reader->getErrorMessage();
+      std::cout << reader->getErrorMessage();
     }
 
     int32_t ncols = reader->getNumColumns();
@@ -75,7 +75,7 @@ public:
     float ystep = reader->getYStep();
     DREAM3D_REQUIRED(ystep, ==, 0.0)
 
-    QString grid = reader->getGrid();
+    std::string grid = reader->getGrid();
     DREAM3D_REQUIRED(grid, ==, EbsdLib::H5Esprit::Isometric);
     DREAM3D_REQUIRED(err, >=, 0)
     int32_t patWidth = reader->getPatternWidth();
@@ -89,10 +89,10 @@ public:
     int32_t yDim = reader->getYDimension();
     DREAM3D_REQUIRED(yDim, ==, 600)
 
-    QStringList scanNames;
+    std::list<std::string> scanNames;
     err = reader->readScanNames(scanNames);
     DREAM3D_REQUIRED(scanNames.size(), ==, 1)
-    DREAM3D_REQUIRED(scanNames[0], ==, k_HDF5Path)
+    DREAM3D_REQUIRED(scanNames.front(), ==, k_HDF5Path)
 
     err = reader->readFile();
 
@@ -132,39 +132,39 @@ public:
     DREAM3D_REQUIRE_NULL_POINTER(ptr);
 
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::DD);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
     EbsdLib::NumericTypes::Type numType = reader->getPointerType(EbsdLib::H5Esprit::MAD);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::MADPhase);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Int32)
     numType = reader->getPointerType(EbsdLib::H5Esprit::NIndexedBands);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::PCX);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::PCY);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::PHI);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::Phase);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
     numType = reader->getPointerType(EbsdLib::H5Esprit::RadonBandCount);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
     numType = reader->getPointerType(EbsdLib::H5Esprit::RadonQuality);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::XBEAM);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
     numType = reader->getPointerType(EbsdLib::H5Esprit::YBEAM);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Int32)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::XSAMPLE);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
     //    numType = reader->getPointerType(EbsdLib::H5Esprit::YSAMPLE);
-    //    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::phi1);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::phi2);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::Float)
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
     numType = reader->getPointerType(EbsdLib::H5Esprit::RawPatterns);
-    DREAM3D_REQUIRED(numType, ==, EbsdLib::NumericTypes::Type::UInt8);
+    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::UInt8);
 
     //    float* xsamplePtr = reader->getXSAMPLEPointer();
     //    DREAM3D_REQUIRE_VALID_POINTER(xsamplePtr);
@@ -181,7 +181,7 @@ public:
     //    reader->deallocateArrayData<float>(ysamplePtr);
 
     // std::cout << "=============================================================" << std::endl;
-    QSet<QString> arraysToRead;
+    std::set<std::string> arraysToRead;
     arraysToRead.insert(EbsdLib::H5Esprit::phi1);
     arraysToRead.insert(EbsdLib::H5Esprit::PHI);
     arraysToRead.insert(EbsdLib::H5Esprit::phi2);
@@ -206,7 +206,7 @@ public:
       err = reader->getErrorCode();
       if(err < 0)
       {
-        qDebug() << reader->getErrorMessage();
+        std::cout << reader->getErrorMessage();
       }
       DREAM3D_REQUIRED(err, >=, 0)
 #endif

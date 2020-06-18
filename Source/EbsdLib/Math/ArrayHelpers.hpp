@@ -11,7 +11,7 @@
 /**
  * @brief ArrayHelpers: Some quick methods that act on an "array" of POD values.
  * The template parameters are:
- * @param T The type such as std::vector, QVector or another type that implements
+ * @param T The type such as std::vector, std::vector or another type that implements
  * the [] operators, size() functions.
  * @param K The POD type such as float or double.
  */

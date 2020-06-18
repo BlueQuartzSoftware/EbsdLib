@@ -74,7 +74,7 @@ void H5EbsdVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* H5EbsdVolumeReader::getPointerByName(const QString& featureName)
+void* H5EbsdVolumeReader::getPointerByName(const std::string& featureName)
 {
   return nullptr;
 }
@@ -82,7 +82,7 @@ void* H5EbsdVolumeReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5EbsdVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5EbsdVolumeReader::getPointerType(const std::string& featureName)
 {
   return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
@@ -99,7 +99,7 @@ int H5EbsdVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoin
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void H5EbsdVolumeReader::setArraysToRead(QSet<QString> names)
+void H5EbsdVolumeReader::setArraysToRead(std::set<std::string> names)
 {
   m_ArrayNames = names;
 }
@@ -107,7 +107,7 @@ void H5EbsdVolumeReader::setArraysToRead(QSet<QString> names)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QSet<QString> H5EbsdVolumeReader::getArraysToRead()
+std::set<std::string> H5EbsdVolumeReader::getArraysToRead()
 {
   return m_ArrayNames;
 }
@@ -135,13 +135,13 @@ H5EbsdVolumeReader::Pointer H5EbsdVolumeReader::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString H5EbsdVolumeReader::getNameOfClass() const
+std::string H5EbsdVolumeReader::getNameOfClass() const
 {
-  return QString("_SUPERH5EbsdVolumeReader");
+  return std::string("_SUPERH5EbsdVolumeReader");
 }
 
 // -----------------------------------------------------------------------------
-QString H5EbsdVolumeReader::ClassName()
+std::string H5EbsdVolumeReader::ClassName()
 {
-  return QString("_SUPERH5EbsdVolumeReader");
+  return std::string("_SUPERH5EbsdVolumeReader");
 }

@@ -63,11 +63,11 @@ public:
   /**
    * @brief Returns the name of the class for ModifiedLambertProjection
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for ModifiedLambertProjection
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~ModifiedLambertProjection();
 

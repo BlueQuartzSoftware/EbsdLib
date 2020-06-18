@@ -39,8 +39,8 @@
 #include <vector>
 #include <string>
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -75,7 +75,7 @@ public:
   OrientationTransformsTest() = default;
   virtual ~OrientationTransformsTest() = default;
 
-  std::vector<QString> DataSetNames;
+  std::vector<std::string> DataSetNames;
   std::vector<int32_t> DataSetTypes;
 
   EBSD_GET_NAME_OF_CLASS_DECL(OrientationTransformsTest)
@@ -86,7 +86,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-// QFile::remove();
+// std::fstream::remove();
 #endif
   }
 
@@ -94,7 +94,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   template <typename T>
-  void GenerateEulers(size_t nSteps, std::map<QString, typename EbsdDataArray<T>::Pointer>& attrMat)
+  void GenerateEulers(size_t nSteps, std::map<std::string, typename EbsdDataArray<T>::Pointer>& attrMat)
   {
     std::vector<size_t> cDims(1, 3);
 
@@ -223,18 +223,28 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
+<<<<<<< HEAD
   QString ExecuteConvertFilter(std::map<QString, EbsdDataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const QString& outputName)
+=======
+  std::string ExecuteConvertFilter(std::map<std::string, DataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const std::string& outputName)
+>>>>>>> Removing the use of Qt5 from EbsdLib.
   {
-    QString inputName = outputName;
+    std::string inputName = outputName;
 
     if(e == 0)
     {
       inputName = k_InputNames[entry[e]];
     }
 
+<<<<<<< HEAD
     EbsdDataArray<double>::Pointer inputData = attrMat[inputName];
     EbsdDataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
     QString nextOutputName = QString::number(e) + QString("_") + k_InputNames[entry[e]] + QString("2") + k_InputNames[entry[e + 1]];
+=======
+    DataArray<double>::Pointer inputData = attrMat[inputName];
+    DataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
+    std::string nextOutputName = EbsdStringUtils::number(e) + std::string("_") + k_InputNames[entry[e]] + std::string("2") + k_InputNames[entry[e + 1]];
+>>>>>>> Removing the use of Qt5 from EbsdLib.
     attrMat[nextOutputName] = outputData;
 
     return nextOutputName;
@@ -294,7 +304,11 @@ public:
     using EbsdDataArrayType = EbsdDataArray<K>;
     using EbsdDataArrayPointerType = typename EbsdDataArrayType::Pointer;
 
+<<<<<<< HEAD
     std::map<QString, EbsdDataArrayPointerType> attrMat;
+=======
+    std::map<std::string, DataArrayPointerType> attrMat;
+>>>>>>> Removing the use of Qt5 from EbsdLib.
 
     try
     {
@@ -302,12 +316,12 @@ public:
       DataSetTypes.clear();
 
       GenerateFunctionList::EntryType entry = entryRef;
-      // QVector<QString> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
+      // std::vector<std::string> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
 
       std::stringstream ss;
       for(size_t e = 0; e < entry.size() - 1; e++)
       {
-        ss << k_InputNames[entry[e]].toStdString() << "2" << k_InputNames[entry[e + 1]].toStdString();
+        ss << k_InputNames[entry[e]] << "2" << k_InputNames[entry[e + 1]];
         if(e != entry.size() - 1)
         {
           ss << "\t";
@@ -327,7 +341,7 @@ public:
       GenerateEulers<K>(nSteps, attrMat);
 
       bool euCheck = false;
-      //  QString outputName;
+      //  std::string outputName;
 
       if(entry[0] == 0)
       {
@@ -350,8 +364,13 @@ public:
         }
       }
 
+<<<<<<< HEAD
       QString outputName; // We need this a bit further down;
       for(size_t e = 0; e < entry.size() - 1; e++)
+=======
+      std::string outputName; // We need this a bit further down;
+      for(int e = 0; e < entry.size() - 1; e++)
+>>>>>>> Removing the use of Qt5 from EbsdLib.
       {
         outputName = ExecuteConvertFilter(attrMat, entry, e, outputName);
       }
@@ -360,7 +379,7 @@ public:
       // the final eulers to an Orientation Matrix and back due to ambiguities when
       // transforming Eulers. Going to an Orientation Matrix with 4 degrees of freedom
       // will give us unique Eulers back which will be numerically equivalent.
-      QString inputName;
+      std::string inputName;
 
       // Find Difference Map between originals and finals
       {
@@ -405,7 +424,11 @@ public:
             if(delta > thr)
             {
               numErrors++;
+<<<<<<< HEAD
               std::cout << "Delta Failed: " << delta << " EbsdDataArray: '" << diff.getName().toStdString() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
+=======
+              std::cout << "Delta Failed: " << delta << " DataArray: '" << diff.getName() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
+>>>>>>> Removing the use of Qt5 from EbsdLib.
 
               // Get the AttributeMatrix:
               //              dap = EbsdDataArrayPath(DCName, AMName, k_InputNames[0]);
@@ -444,8 +467,13 @@ public:
         entry.pop_back();
       }
 
+<<<<<<< HEAD
       typename EbsdDataArray<K>::Pointer junk = EbsdDataArray<K>::CreateArray(1, "Junk", true);
       QString typeName = junk->getTypeAsString();
+=======
+      typename DataArray<K>::Pointer junk = DataArray<K>::CreateArray(1, "Junk");
+      std::string typeName = junk->getTypeAsString();
+>>>>>>> Removing the use of Qt5 from EbsdLib.
 #if 0
       {
 
@@ -453,8 +481,8 @@ public:
         DREAM3D_REQUIRE_VALID_POINTER(writer.get())
         writer->setDataContainerArray(dca);
 
-        QString outputFile;
-        QTextStream out(&outputFile);
+        std::string outputFile;
+        std::stringstream out(outputFile);
 
         out << UnitTest::TestTempDir << "/OrientationTransformsTest_";
 
@@ -471,7 +499,7 @@ public:
         propWasSet = writer->setProperty("OutputFile", var);
         if(!propWasSet)
         {
-          qDebug() << "Unable to set property OutputFile";
+          std::cout << "Unable to set property OutputFile";
         }
         writer->execute();
         int err = writer->getErrorCode();
@@ -481,7 +509,7 @@ public:
 
       {
         ss.str("");
-        ss << testName << "Type: " << typeName.toStdString();
+        ss << testName << "Type: " << typeName;
         TestPassed(ss.str());
         Ebsd::unittest::CurrentMethod = "";
       }
@@ -497,7 +525,7 @@ public:
   // -----------------------------------------------------------------------------
   void StartTest()
   {
-    //  QVector<QString> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
+    //  std::vector<std::string> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
 
     GenerateFunctionList generator;
     std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(7, 2);

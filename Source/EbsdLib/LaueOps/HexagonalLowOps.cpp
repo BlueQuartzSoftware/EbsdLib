@@ -156,7 +156,7 @@ std::array<size_t, 3> HexagonalLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString HexagonalLowOps::getSymmetryName() const
+std::string HexagonalLowOps::getSymmetryName() const
 {
   return "Hexagonal 6/m";
   ;
@@ -1268,9 +1268,9 @@ EbsdLib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, doubl
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<0001>");
-  QString label1 = QString("<11-20>");
-  QString label2 = QString("<2-1-10>");
+  std::string label0 = std::string("<0001>");
+  std::string label1 = std::string("<11-20>");
+  std::string label2 = std::string("<2-1-10>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -1289,11 +1289,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0;
 
@@ -1524,15 +1524,15 @@ HexagonalLowOps::Pointer HexagonalLowOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString HexagonalLowOps::getNameOfClass() const
+std::string HexagonalLowOps::getNameOfClass() const
 {
-  return QString("HexagonalLowOps");
+  return std::string("HexagonalLowOps");
 }
 
 // -----------------------------------------------------------------------------
-QString HexagonalLowOps::ClassName()
+std::string HexagonalLowOps::ClassName()
 {
-  return QString("HexagonalLowOps");
+  return std::string("HexagonalLowOps");
 }
 
 // -----------------------------------------------------------------------------

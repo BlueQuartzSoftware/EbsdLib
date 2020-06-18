@@ -39,9 +39,8 @@
 #include <limits>
 #include <random>
 
-#include "EbsdLib/Math/EbsdLibRandom.h"
-#include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -53,6 +52,8 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Math/EbsdLibRandom.h"
+#include "EbsdLib/Utilities/ColorTable.h"
 
 namespace Detail
 {
@@ -86,7 +87,7 @@ LaueOps::~LaueOps() = default;
 // -----------------------------------------------------------------------------
 QuatD LaueOps::getFZQuat(const QuatD& qr) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
   return QuatD();
 }
 
@@ -394,9 +395,9 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<QString> LaueOps::GetLaueNames()
+std::vector<std::string> LaueOps::GetLaueNames()
 {
-  std::vector<QString> names;
+  std::vector<std::string> names;
 
   std::vector<LaueOps::Pointer> ops = GetAllOrientationOps();
   names.reserve(ops.size());
@@ -436,13 +437,13 @@ LaueOps::Pointer LaueOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString LaueOps::getNameOfClass() const
+std::string LaueOps::getNameOfClass() const
 {
-  return QString("LaueOps");
+  return std::string("LaueOps");
 }
 
 // -----------------------------------------------------------------------------
-QString LaueOps::ClassName()
+std::string LaueOps::ClassName()
 {
-  return QString("LaueOps");
+  return std::string("LaueOps");
 }

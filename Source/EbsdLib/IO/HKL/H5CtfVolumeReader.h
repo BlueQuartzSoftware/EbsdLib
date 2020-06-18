@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 //-- EbsdLib Includes
 #include "EbsdLib/EbsdLib.h"
@@ -66,11 +66,11 @@ public:
   /**
    * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   ~H5CtfVolumeReader() override;
 
@@ -106,20 +106,20 @@ public:
    * @brief
    * @return
    */
-  QVector<CtfPhase::Pointer> getPhases();
+  std::vector<CtfPhase::Pointer> getPhases();
 
   /**
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
+  void* getPointerByName(const std::string& featureName) override;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -134,7 +134,7 @@ protected:
   H5CtfVolumeReader();
 
 private:
-  QVector<CtfPhase::Pointer> m_Phases;
+  std::vector<CtfPhase::Pointer> m_Phases;
 
   /**
    * @brief Allocats a contiguous chunk of memory to store values from the .ang file

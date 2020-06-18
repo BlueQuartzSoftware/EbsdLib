@@ -125,7 +125,7 @@ endif()
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 
 # Start building up the list of libraries to link against
-set(EBSDLib_LINK_LIBRARIES Qt5::Core)
+set(EBSDLib_LINK_LIBRARIES "")
 
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target
@@ -137,9 +137,7 @@ if(EbsdLib_ENABLE_HDF5)
     ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
     ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
     ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h     
-    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Lite.h          
-    ${H5Support_SOURCE_DIR}/Source/H5Support/QH5Utilities.h
+    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h
   )
    set(H5Support_USE_QT ON)
    set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
@@ -160,8 +158,6 @@ target_include_directories(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
                             PUBLIC
                             ${EIGEN3_INCLUDE_DIR}
-                            ${Qt5Core_INCLUDE_DIRS}
-                            ${Qt5Core_INCLUDE_DIR}
                             $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
 )
 

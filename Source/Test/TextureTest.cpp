@@ -75,7 +75,7 @@ public:
   {
     LaueOps ops;
     std::cout << "======================================================" << std::endl;
-    std::cout << ops.getNameOfClass().toStdString() << " MDF Plot Values" << std::endl;
+    std::cout << ops.getNameOfClass() << " MDF Plot Values" << std::endl;
 
     std::vector<float> odf;
 

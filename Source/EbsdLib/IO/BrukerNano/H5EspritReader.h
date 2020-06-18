@@ -32,9 +32,10 @@
 
 #include <hdf5.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <list>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -65,11 +66,11 @@ public:
   /**
    * @brief Returns the name of the class for H5EspritReader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5EspritReader
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   ~H5EspritReader() override;
 
@@ -79,12 +80,12 @@ public:
   /**
    * @brief Setter property for HDF5Path
    */
-  void setHDF5Path(const QString& value);
+  void setHDF5Path(const std::string& value);
   /**
    * @brief Getter property for HDF5Path
    * @return Value of HDF5Path
    */
-  QString getHDF5Path() const;
+  std::string getHDF5Path() const;
 
   EBSD_INSTANCE_PROPERTY(bool, ReadPatternData)
 
@@ -100,7 +101,7 @@ public:
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<double>, double, YStep, EbsdLib::H5Esprit::YSTEP)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, EbsdLib::H5Esprit::GridType)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::H5Esprit::GridType)
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::H5Esprit::PatternWidth)
 
@@ -150,20 +151,20 @@ public:
    * @brief releaseOwnership
    * @param name
    */
-  void releaseOwnership(const QString& name);
+  void releaseOwnership(const std::string& name);
 
   /**
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
+  void* getPointerByName(const std::string& featureName) override;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Reads the file
@@ -175,7 +176,7 @@ public:
    * @brief readScanNames
    * @return
    */
-  int readScanNames(QStringList& names);
+  int readScanNames(std::list<std::string>& names);
 
   /**
    * @brief Reads the header section of the file
@@ -194,13 +195,13 @@ public:
    * @brief Returns a vector of AngPhase objects corresponding to the phases
    * present in the file
    */
-  QVector<EspritPhase::Pointer> getPhaseVector() const;
+  std::vector<EspritPhase::Pointer> getPhaseVector() const;
 
   /**
    * @brief Sets the names of the arrays to read out of the file
    * @param names
    */
-  void setArraysToRead(const QSet<QString>& names);
+  void setArraysToRead(const std::set<std::string>& names);
 
   /**
    * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
@@ -231,12 +232,12 @@ protected:
   int sanityCheckForOpening();
 
 private:
-  QString m_HDF5Path = {};
+  std::string m_HDF5Path = {};
 
-  QSet<QString> m_ArrayNames;
+  std::set<std::string> m_ArrayNames;
   bool m_ReadAllArrays = true;
 
-  QVector<EspritPhase::Pointer> m_Phases;
+  std::vector<EspritPhase::Pointer> m_Phases;
 
 public:
   H5EspritReader(const H5EspritReader&) = delete;            // Copy Constructor Not Implemented

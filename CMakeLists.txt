@@ -42,26 +42,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 option(EbsdLib_DISABLE_MSVC_WARNINGS ON)
 option(BUILD_SHARED_LIBS "Build Shared Libs" ON)
 
-#-------------------------------------------------------------------------------
-# Find the Qt5 Library as we need that.
-#-------------------------------------------------------------------------------
-set(Qt5_COMPONENTS "Core")
-# On Linux we need the DBus library
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-	set(Qt5_COMPONENTS ${Qt5_COMPONENTS} DBus)
-endif()
-
-find_package(Qt5 COMPONENTS ${Qt5_COMPONENTS})
-if(NOT Qt5_FOUND)
-	message(FATAL_ERROR "Qt5 is Required for ${PROJECT_NAME} to build. Please install it.")
-endif()
-
-# We need the location of QMake for later on in order to find the plugins directory
-get_target_property(QtQMake_location Qt5::qmake LOCATION)
-get_property(Qt5_STATUS_PRINTED GLOBAL PROPERTY Qt5_STATUS_PRINTED)
-execute_process(COMMAND "${QtQMake_location}" -query QT_INSTALL_PREFIX OUTPUT_VARIABLE QM_QT_INSTALL_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND "${QtQMake_location}" -query QT_VERSION OUTPUT_VARIABLE QM_QT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 
 #-------------------------------------------------------------------------------

@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include <QtCore/QJsonArray>
+//#include <QtCore/QJsonArray>
 
 using namespace EbsdLib;
 // -----------------------------------------------------------------------------
@@ -103,8 +103,10 @@ void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArray colorControlPoints )
+std::vector<unsigned char> SIMPLColorTable::GetColorTable(size_t numColors /*, QJsonArray colorControlPoints */)
 {
+  std::vector<unsigned char> generatedColors;
+#if 0
   const size_t controlColorsCount = colorControlPoints.count() / 4;
   const size_t numComponents = 4;
   QVector<QVector<double>> controlPoints(controlColorsCount, QVector<double>(numComponents));
@@ -131,7 +133,7 @@ QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArr
     binPoints[i] = (binPoints[i] - min) / (max - min);
   }
 
-  QVector<unsigned char> generatedColors(numColors * 3);
+  generatedColors.resize(numColors * 3);
   size_t currentBinIndex = 0;
   const float colorStepSize = 1.0f / numColors;
   for(size_t i = 0; i < numColors; i++)
@@ -183,6 +185,6 @@ QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArr
     generatedColors[3 * i + 1] = g;
     generatedColors[3 * i + 2] = b;
   }
-
+#endif
   return generatedColors;
 }

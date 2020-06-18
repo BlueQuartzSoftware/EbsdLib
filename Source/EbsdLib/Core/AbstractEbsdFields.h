@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -52,15 +52,15 @@ public:
   /**
    * @brief Returns the name of the class for AbstractEbsdFields
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for AbstractEbsdFields
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~AbstractEbsdFields();
 
-  virtual QVector<QString> getFieldNames() = 0;
+  virtual std::vector<std::string> getFieldNames() = 0;
 
 public:
   AbstractEbsdFields(const AbstractEbsdFields&) = delete;            // Copy Constructor Not Implemented

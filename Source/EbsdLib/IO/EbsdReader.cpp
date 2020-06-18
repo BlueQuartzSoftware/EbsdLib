@@ -61,55 +61,55 @@ EbsdReader::~EbsdReader() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EbsdReader::appendOriginalHeader(const QString& more)
+void EbsdReader::appendOriginalHeader(const std::string& more)
 {
   m_OriginalHeader.append(more);
 }
 
 // -----------------------------------------------------------------------------
-void EbsdReader::setErrorMessage(const QString& value)
+void EbsdReader::setErrorMessage(const std::string& value)
 {
   m_ErrorMessage = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdReader::getErrorMessage() const
+std::string EbsdReader::getErrorMessage() const
 {
   return m_ErrorMessage;
 }
 
 // -----------------------------------------------------------------------------
-void EbsdReader::setFileName(const QString& value)
+void EbsdReader::setFileName(const std::string& value)
 {
   m_FileName = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdReader::getFileName() const
+std::string EbsdReader::getFileName() const
 {
   return m_FileName;
 }
 
 // -----------------------------------------------------------------------------
-void EbsdReader::setOriginalHeader(const QString& value)
+void EbsdReader::setOriginalHeader(const std::string& value)
 {
   m_OriginalHeader = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdReader::getOriginalHeader() const
+std::string EbsdReader::getOriginalHeader() const
 {
   return m_OriginalHeader;
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdReader::getNameOfClass() const
+std::string EbsdReader::getNameOfClass() const
 {
-  return QString("EbsdReader");
+  return std::string("EbsdReader");
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdReader::ClassName()
+std::string EbsdReader::ClassName()
 {
-  return QString("EbsdReader");
+  return std::string("EbsdReader");
 }

@@ -16,7 +16,7 @@
 #include <Eigen/Eigen>
 #include <Eigen/Geometry>
 
-#include <QtCore/QVector>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -47,9 +47,9 @@ public:
 
   using FOrientArrayType = Orientation<float>;
   using FloatVectorType = std::vector<float>;
-  using FloatQVectorType = QVector<float>;
+  using FloatQVectorType = std::vector<float>;
   using DoubleVectorType = std::vector<double>;
-  using DoubleQVectorType = QVector<double>;
+  using DoubleQVectorType = std::vector<double>;
 
   EBSD_GET_NAME_OF_CLASS_DECL(OrientationArrayTest)
 
@@ -131,8 +131,11 @@ public:
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+
+      using TestType = std::vector<float>;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType eu_q(3);
       eu_q[0] = 1.0f;
       eu_q[1] = 0.4f;
@@ -185,8 +188,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType ro(4);
       ro[0] = 1.0f;
       ro[1] = 1.0f;
@@ -236,8 +240,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
@@ -284,8 +289,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
@@ -353,8 +359,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType qu(4);
       qu[0] = quat.x();
       qu[1] = quat.y();
@@ -422,8 +429,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType ax(4);
       ax[0] = 0.0f;
       ax[1] = 0.0f;
@@ -500,8 +508,9 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
-      OrientationTransformation::ResultType result;
+      typedef std::vector<float> FloatQVectorType;
+      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
+      OrientationTransformType::ResultType result;
       FloatQVectorType ax(9);
       ax[0] = 1.0f;
       ax[1] = 0.0f;
@@ -666,7 +675,7 @@ ax2eu  eu2ax                                                     FAILED
   {
     using OrientType = Orientation<K>;
     using VectorType = std::vector<K>;
-    using QVectorType = QVector<K>;
+    using QVectorType = std::vector<K>;
     {
       K eu[3] = {static_cast<K>(0.3926990816987242L), static_cast<K>(0.0L), static_cast<K>(0.0L)};
       OrientationPrinters::Print_EU<K*>(eu);

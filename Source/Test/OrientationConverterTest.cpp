@@ -117,7 +117,7 @@ public:
     eulers->setComponent(0, 1, phi);
     eulers->setComponent(0, 2, phi2);
 
-    using StringContainerType = std::vector<QString>;
+    using StringContainerType = std::vector<std::string>;
     using OCType = OrientationConverter<EbsdLib::FloatArrayType, float>;
     std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
     auto tStrings = OCType::GetOrientationTypeStrings<StringContainerType>();

@@ -46,8 +46,8 @@
 
 #define NUM_COLS 120
 
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
+#include <string>
+#include <sstream>
 
 #define EBSD_GET_NAME_OF_CLASS_DECL(CLASS)                                                                                                                                                             \
   std::string getNameOfClass()                                                                                                                                                                         \
@@ -76,7 +76,7 @@ static int SizeOfFailed = 6;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QTextStream& operator<<(QTextStream& out, const DataArrayPath& v)
+std::stringstream& operator<<(std::stringstream& out, const DataArrayPath& v)
 {
   out << v.getDataContainerName() << "|" << v.getAttributeMatrixName() << "|" << v.getDataArrayName();
   return out;
@@ -378,8 +378,8 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 
 #define DREAM3D_REQUIRED(L, Q, R)                                                                                                                                                                      \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     bool b = (L Q R);                                                                                                                                                                                  \
     if((b) == (false))                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
@@ -387,14 +387,14 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
       ss << #L << " " << #Q << " " << #R << "' but this condition was not met.\n";                                                                                                                     \
       ss << "            " << #L << " = " << L << "\n";                                                                                                                                                \
       ss << "            " << #R << " = " << R << "\n";                                                                                                                                                \
-      DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                  \
+      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
 #define DREAM3D_REQUIRED_PTR(L, Q, P)                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     bool b = (L Q P);                                                                                                                                                                                  \
     if((b) == (false))                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
@@ -402,47 +402,47 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
       ss << #L << " " << #Q << " " << #P << "' but this condition was not met.\n";                                                                                                                     \
       ss << "            " << #L << " = " << L << "\n";                                                                                                                                                \
       ss << "            " << #P << " = \n";                                                                                                                                                           \
-      DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                  \
+      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
 #define DREAM3D_REQUIRE_NE(L, R)                                                                                                                                                                       \
   if((L) == (R))                                                                                                                                                                                       \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     ss << "Your test required the following\n            '";                                                                                                                                           \
     ss << #L << " != " << #R << "'\n             but this condition was not met.\n";                                                                                                                   \
     ss << "             " << L << "==" << R;                                                                                                                                                           \
-    DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                    \
+    DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                    \
   }
 
 #define DREAM3D_REQUIRE_EQUAL(L, R)                                                                                                                                                                    \
   if((L) != (R))                                                                                                                                                                                       \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     ss << "Your test required the following\n            '";                                                                                                                                           \
     ss << #L << " == " << #R << "'\n             but this condition was not met.\n";                                                                                                                   \
     ss << "             " << L << "==" << R;                                                                                                                                                           \
-    DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                    \
+    DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                    \
   }
 
 #define DREAM3D_COMPARE_FLOATS(L, R, Ulps)                                                                                                                                                             \
   if(false == AlmostEqualUlpsFinal((L), (R), Ulps))                                                                                                                                                    \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     ss << "Your test required the following\n            '";                                                                                                                                           \
     ss << "AlmostEqualUlpsFinal(" << #L << ", " << #R << ", " << #Ulps << "'\n             but this condition was not met with MaxUlps=" << Ulps << "\n";                                              \
     ss << "             " << L << "==" << R;                                                                                                                                                           \
-    DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                    \
+    DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                    \
   }
 
 #define DREAM3D_TEST_POINTER(L, Q, R)                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     bool b = (L Q R);                                                                                                                                                                                  \
     if((b) == (false))                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
@@ -468,33 +468,33 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
         ss << "Right Side was nullptr";                                                                                                                                                                \
       }                                                                                                                                                                                                \
       ss << "\n";                                                                                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                  \
+      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
 #define DREAM3D_REQUIRE_VALID_POINTER(L)                                                                                                                                                               \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     if(L == nullptr)                                                                                                                                                                                   \
     {                                                                                                                                                                                                  \
       ss << "Your test requires\n            '";                                                                                                                                                       \
       ss << #L << "' != nullptr' but this condition was not met.\n";                                                                                                                                   \
       ss << "\n";                                                                                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                  \
+      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
 #define DREAM3D_REQUIRE_NULL_POINTER(L)                                                                                                                                                                \
   {                                                                                                                                                                                                    \
-    QString buf;                                                                                                                                                                                       \
-    QTextStream ss(&buf);                                                                                                                                                                              \
+    std::string buf;                                                                                                                                                                                       \
+    std::stringstream ss(buf);                                                                                                                                                                              \
     if(L != nullptr)                                                                                                                                                                                   \
     {                                                                                                                                                                                                  \
       ss << "Your test requires\n            '";                                                                                                                                                       \
       ss << #L << " == nullptr' but this condition was not met.\n";                                                                                                                                    \
       ss << "\n";                                                                                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString())                                                                                                                                                  \
+      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
@@ -540,17 +540,17 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 //
 // -----------------------------------------------------------------------------
 template <typename T, typename K>
-void require_equal(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+void require_equal(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)
 {
   if(l != r)
   {
-    QString buf;
-    QTextStream ss(&buf);
+    std::string buf;
+    std::stringstream ss(buf);
     ss << "Your test required the following\n            '";
     ss << L << " == " << R << "'\n             but this condition was not met.\n";
     ss << "             " << l << "==" << r;
-    // DREAM3D_TEST_THROW_EXCEPTION( buf.toStdString() )
-    throw TestException(buf.toStdString(), file.toStdString(), line);
+    // DREAM3D_TEST_THROW_EXCEPTION( buf )
+    throw TestException(buf, file, line);
   }
 }
 
@@ -558,16 +558,16 @@ void require_equal(T l, const QString& L, K r, const QString& R, const QString f
 //
 // -----------------------------------------------------------------------------
 template <typename T, typename K>
-void require_less_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+void require_less_than(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)
 {
   if(l >= r)
   {
-    QString buf;
-    QTextStream ss(&buf);
+    std::string buf;
+    std::stringstream ss(buf);
     ss << "Your test required the following\n            '";
     ss << L << " < " << R << "'\n             but this condition was not met.\n";
     ss << "             " << l << "==" << r;
-    throw TestException(buf.toStdString(), file.toStdString(), line);
+    throw TestException(buf, file, line);
   }
 }
 
@@ -575,15 +575,15 @@ void require_less_than(T l, const QString& L, K r, const QString& R, const QStri
 //
 // -----------------------------------------------------------------------------
 template <typename T, typename K>
-void require_greater_than(T l, const QString& L, K r, const QString& R, const QString file = "", int line = 0)
+void require_greater_than(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)
 {
   if(l <= r)
   {
-    QString buf;
-    QTextStream ss(&buf);
+    std::string buf;
+    std::stringstream ss(buf);
     ss << "Your test required the following\n            '";
     ss << L << " < " << R << "'\n             but this condition was not met.\n";
     ss << "             " << l << "==" << r;
-    throw TestException(buf.toStdString(), file.toStdString(), line);
+    throw TestException(buf, file, line);
   }
 }

@@ -60,7 +60,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-// QFile::remove();
+//EbsdDir::remove();
 #endif
   }
 

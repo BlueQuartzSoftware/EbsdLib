@@ -6,14 +6,14 @@
 
 #include <iostream>
 
-#include <QtCore/QTextStream>
+#include <sstream>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 
-static const QString DCName("Orientation Transforms Test");
-static const QString AMName("Angles");
+static const std::string DCName("Orientation Transforms Test");
+static const std::string AMName("Angles");
 
-QString k_InputNames[7] = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
+std::string k_InputNames[7] = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
 int k_CompDims[7] = {3, 9, 4, 4, 4, 3, 3};
 
 namespace OrientationPrinters
@@ -118,7 +118,7 @@ template <typename DataArrayClass>
 void PrintTuple(typename DataArrayClass::Pointer data, size_t t)
 {
   std::vector<size_t> cDims = data->getComponentDimensions();
-  printf("%s\n", data->getName().toStdString().c_str());
+  printf("%s\n", data->getName().c_str());
   for(int a = 0; a < cDims[0]; a++)
   {
     printf("% 3.16f", data->getComponent(t, a));

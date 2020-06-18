@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/AbstractEbsdFields.h"
@@ -58,7 +58,7 @@ public:
   AngFields();
   ~AngFields() override;
 
-  QVector<QString> getFieldNames() override;
+  std::vector<std::string> getFieldNames() override;
 
   template <typename T>
   T getFilterFeatures()

@@ -131,7 +131,7 @@ namespace DConst = EbsdLib::Constants;
 
 /**
  * @brief The OrientationTransformation namespace
- * template parameter InputType can be one of std::vector<T>, QVector<T> or OrientationArray<T>
+ * template parameter InputType can be one of std::vector<T>, std::vector<T> or OrientationArray<T>
  * and template parameter typename OutputType::value_type is the type specified in T. For example if InputType is std::vector<float>
  * then typename OutputType::value_type is float.
  */

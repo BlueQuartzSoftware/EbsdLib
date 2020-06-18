@@ -35,11 +35,10 @@
 
 #include "PoleFigureUtilities.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <fstream>
+#include <sstream>
 
 #include "EbsdLib/Utilities/ColorTable.h"
-
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalOps.h"
@@ -61,26 +60,25 @@ PoleFigureUtilities::~PoleFigureUtilities() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int writeVtkFile(EbsdLib::FloatArrayType* xyz, const QString& filename)
+int writeVtkFile(EbsdLib::FloatArrayType* xyz, const std::string& filename)
 {
 
-  QFile in(filename);
-  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  std::ofstream out(filename, std::ios_base::out);
+  if(!out.is_open())
   {
     return -100;
   }
 
-  QTextStream ss(&in);
-  ss << "# vtk DataFile Version 2.0\n";
-  ss << "data set from DREAM3D\n";
-  ss << "ASCII";
-  ss << "\n";
+  out << "# vtk DataFile Version 2.0\n";
+  out << "data set from DREAM3D\n";
+  out << "ASCII";
+  out << "\n";
 
-  ss << "DATASET UNSTRUCTURED_GRID\nPOINTS " << xyz->getNumberOfTuples() << " float\n";
+  out << "DATASET UNSTRUCTURED_GRID\nPOINTS " << xyz->getNumberOfTuples() << " float\n";
   size_t count = xyz->getNumberOfTuples();
   for(size_t i = 0; i < count; ++i)
   {
-    ss << xyz->getComponent(i, 0) << " " << xyz->getComponent(i, 1) << " " << xyz->getComponent(i, 2) << "\n";
+    out << xyz->getComponent(i, 0) << " " << xyz->getComponent(i, 1) << " " << xyz->getComponent(i, 2) << "\n";
   }
   return 0;
 }
@@ -88,7 +86,7 @@ int writeVtkFile(EbsdLib::FloatArrayType* xyz, const QString& filename)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const QString& name, double min, double max)
+EbsdLib::UInt8ArrayType::Pointer PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const std::string& name, double min, double max)
 {
   std::vector<size_t> dims(1, 4);
   EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(static_cast<size_t>(width * height), dims, name, true);
@@ -128,7 +126,7 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
   uint32_t* rgbaPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   int numColors = config.numColors;
-  QVector<float> colors(numColors * 3, 0.0f);
+  std::vector<float> colors(numColors * 3, 0.0f);
   EbsdColorTable::GetColorTable(config.numColors, colors);
 
   float r = 0.0f, g = 0.0f, b = 0.0f;

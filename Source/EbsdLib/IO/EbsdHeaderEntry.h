@@ -34,7 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -44,14 +44,14 @@
  */
 #define HEADERENTRY_NEW_SUPERCLASS(thisClass, SuperClass)                                                                                                                                              \
   typedef SuperClass::Pointer SuperClass##Type;                                                                                                                                                        \
-  static SuperClass##Type New##SuperClass(const QString& key)                                                                                                                                          \
+  static SuperClass##Type New##SuperClass(const std::string& key)                                                                                                                                          \
   {                                                                                                                                                                                                    \
     SuperClass##Type sharedPtr(new thisClass(key));                                                                                                                                                    \
     return sharedPtr;                                                                                                                                                                                  \
   }
 
 #define HEADERENTRY_NEW_SUPERCLASS_VALUE(thisClass, SuperClass)                                                                                                                                        \
-  static SuperClass##Type New##SuperClass(const QString& key, T value)                                                                                                                                 \
+  static SuperClass##Type New##SuperClass(const std::string& key, T value)                                                                                                                                 \
   {                                                                                                                                                                                                    \
     thisClass* object = new thisClass(key);                                                                                                                                                            \
     object->setValue(value);                                                                                                                                                                           \
@@ -80,21 +80,22 @@ public:
   /**
    * @brief Returns the name of the class for EbsdHeaderEntry
    */
-  const QString getNameOfClass() const;
+  std::string getNameOfClass() const;
+
   /**
    * @brief Returns the name of the class for EbsdHeaderEntry
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~EbsdHeaderEntry() = default;
 
   /**
    * @brief Returns the key of the header entry
    */
-  virtual QString getKey() = 0;
+  virtual std::string getKey() = 0;
 
 #ifdef EbsdLib_ENABLE_HDF5
-  virtual QString getHDFType() = 0;
+  virtual std::string getHDFType() = 0;
 #endif
 
   /**
@@ -103,7 +104,7 @@ public:
    * @param start The starting position to look for the value
    * @param length The ending position to look for the value
    */
-  virtual void parseValue(QByteArray& value) = 0;
+  virtual void parseValue(std::string& value) = 0;
 
   /**
    * @brief prints out the key and value for this header entry

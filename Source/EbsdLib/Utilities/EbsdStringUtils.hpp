@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2017 BlueQuartz Software, LLC
+ * Copyright (c) 2020 BlueQuartz Software, LLC
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,62 +31,88 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <memory>
-
+#include <regex>
+#include <sstream>
 #include <string>
+#include <vector>
 
-#include "EbsdLib/EbsdLib.h"
-
-class EbsdLib_EXPORT LambertUtilities
+namespace EbsdStringUtils
 {
-public:
-  using Self = LambertUtilities;
-  using Pointer = std::shared_ptr<Self>;
-  using ConstPointer = std::shared_ptr<const Self>;
-  using WeakPointer = std::weak_ptr<Self>;
-  using ConstWeakPointer = std::weak_ptr<const Self>;
-  static Pointer NullPointer();
 
-  static Pointer New();
+using StringTokenType = std::vector<std::string>;
 
-  /**
-   * @brief Returns the name of the class for LambertUtilities
-   */
-  virtual std::string getNameOfClass() const;
-  /**
-   * @brief Returns the name of the class for LambertUtilities
-   */
-  static std::string ClassName();
+inline StringTokenType split(const std::string& line, char delimiter)
+{
+  std::stringstream ss(line);
 
-  virtual ~LambertUtilities();
+  StringTokenType tokens;
+  std::string temp_str;
 
-  using EnumType = unsigned int;
-
-  enum class Hemisphere : EnumType
+  while(getline(ss, temp_str, delimiter))
   {
-    North = 0,
-    South = 1
-  };
+    tokens.push_back(temp_str);
+  }
+  return tokens;
+}
 
-  /**
-   * @brief This function will convert a vertex that is assumed to be part of a
-   * LambertSquare (a,b,0) to a Sphere with (x, y, z) cartesian coordiate. The
-   * input vertex value should fall between -sqrt(PI/2) <= (x,y) <= sqrt(PI/2)
-   * otherwise it is undefined behavior.
-   * @param vert Input vertex which will be over written
-   * @param hemi
-   * @return
-   */
-  static int32_t LambertSquareVertToSphereVert(float* vert, Hemisphere hemi);
+inline std::string replace(std::string str, const std::string& from, const std::string& to)
+{
+  size_t start_pos = 0;
+  while((start_pos = str.find(from, start_pos)) != std::string::npos)
+  {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length();
+  }
+  return str;
+}
 
-protected:
-  LambertUtilities();
+inline std::string ltrim(const std::string& s)
+{
+  return std::regex_replace(s, std::regex("^\\s+"), std::string(""));
+}
 
-public:
-  LambertUtilities(const LambertUtilities&) = delete;            // Copy Constructor Not Implemented
-  LambertUtilities(LambertUtilities&&) = delete;                 // Move Constructor Not Implemented
-  LambertUtilities& operator=(const LambertUtilities&) = delete; // Copy Assignment Not Implemented
-  LambertUtilities& operator=(LambertUtilities&&) = delete;      // Move Assignment Not Implemented
+inline std::string rtrim(const std::string& s)
+{
+  return std::regex_replace(s, std::regex("\\s+$"), std::string(""));
+}
 
-private:
-};
+inline std::string trimmed(const std::string& s)
+{
+  return ltrim(rtrim(s));
+}
+
+inline std::string chop(const std::string& s, size_t numElements)
+{
+  return s.substr(0, s.size() - numElements);
+}
+
+template <typename T>
+inline std::string number(T arg)
+{
+  std::stringstream ss;
+  ss << arg;
+  return ss.str();
+}
+
+inline std::string simplified(const std::string& text)
+{
+  std::string out;
+  out = trimmed(text);
+  char ch = 'a';
+  std::string finalString;
+  for(const auto& c : text)
+  {
+    if(std::isspace(c) == 0)
+    {
+      finalString += c;
+    }
+    else if(std::isspace(ch) == 0)
+    {
+      finalString += c;
+    }
+    ch = c;
+  }
+  return finalString;
+}
+
+} // namespace EbsdStringUtils

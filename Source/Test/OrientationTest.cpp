@@ -16,7 +16,7 @@
 #include <Eigen/Eigen>
 #include <Eigen/Geometry>
 
-#include <QtCore/QVector>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/Orientation.hpp"
@@ -510,7 +510,7 @@ ax2eu  eu2ax                                                     FAILED
   {
     using OrientType = Orientation<K>;
     using VectorType = std::vector<K>;
-    //  using QVectorType = QVector<K>;
+    //  using QVectorType = std::vector<K>;
     {
       K eu[3] = {static_cast<K>(0.3926990816987242L), static_cast<K>(0.0L), static_cast<K>(0.0L)};
       OrientationPrinters::Print_EU<K*>(eu);

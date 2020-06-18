@@ -39,13 +39,13 @@ AbstractEbsdFields::AbstractEbsdFields() = default;
 AbstractEbsdFields::~AbstractEbsdFields() = default;
 
 // -----------------------------------------------------------------------------
-QString AbstractEbsdFields::getNameOfClass() const
+std::string AbstractEbsdFields::getNameOfClass() const
 {
-  return QString("AbstractEbsdFields");
+  return std::string("AbstractEbsdFields");
 }
 
 // -----------------------------------------------------------------------------
-QString AbstractEbsdFields::ClassName()
+std::string AbstractEbsdFields::ClassName()
 {
-  return QString("AbstractEbsdFields");
+  return std::string("AbstractEbsdFields");
 }

@@ -35,9 +35,10 @@
 
 #include <cstring>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
+#include <iostream>
+#include <fstream>
 
+#include "EbsdLib/Core/EbsdDir.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 
@@ -63,7 +64,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-    QFile::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
+    EbsdDir::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
 #endif
   }
 
@@ -95,7 +96,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(step, 0.0f)
 
     err = reader.readFile();
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, ==, -110)
   }
 
@@ -112,7 +113,7 @@ public:
     DREAM3D_REQUIRE(err > 0)
 
     err = reader.readFile();
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, ==, -300)
   }
 
@@ -129,7 +130,7 @@ public:
     DREAM3D_REQUIRE(err > 0)
 
     err = reader.readFile();
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, ==, -400)
   }
 
@@ -142,7 +143,7 @@ public:
     reader.setFileName(UnitTest::AngImportTest::ShortFile);
     int err = reader.readFile();
     // It should read through this header just fine but die when reading the file because there is not enough data being read
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, <, 0)
   }
 
@@ -155,7 +156,7 @@ public:
     AngReader reader;
     reader.setFileName(UnitTest::AngImportTest::TestFile1);
     int err = reader.readFile();
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, ==, 0)
 
     size_t numElements = reader.getNumberOfElements();

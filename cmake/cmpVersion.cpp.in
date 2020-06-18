@@ -19,72 +19,72 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Complete()
+std::string @VERSION_GEN_NAMESPACE@::Version::Complete()
 { 
-  return QString("@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
+  return std::string("@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Major()
+std::string @VERSION_GEN_NAMESPACE@::Version::Major()
 { 
-  return QString("@VERSION_GEN_VER_MAJOR@");
+  return std::string("@VERSION_GEN_VER_MAJOR@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Minor()
+std::string @VERSION_GEN_NAMESPACE@::Version::Minor()
 { 
-  return QString("@VERSION_GEN_VER_MINOR@");
+  return std::string("@VERSION_GEN_VER_MINOR@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Patch()
+std::string @VERSION_GEN_NAMESPACE@::Version::Patch()
 { 
-  return QString("@VERSION_GEN_VER_PATCH@");
+  return std::string("@VERSION_GEN_VER_PATCH@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Revision()
+std::string @VERSION_GEN_NAMESPACE@::Version::Revision()
 { 
-  return QString("@VERSION_GEN_VER_REVISION@");
+  return std::string("@VERSION_GEN_VER_REVISION@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::Package()
+std::string @VERSION_GEN_NAMESPACE@::Version::Package()
 { 
-  return QString("@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@");
+  return std::string("@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@");
 }
 
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::PackageComplete()
+std::string @VERSION_GEN_NAMESPACE@::Version::PackageComplete()
 { 
-  return QString("@PROJECT_PREFIX@ Version @VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
+  return std::string("@PROJECT_PREFIX@ Version @VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::BuildDate()
+std::string @VERSION_GEN_NAMESPACE@::Version::BuildDate()
 { 
-  return QString("@VERSION_BUILD_DATE@");
+  return std::string("@VERSION_BUILD_DATE@");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString @VERSION_GEN_NAMESPACE@::Version::GitHash()
+std::string @VERSION_GEN_NAMESPACE@::Version::GitHash()
 { 
-  return QString("@GVS_GIT_HASH@");
+  return std::string("@GVS_GIT_HASH@");
 }

@@ -35,11 +35,11 @@
 
 #pragma once
 
-#include <QtCore/QFile>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtCore/QVector>
-#include <QtCore/QtDebug>
+#include <fstream>
+#include <map>
+#include <string>
+#include <vector>
+#include <iostream>
 
 #include "CtfConstants.h"
 #include "CtfHeaderEntry.h"
@@ -73,34 +73,35 @@ public:
   /**
    * @brief Returns the name of the class for _SUPERCtfReader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for _SUPERCtfReader
    */
-  static QString ClassName();
-
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Channel, EbsdLib::Ctf::ChannelTextFile)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Prj, EbsdLib::Ctf::Prj)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Author, EbsdLib::Ctf::Author)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, JobMode, EbsdLib::Ctf::JobMode)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, XCells, EbsdLib::Ctf::XCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, YCells, EbsdLib::Ctf::YCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, ZCells, EbsdLib::Ctf::ZCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, XStep, EbsdLib::Ctf::XStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, YStep, EbsdLib::Ctf::YStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, ZStep, EbsdLib::Ctf::ZStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE1, EbsdLib::Ctf::AcqE1)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE2, EbsdLib::Ctf::AcqE2)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, AcqE3, EbsdLib::Ctf::AcqE3)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, QString, Euler, EbsdLib::Ctf::Euler)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Mag, EbsdLib::Ctf::Mag)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Coverage, EbsdLib::Ctf::Coverage)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, Device, EbsdLib::Ctf::Device)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, KV, EbsdLib::Ctf::KV)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<float>, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfHeaderEntry<int>, int, NumPhases, EbsdLib::Ctf::NumPhases)
-  EBSD_INSTANCE_PROPERTY(QVector<CtfPhase::Pointer>, PhaseVector)
+  static std::string ClassName();
+  using CtfIntHeaderType = CtfHeaderEntry<int, Int32HeaderParser>;
+  using CtfFloatHeaderType = CtfHeaderEntry<float, FloatHeaderParser>;
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Channel, EbsdLib::Ctf::ChannelTextFile)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Prj, EbsdLib::Ctf::Prj)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Author, EbsdLib::Ctf::Author)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, JobMode, EbsdLib::Ctf::JobMode)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, XCells, EbsdLib::Ctf::XCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, YCells, EbsdLib::Ctf::YCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, ZCells, EbsdLib::Ctf::ZCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, XStep, EbsdLib::Ctf::XStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, YStep, EbsdLib::Ctf::YStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, ZStep, EbsdLib::Ctf::ZStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE1, EbsdLib::Ctf::AcqE1)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE2, EbsdLib::Ctf::AcqE2)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE3, EbsdLib::Ctf::AcqE3)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Euler, EbsdLib::Ctf::Euler)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Mag, EbsdLib::Ctf::Mag)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Coverage, EbsdLib::Ctf::Coverage)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Device, EbsdLib::Ctf::Device)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, KV, EbsdLib::Ctf::KV)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, NumPhases, EbsdLib::Ctf::NumPhases)
+  EBSD_INSTANCE_PROPERTY(std::vector<CtfPhase::Pointer>, PhaseVector)
 
   CTF_READER_PTR_PROP(Phase, Phase, int)
   CTF_READER_PTR_PROP(X, X, float)
@@ -125,19 +126,19 @@ public:
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
-  //  void setPointerByName(const QString& name, void* p);
+  void* getPointerByName(const std::string& featureName) override;
+  //  void setPointerByName(const std::string& name, void* p);
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
-  int getTypeSize(const QString& featureName);
-  DataParser::Pointer getParser(const QString& featureName, void* ptr, size_t size);
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  int getTypeSize(const std::string& featureName);
+  DataParser::Pointer getParser(const std::string& featureName, void* ptr, size_t size);
 
-  QList<QString> getColumnNames();
+  std::vector<std::string> getColumnNames();
 
   /**
    * @brief Reads the complete HKL .ctf file.
@@ -164,12 +165,12 @@ public:
    * @brief writeFile
    * @param filepath
    */
-  int writeFile(const QString& filepath);
+  int writeFile(const std::string& filepath);
 
-protected:
 private:
-  int m_SingleSliceRead;
-  QMap<QString, DataParser::Pointer> m_NamePointerMap;
+  int m_SingleSliceRead = -1;
+
+  std::map<std::string, DataParser::Pointer> m_NamePointerMap;
 
   /**
    * @brief
@@ -177,7 +178,7 @@ private:
    * @param headerLines
    * @return
    */
-  int getHeaderLines(QFile& reader, QList<QByteArray>& headerLines);
+  int getHeaderLines(std::ifstream& reader, std::vector<std::string>& headerLines);
 
   /**
    * Checks that the line is the header of the columns for the data.
@@ -187,18 +188,18 @@ private:
    * @return <code>true</code> if the line is the columns header line,
    *         <code>false</code> otherwise
    */
-  bool isDataHeaderLine(QVector<QString>& columns);
+  bool isDataHeaderLine(const std::vector<std::string>& columns) const;
 
   /**
    *
    */
-  int parseHeaderLines(QList<QByteArray>& headerLines);
+  int parseHeaderLines(std::vector<std::string>& headerLines);
 
   /**
    * @brief
    * @param in The input file stream to read from
    */
-  int readData(QFile& in);
+  int readData(std::ifstream& in);
 
   /**
    * @brief Reads a line of Data from the ASCII based file
@@ -209,7 +210,7 @@ private:
    * @param yCells Number of Y Data Points
    * @param col The current Column of Data
    */
-  int parseDataLine(QByteArray& line, size_t row, size_t col, size_t i, size_t xCells, size_t yCells);
+  int parseDataLine(std::string& line, size_t row, size_t col, size_t i, size_t xCells, size_t yCells);
 
 public:
   CtfReader(const CtfReader&) = delete;            // Copy Constructor Not Implemented

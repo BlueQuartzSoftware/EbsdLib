@@ -93,19 +93,19 @@ public:
    * @brief
    * @return
    */
-  QVector<AngPhase::Pointer> getPhases();
+  std::vector<AngPhase::Pointer> getPhases();
   /**
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
+  void* getPointerByName(const std::string& featureName) override;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -120,7 +120,7 @@ protected:
   H5AngVolumeReader();
 
 private:
-  QVector<AngPhase::Pointer> m_Phases;
+  std::vector<AngPhase::Pointer> m_Phases;
 
 public:
   H5AngVolumeReader(const H5AngVolumeReader&) = delete;            // Copy Constructor Not Implemented

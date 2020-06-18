@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
@@ -64,11 +64,11 @@ public:
   /**
    * @brief Returns the name of the class for LaueOps
    */
-  virtual QString getNameOfClass() const;
+  virtual std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for LaueOps
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~LaueOps();
 
@@ -90,7 +90,7 @@ public:
    * @brief GetLaueNames Returns the names of the Laue Classes
    * @return
    */
-  static std::vector<QString> GetLaueNames();
+  static std::vector<std::string> GetLaueNames();
 
   /**
    * @brief getODFSize Returns the number of elements in the ODF array
@@ -126,7 +126,7 @@ public:
    * @brief getSymmetryName Returns the name of the symmetry
    * @return
    */
-  virtual QString getSymmetryName() const = 0;
+  virtual std::string getSymmetryName() const = 0;
 
   /**
    * @brief Returns the number of bins in each of the 3 dimensions

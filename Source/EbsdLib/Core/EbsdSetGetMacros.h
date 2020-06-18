@@ -50,7 +50,7 @@
 
 #if defined(QT_CORE_LIB)
 //-- Qt includes
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QSharedPointer>
 //#define RAW_PTR  data
 #endif
@@ -192,10 +192,10 @@ public:                                                                         
 //------------------------------------------------------------------------------
 // Macros for Properties
 /**
- * @brief Creates a QString constant for the Property so that the property
+ * @brief Creates a std::string constant for the Property so that the property
  * can be retrieved by name.
  */
-#define EBSD_PROPERTY_CONSTANT(prpty) const QString prpty(#prpty);
+#define EBSD_PROPERTY_CONSTANT(prpty) const std::string prpty(#prpty);
 
 /**
  * @brief Creates a "setter" method to set the property.
@@ -301,11 +301,11 @@ public:                                                                         
  * @brief Creates a "setter" method to set the property.
  */
 #define EBSD_SET_STRING_PROPERTY(prpty, varname)                                                                                                                                                       \
-  void set##prpty(const QString& value)                                                                                                                                                                \
+  void set##prpty(const std::string& value)                                                                                                                                                                \
   {                                                                                                                                                                                                    \
     this->varname = value;                                                                                                                                                                             \
   }                                                                                                                                                                                                    \
-  void set##prpty(QString* value)                                                                                                                                                                      \
+  void set##prpty(std::string* value)                                                                                                                                                                      \
   {                                                                                                                                                                                                    \
     this->varname = *value;                                                                                                                                                                            \
   }
@@ -314,7 +314,7 @@ public:                                                                         
  * @brief Creates a "getter" method to retrieve the value of the property.
  */
 #define EBSD_GET_STRING_PROPERTY(prpty, varname)                                                                                                                                                       \
-  QString get##prpty()                                                                                                                                                                                 \
+  std::string get##prpty()                                                                                                                                                                                 \
   {                                                                                                                                                                                                    \
     return varname;                                                                                                                                                                                    \
   }
@@ -324,7 +324,7 @@ public:                                                                         
  */
 #define EBSD_INSTANCE_STRING_PROPERTY(prpty)                                                                                                                                                           \
 private:                                                                                                                                                                                               \
-  QString m_##prpty;                                                                                                                                                                                   \
+  std::string m_##prpty;                                                                                                                                                                                   \
                                                                                                                                                                                                        \
 public:                                                                                                                                                                                                \
   EBSD_SET_STRING_PROPERTY(prpty, m_##prpty)                                                                                                                                                           \
@@ -332,7 +332,7 @@ public:                                                                         
 
 #define EBSD_VIRTUAL_INSTANCE_STRING_PROPERTY(prpty)                                                                                                                                                   \
 private:                                                                                                                                                                                               \
-  QString m_##prpty;                                                                                                                                                                                   \
+  std::string m_##prpty;                                                                                                                                                                                   \
                                                                                                                                                                                                        \
 public:                                                                                                                                                                                                \
   virtual EBSD_SET_STRING_PROPERTY(prpty, m_##prpty) virtual EBSD_GET_STRING_PROPERTY(prpty, m_##prpty)
@@ -353,7 +353,7 @@ public:                                                                         
     }                                                                                                                                                                                                  \
     else                                                                                                                                                                                               \
     {                                                                                                                                                                                                  \
-      std::cout << "Setting Property '" << #prpty << "': Value for Key: " << key.toStdString() << " was null." << std::endl;                                                                           \
+      std::cout << "Setting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                           \
     }                                                                                                                                                                                                  \
   }
 
@@ -368,7 +368,7 @@ public:                                                                         
     {                                                                                                                                                                                                  \
       return p->getValue();                                                                                                                                                                            \
     }                                                                                                                                                                                                  \
-    std::cout << "Getting Property '" << #prpty << "': Value for Key: " << key.toStdString() << " was null." << std::endl;                                                                             \
+    std::cout << "Getting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                             \
     return {};                                                                                                                                                                                         \
   }
 
@@ -432,8 +432,8 @@ namespace Ebsd
 class bad_lexical_cast : public std::runtime_error
 {
 public:
-  bad_lexical_cast(const QString& s)
-  : std::runtime_error(s.toStdString())
+  bad_lexical_cast(const std::string& s)
+  : std::runtime_error(s)
   {
   }
 };
@@ -441,16 +441,16 @@ public:
 class bad_any_cast : public std::runtime_error
 {
 public:
-  bad_any_cast(const QString& s)
-  : std::runtime_error(s.toStdString())
+  bad_any_cast(const std::string& s)
+  : std::runtime_error(s)
   {
   }
 };
 
 template <typename T>
-T lexical_cast(const QString& s)
+T lexical_cast(const std::string& s)
 {
-  std::istringstream i(s.toStdString());
+  std::istringstream i(s);
   T x;
   if(!(i >> x))
   {

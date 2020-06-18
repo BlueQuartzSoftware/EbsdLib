@@ -62,12 +62,12 @@ public:
   /**
    * @brief Returns the name of the class for MonoclinicOps
    */
-  virtual QString getNameOfClass() const override;
+  virtual std::string getNameOfClass() const override;
 
   /**
    * @brief Returns the name of the class for MonoclinicOps
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   static Pointer New();
 
@@ -108,7 +108,7 @@ public:
    * @brief getSymmetryName Returns the name of the Laue class
    * @return
    */
-  QString getSymmetryName() const override;
+  std::string getSymmetryName() const override;
 
   /**
    * @brief Returns the number of bins in each of the 3 dimensions
@@ -204,7 +204,7 @@ public:
    * @param eulers The Euler Angles to generate the pole figure from.
    * @param imageSize The size in Pixels of the final RGB Image.
    * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-   * @return A QVector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+   * @return A std::vector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
    * an image object from other libraries and written out to disk.
    */
   std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;

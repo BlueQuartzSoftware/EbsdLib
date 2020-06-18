@@ -35,10 +35,9 @@
 
 #pragma once
 
-#include <QtCore/QByteArray>
-#include <QtCore/QFile>
-#include <QtCore/QString>
-
+#include <vector>
+#include <fstream>
+#include <string>
 #include <map>
 
 #include "AngConstants.h"
@@ -76,7 +75,7 @@ public:
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, WorkingDistance, EbsdLib::Ang::WorkingDistance)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, EbsdLib::Ang::Grid)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::Ang::Grid)
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::XStep)
 
@@ -88,13 +87,13 @@ public:
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::NRows)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, OIMOperator, EbsdLib::Ang::OPERATOR)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, OIMOperator, EbsdLib::Ang::OPERATOR)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SampleID, EbsdLib::Ang::SAMPLEID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SampleID, EbsdLib::Ang::SAMPLEID)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, SCANID, EbsdLib::Ang::SCANID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SCANID, EbsdLib::Ang::SCANID)
 
-  EBSD_INSTANCE_PROPERTY(QVector<AngPhase::Pointer>, PhaseVector)
+  EBSD_INSTANCE_PROPERTY(std::vector<AngPhase::Pointer>, PhaseVector)
 
   EBSD_INSTANCE_PROPERTY(bool, ReadHexGrid)
 
@@ -136,14 +135,14 @@ public:
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
+  void* getPointerByName(const std::string& featureName) override;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Reads the complete TSL .ang file.
@@ -166,17 +165,17 @@ private:
   AngPhase::Pointer m_CurrentPhase;
   int m_ErrorColumn = 0;
 
-  void readData(QFile& in, QByteArray& buf);
+  void readData(std::fstream& in, std::string& buf);
 
   /** @brief Parses the value from a single line of the header section of the TSL .ang file
    * @param line The line to parse
    */
-  void parseHeaderLine(QByteArray& buf);
+  void parseHeaderLine(std::string& buf);
 
   /** @brief Parses the data from a line of data from the TSL .ang file
    * @param line The line of data to parse
    */
-  void parseDataLine(QByteArray& line, size_t i);
+  void parseDataLine(std::string& line, size_t i);
 
 public:
   AngReader(const AngReader&) = delete;            // Copy Constructor Not Implemented

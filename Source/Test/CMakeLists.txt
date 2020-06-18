@@ -119,8 +119,8 @@ endforeach()
 
 STRING(REPLACE "|" ";" TestMainFunctors ${TestMainFunctors}   )
 
-set(QT_APPLICATION_CLASS_HEADER "#include <QtCore/QCoreApplication>")
-set(QT_APPLICATION_CLASS "QCoreApplication")
+set(QT_APPLICATION_CLASS_HEADER "//#include <QtCore/QCoreApplication>")
+set(QT_APPLICATION_CLASS "//QCoreApplication")
 
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestMain.cpp.in
                ${EbsdLibProj_BINARY_DIR}/Test/EbsdLibUnitTest.cpp @ONLY)
@@ -135,7 +135,7 @@ endforeach()
 AddSIMPLUnitTest(TESTNAME EbsdLibUnitTest
   SOURCES ${EbsdLibProj_BINARY_DIR}/Test/EbsdLibUnitTest.cpp ${EbsdLibProj_TEST_SRCS}
   FOLDER "EbsdLibProj/Test"
-  LINK_LIBRARIES Qt5::Core EbsdLib
+  LINK_LIBRARIES  EbsdLib
   INCLUDE_DIRS
     ${EbsdLibProj_SOURCE_DIR}/Source
     ${EbsdLibProj_SOURCE_DIR}/Source/Test

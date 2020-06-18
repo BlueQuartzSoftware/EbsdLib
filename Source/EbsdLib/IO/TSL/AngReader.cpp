@@ -36,12 +36,11 @@
 #include "AngReader.h"
 
 #include <algorithm>
-
-#include <QtCore/QFile>
-#include <QtCore/QObject>
-#include <QtCore/QTextStream>
+#include <fstream>
+#include <sstream>
 
 #include "AngConstants.h"
+
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
@@ -153,45 +152,45 @@ AngReader::~AngReader()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* AngReader::getPointerByName(const QString& featureName)
+void* AngReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  if(featureName == EbsdLib::Ang::Phi1)
   {
     return static_cast<void*>(m_Phi1);
   }
-  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  if(featureName == EbsdLib::Ang::Phi)
   {
     return static_cast<void*>(m_Phi);
   }
-  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  if(featureName == EbsdLib::Ang::Phi2)
   {
     return static_cast<void*>(m_Phi2);
   }
-  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  if(featureName == EbsdLib::Ang::ImageQuality)
   {
     return static_cast<void*>(m_Iq);
   }
-  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  if(featureName == EbsdLib::Ang::ConfidenceIndex)
   {
     return static_cast<void*>(m_Ci);
   }
-  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  if(featureName == EbsdLib::Ang::PhaseData)
   {
     return static_cast<void*>(m_PhaseData);
   }
-  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  if(featureName == EbsdLib::Ang::XPosition)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  if(featureName == EbsdLib::Ang::YPosition)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  if(featureName == EbsdLib::Ang::SEMSignal)
   {
     return static_cast<void*>(m_SEMSignal);
   }
-  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  if(featureName == EbsdLib::Ang::Fit)
   {
     return static_cast<void*>(m_Fit);
   }
@@ -201,45 +200,45 @@ void* AngReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type AngReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type AngReader::getPointerType(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  if(featureName == EbsdLib::Ang::Phi1)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  if(featureName == EbsdLib::Ang::Phi)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  if(featureName == EbsdLib::Ang::Phi2)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  if(featureName == EbsdLib::Ang::ImageQuality)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  if(featureName == EbsdLib::Ang::ConfidenceIndex)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  if(featureName == EbsdLib::Ang::PhaseData)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  if(featureName == EbsdLib::Ang::XPosition)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  if(featureName == EbsdLib::Ang::YPosition)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  if(featureName == EbsdLib::Ang::SEMSignal)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  if(featureName == EbsdLib::Ang::Fit)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
@@ -252,24 +251,25 @@ EbsdLib::NumericTypes::Type AngReader::getPointerType(const QString& featureName
 int AngReader::readHeaderOnly()
 {
   int err = 1;
-  QByteArray buf;
-  QFile in(getFileName());
+  std::string buf;
+  std::fstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
-  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.is_open())
   {
-    QString msg = QString("Ang file could not be opened: ") + getFileName();
+    std::string msg = std::string("Ang file could not be opened: ") + getFileName();
     setErrorCode(-100);
     setErrorMessage(msg);
     return -100;
   }
-  QString origHeader;
+  std::string origHeader;
   setOriginalHeader(origHeader);
-  QTextStream ostr(&origHeader);
+  std::stringstream ostr(origHeader);
   m_PhaseVector.clear();
 
-  while(!in.atEnd() && !getHeaderIsComplete())
+  while(!in.eof() && !getHeaderIsComplete())
   {
-    buf = in.readLine();
+    std::getline(in, buf);
+
     parseHeaderLine(buf);
     if(!getHeaderIsComplete())
     {
@@ -288,25 +288,25 @@ int AngReader::readFile()
 {
   setErrorCode(0);
   setErrorMessage("");
-  QByteArray buf;
+  std::string buf;
   setHeaderIsComplete(false);
 
-  QFile in(getFileName());
-  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  std::fstream in(getFileName());
+  if(!in.is_open())
   {
-    QString msg = QObject::tr("Ang file could not be opened: %1").arg(getFileName());
+    std::string msg = "Ang file could not be opened:" + getFileName();
     setErrorCode(-100);
     setErrorMessage(msg);
     return -100;
   }
 
-  QString origHeader;
+  std::string origHeader;
   setOriginalHeader(origHeader);
   m_PhaseVector.clear();
 
-  while(!in.atEnd() && !getHeaderIsComplete())
+  while(!in.eof() && !getHeaderIsComplete())
   {
-    buf = in.readLine();
+    std::getline(in, buf);
     if(buf.at(0) != '#')
     {
       setHeaderIsComplete(true);
@@ -326,7 +326,7 @@ int AngReader::readFile()
 
   if(getXStep() == 0.0 || getYStep() == 0.0f)
   {
-    QString msg = QString("Either the X Step or Y Step was Zero (0.0) and this is not allowed");
+    std::string msg = std::string("Either the X Step or Y Step was Zero (0.0) and this is not allowed");
     setErrorCode(-110);
     setErrorMessage(msg);
     return -110;
@@ -350,14 +350,14 @@ int AngReader::readFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngReader::readData(QFile& in, QByteArray& buf)
+void AngReader::readData(std::fstream& in, std::string& buf)
 {
-  QString streamBuf;
-  QTextStream ss(&streamBuf);
+  std::string streamBuf;
+  std::stringstream ss(streamBuf);
 
   size_t totalDataPoints = 0;
 
-  QString grid = getGrid();
+  std::string grid = getGrid();
 
   int nOddCols = getNumOddCols();
   int nEvenCols = getNumEvenCols();
@@ -369,7 +369,7 @@ void AngReader::readData(QFile& in, QByteArray& buf)
     setErrorMessage("NumRows Sanity Check not correct. Check the entry for NROWS in the .ang file");
     return;
   }
-  if(grid.startsWith(EbsdLib::Ang::SquareGrid))
+  if(grid.find(EbsdLib::Ang::SquareGrid) == 0)
   {
     if(nOddCols > 0)
     {
@@ -384,13 +384,13 @@ void AngReader::readData(QFile& in, QByteArray& buf)
       totalDataPoints = 0;
     }
   }
-  else if(grid.startsWith(EbsdLib::Ang::HexGrid) && !m_ReadHexGrid)
+  else if(grid.find(EbsdLib::Ang::HexGrid) == 0 && !m_ReadHexGrid)
   {
     setErrorCode(-400);
     setErrorMessage("Ang Files with Hex Grids Are NOT currently supported - Try converting them to Square Grid with the Hex2Sqr Converter filter.");
     return;
   }
-  else if(grid.startsWith(EbsdLib::Ang::HexGrid) && m_ReadHexGrid)
+  else if(grid.find(EbsdLib::Ang::HexGrid) == 0 && m_ReadHexGrid)
   {
     bool evenRow = false;
     totalDataPoints = 0;
@@ -442,9 +442,9 @@ void AngReader::readData(QFile& in, QByteArray& buf)
 
   if(nullptr == m_Phi1 || nullptr == m_Phi || nullptr == m_Phi2 || nullptr == m_Iq || nullptr == m_SEMSignal || nullptr == m_Ci || nullptr == m_PhaseData || m_X == nullptr || m_Y == nullptr)
   {
-    ss.string()->clear();
+    ss.str("");
     ss << "Internal pointers were nullptr at " << __FILE__ << "(" << __LINE__ << ")\n";
-    setErrorMessage(*(ss.string()));
+    setErrorMessage(ss.str());
     setErrorCode(-2500);
     return;
   }
@@ -465,18 +465,18 @@ void AngReader::readData(QFile& in, QByteArray& buf)
     if(i > 0)
     {
       //  ::memset(buf, 0, bufSize); // Clear the buffer
-      buf = in.readLine();
+      std::getline(in, buf);
       ++counter;
     }
     parseDataLine(buf, i);
     if(getErrorCode() < 0)
     {
-      ss.string()->clear();
+      ss.str("");
 
       ss << "Error parsing the data line (Numeric conversion). Error code is " << getErrorCode() << " and occurred at data column " << m_ErrorColumn << " (Zero Based)\n"
          << buf << "\n*** Header information ***\nRows=" << numRows << " EvenCols=" << nEvenCols << " OddCols=" << nOddCols << "  Calculated Data Points: " << totalDataPoints
          << "\n***Parsing Position ***\nCurrent Row: " << yChange << "  Current Column Index: " << col << "  Current Data Point Count: " << counter << "\n";
-      setErrorMessage(*(ss.string()));
+      setErrorMessage(ss.str());
       break;
     }
 
@@ -499,7 +499,7 @@ void AngReader::readData(QFile& in, QByteArray& buf)
     {
       ++nxEven;
     }
-    if(in.atEnd())
+    if(in.eof())
     {
       break;
     }
@@ -525,14 +525,14 @@ void AngReader::readData(QFile& in, QByteArray& buf)
     return;
   }
 
-  if(counter != totalDataPoints && in.atEnd())
+  if(counter != totalDataPoints && in.eof())
   {
-    ss.string()->clear();
+    ss.str("");
 
     ss << "End of ANG file reached before all data was parsed.\n"
        << getFileName() << "\n*** Header information ***\nRows=" << numRows << " EvenCols=" << nEvenCols << " OddCols=" << nOddCols << "  Calculated Data Points: " << totalDataPoints
        << "\n***Parsing Position ***\nCurrent Row: " << yChange << "  Current Column Index: " << col << "  Current Data Point Count: " << counter << "\n";
-    setErrorMessage(*(ss.string()));
+    setErrorMessage(ss.str());
     setErrorCode(-600);
   }
 }
@@ -540,7 +540,7 @@ void AngReader::readData(QFile& in, QByteArray& buf)
 // -----------------------------------------------------------------------------
 //  Read the Header part of the ANG file
 // -----------------------------------------------------------------------------
-void AngReader::parseHeaderLine(QByteArray& buf)
+void AngReader::parseHeaderLine(std::string& buf)
 {
   bool ok = false;
 
@@ -551,16 +551,20 @@ void AngReader::parseHeaderLine(QByteArray& buf)
     return;
   }
 
-  buf = buf.mid(1);       // remove the '#' charater
-  buf = buf.trimmed();    // remove leading/trailing white space
-  buf = buf.simplified(); // remove multiple white space characters internal to the array
+  buf = buf.substr(1);                    // remove the '#' charater
+  buf = EbsdStringUtils::trimmed(buf);    // remove leading/trailing white space
+  buf = EbsdStringUtils::simplified(buf); // remove multiple white space characters internal to the array
 
   // now split the array based on spaces
-  QList<QByteArray> tokens = buf.split(' ');
-  QString word(tokens.at(0));
-  if(word.lastIndexOf(':') > 0)
+  std::vector<std::string> tokens = EbsdStringUtils::split(buf, ' ');
+  std::string word;
+  if(!tokens.empty())
   {
-    word.chop(1);
+    word = tokens.at(0);
+  }
+  if(word.find_last_of(':') != std::string::npos)
+  {
+    word = EbsdStringUtils::chop(word, 1);
   }
 
   // If the word is "Phase" then we need to construct a "Phase" class and
@@ -568,63 +572,63 @@ void AngReader::parseHeaderLine(QByteArray& buf)
   // parsing data for the phase then stick the Phase instance into the header
   // map or stick it into a vector<Phase::Pointer> and stick the vector into
   // the map under the "Phase" key
-  if(word.compare(EbsdLib::Ang::Phase) == 0)
+  if(word == EbsdLib::Ang::Phase)
   {
     m_CurrentPhase = AngPhase::New();
-    m_CurrentPhase->setPhaseIndex(tokens.at(1).toInt(&ok, 10));
+    m_CurrentPhase->setPhaseIndex(std::stoi(tokens.at(1)));
     // Parsing the phase is complete, now add it to the vector of Phases
     m_PhaseVector.push_back(m_CurrentPhase);
   }
-  else if(word.compare(EbsdLib::Ang::MaterialName) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::MaterialName && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseMaterialName(tokens);
     }
   }
-  else if(word.compare(EbsdLib::Ang::Formula) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::Formula && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseFormula(tokens);
     }
   }
-  else if(word.compare(EbsdLib::Ang::Info) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::Info && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseInfo(tokens);
     }
   }
-  else if(word.compare(EbsdLib::Ang::Symmetry) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::Symmetry && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
-      m_CurrentPhase->setSymmetry(tokens.at(1).toUInt(&ok, 10));
+      m_CurrentPhase->setSymmetry(std::stoi(tokens.at(1)));
     }
   }
-  else if(word.compare(EbsdLib::Ang::LatticeConstants) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::LatticeConstants && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseLatticeConstants(tokens);
     }
   }
-  else if(word.compare(EbsdLib::Ang::NumberFamilies) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::NumberFamilies && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
-      m_CurrentPhase->setNumberFamilies(tokens.at(1).toInt(&ok, 10));
+      m_CurrentPhase->setNumberFamilies(std::stoi(tokens.at(1)));
     }
   }
-  else if(word.compare(EbsdLib::Ang::HKLFamilies) == 0 && m_CurrentPhase.get() != nullptr)
+  else if(word == EbsdLib::Ang::HKLFamilies && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseHKLFamilies(tokens);
     }
   }
-  else if(word.startsWith(EbsdLib::Ang::Categories) && m_CurrentPhase.get() != nullptr)
+  else if(word.find(EbsdLib::Ang::Categories) == 0 && m_CurrentPhase.get() != nullptr)
   {
     if(tokens.size() > 1)
     {
@@ -639,10 +643,10 @@ void AngReader::parseHeaderLine(QByteArray& buf)
 /*
 std::cout << "---------------------------" << std::endl;
 std::cout << "Could not find header entry for key'" << word << "'" << std::endl;
-QString upper(word);
+std::string upper(word);
 std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
 std::cout << "#define ANG_" << upper << "     \"" << word << "\"" << std::endl;
-std::cout << "const QString " << word << "(ANG_" << upper << ");" << std::endl;
+std::cout << "const std::string " << word << "(ANG_" << upper << ");" << std::endl;
 
 std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << word << "EbsdLib::Ang::" << word << std::endl;
 std::cout << "m_HeaderMap[EbsdLib::Ang::" << word << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::" << word << ");" << std::endl;
@@ -667,7 +671,7 @@ std::cout << "m_HeaderMap[EbsdLib::Ang::" << word << "] = AngHeaderEntry<float>:
 // -----------------------------------------------------------------------------
 //  Read the data part of the ANG file
 // -----------------------------------------------------------------------------
-void AngReader::parseDataLine(QByteArray& line, size_t i)
+void AngReader::parseDataLine(std::string& line, size_t i)
 {
   /* When reading the data there should be at least 8 cols of data. There may even
    * be 10 columns of data. The column names should be the following:
@@ -697,12 +701,14 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   float fit = -1.0f;
   int ph = 0;
   size_t offset = 0;
-  QList<QByteArray> tokens = line.trimmed().simplified().split(' ');
+  line = EbsdStringUtils::trimmed(line);
+  line = EbsdStringUtils::simplified(line);
+  std::vector<std::string> tokens = EbsdStringUtils::split(line, ' ');
   bool ok = true;
   offset = i;
   if(!tokens.empty())
   {
-    p1 = tokens[0].toFloat(&ok);
+    p1 = std::stof(tokens[0]);
     if(!ok)
     {
       setErrorCode(-2501);
@@ -712,7 +718,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 2)
   {
-    p = tokens[1].toFloat(&ok);
+    p = std::stof(tokens[1]);
     if(!ok)
     {
       setErrorCode(-2502);
@@ -722,7 +728,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 3)
   {
-    p2 = tokens[2].toFloat(&ok);
+    p2 = std::stof(tokens[2]);
     if(!ok)
     {
       setErrorCode(-2503);
@@ -732,7 +738,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 4)
   {
-    x = tokens[3].toFloat(&ok);
+    x = std::stof(tokens[3]);
     if(!ok)
     {
       setErrorCode(-2504);
@@ -742,7 +748,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 5)
   {
-    y = tokens[4].toFloat(&ok);
+    y = std::stof(tokens[4]);
     if(!ok)
     {
       setErrorCode(-2505);
@@ -752,7 +758,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 6)
   {
-    iqual = tokens[5].toFloat(&ok);
+    iqual = std::stof(tokens[5]);
     if(!ok)
     {
       setErrorCode(-2506);
@@ -762,7 +768,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 7)
   {
-    conf = tokens[6].toFloat(&ok);
+    conf = std::stof(tokens[6]);
     if(!ok)
     {
       setErrorCode(-2507);
@@ -772,22 +778,23 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 8)
   {
-    ph = tokens[7].toInt(&ok);
-    if(!ok)
+    try
+    {
+      ph = std::stoi(tokens[7]);
+    } catch(std::invalid_argument& e)
     {
       setErrorCode(-2508);
       m_ErrorColumn = 7;
       // Some have floats instead of integers so lets try that.
-      float f = tokens[7].toFloat(&ok);
-      if(!ok)
+      try
+      {
+        float f = std::stof(tokens[7]);
+        setErrorCode(0);
+        ph = static_cast<int32_t>(f);
+      } catch(std::invalid_argument& e)
       {
         setErrorCode(-2588);
         m_ErrorColumn = 7;
-      }
-      else
-      {
-        setErrorCode(0);
-        ph = static_cast<int32_t>(f);
       }
     }
     m_PhaseData[offset] = ph;
@@ -795,7 +802,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
 
   if(tokens.size() >= 9)
   {
-    semSignal = tokens[8].toFloat(&ok);
+    semSignal = std::stof(tokens[8]);
     if(!ok)
     {
       setErrorCode(-2509);
@@ -805,7 +812,7 @@ void AngReader::parseDataLine(QByteArray& line, size_t i)
   }
   if(tokens.size() >= 10)
   {
-    fit = tokens[9].toFloat(&ok);
+    fit = std::stof(tokens[9]);
     if(!ok)
     {
       setErrorCode(-2510);

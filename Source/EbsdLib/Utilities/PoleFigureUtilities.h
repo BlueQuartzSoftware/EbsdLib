@@ -37,8 +37,8 @@
 
 #include <memory>
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
@@ -48,14 +48,14 @@
  * @brief This structure controls how Pole Figures are generated. The Order member
  * is the trickiest to understad. Each SpaceGroup has a default order for displaying
  * the 3 pole figures that are created. If you need a different order then the
- * developer needs to create a 3 element QVector and set the order index for the
+ * developer needs to create a 3 element std::vector and set the order index for the
  * Pole Figure. For example the OrthorhombicOps generates 3 Pole Figures in the order
  * of <001>, <100>, <010>. If the developer would like the Pole Figures to appear
  * in the order of <100>, <010>, <100> then the oder needs to be set as [2, 0, 1].
  *
  * The other interesting item is the Labels. Each LaueOps subclass uses a default
  * label for each Pole Figure. If the developer would like to over ride those labels
- * then this member can be set with a 3 Element QVector<QString> with the new labels.
+ * then this member can be set with a 3 Element std::vector<std::string> with the new labels.
  * Note that the new lables will REPLACE the default labels.
  */
 struct PoleFigureConfiguration_t
@@ -69,10 +69,10 @@ struct PoleFigureConfiguration_t
   float sphereRadius;              ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
   bool discrete;                   ///<* Should the Pole Figure be generated as a discrete plot
   bool discreteHeatMap;            ///<* Should the discrete be colored via a heat map style coloring
-  QString colorMap;                ///<* Name of the ColorMap to use
-  QVector<QString> labels;         ///<* The labels for each of the 3 Pole Figures
-  QVector<unsigned int> order;     ///<* The order that the pole figures should appear in.
-  QString phaseName;               ///<* The Names of the phase
+  std::string colorMap;                ///<* Name of the ColorMap to use
+  std::vector<std::string> labels;         ///<* The labels for each of the 3 Pole Figures
+  std::vector<unsigned int> order;     ///<* The order that the pole figures should appear in.
+  std::string phaseName;               ///<* The Names of the phase
 };
 
 /**
@@ -99,7 +99,7 @@ public:
    * @param max
    * @return
    */
-  static EbsdLib::UInt8ArrayType::Pointer CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const QString& name, double min, double max);
+  static EbsdLib::UInt8ArrayType::Pointer CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const std::string& name, double min, double max);
 
   /**
    * @brief CreateColorImage

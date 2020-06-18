@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
 /**
  * @file EbsdConstants.h
@@ -46,7 +46,7 @@ namespace EbsdLib
 
 using Rgb = uint32_t;
 const Rgb RGB_MASK = 0x00ffffff; // masks RGB values
-const QString PathSep("|");
+const std::string PathSep("|");
 static const uint8_t Unchecked = 0;
 static const uint8_t PartiallyChecked = 1;
 static const uint8_t Checked = 2;
@@ -63,28 +63,28 @@ enum InfoStringFormat
 
 namespace StringConstants
 {
-const QString Statistics("Statistics");
-const QString StatsData("StatsData");
-const QString StatsType("StatsType");
-const QString GBCD("GBCD");
+const std::string Statistics("Statistics");
+const std::string StatsData("StatsData");
+const std::string StatsType("StatsType");
+const std::string GBCD("GBCD");
 } // namespace StringConstants
 
 namespace NumericTypes
 {
 namespace Names
 {
-const QString Int8("signed   int 8  bit");
-const QString UInt8("unsigned int 8  bit");
-const QString Int16("signed   int 16 bit");
-const QString UInt16("unsigned int 16 bit");
-const QString Int32("signed   int 32 bit");
-const QString UInt32("unsigned int 32 bit");
-const QString Int64("signed   int 64 bit");
-const QString UInt64("unsigned int 64 bit");
-const QString Float("       Float 32 bit");
-const QString Double("      Double 64 bit");
-const QString Bool("Bool");
-const QString SizeT("size_t");
+const std::string Int8("signed   int 8  bit");
+const std::string UInt8("unsigned int 8  bit");
+const std::string Int16("signed   int 16 bit");
+const std::string UInt16("unsigned int 16 bit");
+const std::string Int32("signed   int 32 bit");
+const std::string UInt32("unsigned int 32 bit");
+const std::string Int64("signed   int 64 bit");
+const std::string UInt64("unsigned int 64 bit");
+const std::string Float("       Float 32 bit");
+const std::string Double("      Double 64 bit");
+const std::string Bool("Bool");
+const std::string SizeT("size_t");
 } // namespace Names
 
 enum class Type : int
@@ -104,7 +104,7 @@ enum class Type : int
   UnknownNumType
 };
 
-const QString SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
+const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
                                 NumericTypes::Names::Int32 + ", " + NumericTypes::Names::UInt32 + ", " + NumericTypes::Names::Int64 + ", " + NumericTypes::Names::UInt64 + ", " +
                                 NumericTypes::Names::Float + ", " + NumericTypes::Names::Double + ", " + NumericTypes::Names::Bool + ", " + NumericTypes::Names::SizeT);
 } // namespace NumericTypes
@@ -119,35 +119,35 @@ static const unsigned int UnknownRefFrameZDirection = 2;
 
 namespace H5Ebsd
 {
-const QString Manufacturer("Manufacturer");
-const QString Header("Header");
-const QString Phases("Phases");
-const QString Phase("Phase");
-const QString Data("Data");
-const QString Index("Index");
+const std::string Manufacturer("Manufacturer");
+const std::string Header("Header");
+const std::string Phases("Phases");
+const std::string Phase("Phase");
+const std::string Data("Data");
+const std::string Index("Index");
 
-const QString ZStartIndex("ZStartIndex");
-const QString ZEndIndex("ZEndIndex");
-const QString ZResolution("Z Resolution");
-const QString StackingOrder("Stacking Order");
-const QString SampleTransformationAngle("SampleTransformationAngle");
-const QString SampleTransformationAxis("SampleTransformationAxis");
-const QString EulerTransformationAngle("EulerTransformationAngle");
-const QString EulerTransformationAxis("EulerTransformationAxis");
+const std::string ZStartIndex("ZStartIndex");
+const std::string ZEndIndex("ZEndIndex");
+const std::string ZResolution("Z Resolution");
+const std::string StackingOrder("Stacking Order");
+const std::string SampleTransformationAngle("SampleTransformationAngle");
+const std::string SampleTransformationAxis("SampleTransformationAxis");
+const std::string EulerTransformationAngle("EulerTransformationAngle");
+const std::string EulerTransformationAxis("EulerTransformationAxis");
 
 // Each Manufacturer has their own naming scheme for these variables but for
 // DREAM.3D we are going to settle on using these names for consistency
-const QString XResolution("X Resolution");
-const QString YResolution("Y Resolution");
+const std::string XResolution("X Resolution");
+const std::string YResolution("Y Resolution");
 
 // We store the Maximum number of X and Y Points for the given volume. This
 // allows us to store slices that have different XY voxel dimensions.
-const QString XPoints("Max X Points");
-const QString YPoints("Max Y Points");
+const std::string XPoints("Max X Points");
+const std::string YPoints("Max Y Points");
 
-const QString FileVersionStr("FileVersion");
+const std::string FileVersionStr("FileVersion");
 const unsigned int FileVersion = 5;
-const QString EbsdLibVersionStr("EbsdLibVersion");
+const std::string EbsdLibVersionStr("EbsdLibVersion");
 } // namespace H5Ebsd
 
 using EnumType = int32_t;
@@ -166,8 +166,8 @@ enum class OEM : EnumType
 
 namespace CellData
 {
-const QString EulerAngles("EulerAngles");
-const QString Phases("Phases");
+const std::string EulerAngles("EulerAngles");
+const std::string Phases("Phases");
 } // namespace CellData
 
 enum EbsdToSampleCoordinateMapping
@@ -180,14 +180,14 @@ enum EbsdToSampleCoordinateMapping
 
 namespace StackingOrder
 {
-const QString LowToHigh("Low To High");
-const QString HighToLow("High To Low");
-const QString UnknownStackingOrder("Unknown Stacking Order");
+const std::string LowToHigh("Low To High");
+const std::string HighToLow("High To Low");
+const std::string UnknownStackingOrder("Unknown Stacking Order");
 
 class Utils
 {
 public:
-  static QString getStringForEnum(unsigned int v)
+  static std::string getStringForEnum(unsigned int v)
   {
     if(EbsdLib::RefFrameZDir::LowtoHigh == v)
     {
@@ -200,7 +200,7 @@ public:
     return EbsdLib::StackingOrder::UnknownStackingOrder;
   }
 
-  static int getEnumForString(const QString& v)
+  static int getEnumForString(const std::string& v)
   {
     if(EbsdLib::StackingOrder::LowToHigh.compare(v) == 0)
     {
@@ -241,9 +241,9 @@ const unsigned int UnknownCrystalStructure = 999; //!< UnknownCrystalStructure
 
 namespace BravaisLattice
 {
-const QString Unknown("Unknown");
-const QString Cubic("Cubic");
-const QString Hexagonal("Hexagonal");
+const std::string Unknown("Unknown");
+const std::string Cubic("Cubic");
+const std::string Hexagonal("Hexagonal");
 } // namespace BravaisLattice
 
 namespace AngleRepresentation

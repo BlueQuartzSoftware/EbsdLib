@@ -150,7 +150,7 @@ std::array<size_t, 3> TrigonalLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString TrigonalLowOps::getSymmetryName() const
+std::string TrigonalLowOps::getSymmetryName() const
 {
   return "Trigonal -3";
   ;
@@ -707,9 +707,9 @@ EbsdLib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<0001>");
-  QString label1 = QString("<-1-120>");
-  QString label2 = QString("<2-1-10>");
+  std::string label0 = std::string("<0001>");
+  std::string label1 = std::string("<-1-120>");
+  std::string label2 = std::string("<2-1-10>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -728,11 +728,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -969,15 +969,15 @@ TrigonalLowOps::Pointer TrigonalLowOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString TrigonalLowOps::getNameOfClass() const
+std::string TrigonalLowOps::getNameOfClass() const
 {
-  return QString("TrigonalLowOps");
+  return std::string("TrigonalLowOps");
 }
 
 // -----------------------------------------------------------------------------
-QString TrigonalLowOps::ClassName()
+std::string TrigonalLowOps::ClassName()
 {
-  return QString("TrigonalLowOps");
+  return std::string("TrigonalLowOps");
 }
 
 // -----------------------------------------------------------------------------

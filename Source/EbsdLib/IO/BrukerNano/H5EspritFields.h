@@ -32,8 +32,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/Core/AbstractEbsdFields.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -57,13 +57,13 @@ public:
   /**
    * @brief Returns the name of the class for _SUPERH5EspritFields
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for _SUPERH5EspritFields
    */
-  static QString ClassName();
+  static std::string ClassName();
 
-  QVector<QString> getFieldNames() override;
+  std::vector<std::string> getFieldNames() override;
 
   template <typename T>
   T getFilterFeatures()

@@ -35,6 +35,7 @@
 
 #include "ModifiedLambertProjection.h"
 
+#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 
@@ -71,15 +72,15 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
   squareProj->initializeSquares(dimension, sphereRadius);
 
 #if WRITE_LAMBERT_SQUARE_COORD_VTK
-  QString ss;
-  QString filename("/tmp/");
+  std::string ss;
+  std::string filename("/tmp/");
   filename.append("ModifiedLambert_Square_Coords_").append(coords->getName()).append(".vtk");
   FILE* f = nullptr;
-  f = fopen(filename.toLatin1().data(), "wb");
+  f = fopen(filename.c_str(), "wb");
   if(nullptr == f)
   {
     ss.str("");
-    QString ss = QObject::tr("Could not open vtk viz file %1 for writing. Please check access permissions and the path to the output location exists").arg(filename);
+    std::string ss = QObject::tr("Could not open vtk viz file %1 for writing. Please check access permissions and the path to the output location exists").arg(filename);
     return squareProj;
   }
 
@@ -463,7 +464,7 @@ int ModifiedLambertProjection::getSquareIndex(float* sqCoord)
     y = 0;
   }
   int index = y * m_Dimension + x;
-  Q_ASSERT(index < m_Dimension * m_Dimension);
+  EBSD_INDEX_OUT_OF_RANGE(index < m_Dimension * m_Dimension);
   return index;
 }
 
@@ -608,15 +609,15 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::New()
 }
 
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjection::getNameOfClass() const
+std::string ModifiedLambertProjection::getNameOfClass() const
 {
-  return QString("ModifiedLambertProjection");
+  return std::string("ModifiedLambertProjection");
 }
 
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjection::ClassName()
+std::string ModifiedLambertProjection::ClassName()
 {
-  return QString("ModifiedLambertProjection");
+  return std::string("ModifiedLambertProjection");
 }
 
 // -----------------------------------------------------------------------------

@@ -160,7 +160,7 @@ std::array<size_t, 3> TetragonalOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString TetragonalOps::getSymmetryName() const
+std::string TetragonalOps::getSymmetryName() const
 {
   return "Tetragonal 4/mmm";
   ;
@@ -698,9 +698,9 @@ EbsdLib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<001>");
-  QString label1 = QString("<100>");
-  QString label2 = QString("<110>");
+  std::string label0 = std::string("<001>");
+  std::string label1 = std::string("<100>");
+  std::string label2 = std::string("<110>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -719,11 +719,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -1237,15 +1237,15 @@ TetragonalOps::Pointer TetragonalOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString TetragonalOps::getNameOfClass() const
+std::string TetragonalOps::getNameOfClass() const
 {
-  return QString("TetragonalOps");
+  return std::string("TetragonalOps");
 }
 
 // -----------------------------------------------------------------------------
-QString TetragonalOps::ClassName()
+std::string TetragonalOps::ClassName()
 {
-  return QString("TetragonalOps");
+  return std::string("TetragonalOps");
 }
 
 // -----------------------------------------------------------------------------

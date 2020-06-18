@@ -199,11 +199,11 @@ public:
    * @param sigma
    * @param cutoff
    * @param binstep
-   * @param x Type that adheres to the QVector API. Will be resize to 2 elements
-   * @param y Type that adheres to the QVector API. Will be resize to 2 elements
+   * @param x Type that adheres to the std::vector API. Will be resize to 2 elements
+   * @param y Type that adheres to the std::vector API. Will be resize to 2 elements
    * @param yMax
    * @param numsizebins Will be set to the number of bins
-   * @param binsizes Type that adheres to the QVector API. Will be resized to numsizebins and filled with the lower value of each bin.
+   * @param binsizes Type that adheres to the std::vector API. Will be resized to numsizebins and filled with the lower value of each bin.
    * @return
    */
   template <typename J, typename Vector>
@@ -334,8 +334,8 @@ public:
    * @brief  This method will generate ODF data for a Hexagonal material and
    * generate 3 scatter plots which are the
    * <001>, <011> and <111> directions. The method is a C++ Template which the parameter
-   * type is a QVector conforming class type that holds the data.
-   * QVector falls into this category. The input data for the
+   * type is a std::vector conforming class type that holds the data.
+   * std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
    * @param odf [input] The ODF data
    * @param eulers Euler angles to be generated. This memory must already be preallocated.
@@ -381,8 +381,8 @@ public:
    * @brief  This method will generate ODF data for a OrthoRhombic material and
    * generate 3 scatter plots which are the
    * <001>, <011> and <111> directions. The method is a C++ Template which the parameter
-   * type is a QVector conforming class type that holds the data.
-   * QVector falls into this category. The input data for the
+   * type is a std::vector conforming class type that holds the data.
+   * std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
    * @param odf The ODF Data
    * @param eulers Euler angles to be generated. This memory must already be preallocated.
@@ -429,8 +429,8 @@ public:
    * @brief  This method will generate ODF data for a OrthoRhombic material and
    * generate 3 scatter plots which are the
    * <001>, <011> and <111> directions. The method is a C++ Template which the parameter
-   * type is a QVector conforming class type that holds the data.
-   * QVector falls into this category. The input data for the
+   * type is a std::vector conforming class type that holds the data.
+   * std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
    * @param e1s The first euler angles (input)
    * @param e2s The second euler angles (input)

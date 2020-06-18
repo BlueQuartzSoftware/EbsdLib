@@ -37,8 +37,8 @@
 
 #include <cstring>
 
-#include <QtCore/QVector>
-#include <QtCore/QString>
+#include <vector>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -67,26 +67,26 @@ public:
   /**
    * @brief Returns the name of the class for CtfPhase
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for CtfPhase
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~CtfPhase();
 
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
 
-  EBSD_INSTANCE_PROPERTY(QVector<float>, LatticeConstants) // 1x6 array
+  EBSD_INSTANCE_PROPERTY(std::vector<float>, LatticeConstants) // 1x6 array
   /**
    * @brief Setter property for PhaseName
    */
-  void setPhaseName(const QString& value);
+  void setPhaseName(const std::string& value);
   /**
    * @brief Getter property for PhaseName
    * @return Value of PhaseName
    */
-  QString getPhaseName() const;
+  std::string getPhaseName() const;
 
   EBSD_INSTANCE_PROPERTY(EbsdLib::Ctf::LaueGroupTable, LaueGroup) // <== Laue Group
 
@@ -94,37 +94,37 @@ public:
   /**
    * @brief Setter property for Internal1
    */
-  void setInternal1(const QString& value);
+  void setInternal1(const std::string& value);
   /**
    * @brief Getter property for Internal1
    * @return Value of Internal1
    */
-  QString getInternal1() const;
+  std::string getInternal1() const;
 
   /**
    * @brief Setter property for Internal2
    */
-  void setInternal2(const QString& value);
+  void setInternal2(const std::string& value);
   /**
    * @brief Getter property for Internal2
    * @return Value of Internal2
    */
-  QString getInternal2() const;
+  std::string getInternal2() const;
 
   /**
    * @brief Setter property for Comment
    */
-  void setComment(const QString& value);
+  void setComment(const std::string& value);
   /**
    * @brief Getter property for Comment
    * @return Value of Comment
    */
-  QString getComment() const;
+  std::string getComment() const;
 
   /**
    * @brief Parses a header line into a CtfPhase class
    */
-  void parsePhase(QByteArray& line);
+  void parsePhase(const std::string& line);
 
   /**
    * @brief Prints some debugging info about this class
@@ -136,12 +136,12 @@ public:
    */
   unsigned int determineLaueGroup();
 
-  QString getMaterialName();
+  std::string getMaterialName();
 
 protected:
   CtfPhase();
 
-  void convertEuropeanDecimals(QByteArray& line);
+  void convertEuropeanDecimals(std::string& line);
 
 public:
   CtfPhase(const CtfPhase&) = delete;            // Copy Constructor Not Implemented
@@ -150,8 +150,8 @@ public:
   CtfPhase& operator=(CtfPhase&&) = delete;      // Move Assignment Not Implemented
 
 private:
-  QString m_PhaseName = {};
-  QString m_Internal1 = {};
-  QString m_Internal2 = {};
-  QString m_Comment = {};
+  std::string m_PhaseName = {};
+  std::string m_Internal1 = {};
+  std::string m_Internal2 = {};
+  std::string m_Comment = {};
 };

@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QSet>
+#include <string>
+#include <set>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -65,11 +65,11 @@ public:
   /**
    * @brief Returns the name of the class for _SUPERH5EbsdVolumeReader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for _SUPERH5EbsdVolumeReader
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   EBSD_STATIC_NEW_MACRO(H5EbsdVolumeReader)
 
@@ -117,14 +117,14 @@ public:
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  virtual void* getPointerByName(const QString& featureName);
+  virtual void* getPointerByName(const std::string& featureName);
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  virtual EbsdLib::NumericTypes::Type getPointerType(const QString& featureName);
+  virtual EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName);
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -139,8 +139,8 @@ public:
    * @brief Sets the names of the arrays to read out of the file
    * @param names
    */
-  virtual void setArraysToRead(QSet<QString> names);
-  virtual QSet<QString> getArraysToRead();
+  virtual void setArraysToRead(std::set<std::string> names);
+  virtual std::set<std::string> getArraysToRead();
 
   /**
    * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
@@ -154,7 +154,7 @@ protected:
   H5EbsdVolumeReader();
 
 private:
-  QSet<QString> m_ArrayNames;
+  std::set<std::string> m_ArrayNames;
   bool m_ReadAllArrays;
 
 public:

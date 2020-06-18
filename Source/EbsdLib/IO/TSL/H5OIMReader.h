@@ -37,9 +37,10 @@
 
 #include <hdf5.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <list>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -98,11 +99,11 @@ public:
   /**
    * @brief Returns the name of the class for H5OIMReader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5OIMReader
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   ~H5OIMReader() override;
 
@@ -112,12 +113,12 @@ public:
   /**
    * @brief Setter property for HDF5Path
    */
-  void setHDF5Path(const QString& value);
+  void setHDF5Path(const std::string& value);
   /**
    * @brief Getter property for HDF5Path
    * @return Value of HDF5Path
    */
-  QString getHDF5Path() const;
+  std::string getHDF5Path() const;
 
   EBSD_INSTANCE_PROPERTY(bool, ReadPatternData)
 
@@ -133,7 +134,7 @@ public:
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::StepY)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, QString, Grid, EbsdLib::Ang::GridType)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::Ang::GridType)
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::Ang::PatternWidth)
 
@@ -149,7 +150,7 @@ public:
    * @brief readScanNames
    * @return
    */
-  int readScanNames(QStringList& names);
+  int readScanNames(std::list<std::string>& names);
 
   /**
    * @brief Reads the header section of the file
@@ -168,13 +169,13 @@ public:
    * @brief Returns a vector of AngPhase objects corresponding to the phases
    * present in the file
    */
-  // QVector<AngPhase::Pointer> getPhases() { return m_Phases; }
+  // std::vector<AngPhase::Pointer> getPhases() { return m_Phases; }
 
   /**
    * @brief Sets the names of the arrays to read out of the file
    * @param names
    */
-  void setArraysToRead(const QSet<QString>& names);
+  void setArraysToRead(const std::set<std::string>& names);
 
   /**
    * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
@@ -206,9 +207,9 @@ protected:
   int readData(hid_t parId);
 
 private:
-  QString m_HDF5Path = {};
+  std::string m_HDF5Path = {};
 
-  QSet<QString> m_ArrayNames;
+  std::set<std::string> m_ArrayNames;
   bool m_ReadAllArrays = true;
 
 public:

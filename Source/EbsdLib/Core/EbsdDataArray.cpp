@@ -35,7 +35,12 @@
 
 #include "EbsdDataArray.hpp"
 
-#include <QtCore/QDebug>
+#include <cstring>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <numeric>
+#include <string>
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -62,16 +67,12 @@
 #define EBSD_BYTE_SWAP_64(x) bswap_64(x)
 #endif
 
-#include <string>
-#include <cstring>
-#include <functional>
-#include <iostream>
-#include <numeric>
-
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
 #include "SIMPLib/HDF5/H5EbsdDataArrayReader.h"
 #include "SIMPLib/HDF5/H5EbsdDataArrayWriter.hpp"
 #endif
+
+#include "EbsdLib/Core/EbsdMacros.h"
 
 namespace
 {
@@ -129,13 +130,13 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::NullPointer()
 }
 
 template <typename T>
-QString EbsdDataArray<T>::getNameOfClass() const
+std::string EbsdDataArray<T>::getNameOfClass() const
 {
   return ClassName();
 }
 
 template <typename T>
-QString EbsdDataArray<T>::ClassName()
+std::string EbsdDataArray<T>::ClassName()
 {
   return "EbsdDataArray<T>";
 }
@@ -157,7 +158,7 @@ EbsdDataArray<T>::EbsdDataArray() = default;
  * @param initValue The value to use when initializing each element of the array
  */
 template <typename T>
-EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, T initValue)
+EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const std::string& name, T initValue)
 : m_Name(name)
 , m_InitValue(initValue)
 {
@@ -174,7 +175,7 @@ EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, T initVal
  * For example if you have a 2D image dimensions of 80(w) x 60(h) then the "cdims" would be [80][60]
  */
 template <typename T>
-EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue)
+EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const std::string& name, const comp_dims_type& compDims, T initValue)
 : m_Name(name)
 , m_NumTuples(numTuples)
 , m_InitValue(initValue)
@@ -193,7 +194,7 @@ EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, const com
  * @param allocate Will all the memory be allocated at time of construction
  */
 template <typename T>
-EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue, bool allocate)
+EbsdDataArray<T>::EbsdDataArray(size_t numTuples, const std::string& name, const comp_dims_type& compDims, T initValue, bool allocate)
 : m_Name(name)
 , m_NumTuples(numTuples)
 , m_InitValue(initValue)
@@ -221,9 +222,9 @@ EbsdDataArray<T>::~EbsdDataArray()
 }
 
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, const QString& name, bool allocate)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, const std::string& name, bool allocate)
 {
-  if(name.isEmpty())
+  if(name.empty())
   {
     return nullptr;
   }
@@ -242,9 +243,9 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuple
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, int32_t rank, const size_t* dims, const QString& name, bool allocate)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, int32_t rank, const size_t* dims, const std::string& name, bool allocate)
 {
-  if(name.isEmpty())
+  if(name.empty())
   {
     return nullptr;
   }
@@ -264,9 +265,9 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuple
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool allocate)
 {
-  if(name.isEmpty())
+  if(name.empty())
   {
     return nullptr;
   }
@@ -284,9 +285,9 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(size_t numTuple
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(const comp_dims_type& tupleDims, const comp_dims_type& compDims, const QString& name, bool allocate)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(const comp_dims_type& tupleDims, const comp_dims_type& compDims, const std::string& name, bool allocate)
 {
-  if(name.isEmpty())
+  if(name.empty())
   {
     return nullptr;
   }
@@ -306,20 +307,20 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CreateArray(const comp_dims
 }
 
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, int rank, const size_t* compDims, const QString& name, bool allocate) const
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, int rank, const size_t* compDims, const std::string& name, bool allocate) const
 {
   return EbsdDataArray<T>::CreateArray(numTuples, rank, compDims, name, allocate);
 }
 
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate) const
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::createNewArray(size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool allocate) const
 {
   return EbsdDataArray<T>::CreateArray(numTuples, compDims, name, allocate);
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromQVector(const QVector<T>& vec, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromQVector(const std::vector<T>& vec, const std::string& name)
 {
   Pointer p = CreateArray(static_cast<size_t>(vec.size()), name, true);
   if(nullptr != p)
@@ -331,7 +332,7 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromQVector(const QVector<T
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::vector<T>& vec, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::vector<T>& vec, const std::string& name)
 {
   comp_dims_type cDims = {1};
   Pointer p = CreateArray(vec.size(), cDims, name, true);
@@ -344,7 +345,7 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::ve
 
 // -----------------------------------------------------------------------------
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(const T* data, size_t size, const QString& name)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(const T* data, size_t size, const std::string& name)
 {
   Pointer p = CreateArray(size, name, true);
   if(nullptr != p)
@@ -366,7 +367,7 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(const T* da
  * @return
  */
 template <typename T>
-typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const QString& name, bool ownsData)
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool ownsData)
 {
   // Allocate on the heap
   auto d = std::make_shared<EbsdDataArray<T>>(numTuples, name, compDims, static_cast<T>(0), false);
@@ -386,13 +387,13 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::WrapPointer(T* data, size_t
 //========================================= Begin API =================================
 
 template <typename T>
-void EbsdDataArray<T>::setName(const QString& name)
+void EbsdDataArray<T>::setName(const std::string& name)
 {
   m_Name = name;
 }
 
 template <typename T>
-QString EbsdDataArray<T>::getName() const
+std::string EbsdDataArray<T>::getName() const
 {
   return m_Name;
 }
@@ -471,7 +472,7 @@ EbsdLib::NumericTypes::Type EbsdDataArray<T>::getType() const
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const
+void EbsdDataArray<T>::getXdmfTypeAndSize(std::string& xdmfTypeName, int& precision) const
 {
   xdmfTypeName = "UNKNOWN";
   precision = 0;
@@ -646,7 +647,7 @@ int32_t EbsdDataArray<T>::allocate()
   m_Array = new(std::nothrow) T[newSize]();
   if(!m_Array)
   {
-    qDebug() << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
+    std::cout << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
     return -1;
   }
   m_Size = newSize;
@@ -863,7 +864,7 @@ T* EbsdDataArray<T>::getPointer(size_t i) const
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i < m_Size);
   }
 #endif
   return m_Array + i;
@@ -876,7 +877,7 @@ T EbsdDataArray<T>::getValue(size_t i) const
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i < m_Size);
   }
 #endif
   return m_Array[i];
@@ -889,7 +890,7 @@ void EbsdDataArray<T>::setValue(size_t i, T value)
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i < m_Size);
   }
 #endif
   m_Array[i] = value;
@@ -902,7 +903,7 @@ T EbsdDataArray<T>::getComponent(size_t i, int32_t j) const
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i * m_NumComponents + static_cast<size_t>(j) < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i * m_NumComponents + static_cast<size_t>(j) < m_Size);
   }
 #endif
   return m_Array[i * m_NumComponents + static_cast<size_t>(j)];
@@ -915,7 +916,7 @@ void EbsdDataArray<T>::setComponent(size_t i, int32_t j, T c)
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i * m_NumComponents + static_cast<size_t>(j) < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i * m_NumComponents + static_cast<size_t>(j) < m_Size);
   }
 #endif
   m_Array[i * m_NumComponents + static_cast<size_t>(j)] = c;
@@ -928,7 +929,7 @@ void EbsdDataArray<T>::setTuple(size_t tupleIndex, const T* data)
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
   }
 #endif
   std::copy(data, data + m_NumComponents, begin() + (tupleIndex * m_NumComponents));
@@ -941,7 +942,7 @@ void EbsdDataArray<T>::setTuple(size_t tupleIndex, const std::vector<T>& data)
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(tupleIndex * m_NumComponents + (m_NumComponents - 1) < m_Size);
   }
 #endif
   auto srcBegin = data.cbegin();
@@ -960,7 +961,7 @@ void EbsdDataArray<T>::initializeTuple(size_t i, const void* p)
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(i * m_NumComponents < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(i * m_NumComponents < m_Size);
   }
 #endif
   if(nullptr == p)
@@ -978,7 +979,7 @@ T* EbsdDataArray<T>::getTuplePointer(size_t tupleIndex) const
 #ifndef NDEBUG
   if(m_Size > 0)
   {
-    Q_ASSERT(tupleIndex * m_NumComponents < m_Size);
+    EBSD_INDEX_OUT_OF_RANGE(tupleIndex * m_NumComponents < m_Size);
   }
 #endif
   return m_Array + (tupleIndex * m_NumComponents);
@@ -997,16 +998,16 @@ void EbsdDataArray<T>::resizeTuples(size_t numTuples)
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::printTuple(QTextStream& out, size_t i, char delimiter) const
+void EbsdDataArray<T>::printTuple(std::stringstream& out, size_t i, char delimiter) const
 {
-  int32_t precision = out.realNumberPrecision();
+  int32_t precision = 8;
   if constexpr(std::is_same_v<T, float>)
   {
-    out.setRealNumberPrecision(8);
+    precision = 8;
   }
   else if constexpr(std::is_same_v<T, double>)
   {
-    out.setRealNumberPrecision(16);
+    precision = 16;
   }
 
   for(size_t j = 0; j < m_NumComponents; ++j)
@@ -1015,30 +1016,29 @@ void EbsdDataArray<T>::printTuple(QTextStream& out, size_t i, char delimiter) co
     {
       out << delimiter;
     }
-    out << m_Array[i * m_NumComponents + j];
+    out << std::setw(precision) << m_Array[i * m_NumComponents + j];
   }
-  out.setRealNumberPrecision(precision);
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::printComponent(QTextStream& out, size_t i, int32_t j) const
+void EbsdDataArray<T>::printComponent(std::stringstream& out, size_t i, int32_t j) const
 {
   out << m_Array[i * m_NumComponents + static_cast<size_t>(j)];
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-QString EbsdDataArray<T>::getFullNameOfClass() const
+std::string EbsdDataArray<T>::getFullNameOfClass() const
 {
-  QString theType = getTypeAsString();
+  std::string theType = getTypeAsString();
   theType = "EbsdDataArray<" + theType + ">";
   return theType;
 }
 
 // -----------------------------------------------------------------------------
 template <typename T>
-QString EbsdDataArray<T>::getTypeAsString() const
+std::string EbsdDataArray<T>::getTypeAsString() const
 {
   if constexpr(std::is_same_v<T, int8_t>)
   {
@@ -1103,15 +1103,15 @@ int EbsdDataArray<T>::writeH5Data(hid_t parentId, comp_dims_type tDims) const
 
 // -----------------------------------------------------------------------------
 template <typename T>
-int EbsdDataArray<T>::writeXdmfAttribute(QTextStream& out, const int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& label) const
+int EbsdDataArray<T>::writeXdmfAttribute(std::stringstream& out, const int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& label) const
 {
   if(m_Array == nullptr)
   {
     return -85648;
   }
-  QString dimStr;
+  std::stringstream dimStr;
   int32_t precision = 0;
-  QString xdmfTypeName;
+  std::string xdmfTypeName;
   getXdmfTypeAndSize(xdmfTypeName, precision);
   if(0 == precision)
   {
@@ -1126,26 +1126,26 @@ int EbsdDataArray<T>::writeXdmfAttribute(QTextStream& out, const int64_t* volDim
   if(numComp == 1)
   {
     out << "AttributeType=\"Scalar\" ";
-    dimStr = QString("%1 %2 %3 ").arg(volDims[2]).arg(volDims[1]).arg(volDims[0]);
+    dimStr << volDims[2] << " " << volDims[1] << " " << volDims[0];
   }
   else if(numComp == 6)
   {
     out << "AttributeType=\"Tensor6\" ";
-    dimStr = QString("%1 %2 %3 %4 ").arg(volDims[2]).arg(volDims[1]).arg(volDims[0]).arg(numComp);
+    dimStr << " " << volDims[2] << " " << volDims[1] << " " << volDims[0] << " " << numComp;
   }
   else if(numComp == 9)
   {
     out << "AttributeType=\"Tensor\" ";
-    dimStr = QString("%1 %2 %3 %4 ").arg(volDims[2]).arg(volDims[1]).arg(volDims[0]).arg(numComp);
+    dimStr << " " << volDims[2] << " " << volDims[1] << " " << volDims[0] << " " << numComp;
   }
   else
   {
     out << "AttributeType=\"Vector\" ";
-    dimStr = QString("%1 %2 %3 %4 ").arg(volDims[2]).arg(volDims[1]).arg(volDims[0]).arg(numComp);
+    dimStr << " " << volDims[2] << " " << volDims[1] << " " << volDims[0] << " " << numComp;
   }
   out << "Center=\"Cell\">\n";
   // Open the <DataItem> Tag
-  out << R"(      <DataItem Format="HDF" Dimensions=")" << dimStr << R"(" )";
+  out << R"(      <DataItem Format="HDF" Dimensions=")" << dimStr.str() << R"(" )";
   out << "NumberType=\"" << xdmfTypeName << "\" "
       << "Precision=\"" << precision << "\" >\n";
 
@@ -1159,13 +1159,10 @@ int EbsdDataArray<T>::writeXdmfAttribute(QTextStream& out, const int64_t* volDim
 
 // -----------------------------------------------------------------------------
 template <typename T>
-QString EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
+std::string EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
 {
-
-  QLocale usa(QLocale::English, QLocale::UnitedStates);
-
-  QString info;
-  QTextStream ss(&info);
+  std::string info;
+  std::stringstream ss;
   if(format == EbsdLib::HtmlFormat)
   {
     ss << "<html><head></head>\n";
@@ -1177,24 +1174,25 @@ QString EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
     ss << R"(<tr bgcolor="#E9E7D6"><th align="right">Name:</th><td>)" << getName() << "</td></tr>";
 
     ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Type:</th><td> EbsdDataArray&lt;)" << getTypeAsString() << "&gt;</td></tr>";
-    QString numStr = usa.toString(static_cast<qlonglong>(getNumberOfTuples()));
-    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Number of Tuples:</th><td>)" << numStr << "</td></tr>";
 
-    QString compDimStr = "(";
+    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Number of Tuples:</th><td>)" << getNumberOfTuples() << "</td></tr>";
+
+    std::stringstream compDimStr;
+    compDimStr << "(";
     for(size_t i = 0; i < m_CompDims.size(); i++)
     {
-      compDimStr += QString::number(m_CompDims[i]);
+      compDimStr << m_CompDims[i];
       if(i < m_CompDims.size() - 1)
       {
-        compDimStr += ", ";
+        compDimStr << ", ";
       }
     }
-    compDimStr = compDimStr + ")";
-    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Component Dimensions:</th><td>)" << compDimStr << "</td></tr>";
-    numStr = usa.toString(static_cast<qlonglong>(m_Size));
-    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Total Elements:</th><td>)" << numStr << "</td></tr>";
-    numStr = usa.toString(static_cast<qlonglong>(m_Size * sizeof(T)));
-    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Total Memory Required:</th><td>)" << numStr << "</td></tr>";
+    compDimStr << ")";
+    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Component Dimensions:</th><td>)" << compDimStr.str() << "</td></tr>";
+
+    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Total Elements:</th><td>)" << m_Size << "</td></tr>";
+
+    ss << R"(<tr bgcolor="#FFFCEA"><th align="right">Total Memory Required:</th><td>)" << m_Size * sizeof(T) << "</td></tr>";
     ss << "</tbody></table>\n";
     ss << "</body></html>";
   }
@@ -1203,17 +1201,18 @@ QString EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
     ss << "+ Name: " << getName() << "\n";
     ss << "+ Type: " << getTypeAsString() << "\n";
     ss << "+ Num. Tuple: " << getNumberOfTuples() << "\n";
-    QString compDimStr = "(";
+    std::stringstream compDimStr;
+    compDimStr << "(";
     for(size_t i = 0; i < m_CompDims.size(); i++)
     {
-      compDimStr += QString::number(m_CompDims[i]);
+      compDimStr << m_CompDims[i];
       if(i < m_CompDims.size() - 1)
       {
-        compDimStr += ", ";
+        compDimStr << ", ";
       }
     }
-    compDimStr = compDimStr + ")";
-    ss << "+ Comp. Dims: " << compDimStr << "\n";
+    compDimStr << +")";
+    ss << "+ Comp. Dims: " << compDimStr.str() << "\n";
     ss << "+ Total Elements:  " << m_Size << "\n";
     ss << "+ Total Memory: " << (m_Size * sizeof(T)) << "\n";
   }
@@ -1489,7 +1488,7 @@ void EbsdDataArray<T>::deallocate()
           || MUD_FLAP_4 != 0xABABABABABABABABul
           || MUD_FLAP_5 != 0xABABABABABABABABul)
       {
-        Q_ASSERT(false);
+        EBSD_INDEX_OUT_OF_RANGE(false);
       }
 #endif
 
@@ -1543,7 +1542,7 @@ T* EbsdDataArray<T>::resizeAndExtend(size_t size)
   newArray = new(std::nothrow) T[newSize]();
   if(!newArray)
   {
-    qDebug() << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
+    std::cout << "Unable to allocate " << newSize << " elements of size " << sizeof(T) << " bytes. ";
     return nullptr;
   }
 

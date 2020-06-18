@@ -96,15 +96,15 @@ TexturePreset::Pointer TexturePreset::New()
 }
 
 // -----------------------------------------------------------------------------
-QString TexturePreset::getNameOfClass() const
+std::string TexturePreset::getNameOfClass() const
 {
-  return QString("TexturePreset");
+  return std::string("TexturePreset");
 }
 
 // -----------------------------------------------------------------------------
-QString TexturePreset::ClassName()
+std::string TexturePreset::ClassName()
 {
-  return QString("TexturePreset");
+  return std::string("TexturePreset");
 }
 
 // -----------------------------------------------------------------------------
@@ -120,13 +120,13 @@ unsigned int TexturePreset::getCrystalStructure() const
 }
 
 // -----------------------------------------------------------------------------
-void TexturePreset::setName(const QString& value)
+void TexturePreset::setName(const std::string& value)
 {
   m_Name = value;
 }
 
 // -----------------------------------------------------------------------------
-QString TexturePreset::getName() const
+std::string TexturePreset::getName() const
 {
   return m_Name;
 }

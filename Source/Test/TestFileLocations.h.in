@@ -42,7 +42,7 @@
  * CMake time.
  */
 
-#include <QtCore/QString>
+#include <string>
 
 #define REMOVE_TEST_FILES 1
 
@@ -50,65 +50,65 @@
 namespace UnitTest
 {
 
-  const QString DataDir("@EbsdLibProj_SOURCE_DIR@/Data/");
-  const QString TestTempDir("@TEST_TEMP_DIR@");
-  const QString DREAM3DProjDir("@EbsdLibProj_SOURCE_DIR@");
+  const std::string DataDir("@EbsdLibProj_SOURCE_DIR@/Data/");
+  const std::string TestTempDir("@TEST_TEMP_DIR@");
+  const std::string DREAM3DProjDir("@EbsdLibProj_SOURCE_DIR@");
 
   namespace AngImportTest {
-    const QString FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
-    const QString TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
-    const QString TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
-    const QString TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
-    const QString H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromAng.h5ebsd");
-    const QString MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
-    const QString GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
-    const QString MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
-    const QString HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHeader.ang");
-    const QString ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
-    const QString EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
+    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
+    const std::string TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
+    const std::string TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
+    const std::string TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
+    const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromAng.h5ebsd");
+    const std::string MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
+    const std::string GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
+    const std::string MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
+    const std::string HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHeader.ang");
+    const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
+    const std::string EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
   }
 
   namespace CtfReaderTest
   {
-    const QString FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
-    const QString EuropeanInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_1.ctf");
-    const QString USInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_1.ctf");
-    const QString EuropeanInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_2.ctf");
-    const QString USInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2.ctf");
-    const QString Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Corrupted_XCells.ctf");
-    const QString ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
-    const QString ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
+    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
+    const std::string EuropeanInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_1.ctf");
+    const std::string USInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_1.ctf");
+    const std::string EuropeanInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_2.ctf");
+    const std::string USInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2.ctf");
+    const std::string Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Corrupted_XCells.ctf");
+    const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
+    const std::string ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
 
-    const QString H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromCtf.h5ebsd");
+    const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromCtf.h5ebsd");
   }
 
   namespace HedmReaderTest
   {
-    const QString FileDir("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles");
-    const QString ConfigFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.config");
-    const QString DatFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.dat");
-    const QString MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.mic");
+    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles");
+    const std::string ConfigFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.config");
+    const std::string DatFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.dat");
+    const std::string MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.mic");
   }
 
   namespace H5EspritReaderTest
   {
-     const QString InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
-     const QString OutputFile("@EbsdLibTest_BINARY_DIR@/H5Esprit_Output_File.h5");
+     const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
+     const std::string OutputFile("@EbsdLibTest_BINARY_DIR@/H5Esprit_Output_File.h5");
   }
 
   namespace IPFLegendTest
   {
-    const QString CubicLowFile("@TEST_TEMP_DIR@/Cubic_Low_m3(Tetrahedral).png");
-    const QString CubicHighFile("@TEST_TEMP_DIR@/Cubic_High_m3m.png");
-    const QString HexagonalLowFile("@TEST_TEMP_DIR@/Hexagonal-Low_6_m.png");
-    const QString HexagonalHighFile("@TEST_TEMP_DIR@/Hexagonal-High_6_mmm.png");
-    const QString MonoclinicFile("@TEST_TEMP_DIR@/Monoclinic-2_m.png");
-    const QString OrthorhombicFile("@TEST_TEMP_DIR@/Orthorhombic_mmm.png");
-    const QString TetragonalLowFile("@TEST_TEMP_DIR@/Tetragonal_Low_4m.png");
-    const QString TetragonalHighFile("@TEST_TEMP_DIR@/Tetragonal_High_4mmm.png");
-    const QString TriclinicFile("@TEST_TEMP_DIR@/Triclinic-1.png");
-    const QString TrignonalLowFile("@TEST_TEMP_DIR@/Trigonal-3.png");
-    const QString TrignonalHighFile("@TEST_TEMP_DIR@/Trigonal_high-3m.png");
+    const std::string CubicLowFile("@TEST_TEMP_DIR@/Cubic_Low_m3(Tetrahedral).png");
+    const std::string CubicHighFile("@TEST_TEMP_DIR@/Cubic_High_m3m.png");
+    const std::string HexagonalLowFile("@TEST_TEMP_DIR@/Hexagonal-Low_6_m.png");
+    const std::string HexagonalHighFile("@TEST_TEMP_DIR@/Hexagonal-High_6_mmm.png");
+    const std::string MonoclinicFile("@TEST_TEMP_DIR@/Monoclinic-2_m.png");
+    const std::string OrthorhombicFile("@TEST_TEMP_DIR@/Orthorhombic_mmm.png");
+    const std::string TetragonalLowFile("@TEST_TEMP_DIR@/Tetragonal_Low_4m.png");
+    const std::string TetragonalHighFile("@TEST_TEMP_DIR@/Tetragonal_High_4mmm.png");
+    const std::string TriclinicFile("@TEST_TEMP_DIR@/Triclinic-1.png");
+    const std::string TrignonalLowFile("@TEST_TEMP_DIR@/Trigonal-3.png");
+    const std::string TrignonalHighFile("@TEST_TEMP_DIR@/Trigonal_high-3m.png");
   }
 
 

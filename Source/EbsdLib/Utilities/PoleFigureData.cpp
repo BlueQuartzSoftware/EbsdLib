@@ -39,7 +39,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PoleFigureData::PoleFigureData(QVector<float>& xData, QVector<float>& yData, const QString& s, qint32* kernelRad, qint32* size)
+PoleFigureData::PoleFigureData(std::vector<float>& xData, std::vector<float>& yData, const std::string& s, int32_t* kernelRad, int32_t* size)
 : xData(xData)
 , yData(yData)
 , label(s)

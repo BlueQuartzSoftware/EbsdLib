@@ -192,7 +192,7 @@ std::array<size_t, 3> CubicLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString CubicLowOps::getSymmetryName() const
+std::string CubicLowOps::getSymmetryName() const
 {
   return "Cubic m3 (Tetrahedral)";
 }
@@ -946,9 +946,9 @@ EbsdLib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<001>");
-  QString label1 = QString("<011>");
-  QString label2 = QString("<111>");
+  std::string label0 = std::string("<001>");
+  std::string label1 = std::string("<011>");
+  std::string label2 = std::string("<111>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -967,11 +967,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * CubicLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -1238,15 +1238,15 @@ CubicLowOps::Pointer CubicLowOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString CubicLowOps::getNameOfClass() const
+std::string CubicLowOps::getNameOfClass() const
 {
-  return QString("CubicLowOps");
+  return std::string("CubicLowOps");
 }
 
 // -----------------------------------------------------------------------------
-QString CubicLowOps::ClassName()
+std::string CubicLowOps::ClassName()
 {
-  return QString("CubicLowOps");
+  return std::string("CubicLowOps");
 }
 
 // -----------------------------------------------------------------------------

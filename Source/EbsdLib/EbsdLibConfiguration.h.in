@@ -18,6 +18,10 @@
 * during an MSVC build */
 #cmakedefine EbsdLib_DISABLE_MSVC_WARNINGS
 
+#include <vector>
+
+using ByteArrayType = std::vector<char>;
+
 #if (_MSC_VER >= 1)
 
   #pragma warning (error: 4715) /* Not all control points return a value */

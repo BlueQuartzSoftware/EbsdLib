@@ -38,7 +38,7 @@
 #include <memory>
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
@@ -63,13 +63,13 @@ public:
   /**
    * @brief Returns the name of the class for TexturePreset
    */
-  virtual QString getNameOfClass() const;
+  virtual std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for TexturePreset
    */
-  static QString ClassName();
+  static std::string ClassName();
 
-  static Pointer New(unsigned int xtal, const QString& name, double e1, double e2, double e3)
+  static Pointer New(unsigned int xtal, const std::string& name, double e1, double e2, double e3)
   {
     Pointer p(new TexturePreset);
     p->setCrystalStructure(xtal);
@@ -95,12 +95,12 @@ public:
   /**
    * @brief Setter property for Name
    */
-  void setName(const QString& value);
+  void setName(const std::string& value);
   /**
    * @brief Getter property for Name
    * @return Value of Name
    */
-  QString getName() const;
+  std::string getName() const;
 
   /**
    * @brief Setter property for Euler1
@@ -143,7 +143,7 @@ public:
 
 private:
   unsigned int m_CrystalStructure = {};
-  QString m_Name = {};
+  std::string m_Name = {};
   double m_Euler1 = {};
   double m_Euler2 = {};
   double m_Euler3 = {};

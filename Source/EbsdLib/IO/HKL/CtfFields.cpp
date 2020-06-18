@@ -47,9 +47,9 @@ CtfFields::~CtfFields() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> CtfFields::getFieldNames()
+std::vector<std::string> CtfFields::getFieldNames()
 {
-  QVector<QString> features;
+  std::vector<std::string> features;
   features.push_back(EbsdLib::Ctf::Phase);
   features.push_back(EbsdLib::Ctf::X);
   features.push_back(EbsdLib::Ctf::Y);
@@ -71,13 +71,13 @@ QVector<QString> CtfFields::getFieldNames()
 }
 
 // -----------------------------------------------------------------------------
-QString CtfFields::getNameOfClass() const
+std::string CtfFields::getNameOfClass() const
 {
-  return QString("_SUPERCtfFields");
+  return std::string("_SUPERCtfFields");
 }
 
 // -----------------------------------------------------------------------------
-QString CtfFields::ClassName()
+std::string CtfFields::ClassName()
 {
-  return QString("_SUPERCtfFields");
+  return std::string("_SUPERCtfFields");
 }

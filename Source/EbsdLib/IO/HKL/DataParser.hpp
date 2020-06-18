@@ -35,8 +35,9 @@
 
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
+#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 class DataParser
@@ -55,16 +56,16 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  const QString getNameOfClass() const
+  const std::string getNameOfClass() const
   {
-    return QString("DataParser");
+    return std::string("DataParser");
   }
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  static QString ClassName()
+  static std::string ClassName()
   {
-    return QString("DataParser");
+    return std::string("DataParser");
   }
 
   /**
@@ -96,7 +97,7 @@ public:
   EBSD_INSTANCE_STRING_PROPERTY(ColumnName)
   EBSD_INSTANCE_PROPERTY(int, ColumnIndex)
 
-  virtual void parse(const QByteArray& token, size_t index)
+  virtual void parse(const std::string& token, size_t index)
   {
   }
 
@@ -135,16 +136,16 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  const QString getNameOfClass() const
+  std::string getNameOfClass() const
   {
-    return QString("Int32Parser");
+    return std::string("Int32Parser");
   }
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  static QString ClassName()
+  static std::string ClassName()
   {
-    return QString("Int32Parser");
+    return std::string("Int32Parser");
   }
 
   int32_t IsA() const override
@@ -152,7 +153,7 @@ public:
     return 1;
   }
 
-  static Pointer New(int32_t* ptr, size_t size, const QString& name, int index)
+  static Pointer New(int32_t* ptr, size_t size, const std::string& name, int index)
   {
     Pointer sharedPtr(new Int32Parser(ptr, size, name, index));
     return sharedPtr;
@@ -162,11 +163,7 @@ public:
   {
     if(m_Ptr != nullptr && getManageMemory())
     {
-#if defined(EBSD_USE_SSE) && defined(__SSE2__)
-      _mm_free(m_Ptr);
-#else
-      free(m_Ptr);
-#endif
+      delete[] m_Ptr;
       m_Ptr = nullptr;
     }
   }
@@ -182,11 +179,7 @@ public:
 
   bool allocateArray(size_t numberOfElements) override
   {
-#if defined(EBSD_USE_SSE) && defined(__SSE2__)
-    m_Ptr = static_cast<int32_t*>(_mm_malloc(numberOfElements * sizeof(T), 16));
-#else
-    m_Ptr = static_cast<int32_t*>(malloc(sizeof(int32_t) * numberOfElements));
-#endif
+    m_Ptr = new(std::nothrow) int32_t[numberOfElements]();
     return (m_Ptr != nullptr);
   }
 
@@ -204,15 +197,14 @@ public:
     return m_Ptr + offset;
   }
 
-  void parse(const QByteArray& token, size_t index) override
+  void parse(const std::string& token, size_t index) override
   {
-    Q_ASSERT(index < getSize());
-    bool ok = false;
-    m_Ptr[index] = token.toInt(&ok, 10);
+    EBSD_INDEX_OUT_OF_RANGE(index < getSize());
+    m_Ptr[index] = std::stoi(token);
   }
 
 protected:
-  Int32Parser(int32_t* ptr, size_t size, const QString& name, int index)
+  Int32Parser(int32_t* ptr, size_t size, const std::string& name, int index)
   : m_Ptr(ptr)
   {
     setManageMemory(true);
@@ -250,16 +242,16 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  const QString getNameOfClass() const
+  const std::string getNameOfClass() const
   {
-    return QString("FloatParser");
+    return std::string("FloatParser");
   }
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  static QString ClassName()
+  static std::string ClassName()
   {
-    return QString("FloatParser");
+    return std::string("FloatParser");
   }
 
   int32_t IsA() const override
@@ -267,7 +259,7 @@ public:
     return 2;
   }
 
-  static Pointer New(float* ptr, size_t size, const QString& name, int index)
+  static Pointer New(float* ptr, size_t size, const std::string& name, int index)
   {
     Pointer sharedPtr(new FloatParser(ptr, size, name, index));
     return sharedPtr;
@@ -277,11 +269,7 @@ public:
   {
     if(m_Ptr != nullptr && getManageMemory())
     {
-#if defined(EBSD_USE_SSE) && defined(__SSE2__)
-      _mm_free(m_Ptr);
-#else
-      free(m_Ptr);
-#endif
+      delete[] m_Ptr;
       m_Ptr = nullptr;
     }
   }
@@ -297,11 +285,7 @@ public:
 
   bool allocateArray(size_t numberOfElements) override
   {
-#if defined(EBSD_USE_SSE) && defined(__SSE2__)
-    m_Ptr = static_cast<float*>(_mm_malloc(numberOfElements * sizeof(T), 16));
-#else
-    m_Ptr = static_cast<float*>(malloc(sizeof(float) * numberOfElements));
-#endif
+    m_Ptr = new(std::nothrow) float[numberOfElements]();
     return (m_Ptr != nullptr);
   }
 
@@ -319,14 +303,13 @@ public:
     return m_Ptr + offset;
   }
 
-  void parse(const QByteArray& token, size_t index) override
+  void parse(const std::string& token, size_t index) override
   {
-    bool ok = false;
-    m_Ptr[index] = token.toFloat(&ok);
+    m_Ptr[index] = std::stof(token);
   }
 
 protected:
-  FloatParser(float* ptr, size_t size, const QString& name, int index)
+  FloatParser(float* ptr, size_t size, const std::string& name, int index)
   : m_Ptr(ptr)
   {
     setManageMemory(true);
