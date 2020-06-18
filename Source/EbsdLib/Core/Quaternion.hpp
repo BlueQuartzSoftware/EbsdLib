@@ -8,14 +8,14 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 
-template <typename T>
+template <class T>
 class Quaternion
 {
 public:
-  using EnumType = unsigned int;
+  using EnumType = uint32_t;
 
-  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");      // disallow integers
-  static_assert(std::numeric_limits<T>::has_infinity, "T must have infinity");        // must have ieee infinity
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type"); // disallow integers
+  static_assert(std::numeric_limits<T>::has_infinity, "T must have infinity");   // must have ieee infinity
 
   enum class Order : EnumType
   {
@@ -23,54 +23,16 @@ public:
     VectorScalar = 1
   };
 
-  using self = Quaternion<T>;
   using size_type = size_t;
   using value_type = T;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using pointer = value_type*;
 
   Quaternion() = default;
   ~Quaternion() = default;
 
-  // Quaternion(const Quaternion&) = default;
+  Quaternion(const Quaternion&) = default;
   Quaternion(Quaternion&&) noexcept = default;
-  //  Quaternion& operator=(const Quaternion&) = default;
-  //  Quaternion& operator=(Quaternion&&) noexcept = default;
-  //
-  Quaternion(const Quaternion<double>& q)
-  {
-    m_X = static_cast<T>(q.x());
-    m_Y = static_cast<T>(q.y());
-    m_Z = static_cast<T>(q.z());
-    m_W = static_cast<T>(q.w());
-  }
-  Quaternion(const Quaternion<float>& q)
-  {
-    m_X = static_cast<T>(q.x());
-    m_Y = static_cast<T>(q.y());
-    m_Z = static_cast<T>(q.z());
-    m_W = static_cast<T>(q.w());
-  }
-
-  template <typename FromType>
-  Quaternion(const Quaternion<FromType>& in, const Order& o)
-  {
-    if(o == Order::VectorScalar)
-    {
-      m_X = static_cast<T>(in[0]);
-      m_Y = static_cast<T>(in[1]);
-      m_Z = static_cast<T>(in[2]);
-      m_W = static_cast<T>(in[3]);
-    }
-    else
-    {
-      m_W = static_cast<T>(in[0]);
-      m_X = static_cast<T>(in[1]);
-      m_Y = static_cast<T>(in[2]);
-      m_Z = static_cast<T>(in[3]);
-    }
-  }
+  Quaternion& operator=(const Quaternion&) = default;
+  Quaternion& operator=(Quaternion&&) noexcept = default;
 
   Quaternion(size_type size)
   {
@@ -80,15 +42,15 @@ public:
     }
   }
 
-  Quaternion(const T& x, const T& y, const T& z, const T& w)
+  Quaternion(T x, T y, T z, T w)
+  : m_X(x)
+  , m_Y(y)
+  , m_Z(z)
+  , m_W(w)
   {
-    m_X = x;
-    m_Y = y;
-    m_Z = z;
-    m_W = w;
   }
 
-  Quaternion(T* q, Order o = Order::VectorScalar)
+  Quaternion(const T* q, Order o = Order::VectorScalar)
   {
     if(o == Order::VectorScalar)
     {
@@ -106,91 +68,50 @@ public:
     }
   }
 
-  reference x()
+  template <class U, class = std::enable_if_t<std::is_floating_point_v<U> && std::numeric_limits<U>::has_infinity>>
+  Quaternion<U> to() const
+  {
+    return {static_cast<U>(m_X), static_cast<U>(m_Y), static_cast<U>(m_Z), static_cast<U>(m_W)};
+  }
+
+  T& x()
   {
     return m_X;
   }
 
-  const_reference x() const
+  const T& x() const
   {
     return m_X;
   }
 
-  reference y()
+  T& y()
   {
     return m_Y;
   }
 
-  const_reference y() const
+  const T& y() const
   {
     return m_Y;
   }
 
-  reference z()
+  T& z()
   {
     return m_Z;
   }
 
-  const_reference z() const
+  const T& z() const
   {
     return m_Z;
   }
 
-  reference w()
+  T& w()
   {
     return m_W;
   }
 
-  const_reference w() const
+  const T& w() const
   {
     return m_W;
-  }
-
-  /**
-   * @brief operator = The data from `rhs` will be copied into this instance.
-   * @param rhs
-   */
-  Quaternion& operator=(const Quaternion<float>& rhs) // Copy Assignment
-  {
-    m_X = static_cast<T>(rhs.m_X);
-    m_Y = static_cast<T>(rhs.m_Y);
-    m_Z = static_cast<T>(rhs.m_Z);
-    m_W = static_cast<T>(rhs.m_W);
-    return *this;
-  }
-
-  Quaternion& operator=(const Quaternion<double>& rhs) // Copy Assignment
-  {
-    m_X = static_cast<T>(rhs.m_X);
-    m_Y = static_cast<T>(rhs.m_Y);
-    m_Z = static_cast<T>(rhs.m_Z);
-    m_W = static_cast<T>(rhs.m_W);
-    return *this;
-  }
-
-  /**
-   * @brief operator = The data from `rhs` will be copied into this instance.
-   * @param rhs
-   */
-  Quaternion& operator=(Quaternion<float>&& rhs) noexcept // Move Assignment
-  {
-    m_X = static_cast<T>(rhs.m_X);
-    m_Y = static_cast<T>(rhs.m_Y);
-    m_Z = static_cast<T>(rhs.m_Z);
-    m_W = static_cast<T>(rhs.m_W);
-    return *this;
-  }
-  /**
-   * @brief operator = The data from `rhs` will be copied into this instance.
-   * @param rhs
-   */
-  Quaternion& operator=(Quaternion<double>&& rhs) noexcept // Move Assignment
-  {
-    m_X = static_cast<T>(rhs.m_X);
-    m_Y = static_cast<T>(rhs.m_Y);
-    m_Z = static_cast<T>(rhs.m_Z);
-    m_W = static_cast<T>(rhs.m_W);
-    return *this;
   }
 
   /**
@@ -198,7 +119,7 @@ public:
    * @param target
    * @param order
    */
-  void copyInto(T* const target, const Order order)
+  void copyInto(T* target, const Order order)
   {
     if(order == Order::VectorScalar)
     {
@@ -221,25 +142,21 @@ public:
    * @param index
    * @return
    */
-  inline reference operator[](size_type index)
+  T& operator[](size_type index)
   {
-    if(index > 3)
+    switch(index)
     {
+    case 0:
+      return m_X;
+    case 1:
+      return m_Y;
+    case 2:
+      return m_Z;
+    case 3:
+      return m_W;
+    default:
       throw std::out_of_range("Index is out of range for the Quaternions.");
     }
-    if(index == 0)
-    {
-      return m_X;
-    }
-    if(index == 1)
-    {
-      return m_Y;
-    }
-    if(index == 2)
-    {
-      return m_Z;
-    }
-    return m_W;
   }
 
   /**
@@ -247,25 +164,21 @@ public:
    * @param index
    * @return
    */
-  inline const T& operator[](size_type index) const
+  const T& operator[](size_type index) const
   {
-    if(index > 3)
+    switch(index)
     {
+    case 0:
+      return m_X;
+    case 1:
+      return m_Y;
+    case 2:
+      return m_Z;
+    case 3:
+      return m_W;
+    default:
       throw std::out_of_range("Index is out of range for the Quaternions.");
     }
-    if(index == 0)
-    {
-      return m_X;
-    }
-    if(index == 1)
-    {
-      return m_Y;
-    }
-    if(index == 2)
-    {
-      return m_Z;
-    }
-    return m_W;
   }
 
   /**
@@ -298,10 +211,10 @@ public:
    */
   void scalarMultiply(T v)
   {
-    m_X = m_X * v;
-    m_Y = m_Y * v;
-    m_Z = m_Z * v;
-    m_W = m_W * v;
+    m_X *= v;
+    m_Y *= v;
+    m_Z *= v;
+    m_W *= v;
   }
 
   /**
@@ -310,10 +223,10 @@ public:
    */
   void scalarDivide(T v)
   {
-    m_X = m_X / v;
-    m_Y = m_Y / v;
-    m_Z = m_Z / v;
-    m_W = m_W / v;
+    m_X /= v;
+    m_Y /= v;
+    m_Z /= v;
+    m_W /= v;
   }
 
   /**
@@ -322,10 +235,10 @@ public:
    */
   void scalarAdd(T v)
   {
-    m_X = m_X + v;
-    m_Y = m_Y + v;
-    m_Z = m_Z + v;
-    m_W = m_W + v;
+    m_X += v;
+    m_Y += v;
+    m_Z += v;
+    m_W += v;
   }
 
   /**
@@ -345,10 +258,10 @@ public:
    */
   void negate()
   {
-    m_X = m_X * -1.0;
-    m_Y = m_Y * -1.0;
-    m_Z = m_Z * -1.0;
-    m_W = m_W * -1.0;
+    m_X = -m_X;
+    m_Y = -m_Y;
+    m_Z = -m_Z;
+    m_W = -m_W;
   }
 
   /**
@@ -356,9 +269,9 @@ public:
    * @param rhs
    * @return out
    */
-  self operator+(const Quaternion& rhs) const
+  Quaternion operator+(const Quaternion& rhs) const
   {
-    self out;
+    Quaternion out;
     out.x() = rhs.x() + m_X;
     out.y() = rhs.y() + m_Y;
     out.z() = rhs.z() + m_Z;
@@ -371,9 +284,9 @@ public:
    * @param rhs
    * @return out
    */
-  self operator-(const Quaternion& rhs) const
+  Quaternion operator-(const Quaternion& rhs) const
   {
-    self out;
+    Quaternion out;
     out.x() = m_X - rhs.x();
     out.y() = m_Y - rhs.y();
     out.z() = m_Z - rhs.z();
@@ -387,9 +300,9 @@ public:
    * @param rhs Input Quaternion
    * @param out Result
    */
-  self operator*(const Quaternion& rhs) const
+  Quaternion operator*(const Quaternion& rhs) const
   {
-    self out;
+    Quaternion out;
     out.x() = rhs.x() * m_W + rhs.w() * m_X + rhs.z() * m_Y - rhs.y() * m_Z;
     out.y() = rhs.y() * m_W + rhs.w() * m_Y + rhs.x() * m_Z - rhs.z() * m_X;
     out.z() = rhs.z() * m_W + rhs.w() * m_Z + rhs.y() * m_X - rhs.x() * m_Y;
@@ -404,9 +317,9 @@ public:
    * @param rhs Input Quaternion
    * @param out Result
    */
-  self operator*(Quaternion& rhs) const
+  Quaternion operator*(Quaternion& rhs) const
   {
-    self out;
+    Quaternion out;
     out.x() = rhs.x() * m_W + rhs.w() * m_X + rhs.z() * m_Y - rhs.y() * m_Z;
     out.y() = rhs.y() * m_W + rhs.w() * m_Y + rhs.x() * m_Z - rhs.z() * m_X;
     out.z() = rhs.z() * m_W + rhs.w() * m_Z + rhs.y() * m_X - rhs.x() * m_Y;
@@ -418,19 +331,17 @@ public:
    * @brief Conjugate Converts quaternion q into its conjugate
    * @return new quaternioin that is the conjugate of the current quaternion
    */
-  self conjugate() const
+  Quaternion conjugate() const
   {
-    self out(-m_X, -m_Y, -m_Z, m_W);
-    return out;
+    return {-m_X, -m_Y, -m_Z, m_W};
   }
 
   /**
    * @brief Norm Computes and returns the "norm" of the quaternion (x^2 + y^2 + z^2 + w^2)
    * @return
    */
-  T norm()
+  T norm() const
   {
-
     return m_X * m_X + m_Y * m_Y + m_Z * m_Z + m_W * m_W;
   }
 
@@ -448,14 +359,14 @@ public:
    * is the "length" of the quaternion
    * @return qr
    */
-  self unitQuaternion() const
+  Quaternion unitQuaternion() const
   {
-    self out;
-    value_type l = length();
-    out.x() = static_cast<T>(m_X / l);
-    out.y() = static_cast<T>(m_Y / l);
-    out.z() = static_cast<T>(m_Z / l);
-    out.w() = static_cast<T>(m_W / l);
+    Quaternion out;
+    T l = length();
+    out.x() = m_X / l;
+    out.y() = m_Y / l;
+    out.z() = m_Z / l;
+    out.w() = m_W / l;
     return out;
   }
 
@@ -463,13 +374,12 @@ public:
    * @brief GetMisorientationVector Converts the quaternion into a misorientation vector in the reference frame of the quaternion
    * @return misoVec
    */
-  std::array<value_type, 3> getMisorientationVector() const
+  std::array<T, 3> getMisorientationVector() const
   {
-    std::array<value_type, 3> misoVec;
+    std::array<T, 3> misoVec;
 
-    value_type qw = m_W;
-    EbsdLibMath::bound(qw, static_cast<value_type>(-1.0), static_cast<value_type>(1.0));
-    value_type constVal = 0.0;
+    T qw = std::clamp(m_W, static_cast<T>(-1.0), static_cast<T>(1.0));
+    T constVal = 0.0;
     if(qw == 1.0 || qw == -1.0)
     {
       constVal = 0.0;
@@ -479,9 +389,9 @@ public:
       constVal = 2 * std::acos(qw) / (std::sqrt(1.0 - (qw * qw)));
     }
 
-    misoVec[0] = float(m_X * constVal);
-    misoVec[1] = float(m_Y * constVal);
-    misoVec[2] = float(m_Z * constVal);
+    misoVec[0] = m_X * constVal;
+    misoVec[1] = m_Y * constVal;
+    misoVec[2] = m_Z * constVal;
     return misoVec;
   }
 
@@ -493,22 +403,22 @@ public:
    * SIMPLView uses
    * PASSIVE rotations by default.
    */
-  std::array<value_type, 3> multiplyByVector(T* v) const
+  std::array<T, 3> multiplyByVector(const T* v) const
   {
-    value_type qx2 = m_X * m_X;
-    value_type qy2 = m_Y * m_Y;
-    value_type qz2 = m_Z * m_Z;
-    value_type qw2 = m_W * m_W;
+    T qx2 = m_X * m_X;
+    T qy2 = m_Y * m_Y;
+    T qz2 = m_Z * m_Z;
+    T qw2 = m_W * m_W;
 
-    value_type qxy = m_X * m_Y;
-    value_type qyz = m_Y * m_Z;
-    value_type qzx = m_Z * m_X;
+    T qxy = m_X * m_Y;
+    T qyz = m_Y * m_Z;
+    T qzx = m_Z * m_X;
 
-    value_type qxw = m_X * m_W;
-    value_type qyw = m_Y * m_W;
-    value_type qzw = m_Z * m_W;
+    T qxw = m_X * m_W;
+    T qyw = m_Y * m_W;
+    T qzw = m_Z * m_W;
 
-    std::array<value_type, 3> out;
+    std::array<T, 3> out;
 
     out[0] = v[0] * (qx2 - qy2 - qz2 + qw2) + 2 * (v[1] * (qxy + qzw) + v[2] * (qzx - qyw));
     out[1] = v[1] * (qy2 - qx2 - qz2 + qw2) + 2 * (v[2] * (qyz + qxw) + v[0] * (qxy - qzw));
@@ -522,20 +432,20 @@ public:
    * @param passive argument: Passive = 1, Active = -1; Default is Passive
    * @return Output Vector
    */
-  std::array<value_type, 3> rotateVector(T* inputVector, int p = 1) const
+  std::array<T, 3> rotateVector(const T* inputVector, int32_t p = 1) const
   {
-    std::array<value_type, 3> rotatedVector = {0.0f, 0.0f, 0.0f};
-    auto epsijk = static_cast<value_type>(p);
+    std::array<T, 3> rotatedVector = {0.0, 0.0, 0.0};
+    T epsijk = static_cast<T>(p);
 
-    std::array<value_type, 3> r = {epsijk * m_X, epsijk * m_Y, epsijk * m_Z};
-    std::array<value_type, 3> temp = {0.0f, 0.0, 0.0};
+    std::array<T, 3> r = {epsijk * m_X, epsijk * m_Y, epsijk * m_Z};
+    std::array<T, 3> temp = {0.0, 0.0, 0.0};
     EbsdMatrixMath::CrossProduct(r.data(), inputVector, temp.data());
 
     temp[0] += m_W * inputVector[0];
     temp[1] += m_W * inputVector[1];
     temp[2] += m_W * inputVector[2];
 
-    std::array<value_type, 3> temp2;
+    std::array<T, 3> temp2;
     EbsdMatrixMath::CrossProduct(r.data(), temp.data(), temp2.data());
 
     rotatedVector[0] = 2.0 * temp2[0] + inputVector[0];
@@ -546,11 +456,10 @@ public:
   }
 
 private:
-  // Order m_Order = Order::VectorScalar;
-  value_type m_X = {0.0};
-  value_type m_Y = {0.0};
-  value_type m_Z = {0.0};
-  value_type m_W = {1.0};
+  T m_X = 0.0;
+  T m_Y = 0.0;
+  T m_Z = 0.0;
+  T m_W = 1.0;
 };
 
 using QuatType = Quaternion<double>;

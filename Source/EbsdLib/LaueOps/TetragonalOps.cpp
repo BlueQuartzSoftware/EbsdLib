@@ -168,8 +168,8 @@ OrientationD TetragonalOps::calculateMisorientation(const QuatType& q1, const Qu
 OrientationF TetragonalOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
 
 {
-  QuatType q1 = q1f;
-  QuatType q2 = q2f;
+  QuatType q1 = q1f.to<double>();
+  QuatType q2 = q2f.to<double>();
   OrientationD axisAngle = calculateMisorientationInternal(TetragonalHigh::QuatSym, TetragonalHigh::k_NumSymQuats, q1, q2);
   return axisAngle;
 }
