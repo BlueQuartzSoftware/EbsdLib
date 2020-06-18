@@ -95,7 +95,6 @@ public:
   // -----------------------------------------------------------------------------
   void TestQuaternion()
   {
-    using QuatF = Quaternion<float>;
     QuatF p(1.0f, 0.0f, 0.0f, 1.0f);
     QuatF q(0.0f, 1.0f, 0.0f, 2.0f);
     QuatF out(0.0f, 0.0f, 0.0f, 0.0f);
@@ -133,8 +132,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(out.z(), -30.0)
     DREAM3D_REQUIRE_EQUAL(out.w(), -40.0)
 
-    out.scalarDivide(-1.0f);
-    out.scalarAdd(50.0f);
+    out.scalarDivide(-1.0f).scalarAdd(50.0f);
     DREAM3D_REQUIRE_EQUAL(out.x(), 60.0)
     DREAM3D_REQUIRE_EQUAL(out.y(), 70.0)
     DREAM3D_REQUIRE_EQUAL(out.z(), 80.0)

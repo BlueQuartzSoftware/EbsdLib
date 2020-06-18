@@ -194,71 +194,82 @@ public:
    * @brief ElementWiseAbs inline assigns the absolute value of each element to itself
    * @param q
    */
-  void elementWiseAbs()
+  Quaternion& elementWiseAbs()
   {
     m_X = std::fabs(m_X);
     m_Y = std::fabs(m_Y);
     m_Z = std::fabs(m_Z);
     m_W = std::fabs(m_W);
+    return *this;
   }
 
   /**
    * @brief ScalarMultiply Multiplies each element in the quaternion by the argument v
    * @param v
    */
-  void scalarMultiply(T v)
+  Quaternion& scalarMultiply(T v)
   {
     m_X *= v;
     m_Y *= v;
     m_Z *= v;
     m_W *= v;
+    return *this;
   }
 
   /**
    * @brief ScalarDivide Divides each element in the quaternion by the argument v
    * @param v
    */
-  void scalarDivide(T v)
+  Quaternion& scalarDivide(T v)
   {
     m_X /= v;
     m_Y /= v;
     m_Z /= v;
     m_W /= v;
+    return *this;
   }
 
   /**
    * @brief ScalarAdd Adds value to each element of the vector and scalar part of the Quaternion
    * @param v Input Quat to add elements
    */
-  void scalarAdd(T v)
+  Quaternion& scalarAdd(T v)
   {
     m_X += v;
     m_Y += v;
     m_Z += v;
     m_W += v;
+    return *this;
   }
 
   /**
    * @brief ElementWiseAssign Assigns each element the quaternion
    * @param v Input Quat to add elements
    */
-  void elementWiseAssign(T v)
+  Quaternion& elementWiseAssign(T v)
   {
     m_X = v;
     m_Y = v;
     m_Z = v;
     m_W = v;
+    return *this;
   }
 
   /**
    * @brief Negate  −q = (−a, −v) In Place operation
    */
-  void negate()
+  Quaternion& negate()
   {
     m_X = -m_X;
     m_Y = -m_Y;
     m_Z = -m_Z;
     m_W = -m_W;
+    return *this;
+  }
+
+  Quaternion operator-() const
+  {
+    return {-m_X, -m_Y, -m_Z, -m_W};
   }
 
   /**
@@ -308,22 +319,6 @@ public:
     return out;
   }
 
-  /**
-   * @brief Multiply current quaternion by another quaternion returning a third quaternion according to quaternion
-   * multiplication. Note that Quaternioin multiplication is NOT cummunitive i.e., A * B != B * A
-   * @param rhs Input Quaternion
-   * @param out Result
-   */
-  Quaternion operator*(Quaternion& rhs) const
-  {
-    Quaternion out;
-    out.x() = rhs.x() * m_W + rhs.w() * m_X + rhs.z() * m_Y - rhs.y() * m_Z;
-    out.y() = rhs.y() * m_W + rhs.w() * m_Y + rhs.x() * m_Z - rhs.z() * m_X;
-    out.z() = rhs.z() * m_W + rhs.w() * m_Z + rhs.y() * m_X - rhs.x() * m_Y;
-    /* Verified */
-    out.w() = rhs.w() * m_W - rhs.x() * m_X - rhs.y() * m_Y - rhs.z() * m_Z;
-    return out;
-  }
   /**
    * @brief Conjugate Converts quaternion q into its conjugate
    * @return new quaternioin that is the conjugate of the current quaternion
