@@ -31,6 +31,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
+#include <array>
 #include <cctype>
 #include <regex>
 #include <sstream>
@@ -59,7 +60,9 @@ void for_each_token(InputIt first, InputIt last, ForwardIt s_first, ForwardIt s_
     const auto pos = std::find_first_of(first, last, s_first, s_last);
     binary_op(first, pos);
     if(pos == last)
+    {
       break;
+    }
     first = std::next(pos);
   }
 }
@@ -69,7 +72,7 @@ inline StringTokenType split(const std::string& str, char delim)
 {
   StringTokenType tokens;
   std::string temp(str);
-  char delims[1] = {delim};
+  std::array<char, 1> delims = {delim};
   auto endPos = std::end(temp);
   for_each_token(std::begin(temp), endPos, std::cbegin(delims), std::cend(delims), [&endPos, &tokens](auto first, auto second) {
     if(first != second)
