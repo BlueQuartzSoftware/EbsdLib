@@ -259,7 +259,6 @@ OrientationD CubicOps::calculateMisorientationInternal(const QuatD* quatsym, siz
 {
   double wmin = 9999999.0f; //,na,nb,nc;
   QuatD qco;
-  QuatD q2inv;
   int type = 1;
   double sin_wmin_over_2 = 0.0;
 
@@ -1963,9 +1962,6 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& 
   double y, y1, y2, y3, y4, y5, y6, y7;
   double z, z1, z2, z3, z4, z5, z6, z7;
   double k, h, s, v;
-
-  QuatD q1 = q;
-  QuatD q2 = refFrame;
 
   // get disorientation
   OrientationD axisAngle = calculateMisorientation(q, refFrame);
