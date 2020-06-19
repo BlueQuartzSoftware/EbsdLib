@@ -37,6 +37,7 @@
 
 #include <chrono>
 #include <random>
+#include <algorithm>
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
