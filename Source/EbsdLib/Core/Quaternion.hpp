@@ -306,7 +306,7 @@ public:
    * @brief Multiply current quaternion by another quaternion returning a third quaternion according to quaternion
    * multiplication. Note that Quaternioin multiplication is NOT cummunitive i.e., A * B != B * A
    * @param rhs Input Quaternion
-   * @param out Result
+   * @return
    */
   Quaternion operator*(const Quaternion& rhs) const
   {
@@ -317,6 +317,50 @@ public:
     /* Verified */
     out.w() = rhs.w() * m_W - rhs.x() * m_X - rhs.y() * m_Y - rhs.z() * m_Z;
     return out;
+  }
+
+  /**
+   * @brief Add   q1 + q2 = (w1+w2, v1+v2)
+   * @param rhs
+   * @return self
+   */
+  Quaternion& operator+=(const Quaternion& rhs)
+  {
+    x() += rhs.x();
+    y() += rhs.y();
+    z() += rhs.z();
+    w() += rhs.w();
+    return *this;
+  }
+
+  /**
+   * @brief Add   q1 - q2 = (w1-w2, v1-v2)
+   * @param rhs
+   * @return self
+   */
+  Quaternion& operator-=(const Quaternion& rhs)
+  {
+    x() -= rhs.x();
+    y() -= rhs.y();
+    z() -= rhs.z();
+    w() -= rhs.w();
+    return *this;
+  }
+
+  /**
+   * @brief Multiply current quaternion by another quaternion returning a third quaternion according to quaternion
+   * multiplication. Note that Quaternioin multiplication is NOT cummunitive i.e., A * B != B * A
+   * @param rhs Input Quaternion
+   * @return self
+   */
+  Quaternion& operator*=(const Quaternion& rhs)
+  {
+    x() = rhs.x() * m_W + rhs.w() * m_X + rhs.z() * m_Y - rhs.y() * m_Z;
+    y() = rhs.y() * m_W + rhs.w() * m_Y + rhs.x() * m_Z - rhs.z() * m_X;
+    z() = rhs.z() * m_W + rhs.w() * m_Z + rhs.y() * m_X - rhs.x() * m_Y;
+    /* Verified */
+    w() = rhs.w() * m_W - rhs.x() * m_X - rhs.y() * m_Y - rhs.z() * m_Z;
+    return *this;
   }
 
   /**
@@ -343,7 +387,7 @@ public:
    */
   T length() const
   {
-    return std::sqrt(m_X * m_X + m_Y * m_Y + m_Z * m_Z + m_W * m_W);
+    return std::sqrt(norm());
   }
 
   /**
