@@ -119,7 +119,7 @@ public:
    * @param target
    * @param order
    */
-  void copyInto(T* target, const Order order)
+  void copyInto(T* target, Order order) const
   {
     if(order == Order::VectorScalar)
     {
