@@ -14,6 +14,10 @@
  */
 #include <ctype.h>
 
+#if !defined(_MSC_VER)
+#include <unistd.h>
+#endif
+
 #include <cstdlib>
 #include <cstring> // Needed for memset
 #include <iostream>
