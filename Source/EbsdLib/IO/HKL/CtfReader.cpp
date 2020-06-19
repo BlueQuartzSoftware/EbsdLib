@@ -787,11 +787,8 @@ int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& h
   while(!reader.eof() && !getHeaderIsComplete())
   {
     std::getline(reader, buf);
-    // Append the line to the complete header
+    // Append the line to the complete header. The trailing newline is already removed at this point
     appendOriginalHeader(std::string(buf));
-
-    // remove the newline at the end of the line
-    buf = EbsdStringUtils::chop(buf, 1);
     headerLines.push_back(buf);
     if(buf.find("Phases") != std::string::npos)
     {
