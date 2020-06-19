@@ -6,7 +6,7 @@
 
 #include "EbsdLib/EbsdLib.h"
 
-class EbsdLib_EXPORT EbsdFileInfo
+class EbsdFileInfo
 {
 public:
   virtual ~EbsdFileInfo();

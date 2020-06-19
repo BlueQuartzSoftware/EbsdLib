@@ -37,6 +37,60 @@
 
 #include <cstring>
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/IO/TSL/AngConstants.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+
+HKLFamily::HKLFamily() = default;
+HKLFamily::~HKLFamily() = default;
+
+// -----------------------------------------------------------------------------
+void HKLFamily::printSelf(std::stringstream& stream) const
+{
+  stream << EbsdLib::Ang::HKLFamilies;
+  stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
+}
+
+// -----------------------------------------------------------------------------
+void HKLFamily::copyToStruct(HKLFamily_t* ptr)
+{
+  ptr->h = h;
+  ptr->k = k;
+  ptr->l = l;
+  ptr->s1 = s1;
+  ptr->diffractionIntensity = diffractionIntensity;
+  ptr->s2 = s2;
+}
+
+// -----------------------------------------------------------------------------
+void HKLFamily::copyFromStruct(HKLFamily_t* ptr)
+{
+  h = ptr->h;
+  k = ptr->k;
+  l = ptr->l;
+  s1 = ptr->s1;
+  diffractionIntensity = ptr->diffractionIntensity;
+  s2 = ptr->s2;
+}
+
+// -----------------------------------------------------------------------------
+HKLFamily::Pointer HKLFamily::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::string HKLFamily::getNameOfClass() const
+{
+  return std::string("HKLFamily");
+}
+
+// -----------------------------------------------------------------------------
+std::string HKLFamily::ClassName()
+{
+  return std::string("HKLFamily");
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -55,7 +109,7 @@ AngPhase::~AngPhase() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseMaterialName(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 {
   m_MaterialName.clear();
   for(const auto& token : tokens)
@@ -67,7 +121,7 @@ void AngPhase::parseMaterialName(EbsdStringUtils::StringTokenType& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseFormula(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseFormula(std::vector<std::string>& tokens)
 {
   m_Formula.clear();
   for(const auto& token : tokens)
@@ -79,7 +133,7 @@ void AngPhase::parseFormula(EbsdStringUtils::StringTokenType& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseInfo(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseInfo(std::vector<std::string>& tokens)
 {
   m_Info.clear();
   for(const auto& token : tokens)
@@ -105,7 +159,7 @@ void AngPhase::parseInfo(EbsdStringUtils::StringTokenType& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseLatticeConstants(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 {
   m_LatticeConstants.clear();
 
@@ -134,14 +188,14 @@ void AngPhase::parseLatticeConstants(EbsdStringUtils::StringTokenType& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseHKLFamilies(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 {
   HKLFamily::Pointer family = HKLFamily::New();
   family->h = std::stoi(tokens[1]);
   family->k = std::stoi(tokens[2]);
   family->l = std::stoi(tokens[3]);
   family->s1 = std::stoi(tokens[4]);
-  family->diffractionIntensity = std::stoi(tokens[5]);
+  family->diffractionIntensity = std::stof(tokens[5]);
   if(tokens.size() > 6)
   {
     family->s2 = tokens[6].at(0);
@@ -160,7 +214,7 @@ void AngPhase::parseHKLFamilies(EbsdStringUtils::StringTokenType& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseCategories(EbsdStringUtils::StringTokenType& tokens)
+void AngPhase::parseCategories(std::vector<std::string>& tokens)
 {
   m_Categories.clear();
   if(tokens[0].size() != EbsdLib::Ang::Categories.size())
@@ -309,12 +363,6 @@ void AngPhase::setLatticeConstantGamma(float a)
 }
 
 // -----------------------------------------------------------------------------
-HKLFamily::Pointer HKLFamily::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
 AngPhase::Pointer AngPhase::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
@@ -366,16 +414,4 @@ std::string AngPhase::getNameOfClass() const
 std::string AngPhase::ClassName()
 {
   return std::string("AngPhase");
-}
-
-// -----------------------------------------------------------------------------
-std::string HKLFamily::getNameOfClass() const
-{
-  return std::string("HKLFamily");
-}
-
-// -----------------------------------------------------------------------------
-std::string HKLFamily::ClassName()
-{
-  return std::string("HKLFamily");
 }

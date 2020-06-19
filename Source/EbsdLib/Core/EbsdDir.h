@@ -120,7 +120,7 @@ public:
    * @param path The path to the directory
    * @return List of contents
    */
-  static EbsdLib_EXPORT std::vector<std::string> entryList(const std::string& path);
+  //  static EbsdLib_EXPORT std::vector<std::string> entryList(const std::string& path);
 
   /**
    * @brief Create a directory or structure of directories

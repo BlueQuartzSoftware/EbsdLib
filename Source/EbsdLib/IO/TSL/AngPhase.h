@@ -34,16 +34,15 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <vector>
+#include <cstdint>
 #include <sstream>
+#include <string>
+#include <vector>
 
-#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/IO/TSL/AngConstants.h"
-#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
-#pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
+//#pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
 /*!
  * @struct HKLFamily_t is used to write the HKL Family to an HDF5 file using a
  * compound data type.
@@ -73,19 +72,28 @@ public:
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
   using ConstWeakPointer = std::weak_ptr<Self>;
+
   static Pointer NullPointer();
 
+  HKLFamily();
+  //  HKLFamily(const HKLFamily&) = delete;            // Copy Constructor Not Implemented
+  //  HKLFamily(HKLFamily&) = delete;                  // Move Constructor Not Implemented
+  //  HKLFamily& operator=(const HKLFamily&) = delete; // Copy Assignment Not Implemented
+  //  HKLFamily& operator=(HKLFamily&) = delete;       // Move Assignment Not Implemented
+  virtual ~HKLFamily();
+
   EBSD_STATIC_NEW_MACRO(HKLFamily)
+
   /**
    * @brief Returns the name of the class for HKLFamily
    */
+
   std::string getNameOfClass() const;
+
   /**
    * @brief Returns the name of the class for HKLFamily
    */
   static std::string ClassName();
-
-  virtual ~HKLFamily() = default;
 
   int h = 0;
   int k = 0;
@@ -98,49 +106,20 @@ public:
    * @brief Prints this class to the output stream. Useful for debuggin
    * @param stream The stream to print to
    */
-  void printSelf(std::stringstream& stream)
-  {
-    stream << EbsdLib::Ang::HKLFamilies;
-    stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
-  }
+  void printSelf(std::stringstream& stream) const;
 
   /**
    * @brief Copies the content of this instance to another class instance
    * @param ptr The destination of the copied contents
    */
-  void copyToStruct(HKLFamily_t* ptr)
-  {
-    ptr->h = h;
-    ptr->k = k;
-    ptr->l = l;
-    ptr->s1 = s1;
-    ptr->diffractionIntensity = diffractionIntensity;
-    ptr->s2 = s2;
-  }
+  void copyToStruct(HKLFamily_t* ptr);
 
   /**
    * @brief Copies the content <b>from</b> another structure into this structure
    * @param ptr The source of the copy, ie, the values from <i>ptr</i> will be copied
    * into this instance.
    */
-  void copyFromStruct(HKLFamily_t* ptr)
-  {
-    h = ptr->h;
-    k = ptr->k;
-    l = ptr->l;
-    s1 = ptr->s1;
-    diffractionIntensity = ptr->diffractionIntensity;
-    s2 = ptr->s2;
-  }
-
-protected:
-  HKLFamily() = default;
-
-public:
-  HKLFamily(const HKLFamily&) = delete;            // Copy Constructor Not Implemented
-  HKLFamily(HKLFamily&) = delete;                  // Move Constructor Not Implemented
-  HKLFamily& operator=(const HKLFamily&) = delete; // Copy Assignment Not Implemented
-  HKLFamily& operator=(HKLFamily&) = delete;       // Move Assignment Not Implemented
+  void copyFromStruct(HKLFamily_t* ptr);
 };
 
 /**
@@ -160,19 +139,27 @@ public:
   using ConstWeakPointer = std::weak_ptr<Self>;
   static Pointer NullPointer();
 
+  AngPhase();
+  //  AngPhase(const AngPhase&) = delete;            // Copy Constructor Not Implemented
+  //  AngPhase(AngPhase&) = delete;                  // Move Constructor Not Implemented
+  //  AngPhase& operator=(const AngPhase&) = delete; // Copy Assignment Not Implemented
+  //  AngPhase& operator=(AngPhase&) = delete;       // Move Assignment Not Implemented
+  virtual ~AngPhase();
+
   EBSD_STATIC_NEW_MACRO(AngPhase)
+
   /**
    * @brief Returns the name of the class for AngPhase
    */
   std::string getNameOfClass() const;
+
   /**
    * @brief Returns the name of the class for AngPhase
    */
   static std::string ClassName();
 
-  virtual ~AngPhase();
-
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
+
   /**
    * @brief Setter property for MaterialName
    */
@@ -216,12 +203,12 @@ public:
   void setLatticeConstantBeta(float a);
   void setLatticeConstantGamma(float a);
 
-  void parseMaterialName(EbsdStringUtils::StringTokenType& tokens);
-  void parseFormula(EbsdStringUtils::StringTokenType& tokens);
-  void parseInfo(EbsdStringUtils::StringTokenType& tokens);
-  void parseLatticeConstants(EbsdStringUtils::StringTokenType& tokens);
-  void parseHKLFamilies(EbsdStringUtils::StringTokenType& tokens);
-  void parseCategories(EbsdStringUtils::StringTokenType& tokens);
+  void parseMaterialName(std::vector<std::string>& tokens);
+  void parseFormula(std::vector<std::string>& tokens);
+  void parseInfo(std::vector<std::string>& tokens);
+  void parseLatticeConstants(std::vector<std::string>& tokens);
+  void parseHKLFamilies(std::vector<std::string>& tokens);
+  void parseCategories(std::vector<std::string>& tokens);
 
   void printSelf(std::stringstream& stream);
 
@@ -230,20 +217,10 @@ public:
    */
   unsigned int determineLaueGroup();
 
-protected:
-  AngPhase();
-
-public:
-  AngPhase(const AngPhase&) = delete;            // Copy Constructor Not Implemented
-  AngPhase(AngPhase&) = delete;                  // Move Constructor Not Implemented
-  AngPhase& operator=(const AngPhase&) = delete; // Copy Assignment Not Implemented
-  AngPhase& operator=(AngPhase&) = delete;       // Move Assignment Not Implemented
-
 private:
   std::string m_MaterialName = {};
   std::string m_Formula = {};
   std::string m_Info = {};
 };
 
-
-#pragma pack(pop, r1)
+//#pragma pack(pop, r1)

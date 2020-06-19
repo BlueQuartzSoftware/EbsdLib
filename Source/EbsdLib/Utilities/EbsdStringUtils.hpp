@@ -31,7 +31,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <array>
+#include <cctype>
 #include <regex>
 #include <sstream>
 #include <string>

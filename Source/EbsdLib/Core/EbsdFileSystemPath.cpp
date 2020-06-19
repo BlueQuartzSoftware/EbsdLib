@@ -13,7 +13,6 @@
  *
  */
 #include <ctype.h>
-#include <unistd.h>
 
 #include <cstdlib>
 #include <cstring> // Needed for memset
