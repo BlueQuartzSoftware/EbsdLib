@@ -42,6 +42,8 @@
 // -----------------------------------------------------------------------------
 CtfPhase::CtfPhase()
 : m_PhaseIndex(-1)
+, m_LaueGroup(EbsdLib::Ctf::LaueGroupTable::LG_Cubic_Low)
+, m_SpaceGroup(0)
 , m_PhaseName("-1")
 {
 }

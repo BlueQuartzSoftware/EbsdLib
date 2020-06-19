@@ -109,7 +109,6 @@ void AngPhase::parseLatticeConstants(EbsdStringUtils::StringTokenType& tokens)
 {
   m_LatticeConstants.clear();
 
-  bool ok = false;
   m_LatticeConstants.push_back(std::stof(tokens[1])); // A
   m_LatticeConstants.push_back(std::stof(tokens[2])); // B
   m_LatticeConstants.push_back(std::stof(tokens[3])); // C
@@ -164,7 +163,6 @@ void AngPhase::parseHKLFamilies(EbsdStringUtils::StringTokenType& tokens)
 void AngPhase::parseCategories(EbsdStringUtils::StringTokenType& tokens)
 {
   m_Categories.clear();
-  bool ok = false;
   if(tokens[0].size() != EbsdLib::Ang::Categories.size())
   {
     EbsdStringUtils::replace(tokens[0], EbsdLib::Ang::Categories, "");

@@ -542,8 +542,6 @@ void AngReader::readData(std::fstream& in, std::string& buf)
 // -----------------------------------------------------------------------------
 void AngReader::parseHeaderLine(std::string& buf)
 {
-  bool ok = false;
-
   // Check to see if we are reading a header or data line.
   if(buf[0] != '#')
   {
@@ -552,8 +550,7 @@ void AngReader::parseHeaderLine(std::string& buf)
   }
 
   buf = buf.substr(1);                    // remove the '#' charater
-  buf = EbsdStringUtils::trimmed(buf);    // remove leading/trailing white space
-  buf = EbsdStringUtils::simplified(buf); // remove multiple white space characters internal to the array
+  buf = EbsdStringUtils::simplified(buf); // remove leading/trailing white space and multiple white space characters internal to the array
 
   // now split the array based on spaces
   std::vector<std::string> tokens = EbsdStringUtils::split(buf, ' ');
@@ -701,7 +698,6 @@ void AngReader::parseDataLine(std::string& line, size_t i)
   float fit = -1.0f;
   int ph = 0;
   size_t offset = 0;
-  line = EbsdStringUtils::trimmed(line);
   line = EbsdStringUtils::simplified(line);
   std::vector<std::string> tokens = EbsdStringUtils::split(line, ' ');
   bool ok = true;

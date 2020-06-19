@@ -113,7 +113,6 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     return angles;
   }
 
-  bool ok = false;
   std::getline(reader, buf);
   while(buf[0] == '#')
   {

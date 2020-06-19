@@ -612,7 +612,6 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
 
     if(line.find("Prj") == 0) // This is a special case/bug in HKL's writing code. This line is space delimited
     {
-      line = EbsdStringUtils::trimmed(line);
       line = EbsdStringUtils::simplified(line);
 
       std::string value = line.substr(4); // Get the value part of the line
