@@ -47,7 +47,7 @@
  * @struct HKLFamily_t is used to write the HKL Family to an HDF5 file using a
  * compound data type.
  */
-using HKLFamily_t = struct
+struct HKLFamily_t
 {
   int h;
   int k;
