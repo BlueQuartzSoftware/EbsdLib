@@ -78,6 +78,9 @@ else()
   message(WARNING "The Eigen Library is required for some algorithms to execute. These algorithms will be disabled.")
 endif()
 
+if(APPLE)
+	find_package(ghcFileSystem REQUIRED)
+endif()
 
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)

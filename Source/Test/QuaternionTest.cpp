@@ -64,7 +64,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-//EbsdDir::remove();
+//fs::remove();
 #endif
   }
 

@@ -33,7 +33,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-   EbsdDir::remove(UnitTest::H5EspritReaderTest::OutputFile);
+    fs::remove(UnitTest::H5EspritReaderTest::OutputFile);
 #endif
   }
 

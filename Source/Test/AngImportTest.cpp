@@ -34,11 +34,9 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <cstring>
-
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
-#include "EbsdLib/Core/EbsdDir.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 
@@ -64,7 +62,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-    EbsdDir::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
+    fs::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
 #endif
   }
 

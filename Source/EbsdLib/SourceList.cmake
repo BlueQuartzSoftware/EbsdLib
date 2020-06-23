@@ -170,6 +170,7 @@ if(EbsdLib_ENABLE_HDF5)
                              )
 endif()
 
+
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
 endif()
@@ -179,6 +180,10 @@ target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
 
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)
   target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
+endif()
+
+if(APPLE)
+  target_link_libraries(${PROJECT_NAME} ghcFilesystem::ghc_filesystem)
 endif()
 
 # --------------------------------------------------------------------

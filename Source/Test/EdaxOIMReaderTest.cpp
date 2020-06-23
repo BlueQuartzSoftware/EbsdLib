@@ -57,7 +57,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-//EbsdDir::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
+//fs::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
 #endif
   }
 

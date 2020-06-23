@@ -33,3 +33,11 @@ using ByteArrayType = std::vector<char>;
   #endif
 
 #endif
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem;
+#else
+namespace fs = std::filesystem;
+#include <filesystem>
+#endif

@@ -42,7 +42,6 @@
 #include <iostream>
 #include <vector>
 
-#include "EbsdLib/Core/EbsdFileInfo.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
@@ -73,17 +72,20 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
   EbsdLib::FloatArrayType::Pointer angles = EbsdLib::FloatArrayType::NullPointer();
 
   // Make sure the input file variable is not empty
-  if(m_InputFile.size() == 0)
+  if(m_InputFile.empty())
   {
     setErrorMessage("Input File Path is empty");
     setErrorCode(-1);
     return angles;
-  }  
+  }
+  fs::path ifPath = fs::path(getInputFile());
 
   // Make sure the file exists on disk
-  if(!EbsdFileInfo::exists(getInputFile()))
+  if(!fs::exists(ifPath))
   {
-    setErrorMessage("Input File does not exist at path");
+    std::stringstream ss;
+    ss << "Input File does not exist at '" << ifPath.string() << "'\n";
+    setErrorMessage(ss.str());
     setErrorCode(-2);
     return angles;
   }

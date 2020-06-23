@@ -39,7 +39,6 @@
 #include <cstring>
 #include <fstream>
 
-#include "EbsdLib/Core/EbsdDir.h"
 #include "EbsdLib/IO/HKL/CtfReader.h"
 
 #include "UnitTestSupport.hpp"
@@ -228,7 +227,7 @@ public:
     DREAM3D_REQUIRE(err == 0);
     if(REMOVE_TEST_FILES == 1)
     {
-      bool removed = EbsdDir::remove(filePath.str());
+      bool removed = fs::remove(filePath.str());
       DREAM3D_REQUIRE(removed == true);
     }
   }
