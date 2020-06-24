@@ -39,16 +39,18 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/EbsdMatrixMath.h"
-#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Core/OrientationRepresentation.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 #include "UnitTestSupport.hpp"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-#define DREAM3D_PASSIVE 1.0
-#define DREAM3D_ACTIVE -1.0
+constexpr float DREAM3D_PASSIVE = 1.0F;
+constexpr float DREAM3D_ACTIVE = -1.0F;
 
 class QuaternionTest
 {
@@ -56,8 +58,8 @@ public:
   QuaternionTest() = default;
   virtual ~QuaternionTest() = default;
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(QuaternionTest)
+
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
@@ -74,27 +76,25 @@ public:
     using VectorMapType = Eigen::Map<Eigen::Vector3f>;
 
     {
-      float dir[3] = {1.0f, 2.0f, 3.0f};
+      std::array<float, 3> dir = {1.0f, 2.0f, 3.0f};
 
-      VectorMapType array(const_cast<float*>(dir));
+      VectorMapType array(dir.data());
       array.normalize();
-
       array = array * -1.0f;
     }
 
     {
-      float dir[3] = {1.0f, 2.0f, 3.0f};
-      EbsdMatrixMath::Normalize3x1(dir);
-      EbsdMatrixMath::Multiply3x1withConstant(dir, -1.0f);
+      std::array<float, 3> dir = {1.0f, 2.0f, 3.0f};
+      EbsdMatrixMath::Normalize3x1(dir.data());
+      EbsdMatrixMath::Multiply3x1withConstant(dir.data(), -1.0f);
     }
   }
 
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void TestQuat_t()
+  void TestQuaternion()
   {
-    using QuatF = Quaternion<float>;
     QuatF p(1.0f, 0.0f, 0.0f, 1.0f);
     QuatF q(0.0f, 1.0f, 0.0f, 2.0f);
     QuatF out(0.0f, 0.0f, 0.0f, 0.0f);
@@ -112,7 +112,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(p.z(), out.z())
     DREAM3D_REQUIRE_EQUAL(p.w(), out.w())
 
-    out.identity();
+    out = QuatF::identity();
     DREAM3D_REQUIRE_EQUAL(out.x(), 0.0)
     DREAM3D_REQUIRE_EQUAL(out.y(), 0.0)
     DREAM3D_REQUIRE_EQUAL(out.z(), 0.0)
@@ -132,8 +132,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(out.z(), -30.0)
     DREAM3D_REQUIRE_EQUAL(out.w(), -40.0)
 
-    out.scalarDivide(-1.0f);
-    out.scalarAdd(50.0f);
+    out.scalarDivide(-1.0f).scalarAdd(50.0f);
     DREAM3D_REQUIRE_EQUAL(out.x(), 60.0)
     DREAM3D_REQUIRE_EQUAL(out.y(), 70.0)
     DREAM3D_REQUIRE_EQUAL(out.z(), 80.0)
@@ -273,15 +272,9 @@ public:
     DREAM3D_REQUIRE_EQUAL(pass, true)
 
     // Test point r=[100] rotated 120Deg @ [111] axis
-    vec[0] = 1.0;
-    vec[1] = 0.0;
-    vec[2] = 0.0;
-
+    vec = {1.0F, 0.0F, 0.0F};
     // The quaternion Representation for 120@[111]
-    q.x() = 0.5f;
-    q.y() = 0.5f;
-    q.z() = 0.5f;
-    q.w() = 0.5f;
+    q = QuatF(0.5f, 0.5f, 0.5f, 0.5f);
 
     // Passive Rotation
     ovec = q.multiplyByVector(vec.data());
@@ -341,6 +334,23 @@ public:
 
     pass = EbsdLibMath::closeEnough(ovec[2], 1.0f, 1.0E-4f);
     DREAM3D_REQUIRE_EQUAL(pass, true)
+
+    // Rotate a vector by a quaternion
+    Quaternion<float> quat(0.32732683f, -0.54554468f, 0.76376259f, 0.10910894f);
+
+    vec = {0.26726124, -0.53452247, 0.80178368};
+    ovec = quat.rotateVector(vec.data(), DREAM3D_PASSIVE);
+
+    pass = EbsdLibMath::closeEnough(ovec[0], 0.381802f, 1.0E-4f);
+    DREAM3D_REQUIRE_EQUAL(pass, true);
+
+    pass = EbsdLibMath::closeEnough(ovec[1], -0.572703f, 1.0E-4f);
+    DREAM3D_REQUIRE_EQUAL(pass, true)
+
+    pass = EbsdLibMath::closeEnough(ovec[2], 0.725423f, 1.0E-4f);
+    DREAM3D_REQUIRE_EQUAL(pass, true)
+
+    std::cout << ovec[0] << ", " << ovec[1] << ", " << ovec[2] << std::endl;
   }
 
   // -----------------------------------------------------------------------------
@@ -348,11 +358,10 @@ public:
   // -----------------------------------------------------------------------------
   void operator()()
   {
-    std::cout << "#### QuaternionTest Starting ####" << std::endl;
-
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
     int err = EXIT_SUCCESS;
     DREAM3D_REGISTER_TEST(TestEbsdMatrixMath())
-    DREAM3D_REGISTER_TEST(TestQuat_t())
+    DREAM3D_REGISTER_TEST(TestQuaternion())
     DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 

@@ -93,6 +93,8 @@ public:
   OrientationTransformationTest& operator=(const OrientationTransformationTest&) = delete; // Copy Assignment Not Implemented
   OrientationTransformationTest& operator=(OrientationTransformationTest&&) = delete;      // Move Assignment Not Implemented
 
+  EBSD_GET_NAME_OF_CLASS_DECL(OrientationTransformationTest)
+
   QVector<QString> DataSetNames;
   QVector<int> DataSetTypes;
 
@@ -638,6 +640,8 @@ public:
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = EXIT_SUCCESS;
 
     StartTest();

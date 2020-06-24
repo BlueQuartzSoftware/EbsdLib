@@ -54,8 +54,8 @@ public:
   SO3SamplerTest& operator=(const SO3SamplerTest&) = delete; // Copy Assignment Not Implemented
   SO3SamplerTest& operator=(SO3SamplerTest&&) = delete;      // Move Assignment Not Implemented
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(SO3SamplerTest)
+
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
@@ -131,6 +131,8 @@ public:
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = EXIT_SUCCESS;
     DREAM3D_REGISTER_TEST(InsideCubicFZTest())
     DREAM3D_REGISTER_TEST(TestPyramid())

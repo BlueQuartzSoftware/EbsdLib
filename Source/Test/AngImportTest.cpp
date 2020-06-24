@@ -57,8 +57,8 @@ public:
   AngImportTest() = default;
   virtual ~AngImportTest() = default;
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(AngImportTest)
+
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
@@ -168,7 +168,7 @@ public:
   {
     int err = EXIT_SUCCESS;
 
-    std::cout << "#-- AngImportTest Starting " << std::endl;
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     DREAM3D_REGISTER_TEST(TestMissingHeaders())
     DREAM3D_REGISTER_TEST(TestHexGrid())

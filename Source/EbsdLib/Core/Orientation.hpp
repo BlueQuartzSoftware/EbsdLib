@@ -173,7 +173,7 @@ public:
    */
   virtual ~Orientation()
   {
-    if(m_Array != nullptr && m_OwnsData == true)
+    if(m_Array != nullptr && m_OwnsData)
     {
       delete[] m_Array;
     }
@@ -187,7 +187,7 @@ public:
    */
   Orientation& operator=(const Orientation& rhs) // Copy Assignment
   {
-    if(m_Array != nullptr && m_OwnsData == true)
+    if(m_Array != nullptr && m_OwnsData)
     {
       if(rhs.m_Size != m_Size)
       {
@@ -197,7 +197,7 @@ public:
       }
       ::memcpy(m_Array, rhs.m_Array, sizeof(T) * m_Size); // Copy the bytes over to the new array
     }
-    if(m_OwnsData == false)
+    if(!m_OwnsData)
     {
       if(m_Size != rhs.size())
       {
@@ -622,7 +622,7 @@ public:
 #endif
 
     // Allocate a new array if we DO NOT own the current array
-    if((nullptr != m_Array) && (false == m_OwnsData))
+    if((nullptr != m_Array) && (!m_OwnsData))
     {
       // The old array is owned by the user so we cannot try to
       // reallocate it.  Just allocate new memory that we will own.
@@ -680,7 +680,7 @@ protected:
    */
   void allocate()
   {
-    if((nullptr != m_Array) && (true == m_OwnsData))
+    if((nullptr != m_Array) && (m_OwnsData))
     {
       deallocate();
     }

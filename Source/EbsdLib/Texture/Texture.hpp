@@ -285,13 +285,13 @@ public:
       randx3[1] = distribution(generator);
       randx3[2] = distribution(generator);
       OrientationD eu = orientationOps.determineEulerAngles(randx3.data(), choose1);
-      QuatType q1 = OrientationTransformation::eu2qu<OrientationD, QuatType>(eu);
+      QuatD q1 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
 
       randx3[0] = distribution(generator);
       randx3[1] = distribution(generator);
       randx3[2] = distribution(generator);
       eu = orientationOps.determineEulerAngles(randx3.data(), choose2);
-      QuatType q2 = OrientationTransformation::eu2qu<OrientationD, QuatType>(eu);
+      QuatD q2 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
       OrientationD ax = orientationOps.calculateMisorientation(q1, q2);
       OrientationD ro = OrientationTransformation::ax2ro<OrientationD, OrientationD>(ax);
 

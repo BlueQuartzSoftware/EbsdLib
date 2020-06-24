@@ -68,6 +68,8 @@ public:
   TextureTest() = default;
   ~TextureTest() = default;
 
+  EBSD_GET_NAME_OF_CLASS_DECL(TextureTest)
+
   template <class LaueOps>
   void TestTextureMdf()
   {
@@ -182,7 +184,7 @@ public:
 
   void operator()()
   {
-    std::cout << "#### TextureTest Starting ####" << std::endl;
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     int err = EXIT_SUCCESS;
     DREAM3D_REGISTER_TEST(TestOdfGeneration())

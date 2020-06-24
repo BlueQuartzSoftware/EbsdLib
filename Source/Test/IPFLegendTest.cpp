@@ -129,6 +129,8 @@ public:
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = EXIT_SUCCESS;
 
     // DREAM3D_REGISTER_TEST( TestIPFLegend<CubicLowOps>(UnitTest::IPFLegendTest::CubicLowFile ) )

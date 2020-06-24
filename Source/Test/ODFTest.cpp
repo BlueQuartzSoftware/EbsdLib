@@ -63,8 +63,8 @@ public:
   ODFTest() = default;
   ~ODFTest() = default;
 
-  // -----------------------------------------------------------------------------
-  //
+  EBSD_GET_NAME_OF_CLASS_DECL(ODFTest)
+
   // -----------------------------------------------------------------------------
   template <typename T>
   void Print_Coord(const T* om)
@@ -124,6 +124,7 @@ public:
 
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
 
     TestRotation();
     CubicODFTest();

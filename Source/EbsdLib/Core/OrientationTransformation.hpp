@@ -1045,8 +1045,8 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
 
   qq = q;
 
-  q03 = qq[w] * qq[w] + qq[z] * qq[z];
-  q12 = qq[x] * qq[x] + qq[y] * qq[y];
+  q03 = qq.w() * qq.w() + qq.z() * qq.z();
+  q12 = qq.x() * qq.x() + qq.y() * qq.y();
   chi = sqrt(q03 * q12);
   if(chi == 0.0)
   {
@@ -1056,20 +1056,20 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = atan2(-2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]);
+        phi1 = atan2(-2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z());
       }
       else
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = atan2(2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]);
+        phi1 = atan2(2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z());
       }
     }
     else
     {
       Phi = static_cast<OutPutValueType>(EbsdLib::Constants::k_Pi);
       phi2 = 0.0; // arbitrarily due to degeneracy
-      phi1 = atan2(2.0 * qq[x] * qq[y], qq[x] * qq[x] - qq[y] * qq[y]);
+      phi1 = atan2(2.0 * qq.x() * qq.y(), qq.x() * qq.x() - qq.y() * qq.y());
     }
   }
   else
@@ -1078,18 +1078,18 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
     {
       Phi = atan2(2.0 * chi, q03 - q12);
       chi = 1.0 / chi;
-      phi1 = atan2((-qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] - qq[y] * qq[z]) * chi);
-      phi2 = atan2((qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] + qq[y] * qq[z]) * chi);
+      phi1 = atan2((-qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() - qq.y() * qq.z()) * chi);
+      phi2 = atan2((qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() + qq.y() * qq.z()) * chi);
     }
     else
     {
       Phi = atan2(2.0 * chi, q03 - q12);
       chi = 1.0 / chi;
-      typename OutputType::value_type y1 = (qq[w] * qq[y] + qq[x] * qq[z]) * chi;
-      typename OutputType::value_type x1 = (qq[w] * qq[x] - qq[y] * qq[z]) * chi;
+      typename OutputType::value_type y1 = (qq.w() * qq.y() + qq.x() * qq.z()) * chi;
+      typename OutputType::value_type x1 = (qq.w() * qq.x() - qq.y() * qq.z()) * chi;
       phi1 = atan2(y1, x1);
-      y1 = (-qq[w] * qq[y] + qq[x] * qq[z]) * chi;
-      x1 = (qq[w] * qq[x] + qq[y] * qq[z]) * chi;
+      y1 = (-qq.w() * qq.y() + qq.x() * qq.z()) * chi;
+      x1 = (qq.w() * qq.x() + qq.y() * qq.z()) * chi;
       phi2 = atan2(y1, x1);
     }
   }
@@ -1293,8 +1293,8 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   */
   // om2ax(om, oax);
 
-  OutputType eu = om2eu<InputType, OutputType>(om);
-  OutputType oax = eu2ax<OutputType, OutputType>(eu);
+  InputType eu = om2eu<InputType, InputType>(om);
+  InputType oax = eu2ax<InputType, InputType>(eu);
 
   if(oax[0] * res[x] < 0.0)
   {
@@ -1952,8 +1952,8 @@ OutputType ho2ro(const InputType& ho)
 template <typename InputType, typename OutputType>
 OutputType ho2qu(const InputType& ho, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
-  OutputType ax = ho2ax<InputType, OutputType>(ho);
-  return ax2qu<OutputType, OutputType>(ax, layout);
+  InputType ax = ho2ax<InputType, InputType>(ho);
+  return ax2qu<InputType, OutputType>(ax, layout);
 }
 
 /**: eu2cu
@@ -2148,8 +2148,8 @@ OutputType cu2ro(const InputType& cu)
 template <typename InputType, typename OutputType>
 OutputType cu2qu(const InputType& cu, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
-  OutputType ho = cu2ho<InputType, OutputType>(cu); // Convert the Cuborchoric to Homochoric
-  return ho2qu<OutputType, OutputType>(ho);         // Convert Homochoric to Quaternion
+  InputType ho = cu2ho<InputType, InputType>(cu); // Convert the Cuborchoric to Homochoric
+  return ho2qu<InputType, OutputType>(ho);        // Convert Homochoric to Quaternion
 }
 
 /**: RotVec_om

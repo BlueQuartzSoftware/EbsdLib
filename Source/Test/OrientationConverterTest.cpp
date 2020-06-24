@@ -33,13 +33,14 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <iomanip>
 #include <iostream>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
@@ -58,13 +59,13 @@ public:
   OrientationConverterTest& operator=(const OrientationConverterTest&) = delete; // Copy Assignment Not Implemented
   OrientationConverterTest& operator=(OrientationConverterTest&&) = delete;      // Move Assignment Not Implemented
 
+  EBSD_GET_NAME_OF_CLASS_DECL(OrientationConverterTest)
+
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestEulerConversion()
+  void TestEuler2Quaternion()
   {
     size_t nTuples = 2;
-    int qStride = 4;
+    // int qStride = 4;
     std::vector<size_t> cDims(1, 3);
     EbsdLib::FloatArrayType::Pointer eulers = EbsdLib::FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
     // Initialize the Eulers with some values
@@ -75,12 +76,12 @@ public:
     eulers->setComponent(1, 1, 0.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
     eulers->setComponent(1, 2, 0.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
 
-    float rad = 302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
-    std::cout << "Rad: " << rad << std::endl;
-    std::cout << "2Pi: " << EbsdLib::Constants::k_2Pi << std::endl;
+    // float rad = 302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
+    // std::cout << "Rad: " << rad << std::endl;
+    // std::cout << "2Pi: " << EbsdLib::Constants::k_2Pi << std::endl;
 
     // std::cout << "Remainer (302.84/360): " << remainder(rad, EbsdLib::Constants::k_2Pi) << std::endl;
-    std::cout << "fmod (5.28556 / 2Pi): " << fmod(rad, EbsdLib::Constants::k_2Pi) << std::endl;
+    // std::cout << "fmod (5.28556 / 2Pi): " << fmod(rad, EbsdLib::Constants::k_2Pi) << std::endl;
 
     OrientationConverter<EbsdLib::FloatArrayType, float>::Pointer ocEulers = EulerConverter<EbsdLib::FloatArrayType, float>::New();
     ocEulers->setInputData(eulers);
@@ -88,15 +89,20 @@ public:
 
     EbsdLib::FloatArrayType::Pointer output = ocEulers->getOutputData();
 
-    for(size_t i = 0; i < nTuples; i++)
+    std::vector<float> exemplar = {-0.2919894754886627F, 0.319372F, 0.1502762138843536F, 0.8889099955558777F, 0.0000000000000000F, -0.000000F, -0.3826834559440613F, 0.9238795042037964F};
+
+    for(size_t i = 0; i < 8; i++)
     {
-      float* ptr = output->getPointer(i * qStride);
-      OrientationPrinters::Print_QU<float*, float>(ptr);
+      float delta = std::abs(exemplar[i] - (*output)[i]);
+      DREAM3D_REQUIRE(delta < 1.0E6);
     }
+
+    OrientationF euler = {302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180), 51.282f * static_cast<float>(EbsdLib::Constants::k_PiOver180),
+                          37.969f * static_cast<float>(EbsdLib::Constants::k_PiOver180)};
+    QuatF qOut = OrientationTransformation::eu2qu<OrientationF, QuatF>(euler);
+    OrientationPrinters::Print_QU<QuatF>(qOut);
   }
 
-  // -----------------------------------------------------------------------------
-  //
   // -----------------------------------------------------------------------------
   void TestEulerAngle(float phi1, float phi, float phi2)
   {
@@ -114,7 +120,7 @@ public:
     using StringContainerType = std::vector<QString>;
     using OCType = OrientationConverter<EbsdLib::FloatArrayType, float>;
     std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
-    StringContainerType tStrings = OCType::GetOrientationTypeStrings<StringContainerType>();
+    auto tStrings = OCType::GetOrientationTypeStrings<StringContainerType>();
     std::vector<OCType::Pointer> converters(6);
     converters[0] = EulerConverter<EbsdLib::FloatArrayType, float>::New();
     converters[1] = OrientationMatrixConverter<EbsdLib::FloatArrayType, float>::New();
@@ -125,11 +131,11 @@ public:
     // converters[6] = CubochoricConverter<EbsdLib::FloatArrayType,float>::New();
 
     OrientationTransformation::ResultType result;
-    std::vector<int> strides = OCType::GetComponentCounts<std::vector<int>>();
+    auto strides = OCType::GetComponentCounts<std::vector<int>>();
 
-    for(int t0 = 0; t0 < 1; t0++)
+    for(size_t t0 = 0; t0 < 1; t0++)
     {
-      for(int t1 = 1; t1 < converters.size(); t1++)
+      for(size_t t1 = 1; t1 < converters.size(); t1++)
       {
         if(t0 == t1)
         {
@@ -162,15 +168,13 @@ public:
   }
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestFilterDesign()
+  void TestEulerConversion()
   {
 
-    float numSteps = 4.0;
-    float phi1Inc = 360.0 / numSteps;
-    float phiInc = 180.0 / numSteps;
-    float phi2Inc = 360.0 / numSteps;
+    float numSteps = 4.0F;
+    float phi1Inc = 360.0F / numSteps;
+    float phiInc = 180.0F / numSteps;
+    float phi2Inc = 360.0F / numSteps;
 
     for(float p2 = 0.0; p2 < 361.0; p2 = p2 + phi2Inc)
     {
@@ -185,10 +189,13 @@ public:
     }
   }
 
+  // -----------------------------------------------------------------------------
   void operator()()
   {
+    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+
     int err = 0;
+    DREAM3D_REGISTER_TEST(TestEuler2Quaternion());
     DREAM3D_REGISTER_TEST(TestEulerConversion());
-    DREAM3D_REGISTER_TEST(TestFilterDesign());
   }
 };

@@ -49,6 +49,12 @@
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
+#define EBSD_GET_NAME_OF_CLASS_DECL(CLASS)                                                                                                                                                             \
+  std::string getNameOfClass()                                                                                                                                                                         \
+  {                                                                                                                                                                                                    \
+    return {#CLASS};                                                                                                                                                                                   \
+  }
+
 namespace Ebsd
 {
 namespace unittest
