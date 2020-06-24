@@ -107,9 +107,7 @@
 
 #ifndef ROTATIONS_CONSTANTS
 #define ROTATIONS_CONSTANTS
-namespace Rotations
-{
-namespace Constants
+namespace Rotations::Constants
 {
 #if DREAM3D_PASSIVE_ROTATION
 static const float epsijk = 1.0f;
@@ -118,8 +116,7 @@ static const double epsijkd = 1.0;
 static const float epsijk = -1.0f;
 static const double epsijkd = -1.0;
 #endif
-} // namespace Constants
-} // namespace Rotations
+} // namespace Rotations::Constants
 
 #endif
 
@@ -490,7 +487,7 @@ ResultType ax_check(const InputType& ax)
   typename InputType::value_type eps = std::numeric_limits<value_type>::epsilon();
 
   typename InputType::value_type r = std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]);
-  typename InputType::value_type absv = fabs(r - 1.0);
+  typename InputType::value_type absv = static_cast<typename InputType::value_type>(fabs(r - 1.0));
 
   if(absv > eps)
   {
@@ -758,7 +755,7 @@ OutputType eu2ax(const InputType& e)
   }
   else
   {
-    alpha = 2.0 * atan(tau / cos(sig)); //! return a default identity axis-angle pair
+    alpha = static_cast<value_type>(2.0 * atan(tau / cos(sig))); //! return a default identity axis-angle pair
   }
 
   if(fabs(alpha) < thr)
@@ -771,9 +768,9 @@ OutputType eu2ax(const InputType& e)
   else
   {
     //! passive axis-angle pair so a minus sign in front
-    res[0] = -RConst::epsijkd * t * cos(del) / tau;
-    res[1] = -RConst::epsijkd * t * sin(del) / tau;
-    res[2] = -RConst::epsijkd * sin(sig) / tau;
+    res[0] = static_cast<value_type>(-RConst::epsijkd * t * cos(del) / tau);
+    res[1] = static_cast<value_type>(-RConst::epsijkd * t * sin(del) / tau);
+    res[2] = static_cast<value_type>(-RConst::epsijkd * sin(sig) / tau);
     res[3] = alpha;
 
     if(alpha < 0.0)
@@ -821,7 +818,7 @@ OutputType eu2ro(const InputType& e)
   }
   else
   {
-    res[3] = tan(t * 0.5);
+    res[3] = static_cast<typename OutputType::value_type>(tan(t * 0.5));
   }
   return res;
 }
@@ -846,7 +843,10 @@ template <typename InputType, typename OutputType>
 OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -854,17 +854,18 @@ OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::va
     y = 1;
     z = 2;
   }
-  typename OutputType::value_type ee[3] = {0.0f, 0.0f, 0.0f};
-  typename OutputType::value_type cPhi = 0.0f;
-  typename OutputType::value_type cp = 0.0f;
-  typename OutputType::value_type cm = 0.0f;
-  typename OutputType::value_type sPhi = 0.0f;
-  typename OutputType::value_type sp = 0.0f;
-  typename OutputType::value_type sm = 0.0f;
+  using OutputValueType = typename OutputType::value_type;
+  std::array<OutputValueType, 3> ee = {0.0f, 0.0f, 0.0f};
+  OutputValueType cPhi = 0.0f;
+  OutputValueType cp = 0.0f;
+  OutputValueType cm = 0.0f;
+  OutputValueType sPhi = 0.0f;
+  OutputValueType sp = 0.0f;
+  OutputValueType sm = 0.0f;
 
-  ee[0] = 0.5 * e[0];
-  ee[1] = 0.5 * e[1];
-  ee[2] = 0.5 * e[2];
+  ee[0] = static_cast<OutputValueType>(0.5 * e[0]);
+  ee[1] = static_cast<OutputValueType>(0.5 * e[1]);
+  ee[2] = static_cast<OutputValueType>(0.5 * e[2]);
 
   cPhi = cos(ee[1]);
   sPhi = sin(ee[1]);
@@ -911,7 +912,7 @@ OutputType om2eu(const InputType& o)
   if(!close)
   {
     res[1] = acos(o[8]);
-    zeta = 1.0 / sqrt(1.0 - o[8] * o[8]);
+    zeta = static_cast<typename OutputType::value_type>(1.0 / sqrt(1.0 - o[8] * o[8]));
     res[0] = atan2(o[6] * zeta, -o[7] * zeta);
     res[2] = atan2(o[2] * zeta, o[5] * zeta);
   }
@@ -934,15 +935,15 @@ OutputType om2eu(const InputType& o)
 
   if(res[0] < 0.0)
   {
-    res[0] = fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi);
+    res[0] = static_cast<typename OutputType::value_type>(fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
   }
   if(res[1] < 0.0)
   {
-    res[1] = fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi);
+    res[1] = static_cast<typename OutputType::value_type>(fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi));
   }
   if(res[2] < 0.0)
   {
-    res[2] = fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi);
+    res[2] = static_cast<typename OutputType::value_type>(fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
   }
   return res;
 }
@@ -964,15 +965,16 @@ template <typename InputType, typename OutputType>
 OutputType ax2om(const InputType& a)
 {
   OutputType res(9);
-  typename OutputType::value_type q = 0.0L;
-  typename OutputType::value_type c = 0.0L;
-  typename OutputType::value_type s = 0.0L;
-  typename OutputType::value_type omc = 0.0L;
+  using value_type = typename OutputType::value_type;
+  value_type q = 0.0L;
+  value_type c = 0.0L;
+  value_type s = 0.0L;
+  value_type omc = 0.0L;
 
   c = cos(a[3]);
   s = sin(a[3]);
 
-  omc = 1.0 - c;
+  omc = static_cast<value_type>(1.0 - c);
 
   res[0] = a[0] * a[0] * omc + c;
   res[4] = a[1] * a[1] * omc + c;
@@ -1035,13 +1037,13 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
   }
 
   InputType qq(4);
-  using OutPutValueType = typename OutputType::value_type;
-  OutPutValueType q12 = 0.0f;
-  OutPutValueType q03 = 0.0f;
-  OutPutValueType chi = 0.0f;
-  OutPutValueType Phi = 0.0f;
-  OutPutValueType phi1 = 0.0f;
-  OutPutValueType phi2 = 0.0f;
+  using OutputValueType = typename OutputType::value_type;
+  OutputValueType q12 = 0.0f;
+  OutputValueType q03 = 0.0f;
+  OutputValueType chi = 0.0f;
+  OutputValueType Phi = 0.0f;
+  OutputValueType phi1 = 0.0f;
+  OutputValueType phi2 = 0.0f;
 
   qq = q;
 
@@ -1056,37 +1058,37 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = atan2(-2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z());
+        phi1 = static_cast<OutputValueType>(atan2(-2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]));
       }
       else
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = atan2(2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z());
+        phi1 = static_cast<OutputValueType>(atan2(2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]));
       }
     }
     else
     {
-      Phi = static_cast<OutPutValueType>(EbsdLib::Constants::k_Pi);
+      Phi = static_cast<OutputValueType>(EbsdLib::Constants::k_Pi);
       phi2 = 0.0; // arbitrarily due to degeneracy
-      phi1 = atan2(2.0 * qq.x() * qq.y(), qq.x() * qq.x() - qq.y() * qq.y());
+      phi1 = static_cast<OutputValueType>(atan2(2.0 * qq[x] * qq[y], qq[x] * qq[x] - qq[y] * qq[y]));
     }
   }
   else
   {
     if(RConst::epsijk == 1.0)
     {
-      Phi = atan2(2.0 * chi, q03 - q12);
-      chi = 1.0 / chi;
-      phi1 = atan2((-qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() - qq.y() * qq.z()) * chi);
-      phi2 = atan2((qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() + qq.y() * qq.z()) * chi);
+      Phi = static_cast<OutputValueType>(atan2(2.0 * chi, q03 - q12));
+      chi = static_cast<OutputValueType>(1.0 / chi);
+      phi1 = atan2((-qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] - qq[y] * qq[z]) * chi);
+      phi2 = atan2((qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] + qq[y] * qq[z]) * chi);
     }
     else
     {
-      Phi = atan2(2.0 * chi, q03 - q12);
-      chi = 1.0 / chi;
-      typename OutputType::value_type y1 = (qq.w() * qq.y() + qq.x() * qq.z()) * chi;
-      typename OutputType::value_type x1 = (qq.w() * qq.x() - qq.y() * qq.z()) * chi;
+      Phi = static_cast<OutputValueType>(atan2(2.0 * chi, q03 - q12));
+      chi = static_cast<OutputValueType>(1.0 / chi);
+      typename OutputType::value_type y1 = (qq[w] * qq[y] + qq[x] * qq[z]) * chi;
+      typename OutputType::value_type x1 = (qq[w] * qq[x] - qq[y] * qq[z]) * chi;
       phi1 = atan2(y1, x1);
       y1 = (-qq.w() * qq.y() + qq.x() * qq.z()) * chi;
       x1 = (qq.w() * qq.x() + qq.y() * qq.z()) * chi;
@@ -1100,15 +1102,15 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
 
   if(res[0] < 0.0)
   {
-    res[0] = fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi);
+    res[0] = static_cast<OutputValueType>(fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
   }
   if(res[1] < 0.0)
   {
-    res[1] = fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi);
+    res[1] = static_cast<OutputValueType>(fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi));
   }
   if(res[2] < 0.0)
   {
-    res[2] = fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi);
+    res[2] = static_cast<OutputValueType>(fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
   }
 
   return res;
@@ -1129,8 +1131,8 @@ template <typename InputType, typename OutputType>
 OutputType ax2ho(const InputType& a)
 {
   OutputType res(3);
-  typename OutputType::value_type f = 0.75 * (a[3] - sin(a[3]));
-  f = pow(f, (1.0 / 3.0));
+  typename OutputType::value_type f = static_cast<typename OutputType::value_type>(0.75 * (a[3] - sin(a[3])));
+  f = static_cast<typename OutputType::value_type>(pow(f, (1.0 / 3.0)));
   res[0] = a[0] * f;
   res[1] = a[1] * f;
   res[2] = a[2] * f;
@@ -1169,21 +1171,22 @@ OutputType ho2ax(const InputType& h)
   }
   else
   {
-    typename OutputType::value_type hm = hmag;
+    using OutputValueType = typename OutputType::value_type;
+    OutputValueType hm = hmag;
     InputType hn = h;
-    typename OutputType::value_type sqrRtHMag = 1.0 / sqrt(hmag);
+    OutputValueType sqrRtHMag = static_cast<OutputValueType>(1.0 / sqrt(hmag));
     OMHelperType::scalarMultiply(hn, sqrRtHMag); // In place scalar multiply
-    typename OutputType::value_type s = LPs::tfit[0] + LPs::tfit[1] * hmag;
+    OutputValueType s = static_cast<OutputValueType>(LPs::tfit[0] + LPs::tfit[1] * hmag);
     for(int i = 2; i < 16; i++)
     {
       hm = hm * hmag;
-      s = s + LPs::tfit[i] * hm;
+      s = static_cast<OutputValueType>(s + LPs::tfit[i] * hm);
     }
-    s = 2.0 * acos(s);
+    s = static_cast<OutputValueType>(2.0 * acos(s));
     res[0] = hn[0];
     res[1] = hn[1];
     res[2] = hn[2];
-    typename OutputType::value_type delta = std::fabs(s - EbsdLib::Constants::k_Pi);
+    OutputValueType delta = static_cast<OutputValueType>(std::fabs(s - EbsdLib::Constants::k_Pi));
     if(delta < thr)
     {
       res[3] = static_cast<value_type>(EbsdLib::Constants::k_Pi);
@@ -1212,7 +1215,10 @@ template <typename InputType, typename OutputType>
 OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1220,45 +1226,45 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
     y = 1;
     z = 2;
   }
-
-  typename OutputType::value_type thr = static_cast<typename OutputType::value_type>(1.0E-10L);
+  using OutputValueType = typename OutputType::value_type;
+  OutputValueType thr = static_cast<typename OutputType::value_type>(1.0E-10L);
   if(sizeof(typename InputType::value_type) == 4)
   {
     thr = static_cast<typename OutputType::value_type>(1.0E-6L);
   }
-  typename OutputType::value_type s = 0.0;
-  typename OutputType::value_type s1 = 0.0;
-  typename OutputType::value_type s2 = 0.0;
-  typename OutputType::value_type s3 = 0.0;
+  OutputValueType s = 0.0;
+  OutputValueType s1 = 0.0;
+  OutputValueType s2 = 0.0;
+  OutputValueType s3 = 0.0;
 
-  s = om[0] + om[4] + om[8] + 1.0;
+  s = static_cast<OutputValueType>(om[0] + om[4] + om[8] + 1.0);
   if(EbsdLibMath::closeEnough(std::fabs(s), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s = 0.0;
   }
   s = sqrt(s);
-  s1 = om[0] - om[4] - om[8] + 1.0;
+  s1 = static_cast<OutputValueType>(om[0] - om[4] - om[8] + 1.0);
   if(EbsdLibMath::closeEnough(std::fabs(s1), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s1 = 0.0;
   }
   s1 = sqrt(s1);
-  s2 = -om[0] + om[4] - om[8] + 1.0;
+  s2 = static_cast<OutputValueType>(-om[0] + om[4] - om[8] + 1.0);
   if(EbsdLibMath::closeEnough(std::fabs(s2), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s2 = 0.0;
   }
   s2 = sqrt(s2);
-  s3 = -om[0] - om[4] + om[8] + 1.0;
+  s3 = static_cast<OutputValueType>(-om[0] - om[4] + om[8] + 1.0);
   if(EbsdLibMath::closeEnough(std::fabs(s3), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s3 = 0.0;
   }
   s3 = sqrt(s3);
-  res[w] = s * 0.5;
-  res[x] = s1 * 0.5;
-  res[y] = s2 * 0.5;
-  res[z] = s3 * 0.5;
+  res[w] = static_cast<OutputValueType>(s * 0.5);
+  res[x] = static_cast<OutputValueType>(s1 * 0.5);
+  res[y] = static_cast<OutputValueType>(s2 * 0.5);
+  res[z] = static_cast<OutputValueType>(s3 * 0.5);
   // printf("res[z]: % 3.16f \n", res[z]);
 
   // verify the signs (q0 always positive)
@@ -1324,9 +1330,13 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
 template <typename InputType, typename OutputType>
 OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
+  using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
+  if(layout == Quaternion<OutputValueType>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1334,7 +1344,7 @@ OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::va
     z = 2;
   }
 
-  typename OutputType::value_type epsijk = RConst::epsijkd;
+  OutputValueType epsijk = RConst::epsijkd;
   InputType qo(q);
   // make sure q[0] is >= 0.0
   typename OutputType::value_type sign = 1.0;
@@ -1346,19 +1356,19 @@ OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::va
   {
     qo[i] = sign * q[i];
   }
-  typename OutputType::value_type eps = static_cast<typename OutputType::value_type>(1.0e-12L);
-  typename OutputType::value_type omega = 2.0 * acos(qo[w]);
+  OutputValueType eps = static_cast<OutputValueType>(1.0e-12L);
+  OutputValueType omega = static_cast<OutputValueType>(2.0 * acos(qo[w]));
   if(omega < eps)
   {
     res[0] = 0.0;
     res[1] = 0.0;
-    res[2] = 1.0 * epsijk;
+    res[2] = static_cast<OutputValueType>(1.0 * epsijk);
     res[3] = 0.0;
   }
   else
   {
     typename OutputType::value_type mag = 0.0;
-    mag = 1.0 / sqrt(q[x] * q[x] + q[y] * q[y] + q[z] * q[z]);
+    mag = static_cast<OutputValueType>(1.0 / sqrt(q[x] * q[x] + q[y] * q[y] + q[z] * q[z]));
     res[0] = q[x] * mag;
     res[1] = q[y] * mag;
     res[2] = q[z] * mag;
@@ -1405,8 +1415,8 @@ OutputType ro2ax(const InputType& r)
 {
   using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
-  typename OutputType::value_type ta = 0.0L;
-  typename OutputType::value_type angle = 0.0L;
+  OutputValueType ta = 0.0L;
+  OutputValueType angle = 0.0L;
 
   ta = r[3];
   if(ta == 0.0L)
@@ -1426,10 +1436,10 @@ OutputType ro2ax(const InputType& r)
   }
   else
   {
-    angle = 2.0L * atan(ta);
+    angle = static_cast<OutputValueType>(2.0L * atan(ta));
     ta = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];
     ta = sqrt(ta);
-    ta = 1.0L / ta;
+    ta = static_cast<OutputValueType>(1.0L / ta);
     res[0] = r[0] * ta;
     res[1] = r[1] * ta;
     res[2] = r[2] * ta;
@@ -1455,7 +1465,9 @@ template <typename InputType, typename OutputType>
 OutputType ax2ro(const InputType& ax)
 {
   OutputType res(4);
-  typename OutputType::value_type thr = 1.0E-7f;
+  using OutputValueType = typename OutputType::value_type;
+
+  OutputValueType thr = 1.0E-7f;
 
   if(ax[3] == 0.0)
   {
@@ -1474,7 +1486,7 @@ OutputType ax2ro(const InputType& ax)
   }
   else
   {
-    res[3] = tan(ax[3] * 0.5);
+    res[3] = static_cast<OutputValueType>(tan(ax[3] * 0.5));
   }
   return res;
 }
@@ -1494,8 +1506,12 @@ OutputType ax2ro(const InputType& ax)
 template <typename InputType, typename OutputType>
 OutputType ax2qu(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
+  using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1512,8 +1528,8 @@ OutputType ax2qu(const InputType& r, typename Quaternion<typename OutputType::va
   }
   else
   {
-    typename OutputType::value_type c = cos(r[3] * 0.5);
-    typename OutputType::value_type s = sin(r[3] * 0.5);
+    typename OutputType::value_type c = static_cast<OutputValueType>(cos(r[3] * 0.5));
+    typename OutputType::value_type s = static_cast<OutputValueType>(sin(r[3] * 0.5));
     res[w] = c;
     res[x] = r[0] * s;
     res[y] = r[1] * s;
@@ -1555,10 +1571,10 @@ OutputType ro2ho(const InputType& r)
   }
   else
   {
-    value_type t = 2.0 * std::atan(r[3]);
-    f = 0.75 * (t - std::sin(t));
+    value_type t = static_cast<value_type>(2.0 * std::atan(r[3]));
+    f = static_cast<value_type>(0.75 * (t - std::sin(t)));
   }
-  f = pow(f, 1.0 / 3.0);
+  f = static_cast<value_type>(pow(f, 1.0 / 3.0));
   res[0] = r[0] * f;
   res[1] = r[1] * f;
   res[2] = r[2] * f;
@@ -1581,25 +1597,29 @@ OutputType ro2ho(const InputType& r)
 template <typename InputType, typename OutputType>
 OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
+  using OutputValueType = typename OutputType::value_type;
   OutputType res(9);
-  size_t w = 0, x = 1, y = 2, z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
+  if(layout == Quaternion<OutputValueType>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
     y = 1;
     z = 2;
   }
-  typename OutputType::value_type qq = r[w] * r[w] - (r[x] * r[x] + r[y] * r[y] + r[z] * r[z]);
-  res[0] = qq + 2.0 * r[x] * r[x];
-  res[4] = qq + 2.0 * r[y] * r[y];
-  res[8] = qq + 2.0 * r[z] * r[z];
-  res[1] = 2.0 * (r[x] * r[y] - r[w] * r[z]);
-  res[5] = 2.0 * (r[y] * r[z] - r[w] * r[x]);
-  res[6] = 2.0 * (r[z] * r[x] - r[w] * r[y]);
-  res[3] = 2.0 * (r[y] * r[x] + r[w] * r[z]);
-  res[7] = 2.0 * (r[z] * r[y] + r[w] * r[x]);
-  res[2] = 2.0 * (r[x] * r[z] + r[w] * r[y]);
+  OutputValueType qq = r[w] * r[w] - (r[x] * r[x] + r[y] * r[y] + r[z] * r[z]);
+  res[0] = static_cast<OutputValueType>(qq + 2.0 * r[x] * r[x]);
+  res[4] = static_cast<OutputValueType>(qq + 2.0 * r[y] * r[y]);
+  res[8] = static_cast<OutputValueType>(qq + 2.0 * r[z] * r[z]);
+  res[1] = static_cast<OutputValueType>(2.0 * (r[x] * r[y] - r[w] * r[z]));
+  res[5] = static_cast<OutputValueType>(2.0 * (r[y] * r[z] - r[w] * r[x]));
+  res[6] = static_cast<OutputValueType>(2.0 * (r[z] * r[x] - r[w] * r[y]));
+  res[3] = static_cast<OutputValueType>(2.0 * (r[y] * r[x] + r[w] * r[z]));
+  res[7] = static_cast<OutputValueType>(2.0 * (r[z] * r[y] + r[w] * r[x]));
+  res[2] = static_cast<OutputValueType>(2.0 * (r[x] * r[z] + r[w] * r[y]));
   if(Rotations::Constants::epsijk != 1.0)
   {
     using value_type = typename OutputType::value_type;
@@ -1628,7 +1648,10 @@ template <typename InputType, typename OutputType>
 OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1683,7 +1706,10 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
   using value_type = typename OutputType::value_type;
   using OMHelperType = ArrayHelpers<OutputType, value_type>;
 
-  size_t w = 0, x = 1, y = 2, z = 3;
+  size_t w = 0;
+  size_t x = 1;
+  size_t y = 2;
+  size_t z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1694,7 +1720,7 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
   float s;
   float f;
 
-  typename OutputType::value_type omega = 2.0 * acos(q[w]);
+  value_type omega = static_cast<value_type>(2.0 * acos(q[w]));
   if(omega == 0.0)
   {
     OMHelperType::splat(res, 0.0);
@@ -1705,10 +1731,10 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
     res[0] = q[x];
     res[1] = q[y];
     res[2] = q[z];
-    s = 1.0 / sqrt(OMHelperType::sumofSquares(res));
+    s = static_cast<value_type>(1.0 / sqrt(OMHelperType::sumofSquares(res)));
     OMHelperType::scalarMultiply(res, s);
-    f = 0.75 * (omega - sin(omega));
-    f = pow(f, 1.0 / 3.0);
+    f = static_cast<value_type>(0.75 * (omega - sin(omega)));
+    f = static_cast<value_type>(pow(f, 1.0 / 3.0));
     OMHelperType::scalarMultiply(res, f);
   }
   return res;

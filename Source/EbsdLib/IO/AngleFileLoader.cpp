@@ -207,16 +207,16 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     // Values in File are in Radians and the user wants them in Degrees
     if(!m_FileAnglesInDegrees && m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_RadToDeg;
-      euler[1] = euler[1] * EbsdLib::Constants::k_RadToDeg;
-      euler[2] = euler[2] * EbsdLib::Constants::k_RadToDeg;
+      euler[0] = euler[0] * EbsdLib::Constants::k_RadToDegF;
+      euler[1] = euler[1] * EbsdLib::Constants::k_RadToDegF;
+      euler[2] = euler[2] * EbsdLib::Constants::k_RadToDegF;
     }
     // Values are in Degrees but user wants them in Radians
     else if(m_FileAnglesInDegrees && !m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_DegToRad;
-      euler[1] = euler[1] * EbsdLib::Constants::k_DegToRad;
-      euler[2] = euler[2] * EbsdLib::Constants::k_DegToRad;
+      euler[0] = euler[0] * EbsdLib::Constants::k_DegToRadF;
+      euler[1] = euler[1] * EbsdLib::Constants::k_DegToRadF;
+      euler[2] = euler[2] * EbsdLib::Constants::k_DegToRadF;
     }
 
     // Store the values into our array
