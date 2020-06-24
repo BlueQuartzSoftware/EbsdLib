@@ -187,7 +187,7 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
       quat.x() = std::stof(tokens[0]);
       quat.y() = std::stof(tokens[1]);
       quat.z() = std::stof(tokens[2]);
-      quat.w()] = std::stof(tokens[3]);
+      quat.w() = std::stof(tokens[3]);
 
       euler = OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
       weight = std::stof(tokens[4]);

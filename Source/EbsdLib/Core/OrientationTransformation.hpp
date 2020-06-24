@@ -1058,20 +1058,20 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = static_cast<OutputValueType>(atan2(-2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]));
+        phi1 = static_cast<OutputValueType>(atan2(-2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z()));
       }
       else
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
-        phi1 = static_cast<OutputValueType>(atan2(2.0 * qq[w] * qq[z], qq[w] * qq[w] - qq[z] * qq[z]));
+        phi1 = static_cast<OutputValueType>(atan2(2.0 * qq.w() * qq.z(), qq.w() * qq.w() - qq.z() * qq.z()));
       }
     }
     else
     {
       Phi = static_cast<OutputValueType>(EbsdLib::Constants::k_Pi);
       phi2 = 0.0; // arbitrarily due to degeneracy
-      phi1 = static_cast<OutputValueType>(atan2(2.0 * qq[x] * qq[y], qq[x] * qq[x] - qq[y] * qq[y]));
+      phi1 = static_cast<OutputValueType>(atan2(2.0 * qq.x() * qq.y(), qq.x() * qq.x() - qq.y() * qq.y()));
     }
   }
   else
@@ -1080,15 +1080,15 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
     {
       Phi = static_cast<OutputValueType>(atan2(2.0 * chi, q03 - q12));
       chi = static_cast<OutputValueType>(1.0 / chi);
-      phi1 = atan2((-qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] - qq[y] * qq[z]) * chi);
-      phi2 = atan2((qq[w] * qq[y] + qq[x] * qq[z]) * chi, (-qq[w] * qq[x] + qq[y] * qq[z]) * chi);
+      phi1 = atan2((-qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() - qq.y() * qq.z()) * chi);
+      phi2 = atan2((qq.w() * qq.y() + qq.x() * qq.z()) * chi, (-qq.w() * qq.x() + qq.y() * qq.z()) * chi);
     }
     else
     {
       Phi = static_cast<OutputValueType>(atan2(2.0 * chi, q03 - q12));
       chi = static_cast<OutputValueType>(1.0 / chi);
-      typename OutputType::value_type y1 = (qq[w] * qq[y] + qq[x] * qq[z]) * chi;
-      typename OutputType::value_type x1 = (qq[w] * qq[x] - qq[y] * qq[z]) * chi;
+      typename OutputType::value_type y1 = (qq.w() * qq.y() + qq.x() * qq.z()) * chi;
+      typename OutputType::value_type x1 = (qq.w() * qq.x() - qq.y() * qq.z()) * chi;
       phi1 = atan2(y1, x1);
       y1 = (-qq.w() * qq.y() + qq.x() * qq.z()) * chi;
       x1 = (qq.w() * qq.x() + qq.y() * qq.z()) * chi;

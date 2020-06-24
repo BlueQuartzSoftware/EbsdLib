@@ -131,11 +131,9 @@ public:
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
     {
-
       using TestType = std::vector<float>;
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+      using FloatQVectorType = std::vector<float>;
+      OrientationTransformation::ResultType result;
       FloatQVectorType eu_q(3);
       eu_q[0] = 1.0f;
       eu_q[1] = 0.4f;
@@ -188,10 +186,9 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
-      FloatQVectorType ro(4);
+      using TestType = std::vector<float>;
+      OrientationTransformation::ResultType result;
+      TestType ro(4);
       ro[0] = 1.0f;
       ro[1] = 1.0f;
       ro[2] = 1.0f;
@@ -240,10 +237,10 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
-      FloatQVectorType ho(3);
+      using TestType = std::vector<float>;
+
+      OrientationTransformation::ResultType result;
+      TestType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
       ho[2] = 0.5f;
@@ -290,8 +287,8 @@ public:
 
     {
       typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
+
+      OrientationTransformation::ResultType result;
       FloatQVectorType v(3);
       v[0] = 0.5f;
       v[1] = 0.5f;
@@ -359,10 +356,10 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
-      FloatQVectorType qu(4);
+      using TestType = std::vector<float>;
+
+      OrientationTransformation::ResultType result;
+      TestType qu(4);
       qu[0] = quat.x();
       qu[1] = quat.y();
       qu[2] = quat.z();
@@ -429,10 +426,10 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
-      FloatQVectorType ax(4);
+      using TestType = std::vector<float>;
+
+      OrientationTransformation::ResultType result;
+      TestType ax(4);
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
@@ -508,10 +505,10 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
-      typedef OrientationTransforms<FloatQVectorType, float> OrientationTransformType;
-      OrientationTransformType::ResultType result;
-      FloatQVectorType ax(9);
+      using TestType = std::vector<float>;
+
+      OrientationTransformation::ResultType result;
+      TestType ax(9);
       ax[0] = 1.0f;
       ax[1] = 0.0f;
       ax[2] = 0.0f;
@@ -555,7 +552,7 @@ public:
   void Test_GenRot()
   {
 
-    float eu[3] = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> eu = {1.0f, 0.0f, 0.0f};
     float omega = EbsdLib::Constants::k_PiOver2;
     GenRotTest<FOrientArrayType, float>(eu, omega);
     GenRotTest<FloatVectorType, float>(eu, omega);
