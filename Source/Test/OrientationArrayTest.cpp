@@ -286,7 +286,7 @@ public:
     }
 
     {
-      typedef std::vector<float> FloatQVectorType;
+      using TestType = std::vector<float>;
 
       OrientationTransformation::ResultType result;
       FloatQVectorType v(3);
@@ -554,9 +554,9 @@ public:
 
     std::array<float, 3> eu = {1.0f, 0.0f, 0.0f};
     float omega = EbsdLib::Constants::k_PiOver2;
-    GenRotTest<FOrientArrayType, float>(eu, omega);
-    GenRotTest<FloatVectorType, float>(eu, omega);
-    GenRotTest<FloatQVectorType, float>(eu, omega);
+    GenRotTest<FOrientArrayType, float>(eu.data(), omega);
+    GenRotTest<FloatVectorType, float>(eu.data(), omega);
+    GenRotTest<FloatQVectorType, float>(eu.data(), omega);
   }
 
   // -----------------------------------------------------------------------------

@@ -46,6 +46,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #include "GenerateFunctionList.h"
 #include "TestPrintFunctions.h"
@@ -223,11 +224,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-<<<<<<< HEAD
-  QString ExecuteConvertFilter(std::map<QString, EbsdDataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const QString& outputName)
-=======
-  std::string ExecuteConvertFilter(std::map<std::string, DataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const std::string& outputName)
->>>>>>> Removing the use of Qt5 from EbsdLib.
+  std::string ExecuteConvertFilter(std::map<std::string, EbsdDataArray<double>::Pointer>& attrMat, GenerateFunctionList::EntryType& entry, int e, const std::string& outputName)
   {
     std::string inputName = outputName;
 
@@ -235,16 +232,9 @@ public:
     {
       inputName = k_InputNames[entry[e]];
     }
-
-<<<<<<< HEAD
     EbsdDataArray<double>::Pointer inputData = attrMat[inputName];
     EbsdDataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
-    QString nextOutputName = QString::number(e) + QString("_") + k_InputNames[entry[e]] + QString("2") + k_InputNames[entry[e + 1]];
-=======
-    DataArray<double>::Pointer inputData = attrMat[inputName];
-    DataArray<double>::Pointer outputData = generateRepresentation<double>(entry[e], entry[e + 1], inputData);
     std::string nextOutputName = EbsdStringUtils::number(e) + std::string("_") + k_InputNames[entry[e]] + std::string("2") + k_InputNames[entry[e + 1]];
->>>>>>> Removing the use of Qt5 from EbsdLib.
     attrMat[nextOutputName] = outputData;
 
     return nextOutputName;
@@ -304,11 +294,7 @@ public:
     using EbsdDataArrayType = EbsdDataArray<K>;
     using EbsdDataArrayPointerType = typename EbsdDataArrayType::Pointer;
 
-<<<<<<< HEAD
-    std::map<QString, EbsdDataArrayPointerType> attrMat;
-=======
-    std::map<std::string, DataArrayPointerType> attrMat;
->>>>>>> Removing the use of Qt5 from EbsdLib.
+    std::map<std::string, EbsdDataArrayPointerType> attrMat;
 
     try
     {
@@ -364,13 +350,8 @@ public:
         }
       }
 
-<<<<<<< HEAD
-      QString outputName; // We need this a bit further down;
-      for(size_t e = 0; e < entry.size() - 1; e++)
-=======
       std::string outputName; // We need this a bit further down;
       for(int e = 0; e < entry.size() - 1; e++)
->>>>>>> Removing the use of Qt5 from EbsdLib.
       {
         outputName = ExecuteConvertFilter(attrMat, entry, e, outputName);
       }
@@ -424,12 +405,7 @@ public:
             if(delta > thr)
             {
               numErrors++;
-<<<<<<< HEAD
-              std::cout << "Delta Failed: " << delta << " EbsdDataArray: '" << diff.getName().toStdString() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
-=======
-              std::cout << "Delta Failed: " << delta << " DataArray: '" << diff.getName() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
->>>>>>> Removing the use of Qt5 from EbsdLib.
-
+              std::cout << "Delta Failed: " << delta << " EbsdDataArray: '" << diff.getName() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
               // Get the AttributeMatrix:
               //              dap = EbsdDataArrayPath(DCName, AMName, k_InputNames[0]);
               //              AttributeMatrix::Pointer attrMat = dca->getAttributeMatrix(dap);
@@ -467,13 +443,8 @@ public:
         entry.pop_back();
       }
 
-<<<<<<< HEAD
       typename EbsdDataArray<K>::Pointer junk = EbsdDataArray<K>::CreateArray(1, "Junk", true);
-      QString typeName = junk->getTypeAsString();
-=======
-      typename DataArray<K>::Pointer junk = DataArray<K>::CreateArray(1, "Junk");
       std::string typeName = junk->getTypeAsString();
->>>>>>> Removing the use of Qt5 from EbsdLib.
 #if 0
       {
 
