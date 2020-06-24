@@ -38,6 +38,6 @@ using ByteArrayType = std::vector<char>;
 #include <ghc/filesystem.hpp>
 namespace fs = ghc::filesystem;
 #else
-namespace fs = std::filesystem;
 #include <filesystem>
+namespace fs = std::filesystem;
 #endif
