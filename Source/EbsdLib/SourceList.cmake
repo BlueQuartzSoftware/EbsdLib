@@ -187,14 +187,14 @@ endif()
 # We are going to use an independent implementation of std::filesystem
 # that is used instead.
 # --------------------------------------------------------------------
-if(NOT APPLE)
+if(APPLE)
   target_link_libraries(${PROJECT_NAME} ghcFilesystem::ghc_filesystem)
 endif()
 
 # --------------------------------------------------------------------
 # GCC Versions Less Than 9 need to link against stdc++fs is using std::filesystem
 # --------------------------------------------------------------------
-if(CMAKE_COMPILER_IS_GNUCC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
   # message(STATUS "GCC Version < 9: Linking to stdc++fs")
   # target_link_libraries(${PROJECT_NAME} stdc++fs)
   target_link_libraries(${PROJECT_NAME} ghcFilesystem::ghc_filesystem)
