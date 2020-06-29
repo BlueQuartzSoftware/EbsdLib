@@ -78,9 +78,15 @@ else()
   message(WARNING "The Eigen Library is required for some algorithms to execute. These algorithms will be disabled.")
 endif()
 
+set(EbsdLib_USE_GHC_FILESYSTEM 0)
 if(APPLE)
-	find_package(ghcFileSystem REQUIRED)
+	find_package(ghcFilesystem REQUIRED)
+	set(EbsdLib_USE_GHC_FILESYSTEM 1)
+elseif(CMAKE_COMPILER_IS_GNUCC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+	find_package(ghcFilesystem REQUIRED)
+	set(EbsdLib_USE_GHC_FILESYSTEM 1)
 endif()
+
 
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)

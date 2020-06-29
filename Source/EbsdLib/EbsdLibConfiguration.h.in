@@ -34,7 +34,8 @@ using ByteArrayType = std::vector<char>;
 
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#cmakedefine EbsdLib_USE_GHC_FILESYSTEM 
+#if defined EbsdLib_USE_GHC_FILESYSTEM
 #include <ghc/filesystem.hpp>
 namespace fs = ghc::filesystem;
 #else
