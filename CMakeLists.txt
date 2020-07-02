@@ -102,5 +102,5 @@ if(EbsdLib_ENABLE_TESTING)
 	include(${EbsdLibProj_SOURCE_DIR}/Source/Test/CMakeLists.txt)
 endif()
 
-
+include (${EbsdLibProj_SOURCE_DIR}/Source/Apps/SourceList.cmake)
 

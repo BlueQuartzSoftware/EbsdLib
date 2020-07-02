@@ -560,6 +560,10 @@ public:
         xval.resize(index + 1);
       }
       yval[index]++;
+      if(index == 14)
+      {
+        std::cout << "yval[14]: " << yval[index] << std::endl;
+      }
     }
     for(int i = 0; i < yval.size(); i++)
     {

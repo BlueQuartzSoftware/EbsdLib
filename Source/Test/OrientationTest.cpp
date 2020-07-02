@@ -437,7 +437,7 @@ public:
     }
 
     T ro = OrientationTransformation::eu2ro<T, T>(eu);
-    OrientationPrinters::Print_RO<T, K>(ro);
+    OrientationPrinters::Print_RO<T>(ro);
     result = OrientationTransformation::ro_check(ro);
     if(result.result <= 0)
     {
@@ -445,7 +445,7 @@ public:
     }
 
     T ho = OrientationTransformation::eu2ho<T, T>(eu);
-    OrientationPrinters::Print_HO<T, K>(ho);
+    OrientationPrinters::Print_HO<T>(ho);
     result = OrientationTransformation::ho_check(ho);
     if(result.result <= 0)
     {
@@ -470,7 +470,7 @@ public:
     }
 
     Quaternion<K> qu = OrientationTransformation::eu2qu<T, Quaternion<K>>(eu);
-    OrientationPrinters::Print_QU<Quaternion<K>, K>(qu);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qu);
     result = OrientationTransformation::qu_check(qu);
     if(result.result <= 0)
     {
@@ -539,11 +539,11 @@ ax2eu  eu2ax                                                     FAILED
 
     // Convert to Rodriques
     res = OrientationTransformation::om2ro<T, T>(om);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     Quaternion<K> qres = OrientationTransformation::om2qu<T, Quaternion<K>>(om);
-    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres, Quaternion<K>::Order::ScalarVector);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qres, Quaternion<K>::Order::ScalarVector);
 
     // Convert to Axis Angle
     res = OrientationTransformation::om2ax<T, T>(om);
@@ -610,7 +610,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Quaternion
     Quaternion<K> qres = OrientationTransformation::ro2qu<T, Quaternion<K>>(ro);
-    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qres);
 
     // Convert to Homochoric
     res = OrientationTransformation::ro2ho<T, T>(ro);
@@ -628,7 +628,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   {
     std::cout << "Test_ro2_XXX  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
     float ro[4] = {0.0f, 0.0f, -1.0f, 1.0f};
-    OrientationPrinters::Print_RO<float*, float>(ro);
+    OrientationPrinters::Print_RO<float*>(ro);
     RO_2_XXX<OrientationF>(ro);
     RO_2_XXX<FloatVectorType>(ro);
   }
@@ -657,11 +657,11 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::ax2ro<T, T>(ax);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     Quaternion<K> qres = OrientationTransformation::ax2qu<T, Quaternion<K>>(ax);
-    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qres);
 
     // Convert to homochoric
     res = OrientationTransformation::ax2ho<T, T>(ax);
@@ -709,7 +709,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::qu2ro<T, OrientationType>(qu, layout);
-    OrientationPrinters::Print_RO<OrientationType, K>(res);
+    OrientationPrinters::Print_RO<OrientationType>(res);
 
     // Convert to Quaternion
     res = OrientationTransformation::qu2ax<T, OrientationType>(qu, layout);
@@ -732,7 +732,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     {
       std::cout << "Test_qu2_XXX  (SCALAR, <X, Y, Z>) ***************************************" << std::endl;
       float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
-      OrientationPrinters::Print_QU<float*, float>(qu, QuatF::Order::ScalarVector);
+      OrientationPrinters::Print_QU<QuatF>({qu[0], qu[1], qu[2], qu[3]}, QuatF::Order::ScalarVector);
       using QuatFType = Quaternion<float>;
       QU_2_XXX<QuatFType, float>(qu, QuatF::Order::ScalarVector);
       //  QU_2_XXX<std::vector<float> >(qu);
@@ -742,7 +742,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     {
       std::cout << "Test_qu2_XXX  (<X, Y, Z>, SCALAR) ***************************************" << std::endl;
       float qu[4] = {0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2), static_cast<float>(EbsdLib::Constants::k_1OverRoot2)};
-      OrientationPrinters::Print_QU<float*, float>(qu);
+      OrientationPrinters::Print_QU<QuatF>({qu[0], qu[1], qu[2], qu[3]});
       using QuatFType = Quaternion<float>;
       QU_2_XXX<QuatFType, float>(qu);
       //  QU_2_XXX<std::vector<float> >(qu);
@@ -777,11 +777,11 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::ho2ro<T, T>(ho);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     Quaternion<K> qres = OrientationTransformation::ho2qu<T, Quaternion<K>>(ho);
-    OrientationPrinters::Print_QU<Quaternion<K>, K>(qres);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qres);
 
     // Convert to HomoChoric
     res = OrientationTransformation::ho2cu<T, T>(ho);

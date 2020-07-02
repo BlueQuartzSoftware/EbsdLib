@@ -1,14 +1,12 @@
 #pragma once
 
 #include <memory>
-
 #include <cstdio>
-
 #include <iostream>
-
 #include <sstream>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Core/Quaternion.hpp"
 
 static const std::string DCName("Orientation Transforms Test");
 static const std::string AMName("Angles");
@@ -51,7 +49,7 @@ void Print_AX(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K>
+template <typename T>
 void Print_RO(const T& om)
 {
   // if(om[3] != std::numeric_limits<K>::infinity())
@@ -63,7 +61,7 @@ void Print_RO(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K>
+template <typename T>
 void Print_HO(const T& om)
 {
   printf("Ho:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
@@ -72,15 +70,15 @@ void Print_HO(const T& om)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <typename T, typename K>
-void Print_QU(const T& om, typename Quaternion<K>::Order layout = Quaternion<K>::Order::VectorScalar)
+template <typename T>
+void Print_QU(const T& om, typename T::Order layout)
 {
-  if(layout == Quaternion<K>::Order::VectorScalar)
+  if(layout == T::Order::VectorScalar)
   {
     printf("QU:<% 3.16f % 3.6f % 3.16f> % 3.16f\n", om[0], om[1], om[2], om[3]);
   }
 
-  else if(layout == Quaternion<K>::Order::ScalarVector)
+  else if(layout == T::Order::ScalarVector)
   {
     printf("QU: % 3.16f <% 3.16f % 3.16f % 3.16f>\n", om[0], om[1], om[2], om[3]);
   }
@@ -91,15 +89,6 @@ template <typename QuaternionType>
 void Print_QU(const QuaternionType& q)
 {
   printf("QU:<% 3.16f % 3.6f % 3.16f> % 3.16f\n", q.x(), q.y(), q.z(), q.w());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <typename T>
-void Print_HO(const T& om)
-{
-  printf("Ho:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
 
 // -----------------------------------------------------------------------------
