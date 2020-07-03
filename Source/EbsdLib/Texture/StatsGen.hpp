@@ -531,7 +531,6 @@ public:
     for(int i = 0; i < size; i++)
     {
       random = distribution(generator);
-
       choose = 0;
       totaldensity = 0;
       for(int j = 0; j < opsMdfSize; j++)
@@ -546,23 +545,28 @@ public:
         }
       }
 
-      randx3[0] = distribution(generator);
-      randx3[1] = distribution(generator);
-      randx3[2] = distribution(generator);
+      // Create a random rod vector
+      randx3 = {distribution(generator), distribution(generator), distribution(generator)};
+
       OrientationD rod = ops.determineRodriguesVector(randx3.data(), choose);
       OrientationD ax = OrientationTransformation::ro2ax<OrientationD, OrientationD>(rod);
 
       float w = ax[3] * radtodeg;
       size_t index = static_cast<size_t>(w * 0.2f);
-      if(index >= yval.size())
+      if(index < yval.size())
       {
-        yval.resize(index + 1);
-        xval.resize(index + 1);
+        yval[index]++;
       }
-      yval[index]++;
-      if(index == 14)
+      else
       {
+        // yval.resize(index + 1);
+        // yval[index] = 0.0f;
+        // xval.resize(index + 1);
         std::cout << "yval[14]: " << yval[index] << std::endl;
+        std::cout << "w: " << w << "   choose: " << choose << std::endl;
+        std::cout << "randx3: " << randx3[0] << ", " << randx3[1] << ", " << randx3[2] << std::endl;
+        std::cout << "rod: " << rod[0] << ", " << rod[1] << ", " << rod[2] << ", " << rod[3] << std::endl;
+        std::cout << "ax: " << ax[0] << ", " << ax[1] << ", " << ax[2] << ", " << ax[3] << std::endl;
       }
     }
     for(int i = 0; i < yval.size(); i++)

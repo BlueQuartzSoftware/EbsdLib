@@ -222,7 +222,6 @@ public:
     const size_t odfsize = odf.size();
     const int mdfsize = orientationOps.getMDFSize();
     mdf.resize(orientationOps.getMDFSize());
-    // uint64_t m_Seed = QDateTime::currentMSecsSinceEpoch();
 
     // Create a Random Number generator
     std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
@@ -231,14 +230,9 @@ public:
     generator.seed(seed);
     std::uniform_real_distribution<> distribution(0.0, 1.0);
 
-    std::array<double, 3> randx3;
-
     int mbin;
-
     int choose1, choose2;
-
     float totaldensity;
-
     float random1, random2, density;
 
     for(int i = 0; i < mdfsize; i++)
@@ -264,7 +258,6 @@ public:
       random2 = distribution(generator);
       choose1 = 0;
       choose2 = 0;
-
       totaldensity = 0;
       for(size_t j = 0; j < odfsize; j++)
       {
@@ -280,16 +273,12 @@ public:
           choose2 = static_cast<int>(j);
         }
       }
-
-      randx3[0] = distribution(generator);
-      randx3[1] = distribution(generator);
-      randx3[2] = distribution(generator);
+      // This is used to create a random Homochoric vector
+      std::array<double, 3> randx3 = {distribution(generator), distribution(generator), distribution(generator)};
       OrientationD eu = orientationOps.determineEulerAngles(randx3.data(), choose1);
       QuatD q1 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
 
-      randx3[0] = distribution(generator);
-      randx3[1] = distribution(generator);
-      randx3[2] = distribution(generator);
+      randx3 = {distribution(generator), distribution(generator), distribution(generator)};
       eu = orientationOps.determineEulerAngles(randx3.data(), choose2);
       QuatD q2 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
       OrientationD ax = orientationOps.calculateMisorientation(q1, q2);
