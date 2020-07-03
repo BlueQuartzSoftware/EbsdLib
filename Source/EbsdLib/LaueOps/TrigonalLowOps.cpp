@@ -49,9 +49,10 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 
 namespace TrigonalLow
@@ -71,6 +72,7 @@ static const int symSize2 = 2;
 static const int k_OdfSize = 124416;
 static const int k_MdfSize = 124416;
 static const int k_NumSymQuats = 3;
+static const int k_NumMdfBins = 12;
 
 static const QuatD QuatSym[3] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
                                     QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000)};
@@ -123,6 +125,12 @@ int TrigonalLowOps::getODFSize() const
 int TrigonalLowOps::getMDFSize() const
 {
   return TrigonalLow::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int TrigonalLowOps::getMdfPlotBins() const
+{
+  return TrigonalLow::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -190,15 +198,15 @@ void TrigonalLowOps::getMatSymOp(int i, double g[3][3]) const
 
 void TrigonalLowOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = TrigonalLow::MatSym[i][0][0];
-  g[0][1] = TrigonalLow::MatSym[i][0][1];
-  g[0][2] = TrigonalLow::MatSym[i][0][2];
-  g[1][0] = TrigonalLow::MatSym[i][1][0];
-  g[1][1] = TrigonalLow::MatSym[i][1][1];
-  g[1][2] = TrigonalLow::MatSym[i][1][2];
-  g[2][0] = TrigonalLow::MatSym[i][2][0];
-  g[2][1] = TrigonalLow::MatSym[i][2][1];
-  g[2][2] = TrigonalLow::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(TrigonalLow::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(TrigonalLow::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(TrigonalLow::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(TrigonalLow::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(TrigonalLow::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(TrigonalLow::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(TrigonalLow::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(TrigonalLow::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(TrigonalLow::MatSym[i][2][2]);
 }
 // -----------------------------------------------------------------------------
 //
@@ -668,7 +676,7 @@ EbsdLib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double ph
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -691,7 +699,7 @@ EbsdLib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -947,9 +955,9 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalLowOps::generateIPFTriangleLegend(int i
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb TrigonalLowOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
-  EbsdLib::Rgb rgb = RgbColor::dRgb(0, 0, 0, 0);
+  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
 
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 
   return rgb;
 }

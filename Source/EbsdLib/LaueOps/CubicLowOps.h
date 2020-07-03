@@ -94,6 +94,12 @@ public:
   int getMDFSize() const override;
 
   /**
+   * @brief Returns the number of bins for an MDF Plot assuming 5 degree increments
+   * @return
+   */
+  int getMdfPlotBins() const override;
+
+  /**
    * @brief getNumSymOps Returns the number of symmetry operators
    * @return
    */

@@ -129,7 +129,7 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
 
   int numColors = config.numColors;
   QVector<float> colors(numColors * 3, 0.0f);
-  SIMPLColorTable::GetColorTable(config.numColors, colors);
+  EbsdColorTable::GetColorTable(config.numColors, colors);
 
   float r = 0.0f, g = 0.0f, b = 0.0f;
 
@@ -177,7 +177,7 @@ void PoleFigureUtilities::CreateColorImage(EbsdLib::DoubleArrayType* data, PoleF
           b = colors[3 * bin + 2];
         }
 
-        rgbaPtr[idx] = RgbColor::dRgb(static_cast<int>(r * 255.0f), static_cast<int>(g * 255.0f), static_cast<int>(b * 255.0f), 255);
+        rgbaPtr[idx] = EbsdLib::RgbColor::dRgb(static_cast<int>(r * 255.0f), static_cast<int>(g * 255.0f), static_cast<int>(b * 255.0f), 255);
       }
       else // Outside the Circle - Set pixel to White
       {

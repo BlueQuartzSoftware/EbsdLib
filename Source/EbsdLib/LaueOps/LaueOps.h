@@ -99,6 +99,12 @@ public:
   virtual int getODFSize() const = 0;
 
   /**
+   * @brief Returns the number of bins for an MDF Plot assuming 5 degree increments
+   * @return
+   */
+  virtual int getMdfPlotBins() const = 0;
+
+  /**
    * @brief getHasInversion Returns a bool whether the symmetry class is centro-symmetric
    * @return
    */

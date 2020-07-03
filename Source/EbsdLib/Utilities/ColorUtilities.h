@@ -41,6 +41,9 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 
+namespace EbsdLib
+{
+
 class EbsdLib_EXPORT ColorUtilities
 {
 public:
@@ -77,3 +80,5 @@ public:
 protected:
   ColorUtilities();
 };
+
+} // namespace EbsdLib

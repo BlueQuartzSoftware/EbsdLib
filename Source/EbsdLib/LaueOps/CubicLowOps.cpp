@@ -47,11 +47,12 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
-#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
 namespace CubicLow
 {
@@ -70,6 +71,7 @@ static const int symSize2 = 8;
 static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
 static const int k_NumSymQuats = 12;
+static const int k_NumMdfBins = 18;
 
 static const QuatD QuatSym[12] = {
     QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),   QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),   QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
@@ -108,7 +110,7 @@ static const double RodSym[12][3] = {{0.0, 0.0, 0.0},  {10000000000.0, 0.0, 0.0}
 //  { -1.0, 1.0, 1.0}
 //};
 
-static const double CubicLowMatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
                                                 {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
@@ -168,6 +170,12 @@ int CubicLowOps::getMDFSize() const
 }
 
 // -----------------------------------------------------------------------------
+int CubicLowOps::getMdfPlotBins() const
+{
+  return CubicLow::k_NumMdfBins;
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int CubicLowOps::getNumSymOps() const
@@ -221,28 +229,28 @@ void CubicLowOps::getRodSymOp(int i, double* r) const
 
 void CubicLowOps::getMatSymOp(int i, double g[3][3]) const
 {
-  g[0][0] = CubicLow::CubicLowMatSym[i][0][0];
-  g[0][1] = CubicLow::CubicLowMatSym[i][0][1];
-  g[0][2] = CubicLow::CubicLowMatSym[i][0][2];
-  g[1][0] = CubicLow::CubicLowMatSym[i][1][0];
-  g[1][1] = CubicLow::CubicLowMatSym[i][1][1];
-  g[1][2] = CubicLow::CubicLowMatSym[i][1][2];
-  g[2][0] = CubicLow::CubicLowMatSym[i][2][0];
-  g[2][1] = CubicLow::CubicLowMatSym[i][2][1];
-  g[2][2] = CubicLow::CubicLowMatSym[i][2][2];
+  g[0][0] = CubicLow::MatSym[i][0][0];
+  g[0][1] = CubicLow::MatSym[i][0][1];
+  g[0][2] = CubicLow::MatSym[i][0][2];
+  g[1][0] = CubicLow::MatSym[i][1][0];
+  g[1][1] = CubicLow::MatSym[i][1][1];
+  g[1][2] = CubicLow::MatSym[i][1][2];
+  g[2][0] = CubicLow::MatSym[i][2][0];
+  g[2][1] = CubicLow::MatSym[i][2][1];
+  g[2][2] = CubicLow::MatSym[i][2][2];
 }
 
 void CubicLowOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = CubicLow::CubicLowMatSym[i][0][0];
-  g[0][1] = CubicLow::CubicLowMatSym[i][0][1];
-  g[0][2] = CubicLow::CubicLowMatSym[i][0][2];
-  g[1][0] = CubicLow::CubicLowMatSym[i][1][0];
-  g[1][1] = CubicLow::CubicLowMatSym[i][1][1];
-  g[1][2] = CubicLow::CubicLowMatSym[i][1][2];
-  g[2][0] = CubicLow::CubicLowMatSym[i][2][0];
-  g[2][1] = CubicLow::CubicLowMatSym[i][2][1];
-  g[2][2] = CubicLow::CubicLowMatSym[i][2][2];
+  g[0][0] = static_cast<float>(CubicLow::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(CubicLow::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(CubicLow::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(CubicLow::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(CubicLow::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(CubicLow::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(CubicLow::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(CubicLow::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(CubicLow::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -470,18 +478,18 @@ void CubicLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double d
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = CubicLow::CubicLowMatSym[i][2][0] * plane[0] + CubicLow::CubicLowMatSym[i][2][1] * plane[1] + CubicLow::CubicLowMatSym[i][2][2] * plane[2];
+    slipPlane[2] = CubicLow::MatSym[i][2][0] * plane[0] + CubicLow::MatSym[i][2][1] * plane[1] + CubicLow::MatSym[i][2][2] * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = CubicLow::CubicLowMatSym[i][0][0] * plane[0] + CubicLow::CubicLowMatSym[i][0][1] * plane[1] + CubicLow::CubicLowMatSym[i][0][2] * plane[2];
-      slipPlane[1] = CubicLow::CubicLowMatSym[i][1][0] * plane[0] + CubicLow::CubicLowMatSym[i][1][1] * plane[1] + CubicLow::CubicLowMatSym[i][1][2] * plane[2];
+      slipPlane[0] = CubicLow::MatSym[i][0][0] * plane[0] + CubicLow::MatSym[i][0][1] * plane[1] + CubicLow::MatSym[i][0][2] * plane[2];
+      slipPlane[1] = CubicLow::MatSym[i][1][0] * plane[0] + CubicLow::MatSym[i][1][1] * plane[1] + CubicLow::MatSym[i][1][2] * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = CubicLow::CubicLowMatSym[i][0][0] * direction[0] + CubicLow::CubicLowMatSym[i][0][1] * direction[1] + CubicLow::CubicLowMatSym[i][0][2] * direction[2];
-      slipDirection[1] = CubicLow::CubicLowMatSym[i][1][0] * direction[0] + CubicLow::CubicLowMatSym[i][1][1] * direction[1] + CubicLow::CubicLowMatSym[i][1][2] * direction[2];
-      slipDirection[2] = CubicLow::CubicLowMatSym[i][2][0] * direction[0] + CubicLow::CubicLowMatSym[i][2][1] * direction[1] + CubicLow::CubicLowMatSym[i][2][2] * direction[2];
+      slipDirection[0] = CubicLow::MatSym[i][0][0] * direction[0] + CubicLow::MatSym[i][0][1] * direction[1] + CubicLow::MatSym[i][0][2] * direction[2];
+      slipDirection[1] = CubicLow::MatSym[i][1][0] * direction[0] + CubicLow::MatSym[i][1][1] * direction[1] + CubicLow::MatSym[i][1][2] * direction[2];
+      slipDirection[2] = CubicLow::MatSym[i][2][0] * direction[0] + CubicLow::MatSym[i][2][1] * direction[1] + CubicLow::MatSym[i][2][2] * direction[2];
 
       double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
       double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
@@ -813,11 +821,11 @@ bool CubicLowOps::inUnitTriangle(double eta, double chi) const
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(0.5 * EbsdLib::Constants::k_Pi - eta) * tanf(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_Pi - eta) * tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
   }
   else
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(eta) * tanf(eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(eta) * tan(eta)));
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
@@ -847,7 +855,8 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   double g[3][3];
   double p[3];
   double refDirection[3] = {0.0f, 0.0f, 0.0f};
-  double chi = 0.0f, eta = 0.0f;
+  double chi = 0.0f;
+  double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
 
   OrientationType eu(phi1, phi, phi2);
@@ -888,11 +897,11 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(0.5 * EbsdLib::Constants::k_Pi - eta) * tanf(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_Pi - eta) * tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
   }
   else
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(eta) * tanf(eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(eta) * tan(eta)));
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
@@ -906,7 +915,7 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   _rgb[1] = sqrt(_rgb[1]);
   _rgb[2] = sqrt(_rgb[2]);
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -929,7 +938,7 @@ EbsdLib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -1164,7 +1173,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatD& q, const Quat
   z4 = z3;
 
   // convert to traditional hsv (0-1)
-  h = fmod(atan2f(y4, x4) + 2.0f * M_PI, 2.0f * M_PI) / (2.0f * M_PI);
+  h = fmod(atan2(y4, x4) + 2.0f * M_PI, 2.0f * M_PI) / (2.0f * M_PI);
   s = sqrt(x4 * x4 + y4 * y4);
   v = z4;
   if(v > 0)
@@ -1219,9 +1228,7 @@ EbsdLib::Rgb CubicLowOps::generateMisorientationColor(const QuatD& q, const Quat
   g = (g + (v - c));
   b = (b + (v - c));
 
-  EbsdLib::Rgb rgb = RgbColor::dRgb(r * 255, g * 255, b * 255, 0);
-
-  return rgb;
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(r * 255), static_cast<int32_t>(g * 255), static_cast<int32_t>(b * 255), 255);
 }
 
 // -----------------------------------------------------------------------------

@@ -37,6 +37,8 @@
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 
+using namespace EbsdLib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -124,7 +126,7 @@ EbsdLib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
     b = 0.0f;
   }
 
-  return RgbColor::dRgb(r * 255, g * 255, b * 255, 0);
+  return EbsdLib::RgbColor::dRgb(r * 255, g * 255, b * 255, 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -156,7 +158,7 @@ EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
     out.r = in.v;
     out.g = in.v;
     out.b = in.v;
-    return RgbColor::dRgb(out.r * 255, out.g * 255, out.b * 255, 255);
+    return EbsdLib::RgbColor::dRgb(out.r * 255, out.g * 255, out.b * 255, 255);
   }
   hh = in.h;
   if(hh >= 360.0)
@@ -205,7 +207,7 @@ EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
     out.b = q;
     break;
   }
-  return RgbColor::dRgb(out.r * 255, out.g * 255, out.b * 255, 255);
+  return EbsdLib::RgbColor::dRgb(out.r * 255, out.g * 255, out.b * 255, 255);
 }
 
 // -----------------------------------------------------------------------------

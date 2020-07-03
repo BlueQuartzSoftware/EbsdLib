@@ -47,9 +47,10 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
@@ -70,6 +71,7 @@ static const int symSize2 = 2;
 static const int k_OdfSize = 373248;
 static const int k_MdfSize = 373248;
 static const int k_NumSymQuats = 1;
+static const int k_NumMdfBins = 36;
 
 static const QuatD QuatSym[1] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
 
@@ -111,6 +113,12 @@ int TriclinicOps::getODFSize() const
 int TriclinicOps::getMDFSize() const
 {
   return Triclinic::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int TriclinicOps::getMdfPlotBins() const
+{
+  return Triclinic::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -180,15 +188,15 @@ void TriclinicOps::getMatSymOp(int i, double g[3][3]) const
 
 void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = Triclinic::MatSym[i][0][0];
-  g[0][1] = Triclinic::MatSym[i][0][1];
-  g[0][2] = Triclinic::MatSym[i][0][2];
-  g[1][0] = Triclinic::MatSym[i][1][0];
-  g[1][1] = Triclinic::MatSym[i][1][1];
-  g[1][2] = Triclinic::MatSym[i][1][2];
-  g[2][0] = Triclinic::MatSym[i][2][0];
-  g[2][1] = Triclinic::MatSym[i][2][1];
-  g[2][2] = Triclinic::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(Triclinic::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(Triclinic::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(Triclinic::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(Triclinic::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(Triclinic::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(Triclinic::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(Triclinic::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(Triclinic::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(Triclinic::MatSym[i][2][2]);
 }
 // -----------------------------------------------------------------------------
 //
@@ -623,7 +631,7 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -646,7 +654,7 @@ EbsdLib::Rgb TriclinicOps::generateRodriguesColor(double r1, double r2, double r
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -885,9 +893,9 @@ EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int ima
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb TriclinicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
-  EbsdLib::Rgb rgb = RgbColor::dRgb(0, 0, 0, 0);
+  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
 
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 
   return rgb;
 }

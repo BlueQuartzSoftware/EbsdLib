@@ -47,9 +47,10 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
@@ -70,6 +71,7 @@ static const int symSize2 = 2;
 static const int k_OdfSize = 62208;
 static const int k_MdfSize = 62208;
 static const int k_NumSymQuats = 6;
+static const int k_NumMdfBins = 36;
 
 static const QuatD QuatSym[k_NumSymQuats] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.500000000, 0.866025400),
                                                 QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
@@ -129,6 +131,12 @@ int HexagonalLowOps::getODFSize() const
 int HexagonalLowOps::getMDFSize() const
 {
   return HexagonalLow::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int HexagonalLowOps::getMdfPlotBins() const
+{
+  return HexagonalLow::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -196,15 +204,15 @@ void HexagonalLowOps::getMatSymOp(int i, double g[3][3]) const
 
 void HexagonalLowOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = HexagonalLow::MatSym[i][0][0];
-  g[0][1] = HexagonalLow::MatSym[i][0][1];
-  g[0][2] = HexagonalLow::MatSym[i][0][2];
-  g[1][0] = HexagonalLow::MatSym[i][1][0];
-  g[1][1] = HexagonalLow::MatSym[i][1][1];
-  g[1][2] = HexagonalLow::MatSym[i][1][2];
-  g[2][0] = HexagonalLow::MatSym[i][2][0];
-  g[2][1] = HexagonalLow::MatSym[i][2][1];
-  g[2][2] = HexagonalLow::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(HexagonalLow::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(HexagonalLow::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(HexagonalLow::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(HexagonalLow::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(HexagonalLow::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(HexagonalLow::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(HexagonalLow::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(HexagonalLow::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(HexagonalLow::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -764,7 +772,7 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
 
 double HexagonalLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
    * they could unknowningly get really bad results
@@ -804,7 +812,7 @@ double HexagonalLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]
 
 double HexagonalLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
@@ -880,7 +888,7 @@ double HexagonalLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bo
 }
 double HexagonalLowOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   double g1[3][3];
@@ -958,7 +966,7 @@ double HexagonalLowOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3],
 
 double HexagonalLowOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   double g1[3][3];
@@ -1229,7 +1237,7 @@ EbsdLib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -1252,7 +1260,7 @@ EbsdLib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, doubl
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -1502,9 +1510,9 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb HexagonalLowOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
-  EbsdLib::Rgb rgb = RgbColor::dRgb(0, 0, 0, 0);
+  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
 
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 
   return rgb;
 }

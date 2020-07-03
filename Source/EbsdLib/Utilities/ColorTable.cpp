@@ -40,20 +40,21 @@
 
 #include <QtCore/QJsonArray>
 
+using namespace EbsdLib;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLColorTable::SIMPLColorTable() = default;
+EbsdColorTable::EbsdColorTable() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLColorTable::~SIMPLColorTable() = default;
+EbsdColorTable::~EbsdColorTable() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SIMPLColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
+void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
 {
   static const int numColorNodes = 8;
   float color[numColorNodes][3] = {
@@ -102,14 +103,14 @@ void SIMPLColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<unsigned char> SIMPLColorTable::GetColorTable(size_t numColors, QJsonArray colorControlPoints)
+QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArray colorControlPoints )
 {
   const size_t controlColorsCount = colorControlPoints.count() / 4;
   const size_t numComponents = 4;
-  std::vector<std::vector<double>> controlPoints(controlColorsCount, std::vector<double>(numComponents));
+  QVector<QVector<double>> controlPoints(controlColorsCount, QVector<double>(numComponents));
 
   // Migrate colorControlPoints values from QJsonArray to 2D array.  Store A-values in binPoints vector.
-  std::vector<float> binPoints;
+  QVector<float> binPoints;
   for(size_t i = 0; i < controlColorsCount; i++)
   {
     for(size_t j = 0; j < numComponents; j++)
@@ -130,7 +131,7 @@ std::vector<unsigned char> SIMPLColorTable::GetColorTable(size_t numColors, QJso
     binPoints[i] = (binPoints[i] - min) / (max - min);
   }
 
-  std::vector<unsigned char> generatedColors(numColors * 3);
+  QVector<unsigned char> generatedColors(numColors * 3);
   size_t currentBinIndex = 0;
   const float colorStepSize = 1.0f / numColors;
   for(size_t i = 0; i < numColors; i++)

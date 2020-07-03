@@ -47,10 +47,11 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/GeometryMath.h"
 #include "EbsdLib/Utilities/ColorUtilities.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 
 namespace CubicHigh
@@ -71,6 +72,7 @@ static const int symSize2 = 8;
 static const int k_OdfSize = 5832;
 static const int k_MdfSize = 5832;
 static const int k_NumSymQuats = 24;
+static const int k_NumMdfBins = 13;
 
 static const QuatD QuatSym[24] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
                                      QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
@@ -210,6 +212,12 @@ int CubicOps::getODFSize() const
 int CubicOps::getMDFSize() const
 {
   return CubicHigh::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int CubicOps::getMdfPlotBins() const
+{
+  return CubicHigh::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -536,15 +544,15 @@ void CubicOps::getMatSymOp(int i, double g[3][3]) const
 
 void CubicOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = CubicHigh::MatSym[i][0][0];
-  g[0][1] = CubicHigh::MatSym[i][0][1];
-  g[0][2] = CubicHigh::MatSym[i][0][2];
-  g[1][0] = CubicHigh::MatSym[i][1][0];
-  g[1][1] = CubicHigh::MatSym[i][1][1];
-  g[1][2] = CubicHigh::MatSym[i][1][2];
-  g[2][0] = CubicHigh::MatSym[i][2][0];
-  g[2][1] = CubicHigh::MatSym[i][2][1];
-  g[2][2] = CubicHigh::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(CubicHigh::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(CubicHigh::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(CubicHigh::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(CubicHigh::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(CubicHigh::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(CubicHigh::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(CubicHigh::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(CubicHigh::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(CubicHigh::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -1676,7 +1684,7 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -1694,7 +1702,7 @@ EbsdLib::Rgb CubicOps::generateRodriguesColor(double r1, double r2, double r3) c
   double green = (r2 + max2) / range2;
   double blue = (r3 + max3) / range3;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -2029,10 +2037,10 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& 
     s = s / v;
   }
 
-  EbsdLib::Rgb rgb = ColorUtilities::ConvertHSVtoRgb(h, s, v);
+  EbsdLib::Rgb rgb = EbsdLib::ColorUtilities::ConvertHSVtoRgb(h, s, v);
 
   // now standard 0-255 rgb, needs rotation
-  return RgbColor::dRgb(255 - RgbColor::dGreen(rgb), RgbColor::dBlue(rgb), RgbColor::dRed(rgb), 0);
+  return EbsdLib::RgbColor::dRgb(255 - EbsdLib::RgbColor::dGreen(rgb), EbsdLib::RgbColor::dBlue(rgb), EbsdLib::RgbColor::dRed(rgb), 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -2366,8 +2374,8 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateMisorientationTriangleLegend(
 
   const double k_PiOver8 = M_PI / 8.0;
   const double k_PiOver6 = M_PI / 6.0;
-  qint32 baSizeMinus1 = static_cast<qint32>(ba.size() - 1);
-  qint32 baSizeMinus2 = static_cast<qint32>(ba.size() - 2);
+  int32_t baSizeMinus1 = static_cast<int32_t>(ba.size() - 1);
+  int32_t baSizeMinus2 = static_cast<int32_t>(ba.size() - 2);
 
   for(std::vector< std::vector<int> >::size_type k = 0; k < triList.size(); k++)
   {

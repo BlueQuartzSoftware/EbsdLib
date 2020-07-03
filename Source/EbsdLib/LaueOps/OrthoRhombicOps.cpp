@@ -46,9 +46,10 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
@@ -69,6 +70,7 @@ static const int symSize2 = 2;
 static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
 static const int k_NumSymQuats = 4;
+static const int k_NumMdfBins = 36;
 
 static const QuatD QuatSym[4] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
                                     QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000)};
@@ -117,6 +119,12 @@ int OrthoRhombicOps::getODFSize() const
 int OrthoRhombicOps::getMDFSize() const
 {
   return OrthoRhombic::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int OrthoRhombicOps::getMdfPlotBins() const
+{
+  return OrthoRhombic::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -184,15 +192,15 @@ void OrthoRhombicOps::getMatSymOp(int i, double g[3][3]) const
 
 void OrthoRhombicOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = OrthoRhombic::MatSym[i][0][0];
-  g[0][1] = OrthoRhombic::MatSym[i][0][1];
-  g[0][2] = OrthoRhombic::MatSym[i][0][2];
-  g[1][0] = OrthoRhombic::MatSym[i][1][0];
-  g[1][1] = OrthoRhombic::MatSym[i][1][1];
-  g[1][2] = OrthoRhombic::MatSym[i][1][2];
-  g[2][0] = OrthoRhombic::MatSym[i][2][0];
-  g[2][1] = OrthoRhombic::MatSym[i][2][1];
-  g[2][2] = OrthoRhombic::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(OrthoRhombic::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(OrthoRhombic::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(OrthoRhombic::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(OrthoRhombic::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(OrthoRhombic::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(OrthoRhombic::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(OrthoRhombic::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(OrthoRhombic::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(OrthoRhombic::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -631,7 +639,7 @@ EbsdLib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -654,7 +662,7 @@ EbsdLib::Rgb OrthoRhombicOps::generateRodriguesColor(double r1, double r2, doubl
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -1088,9 +1096,7 @@ EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatD& q, const 
   g = 1 - (g + (v - c));
   b = 1 - (b + (v - c));
 
-  EbsdLib::Rgb rgb = RgbColor::dRgb(r * 255, g * 255, b * 255, 0);
-
-  return rgb;
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(r * 255), static_cast<int32_t>(g * 255), static_cast<int32_t>(b * 255), 255);
 }
 
 // -----------------------------------------------------------------------------

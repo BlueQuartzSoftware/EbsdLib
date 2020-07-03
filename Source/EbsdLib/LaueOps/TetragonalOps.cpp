@@ -47,9 +47,10 @@
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
@@ -73,6 +74,7 @@ static const int symSize2 = 4;
 static const int k_OdfSize = 23328;
 static const int k_MdfSize = 23328;
 static const int k_NumSymQuats = 8;
+static const int k_NumMdfBins = 20;
 
 static const QuatD QuatSym[8] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
                                     QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
@@ -133,6 +135,12 @@ int TetragonalOps::getODFSize() const
 int TetragonalOps::getMDFSize() const
 {
   return TetragonalHigh::k_MdfSize;
+}
+
+// -----------------------------------------------------------------------------
+int TetragonalOps::getMdfPlotBins() const
+{
+  return TetragonalHigh::k_NumMdfBins;
 }
 
 // -----------------------------------------------------------------------------
@@ -201,15 +209,15 @@ void TetragonalOps::getMatSymOp(int i, double g[3][3]) const
 
 void TetragonalOps::getMatSymOp(int i, float g[3][3]) const
 {
-  g[0][0] = TetragonalHigh::MatSym[i][0][0];
-  g[0][1] = TetragonalHigh::MatSym[i][0][1];
-  g[0][2] = TetragonalHigh::MatSym[i][0][2];
-  g[1][0] = TetragonalHigh::MatSym[i][1][0];
-  g[1][1] = TetragonalHigh::MatSym[i][1][1];
-  g[1][2] = TetragonalHigh::MatSym[i][1][2];
-  g[2][0] = TetragonalHigh::MatSym[i][2][0];
-  g[2][1] = TetragonalHigh::MatSym[i][2][1];
-  g[2][2] = TetragonalHigh::MatSym[i][2][2];
+  g[0][0] = static_cast<float>(TetragonalHigh::MatSym[i][0][0]);
+  g[0][1] = static_cast<float>(TetragonalHigh::MatSym[i][0][1]);
+  g[0][2] = static_cast<float>(TetragonalHigh::MatSym[i][0][2]);
+  g[1][0] = static_cast<float>(TetragonalHigh::MatSym[i][1][0]);
+  g[1][1] = static_cast<float>(TetragonalHigh::MatSym[i][1][1]);
+  g[1][2] = static_cast<float>(TetragonalHigh::MatSym[i][1][2]);
+  g[2][0] = static_cast<float>(TetragonalHigh::MatSym[i][2][0]);
+  g[2][1] = static_cast<float>(TetragonalHigh::MatSym[i][2][1]);
+  g[2][2] = static_cast<float>(TetragonalHigh::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -659,7 +667,7 @@ EbsdLib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return RgbColor::dRgb(_rgb[0] * 255, _rgb[1] * 255, _rgb[2] * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -682,7 +690,7 @@ EbsdLib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
   green = green / max1;
   blue = blue / max2;
 
-  return RgbColor::dRgb(red * 255, green * 255, blue * 255, 255);
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -901,12 +909,12 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
         b = (2 * x * x + 2 * y * y);
         c = (x * x + y * y - 1);
 
-        val = (-b + sqrtf(b * b - 4.0 * a * c)) / (2.0 * a);
+        val = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
         x1 = (1 + val) * x;
         y1 = (1 + val) * y;
         z1 = val;
         denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = sqrtf(denom);
+        denom = sqrt(denom);
         x1 = x1 / denom;
         y1 = y1 / denom;
         z1 = z1 / denom;
@@ -1013,7 +1021,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatD& q, const Qu
   k = atan2(yo, xo);
   if(k <= M_PI / 8.0)
   {
-    k = sqrtf(xo * xo + yo * yo);
+    k = sqrt(xo * xo + yo * yo);
     if(k == 0)
     {
       k = xo;
@@ -1025,7 +1033,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatD& q, const Qu
   }
   else
   {
-    k = (2.0f * sqrtf(xo * xo + yo * yo));
+    k = (2.0f * sqrt(xo * xo + yo * yo));
     if(k == 0)
     {
       k = (xo + yo);
@@ -1041,12 +1049,12 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatD& q, const Qu
 
   // eq c3.3
   k = 2.0f * atan2(yo1, xo1);
-  xo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * cos(k);
-  yo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * sin(k);
+  xo2 = sqrt(xo1 * xo1 + yo1 * yo1) * cos(k);
+  yo2 = sqrt(xo1 * xo1 + yo1 * yo1) * sin(k);
   zo2 = zo1;
 
   // eq c3.4
-  k = sqrtf(xo2 * xo2 + yo2 * yo2) / std::max(xo2, yo2);
+  k = sqrt(xo2 * xo2 + yo2 * yo2) / std::max(xo2, yo2);
   xo3 = xo2 * k;
   yo3 = yo2 * k;
   zo3 = zo2;
@@ -1219,9 +1227,7 @@ EbsdLib::Rgb TetragonalOps::generateMisorientationColor(const QuatD& q, const Qu
   g = 1 - (g + (v - c));
   b = 1 - (b + (v - c));
 
-  EbsdLib::Rgb rgb = RgbColor::dRgb(r * 255, g * 255, b * 255, 0);
-
-  return rgb;
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(r * 255), static_cast<int32_t>(g * 255), static_cast<int32_t>(b * 255), 255);
 }
 
 // -----------------------------------------------------------------------------

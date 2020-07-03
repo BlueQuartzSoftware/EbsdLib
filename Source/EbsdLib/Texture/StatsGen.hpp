@@ -517,6 +517,8 @@ public:
     float random = 0.0f;
 
     LaueOpsType ops;
+    xval.resize(ops.getMdfPlotBins());
+    yval.resize(ops.getMdfPlotBins());
     int32_t opsMdfSize = ops.getMDFSize();
     std::array<double, 3> randx3;
 
@@ -668,7 +670,7 @@ public:
       random = rg.genrand_res53();
       choose = 0;
       totaldensity = 0;
-      for(size_t j = 0; j < HexagonalOps::k_MdfSize; j++)
+      for(size_t j = 0; j < Hexagonal::k_MdfSize; j++)
       {
         density = mdf[j];
         td1 = totaldensity;

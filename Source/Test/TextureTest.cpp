@@ -116,7 +116,7 @@ public:
     std::cout << "    npoints: " << x.size() << std::endl;
     for(size_t i = 0; i < x.size(); i++)
     {
-      std::cout << x[i] << ", " << y[i] << std::endl;
+      std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
     }
   }
 

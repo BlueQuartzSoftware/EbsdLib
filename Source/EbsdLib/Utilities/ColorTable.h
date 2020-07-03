@@ -43,6 +43,8 @@
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+namespace EbsdLib
+{
 
 class EbsdLib_EXPORT RgbColor
 {
@@ -82,7 +84,7 @@ public:
 
   inline static void print(std::ostream& out, const char& sep, const EbsdLib::Rgb& rgb)
   {
-    out << "rgb: " << RgbColor::dRed(rgb) << sep << RgbColor::dGreen(rgb) << sep << RgbColor::dBlue(rgb);
+    out << "rgb: " << EbsdLib::RgbColor::dRed(rgb) << sep << EbsdLib::RgbColor::dGreen(rgb) << sep << EbsdLib::RgbColor::dBlue(rgb);
   }
 
   inline static bool compare(const EbsdLib::Rgb& left, const EbsdLib::Rgb& right)
@@ -104,7 +106,7 @@ public:
   RgbColor& operator=(const RgbColor&) = delete; // Copy Assignment Not Implemented
   RgbColor& operator=(RgbColor&&) = delete;      // Move Assignment Not Implemented
 };
-
+} // namespace EbsdLib
 class QJsonArray;
 
 /**
@@ -114,11 +116,11 @@ class QJsonArray;
  * @date Aug 1 2013
  * @version 1.0
  */
-class EbsdLib_EXPORT SIMPLColorTable
+class EbsdLib_EXPORT EbsdColorTable
 {
 public:
-  SIMPLColorTable();
-  virtual ~SIMPLColorTable();
+  EbsdColorTable();
+  virtual ~EbsdColorTable();
 
   /**
    * @brief Assumes you've already generated min and max -- the extrema for the data
@@ -136,11 +138,11 @@ public:
    */
   static void GetColorTable(int numColors, QVector<float>& colors);
 
-  static std::vector<unsigned char> GetColorTable(size_t numColors, QJsonArray colorNodeArray);
+  static QVector<unsigned char> GetColorTable(size_t numColors, QJsonArray colorNodeArray);
 
 public:
-  SIMPLColorTable(const SIMPLColorTable&) = delete;            // Copy Constructor Not Implemented
-  SIMPLColorTable(SIMPLColorTable&&) = delete;                 // Move Constructor Not Implemented
-  SIMPLColorTable& operator=(const SIMPLColorTable&) = delete; // Copy Assignment Not Implemented
-  SIMPLColorTable& operator=(SIMPLColorTable&&) = delete;      // Move Assignment Not Implemented
+  EbsdColorTable(const EbsdColorTable&) = delete;            // Copy Constructor Not Implemented
+  EbsdColorTable(EbsdColorTable&&) = delete;                 // Move Constructor Not Implemented
+  EbsdColorTable& operator=(const EbsdColorTable&) = delete; // Copy Assignment Not Implemented
+  EbsdColorTable& operator=(EbsdColorTable&&) = delete;      // Move Assignment Not Implemented
 };
