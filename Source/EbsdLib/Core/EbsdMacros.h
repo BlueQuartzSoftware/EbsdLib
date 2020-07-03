@@ -68,7 +68,7 @@
 #define EBSD_METHOD_NOT_IMPLEMENTED()                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass().toStdString() << ": Function is not implemented.";                                                                                      \
+    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Function is not implemented.";                                                                                      \
     throw std::runtime_error(assert_message.str());                                                                                                                                                    \
   }
 
@@ -76,7 +76,7 @@
   if(!(CONDITION))                                                                                                                                                                                     \
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass().toStdString() << ": Index out of Range.";                                                                                               \
+    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Index out of Range.";                                                                                               \
     throw std::runtime_error(assert_message.str());                                                                                                                                                    \
   }
 
@@ -84,10 +84,9 @@
   if(!(CONDITION))                                                                                                                                                                                     \
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass().toStdString() << ": invalid_argument";                                                                                                  \
+    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": invalid_argument";                                                                                                  \
     throw std::invalid_argument(assert_message.str());                                                                                                                                                 \
   }
-
 
 /**
  * @brief These macros are used to read header values from an HDF5 file, NOT From a .ang or .ctf file

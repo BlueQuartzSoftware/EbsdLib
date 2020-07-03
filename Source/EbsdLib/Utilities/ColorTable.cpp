@@ -54,7 +54,7 @@ EbsdColorTable::~EbsdColorTable() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
+void EbsdColorTable::GetColorTable(int numColors, std::vector<float>& colorsOut)
 {
   static const int numColorNodes = 8;
   float color[numColorNodes][3] = {
@@ -103,16 +103,16 @@ void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<unsigned char> SIMPLColorTable::GetColorTable(size_t numColors /*, QJsonArray colorControlPoints */)
+std::vector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors /*, QJsonArray colorControlPoints */)
 {
   std::vector<unsigned char> generatedColors;
 #if 0
   const size_t controlColorsCount = colorControlPoints.count() / 4;
   const size_t numComponents = 4;
-  QVector<QVector<double>> controlPoints(controlColorsCount, QVector<double>(numComponents));
+  std::vector<std::vector<double>> controlPoints(controlColorsCount, std::vector<double>(numComponents));
 
   // Migrate colorControlPoints values from QJsonArray to 2D array.  Store A-values in binPoints vector.
-  QVector<float> binPoints;
+  std::vector<float> binPoints;
   for(size_t i = 0; i < controlColorsCount; i++)
   {
     for(size_t j = 0; j < numComponents; j++)

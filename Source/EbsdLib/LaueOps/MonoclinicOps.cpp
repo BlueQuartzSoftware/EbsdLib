@@ -140,7 +140,7 @@ std::array<size_t, 3> MonoclinicOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString MonoclinicOps::getSymmetryName() const
+std::string MonoclinicOps::getSymmetryName() const
 {
   return "Monoclinic 2/m";
   ;
@@ -667,9 +667,9 @@ EbsdLib::Rgb MonoclinicOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> MonoclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<001>");
-  QString label1 = QString("<100>");
-  QString label2 = QString("<010>");
+  std::string label0 = std::string("<001>");
+  std::string label1 = std::string("<100>");
+  std::string label2 = std::string("<010>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -688,11 +688,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> MonoclinicOps::generatePoleFigure(
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Monoclinic::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -915,15 +915,15 @@ MonoclinicOps::Pointer MonoclinicOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString MonoclinicOps::getNameOfClass() const
+std::string MonoclinicOps::getNameOfClass() const
 {
-  return QString("MonoclinicOps");
+  return std::string("MonoclinicOps");
 }
 
 // -----------------------------------------------------------------------------
-QString MonoclinicOps::ClassName()
+std::string MonoclinicOps::ClassName()
 {
-  return QString("MonoclinicOps");
+  return std::string("MonoclinicOps");
 }
 
 // -----------------------------------------------------------------------------
