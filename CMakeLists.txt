@@ -1,4 +1,3 @@
-
 cmake_policy(SET CMP0002 NEW)
 cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0079 NEW)
@@ -16,28 +15,28 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set project's name
-PROJECT( EbsdLibProj VERSION 2.0.0)
+project(EbsdLibProj VERSION 2.0.0)
 
 # ---------- Setup output Directories -------------------------
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
 	${PROJECT_BINARY_DIR}/Bin
 	CACHE PATH
 	"Single Directory for all Libraries"
-	)
+)
 
 # --------- Setup the Executable output Directory -------------
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 	${PROJECT_BINARY_DIR}/Bin
 	CACHE PATH
 	"Single Directory for all Executables."
-	)
+)
 
 # --------- Setup the Executable output Directory -------------
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 	${PROJECT_BINARY_DIR}/Bin
 	CACHE PATH
 	"Single Directory for all static libraries."
-	)
+)
 
 option(EbsdLib_DISABLE_MSVC_WARNINGS ON)
 option(BUILD_SHARED_LIBS "Build Shared Libs" ON)
@@ -69,7 +68,7 @@ mark_as_advanced(EbsdLib_ENABLE_HDF5)
 #-------------------------------------------------------------------------------
 # Find the Eigen Library as we need that.
 #-------------------------------------------------------------------------------
-Find_Package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 if(EIGEN3_FOUND)
   message(STATUS "Eigen3 Location: ${EIGEN3_ROOT_DIR}")
   message(STATUS "Eigen3 Version: ${EIGEN3_VERSION_STRING}")
@@ -87,15 +86,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND C
 	set(EbsdLib_USE_GHC_FILESYSTEM 1)
 endif()
 
-
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)
   include(${EbsdLibProj_SOURCE_DIR}/cmake/TBBSupport.cmake)
 endif()
 
-
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
-
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
 
 option(EbsdLib_ENABLE_TESTING "Enable the unit test" ON)
 if(EbsdLib_ENABLE_TESTING)
@@ -103,4 +99,3 @@ if(EbsdLib_ENABLE_TESTING)
 endif()
 
 include (${EbsdLibProj_SOURCE_DIR}/Source/Apps/SourceList.cmake)
-

@@ -1,58 +1,55 @@
-
 get_property(EbsdLib_INSTALL_FILES GLOBAL PROPERTY EbsdLib_INSTALL_FILES)
-if( "${EbsdLib_INSTALL_FILES}" STREQUAL "")
+if("${EbsdLib_INSTALL_FILES}" STREQUAL "")
   set(EbsdLib_INSTALL_FILES 1)
 endif()
 set(EbsdLib_INSTALL_FILES ${EbsdLib_INSTALL_FILES})
 set(EXE_DEBUG_EXTENSION _debug)
 set(PROJECT_NAME EbsdLib)
 
-
 set(EbsdLib_BUILT_AS_DYNAMIC_LIB)
 if(BUILD_SHARED_LIBS)
 	set(EbsdLib_BUILT_AS_DYNAMIC_LIB 1)
 endif(BUILD_SHARED_LIBS)
 
-include (${EbsdLibProj_SOURCE_DIR}/cmake/EbsdLibMacros.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/cmake/EbsdLibMacros.cmake)
 
 #-------------------------------------------------------------------------------
 # Core
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Core/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Core/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # IO
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # LaueOps
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/LaueOps/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/LaueOps/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # Math
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Math/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Math/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # OrientationMath
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/OrientationMath/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/OrientationMath/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # Texture
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Texture/SourceList.cmake)
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Texture/SourceList.cmake)
 
 #-------------------------------------------------------------------------------
 # Utilities
 #-------------------------------------------------------------------------------
-include (${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Utilities/SourceList.cmake)
-
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Utilities/SourceList.cmake)
 
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/EbsdLibConfiguration.h.in
-                ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
+  ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
 set(VERSION_GEN_NAMESPACE "EbsdLib")
@@ -68,21 +65,20 @@ set(VERSION_BUILD_DATE ${EbsdLibProj_BUILD_DATE})
 
 #------------------------------------------------------------------------------
 # Find the Git Package for Versioning. It should be ok if Git is NOT found
-Find_package(Git)
+find_package(Git)
 execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
-    OUTPUT_VARIABLE GVS_GIT_HASH
-    RESULT_VARIABLE did_run
-    ERROR_VARIABLE git_error
-    WORKING_DIRECTORY ${EbsdLibProj_SOURCE_DIR} 
+  OUTPUT_VARIABLE GVS_GIT_HASH
+  RESULT_VARIABLE did_run
+  ERROR_VARIABLE git_error
+  WORKING_DIRECTORY ${EbsdLibProj_SOURCE_DIR} 
 )
 string(REPLACE "\n" "" GVS_GIT_HASH "${GVS_GIT_HASH}")
 
-
 configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/cmpVersion.h.in
-                ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
+  ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
 )
 configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/cmpVersion.cpp.in
-                ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.cpp
+  ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.cpp
 )
 
 set(EbsdLib_PROJECT_SRCS
@@ -113,14 +109,14 @@ set(EbsdLib_PROJECT_SRCS
   ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
-if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
-    INSTALL (FILES 
-              ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
-              ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
-            DESTINATION include/EbsdLib
-            COMPONENT Headers   )
+if(${EbsdLib_INSTALL_FILES} EQUAL 1)
+  install(FILES
+    ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
+    ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
+    DESTINATION include/EbsdLib
+    COMPONENT Headers
+  )
 endif()
-
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 
@@ -130,20 +126,20 @@ set(EBSDLib_LINK_LIBRARIES "")
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target
 if(EbsdLib_ENABLE_HDF5)
-  target_sources(${PROJECT_NAME}  PRIVATE
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Lite.h       
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Macros.h   
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedErrorHandler.h 
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
-    ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h
+  target_sources(${PROJECT_NAME}
+    PRIVATE
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Lite.h       
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Macros.h   
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedErrorHandler.h 
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
+      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h
   )
    set(H5Support_USE_QT ON)
-   set(EBSDLib_LINK_LIBRARIES  ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
-   target_compile_definitions( ${PROJECT_NAME} PUBLIC -DH5Support_USE_QT)
+   set(EBSDLib_LINK_LIBRARIES ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
+   target_compile_definitions(${PROJECT_NAME} PUBLIC -DH5Support_USE_QT)
 endif()
-
 
 CMP_AddDefinitions(TARGET ${PROJECT_NAME})
 
@@ -152,30 +148,29 @@ get_filename_component(TARGET_BINARY_DIR_PARENT ${EbsdLibProj_BINARY_DIR} PATH)
 get_filename_component(TARGET_SOURCE_DIR_PARENT ${EbsdLibProj_SOURCE_DIR} PATH)
 
 target_include_directories(${PROJECT_NAME}
-                            PUBLIC
-                            $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
+  PUBLIC
+    $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
 )
 target_include_directories(${PROJECT_NAME}
-                            PUBLIC
-                            ${EIGEN3_INCLUDE_DIR}
-                            $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
+  PUBLIC
+    ${EIGEN3_INCLUDE_DIR}
+    $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
 )
 
 if(EbsdLib_ENABLE_HDF5)
   target_include_directories(${PROJECT_NAME}
-                              PUBLIC
-                              ${HDF5_INCLUDE_DIRS}
-                              ${HDF5_INCLUDE_DIR}
-                              ${H5Support_SOURCE_DIR}/Source
-                             )
+    PUBLIC
+      ${HDF5_INCLUDE_DIRS}
+      ${HDF5_INCLUDE_DIR}
+      ${H5Support_SOURCE_DIR}/Source
+  )
 endif()
-
 
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
 endif()
 	
-LibraryProperties( ${PROJECT_NAME} ${EXE_DEBUG_EXTENSION} )
+LibraryProperties(${PROJECT_NAME} ${EXE_DEBUG_EXTENSION})
 target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
 
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)
@@ -213,7 +208,7 @@ endif()
 
 if(EbsdLib_INSTALL_FILES)
 
-  INSTALL(TARGETS ${PROJECT_NAME}
+  install(TARGETS ${PROJECT_NAME}
     COMPONENT Applications
     EXPORT ${PROJECT_NAME}Targets
     RUNTIME DESTINATION ${install_dir}
@@ -237,7 +232,6 @@ if(EbsdLib_INSTALL_FILES)
     FILE "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}Targets.cmake"
     NAMESPACE EbsdLib::
   )
-
 
   configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/cmake/EbsdLibConfig.cmake
     "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
