@@ -11,14 +11,10 @@ class GenerateFunctionList
 {
 
 public:
-  GenerateFunctionList()
-  {
-  }
-  virtual ~GenerateFunctionList()
-  {
-  }
+  GenerateFunctionList() = default;
+  virtual ~GenerateFunctionList() = default;
 
-  typedef std::vector<int> EntryType;
+  using EntryType = std::vector<int>;
 
   /**
    * @brief GenerateTable
@@ -32,9 +28,10 @@ public:
     m_Permutations.clear();
 
     combinations(n, k);
-    for(int i = 0; i < m_Combinations.size(); i++)
+    // for(size_t i = 0; i < m_Combinations.size(); i++)
+    for(auto& combination : m_Combinations)
     {
-      permutation(m_Combinations[i].size(), m_Combinations[i]);
+      permutation(combination.size(), combination);
     }
     return m_Permutations;
   }
@@ -53,7 +50,7 @@ protected:
     do
     {
       std::vector<int> entry;
-      for(int i = 0; i < n; ++i) // [0..N-1] integers
+      for(std::string::size_type i = 0; i < n; ++i) // [0..N-1] integers
       {
         if(bitmask[i])
         {
@@ -75,7 +72,7 @@ protected:
   {
     int i, j;
     int temp;
-    int N = ch.size();
+    std::vector<int>::size_type N = ch.size();
 
     if(n == 0)
     {

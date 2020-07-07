@@ -117,7 +117,7 @@ std::vector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors /*, QJ
   {
     for(size_t j = 0; j < numComponents; j++)
     {
-      controlPoints[i][j] = static_cast<double>(colorControlPoints[static_cast<int32_t>(numComponents * i + j)].toDouble());
+      controlPoints[i][j] = static_cast<float>(colorControlPoints[numComponents * i + j].toDouble());
       if(j == 0)
       {
         binPoints.push_back(controlPoints[i][j]);
@@ -167,7 +167,7 @@ std::vector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors /*, QJ
     unsigned char r = 0;
     unsigned char g = 0;
     unsigned char b = 0;
-    if(currentBinIndex < controlColorsCount - 2)
+    if(currentBinIndex < controlColorsCount - 1)
     {
       r = (controlPoints[currentBinIndex][1] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][1] * currFraction) * 255;
       g = (controlPoints[currentBinIndex][2] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][2] * currFraction) * 255;
