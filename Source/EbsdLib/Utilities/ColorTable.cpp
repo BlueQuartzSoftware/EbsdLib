@@ -103,19 +103,19 @@ void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArray colorControlPoints )
+std::vector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors, QJsonArray colorControlPoints)
 {
   const size_t controlColorsCount = colorControlPoints.count() / 4;
   const size_t numComponents = 4;
-  QVector<QVector<double>> controlPoints(controlColorsCount, QVector<double>(numComponents));
+  std::vector<std::vector<double>> controlPoints(controlColorsCount, std::vector<double>(numComponents));
 
   // Migrate colorControlPoints values from QJsonArray to 2D array.  Store A-values in binPoints vector.
-  QVector<float> binPoints;
+  std::vector<float> binPoints;
   for(size_t i = 0; i < controlColorsCount; i++)
   {
     for(size_t j = 0; j < numComponents; j++)
     {
-      controlPoints[i][j] = static_cast<double>(colorControlPoints[static_cast<int32_t>(numComponents * i + j)].toDouble());
+      controlPoints[i][j] = static_cast<float>(colorControlPoints[numComponents * i + j].toDouble());
       if(j == 0)
       {
         binPoints.push_back(controlPoints[i][j]);
@@ -131,7 +131,7 @@ QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArr
     binPoints[i] = (binPoints[i] - min) / (max - min);
   }
 
-  QVector<unsigned char> generatedColors(numColors * 3);
+  std::vector<unsigned char> generatedColors(numColors * 3);
   size_t currentBinIndex = 0;
   const float colorStepSize = 1.0f / numColors;
   for(size_t i = 0; i < numColors; i++)
@@ -165,7 +165,7 @@ QVector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors , QJsonArr
     unsigned char r = 0;
     unsigned char g = 0;
     unsigned char b = 0;
-    if(currentBinIndex < controlColorsCount - 2)
+    if(currentBinIndex < controlColorsCount - 1)
     {
       r = (controlPoints[currentBinIndex][1] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][1] * currFraction) * 255;
       g = (controlPoints[currentBinIndex][2] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][2] * currFraction) * 255;

@@ -433,10 +433,11 @@ ResultType cu_check(const InputType& cu)
 template <typename InputType>
 ResultType qu_check(const InputType& qu, typename Quaternion<typename InputType::value_type>::Order layout = Quaternion<typename InputType::value_type>::Order::VectorScalar)
 {
-  size_t w = 0;
-  size_t x = 1;
-  size_t y = 2;
-  size_t z = 3;
+  using SizeType = typename InputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename InputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -846,7 +847,11 @@ template <typename InputType, typename OutputType>
 OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1212,7 +1217,11 @@ template <typename InputType, typename OutputType>
 OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1325,7 +1334,11 @@ template <typename InputType, typename OutputType>
 OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1495,7 +1508,11 @@ template <typename InputType, typename OutputType>
 OutputType ax2qu(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1582,7 +1599,11 @@ template <typename InputType, typename OutputType>
 OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(9);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1628,7 +1649,11 @@ template <typename InputType, typename OutputType>
 OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
@@ -1683,7 +1708,11 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
   using value_type = typename OutputType::value_type;
   using OMHelperType = ArrayHelpers<OutputType, value_type>;
 
-  size_t w = 0, x = 1, y = 2, z = 3;
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
   if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
