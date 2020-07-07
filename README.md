@@ -75,7 +75,7 @@ mass transform from one representation into another.
 Reading from an AMETEK .ang file is straightforward:
 
     AngReader reader;
-    reader.setFileName(std::string("/path/to/ebsd_scan.ang");
+    reader.setFileName(std::string("/path/to/ebsd_scan.ang"));
     int32_t err = reader.readFile();
     // All of the data from the .ang file is now in memory. You can access it through the pointers
     size_t numElements = reader.getNumberOfElements();
