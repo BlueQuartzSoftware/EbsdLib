@@ -138,7 +138,7 @@ public:
    */
   static void GetColorTable(int numColors, QVector<float>& colors);
 
-  static QVector<unsigned char> GetColorTable(size_t numColors, QJsonArray colorNodeArray);
+  static std::vector<unsigned char> GetColorTable(size_t numColors, QJsonArray colorNodeArray);
 
 public:
   EbsdColorTable(const EbsdColorTable&) = delete;            // Copy Constructor Not Implemented
