@@ -55,11 +55,11 @@ public:
   H5EspritFields();
   ~H5EspritFields() override;
   /**
-   * @brief Returns the name of the class for _SUPERH5EspritFields
+   * @brief Returns the name of the class for H5EspritFields
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5EspritFields
+   * @brief Returns the name of the class for H5EspritFields
    */
   static std::string ClassName();
 

@@ -109,11 +109,11 @@ public:
 
   EBSD_STATIC_NEW_MACRO(H5AngReader)
   /**
-   * @brief Returns the name of the class for _SUPERH5AngReader
+   * @brief Returns the name of the class for H5AngReader
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5AngReader
+   * @brief Returns the name of the class for H5AngReader
    */
   static std::string ClassName();
 

@@ -64,11 +64,11 @@ public:
 
   EBSD_STATIC_NEW_SUPERCLASS(H5EbsdVolumeReader, H5CtfVolumeReader)
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
+   * @brief Returns the name of the class for H5CtfVolumeReader
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfVolumeReader
+   * @brief Returns the name of the class for H5CtfVolumeReader
    */
   static std::string ClassName();
 

@@ -56,7 +56,7 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  const std::string getNameOfClass() const
+  std::string getNameOfClass() const
   {
     return std::string("DataParser");
   }

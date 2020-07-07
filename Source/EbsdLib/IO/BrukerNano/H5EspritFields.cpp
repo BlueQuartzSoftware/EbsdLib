@@ -73,11 +73,11 @@ std::vector<std::string> H5EspritFields::getFieldNames()
 // -----------------------------------------------------------------------------
 std::string H5EspritFields::getNameOfClass() const
 {
-  return std::string("_SUPERH5EspritFields");
+  return std::string("H5EspritFields");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5EspritFields::ClassName()
 {
-  return std::string("_SUPERH5EspritFields");
+  return std::string("H5EspritFields");
 }

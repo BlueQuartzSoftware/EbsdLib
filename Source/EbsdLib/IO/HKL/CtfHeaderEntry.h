@@ -108,11 +108,11 @@ public:
 
   HEADERENTRY_NEW_SUPERCLASS(Self, EbsdHeaderEntry)
   /**
-   * @brief Returns the name of the class for _SUPERCtfHeaderEntry
+   * @brief Returns the name of the class for CtfHeaderEntry
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERCtfHeaderEntry
+   * @brief Returns the name of the class for CtfHeaderEntry
    */
   static std::string ClassName();
 

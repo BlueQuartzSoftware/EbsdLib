@@ -63,11 +63,11 @@ public:
   static Pointer NullPointer();
 
   /**
-   * @brief Returns the name of the class for _SUPERH5EbsdVolumeReader
+   * @brief Returns the name of the class for H5EbsdVolumeReader
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5EbsdVolumeReader
+   * @brief Returns the name of the class for H5EbsdVolumeReader
    */
   static std::string ClassName();
 

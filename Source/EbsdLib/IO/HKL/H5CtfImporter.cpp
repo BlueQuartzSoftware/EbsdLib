@@ -482,11 +482,11 @@ H5CtfImporter::Pointer H5CtfImporter::NullPointer()
 // -----------------------------------------------------------------------------
 std::string H5CtfImporter::getNameOfClass() const
 {
-  return std::string("_SUPERH5CtfImporter");
+  return std::string("H5CtfImporter");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5CtfImporter::ClassName()
 {
-  return std::string("_SUPERH5CtfImporter");
+  return std::string("H5CtfImporter");
 }

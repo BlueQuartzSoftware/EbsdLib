@@ -66,11 +66,11 @@ public:
   static Pointer NullPointer();
 
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfImporter
+   * @brief Returns the name of the class for H5CtfImporter
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfImporter
+   * @brief Returns the name of the class for H5CtfImporter
    */
   static std::string ClassName();
 

@@ -1023,11 +1023,11 @@ int CtfReader::writeFile(const std::string& filepath)
 // -----------------------------------------------------------------------------
 std::string CtfReader::getNameOfClass() const
 {
-  return std::string("_SUPERCtfReader");
+  return std::string("CtfReader");
 }
 
 // -----------------------------------------------------------------------------
 std::string CtfReader::ClassName()
 {
-  return std::string("_SUPERCtfReader");
+  return std::string("CtfReader");
 }

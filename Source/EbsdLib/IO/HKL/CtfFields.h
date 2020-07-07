@@ -58,11 +58,11 @@ public:
   CtfFields();
   ~CtfFields() override;
   /**
-   * @brief Returns the name of the class for _SUPERCtfFields
+   * @brief Returns the name of the class for CtfFields
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERCtfFields
+   * @brief Returns the name of the class for CtfFields
    */
   static std::string ClassName();
 

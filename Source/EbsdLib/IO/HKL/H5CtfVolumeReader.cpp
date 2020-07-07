@@ -409,11 +409,11 @@ H5CtfVolumeReader::Pointer H5CtfVolumeReader::NullPointer()
 // -----------------------------------------------------------------------------
 std::string H5CtfVolumeReader::getNameOfClass() const
 {
-  return std::string("_SUPERH5CtfVolumeReader");
+  return std::string("H5CtfVolumeReader");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5CtfVolumeReader::ClassName()
 {
-  return std::string("_SUPERH5CtfVolumeReader");
+  return std::string("H5CtfVolumeReader");
 }

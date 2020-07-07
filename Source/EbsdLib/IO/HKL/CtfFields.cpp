@@ -73,11 +73,11 @@ std::vector<std::string> CtfFields::getFieldNames()
 // -----------------------------------------------------------------------------
 std::string CtfFields::getNameOfClass() const
 {
-  return std::string("_SUPERCtfFields");
+  return std::string("CtfFields");
 }
 
 // -----------------------------------------------------------------------------
 std::string CtfFields::ClassName()
 {
-  return std::string("_SUPERCtfFields");
+  return std::string("CtfFields");
 }

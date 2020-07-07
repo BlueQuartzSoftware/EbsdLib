@@ -84,11 +84,11 @@ public:
 
   EBSD_STATIC_NEW_MACRO(H5CtfReader)
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfReader
+   * @brief Returns the name of the class for H5CtfReader
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERH5CtfReader
+   * @brief Returns the name of the class for H5CtfReader
    */
   static std::string ClassName();
 

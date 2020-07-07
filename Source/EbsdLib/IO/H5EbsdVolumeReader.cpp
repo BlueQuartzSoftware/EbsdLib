@@ -137,11 +137,11 @@ H5EbsdVolumeReader::Pointer H5EbsdVolumeReader::NullPointer()
 // -----------------------------------------------------------------------------
 std::string H5EbsdVolumeReader::getNameOfClass() const
 {
-  return std::string("_SUPERH5EbsdVolumeReader");
+  return std::string("H5EbsdVolumeReader");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5EbsdVolumeReader::ClassName()
 {
-  return std::string("_SUPERH5EbsdVolumeReader");
+  return std::string("H5EbsdVolumeReader");
 }

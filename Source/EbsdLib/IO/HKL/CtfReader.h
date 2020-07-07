@@ -71,11 +71,11 @@ public:
   ~CtfReader() override;
 
   /**
-   * @brief Returns the name of the class for _SUPERCtfReader
+   * @brief Returns the name of the class for CtfReader
    */
   std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERCtfReader
+   * @brief Returns the name of the class for CtfReader
    */
   static std::string ClassName();
   using CtfIntHeaderType = CtfHeaderEntry<int, Int32HeaderParser>;

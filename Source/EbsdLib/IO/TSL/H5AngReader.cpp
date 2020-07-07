@@ -446,11 +446,11 @@ std::string H5AngReader::getHDF5Path() const
 // ----------------------------------------------------------------------------
 std::string H5AngReader::getNameOfClass() const
 {
-  return std::string("_SUPERH5AngReader");
+  return std::string("H5AngReader");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5AngReader::ClassName()
 {
-  return std::string("_SUPERH5AngReader");
+  return std::string("H5AngReader");
 }

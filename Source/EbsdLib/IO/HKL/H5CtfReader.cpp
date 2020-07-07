@@ -400,11 +400,11 @@ std::string H5CtfReader::getHDF5Path() const
 // -----------------------------------------------------------------------------
 std::string H5CtfReader::getNameOfClass() const
 {
-  return std::string("_SUPERH5CtfReader");
+  return std::string("H5CtfReader");
 }
 
 // -----------------------------------------------------------------------------
 std::string H5CtfReader::ClassName()
 {
-  return std::string("_SUPERH5CtfReader");
+  return std::string("H5CtfReader");
 }
