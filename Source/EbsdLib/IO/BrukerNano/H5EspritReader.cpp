@@ -32,10 +32,6 @@
 #include "H5EspritReader.h"
 
 #include <algorithm>
-#include <vector>
-
-//<====== REPLACE std::list<std::string> with an Alias from a global header
-#include <vector>
 #include <iostream>
 
 #include "H5Support/H5ScopedSentinel.h"
