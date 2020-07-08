@@ -216,7 +216,7 @@ OrientationType MonoclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  throw std::runtime_error("MonoclinicOps::getMDFFZRod not implemented");
+  throw EbsdLib::method_not_implemented("MonoclinicOps::getMDFFZRod not implemented");
 
   double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
   double FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;

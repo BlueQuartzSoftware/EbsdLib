@@ -212,7 +212,7 @@ OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  throw std::runtime_error("TriclinicOps::getMDFFZRod not implemented");
+  throw EbsdLib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
 
   OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, 1, inRod);
 
