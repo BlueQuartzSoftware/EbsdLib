@@ -37,8 +37,7 @@
 #include <vector>
 #include <string>
 
-#include "EbsdLib/Texture/Texture.hpp"
-#include "EbsdLib/Texture/StatsGen.hpp"
+#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -50,6 +49,8 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Texture/StatsGen.hpp"
+#include "EbsdLib/Texture/Texture.hpp"
 
 #include "UnitTestSupport.hpp"
 
@@ -93,30 +94,34 @@ public:
 
     // Allocate a new vector to hold the mdf data
     std::vector<float> mdf;
-
+    int32_t err = 0;
     std::cout << "   Generating MDF....." << std::endl;
-
-    // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
-    Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
-    // Now generate the actual XY point data that gets plotted.
-    // These are the output vectors
-
-    int npoints = 36;
-    std::vector<float> x(npoints);
-    std::vector<float> y(npoints);
-    std::cout << "   Generating MDF Plot Data....." << std::endl;
-
-    int32_t err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
-    if(err < 0)
+    try
     {
-      std::cout << "Error Generating MDF Plot Valeus" << std::endl;
-      return;
-    }
+      // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
+      Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
+      // Now generate the actual XY point data that gets plotted.
+      // These are the output vectors
 
-    std::cout << "    npoints: " << x.size() << std::endl;
-    for(size_t i = 0; i < x.size(); i++)
+      int npoints = 36;
+      std::vector<float> x(npoints);
+      std::vector<float> y(npoints);
+      std::cout << "   Generating MDF Plot Data....." << std::endl;
+
+      err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
+      if(err < 0)
+      {
+        std::cout << "Error Generating MDF Plot Values" << std::endl;
+        return;
+      }
+      std::cout << "    npoints: " << x.size() << std::endl;
+      for(size_t i = 0; i < x.size(); i++)
+      {
+        std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
+      }
+    } catch(const EbsdLib::method_not_implemented& exception)
     {
-      std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
+      std::cout << "   MDF Plot Values NOT implemented" << std::endl;
     }
   }
 
