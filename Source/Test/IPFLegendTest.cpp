@@ -119,7 +119,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   template <class LaueOpsType>
-  void TestIPFLegend(const std::string outputFile)
+  void TestIPFLegend(const std::string& outputFile)
   {
     LaueOpsType ops;
     EbsdLib::UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);

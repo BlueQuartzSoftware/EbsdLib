@@ -33,18 +33,10 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include <memory>
-#include <array>
-
 #include "HexagonalOps.h"
 
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/parallel_for.h>
-#include <tbb/blocked_range.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_group.h>
-#include <tbb/task.h>
-#endif
+#include <array>
+#include <memory>
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
@@ -54,6 +46,14 @@
 #include "EbsdLib/Utilities/ColorUtilities.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <tbb/partitioner.h>
+#include <tbb/task.h>
+#include <tbb/task_group.h>
+#endif
 
 namespace HexagonalHigh
 {
@@ -1060,8 +1060,6 @@ double HexagonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-namespace Detail
-{
 namespace HexagonalHigh
 {
 class GenerateSphereCoordsImpl
@@ -1156,7 +1154,6 @@ public:
 #endif
 };
 } // namespace HexagonalHigh
-} // namespace Detail
 
 // -----------------------------------------------------------------------------
 //
@@ -1183,12 +1180,12 @@ void HexagonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* euler
   bool doParallel = true;
   if(doParallel)
   {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), Detail::HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120), tbb::auto_partitioner());
   }
   else
 #endif
   {
-    Detail::HexagonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120);
+    HexagonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120);
     serial.generate(0, nOrientations);
   }
 }

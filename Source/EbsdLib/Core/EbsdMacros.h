@@ -35,51 +35,97 @@
 
 #pragma once
 
-/* Define our buffer size for reading data */
-#define kBufferSize 1024
+#include <exception>
+#include <sstream>
+#include <string>
 
+namespace EbsdLib
+{
+class method_not_implemented : public std::exception
+{
+public:
+  /**
+   * @brief This class is used when a method is not implemented in a subclass and you want to throw an exception.
+   * @param what
+   */
+  method_not_implemented(const std::string& what)
+  : m_Message(what)
+  {
+    updateWhat();
+  }
+
+  /**
+   * @brief Copy Constructor
+   */
+  method_not_implemented(const method_not_implemented& te)
+  {
+    m_Message = (&te)->m_Message;
+    updateWhat();
+  }
+
+  virtual ~method_not_implemented() throw() = default;
+
+  /**
+   * @brief Over ride from base class
+   */
+  virtual const char* what() const throw()
+  {
+    return m_What;
+  }
+
+protected:
+  method_not_implemented()
+  {
+    updateWhat();
+  }
+
+  void updateWhat()
+  {
+    std::stringstream ss;
+    ss << "    Reason: " << m_Message << std::endl;
+
+    ::memset(m_What, 0, 2048);
+    ::memcpy(m_What, ss.str().c_str(), ss.str().size());
+    m_What[2047] = 0; // Make sure we nullptr terminate no matter what.
+  }
+
+private:
+  std::string m_Message;
+  char m_What[2048];
+  void operator=(const method_not_implemented&) = delete; // Move assignment Not Implemented
+};
+
+} // namespace EbsdLib
+
+/** @brief This macro is used to shorten the code needed to go from std::string to QString. Helpful in other codes that use
+ * QString instead of std::string
+ */
 #define S2Q(var) QString::fromStdString((var))
 
+/**
+ * @brief If a method is not implemented then it should use this macro to throw an exception.
+ */
 #define EBSD_METHOD_NOT_IMPLEMENTED()                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Function is not implemented.";                                                                                      \
-    throw std::runtime_error(assert_message.str());                                                                                                                                                    \
+    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Method is not implemented.";                                                                                        \
+    throw EbsdLib::method_not_implemented(assert_message.str());                                                                                                                                       \
   }
 
+/**
+ * @brief If an index is out of range this is a convenient macro to throw a std::out_of_range exception
+ */
 #define EBSD_INDEX_OUT_OF_RANGE(CONDITION)                                                                                                                                                             \
   if(!(CONDITION))                                                                                                                                                                                     \
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
     assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Index out of Range.";                                                                                               \
-    throw std::runtime_error(assert_message.str());                                                                                                                                                    \
+    throw std::out_of_range(assert_message.str());                                                                                                                                                     \
   }
 
-#define EBSD_UNKNOWN_TYPE(CONDITION)                                                                                                                                                                   \
-  if(!(CONDITION))                                                                                                                                                                                     \
-  {                                                                                                                                                                                                    \
-    std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": invalid_argument";                                                                                                  \
-    throw std::invalid_argument(assert_message.str());                                                                                                                                                 \
-  }
-
-#define S2Q(var) QString::fromStdString((var))
-
-#define EBSD_METHOD_NOT_IMPLEMENTED()                                                                                                                                                                  \
-  {                                                                                                                                                                                                    \
-    std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Function is not implemented.";                                                                                      \
-    throw std::runtime_error(assert_message.str());                                                                                                                                                    \
-  }
-
-#define EBSD_INDEX_OUT_OF_RANGE(CONDITION)                                                                                                                                                             \
-  if(!(CONDITION))                                                                                                                                                                                     \
-  {                                                                                                                                                                                                    \
-    std::stringstream assert_message;                                                                                                                                                                  \
-    assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Index out of Range.";                                                                                               \
-    throw std::runtime_error(assert_message.str());                                                                                                                                                    \
-  }
-
+/**
+ * @brief If a there is an unknown type argument this is a convenient macro to throw an std::invalid_argument exception
+ */
 #define EBSD_UNKNOWN_TYPE(CONDITION)                                                                                                                                                                   \
   if(!(CONDITION))                                                                                                                                                                                     \
   {                                                                                                                                                                                                    \

@@ -26,7 +26,6 @@
 #include "EbsdLib/Math/ArrayHelpers.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
-//#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 
 using namespace EbsdLib::Constants;
 
