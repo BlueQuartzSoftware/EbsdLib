@@ -609,8 +609,8 @@ public:
     size_t nTuples = input->getNumberOfTuples();
     int inStride = input->getNumberOfComponents();
 
-    bool doParallel = true;
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+    bool doParallel = true;
     if(doParallel)
     {
       tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), EulerSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
@@ -799,8 +799,9 @@ public:
     T* inPtr = input->getPointer(0);
     size_t nTuples = input->getNumberOfTuples();
     int inStride = input->getNumberOfComponents();
-    bool doParallel = true;
+
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+    bool doParallel = true;
     if(doParallel)
     {
       tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), OrientationMatrixSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
