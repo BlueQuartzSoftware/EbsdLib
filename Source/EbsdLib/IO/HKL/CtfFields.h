@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -58,15 +58,15 @@ public:
   CtfFields();
   ~CtfFields() override;
   /**
-   * @brief Returns the name of the class for _SUPERCtfFields
+   * @brief Returns the name of the class for CtfFields
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERCtfFields
+   * @brief Returns the name of the class for CtfFields
    */
-  static QString ClassName();
+  static std::string ClassName();
 
-  QVector<QString> getFieldNames() override;
+  std::vector<std::string> getFieldNames() override;
 
   template <typename T>
   T getFilterFeatures()

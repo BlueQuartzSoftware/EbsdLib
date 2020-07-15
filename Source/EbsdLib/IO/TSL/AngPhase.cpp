@@ -34,7 +34,62 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "AngPhase.h"
+
 #include <cstring>
+
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/IO/TSL/AngConstants.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+
+HKLFamily::HKLFamily() = default;
+HKLFamily::~HKLFamily() = default;
+
+// -----------------------------------------------------------------------------
+void HKLFamily::printSelf(std::stringstream& stream) const
+{
+  stream << EbsdLib::Ang::HKLFamilies;
+  stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
+}
+
+// -----------------------------------------------------------------------------
+void HKLFamily::copyToStruct(HKLFamily_t* ptr)
+{
+  ptr->h = h;
+  ptr->k = k;
+  ptr->l = l;
+  ptr->s1 = s1;
+  ptr->diffractionIntensity = diffractionIntensity;
+  ptr->s2 = s2;
+}
+
+// -----------------------------------------------------------------------------
+void HKLFamily::copyFromStruct(HKLFamily_t* ptr)
+{
+  h = ptr->h;
+  k = ptr->k;
+  l = ptr->l;
+  s1 = ptr->s1;
+  diffractionIntensity = ptr->diffractionIntensity;
+  s2 = ptr->s2;
+}
+
+// -----------------------------------------------------------------------------
+HKLFamily::Pointer HKLFamily::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::string HKLFamily::getNameOfClass() const
+{
+  return std::string("HKLFamily");
+}
+
+// -----------------------------------------------------------------------------
+std::string HKLFamily::ClassName()
+{
+  return std::string("HKLFamily");
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -54,36 +109,36 @@ AngPhase::~AngPhase() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseMaterialName(QList<QByteArray>& tokens)
+void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 {
   m_MaterialName.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_MaterialName.append(tokens.at(i)).append(" ");
+    m_MaterialName += token + " ";
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseFormula(QList<QByteArray>& tokens)
+void AngPhase::parseFormula(std::vector<std::string>& tokens)
 {
   m_Formula.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_Formula.append(tokens.at(i)).append(" ");
+    m_Formula += token + " ";
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseInfo(QList<QByteArray>& tokens)
+void AngPhase::parseInfo(std::vector<std::string>& tokens)
 {
   m_Info.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_Info.append(tokens.at(i)).append(" ");
+    m_Info += token + " ";
   }
 }
 
@@ -96,7 +151,7 @@ void AngPhase::parseInfo(QList<QByteArray>& tokens)
 //  {
 //    ++start;
 //  } // move past the ":" character
-//  QByteArray data(&(value[start]), strlen(value) - start);
+//  ByteArrayType data(&(value[start]), strlen(value) - start);
 //  bool ok = false;
 //  m_Symmetry = data.toUInt(&ok, 10);
 //}
@@ -104,17 +159,16 @@ void AngPhase::parseInfo(QList<QByteArray>& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseLatticeConstants(QList<QByteArray>& tokens)
+void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 {
   m_LatticeConstants.clear();
 
-  bool ok = false;
-  m_LatticeConstants.push_back(tokens[1].toFloat(&ok)); // A
-  m_LatticeConstants.push_back(tokens[2].toFloat(&ok)); // B
-  m_LatticeConstants.push_back(tokens[3].toFloat(&ok)); // C
-  m_LatticeConstants.push_back(tokens[4].toFloat(&ok)); // Alpha
-  m_LatticeConstants.push_back(tokens[5].toFloat(&ok)); // Beta
-  m_LatticeConstants.push_back(tokens[6].toFloat(&ok)); // Gamma
+  m_LatticeConstants.push_back(std::stof(tokens[1])); // A
+  m_LatticeConstants.push_back(std::stof(tokens[2])); // B
+  m_LatticeConstants.push_back(std::stof(tokens[3])); // C
+  m_LatticeConstants.push_back(std::stof(tokens[4])); // Alpha
+  m_LatticeConstants.push_back(std::stof(tokens[5])); // Beta
+  m_LatticeConstants.push_back(std::stof(tokens[6])); // Gamma
 }
 
 // -----------------------------------------------------------------------------
@@ -126,27 +180,25 @@ void AngPhase::parseLatticeConstants(QList<QByteArray>& tokens)
 //  {
 //    ++start;
 //  } // move past the ":" character
-//  QByteArray data(&(value[start]), strlen(value) - start);
+//  ByteArrayType data(&(value[start]), strlen(value) - start);
 //  bool ok = false;
-//  m_NumberFamilies = data.toInt(&ok, 10);
+//  m_NumberFamilies = data);
 //}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseHKLFamilies(QList<QByteArray>& tokens)
+void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 {
   HKLFamily::Pointer family = HKLFamily::New();
-
-  bool ok = false;
-  family->h = tokens[1].toInt(&ok, 10);
-  family->k = tokens[2].toInt(&ok, 10);
-  family->l = tokens[3].toInt(&ok, 10);
-  family->s1 = tokens[4].toInt(&ok, 10);
-  family->diffractionIntensity = tokens[5].toFloat(&ok);
+  family->h = std::stoi(tokens[1]);
+  family->k = std::stoi(tokens[2]);
+  family->l = std::stoi(tokens[3]);
+  family->s1 = std::stoi(tokens[4]);
+  family->diffractionIntensity = std::stof(tokens[5]);
   if(tokens.size() > 6)
   {
-    family->s2 = tokens[6].toInt(&ok, 10);
+    family->s2 = tokens[6].at(0);
   }
   if(family->s1 > 1)
   {
@@ -162,31 +214,30 @@ void AngPhase::parseHKLFamilies(QList<QByteArray>& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseCategories(QList<QByteArray>& tokens)
+void AngPhase::parseCategories(std::vector<std::string>& tokens)
 {
   m_Categories.clear();
-  bool ok = false;
   if(tokens[0].size() != EbsdLib::Ang::Categories.size())
   {
-    tokens[0].replace(EbsdLib::Ang::Categories, "");
-    m_Categories.push_back(tokens.at(0).toInt(&ok, 10));
+    EbsdStringUtils::replace(tokens[0], EbsdLib::Ang::Categories, "");
+    m_Categories.push_back(std::stoi(tokens.at(0)));
   }
-  for(int i = 1; i < tokens.size(); ++i)
+  for(size_t i = 1; i < tokens.size(); ++i)
   {
-    m_Categories.push_back(tokens.at(i).toInt(&ok, 10));
+    m_Categories.push_back(std::stoi(tokens.at(i)));
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::printSelf(QTextStream& stream)
+void AngPhase::printSelf(std::stringstream& stream)
 {
-  stream << EbsdLib::Ang::Phase << ": " << m_PhaseIndex << QString("\n");
-  stream << EbsdLib::Ang::MaterialName << ": " << m_MaterialName << QString("\n");
-  stream << EbsdLib::Ang::Formula << ": " << m_Formula << QString("\n");
-  stream << EbsdLib::Ang::Info << ": " << m_Info << QString("\n");
-  stream << EbsdLib::Ang::Symmetry << ": " << m_Symmetry << QString("\n");
+  stream << EbsdLib::Ang::Phase << ": " << m_PhaseIndex << std::string("\n");
+  stream << EbsdLib::Ang::MaterialName << ": " << m_MaterialName << std::string("\n");
+  stream << EbsdLib::Ang::Formula << ": " << m_Formula << std::string("\n");
+  stream << EbsdLib::Ang::Info << ": " << m_Info << std::string("\n");
+  stream << EbsdLib::Ang::Symmetry << ": " << m_Symmetry << std::string("\n");
 
   stream << EbsdLib::Ang::LatticeConstants;
 
@@ -194,9 +245,9 @@ void AngPhase::printSelf(QTextStream& stream)
   {
     stream << " " << latticeConstant;
   }
-  stream << QString("\n");
+  stream << std::string("\n");
 
-  stream << EbsdLib::Ang::NumberFamilies << ": " << m_NumberFamilies << QString("\n");
+  stream << EbsdLib::Ang::NumberFamilies << ": " << m_NumberFamilies << std::string("\n");
 
   for(const auto& family : m_HKLFamilies)
   {
@@ -208,7 +259,7 @@ void AngPhase::printSelf(QTextStream& stream)
   {
     stream << " " << category;
   }
-  stream << QString("\n");
+  stream << std::string("\n");
 }
 
 // -----------------------------------------------------------------------------
@@ -312,73 +363,55 @@ void AngPhase::setLatticeConstantGamma(float a)
 }
 
 // -----------------------------------------------------------------------------
-HKLFamily::Pointer HKLFamily::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
 AngPhase::Pointer AngPhase::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
 
 // -----------------------------------------------------------------------------
-void AngPhase::setMaterialName(const QString& value)
+void AngPhase::setMaterialName(const std::string& value)
 {
   m_MaterialName = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngPhase::getMaterialName() const
+std::string AngPhase::getMaterialName() const
 {
   return m_MaterialName;
 }
 
 // -----------------------------------------------------------------------------
-void AngPhase::setFormula(const QString& value)
+void AngPhase::setFormula(const std::string& value)
 {
   m_Formula = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngPhase::getFormula() const
+std::string AngPhase::getFormula() const
 {
   return m_Formula;
 }
 
 // -----------------------------------------------------------------------------
-void AngPhase::setInfo(const QString& value)
+void AngPhase::setInfo(const std::string& value)
 {
   m_Info = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngPhase::getInfo() const
+std::string AngPhase::getInfo() const
 {
   return m_Info;
 }
 
 // -----------------------------------------------------------------------------
-QString AngPhase::getNameOfClass() const
+std::string AngPhase::getNameOfClass() const
 {
-  return QString("AngPhase");
+  return std::string("AngPhase");
 }
 
 // -----------------------------------------------------------------------------
-QString AngPhase::ClassName()
+std::string AngPhase::ClassName()
 {
-  return QString("AngPhase");
-}
-
-// -----------------------------------------------------------------------------
-QString HKLFamily::getNameOfClass() const
-{
-  return QString("HKLFamily");
-}
-
-// -----------------------------------------------------------------------------
-QString HKLFamily::ClassName()
-{
-  return QString("HKLFamily");
+  return std::string("AngPhase");
 }

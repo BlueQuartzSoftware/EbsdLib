@@ -34,12 +34,16 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ModifiedLambertProjectionArray.h"
 
-#include <QtCore/QList>
+#include <list>
 #include <utility>
+
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Utilities.h"
-#include "H5Support/QH5Lite.h"
-#include "H5Support/QH5Utilities.h"
+#include "H5Support/H5Lite.h"
+#include "H5Support/H5Utilities.h"
 #endif
 
 // -----------------------------------------------------------------------------
@@ -59,7 +63,7 @@ ModifiedLambertProjectionArray::~ModifiedLambertProjectionArray() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const
+void ModifiedLambertProjectionArray::getXdmfTypeAndSize(std::string& xdmfTypeName, int& precision) const
 {
   xdmfTypeName = getNameOfClass();
   precision = 0;
@@ -68,7 +72,7 @@ void ModifiedLambertProjectionArray::getXdmfTypeAndSize(QString& xdmfTypeName, i
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getTypeAsString() const
+std::string ModifiedLambertProjectionArray::getTypeAsString() const
 {
   return "ModifiedLambertProjectionArray";
 }
@@ -76,7 +80,7 @@ QString ModifiedLambertProjectionArray::getTypeAsString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate) const
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const std::string& name, bool allocate) const
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
@@ -84,7 +88,7 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate) const
+ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const std::string& name, bool allocate) const
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
@@ -146,7 +150,7 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::getModifiedLa
 #ifndef NDEBUG
   if(!m_ModifiedLambertProjectionArray.empty())
   {
-    Q_ASSERT(idx < static_cast<int>(m_ModifiedLambertProjectionArray.size()));
+    EBSD_INDEX_OUT_OF_RANGE(idx < static_cast<int>(m_ModifiedLambertProjectionArray.size()));
   }
 #endif
   return m_ModifiedLambertProjectionArray[idx];
@@ -160,7 +164,7 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](si
 #ifndef NDEBUG
   if(!m_ModifiedLambertProjectionArray.empty())
   {
-    Q_ASSERT(idx < static_cast<int>(m_ModifiedLambertProjectionArray.size()));
+    EBSD_INDEX_OUT_OF_RANGE(idx < static_cast<int>(m_ModifiedLambertProjectionArray.size()));
   }
 #endif
   return m_ModifiedLambertProjectionArray[idx];
@@ -169,14 +173,14 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](si
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::setName(const QString& name)
+void ModifiedLambertProjectionArray::setName(const std::string& name)
 {
   m_Name = name;
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getName() const
+std::string ModifiedLambertProjectionArray::getName() const
 {
   return m_Name;
 }
@@ -203,7 +207,7 @@ void* ModifiedLambertProjectionArray::getVoidPointer(size_t i)
 #ifndef NDEBUG
   if(!m_ModifiedLambertProjectionArray.empty())
   {
-    Q_ASSERT(i < static_cast<size_t>(m_ModifiedLambertProjectionArray.size()));
+    EBSD_INDEX_OUT_OF_RANGE(i < static_cast<size_t>(m_ModifiedLambertProjectionArray.size()));
   }
 #endif
   if(i >= this->getNumberOfTuples())
@@ -236,7 +240,7 @@ void ModifiedLambertProjectionArray::SetNumberOfComponents(int nc)
 {
   if(nc != 1)
   {
-    Q_ASSERT(false);
+    EBSD_METHOD_NOT_IMPLEMENTED()
   }
 }
 
@@ -310,7 +314,7 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
   }
 
   std::vector<ModifiedLambertProjection::Pointer> replacement(m_ModifiedLambertProjectionArray.size() - idxs.size());
-  qint32 idxsIndex = 0;
+  int32_t idxsIndex = 0;
   size_t rIdx = 0;
   size_t count = static_cast<size_t>(m_ModifiedLambertProjectionArray.size());
   for(size_t dIdx = 0; dIdx < count; ++dIdx)
@@ -393,7 +397,7 @@ bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, Modif
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::initializeTuple(size_t i, void* p)
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 }
 
 // -----------------------------------------------------------------------------
@@ -402,7 +406,7 @@ void ModifiedLambertProjectionArray::initializeTuple(size_t i, void* p)
 void ModifiedLambertProjectionArray::initializeWithZeros()
 {
 
-  for(qint32 i = 0; i < m_ModifiedLambertProjectionArray.size(); ++i)
+  for(int32_t i = 0; i < m_ModifiedLambertProjectionArray.size(); ++i)
   {
     m_ModifiedLambertProjectionArray[i]->initializeSquares(1, 1);
   }
@@ -446,21 +450,25 @@ void ModifiedLambertProjectionArray::resizeTuples(size_t numTuples)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::printTuple(QTextStream& out, size_t i, char delimiter) const
+void ModifiedLambertProjectionArray::printTuple(std::stringstream& out, size_t i, char delimiter) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::printComponent(QTextStream& out, size_t i, int j) const
+void ModifiedLambertProjectionArray::printComponent(std::stringstream& out, size_t i, int j) const
 {
-  Q_ASSERT(false);
+  EBSD_METHOD_NOT_IMPLEMENTED()
 }
 
 #ifdef EbsdLib_ENABLE_HDF5
+std::string getNameOfClass()
+{
+  return "AppendRowToH5Dataset";
+}
 // -------------------------------------------------------------------------- */
-void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, double* north, double* south)
+void AppendRowToH5Dataset(hid_t gid, const std::string& dsetName, int lambertSize, double* north, double* south)
 {
   hid_t dataspace = -1, dataset = -1;
   hid_t filespace = -1;
@@ -472,7 +480,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   herr_t status = -1;
   /*  printf("CPU [%d,%d] Expanding '%s' array with additional Row \n", home->myDomain, home->cycle, dsetName);
       fflush(stdout); */
-  dataset = H5Dopen2(gid, dsetName.toLatin1().data(), H5P_DEFAULT);
+  dataset = H5Dopen2(gid, dsetName.c_str(), H5P_DEFAULT);
   filespace = H5Dget_space(dataset); /* Get filespace handle first. */
   rank = H5Sget_simple_extent_ndims(filespace);
   status = H5Sget_simple_extent_dims(filespace, currentDims, nullptr);
@@ -482,12 +490,12 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   newDims[0] = currentDims[0] + 1;
   newDims[1] = currentDims[1]; // Number of columns
 
-  //  printf("dataset '%s' rank %d, size %lu x %lu \n", dsetName.toLatin1().data(), rank, (unsigned long)(newDims[0]), (unsigned long)(newDims[1]));
+  //  printf("dataset '%s' rank %d, size %lu x %lu \n", dsetName.c_str(), rank, (unsigned long)(newDims[0]), (unsigned long)(newDims[1]));
   status = H5Dset_extent(dataset, newDims);
   if(status < 0)
   {
-    qDebug() << "Error Extending Data set";
-    Q_ASSERT(false);
+    std::cout << "Error Extending Data set";
+    EBSD_METHOD_NOT_IMPLEMENTED()
   }
   /*// Select a hyperslab.*/
   filespace = H5Dget_space(dataset);
@@ -507,7 +515,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, north);
   if(status < 0)
   {
-    qDebug() << "Error appending north square";
+    std::cout << "Error appending north square";
   }
 
   filespace = H5Dget_space(dataset);
@@ -520,7 +528,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, south);
   if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file";
+    std::cout << "Error Writing Chunked Data set to file";
   }
 
   H5Dclose(dataset);
@@ -530,7 +538,7 @@ void AppendRowToH5Dataset(hid_t gid, const QString& dsetName, int lambertSize, d
 /* -----------------------------------------------------------------------------
 //
 // -------------------------------------------------------------------------- */
-void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSize, hsize_t chunk_dim, double* north, double* south)
+void Create2DExpandableDataset(hid_t gid, const std::string& dsetName, int lambertSize, hsize_t chunk_dim, double* north, double* south)
 {
 
   hid_t dataspace = -1;
@@ -567,7 +575,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
 
   /* Create a new dataset within the file using cparms creation properties.*/
   //  dataset = H5Dcreate(gid, dsetName, H5T_NATIVE_DOUBLE, dataspace, cparms, H5P_DEFAULT, H5P_DEFAULT);
-  dataset = H5Dcreate2(gid, dsetName.toLatin1().data(), H5T_NATIVE_DOUBLE, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+  dataset = H5Dcreate2(gid, dsetName.c_str(), H5T_NATIVE_DOUBLE, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
   /*  Extend the dataset. This call assures that dataset is at least 1 */
   size[0] = 1;         // Single Row
   size[1] = chunk_dim; // N Columns - What ever the user asked for
@@ -584,7 +592,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, north);
   if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file";
+    std::cout << "Error Writing Chunked Data set to file";
   }
 
   filespace = H5Dget_space(dataset);
@@ -598,7 +606,7 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
   status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, south);
   if(status < 0)
   {
-    qDebug() << "Error Writing Chunked Data set to file";
+    std::cout << "Error Writing Chunked Data set to file";
   }
 
   H5Dclose(dataset);
@@ -610,20 +618,20 @@ void Create2DExpandableDataset(hid_t gid, const QString& dsetName, int lambertSi
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size_t> tDims) const
+int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vector<size_t>& tDims) const
 {
   herr_t err = 0;
   if(m_ModifiedLambertProjectionArray.empty())
   {
     return -2;
   }
-  hid_t gid = QH5Utilities::createGroup(parentId, EbsdLib::StringConstants::GBCD);
+  hid_t gid = H5Utilities::createGroup(parentId, EbsdLib::StringConstants::GBCD);
   if(gid < 0)
   {
     return -1;
   }
 
-  QString dsetName = QString::number(m_Phase);
+  std::string dsetName = EbsdStringUtils::number(m_Phase);
   ModifiedLambertProjection::Pointer tmp = m_ModifiedLambertProjectionArray[0];
   tmp->getDimension();
   int lambertDimension = tmp->getDimension();
@@ -636,7 +644,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
   EbsdLib::DoubleArrayType* south = nullptr;
 
   // We start numbering our phases at 1. Anything in slot 0 is considered "Dummy" or invalid
-  for(qint32 i = 1; i < m_ModifiedLambertProjectionArray.size(); ++i)
+  for(size_t i = 1; i < m_ModifiedLambertProjectionArray.size(); ++i)
   {
     if(m_ModifiedLambertProjectionArray[i] != nullptr)
     {
@@ -646,9 +654,9 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, std::vector<size
     }
   }
 
-  err = QH5Lite::writeScalarAttribute(gid, dsetName, "Lambert Dimension", lambertDimension);
-  err = QH5Lite::writeScalarAttribute(gid, dsetName, "Lambert Sphere Radius", sphereRadius);
-  err = QH5Utilities::closeHDF5Object(gid);
+  err = H5Lite::writeScalarAttribute(gid, dsetName, "Lambert Dimension", lambertDimension);
+  err = H5Lite::writeScalarAttribute(gid, dsetName, "Lambert Sphere Radius", sphereRadius);
+  err = H5Utilities::closeHDF5Object(gid);
   return err;
 }
 // -----------------------------------------------------------------------------
@@ -658,38 +666,38 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 {
   // bool ok = false;
   int err = 0;
-  QString statsType;
-  hid_t gid = QH5Utilities::openHDF5Object(parentId, EbsdLib::StringConstants::Statistics);
+  std::string statsType;
+  hid_t gid = H5Utilities::openHDF5Object(parentId, EbsdLib::StringConstants::Statistics);
   if(gid < 0)
   {
     return err;
   }
 
-  QList<QString> names;
-  err = QH5Utilities::getGroupObjects(gid, H5Utilities::CustomHDFDataTypes::Group, names);
+  std::list<std::string> names;
+  err = H5Utilities::getGroupObjects(gid, H5Utilities::CustomHDFDataTypes::Group, names);
   if(err < 0)
   {
-    err |= QH5Utilities::closeHDF5Object(gid);
+    err |= H5Utilities::closeHDF5Object(gid);
     return err;
   }
 
-  for(QList<QString>::iterator iter = names.begin(); iter != names.end(); ++iter)
+  for(const auto& name : names)
   {
     // int index = 0;
     statsType = "";
-    // index = QString( *iter ).toInt(&ok, 10);
-    QH5Lite::readStringAttribute(gid, *iter, EbsdLib::StringConstants::StatsType, statsType);
-    hid_t statId = QH5Utilities::openHDF5Object(gid, *iter);
+    // index = std::string( *iter ).toInt(&ok, 10);
+    H5Lite::readStringAttribute(gid, name, EbsdLib::StringConstants::StatsType, statsType);
+    hid_t statId = H5Utilities::openHDF5Object(gid, name);
     if(statId < 0)
     {
       continue;
       err |= -1;
     }
-    err |= QH5Utilities::closeHDF5Object(statId);
+    err |= H5Utilities::closeHDF5Object(statId);
   }
 
   // Do not forget to close the object
-  err |= QH5Utilities::closeHDF5Object(gid);
+  err |= H5Utilities::closeHDF5Object(gid);
 
   return err;
 }
@@ -698,7 +706,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& labelb) const
+int ModifiedLambertProjectionArray::writeXdmfAttribute(std::stringstream& out, int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& labelb) const
 {
   out << "<!-- Xdmf is not supported for " << getNameOfClass() << " with type " << getTypeAsString() << " --> ";
   return -1;
@@ -707,13 +715,13 @@ int ModifiedLambertProjectionArray::writeXdmfAttribute(QTextStream& out, int64_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat format) const
+std::string ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat format) const
 {
   if(format == EbsdLib::HtmlFormat)
   {
     return getToolTipGenerator().generateHTML();
   }
-  return QString();
+  return std::string();
 }
 
 // -----------------------------------------------------------------------------
@@ -722,12 +730,11 @@ QString ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat 
 EbsdLib::ToolTipGenerator ModifiedLambertProjectionArray::getToolTipGenerator() const
 {
   EbsdLib::ToolTipGenerator toolTipGen;
-  QLocale usa(QLocale::English, QLocale::UnitedStates);
 
   toolTipGen.addTitle("Attribute Array Info");
   toolTipGen.addValue("Name", getName());
   toolTipGen.addValue("Type", getTypeAsString());
-  toolTipGen.addValue("Attribute Array Count", usa.toString(static_cast<qlonglong>(getNumberOfTuples())));
+  toolTipGen.addValue("Attribute Array Count", EbsdStringUtils::number(getNumberOfTuples()));
 
   return toolTipGen;
 }
@@ -746,15 +753,15 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::New()
 }
 
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::getNameOfClass() const
+std::string ModifiedLambertProjectionArray::getNameOfClass() const
 {
-  return QString("ModifiedLambertProjectionArray");
+  return std::string("ModifiedLambertProjectionArray");
 }
 
 // -----------------------------------------------------------------------------
-QString ModifiedLambertProjectionArray::ClassName()
+std::string ModifiedLambertProjectionArray::ClassName()
 {
-  return QString("ModifiedLambertProjectionArray");
+  return std::string("ModifiedLambertProjectionArray");
 }
 
 // -----------------------------------------------------------------------------

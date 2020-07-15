@@ -36,14 +36,14 @@
 #pragma once
 
 #include <cstring>
-
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
-#include <QtCore/QtDebug>
+#include <string>
+#include <sstream>
+#include <iostream>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Lite.h"
@@ -72,30 +72,30 @@ public:
 
   ~AngHeaderEntry() override = default;
 
-  QString getKey() override
+  std::string getKey() override
   {
     return m_key;
   }
 #ifdef EbsdLib_ENABLE_HDF5
-  QString getHDFType() override
+  std::string getHDFType() override
   {
     T value = static_cast<T>(0);
-    return QString::fromStdString(H5Lite::HDFTypeForPrimitiveAsStr(value));
+    return H5Lite::HDFTypeForPrimitiveAsStr(value);
   }
 #endif
 
-  void parseValue(QByteArray& value) override
+  void parseValue(std::string& value) override
   {
     if(value[0] == ':')
     {
-      value = value.mid(1);
+      value = value.substr(1);
     } // move past the ":" character
-    QTextStream ss(&value);
+    std::stringstream ss(value);
     ss >> m_value;
   }
   void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value << std::endl;
+    out << m_key << "  " << m_value << std::endl;
   }
 
   T getValue()
@@ -108,17 +108,16 @@ public:
   }
 
 protected:
-  AngHeaderEntry(const QString& key)
-  : m_value(0)
-  , m_key(key)
+  AngHeaderEntry(std::string key)
+  : m_key(std::move(key))
   {
   }
 
   AngHeaderEntry() = default;
 
 private:
-  T m_value;
-  QString m_key;
+  T m_value = static_cast<T>(0);
+  std::string m_key;
 
 public:
   AngHeaderEntry(const AngHeaderEntry&) = delete;            // Copy Constructor Not Implemented
@@ -148,43 +147,43 @@ public:
 
   ~AngStringHeaderEntry() override = default;
 
-  QString getKey() override
+  std::string getKey() override
   {
     return m_key;
   }
 
 #ifdef EbsdLib_ENABLE_HDF5
-  QString getHDFType() override
+  std::string getHDFType() override
   {
     return "H5T_STRING";
   }
 #endif
 
-  void parseValue(QByteArray& value) override
+  void parseValue(std::string& value) override
   {
     if(value[0] == ':')
     {
-      value = value.mid(1);
-    }                        // move past the ":" character
-    value = value.trimmed(); // remove leading/trailing white space
-    m_value = QString(value);
+      value = value.substr(1);
+    }
+    value = EbsdStringUtils::trimmed(value); // remove leading/trailing white space
+    m_value = std::string(value);
   }
   void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value.toStdString() << std::endl;
+    out << m_key << "  " << m_value << std::endl;
   }
 
-  QString getValue()
+  std::string getValue()
   {
     return m_value;
   }
-  void setValue(const QString& value)
+  void setValue(const std::string& value)
   {
     m_value = value;
   }
 
 protected:
-  AngStringHeaderEntry(QString key)
+  AngStringHeaderEntry(std::string key)
   : m_key(std::move(key))
   {
   }
@@ -192,8 +191,8 @@ protected:
   AngStringHeaderEntry() = default;
 
 private:
-  QString m_value;
-  QString m_key;
+  std::string m_value;
+  std::string m_key;
 
 public:
   AngStringHeaderEntry(const AngStringHeaderEntry&) = delete;            // Copy Constructor Not Implemented

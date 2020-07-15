@@ -88,8 +88,8 @@ void ComputeStereographicProjection::operator()() const
 #if CSP_DEBUG_OUTPUT
     // This chunk is here for some debugging....
     int dim = m_Config->imageDim;
-    QString filename = QString("/tmp/Discrete-%1-%2.h5").arg(m_Intensity->getName()).arg(dim);
-    hid_t file_id = H5Utilities::createFile(filename.toStdString());
+    std::string filename = std::string("/tmp/Discrete-%1-%2.h5").arg(m_Intensity->getName()).arg(dim);
+    hid_t file_id = H5Utilities::createFile(filename);
     hsize_t dims[2];
     dims[0] = dim;
     dims[1] = dim;
@@ -103,8 +103,8 @@ void ComputeStereographicProjection::operator()() const
     lambert->normalizeSquaresToMRD();
 #if CSP_DEBUG_OUTPUT
     int dim = lambert->getDimension();
-    QString filename = QString("/tmp/Lambert-%1.h5").arg(dim).arg(m_Config->);
-    hid_t file_id = H5Utilities::createFile(filename.toStdString());
+    std::string filename = std::string("/tmp/Lambert-%1.h5").arg(dim).arg(m_Config->);
+    hid_t file_id = H5Utilities::createFile(filename);
     lambert->writeHDF5Data(file_id);
     H5Fclose(file_id);
 #endif

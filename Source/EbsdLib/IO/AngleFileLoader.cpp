@@ -37,16 +37,16 @@
 
 #include <cstdio>
 #include <cstring>
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QByteArray>
-#include <QtCore/QDebug>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -72,19 +72,20 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
   EbsdLib::FloatArrayType::Pointer angles = EbsdLib::FloatArrayType::NullPointer();
 
   // Make sure the input file variable is not empty
-  if(m_InputFile.size() == 0)
+  if(m_InputFile.empty())
   {
     setErrorMessage("Input File Path is empty");
     setErrorCode(-1);
     return angles;
   }
-
-  QFileInfo fi(getInputFile());
+  fs::path ifPath = fs::path(getInputFile());
 
   // Make sure the file exists on disk
-  if(!fi.exists())
+  if(!fs::exists(ifPath))
   {
-    setErrorMessage("Input File does not exist at path");
+    std::stringstream ss;
+    ss << "Input File does not exist at '" << ifPath.string() << "'\n";
+    setErrorMessage(ss.str());
     setErrorCode(-2);
     return angles;
   }
@@ -102,44 +103,45 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
   // the total number of angles that will be read
 
   int numOrients = 0;
-  QByteArray buf;
+  std::string buf;
 
   // Open the file and read the first line
-  QFile reader(getInputFile());
-  if(!reader.open(QIODevice::ReadOnly | QIODevice::Text))
+  std::ifstream reader(getInputFile(), std::ios_base::in);
+  if(!reader.is_open())
   {
-    QString msg = QObject::tr("Angle file could not be opened: %1").arg(getInputFile());
+    std::string msg = std::string("Angle file could not be opened: ") + getInputFile();
     setErrorCode(-100);
     setErrorMessage(msg);
     return angles;
   }
 
-  bool ok = false;
-  buf = reader.readLine();
+  std::getline(reader, buf);
   while(buf[0] == '#')
   {
-    buf = reader.readLine();
+    std::getline(reader, buf);
   }
-  buf = buf.trimmed();
+  buf = EbsdStringUtils::trimmed(buf); // Remove leading and trailing whitespace
 
   // Split the next line into a pair of tokens delimited by the ":" character
-  QList<QByteArray> tokens = buf.split(':');
-  if(tokens.count() != 2)
+  std::vector<std::string> tokens = EbsdStringUtils::split(buf, ':');
+  if(tokens.size() != 2)
   {
-    QString msg = QObject::tr("Proper Header was not detected. The file should have a single header line of 'Angle Count:XXXX'");
+    std::stringstream msg;
+    msg << "Proper Header was not detected. The file should have a single header line of 'Angle Count:XXXX'";
     setErrorCode(-101);
-    setErrorMessage(msg);
+    setErrorMessage(msg.str());
     return angles;
   }
 
-  if(tokens[0].toStdString() != "Angle Count")
+  if(tokens[0] != "Angle Count")
   {
-    QString msg = QObject::tr("Proper Header was not detected. The file should have a single header line of 'Angle Count:XXXX'");
+    std::stringstream msg;
+    msg << "Proper Header was not detected. The file should have a single header line of 'Angle Count:XXXX'";
     setErrorCode(-102);
-    setErrorMessage(msg);
+    setErrorMessage(msg.str());
     return angles;
   }
-  numOrients = tokens[1].toInt(&ok, 10);
+  numOrients = std::stoi(tokens[1]);
 
   // Allocate enough for the angles
   std::vector<size_t> dims(1, 5);
@@ -149,70 +151,72 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
   {
     float weight = 0.0f;
     float sigma = 1.0f;
-    buf = reader.readLine();
+    std::getline(reader, buf);
     // Skip any lines that start with a '#' character
     if(buf[0] == '#')
     {
       continue;
     }
-    buf = buf.trimmed();
+    buf = EbsdStringUtils::trimmed(buf); // Remove leading and trailing whitespace
 
     // Remove multiple Delimiters if wanted by the user.
     if(m_IgnoreMultipleDelimiters)
     {
-      buf = buf.simplified();
+      buf = EbsdStringUtils::simplified(buf); // Remove leading and trailing whitespace
     }
-    QString delimiter = getDelimiter();
-    if(delimiter.compare("\t") == 0)
+    std::string delimiter = getDelimiter();
+    if(delimiter == "\t")
     {
       setDelimiter(" ");
     }
-    tokens = buf.split(*(getDelimiter().toLatin1().data()));
+    tokens = EbsdStringUtils::split(buf, (*(getDelimiter().c_str())));
 
     OrientationF euler(3);
     if(m_AngleRepresentation == EulerAngles)
     {
-      euler[0] = tokens[0].trimmed().toFloat(&ok);
-      euler[1] = tokens[1].trimmed().toFloat(&ok);
-      euler[2] = tokens[2].trimmed().toFloat(&ok);
-      weight = tokens[3].trimmed().toFloat(&ok);
-      sigma = tokens[4].trimmed().toFloat(&ok);
+      euler[0] = std::stof(tokens[0]);
+      euler[1] = std::stof(tokens[1]);
+      euler[2] = std::stof(tokens[2]);
+      weight = std::stof(tokens[3]);
+      sigma = std::stof(tokens[4]);
     }
     else if(m_AngleRepresentation == QuaternionAngles)
     {
       QuatF quat(4);
-      quat.x() = tokens[0].trimmed().toFloat(&ok);
-      quat.y() = tokens[1].trimmed().toFloat(&ok);
-      quat.z() = tokens[2].trimmed().toFloat(&ok);
-      quat.w() = tokens[3].trimmed().toFloat(&ok);
+
+      quat.x() = std::stof(tokens[0]);
+      quat.y() = std::stof(tokens[1]);
+      quat.z() = std::stof(tokens[2]);
+      quat.w() = std::stof(tokens[3]);
+
       euler = OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
-      weight = tokens[4].trimmed().toFloat(&ok);
-      sigma = tokens[5].trimmed().toFloat(&ok);
+      weight = std::stof(tokens[4]);
+      sigma = std::stof(tokens[5]);
     }
     else if(m_AngleRepresentation == RodriguezAngles)
     {
       Orientation<float> rod(4, 0.0);
-      rod[0] = tokens[0].trimmed().toFloat(&ok);
-      rod[1] = tokens[1].trimmed().toFloat(&ok);
-      rod[2] = tokens[2].trimmed().toFloat(&ok);
+      rod[0] = std::stof(tokens[0]);
+      rod[1] = std::stof(tokens[1]);
+      rod[2] = std::stof(tokens[2]);
       euler = OrientationTransformation::ro2eu<OrientationF, OrientationF>(rod);
-      weight = tokens[3].trimmed().toFloat(&ok);
-      sigma = tokens[4].trimmed().toFloat(&ok);
+      weight = std::stof(tokens[3]);
+      sigma = std::stof(tokens[4]);
     }
 
     // Values in File are in Radians and the user wants them in Degrees
     if(!m_FileAnglesInDegrees && m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_RadToDeg;
-      euler[1] = euler[1] * EbsdLib::Constants::k_RadToDeg;
-      euler[2] = euler[2] * EbsdLib::Constants::k_RadToDeg;
+      euler[0] = euler[0] * EbsdLib::Constants::k_RadToDegF;
+      euler[1] = euler[1] * EbsdLib::Constants::k_RadToDegF;
+      euler[2] = euler[2] * EbsdLib::Constants::k_RadToDegF;
     }
     // Values are in Degrees but user wants them in Radians
     else if(m_FileAnglesInDegrees && !m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_DegToRad;
-      euler[1] = euler[1] * EbsdLib::Constants::k_DegToRad;
-      euler[2] = euler[2] * EbsdLib::Constants::k_DegToRad;
+      euler[0] = euler[0] * EbsdLib::Constants::k_DegToRadF;
+      euler[1] = euler[1] * EbsdLib::Constants::k_DegToRadF;
+      euler[2] = euler[2] * EbsdLib::Constants::k_DegToRadF;
     }
 
     // Store the values into our array
@@ -221,7 +225,7 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     angles->setComponent(i, 2, euler[2]);
     angles->setComponent(i, 3, weight);
     angles->setComponent(i, 4, sigma);
-    //   qDebug() << "reading line: " << i ;
+    //   std::cout << "reading line: " << i ;
   }
 
   return angles;
@@ -241,25 +245,25 @@ AngleFileLoader::Pointer AngleFileLoader::New()
 }
 
 // -----------------------------------------------------------------------------
-QString AngleFileLoader::getNameOfClass() const
+std::string AngleFileLoader::getNameOfClass() const
 {
-  return QString("AngleFileLoader");
+  return std::string("AngleFileLoader");
 }
 
 // -----------------------------------------------------------------------------
-QString AngleFileLoader::ClassName()
+std::string AngleFileLoader::ClassName()
 {
-  return QString("AngleFileLoader");
+  return std::string("AngleFileLoader");
 }
 
 // -----------------------------------------------------------------------------
-void AngleFileLoader::setErrorMessage(const QString& value)
+void AngleFileLoader::setErrorMessage(const std::string& value)
 {
   m_ErrorMessage = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngleFileLoader::getErrorMessage() const
+std::string AngleFileLoader::getErrorMessage() const
 {
   return m_ErrorMessage;
 }
@@ -277,13 +281,13 @@ int AngleFileLoader::getErrorCode() const
 }
 
 // -----------------------------------------------------------------------------
-void AngleFileLoader::setInputFile(const QString& value)
+void AngleFileLoader::setInputFile(const std::string& value)
 {
   m_InputFile = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngleFileLoader::getInputFile() const
+std::string AngleFileLoader::getInputFile() const
 {
   return m_InputFile;
 }
@@ -325,13 +329,13 @@ uint32_t AngleFileLoader::getAngleRepresentation() const
 }
 
 // -----------------------------------------------------------------------------
-void AngleFileLoader::setDelimiter(const QString& value)
+void AngleFileLoader::setDelimiter(const std::string& value)
 {
   m_Delimiter = value;
 }
 
 // -----------------------------------------------------------------------------
-QString AngleFileLoader::getDelimiter() const
+std::string AngleFileLoader::getDelimiter() const
 {
   return m_Delimiter;
 }

@@ -35,20 +35,57 @@
 
 #pragma once
 
+#include <charconv>
 #include <cstring>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <utility>
-
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
-#include <QtCore/QtDebug>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 
 #ifdef EbsdLib_ENABLE_HDF5
-#include "H5Support/QH5Lite.h"
+#include "H5Support/H5Lite.h"
 #endif
+
+class Int32HeaderParser
+{
+public:
+  Int32HeaderParser() = default;
+  ~Int32HeaderParser() = default;
+  Int32HeaderParser(const Int32HeaderParser&) = delete;            // Copy Constructor Not Implemented
+  Int32HeaderParser(Int32HeaderParser&&) = delete;                 // Move Constructor Not Implemented
+  Int32HeaderParser& operator=(const Int32HeaderParser&) = delete; // Copy Assignment Not Implemented
+  Int32HeaderParser& operator=(Int32HeaderParser&&) = delete;      // Move Assignment Not Implemented
+  int32_t parse(const std::string& bytes)
+  {
+    int32_t value = -1;
+    auto [p, ec] = std::from_chars(bytes.data(), bytes.data() + bytes.size(), value, 10);
+    if(ec == std::errc::invalid_argument || ec == std::errc::result_out_of_range)
+    {
+      value = -1;
+    }
+    return value;
+  }
+};
+
+class FloatHeaderParser
+{
+public:
+  FloatHeaderParser() = default;
+  ~FloatHeaderParser() = default;
+  FloatHeaderParser(const FloatHeaderParser&) = delete;            // Copy Constructor Not Implemented
+  FloatHeaderParser(FloatHeaderParser&&) = delete;                 // Move Constructor Not Implemented
+  FloatHeaderParser& operator=(const FloatHeaderParser&) = delete; // Copy Assignment Not Implemented
+  FloatHeaderParser& operator=(FloatHeaderParser&&) = delete;      // Move Assignment Not Implemented
+  float parse(const std::string& bytes)
+  {
+    float value = std::stof(bytes);
+    return value;
+  }
+};
 
 /**
  * @class CtfHeaderEntry CtfHeaderEntry.h EbsdLib/IO/HKL/CtfHeaderEntry.h
@@ -57,51 +94,51 @@
  * @date Aug 8, 2011
  * @version 1.0
  */
-template <typename T>
+template <typename T, typename ParserType>
 class EbsdLib_EXPORT CtfHeaderEntry : public EbsdHeaderEntry
 {
 
 public:
-  using Self = CtfHeaderEntry<T>;
+  using Self = CtfHeaderEntry<T, ParserType>;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
   using ConstWeakPointer = std::weak_ptr<Self>;
   static Pointer NullPointer();
 
-  HEADERENTRY_NEW_SUPERCLASS(CtfHeaderEntry<T>, EbsdHeaderEntry)
+  HEADERENTRY_NEW_SUPERCLASS(Self, EbsdHeaderEntry)
   /**
-   * @brief Returns the name of the class for _SUPERCtfHeaderEntry
+   * @brief Returns the name of the class for CtfHeaderEntry
    */
-  const QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
-   * @brief Returns the name of the class for _SUPERCtfHeaderEntry
+   * @brief Returns the name of the class for CtfHeaderEntry
    */
-  static QString ClassName();
+  static std::string ClassName();
 
-  ~CtfHeaderEntry() = default;
+  ~CtfHeaderEntry() override = default;
 
   /**
    * @brief getKey
    * @return
    */
-  QString getKey() override
+  std::string getKey() override
   {
     return m_key;
   }
 
 #ifdef EbsdLib_ENABLE_HDF5
-  QString getHDFType() override
+  std::string getHDFType() override
   {
     T value = static_cast<T>(0);
-    return QH5Lite::HDFTypeForPrimitiveAsStr(value);
+    return H5Lite::HDFTypeForPrimitiveAsStr(value);
   }
 #endif
   /**
    * @brief parseValue
    * @param value
    */
-  void parseValue(QByteArray& bytes) override
+  void parseValue(std::string& bytes) override
   {
     // Simple Naieve filter to remove European style decimals that use a comma
     for(char& v : bytes)
@@ -111,8 +148,8 @@ public:
         v = '.';
       }
     }
-    QTextStream ss(&bytes);
-    ss >> m_value;
+
+    m_Value = m_Parser.parse(bytes);
   }
 
   /**
@@ -121,7 +158,7 @@ public:
    */
   void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value << std::endl;
+    out << m_key << "  " << m_Value << std::endl;
   }
 
   /**
@@ -130,7 +167,7 @@ public:
    */
   T getValue()
   {
-    return m_value;
+    return m_Value;
   }
 
   /**
@@ -139,12 +176,12 @@ public:
    */
   void setValue(T value)
   {
-    m_value = value;
+    m_Value = value;
   }
 
 protected:
-  CtfHeaderEntry(QString key)
-  : m_value(0)
+  CtfHeaderEntry(std::string key)
+  : m_Value(0)
   , m_key(std::move(key))
   {
   }
@@ -152,8 +189,10 @@ protected:
   CtfHeaderEntry() = default;
 
 private:
-  T m_value;
-  QString m_key;
+  T m_Value;
+  std::string m_key;
+
+  ParserType m_Parser;
 
 public:
   CtfHeaderEntry(const CtfHeaderEntry&) = delete;            // Copy Constructor Not Implemented
@@ -181,41 +220,41 @@ public:
 
   HEADERENTRY_NEW_SUPERCLASS(CtfStringHeaderEntry, EbsdHeaderEntry)
 
-  ~CtfStringHeaderEntry() = default;
+  ~CtfStringHeaderEntry() override = default;
 
-  QString getKey() override
+  std::string getKey() override
   {
     return m_key;
   }
 
 #ifdef EbsdLib_ENABLE_HDF5
-  QString getHDFType() override
+  std::string getHDFType() override
   {
     return "H5T_STRING";
   }
 #endif
 
-  void parseValue(QByteArray& value) override
+  void parseValue(std::string& value) override
   {
-    m_value = QString(value);
+    m_Value = std::string(value);
   }
 
   void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value.toStdString() << std::endl;
+    out << m_key << "  " << m_Value << std::endl;
   }
 
-  QString getValue()
+  std::string getValue()
   {
-    return m_value;
+    return m_Value;
   }
-  void setValue(const QString& value)
+  void setValue(const std::string& value)
   {
-    m_value = value;
+    m_Value = value;
   }
 
 protected:
-  CtfStringHeaderEntry(QString key)
+  CtfStringHeaderEntry(std::string key)
   : m_key(std::move(key))
   {
   }
@@ -223,8 +262,8 @@ protected:
   CtfStringHeaderEntry() = default;
 
 private:
-  QString m_value;
-  QString m_key;
+  std::string m_Value;
+  std::string m_key;
 
 public:
   CtfStringHeaderEntry(const CtfStringHeaderEntry&) = delete;            // Copy Constructor Not Implemented

@@ -213,9 +213,9 @@ EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<EbsdLib::Rgb> ColorUtilities::GenerateColors(int count, int saturation, int value)
+std::vector<EbsdLib::Rgb> ColorUtilities::GenerateColors(int count, int saturation, int value)
 {
-  QVector<EbsdLib::Rgb> colors(count);
+  std::vector<EbsdLib::Rgb> colors(count);
   float s = static_cast<float>(saturation) / 255.0;
   float v = static_cast<float>(value) / 255.0;
   float increment = 360.0 / count;

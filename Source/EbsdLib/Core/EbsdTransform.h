@@ -60,11 +60,11 @@ public:
   /**
    * @brief Returns the name of the class for EbsdTransform
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for EbsdTransform
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~EbsdTransform();
 

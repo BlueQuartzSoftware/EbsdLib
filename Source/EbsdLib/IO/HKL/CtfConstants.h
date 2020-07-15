@@ -35,25 +35,25 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <string>
+#include <vector>
 
-#define DECLARE_STRING_CONST(var) const QString var(#var);
+#define DECLARE_STRING_CONST(var) const std::string var(#var);
 
 namespace EbsdLib
 {
 
 namespace H5Aztec
 {
-const QString Header("Header");
-const QString Phases("Phases");
-const QString OriginalHeader("OriginalHeader");
-const QString OriginalFile("OriginalFile");
-const QString Data("Data");
+const std::string Header("Header");
+const std::string Phases("Phases");
+const std::string OriginalHeader("OriginalHeader");
+const std::string OriginalFile("OriginalFile");
+const std::string Data("Data");
 
-const QString FileVersionStr("FileVersion");
+const std::string FileVersionStr("FileVersion");
 const unsigned int FileVersion = 5;
-const QString EbsdLibVersionStr("EbsdLibVersion");
+const std::string EbsdLibVersionStr("EbsdLibVersion");
 } // namespace H5Aztec
 
 namespace Ctf
@@ -96,13 +96,13 @@ public:
   }
   virtual ~LaueGroupStrings() = default;
 
-  QString getString(LaueGroupTable i)
+  std::string getString(LaueGroupTable i)
   {
     return m_Values[static_cast<size_t>(i)];
   }
 
 private:
-  QVector<QString> m_Values;
+  std::vector<std::string> m_Values;
 };
 
 class SpaceGroupQuery
@@ -121,12 +121,12 @@ public:
   }
 };
 
-const QString FileExt("ctf");
+const std::string FileExt("ctf");
 
-const QString Manufacturer("HKL");
+const std::string Manufacturer("HKL");
 
 // These are Header related
-const QString ChannelTextFile("Channel Text File");
+const std::string ChannelTextFile("Channel Text File");
 DECLARE_STRING_CONST(Prj)
 DECLARE_STRING_CONST(Author)
 DECLARE_STRING_CONST(JobMode)
@@ -146,7 +146,7 @@ DECLARE_STRING_CONST(Device)
 DECLARE_STRING_CONST(KV)
 DECLARE_STRING_CONST(TiltAngle)
 DECLARE_STRING_CONST(TiltAxis)
-const QString NumPhases("Phases");
+const std::string NumPhases("Phases");
 
 // These are phase related
 DECLARE_STRING_CONST(LatticeConstants)
@@ -185,11 +185,11 @@ DECLARE_STRING_CONST(GrainRandomColourB)
 
 namespace CtfFile
 {
-const QString Phases("Phases");
-const QString EulerAngles("EulerAngles");
-const QString CrystalStructures("CrystalStructures");
-const QString MaterialName("MaterialName");
-const QString LatticeConstants("LatticeConstants");
-const QString BravaisLattice("BravaisLattice");
+const std::string Phases("Phases");
+const std::string EulerAngles("EulerAngles");
+const std::string CrystalStructures("CrystalStructures");
+const std::string MaterialName("MaterialName");
+const std::string LatticeConstants("LatticeConstants");
+const std::string BravaisLattice("BravaisLattice");
 } // namespace CtfFile
 } // namespace EbsdLib

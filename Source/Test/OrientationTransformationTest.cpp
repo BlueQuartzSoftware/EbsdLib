@@ -36,11 +36,11 @@
 #include <iostream>
 #include <limits>
 
-#include <QtCore/QFile>
-#include <QtCore/QString>
-#include <QtCore/QVector>
-#include <QtCore/QTextStream>
-#include <QtCore/QDebug>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
 
 #include "EbsdLib/Common/Observer.h"
 #include "EbsdLib/CoreFilters/DataContainerWriter.h"
@@ -95,10 +95,10 @@ public:
 
   EBSD_GET_NAME_OF_CLASS_DECL(OrientationTransformationTest)
 
-  QVector<QString> DataSetNames;
-  QVector<int> DataSetTypes;
+  std::vector<std::string> DataSetNames;
+  std::vector<int> DataSetTypes;
 
-  QString testTempDir()
+  std::string testTempDir()
   {
     return UnitTest::TestTempDir;
   }
@@ -109,14 +109,14 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-// QFile::remove();
+// std::fstream::remove();
 #endif
   }
 
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  AbstractFilter::Pointer InstantiateFilter(const QString& filtName)
+  AbstractFilter::Pointer InstantiateFilter(const std::string& filtName)
   {
     // Now instantiate the PhWriter Filter from the FilterManager
     FilterManager* fm = FilterManager::Instance();
@@ -124,7 +124,7 @@ public:
     if(nullptr == filterFactory.get())
     {
       std::stringstream ss;
-      ss << "The OrientationTransformTest Requires the use of the " << filtName.toStdString() << " filter. Did the plugins load?";
+      ss << "The OrientationTransformTest Requires the use of the " << filtName << " filter. Did the plugins load?";
       DREAM3D_TEST_THROW_EXCEPTION(ss.str())
     }
 
@@ -237,12 +237,12 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  QString ExecuteConvertFilter(const DataContainerArray::Pointer& dca, GenerateFunctionList::EntryType& entry, int e, const QString& outputName)
+  std::string ExecuteConvertFilter(const DataContainerArray::Pointer& dca, GenerateFunctionList::EntryType& entry, int e, const std::string& outputName)
   {
 
     QVariant var;
     bool propWasSet;
-    QString inputName;
+    std::string inputName;
 
     AbstractFilter::Pointer convFilt = InstantiateFilter("ConvertOrientations");
     DREAM3D_REQUIRE_VALID_POINTER(convFilt.get())
@@ -254,7 +254,7 @@ public:
     propWasSet = convFilt->setProperty("InputType", var);
     if(!propWasSet)
     {
-      qDebug() << "Unable to set property inputType";
+      std::cout << "Unable to set property inputType";
     }
 
     int outputType = entry[e + 1];
@@ -262,7 +262,7 @@ public:
     propWasSet = convFilt->setProperty("OutputType", var);
     if(!propWasSet)
     {
-      qDebug() << "Unable to set property OutputType";
+      std::cout << "Unable to set property OutputType";
     }
     if(e == 0)
     {
@@ -277,17 +277,17 @@ public:
     propWasSet = convFilt->setProperty("InputOrientationArrayPath", var);
     if(!propWasSet)
     {
-      qDebug() << "Unable to set property InputOrientationArrayPath";
+      std::cout << "Unable to set property InputOrientationArrayPath";
     }
 
-    QString outName = QString::number(e) + QString("_") + k_InputNames[entry[e]] + QString("2") + k_InputNames[entry[e + 1]];
+    std::string outName = EbsdStringUtils::number(e) + std::string("_") + k_InputNames[entry[e]] + std::string("2") + k_InputNames[entry[e + 1]];
     DataSetNames.push_back(outName);
     DataSetTypes.push_back(entry[e + 1]);
     var.setValue(outName);
     propWasSet = convFilt->setProperty("OutputOrientationArrayName", var);
     if(!propWasSet)
     {
-      qDebug() << "Unable to set property OutputOrientationArrayName";
+      std::cout << "Unable to set property OutputOrientationArrayName";
     }
 
     Observer obs;
@@ -360,12 +360,12 @@ public:
       DataSetTypes.clear();
 
       GenerateFunctionList::EntryType entry = entryRef;
-      // QVector<QString> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
+      // std::vector<std::string> funcNames = EulerConverter<K>::GetOrientationTypeStrings();
 
       std::stringstream ss;
       for(int e = 0; e < entry.size() - 1; e++)
       {
-        ss << k_InputNames[entry[e]].toStdString() << "2" << k_InputNames[entry[e + 1]].toStdString();
+        ss << k_InputNames[entry[e]] << "2" << k_InputNames[entry[e + 1]];
         if(e != entry.size() - 1)
         {
           ss << "\t";
@@ -394,7 +394,7 @@ public:
       GenerateEulers<K>(nSteps, attrMat);
 
       bool euCheck = false;
-      QString outputName;
+      std::string outputName;
 
       if(entry[0] == 0)
       {
@@ -430,7 +430,7 @@ public:
 
       QVariant var;
       bool propWasSet;
-      QString inputName;
+      std::string inputName;
 
       // Find Difference Map between originals and finals
       {
@@ -453,7 +453,7 @@ public:
         propWasSet = diffMapFilt->setProperty("FirstInputArrayPath", var);
         if(!propWasSet)
         {
-          qDebug() << "Unable to set property FirstInputArrayPath";
+          std::cout << "Unable to set property FirstInputArrayPath";
         }
 
         dap = DataArrayPath(DCName, AMName, outputName);
@@ -461,16 +461,16 @@ public:
         propWasSet = diffMapFilt->setProperty("SecondInputArrayPath", var);
         if(!propWasSet)
         {
-          qDebug() << "Unable to set property SecondInputArrayPath";
+          std::cout << "Unable to set property SecondInputArrayPath";
         }
 
-        QString diffMapArrayName = QString("%1 Difference").arg(k_InputNames[entry[0]]);
+        std::string diffMapArrayName = std::string("%1 Difference").arg(k_InputNames[entry[0]]);
         dap = DataArrayPath(DCName, AMName, diffMapArrayName);
         var.setValue(dap);
         propWasSet = diffMapFilt->setProperty("DifferenceMapArrayPath", var);
         if(!propWasSet)
         {
-          qDebug() << "Unable to set property DifferenceMapArrayPath";
+          std::cout << "Unable to set property DifferenceMapArrayPath";
         }
 
         //      Observer obs;
@@ -502,7 +502,7 @@ public:
             if(delta > thr)
             {
               numErrors++;
-              std::cout << "Delta Failed: " << delta << " DataArray: '" << diff->getName().toStdString() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff->getComponent(t, c) << std::endl;
+              std::cout << "Delta Failed: " << delta << " DataArray: '" << diff->getName() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff->getComponent(t, c) << std::endl;
 
               // Get the AttributeMatrix:
               dap = DataArrayPath(DCName, AMName, k_InputNames[0]);
@@ -540,15 +540,15 @@ public:
       }
 
       typename DataArray<K>::Pointer junk = DataArray<K>::CreateArray(1, "Junk", true);
-      QString typeName = junk->getTypeAsString();
+      std::string typeName = junk->getTypeAsString();
       if(m_WriteDataFiles)
       {
         DataContainerWriter::Pointer writer = DataContainerWriter::New();
 
         writer->setDataContainerArray(dca);
         writer->setWriteXdmfFile(false);
-        QString outputFile;
-        QTextStream out(&outputFile);
+        std::string outputFile;
+        std::stringstream out(outputFile);
 
         out << UnitTest::TestTempDir << "/OrientationTransformationTest_";
 
@@ -570,7 +570,7 @@ public:
 
       {
         ss.str("");
-        ss << testName << "Type: " << typeName.toStdString();
+        ss << testName << "Type: " << typeName;
         TestPassed(ss.str());
         SIMPL::unittest::CurrentMethod = "";
       }
@@ -586,7 +586,7 @@ public:
   // -----------------------------------------------------------------------------
   void StartTest()
   {
-    //  QVector<QString> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
+    //  std::vector<std::string> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
 
     GenerateFunctionList generator;
     std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(7, 2);

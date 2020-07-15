@@ -38,7 +38,7 @@
 #include <memory>
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
@@ -68,11 +68,11 @@ public:
   /**
    * @brief Returns the name of the class for ModifiedLambertProjectionArray
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for ModifiedLambertProjectionArray
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   int getClassVersion() const;
 
@@ -83,14 +83,14 @@ public:
    * @param xdmfTypeName
    * @param precision
    */
-  void getXdmfTypeAndSize(QString& xdmfTypeName, int& precision) const;
+  void getXdmfTypeAndSize(std::string& xdmfTypeName, int& precision) const;
 
   /**
    * @brief GetTypeName Returns a string representation of the type of data that is stored by this class. This
    * can be a primitive like char, float, int or the name of a class.
    * @return
    */
-  QString getTypeAsString() const;
+  std::string getTypeAsString() const;
 
   /**
    * @brief Setter property for Phase
@@ -121,7 +121,7 @@ public:
    * @param allocate
    * @return
    */
-  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, int rank, const size_t* dims, const QString& name, bool allocate = true) const;
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, int rank, const size_t* dims, const std::string& name, bool allocate = true) const;
 
   /**
    * @brief createNewArray
@@ -131,7 +131,7 @@ public:
    * @param allocate
    * @return
    */
-  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, const std::vector<size_t>& dims, const QString& name, bool allocate = true) const;
+  ModifiedLambertProjectionArray::Pointer createNewArray(size_t numElements, const std::vector<size_t>& dims, const std::string& name, bool allocate = true) const;
 
   /**
    * @brief
@@ -177,13 +177,13 @@ public:
    * @brief setName
    * @param name
    */
-  void setName(const QString& name);
+  void setName(const std::string& name);
 
   /**
    * @brief getName
    * @return
    */
-  QString getName() const;
+  std::string getName() const;
 
   /**
    * @brief Makes this class responsible for freeing the memory.
@@ -332,7 +332,7 @@ public:
    * @param i
    * @param delimiter
    */
-  void printTuple(QTextStream& out, size_t i, char delimiter = ',') const;
+  void printTuple(std::stringstream& out, size_t i, char delimiter = ',') const;
 
   /**
    * @brief printComponent
@@ -340,7 +340,7 @@ public:
    * @param i
    * @param j
    */
-  void printComponent(QTextStream& out, size_t i, int j) const;
+  void printComponent(std::stringstream& out, size_t i, int j) const;
 
 #ifdef EbsdLib_ENABLE_HDF5
   /**
@@ -348,7 +348,7 @@ public:
    * @param parentId
    * @return
    */
-  int writeH5Data(hid_t parentId, std::vector<size_t> tDims) const;
+  int writeH5Data(hid_t parentId, const std::vector<size_t> &tDims) const;
 
   /**
    * @brief readH5Data
@@ -366,14 +366,14 @@ public:
    * @param groupPath
    * @return
    */
-  int writeXdmfAttribute(QTextStream& out, int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& labelb) const;
+  int writeXdmfAttribute(std::stringstream& out, int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& labelb) const;
 
   /**
    * @brief getInfoString
    * @return Returns a formatted string that contains general infomation about
    * the instance of the object.
    */
-  QString getInfoString(EbsdLib::InfoStringFormat format) const;
+  std::string getInfoString(EbsdLib::InfoStringFormat format) const;
 
   /**
    * @brief Returns a ToolTipGenerator for creating HTML tooltip tables
@@ -389,7 +389,7 @@ private:
   int m_Phase = {};
   std::vector<ModifiedLambertProjection::Pointer> m_ModifiedLambertProjectionArray = {};
 
-  QString m_Name;
+  std::string m_Name;
   bool m_IsAllocated;
 
 public:

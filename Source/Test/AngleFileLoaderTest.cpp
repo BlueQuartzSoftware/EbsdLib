@@ -41,7 +41,7 @@
 #include <string>
 
 #include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <fstream>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/IO/AngleFileLoader.h"
@@ -56,19 +56,19 @@
 void RemoveTestFiles()
 {
 #if REMOVE_TEST_FILES
-  QFile::remove(UnitTest::AngleFileLoaderTest::OutputFile);
+  std::fstream::remove(UnitTest::AngleFileLoaderTest::OutputFile);
 #endif
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void makeTestFile(const QString delim, const QString& outputFile)
+void makeTestFile(const std::string delim, const std::string& outputFile)
 {
   int count = 1000;
   float e0, e1, e2;
 
-  FILE* f = fopen(outputFile.toLatin1().data(), "wb");
+  FILE* f = fopen(outputFile.c_str(), "wb");
 
   fprintf(f, "%d\n", count);
 
@@ -77,7 +77,7 @@ void makeTestFile(const QString delim, const QString& outputFile)
     e0 = static_cast<float>(i) * 0.1;
     e1 = static_cast<float>(i) * 0.25;
     e2 = static_cast<float>(i) * 0.58;
-    fprintf(f, "%0.6f%s%0.6f%s%0.6f\n", e0, delim.toLatin1().data(), e1, delim.toLatin1().data(), e2);
+    fprintf(f, "%0.6f%s%0.6f%s%0.6f\n", e0, delim.c_str(), e1, delim.c_str(), e2);
   }
   fclose(f);
 }

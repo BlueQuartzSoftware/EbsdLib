@@ -42,7 +42,7 @@
 #include "hdf5.h"
 
 #include <vector>
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -71,11 +71,11 @@ public:
   /**
    * @brief Returns the name of the class for H5AngImporter
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5AngImporter
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   EBSD_STATIC_NEW_SUPERCLASS(EbsdImporter, H5AngImporter)
 
@@ -87,7 +87,7 @@ public:
    * @param index The slice index for the file
    * @param angFile The absolute path to the input .ang file
    */
-  int importFile(hid_t fileId, int64_t z, const QString& angFile) override;
+  int importFile(hid_t fileId, int64_t z, const std::string& angFile) override;
 
   /**
    * @brief Writes the phase data into the HDF5 file

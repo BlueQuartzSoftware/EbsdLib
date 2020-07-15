@@ -36,10 +36,10 @@
 
 #include <cmath>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "H5Support/H5Lite.h"
-#include "H5Support/QH5Utilities.h"
+#include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/TSL/H5AngReader.h"
@@ -93,7 +93,7 @@ void H5AngVolumeReader::initPointers(size_t numElements)
   setNumberOfElements(numElements);
   size_t numBytes = numElements * sizeof(float);
   bool readAllArrays = getReadAllArrays();
-  QSet<QString> arrayNames = getArraysToRead();
+  std::set<std::string> arrayNames = getArraysToRead();
 
   H5ANGREADER_ALLOCATE_ARRAY(Phi1, float)
   H5ANGREADER_ALLOCATE_ARRAY(Phi, float)
@@ -127,45 +127,45 @@ void H5AngVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* H5AngVolumeReader::getPointerByName(const QString& featureName)
+void* H5AngVolumeReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  if(featureName == EbsdLib::Ang::Phi1)
   {
     return static_cast<void*>(m_Phi1);
   }
-  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  if(featureName == EbsdLib::Ang::Phi)
   {
     return static_cast<void*>(m_Phi);
   }
-  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  if(featureName == EbsdLib::Ang::Phi2)
   {
     return static_cast<void*>(m_Phi2);
   }
-  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  if(featureName == EbsdLib::Ang::ImageQuality)
   {
     return static_cast<void*>(m_Iq);
   }
-  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  if(featureName == EbsdLib::Ang::ConfidenceIndex)
   {
     return static_cast<void*>(m_Ci);
   }
-  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  if(featureName == EbsdLib::Ang::PhaseData)
   {
     return static_cast<void*>(m_PhaseData);
   }
-  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  if(featureName == EbsdLib::Ang::XPosition)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  if(featureName == EbsdLib::Ang::YPosition)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  if(featureName == EbsdLib::Ang::SEMSignal)
   {
     return static_cast<void*>(m_SEMSignal);
   }
-  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  if(featureName == EbsdLib::Ang::Fit)
   {
     return static_cast<void*>(m_Fit);
   }
@@ -175,45 +175,45 @@ void* H5AngVolumeReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ang::Phi1) == 0)
+  if(featureName == EbsdLib::Ang::Phi1)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Phi) == 0)
+  if(featureName == EbsdLib::Ang::Phi)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Phi2) == 0)
+  if(featureName == EbsdLib::Ang::Phi2)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::ImageQuality) == 0)
+  if(featureName == EbsdLib::Ang::ImageQuality)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::ConfidenceIndex) == 0)
+  if(featureName == EbsdLib::Ang::ConfidenceIndex)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::PhaseData) == 0)
+  if(featureName == EbsdLib::Ang::PhaseData)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ang::XPosition) == 0)
+  if(featureName == EbsdLib::Ang::XPosition)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::YPosition) == 0)
+  if(featureName == EbsdLib::Ang::YPosition)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::SEMSignal) == 0)
+  if(featureName == EbsdLib::Ang::SEMSignal)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ang::Fit) == 0)
+  if(featureName == EbsdLib::Ang::Fit)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
@@ -223,15 +223,15 @@ EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const QString& fea
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
+std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
 {
   m_Phases.clear();
 
   // Get the first valid index of a z slice
-  QString index = QString::number(getZStart());
+  std::string index = EbsdStringUtils::number(getZStart());
 
   // Open the hdf5 file and read the data
-  hid_t fileId = QH5Utilities::openFile(getFileName(), true);
+  hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
     setErrorMessage("Error: Could not open .h5ebsd file for reading.");
@@ -240,7 +240,7 @@ QVector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
   }
   herr_t err = 0;
 
-  hid_t gid = H5Gopen(fileId, index.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(fileId, index.c_str(), H5P_DEFAULT);
   H5AngReader::Pointer reader = H5AngReader::New();
   reader->setHDF5Path(index);
   err = reader->readHeader(gid);
@@ -249,12 +249,12 @@ QVector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
     setErrorMessage(reader->getErrorMessage());
     setErrorCode(reader->getErrorCode());
     err = H5Gclose(gid);
-    err = QH5Utilities::closeFile(fileId);
+    err = H5Utilities::closeFile(fileId);
     return m_Phases;
   }
   m_Phases = reader->getPhases();
   err = H5Gclose(gid);
-  err = QH5Utilities::closeFile(fileId);
+  err = H5Utilities::closeFile(fileId);
   return m_Phases;
 }
 
@@ -285,7 +285,7 @@ int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
   {
     H5AngReader::Pointer reader = H5AngReader::New();
     reader->setFileName(getFileName());
-    reader->setHDF5Path(QString::number(slice + getSliceStart()));
+    reader->setHDF5Path(EbsdStringUtils::number(slice + getSliceStart()));
     reader->setUserZDir(getStackingOrder());
     reader->setSampleTransformationAngle(getSampleTransformationAngle());
     reader->setSampleTransformationAxis(getSampleTransformationAxis());

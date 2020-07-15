@@ -43,6 +43,7 @@
 #include "CtfPhase.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 //#define PI_OVER_2f       90.0f
 //#define THREE_PI_OVER_2f 270.0f
@@ -53,8 +54,6 @@
 //
 // -----------------------------------------------------------------------------
 CtfReader::CtfReader()
-: EbsdReader()
-, m_SingleSliceRead(-1)
 {
 
   // Initialize the map of header key to header value
@@ -62,23 +61,23 @@ CtfReader::CtfReader()
   m_HeaderMap[EbsdLib::Ctf::Prj] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Prj);
   m_HeaderMap[EbsdLib::Ctf::Author] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Author);
   m_HeaderMap[EbsdLib::Ctf::JobMode] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::JobMode);
-  m_HeaderMap[EbsdLib::Ctf::XCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::XCells);
-  m_HeaderMap[EbsdLib::Ctf::YCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::YCells);
-  m_HeaderMap[EbsdLib::Ctf::ZCells] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZCells);
-  m_HeaderMap[EbsdLib::Ctf::XStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::XStep);
-  m_HeaderMap[EbsdLib::Ctf::YStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::YStep);
-  m_HeaderMap[EbsdLib::Ctf::ZStep] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZStep);
-  m_HeaderMap[EbsdLib::Ctf::AcqE1] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE1);
-  m_HeaderMap[EbsdLib::Ctf::AcqE2] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE2);
-  m_HeaderMap[EbsdLib::Ctf::AcqE3] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE3);
+  m_HeaderMap[EbsdLib::Ctf::XCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::XCells);
+  m_HeaderMap[EbsdLib::Ctf::YCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::YCells);
+  m_HeaderMap[EbsdLib::Ctf::ZCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZCells);
+  m_HeaderMap[EbsdLib::Ctf::XStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::XStep);
+  m_HeaderMap[EbsdLib::Ctf::YStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::YStep);
+  m_HeaderMap[EbsdLib::Ctf::ZStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::ZStep);
+  m_HeaderMap[EbsdLib::Ctf::AcqE1] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE1);
+  m_HeaderMap[EbsdLib::Ctf::AcqE2] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE2);
+  m_HeaderMap[EbsdLib::Ctf::AcqE3] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::AcqE3);
   m_HeaderMap[EbsdLib::Ctf::Euler] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ctf::Euler);
-  m_HeaderMap[EbsdLib::Ctf::Mag] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Mag);
-  m_HeaderMap[EbsdLib::Ctf::Coverage] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Coverage);
-  m_HeaderMap[EbsdLib::Ctf::Device] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::Device);
-  m_HeaderMap[EbsdLib::Ctf::KV] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::KV);
-  m_HeaderMap[EbsdLib::Ctf::TiltAngle] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAngle);
-  m_HeaderMap[EbsdLib::Ctf::TiltAxis] = CtfHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAxis);
-  m_HeaderMap[EbsdLib::Ctf::NumPhases] = CtfHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ctf::NumPhases);
+  m_HeaderMap[EbsdLib::Ctf::Mag] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::Mag);
+  m_HeaderMap[EbsdLib::Ctf::Coverage] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::Coverage);
+  m_HeaderMap[EbsdLib::Ctf::Device] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::Device);
+  m_HeaderMap[EbsdLib::Ctf::KV] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::KV);
+  m_HeaderMap[EbsdLib::Ctf::TiltAngle] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAngle);
+  m_HeaderMap[EbsdLib::Ctf::TiltAxis] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::TiltAxis);
+  m_HeaderMap[EbsdLib::Ctf::NumPhases] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::NumPhases);
 
   setXCells(0);
   setYCells(0);
@@ -93,10 +92,10 @@ CtfReader::~CtfReader() = default;
 //// -----------------------------------------------------------------------------
 ////
 //// -----------------------------------------------------------------------------
-// void CtfReader::setPointerByName(const QString& name, void* p)
+// void CtfReader::setPointerByName(const std::string& name, void* p)
 //{
 //  // First we need to see if the pointer already exists
-//  QMap<QString, DataParser::Pointer>::iterator iter = m_NamePointerMap.find(name);
+//  std::map<std::string, DataParser::Pointer>::iterator iter = m_NamePointerMap.find(name);
 //  if (iter == m_NamePointerMap.end())
 //  {
 //    // Data does not exist in Map
@@ -116,12 +115,12 @@ CtfReader::~CtfReader() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* CtfReader::getPointerByName(const QString& featureName)
+void* CtfReader::getPointerByName(const std::string& featureName)
 {
   void* ptr = nullptr;
-  if(m_NamePointerMap.contains(featureName))
+  if(m_NamePointerMap.find(featureName) != m_NamePointerMap.end())
   {
-    ptr = m_NamePointerMap.value(featureName)->getVoidPointer();
+    ptr = m_NamePointerMap[featureName]->getVoidPointer();
   }
   return ptr;
 }
@@ -129,70 +128,70 @@ void* CtfReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type CtfReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type CtfReader::getPointerType(const std::string& featureName)
 {
   // std::cout << "featureName: " << featureName << std::endl;
-  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  if(featureName == EbsdLib::Ctf::Phase)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  if(featureName == EbsdLib::Ctf::X)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  if(featureName == EbsdLib::Ctf::Y)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
+  if(featureName == EbsdLib::Ctf::Z)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  if(featureName == EbsdLib::Ctf::Bands)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  if(featureName == EbsdLib::Ctf::Error)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  if(featureName == EbsdLib::Ctf::Euler1)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  if(featureName == EbsdLib::Ctf::Euler2)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  if(featureName == EbsdLib::Ctf::Euler3)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  if(featureName == EbsdLib::Ctf::MAD)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  if(featureName == EbsdLib::Ctf::BC)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  if(featureName == EbsdLib::Ctf::BS)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
+  if(featureName == EbsdLib::Ctf::GrainIndex)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourR)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourG)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourB)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
@@ -203,69 +202,69 @@ EbsdLib::NumericTypes::Type CtfReader::getPointerType(const QString& featureName
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CtfReader::getTypeSize(const QString& featureName)
+int CtfReader::getTypeSize(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  if(featureName == EbsdLib::Ctf::Phase)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  if(featureName == EbsdLib::Ctf::X)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  if(featureName == EbsdLib::Ctf::Y)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
+  if(featureName == EbsdLib::Ctf::Z)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  if(featureName == EbsdLib::Ctf::Bands)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  if(featureName == EbsdLib::Ctf::Error)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  if(featureName == EbsdLib::Ctf::Euler1)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  if(featureName == EbsdLib::Ctf::Euler2)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  if(featureName == EbsdLib::Ctf::Euler3)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  if(featureName == EbsdLib::Ctf::MAD)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  if(featureName == EbsdLib::Ctf::BC)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  if(featureName == EbsdLib::Ctf::BS)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
+  if(featureName == EbsdLib::Ctf::GrainIndex)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourR)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourG)
   {
     return 4;
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourB)
   {
     return 4;
   }
@@ -275,70 +274,70 @@ int CtfReader::getTypeSize(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DataParser::Pointer CtfReader::getParser(const QString& featureName, void* ptr, size_t size)
+DataParser::Pointer CtfReader::getParser(const std::string& featureName, void* ptr, size_t size)
 {
   // These are defaulted to a "3D" CTF file with Feature IDS already determined and their colors
-  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  if(featureName == EbsdLib::Ctf::Phase)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 0);
   }
-  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  if(featureName == EbsdLib::Ctf::X)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 1);
   }
-  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  if(featureName == EbsdLib::Ctf::Y)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 2);
   }
-  if(featureName.compare(EbsdLib::Ctf::Z) == 0)
+  if(featureName == EbsdLib::Ctf::Z)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 3);
   }
-  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  if(featureName == EbsdLib::Ctf::Bands)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 4);
   }
-  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  if(featureName == EbsdLib::Ctf::Error)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 5);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  if(featureName == EbsdLib::Ctf::Euler1)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 6);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  if(featureName == EbsdLib::Ctf::Euler2)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 7);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  if(featureName == EbsdLib::Ctf::Euler3)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 8);
   }
-  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  if(featureName == EbsdLib::Ctf::MAD)
   {
     return FloatParser::New(static_cast<float*>(ptr), size, featureName, 9);
   }
-  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  if(featureName == EbsdLib::Ctf::BC)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 10);
   }
-  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  if(featureName == EbsdLib::Ctf::BS)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 11);
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainIndex) == 0)
+  if(featureName == EbsdLib::Ctf::GrainIndex)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 12);
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourR) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourR)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 13);
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourG) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourG)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 14);
   }
-  if(featureName.compare(EbsdLib::Ctf::GrainRandomColourB) == 0)
+  if(featureName == EbsdLib::Ctf::GrainRandomColourB)
   {
     return Int32Parser::New(static_cast<int32_t*>(ptr), size, featureName, 15);
   }
@@ -351,23 +350,23 @@ DataParser::Pointer CtfReader::getParser(const QString& featureName, void* ptr, 
 int CtfReader::readHeaderOnly()
 {
   int err = 1;
-  QByteArray buf;
-  QFile in(getFileName());
+  std::string buf;
+  std::ifstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
-  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.is_open())
   {
-    QString msg = QString("Ctf file could not be opened: ") + getFileName();
+    std::string msg = std::string("Ctf file could not be opened: ") + getFileName();
     setErrorCode(-100);
     setErrorMessage(msg);
     return -100;
   }
 
-  QString origHeader;
+  std::string origHeader;
   setOriginalHeader(origHeader);
   m_PhaseVector.clear();
 
   // Parse the header
-  QList<QByteArray> headerLines;
+  std::vector<std::string> headerLines;
   err = getHeaderLines(in, headerLines);
   err = parseHeaderLines(headerLines);
   return err;
@@ -381,22 +380,22 @@ int CtfReader::readFile()
   int err = 1;
   setErrorCode(0);
   setErrorMessage("");
-  QByteArray buf;
-  QFile in(getFileName());
+  std::string buf;
+  std::ifstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
-  if(!in.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!in.is_open())
   {
-    QString msg = QString("Ctf file could not be opened: ") + getFileName();
+    std::string msg = std::string("Ctf file could not be opened: ") + getFileName();
     setErrorCode(-100);
     setErrorMessage(msg);
     return -100;
   }
-  QString origHeader;
+  std::string origHeader;
   setOriginalHeader(origHeader);
   m_PhaseVector.clear();
 
   // Parse the header
-  QList<QByteArray> headerLines;
+  std::vector<std::string> headerLines;
   err = getHeaderLines(in, headerLines);
   if(err < 0)
   {
@@ -436,17 +435,17 @@ void CtfReader::readOnlySliceIndex(int slice)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CtfReader::readData(QFile& in)
+int CtfReader::readData(std::ifstream& in)
 {
-  QString sBuf;
-  QTextStream ss(&sBuf);
+  std::string sBuf;
+  std::stringstream ss(sBuf);
   // Initialize new pointers
   int32_t xCells = getXCells();
   if(xCells < 0)
   {
     setErrorCode(-110);
-    QString msg;
-    QTextStream ss(&msg);
+    std::string msg;
+    std::stringstream ss(msg);
     ss << "The number of X Cells was reported as " << xCells << ". This value must be larger than ZERO. This error can be caused by "
        << " a missing X Cells header value, an incorrect  XCells value or a value of X Cells larger than 2^31.\n";
     setErrorMessage(msg);
@@ -456,8 +455,8 @@ int CtfReader::readData(QFile& in)
   if(yCells < 0)
   {
     setErrorCode(-111);
-    QString msg;
-    QTextStream ss(&msg);
+    std::string msg;
+    std::stringstream ss(msg);
     ss << "The number of Y Cells was reported as " << yCells << ". This value must be larger than ZERO. This error can be caused by "
        << " a missing Y Cells header value, an incorrect Y Cells value or a value of Y Cells larger than 2^31.\n";
     setErrorMessage(msg);
@@ -476,23 +475,23 @@ int CtfReader::readData(QFile& in)
 
   setNumberOfElements(totalScanPoints);
 
-  QByteArray buf;
+  std::string buf;
 
   // Read the column Headers and allocate the necessary arrays
-  buf = in.readLine();
-  QString originalHeader = getOriginalHeader();
+  std::getline(in, buf);
+  std::string originalHeader = getOriginalHeader();
   originalHeader = originalHeader + buf;
   setOriginalHeader(originalHeader);
-  buf = buf.trimmed(); // Remove leading and trailing whitespace
+  buf = EbsdStringUtils::trimmed(buf); // Remove leading and trailing whitespace
 
-  QList<QByteArray> tokens = buf.split('\t'); // Tokenize the array with a tab
+  EbsdStringUtils::StringTokenType tokens = EbsdStringUtils::split(buf, '\t'); // Tokenize the array with a tab
 
   EbsdLib::NumericTypes::Type pType = EbsdLib::NumericTypes::Type::UnknownNumType;
-  qint32 size = tokens.size();
+  int32_t size = tokens.size();
   bool didAllocate = false;
-  for(qint32 i = 0; i < size; ++i)
+  for(int32_t i = 0; i < size; ++i)
   {
-    QString name = QString::fromLatin1(tokens[i]);
+    std::string name = tokens[i];
     pType = getPointerType(name);
     if(EbsdLib::NumericTypes::Type::Int32 == pType)
     {
@@ -502,7 +501,7 @@ int CtfReader::readData(QFile& in)
       if(didAllocate)
       {
         ::memset(dparser->getVoidPointer(), 0xAB, sizeof(int32_t) * totalScanPoints);
-        m_NamePointerMap.insert(name, dparser);
+        m_NamePointerMap[name] = dparser;
       }
     }
     else if(EbsdLib::NumericTypes::Type::Float == pType)
@@ -513,7 +512,7 @@ int CtfReader::readData(QFile& in)
       if(didAllocate)
       {
         ::memset(dparser->getVoidPointer(), 0xAB, sizeof(float) * totalScanPoints);
-        m_NamePointerMap.insert(name, dparser);
+        m_NamePointerMap[name] = dparser;
       }
     }
     else
@@ -527,8 +526,8 @@ int CtfReader::readData(QFile& in)
     if(!didAllocate)
     {
       setErrorCode(-106);
-      QString msg;
-      QTextStream ss(&msg);
+      std::string msg;
+      std::stringstream ss(msg);
       ss << "The CTF reader could not allocate memory for the data. Check the header for the number of X, Y and Z Cells.";
       ss << "\n X Cells: " << getXCells();
       ss << "\n Y Cells: " << getYCells();
@@ -548,14 +547,14 @@ int CtfReader::readData(QFile& in)
     {
       for(size_t col = 0; col < xCells; ++col)
       {
-        buf = in.readLine(); // Read the line into a QByteArray including the newline
-        buf = buf.trimmed(); // Remove leading and trailing whitespace
+        std::getline(in, buf);               // Read the line into a std:::string including the newline
+        buf = EbsdStringUtils::trimmed(buf); // Remove leading and trailing whitespace
 
         if((m_SingleSliceRead < 0) || (m_SingleSliceRead >= 0 && slice == m_SingleSliceRead))
         {
 
-          if(in.atEnd() && buf.isEmpty()) // We have to have read to the end of the file AND the buffer is empty
-                                          // otherwise we read EXACTLY the last line and we still need to parse the line.
+          if(in.eof() && buf.empty()) // We have to have read to the end of the file AND the buffer is empty
+                                      // otherwise we read EXACTLY the last line and we still need to parse the line.
           {
             //  ++counter; // We need to make sure this gets incremented before leaving
             break;
@@ -568,7 +567,7 @@ int CtfReader::readData(QFile& in)
           ++counter;
         }
       }
-      if(in.atEnd())
+      if(in.eof())
       {
         break;
       }
@@ -580,7 +579,7 @@ int CtfReader::readData(QFile& in)
     }
   }
 
-  if(counter != getNumberOfElements() && in.atEnd())
+  if(counter != getNumberOfElements() && in.eof())
   {
     sBuf.clear();
     ss << "Premature End Of File reached.\n" << getFileName() << "\nNumRows=" << getNumberOfElements() << "\ncounter=" << counter << "\nTotal Data Points Read=" << counter << "\n";
@@ -602,23 +601,20 @@ int CtfReader::readData(QFile& in)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
+int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
 {
   int err = 0;
-  qint32 size = headerLines.size();
-  for(qint32 i = 0; i < size; ++i)
+  int32_t size = headerLines.size();
+  for(int32_t i = 0; i < size; ++i)
   {
-    QByteArray line = headerLines[i];
-    QString sLine = line;                           // Turn the line into a QString
-                                                    //   QList<QByteArray> spcTokens = line.split(' '); // Space Delimit the line
-    QList<QByteArray> tabTokens = line.split('\t'); // Tab Delimit the line
+    std::string line = headerLines[i];
+    EbsdStringUtils::StringTokenType tabTokens = EbsdStringUtils::split(line, '\t'); // Tab Delimit the line
 
-    if(line.startsWith("Prj")) // This is a special case/bug in HKL's writing code. This line is space delimited
+    if(line.find("Prj") == 0) // This is a special case/bug in HKL's writing code. This line is space delimited
     {
-      line = line.trimmed();
-      line = line.simplified();
+      line = EbsdStringUtils::simplified(line);
 
-      QByteArray value = line.mid(4); // Get the value part of the line
+      std::string value = line.substr(4); // Get the value part of the line
       EbsdHeaderEntry::Pointer p = m_HeaderMap["Prj"];
       if(nullptr == p.get())
       {
@@ -631,9 +627,9 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
         PRINT_HTML_TABLE_ROW(p)
       }
     }
-    else if(sLine.startsWith(EbsdLib::Ctf::NumPhases))
+    else if(line.find(EbsdLib::Ctf::NumPhases) == 0)
     {
-      QByteArray key = tabTokens[0];
+      std::string key = tabTokens[0];
       EbsdHeaderEntry::Pointer p = m_HeaderMap[key];
       p->parseValue(tabTokens[1]);
       int nPhases = getNumPhases();
@@ -650,7 +646,7 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
       }
       ++i;
     }
-    else if(sLine.startsWith("Euler angles refer to Sample Coordinate system (CS0)!"))
+    else if(line.find("Euler angles refer to Sample Coordinate system (CS0)!") == 0)
     {
       // We parse out lots of stuff from this one line
       // Mag
@@ -678,7 +674,7 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
       p5->parseValue(tabTokens[12]);
       PRINT_HTML_TABLE_ROW(p5);
     }
-    else if(sLine.startsWith("Channel Text File") || sLine.startsWith(":Channel Text File"))
+    else if(line.find("Channel Text File") == 0 || line.find(":Channel Text File") == 0)
     {
       // We do not really do anything with this entry
     }
@@ -689,10 +685,10 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
       {
         std::cout << "---------------------------" << std::endl;
         std::cout << "Could not find header entry for key '" << line[0] << "'" << std::endl;
-        //        QString upper(line[0]);
+        //        std::string upper(line[0]);
         //        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
         //        std::cout << "#define ANG_" << upper << "     \"" << line[0] << "\"" << std::endl;
-        //        std::cout << "const QString " << line[0] << "(ANG_" << upper << ");" << std::endl;
+        //        std::cout << "const std::string " << line[0] << "(ANG_" << upper << ");" << std::endl;
         //        std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << line[0] << "EbsdLib::Ctf::" << line[0] << std::endl;
         //        std::cout << "m_Headermap[EbsdLib::Ctf::" << line[0] << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ctf::" << line[0] << ");" << std::endl;
       }
@@ -712,7 +708,7 @@ int CtfReader::parseHeaderLines(QList<QByteArray>& headerLines)
 // -----------------------------------------------------------------------------
 //  Read the data part of the .ctf file
 // -----------------------------------------------------------------------------
-int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t offset, size_t xCells, size_t yCells)
+int CtfReader::parseDataLine(std::string& line, size_t row, size_t col, size_t offset, size_t xCells, size_t yCells)
 {
   /* When reading the data there should be at least 11 cols of data.
    */
@@ -721,7 +717,7 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
   //  size_t offset = i;
 
   // Filter the line to convert European command style decimals to US/UK style points
-  //  QVector<char> cLine(line.size()+1);
+  //  std::vector<char> cLine(line.size()+1);
   //  ::memcpy( &(cLine.front()), line.c_str(), line.size() + 1);
   for(int c = 0; c < line.size(); ++c)
   {
@@ -731,12 +727,12 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
     }
   }
 
-  QList<QByteArray> tokens = line.split('\t');
+  EbsdStringUtils::StringTokenType tokens = EbsdStringUtils::split(line, '\t');
   if(tokens.size() != m_NamePointerMap.size())
   {
     setErrorCode(-107);
-    QString msg;
-    QTextStream ss(&msg);
+    std::string msg;
+    std::stringstream ss(msg);
     ss << "The number of tab delimited data columns (" << tokens.size() << ") does not match the number of tab delimited header columns (";
     ss << m_NamePointerMap.size() << "). Please check the CTF file for mistakes.";
     ss << "The error occurred at data row " << row << " which is " << row << " past ";
@@ -746,12 +742,10 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
     setErrorMessage(msg);
     return -106; // Could not allocate the memory
   }
-  QMapIterator<QString, DataParser::Pointer> iter(m_NamePointerMap);
-  while(iter.hasNext())
-  {
-    iter.next();
 
-    DataParser::Pointer dparser = iter.value();
+  for(const auto& iter : m_NamePointerMap)
+  {
+    DataParser::Pointer dparser = iter.second;
     dparser->parse(tokens[dparser->getColumnIndex()], offset);
   }
   return 0;
@@ -761,19 +755,19 @@ int CtfReader::parseDataLine(QByteArray& line, size_t row, size_t col, size_t of
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> CtfReader::tokenize(char* buf, char delimiter)
+std::vector<std::string> CtfReader::tokenize(char* buf, char delimiter)
 {
-  QVector<QString> output;
-  QString values(buf);
-  QString::size_type start = 0;
-  QString::size_type pos = 0;
+  std::vector<std::string> output;
+  std::string values(buf);
+  std::string::size_type start = 0;
+  std::string::size_type pos = 0;
   //  std::cout << "-----------------------------" << std::endl;
-  while(pos != QString::npos && pos != values.size() - 1)
+  while(pos != std::string::npos && pos != values.size() - 1)
   {
     pos = values.find(delimiter, start);
     output.push_back(values.substr(start, pos - start));
     //   std::cout << "Adding: " << output.back() << std::endl;
-    if (pos != QString::npos)
+    if (pos != std::string::npos)
     {
       start = pos + 1;
     }
@@ -785,36 +779,32 @@ QVector<QString> CtfReader::tokenize(char* buf, char delimiter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CtfReader::getHeaderLines(QFile& reader, QList<QByteArray>& headerLines)
+int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& headerLines)
 {
   int err = 0;
-  QByteArray buf;
-  bool ok = false;
+  std::string buf;
   int numPhases = -1;
-  while(!reader.atEnd() && !getHeaderIsComplete())
+  while(!reader.eof() && !getHeaderIsComplete())
   {
-    buf = reader.readLine();
-    // Append the line to the complete header
-    appendOriginalHeader(QString(buf));
-
-    // remove the newline at the end of the line
-    buf.chop(1);
+    std::getline(reader, buf);
+    // Append the line to the complete header. The trailing newline is already removed at this point
+    appendOriginalHeader(std::string(buf));
     headerLines.push_back(buf);
-    if(buf.startsWith("Phases"))
+    if(buf.find("Phases") != std::string::npos)
     {
-      QList<QByteArray> tokens = buf.split('\t');
-      numPhases = tokens.at(1).toInt(&ok, 10);
+      std::vector<std::string> tokens = EbsdStringUtils::split(buf, '\t');
+      numPhases = std::stoi(tokens.at(1));
       break; //
     }
   }
   // Now read the phases line
   for(int p = 0; p < numPhases; ++p)
   {
-    buf = reader.readLine();
-    appendOriginalHeader(QString(buf));
+    std::getline(reader, buf);
+    appendOriginalHeader(std::string(buf));
 
     // remove the newline at the end of the line
-    buf.chop(1);
+    buf = EbsdStringUtils::chop(buf, 1);
     headerLines.push_back(buf);
   }
   setHeaderIsComplete(true);
@@ -824,17 +814,17 @@ int CtfReader::getHeaderLines(QFile& reader, QList<QByteArray>& headerLines)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool CtfReader::isDataHeaderLine(QVector<QString>& columns)
+bool CtfReader::isDataHeaderLine(const std::vector<std::string>& columns) const
 {
   if(columns.size() != 11)
   {
     return false;
   }
-  if(columns[0].compare("Phase") != 0)
+  if(columns[0] != "Phase")
   {
     return false;
   }
-  if(columns[9].compare("BC") != 0)
+  if(columns[9] != "BC")
   {
     return false;
   }
@@ -886,12 +876,19 @@ void CtfReader::setYDimension(int ydim)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QList<QString> CtfReader::getColumnNames()
+std::vector<std::string> CtfReader::getColumnNames()
 {
-  return m_NamePointerMap.keys();
+  std::vector<std::string> keys;
+  keys.reserve(m_NamePointerMap.size());
+  for(const auto& entry : m_NamePointerMap)
+  {
+    keys.push_back(entry.first);
+  }
+
+  return keys;
 }
 
-#define CTF_PRINT_QSTRING(var, out) out << #var << ": " << get##var().toStdString() << std::endl;
+#define CTF_PRINT_QSTRING(var, out) out << #var << ": " << get##var() << std::endl;
 
 #define CTF_PRINT_HEADER_VALUE(var, out) out << #var << ": " << get##var() << std::endl;
 
@@ -933,41 +930,38 @@ void CtfReader::printHeader(std::ostream& out)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CtfReader::writeFile(const QString& filepath)
+int CtfReader::writeFile(const std::string& filepath)
 {
   int error = 0;
 
-  FILE* f = fopen(filepath.toLatin1().data(), "wb");
+  FILE* f = fopen(filepath.c_str(), "wb");
   if(nullptr == f)
   {
     return -1;
   }
 
-  QByteArray header = getOriginalHeader().toLatin1();
-  fwrite(header.data(), 1, header.count(), f);
+  std::string header = getOriginalHeader();
+  fwrite(header.c_str(), 1, header.size(), f);
   int zStart = 0;
   int zEnd = getZCells();
   int yCells = getYCells();
   int xCells = getXCells();
 
-  QList<QString> colNames = getColumnNames();
+  std::vector<std::string> colNames = getColumnNames();
 
   using ColInfoType = struct
   {
-    QString colName;
-    void* ptr;
-    int aType;
+    std::string colName = {""};
+    void* ptr = nullptr;
+    int aType = {0};
   };
 
-  std::vector<ColInfoType> colInfos(colNames.count());
+  std::vector<ColInfoType> colInfos(colNames.size());
 
-  QListIterator<QString> iter(colNames);
-  while(iter.hasNext())
+  for(const auto& name : colNames)
   {
 
     ColInfoType colInfo;
-    QString name = iter.next();
-
     colInfo.colName = name;
 
     DataParser::Pointer dparser = m_NamePointerMap[name];
@@ -996,7 +990,6 @@ int CtfReader::writeFile(const QString& filepath)
     {
       for(int col = 0; col < xCells; ++col)
       {
-
         for(size_t n = 0; n < colInfos.size(); n++)
         {
           ColInfoType& colInfo = colInfos[n];
@@ -1012,7 +1005,7 @@ int CtfReader::writeFile(const QString& filepath)
           }
           else
           {
-            Q_ASSERT_X(false, __FILE__, "DataParser type not known;");
+            EBSD_UNKNOWN_TYPE(false);
           }
         }
         counter++;
@@ -1028,13 +1021,13 @@ int CtfReader::writeFile(const QString& filepath)
 }
 
 // -----------------------------------------------------------------------------
-QString CtfReader::getNameOfClass() const
+std::string CtfReader::getNameOfClass() const
 {
-  return QString("_SUPERCtfReader");
+  return std::string("CtfReader");
 }
 
 // -----------------------------------------------------------------------------
-QString CtfReader::ClassName()
+std::string CtfReader::ClassName()
 {
-  return QString("_SUPERCtfReader");
+  return std::string("CtfReader");
 }

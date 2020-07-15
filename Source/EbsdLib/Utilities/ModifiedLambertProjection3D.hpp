@@ -61,16 +61,16 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  QString getNameOfClass() const
+  std::string getNameOfClass() const
   {
-    return QString("ModifiedLambertProjection3D<T, K>");
+    return std::string("ModifiedLambertProjection3D<T, K>");
   }
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  static QString ClassName()
+  static std::string ClassName()
   {
-    return QString("ModifiedLambertProjection3D<T, K>");
+    return std::string("ModifiedLambertProjection3D<T, K>");
   }
 
   static Pointer New()

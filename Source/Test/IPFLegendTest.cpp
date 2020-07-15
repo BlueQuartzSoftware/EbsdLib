@@ -34,7 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <fstream>
 #include <QtCore/QFileInfo>
 #include <QtGui/QImage>
 
@@ -81,7 +81,7 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void SaveImage(EbsdLib::UInt8ArrayType::Pointer rgbaImage, const QString outputFile)
+  void SaveImage(EbsdLib::UInt8ArrayType::Pointer rgbaImage, const std::string outputFile)
   {
     QRgb* rgba = reinterpret_cast<QRgb*>(rgbaImage->getPointer(0));
 
@@ -110,7 +110,7 @@ public:
     bool saved = image.save(outputFile);
     DREAM3D_REQUIRE(saved == true)
 #if REMOVE_TEST_FILES
-    bool removed = QFile::remove(outputFile);
+    bool removed = std::fstream::remove(outputFile);
     DREAM3D_REQUIRE(removed == true)
 #endif
   }
@@ -119,7 +119,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   template <class LaueOpsType>
-  void TestIPFLegend(const QString outputFile)
+  void TestIPFLegend(const std::string& outputFile)
   {
     LaueOpsType ops;
     EbsdLib::UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);

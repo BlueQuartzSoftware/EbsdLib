@@ -40,7 +40,7 @@
 #include <chrono>
 #include <random>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -70,7 +70,7 @@ public:
    * @brief This will calculate ODF data based on an array of weights that are
    * passed in and a Hexagonal Crystal Structure. This is templated on the container
    * type that holds the data. Containers that adhere to the STL Vector API
-   * should be usable. QVector falls into this category. The input data for the
+   * should be usable. std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
    * @param e1s The first euler angles
    * @param e2s The second euler angles

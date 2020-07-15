@@ -34,7 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
 /**
  * @file AngConstants.h
@@ -117,32 +117,32 @@ namespace EbsdLib
 
 namespace H5OIM
 {
-const QString EDAX("EDAX");
-const QString Manufacturer(" Manufacturer");
-const QString Version(" Version");
-const QString H5FileExt("h5");
+const std::string EDAX("EDAX");
+const std::string Manufacturer(" Manufacturer");
+const std::string Version(" Version");
+const std::string H5FileExt("h5");
 
-const QString OriginalHeader("OriginalHeader");
-const QString OriginalFile("OriginalFile");
-const QString Index("Index");
-const QString Header("Header");
-const QString Phases("Phases");
-const QString Phase("Phase");
-const QString Data("Data");
-const QString EBSD("EBSD");
-const QString SEM_PRIAS_Images("SEM-PRIAS Images");
-const QString PatternCenterCalibration("Pattern Center Calibration");
-const QString SEM("SEM");
+const std::string OriginalHeader("OriginalHeader");
+const std::string OriginalFile("OriginalFile");
+const std::string Index("Index");
+const std::string Header("Header");
+const std::string Phases("Phases");
+const std::string Phase("Phase");
+const std::string Data("Data");
+const std::string EBSD("EBSD");
+const std::string SEM_PRIAS_Images("SEM-PRIAS Images");
+const std::string PatternCenterCalibration("Pattern Center Calibration");
+const std::string SEM("SEM");
 
-const QString FileVersionStr("FileVersion");
+const std::string FileVersionStr("FileVersion");
 const unsigned int FileVersion = 5;
-const QString EbsdLibVersionStr("EbsdLibVersion");
+const std::string EbsdLibVersionStr("EbsdLibVersion");
 } // namespace H5OIM
 
 namespace Ang
 {
-const QString Manufacturer("TSL");
-const QString EDAX("EDAX");
+const std::string Manufacturer("TSL");
+const std::string EDAX("EDAX");
 
 /* These are courtesy of TSL */
 // LAUE Symmetry Identifiers
@@ -185,62 +185,62 @@ const unsigned int Triclinic = CIs;
 const unsigned int UnknownSymmetry = 999;
 } // namespace PhaseSymmetry
 
-const QString TEMPIXPerUM(ANG_TEM_PIXPERUM);
-const QString XStar(ANG_X_STAR);
-const QString YStar(ANG_Y_STAR);
-const QString ZStar(ANG_Z_STAR);
-const QString WorkingDistance(ANG_WORKINGDISTANCE);
-const QString Working_Distance(ANG_WORKING_DISTANCe);
-const QString Phase(ANG_PHASE);
-const QString PhaseName(ANG_PHASE_NAME);
-const QString MaterialName(ANG_MATERIAL_NAME);
-const QString Formula(ANG_FORMULA);
-const QString Info(ANG_INFO);
-const QString Symmetry(ANG_SYMMETRY);
-const QString LatticeConstants(ANG_LATTICE_CONSTANTS);
-const QString NumberFamilies(ANG_NUMBER_FAMILIES);
-const QString HKLFamilies(ANG_HKLFAMILIES);
-const QString HKL_Families(ANG_HKL_FAMILIES);
-const QString Categories(ANG_CATEGORIES);
-const QString Grid(ANG_GRID);
-const QString GridType(ANG_GRID_TYPE);
-const QString XStep(ANG_X_STEP);
-const QString YStep(ANG_Y_STEP);
-const QString StepX(ANG_STEP_X);
-const QString StepY(ANG_STEP_Y);
-const QString NColsOdd(ANG_NCOLS_ODD);
-const QString NColsEven(ANG_NCOLS_EVEN);
-const QString nColumns(ANG_nColumns);
-const QString NRows(ANG_NROWS);
-const QString nRows(ANG_nROWS);
-const QString Operator(ANG_Operator);
-const QString SampleID(ANG_Sample_ID);
-const QString OPERATOR(ANG_OPERATOR);
-const QString SAMPLEID(ANG_SAMPLE_ID);
-const QString SCANID(ANG_SCAN_ID);
-const QString ScanID(ANG_Scan_ID);
-const QString Phi1(ANG_PHI1);
-const QString Phi(ANG_PHI);
-const QString Phi2(ANG_PHI2);
-const QString ImageQuality(ANG_IMAGE_QUALITY);
-const QString ConfidenceIndex(ANG_CONFIDENCE_INDEX);
-const QString CI(ANG_CI);
-const QString IQ(ANG_IQ);
-const QString PhaseData(ANG_PHASE_DATA);
-const QString XPosition(ANG_X_POSITION);
-const QString YPosition(ANG_Y_POSITION);
-const QString SEMSignal(ANG_SEM_SIGNAL);
-const QString Fit(ANG_FIT);
-const QString PatternData(ANG_PATTERN_DATA);
-const QString PatternWidth(ANG_PATTERN_WIDTH);
-const QString PatternHeight(ANG_PATTERN_HEIGHT);
+const std::string TEMPIXPerUM(ANG_TEM_PIXPERUM);
+const std::string XStar(ANG_X_STAR);
+const std::string YStar(ANG_Y_STAR);
+const std::string ZStar(ANG_Z_STAR);
+const std::string WorkingDistance(ANG_WORKINGDISTANCE);
+const std::string Working_Distance(ANG_WORKING_DISTANCe);
+const std::string Phase(ANG_PHASE);
+const std::string PhaseName(ANG_PHASE_NAME);
+const std::string MaterialName(ANG_MATERIAL_NAME);
+const std::string Formula(ANG_FORMULA);
+const std::string Info(ANG_INFO);
+const std::string Symmetry(ANG_SYMMETRY);
+const std::string LatticeConstants(ANG_LATTICE_CONSTANTS);
+const std::string NumberFamilies(ANG_NUMBER_FAMILIES);
+const std::string HKLFamilies(ANG_HKLFAMILIES);
+const std::string HKL_Families(ANG_HKL_FAMILIES);
+const std::string Categories(ANG_CATEGORIES);
+const std::string Grid(ANG_GRID);
+const std::string GridType(ANG_GRID_TYPE);
+const std::string XStep(ANG_X_STEP);
+const std::string YStep(ANG_Y_STEP);
+const std::string StepX(ANG_STEP_X);
+const std::string StepY(ANG_STEP_Y);
+const std::string NColsOdd(ANG_NCOLS_ODD);
+const std::string NColsEven(ANG_NCOLS_EVEN);
+const std::string nColumns(ANG_nColumns);
+const std::string NRows(ANG_NROWS);
+const std::string nRows(ANG_nROWS);
+const std::string Operator(ANG_Operator);
+const std::string SampleID(ANG_Sample_ID);
+const std::string OPERATOR(ANG_OPERATOR);
+const std::string SAMPLEID(ANG_SAMPLE_ID);
+const std::string SCANID(ANG_SCAN_ID);
+const std::string ScanID(ANG_Scan_ID);
+const std::string Phi1(ANG_PHI1);
+const std::string Phi(ANG_PHI);
+const std::string Phi2(ANG_PHI2);
+const std::string ImageQuality(ANG_IMAGE_QUALITY);
+const std::string ConfidenceIndex(ANG_CONFIDENCE_INDEX);
+const std::string CI(ANG_CI);
+const std::string IQ(ANG_IQ);
+const std::string PhaseData(ANG_PHASE_DATA);
+const std::string XPosition(ANG_X_POSITION);
+const std::string YPosition(ANG_Y_POSITION);
+const std::string SEMSignal(ANG_SEM_SIGNAL);
+const std::string Fit(ANG_FIT);
+const std::string PatternData(ANG_PATTERN_DATA);
+const std::string PatternWidth(ANG_PATTERN_WIDTH);
+const std::string PatternHeight(ANG_PATTERN_HEIGHT);
 
-const QString SquareGrid(ANG_SQUARE_GRID);
-const QString HexGrid(ANG_HEX_GRID);
+const std::string SquareGrid(ANG_SQUARE_GRID);
+const std::string HexGrid(ANG_HEX_GRID);
 
-const QString ZStep(ANG_Z_STEP);
-const QString ZPos(ANG_Z_POS);
-const QString ZMax(ANG_Z_MAX);
+const std::string ZStep(ANG_Z_STEP);
+const std::string ZPos(ANG_Z_POS);
+const std::string ZMax(ANG_Z_MAX);
 
 } // namespace Ang
 } // namespace EbsdLib
@@ -297,60 +297,60 @@ namespace EbsdLib
 namespace Ang
 {
 // These are the Lower Case versions of the constants
-const QString FileExtLower("ang");
-const QString FileExt("ang");
-const QString TEMPIXPerUMLower(ANG_TEM_PIXPERUM_LOWER);
-const QString XStarLower(ANG_X_STAR_LOWER);
-const QString YStarLower(ANG_Y_STAR_LOWER);
-const QString ZStarLower(ANG_Z_STAR_LOWER);
-const QString WorkingDistanceLower(ANG_WORKINGDISTANCE_LOWER);
-const QString PhaseLower(ANG_PHASE_LOWER);
-const QString MaterialNameLower(ANG_MATERIAL_NAME_LOWER);
-const QString FormulaLower(ANG_FORMULA_LOWER);
-const QString InfoLower(ANG_INFO_LOWER);
-const QString SymmetryLower(ANG_SYMMETRY_LOWER);
-const QString LatticeConstantsLower(ANG_LATTICE_CONSTANTS_LOWER);
-const QString NumberFamiliesLower(ANG_NUMBER_FAMILIES_LOWER);
-const QString HKLFamiliesLower(ANG_HKL_FAMILIES_LOWER);
-const QString CategoriesLower(ANG_CATEGORIES_LOWER);
-const QString GridLower(ANG_GRID_LOWER);
-const QString XStepLower(ANG_X_STEP_LOWER);
-const QString YStepLower(ANG_Y_STEP_LOWER);
-const QString NColsOddLower(ANG_NCOLS_ODD_LOWER);
-const QString NColsEvenLower(ANG_NCOLS_EVEN_LOWER);
-//   const QString NColsLower(ANG_NCOLS_LOWER);
-const QString NRowsLower(ANG_NROWS_LOWER);
-const QString OperatorLower(ANG_OPERATOR_LOWER);
-const QString SampleIdLower(ANG_SAMPLE_ID_LOWER);
-const QString ScanIdLower(ANG_SCAN_ID_LOWER);
+const std::string FileExtLower("ang");
+const std::string FileExt("ang");
+const std::string TEMPIXPerUMLower(ANG_TEM_PIXPERUM_LOWER);
+const std::string XStarLower(ANG_X_STAR_LOWER);
+const std::string YStarLower(ANG_Y_STAR_LOWER);
+const std::string ZStarLower(ANG_Z_STAR_LOWER);
+const std::string WorkingDistanceLower(ANG_WORKINGDISTANCE_LOWER);
+const std::string PhaseLower(ANG_PHASE_LOWER);
+const std::string MaterialNameLower(ANG_MATERIAL_NAME_LOWER);
+const std::string FormulaLower(ANG_FORMULA_LOWER);
+const std::string InfoLower(ANG_INFO_LOWER);
+const std::string SymmetryLower(ANG_SYMMETRY_LOWER);
+const std::string LatticeConstantsLower(ANG_LATTICE_CONSTANTS_LOWER);
+const std::string NumberFamiliesLower(ANG_NUMBER_FAMILIES_LOWER);
+const std::string HKLFamiliesLower(ANG_HKL_FAMILIES_LOWER);
+const std::string CategoriesLower(ANG_CATEGORIES_LOWER);
+const std::string GridLower(ANG_GRID_LOWER);
+const std::string XStepLower(ANG_X_STEP_LOWER);
+const std::string YStepLower(ANG_Y_STEP_LOWER);
+const std::string NColsOddLower(ANG_NCOLS_ODD_LOWER);
+const std::string NColsEvenLower(ANG_NCOLS_EVEN_LOWER);
+//   const std::string NColsLower(ANG_NCOLS_LOWER);
+const std::string NRowsLower(ANG_NROWS_LOWER);
+const std::string OperatorLower(ANG_OPERATOR_LOWER);
+const std::string SampleIdLower(ANG_SAMPLE_ID_LOWER);
+const std::string ScanIdLower(ANG_SCAN_ID_LOWER);
 
-const QString Phi1Lower(ANG_PHI1_LOWER);
-const QString PhiLower(ANG_PHI_LOWER);
-const QString Phi2Lower(ANG_PHI2_LOWER);
-const QString ImageQualityLower(ANG_IMAGE_QUALITY_LOWER);
-const QString ConfidenceIndexLower(ANG_CONFIDENCE_INDEX_LOWER);
-const QString PhaseDataLower(ANG_PHASE_DATA_LOWER);
-const QString XPositionLower(ANG_X_POSITION_LOWER);
-const QString YPositionLower(ANG_Y_POSITION_LOWER);
-const QString SEMSignalLower(ANG_SEM_SIGNAL_LOWER);
-const QString FitLower(ANG_FIT_LOWER);
+const std::string Phi1Lower(ANG_PHI1_LOWER);
+const std::string PhiLower(ANG_PHI_LOWER);
+const std::string Phi2Lower(ANG_PHI2_LOWER);
+const std::string ImageQualityLower(ANG_IMAGE_QUALITY_LOWER);
+const std::string ConfidenceIndexLower(ANG_CONFIDENCE_INDEX_LOWER);
+const std::string PhaseDataLower(ANG_PHASE_DATA_LOWER);
+const std::string XPositionLower(ANG_X_POSITION_LOWER);
+const std::string YPositionLower(ANG_Y_POSITION_LOWER);
+const std::string SEMSignalLower(ANG_SEM_SIGNAL_LOWER);
+const std::string FitLower(ANG_FIT_LOWER);
 
-const QString LatticeConstantA("Lattice Constant a");
-const QString LatticeConstantB("Lattice Constant b");
-const QString LatticeConstantC("Lattice Constant c");
-const QString LatticeConstantAlpha("Lattice Constant alpha");
-const QString LatticeConstantBeta("Lattice Constant beta");
-const QString LatticeConstantGamma("Lattice Constant gamma");
+const std::string LatticeConstantA("Lattice Constant a");
+const std::string LatticeConstantB("Lattice Constant b");
+const std::string LatticeConstantC("Lattice Constant c");
+const std::string LatticeConstantAlpha("Lattice Constant alpha");
+const std::string LatticeConstantBeta("Lattice Constant beta");
+const std::string LatticeConstantGamma("Lattice Constant gamma");
 } // namespace Ang
 
 namespace AngFile
 {
-const QString Phases("Phases");
-const QString EulerAngles("EulerAngles");
-const QString CrystalStructures("CrystalStructures");
-const QString MaterialName("MaterialName");
-const QString LatticeConstants("LatticeConstants");
-const QString BravaisLattice("BravaisLattice");
+const std::string Phases("Phases");
+const std::string EulerAngles("EulerAngles");
+const std::string CrystalStructures("CrystalStructures");
+const std::string MaterialName("MaterialName");
+const std::string LatticeConstants("LatticeConstants");
+const std::string BravaisLattice("BravaisLattice");
 } // namespace AngFile
 } // namespace EbsdLib
 #endif

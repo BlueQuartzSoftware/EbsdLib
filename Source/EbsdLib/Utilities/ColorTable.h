@@ -39,7 +39,7 @@
 #include <vector>
 #include <tuple>
 
-#include <QtCore/QVector>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -136,9 +136,7 @@ public:
    * @param max
    * @param min
    */
-  static void GetColorTable(int numColors, QVector<float>& colors);
-
-  static std::vector<unsigned char> GetColorTable(size_t numColors, QJsonArray colorNodeArray);
+  static void GetColorTable(int numColors, std::vector<float>& colors);
 
 public:
   EbsdColorTable(const EbsdColorTable&) = delete;            // Copy Constructor Not Implemented

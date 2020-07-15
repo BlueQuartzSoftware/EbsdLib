@@ -35,8 +35,8 @@
 
 #include <cstring>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
+#include <iostream>
+#include <fstream>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
@@ -57,7 +57,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-// QFile::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
+//fs::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
 #endif
   }
 
@@ -70,7 +70,7 @@ public:
     int err1 = 0;
     H5OIMReader::Pointer reader = H5OIMReader::New();
     reader->setFileName(UnitTest::AngImportTest::EdaxOIMH5File);
-    QStringList names;
+    std::list<std::string> names;
     err = reader->readScanNames(names);
     DREAM3D_REQUIRED(err, >=, 0)
     int count = names.size();

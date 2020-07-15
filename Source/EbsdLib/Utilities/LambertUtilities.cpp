@@ -122,13 +122,13 @@ LambertUtilities::Pointer LambertUtilities::New()
 }
 
 // -----------------------------------------------------------------------------
-QString LambertUtilities::getNameOfClass() const
+std::string LambertUtilities::getNameOfClass() const
 {
-  return QString("LambertUtilities");
+  return std::string("LambertUtilities");
 }
 
 // -----------------------------------------------------------------------------
-QString LambertUtilities::ClassName()
+std::string LambertUtilities::ClassName()
 {
-  return QString("LambertUtilities");
+  return std::string("LambertUtilities");
 }

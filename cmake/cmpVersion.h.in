@@ -6,7 +6,7 @@
 #pragma once
 
 
-#include <QtCore/QString>
+#include <string>
  
 @CMP_TOP_HEADER_INCLUDE_STATMENT@
 
@@ -23,15 +23,15 @@ namespace @VERSION_GEN_NAMESPACE@
       Version& operator=(Version&&) = delete;      // Move Assignment Not Implemented
 
 
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Complete();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Major   ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Minor   ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Patch   ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Package ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString Revision ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString PackageComplete ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString BuildDate();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ QString GitHash();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Complete();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Major   ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Minor   ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Patch   ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Package ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Revision ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string PackageComplete ();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string BuildDate();
+      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string GitHash();
 
     protected:
       Version() = default;

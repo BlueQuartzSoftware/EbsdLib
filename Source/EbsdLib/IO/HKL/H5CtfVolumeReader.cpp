@@ -37,11 +37,12 @@
 
 #include <cmath>
 
-#include "H5Support/QH5Lite.h"
-#include "H5Support/QH5Utilities.h"
+#include "H5Support/H5Lite.h"
+#include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/HKL/H5CtfReader.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
@@ -78,7 +79,7 @@ void H5CtfVolumeReader::initPointers(size_t numElements)
   setNumberOfElements(numElements);
   size_t numBytes = numElements * sizeof(float);
   bool readAllArrays = getReadAllArrays();
-  QSet<QString> arrayNames = getArraysToRead();
+  std::set<std::string> arrayNames = getArraysToRead();
 
   H5CTFREADER_ALLOCATE_ARRAY(Phase, int)
   H5CTFREADER_ALLOCATE_ARRAY(X, float)
@@ -115,49 +116,49 @@ void H5CtfVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* H5CtfVolumeReader::getPointerByName(const QString& featureName)
+void* H5CtfVolumeReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  if(featureName == EbsdLib::Ctf::Phase)
   {
     return static_cast<void*>(m_Phase);
   }
-  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  if(featureName == EbsdLib::Ctf::X)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  if(featureName == EbsdLib::Ctf::Y)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  if(featureName == EbsdLib::Ctf::Bands)
   {
     return static_cast<void*>(m_Bands);
   }
-  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  if(featureName == EbsdLib::Ctf::Error)
   {
     return static_cast<void*>(m_Error);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  if(featureName == EbsdLib::Ctf::Euler1)
   {
     return static_cast<void*>(m_Euler1);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  if(featureName == EbsdLib::Ctf::Euler2)
   {
     return static_cast<void*>(m_Euler2);
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  if(featureName == EbsdLib::Ctf::Euler3)
   {
     return static_cast<void*>(m_Euler3);
   }
-  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  if(featureName == EbsdLib::Ctf::MAD)
   {
     return static_cast<void*>(m_MAD);
   }
-  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  if(featureName == EbsdLib::Ctf::BC)
   {
     return static_cast<void*>(m_BC);
   }
-  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  if(featureName == EbsdLib::Ctf::BS)
   {
     return static_cast<void*>(m_BS);
   }
@@ -167,49 +168,49 @@ void* H5CtfVolumeReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const std::string& featureName)
 {
-  if(featureName.compare(EbsdLib::Ctf::Phase) == 0)
+  if(featureName == EbsdLib::Ctf::Phase)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::X) == 0)
+  if(featureName == EbsdLib::Ctf::X)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Y) == 0)
+  if(featureName == EbsdLib::Ctf::Y)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Bands) == 0)
+  if(featureName == EbsdLib::Ctf::Bands)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::Error) == 0)
+  if(featureName == EbsdLib::Ctf::Error)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler1) == 0)
+  if(featureName == EbsdLib::Ctf::Euler1)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler2) == 0)
+  if(featureName == EbsdLib::Ctf::Euler2)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::Euler3) == 0)
+  if(featureName == EbsdLib::Ctf::Euler3)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::MAD) == 0)
+  if(featureName == EbsdLib::Ctf::MAD)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(EbsdLib::Ctf::BC) == 0)
+  if(featureName == EbsdLib::Ctf::BC)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(EbsdLib::Ctf::BS) == 0)
+  if(featureName == EbsdLib::Ctf::BS)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
@@ -219,15 +220,15 @@ EbsdLib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const QString& fea
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
+std::vector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
 {
   m_Phases.clear();
 
   // Get the first valid index of a z slice
-  QString index = QString::number(getZStart());
+  std::string index = EbsdStringUtils::number(getZStart());
 
   // Open the hdf5 file and read the data
-  hid_t fileId = QH5Utilities::openFile(getFileName(), true);
+  hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
     std::cout << "Error" << std::endl;
@@ -235,7 +236,7 @@ QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
   }
   herr_t err = 0;
 
-  hid_t gid = H5Gopen(fileId, index.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(fileId, index.c_str(), H5P_DEFAULT);
   H5CtfReader::Pointer reader = H5CtfReader::New();
   reader->setHDF5Path(index);
   err = reader->readHeader(gid);
@@ -243,12 +244,12 @@ QVector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
   {
     std::cout << "Error reading the header information from the .h5ebsd file" << std::endl;
     err = H5Gclose(gid);
-    err = QH5Utilities::closeFile(fileId);
+    err = H5Utilities::closeFile(fileId);
     return m_Phases;
   }
   m_Phases = reader->getPhases();
   err = H5Gclose(gid);
-  err = QH5Utilities::closeFile(fileId);
+  err = H5Utilities::closeFile(fileId);
   return m_Phases;
 }
 
@@ -274,11 +275,11 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
 
   err = readVolumeInfo();
 
-  for(int slice = 0; slice < zpoints; ++slice)
+  for(int64_t slice = 0; slice < zpoints; ++slice)
   {
     H5CtfReader::Pointer reader = H5CtfReader::New();
     reader->setFileName(getFileName());
-    reader->setHDF5Path(QString::number(slice + getSliceStart()));
+    reader->setHDF5Path(EbsdStringUtils::number(slice + getSliceStart()));
     reader->setUserZDir(getStackingOrder());
     reader->setSampleTransformationAngle(getSampleTransformationAngle());
     reader->setSampleTransformationAxis(getSampleTransformationAxis());
@@ -328,11 +329,11 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
     }
 
     // Copy the data from the current storage into the Storage Location
-    for(int j = 0; j < ypointsslice; j++)
+    for(int64_t j = 0; j < ypointsslice; j++)
     {
-      for(int i = 0; i < xpointsslice; i++)
+      for(int64_t i = 0; i < xpointsslice; i++)
       {
-        index = static_cast<int>((zval * xpointstemp * ypointstemp) + ((j + ystartspot) * xpointstemp) + (i + xstartspot));
+        index = static_cast<int32_t>((zval * xpointstemp * ypointstemp) + ((j + ystartspot) * xpointstemp) + (i + xstartspot));
         if(nullptr != phasePtr)
         {
           m_Phase[index] = phasePtr[readerIndex];
@@ -406,13 +407,13 @@ H5CtfVolumeReader::Pointer H5CtfVolumeReader::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString H5CtfVolumeReader::getNameOfClass() const
+std::string H5CtfVolumeReader::getNameOfClass() const
 {
-  return QString("_SUPERH5CtfVolumeReader");
+  return std::string("H5CtfVolumeReader");
 }
 
 // -----------------------------------------------------------------------------
-QString H5CtfVolumeReader::ClassName()
+std::string H5CtfVolumeReader::ClassName()
 {
-  return QString("_SUPERH5CtfVolumeReader");
+  return std::string("H5CtfVolumeReader");
 }

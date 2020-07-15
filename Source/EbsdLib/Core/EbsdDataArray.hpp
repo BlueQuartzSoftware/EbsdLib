@@ -40,8 +40,8 @@
 #include <iterator>
 #include <memory>
 
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
+#include <string>
+#include <sstream>
 
 #include <hdf5.h>
 
@@ -68,11 +68,11 @@ public:
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for AbstractMessage
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   /**
    * @brief Returns the version of this class.
@@ -105,7 +105,7 @@ public:
    * @param name The name of the EbsdDataArray
    * @param initValue The value to use when initializing each element of the array
    */
-  EbsdDataArray(size_t numTuples, const QString& name, T initValue);
+  EbsdDataArray(size_t numTuples, const std::string& name, T initValue);
   /**
    * @brief EbsdDataArray
    * @param numTuples The number of Tuples in the EbsdDataArray
@@ -115,7 +115,7 @@ public:
    *
    * For example if you have a 2D image dimensions of 80(w) x 60(h) then the "cdims" would be [80][60]
    */
-  EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue);
+  EbsdDataArray(size_t numTuples, const std::string& name, const comp_dims_type& compDims, T initValue);
 
   /**
    * @brief Protected Constructor
@@ -125,7 +125,7 @@ public:
    * @param initValue The value to use when initializing each element of the array
    * @param allocate Will all the memory be allocated at time of construction
    */
-  EbsdDataArray(size_t numTuples, const QString& name, const comp_dims_type& compDims, T initValue, bool allocate);
+  EbsdDataArray(size_t numTuples, const std::string& name, const comp_dims_type& compDims, T initValue, bool allocate);
 
   ~EbsdDataArray();
 
@@ -137,7 +137,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  static Pointer CreateArray(size_t numTuples, const QString& name, bool allocate);
+  static Pointer CreateArray(size_t numTuples, const std::string& name, bool allocate);
 
   /**
    * @brief Static constructor
@@ -148,7 +148,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  static Pointer CreateArray(size_t numTuples, int32_t rank, const size_t* dims, const QString& name, bool allocate);
+  static Pointer CreateArray(size_t numTuples, int32_t rank, const size_t* dims, const std::string& name, bool allocate);
 
   /**
    * @brief Static constructor
@@ -158,7 +158,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  static Pointer CreateArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate);
+  static Pointer CreateArray(size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool allocate);
 
   /**
    * @brief Static constructor
@@ -169,7 +169,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  static Pointer CreateArray(const comp_dims_type& tupleDims, const comp_dims_type& compDims, const QString& name, bool allocate);
+  static Pointer CreateArray(const comp_dims_type& tupleDims, const comp_dims_type& compDims, const std::string& name, bool allocate);
 
   //========================================= Instance Constructing EbsdDataArray Objects =================================
   /**
@@ -181,7 +181,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return
    */
-  Pointer createNewArray(size_t numTuples, int32_t rank, const size_t* compDims, const QString& name, bool allocate) const;
+  Pointer createNewArray(size_t numTuples, int32_t rank, const size_t* compDims, const std::string& name, bool allocate) const;
 
   /**
    * @brief createNewArray
@@ -191,16 +191,7 @@ public:
    * @param allocate Will all the memory be allocated at time of construction
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  Pointer createNewArray(size_t numTuples, const comp_dims_type& compDims, const QString& name, bool allocate) const;
-
-  /**
-   * @brief Static Method to create a EbsdDataArray from a QVector through a deep copy of the data
-   * contained in the vector. The number of components will be set to 1.
-   * @param vec The vector to copy the data from
-   * @param name The name of the array
-   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
-   */
-  static Pointer FromQVector(const QVector<T>& vec, const QString& name);
+  Pointer createNewArray(size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool allocate) const;
 
   /**
    * @brief Static Method to create a EbsdDataArray from a std::vector through a deep copy of the data
@@ -209,7 +200,16 @@ public:
    * @param name The name of the array
    * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
    */
-  static Pointer FromStdVector(const std::vector<T>& vec, const QString& name);
+  static Pointer FromQVector(const std::vector<T>& vec, const std::string& name);
+
+  /**
+   * @brief Static Method to create a EbsdDataArray from a std::vector through a deep copy of the data
+   * contained in the vector. The number of components will be set to 1.
+   * @param vec The vector to copy the data from
+   * @param name The name of the array
+   * @return Std::Shared_Ptr wrapping an instance of EbsdDataArrayTemplate<T>
+   */
+  static Pointer FromStdVector(const std::vector<T>& vec, const std::string& name);
 
   /**
    * @brief FromPointer Creates a EbsdDataArray<T> object with a <b>DEEP COPY</b> of the data
@@ -218,7 +218,7 @@ public:
    * @param name
    * @return
    */
-  static Pointer CopyFromPointer(const T* data, size_t size, const QString& name);
+  static Pointer CopyFromPointer(const T* data, size_t size, const std::string& name);
 
   /**
    * @brief WrapPointer Creates a EbsdDataArray<T> object that references the pointer. The original caller can
@@ -231,7 +231,7 @@ public:
    * @param ownsData
    * @return
    */
-  static Pointer WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const QString& name, bool ownsData);
+  static Pointer WrapPointer(T* data, size_t numTuples, const comp_dims_type& compDims, const std::string& name, bool ownsData);
 
   /**
    * @brief Use this method to move the pointer ownership from this class to another similar class, such as SIMPLib::DataArray<T>
@@ -239,7 +239,7 @@ public:
   template <typename DataArrayType>
   std::shared_ptr<DataArrayType> moveToDataArrayType()
   {
-    std::shared_ptr<DataArrayType> output = DataArrayType::WrapPointer(data(), getNumberOfTuples(), getComponentDimensions(), getName(), true);
+    std::shared_ptr<DataArrayType> output = DataArrayType::WrapPointer(data(), getNumberOfTuples(), getComponentDimensions(), getName().c_str(), true);
     releaseOwnership();
     return output;
   }
@@ -250,13 +250,13 @@ public:
    * @brief setName
    * @param name
    */
-  void setName(const QString& name);
+  void setName(const std::string& name);
 
   /**
    * @brief getName
    * @return
    */
-  QString getName() const;
+  std::string getName() const;
 
   /**
    * @brief deepCopy
@@ -278,7 +278,7 @@ public:
    * can be a primitive like char, float, int or the name of a class.
    * @return
    */
-  void getXdmfTypeAndSize(QString& xdmfTypeName, int32_t& precision) const;
+  void getXdmfTypeAndSize(std::string& xdmfTypeName, int32_t& precision) const;
 
   /**
    * @brief copyData This method copies the number of tuples specified by the
@@ -394,8 +394,8 @@ public:
 
   /**
    * @brief Returns the dimensions for the data residing at each Tuple. For example if you have a simple Scalar value
-   * at each tuple then this will return a single element QVector. If you have a 1x3 array (like EUler Angles) then
-   * this will return a 3 Element QVector.
+   * at each tuple then this will return a single element std::vector. If you have a 1x3 array (like EUler Angles) then
+   * this will return a 3 Element std::vector.
    */
   comp_dims_type getComponentDimensions() const;
 
@@ -490,7 +490,7 @@ public:
    * @param i
    * @param delimiter
    */
-  void printTuple(QTextStream& out, size_t i, char delimiter = ',') const;
+  void printTuple(std::stringstream& out, size_t i, char delimiter = ',') const;
 
   /**
    * @brief printComponent
@@ -498,7 +498,7 @@ public:
    * @param i
    * @param j
    */
-  void printComponent(QTextStream& out, size_t i, int32_t j) const;
+  void printComponent(std::stringstream& out, size_t i, int32_t j) const;
 
   /**
    * @brief Returns the HDF Type for a given primitive value.
@@ -506,13 +506,13 @@ public:
    * from
    * @return The HDF5 native type for the value
    */
-  QString getFullNameOfClass() const;
+  std::string getFullNameOfClass() const;
 
   /**
    * @brief getTypeAsString
    * @return
    */
-  QString getTypeAsString() const;
+  std::string getTypeAsString() const;
 
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
   /**
@@ -528,7 +528,7 @@ public:
    * @param volDims
    * @return
    */
-  int writeXdmfAttribute(QTextStream& out, const int64_t* volDims, const QString& hdfFileName, const QString& groupPath, const QString& label) const;
+  int writeXdmfAttribute(std::stringstream& out, const int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& label) const;
 
 #ifdef DATA_ARRAY_ENABLE_ToolTipGenerator
   /**
@@ -546,13 +546,13 @@ public:
     toolTipGen.addValue("Type", getTypeAsString());
     toolTipGen.addValue("Number of Tuples", usa.toString(static_cast<qlonglong>(getNumberOfTuples())));
 
-    QString compDimStr = "(";
+    std::string compDimStr = "(";
     for(int i = 0; i < m_CompDims.size(); i++)
     {
-      compDimStr = compDimStr + QString::number(m_CompDims[i]);
+      compDimStr = compDimStr + EbsdStringUtils::number(m_CompDims[i]);
       if(i < m_CompDims.size() - 1)
       {
-        compDimStr = compDimStr + QString(", ");
+        compDimStr = compDimStr + std::string(", ");
       }
     }
     compDimStr += ")";
@@ -569,7 +569,7 @@ public:
    * @return Returns a formatted string that contains general infomation about
    * the instance of the object.
    */
-  QString getInfoString(EbsdLib::InfoStringFormat format) const;
+  std::string getInfoString(EbsdLib::InfoStringFormat format) const;
 
   /**
    * @brief
@@ -1244,7 +1244,7 @@ protected:
   T* resizeAndExtend(size_t size);
 
 private:
-  QString m_Name = {};
+  std::string m_Name = {};
   T* m_Array = nullptr;
   size_t m_Size = 0;
   size_t m_MaxId = 0;

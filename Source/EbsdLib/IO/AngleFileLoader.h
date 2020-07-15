@@ -38,7 +38,7 @@
 #include <memory>
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
@@ -64,11 +64,11 @@ public:
   /**
    * @brief Returns the name of the class for AngleFileLoader
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for AngleFileLoader
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   ~AngleFileLoader();
 
@@ -82,13 +82,13 @@ public:
   /**
    * @brief Setter property for ErrorMessage
    */
-  void setErrorMessage(const QString& value);
+  void setErrorMessage(const std::string& value);
 
   /**
    * @brief Getter property for ErrorMessage
    * @return Value of ErrorMessage
    */
-  QString getErrorMessage() const;
+  std::string getErrorMessage() const;
 
   /**
    * @brief Setter property for ErrorCode
@@ -104,13 +104,13 @@ public:
   /**
    * @brief Setter property for InputFile
    */
-  void setInputFile(const QString& value);
+  void setInputFile(const std::string& value);
 
   /**
    * @brief Getter property for InputFile
    * @return Value of InputFile
    */
-  QString getInputFile() const;
+  std::string getInputFile() const;
 
   /**
    * @brief Setter property for FileAnglesInDegrees
@@ -148,13 +148,13 @@ public:
   /**
    * @brief Setter property for Delimiter
    */
-  void setDelimiter(const QString& value);
+  void setDelimiter(const std::string& value);
 
   /**
    * @brief Getter property for Delimiter
    * @return Value of Delimiter
    */
-  QString getDelimiter() const;
+  std::string getDelimiter() const;
 
   /**
    * @brief Setter property for IgnoreMultipleDelimiters
@@ -179,12 +179,12 @@ public:
   AngleFileLoader& operator=(AngleFileLoader&&) = delete;      // Move Assignment Not Implemented
 
 private:
-  QString m_ErrorMessage = {};
+  std::string m_ErrorMessage = {};
   int m_ErrorCode = {};
-  QString m_InputFile = {};
+  std::string m_InputFile = {};
   bool m_FileAnglesInDegrees = {};
   bool m_OutputAnglesInDegrees = {};
   uint32_t m_AngleRepresentation = {};
-  QString m_Delimiter = {};
+  std::string m_Delimiter = {};
   bool m_IgnoreMultipleDelimiters = {};
 };

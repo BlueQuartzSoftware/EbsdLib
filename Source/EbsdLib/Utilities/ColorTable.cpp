@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include <QtCore/QJsonArray>
+//#include <QtCore/QJsonArray>
 
 using namespace EbsdLib;
 // -----------------------------------------------------------------------------
@@ -54,23 +54,23 @@ EbsdColorTable::~EbsdColorTable() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
+void EbsdColorTable::GetColorTable(int numColors, std::vector<float>& colorsOut)
 {
   static const int numColorNodes = 8;
   float color[numColorNodes][3] = {
-      {0.0f, 0.0f / 255.0f, 255.0f / 255.0f},            // blue
-      {105.0f / 255.0f, 145.0f / 255.0f, 2.0f / 255.0f}, // yellow
-      {0.0f / 255.0f, 255.0f / 255.0f, 29.0f / 255.0f},  // Green
-      {180.0f / 255.0f, 255.0f / 255.0f, 0.0f / 255.0f},
-      {255.0f / 255.0f, 215.0f / 255.0f, 6.0f / 255.0f},
-      {255.0f / 255.0f, 143.0f / 255.0f, 1.0f / 255.0f},
-      {255.0f / 255.0f, 69.0f / 255.0f, 0.0f / 255.0f},
-      {255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f} // red
+      {0.0F, 0.0F / 255.0F, 255.0F / 255.0F},            // blue
+      {105.0F / 255.0F, 145.0F / 255.0F, 2.0F / 255.0F}, // yellow
+      {0.0F / 255.0F, 255.0F / 255.0F, 29.0F / 255.0F},  // Green
+      {180.0F / 255.0F, 255.0F / 255.0F, 0.0F / 255.0F},
+      {255.0F / 255.0F, 215.0F / 255.0F, 6.0F / 255.0F},
+      {255.0F / 255.0F, 143.0F / 255.0F, 1.0F / 255.0F},
+      {255.0F / 255.0F, 69.0F / 255.0F, 0.0F / 255.0F},
+      {255.0F / 255.0F, 0.0F / 255.0F, 0.0F / 255.0F} // red
   };
 
   static const int maxNodeIndex = numColorNodes - 1;
-  const float stepSize = 1.0f / numColors;
-  const float nodeStepSize = 1.0f / (maxNodeIndex);
+  const float stepSize = 1.0F / numColors;
+  const float nodeStepSize = 1.0F / (maxNodeIndex);
   for(int i = 0; i < numColors; i++)
   {
     float pos = i * stepSize; // [0, 1] range
@@ -84,9 +84,9 @@ void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
     // currColorBin + 1 causes this to step out of color[] bounds when currColorBin == (numColorNodes - 1)
     if(i < numColors - 1)
     {
-      r = color[currColorBin][0] * (1.0f - currFraction) + color[currColorBin + 1][0] * currFraction;
-      g = color[currColorBin][1] * (1.0f - currFraction) + color[currColorBin + 1][1] * currFraction;
-      b = color[currColorBin][2] * (1.0f - currFraction) + color[currColorBin + 1][2] * currFraction;
+      r = color[currColorBin][0] * (1.0F - currFraction) + color[currColorBin + 1][0] * currFraction;
+      g = color[currColorBin][1] * (1.0F - currFraction) + color[currColorBin + 1][1] * currFraction;
+      b = color[currColorBin][2] * (1.0F - currFraction) + color[currColorBin + 1][2] * currFraction;
     }
     else
     {
@@ -98,91 +98,4 @@ void EbsdColorTable::GetColorTable(int numColors, QVector<float>& colorsOut)
     colorsOut[3 * i + 1] = g;
     colorsOut[3 * i + 2] = b;
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-std::vector<unsigned char> EbsdColorTable::GetColorTable(size_t numColors, QJsonArray colorControlPoints)
-{
-  const size_t controlColorsCount = colorControlPoints.count() / 4;
-  const size_t numComponents = 4;
-  std::vector<std::vector<double>> controlPoints(controlColorsCount, std::vector<double>(numComponents));
-
-  // Migrate colorControlPoints values from QJsonArray to 2D array.  Store A-values in binPoints vector.
-  std::vector<float> binPoints;
-  for(size_t i = 0; i < controlColorsCount; i++)
-  {
-    for(size_t j = 0; j < numComponents; j++)
-    {
-      controlPoints[i][j] = static_cast<float>(colorControlPoints[numComponents * i + j].toDouble());
-      if(j == 0)
-      {
-        binPoints.push_back(controlPoints[i][j]);
-      }
-    }
-  }
-
-  // Normalize binPoints values
-  const float min = binPoints[0];
-  const float max = binPoints[binPoints.size() - 1];
-  for(size_t i = 0; i < binPoints.size(); i++)
-  {
-    binPoints[i] = (binPoints[i] - min) / (max - min);
-  }
-
-  std::vector<unsigned char> generatedColors(numColors * 3);
-  size_t currentBinIndex = 0;
-  const float colorStepSize = 1.0f / numColors;
-  for(size_t i = 0; i < numColors; i++)
-  {
-    // Calculate what point we are at in the entire color range
-    const float allColorVal = static_cast<float>(i) * colorStepSize;
-
-    // If we have crossed into the next color bin, increment the currentBinIndex variable.
-    if(currentBinIndex + 1 < binPoints.size() && allColorVal > binPoints[currentBinIndex + 1])
-    {
-      // We have crossed into the next bin
-      currentBinIndex++;
-    }
-
-    // Find the fractional distance traveled between the beginning and end of the current color bin
-    float currFraction = 0.0f;
-    if(currentBinIndex + 1 < binPoints.size())
-    {
-      currFraction = (allColorVal - binPoints[currentBinIndex]) / (binPoints[currentBinIndex + 1] - binPoints[currentBinIndex]);
-    }
-    else
-    {
-      currFraction = (allColorVal - binPoints[currentBinIndex]) / (1 - binPoints[currentBinIndex]);
-    }
-
-    // If the current color bin index is larger than the total number of control colors, automatically set the currentBinIndex
-    // to the last control color.
-    currentBinIndex = std::min(currentBinIndex, controlColorsCount - 1);
-
-    // Calculate the RGB values
-    unsigned char r = 0;
-    unsigned char g = 0;
-    unsigned char b = 0;
-    if(currentBinIndex < controlColorsCount - 1)
-    {
-      r = (controlPoints[currentBinIndex][1] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][1] * currFraction) * 255;
-      g = (controlPoints[currentBinIndex][2] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][2] * currFraction) * 255;
-      b = (controlPoints[currentBinIndex][3] * (1.0 - currFraction) + controlPoints[currentBinIndex + 1][3] * currFraction) * 255;
-    }
-    else
-    {
-      r = controlPoints[currentBinIndex][1] * 255;
-      g = controlPoints[currentBinIndex][2] * 255;
-      b = controlPoints[currentBinIndex][3] * 255;
-    }
-
-    // Store the RGB values in the RGB generatedColors vector
-    generatedColors[3 * i] = r;
-    generatedColors[3 * i + 1] = g;
-    generatedColors[3 * i + 2] = b;
-  }
-
-  return generatedColors;
 }

@@ -32,6 +32,7 @@
 #include "SO3Sampler.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Math/ArrayHelpers.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -470,13 +471,13 @@ SO3Sampler::Pointer SO3Sampler::New()
 }
 
 // -----------------------------------------------------------------------------
-QString SO3Sampler::getNameOfClass() const
+std::string SO3Sampler::getNameOfClass() const
 {
-  return QString("SO3Sampler");
+  return std::string("SO3Sampler");
 }
 
 // -----------------------------------------------------------------------------
-QString SO3Sampler::ClassName()
+std::string SO3Sampler::ClassName()
 {
-  return QString("SO3Sampler");
+  return std::string("SO3Sampler");
 }

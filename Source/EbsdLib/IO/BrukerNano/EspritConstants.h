@@ -31,84 +31,84 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
 namespace EbsdLib
 {
 namespace Esprit
 {
-const QString EulerAngles("EulerAngles");
-const QString CrystalStructures("CrystalStructures");
-const QString MaterialName("MaterialName");
-const QString LatticeConstants("LatticeConstants");
-const QString BravaisLattice("BravaisLattice");
-//   const QString PatternData("PatternData");
+const std::string EulerAngles("EulerAngles");
+const std::string CrystalStructures("CrystalStructures");
+const std::string MaterialName("MaterialName");
+const std::string LatticeConstants("LatticeConstants");
+const std::string BravaisLattice("BravaisLattice");
+//   const std::string PatternData("PatternData");
 } // namespace Esprit
 namespace H5Esprit
 {
-const QString BrukerNano("Bruker Nano");
-const QString Manufacturer("Manufacturer");
-const QString Version("Version");
-const QString H5FileExt("h5");
-const QString Isometric("isometric");
-const QString EBSD("EBSD");
-const QString Header("Header");
-const QString Phases("Phases");
-const QString Data("Data");
+const std::string BrukerNano("Bruker Nano");
+const std::string Manufacturer("Manufacturer");
+const std::string Version("Version");
+const std::string H5FileExt("h5");
+const std::string Isometric("isometric");
+const std::string EBSD("EBSD");
+const std::string Header("Header");
+const std::string Phases("Phases");
+const std::string Data("Data");
 
 // Header Section for EBSD Data
-const QString CameraTilt("CameraTilt");
-const QString GridType("Grid Type");
-const QString KV("KV");
-const QString MADMax("MADMax");
-const QString Magnification("Magnification");
-const QString MapStepFactor("MapStepFactor");
-const QString MaxRadonBandCount("MaxRadonBandCount");
-const QString MinIndexedBands("MinIndexedBands");
-const QString NCOLS("NCOLS");
-const QString NPoints("NPoints");
-const QString NROWS("NROWS");
-const QString OriginalFile("OriginalFile");
-const QString PatternHeight("PatternHeight");
-const QString PatternWidth("PatternWidth");
-const QString PixelByteCount("PixelByteCount");
-const QString SEMImage("SEM Image"); // <=== Actual SEM Image is stored here.
-const QString SEPixelSizeX("SEPixelSizeX");
-const QString SEPixelSizeY("SEPixelSizeY");
-const QString SampleTilt("SampleTilt");
-const QString TopClip("TopClip");
-const QString UnClippedPatternHeight("UnClippedPatternHeight");
-const QString WD("WD");
-const QString XSTEP("XSTEP");
-const QString YSTEP("YSTEP");
-const QString ZOffset("ZOffset");
+const std::string CameraTilt("CameraTilt");
+const std::string GridType("Grid Type");
+const std::string KV("KV");
+const std::string MADMax("MADMax");
+const std::string Magnification("Magnification");
+const std::string MapStepFactor("MapStepFactor");
+const std::string MaxRadonBandCount("MaxRadonBandCount");
+const std::string MinIndexedBands("MinIndexedBands");
+const std::string NCOLS("NCOLS");
+const std::string NPoints("NPoints");
+const std::string NROWS("NROWS");
+const std::string OriginalFile("OriginalFile");
+const std::string PatternHeight("PatternHeight");
+const std::string PatternWidth("PatternWidth");
+const std::string PixelByteCount("PixelByteCount");
+const std::string SEMImage("SEM Image"); // <=== Actual SEM Image is stored here.
+const std::string SEPixelSizeX("SEPixelSizeX");
+const std::string SEPixelSizeY("SEPixelSizeY");
+const std::string SampleTilt("SampleTilt");
+const std::string TopClip("TopClip");
+const std::string UnClippedPatternHeight("UnClippedPatternHeight");
+const std::string WD("WD");
+const std::string XSTEP("XSTEP");
+const std::string YSTEP("YSTEP");
+const std::string ZOffset("ZOffset");
 
 // Phases section of EBSD/Header
-const QString Formula("Formula");
-const QString IT("IT");
-const QString LatticeConstants("LatticeConstants");
-const QString Name("Name");
-const QString Setting("Setting");
-const QString SpaceGroup("SpaceGroup");
+const std::string Formula("Formula");
+const std::string IT("IT");
+const std::string LatticeConstants("LatticeConstants");
+const std::string Name("Name");
+const std::string Setting("Setting");
+const std::string SpaceGroup("SpaceGroup");
 
 // Data Section for EBSD Data
-// const QString DD("DD");
-const QString MAD("MAD");
-// const QString MADPhase("MADPhase");
-const QString NIndexedBands("NIndexedBands");
-// const QString PCX("PCX");
-// const QString PCY("PCY");
-const QString PHI("PHI");
-const QString Phase("Phase");
-const QString RadonBandCount("RadonBandCount");
-const QString RadonQuality("RadonQuality");
-const QString RawPatterns("RawPatterns");
-const QString XBEAM("X BEAM");
-const QString YBEAM("Y BEAM");
-// const QString XSAMPLE("X SAMPLE");
-// const QString YSAMPLE("Y SAMPLE");
-const QString phi1("phi1");
-const QString phi2("phi2");
+// const std::string DD("DD");
+const std::string MAD("MAD");
+// const std::string MADPhase("MADPhase");
+const std::string NIndexedBands("NIndexedBands");
+// const std::string PCX("PCX");
+// const std::string PCY("PCY");
+const std::string PHI("PHI");
+const std::string Phase("Phase");
+const std::string RadonBandCount("RadonBandCount");
+const std::string RadonQuality("RadonQuality");
+const std::string RawPatterns("RawPatterns");
+const std::string XBEAM("X BEAM");
+const std::string YBEAM("Y BEAM");
+// const std::string XSAMPLE("X SAMPLE");
+// const std::string YSAMPLE("Y SAMPLE");
+const std::string phi1("phi1");
+const std::string phi2("phi2");
 
 using DD_t = float;
 using MAD_t = float;
@@ -128,19 +128,19 @@ using YSAMPLE_t = float;
 using phi1_t = float;
 using phi2_t = float;
 
-const QString SEM("SEM");
+const std::string SEM("SEM");
 // Header Section for SEM Data
-const QString SEM_IX("SEM IX");
-const QString SEM_IY("SEM IY");
-const QString SEM_Image("SEM Image");
-const QString SEM_ImageHeight("SEM ImageHeight");
-const QString SEM_ImageWidth("SEM ImageWidth");
-const QString SEM_KV("SEM KV");
-const QString SEM_Magnification("SEM Magnification");
-const QString SEM_WD("SEM WD");
-const QString SEM_XResolution("SEM XResolution");
-const QString SEM_YResolution("SEM YResolution");
-const QString SEM_ZOffset("SEM ZOffset");
+const std::string SEM_IX("SEM IX");
+const std::string SEM_IY("SEM IY");
+const std::string SEM_Image("SEM Image");
+const std::string SEM_ImageHeight("SEM ImageHeight");
+const std::string SEM_ImageWidth("SEM ImageWidth");
+const std::string SEM_KV("SEM KV");
+const std::string SEM_Magnification("SEM Magnification");
+const std::string SEM_WD("SEM WD");
+const std::string SEM_XResolution("SEM XResolution");
+const std::string SEM_YResolution("SEM YResolution");
+const std::string SEM_ZOffset("SEM ZOffset");
 
 } // namespace H5Esprit
 } // namespace EbsdLib

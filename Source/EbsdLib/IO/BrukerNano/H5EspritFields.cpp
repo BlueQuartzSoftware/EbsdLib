@@ -47,9 +47,9 @@ H5EspritFields::~H5EspritFields() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> H5EspritFields::getFieldNames()
+std::vector<std::string> H5EspritFields::getFieldNames()
 {
-  QVector<QString> features;
+  std::vector<std::string> features;
   // features.push_back(EbsdLib::H5Esprit::DD);
   features.push_back(EbsdLib::H5Esprit::MAD);
   // features.push_back(EbsdLib::H5Esprit::MADPhase);
@@ -71,13 +71,13 @@ QVector<QString> H5EspritFields::getFieldNames()
 }
 
 // -----------------------------------------------------------------------------
-QString H5EspritFields::getNameOfClass() const
+std::string H5EspritFields::getNameOfClass() const
 {
-  return QString("_SUPERH5EspritFields");
+  return std::string("H5EspritFields");
 }
 
 // -----------------------------------------------------------------------------
-QString H5EspritFields::ClassName()
+std::string H5EspritFields::ClassName()
 {
-  return QString("_SUPERH5EspritFields");
+  return std::string("H5EspritFields");
 }

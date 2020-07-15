@@ -40,8 +40,6 @@
 
 #pragma once
 
-#include <QtCore/QDateTime>
-
 #include "EbsdLib/EbsdLib.h"
 
 #define MERSENNNE_TWISTER_N 624

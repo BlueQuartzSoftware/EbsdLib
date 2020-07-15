@@ -50,7 +50,7 @@ EspritPhase::~EspritPhase() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString EspritPhase::getMaterialName()
+std::string EspritPhase::getMaterialName()
 {
   return m_Name;
 }
@@ -119,36 +119,36 @@ unsigned int EspritPhase::determineLaueGroup()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EspritPhase::parseFormula(QList<QByteArray>& tokens)
+void EspritPhase::parseFormula(std::vector<std::string>& tokens)
 {
   m_Formula.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_Formula.append(tokens.at(i)).append(" ");
+    m_Formula += token + " ";
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EspritPhase::parseName(QList<QByteArray>& tokens)
+void EspritPhase::parseName(std::vector<std::string>& tokens)
 {
   m_Name.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_Name.append(tokens.at(i)).append(" ");
+    m_Name += token + " ";
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EspritPhase::parseSpaceGroup(QList<QByteArray>& tokens)
+void EspritPhase::parseSpaceGroup(std::vector<std::string>& tokens)
 {
   m_SpaceGroup.clear();
-  for(int i = 1; i < tokens.size(); ++i)
+  for(const auto& token : tokens)
   {
-    m_SpaceGroup.append(tokens.at(i)).append(" ");
+    m_SpaceGroup += token + " ";
   }
 }
 
@@ -159,49 +159,49 @@ EspritPhase::Pointer EspritPhase::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-void EspritPhase::setFormula(const QString& value)
+void EspritPhase::setFormula(const std::string& value)
 {
   m_Formula = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EspritPhase::getFormula() const
+std::string EspritPhase::getFormula() const
 {
   return m_Formula;
 }
 
 // -----------------------------------------------------------------------------
-void EspritPhase::setName(const QString& value)
+void EspritPhase::setName(const std::string& value)
 {
   m_Name = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EspritPhase::getName() const
+std::string EspritPhase::getName() const
 {
   return m_Name;
 }
 
 // -----------------------------------------------------------------------------
-void EspritPhase::setSpaceGroup(const QString& value)
+void EspritPhase::setSpaceGroup(const std::string& value)
 {
   m_SpaceGroup = value;
 }
 
 // -----------------------------------------------------------------------------
-QString EspritPhase::getSpaceGroup() const
+std::string EspritPhase::getSpaceGroup() const
 {
   return m_SpaceGroup;
 }
 
 // -----------------------------------------------------------------------------
-QString EspritPhase::getNameOfClass() const
+std::string EspritPhase::getNameOfClass() const
 {
-  return QString("EspritPhase");
+  return std::string("EspritPhase");
 }
 
 // -----------------------------------------------------------------------------
-QString EspritPhase::ClassName()
+std::string EspritPhase::ClassName()
 {
-  return QString("EspritPhase");
+  return std::string("EspritPhase");
 }

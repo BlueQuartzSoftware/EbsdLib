@@ -39,7 +39,7 @@
 #include <iostream>
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -63,9 +63,9 @@
     Pointer sharedPtr(new(Self));                                                                                                                                                                      \
     return sharedPtr;                                                                                                                                                                                  \
   }                                                                                                                                                                                                    \
-  QString getNameOfClass() const override                                                                                                                                                              \
+  std::string getNameOfClass() const override                                                                                                                                                              \
   {                                                                                                                                                                                                    \
-    return QString(#name);                                                                                                                                                                             \
+    return std::string(#name);                                                                                                                                                                             \
   }
 
 /**
@@ -82,9 +82,9 @@ public:
 
   virtual ~OrientationConverter() = default;
 
-  virtual QString getNameOfClass() const
+  virtual std::string getNameOfClass() const
   {
-    return QString("OrientationConverter<DataArrayType,T>");
+    return std::string("OrientationConverter<DataArrayType,T>");
   }
 
   /**

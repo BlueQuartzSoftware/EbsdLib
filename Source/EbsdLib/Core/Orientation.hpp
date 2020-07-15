@@ -149,6 +149,21 @@ public:
     m_Array[3] = val3;
   }
 
+  Orientation(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8)
+  : m_Size(9)
+  {
+    allocate();
+    m_Array[0] = val0;
+    m_Array[1] = val1;
+    m_Array[2] = val2;
+    m_Array[3] = val3;
+    m_Array[4] = val4;
+    m_Array[5] = val5;
+    m_Array[6] = val6;
+    m_Array[7] = val7;
+    m_Array[8] = val8;
+  }
+
   /**
    * @brief Orientation Copy constructor
    * @param quat

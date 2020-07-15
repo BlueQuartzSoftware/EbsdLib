@@ -144,9 +144,7 @@
 #define _MATH_DEFINES_DEFINED
 #endif
 
-namespace EbsdLib
-{
-namespace Constants
+namespace EbsdLib::Constants
 {
 static const float k_Pif = static_cast<float>(M_PI);
 static const double k_Pi = M_PI;
@@ -171,7 +169,9 @@ static const double k_1OverRoot2 = 1.0 / sqrt(2.0);
 static const double k_1OverRoot3 = 1.0 / sqrt(3.0);
 static const double k_Root3Over2 = sqrt(3.0) / 2.0;
 static const double k_DegToRad = M_PI / 180.0;
+static const float k_DegToRadF = static_cast<float>(M_PI / 180.0F);
 static const double k_RadToDeg = 180.0 / M_PI;
+static const float k_RadToDegF = static_cast<float>(180.0F / M_PI);
 static const double k_1Point3 = 1.0 + 1.0 / 3.0;
 static const double k_1Over3 = 1.0 / 3.0;
 
@@ -183,8 +183,7 @@ static const double k_Cos_OneEigthPi = cos(k_PiOver8);
 static const double k_Cos_ThreeEightPi = cos(3.0 * k_PiOver8);
 static const double k_Sin_ThreeEightPi = sin(3.0 * k_PiOver8);
 
-} // namespace Constants
-} // namespace EbsdLib
+} // namespace EbsdLib::Constants
 
 class EbsdLibMath
 {

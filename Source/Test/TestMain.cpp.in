@@ -10,10 +10,6 @@ generated file. Edit the original file
 #endif
 
 
-//#include <QtCore/QCoreApplication>
-@QT_APPLICATION_CLASS_HEADER@
-
-
 #include "EbsdLib/EbsdLib.h"
 
 
@@ -28,21 +24,6 @@ generated file. Edit the original file
 int main(int argc, char** argv)
 {
   int err = EXIT_SUCCESS;
-
-  // Instantiate the @QT_APPLICATION_CLASS@ that we need to get the current path and load plugins.
-  @QT_APPLICATION_CLASS@ app(argc, argv);
-  @QT_APPLICATION_CLASS@::setOrganizationName("Your Company");
-  @QT_APPLICATION_CLASS@::setOrganizationDomain("Your Domain");
-  @QT_APPLICATION_CLASS@::setApplicationName("@PluginName@");
-
-#ifdef EBSD_Group_FILTERS
-  // Register all the filters including trying to load those from Plugins
-  FilterManager* fm = FilterManager::Instance();
-  EbsdLibPluginLoader::LoadPluginFilters(fm);
-
-  // Register the special objects with the QMetaObject system
-  QMetaObjectUtilities::RegisterMetaTypes();
-#endif
 
   /* ======================================
   * Start the testing section

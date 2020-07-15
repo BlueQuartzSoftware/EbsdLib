@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <QtCore/QVector>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -75,7 +75,7 @@ public:
    * @param value      Range between 0-255
    * @return
    */
-  static QVector<EbsdLib::Rgb> GenerateColors(int count, int saturation = 255, int value = 255);
+  static std::vector<EbsdLib::Rgb> GenerateColors(int count, int saturation = 255, int value = 255);
 
 protected:
   ColorUtilities();

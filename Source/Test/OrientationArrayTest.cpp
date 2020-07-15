@@ -16,7 +16,7 @@
 #include <Eigen/Eigen>
 #include <Eigen/Geometry>
 
-#include <QtCore/QVector>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -47,9 +47,9 @@ public:
 
   using FOrientArrayType = Orientation<float>;
   using FloatVectorType = std::vector<float>;
-  using FloatQVectorType = QVector<float>;
+  using FloatQVectorType = std::vector<float>;
   using DoubleVectorType = std::vector<double>;
-  using DoubleQVectorType = QVector<double>;
+  using DoubleQVectorType = std::vector<double>;
 
   EBSD_GET_NAME_OF_CLASS_DECL(OrientationArrayTest)
 
@@ -131,7 +131,8 @@ public:
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+      using FloatQVectorType = std::vector<float>;
       OrientationTransformation::ResultType result;
       FloatQVectorType eu_q(3);
       eu_q[0] = 1.0F;
@@ -185,13 +186,13 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
       OrientationTransformation::ResultType result;
-      FloatQVectorType ro(4);
-      ro[0] = 1.0F;
-      ro[1] = 1.0F;
-      ro[2] = 1.0F;
-      ro[3] = 1.0F;
+      TestType ro(4);
+      ro[0] = 1.0f;
+      ro[1] = 1.0f;
+      ro[2] = 1.0f;
+      ro[3] = 1.0f;
       EbsdMatrixMath::Normalize3x1(&(ro[0]));
       result = OrientationTransformation::ro_check<TestType>(ro);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
@@ -236,9 +237,10 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+
       OrientationTransformation::ResultType result;
-      FloatQVectorType ho(3);
+      TestType ho(3);
       ho[0] = 0.5f;
       ho[1] = 0.5f;
       ho[2] = 0.5f;
@@ -284,7 +286,8 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+
       OrientationTransformation::ResultType result;
       FloatQVectorType v(3);
       v[0] = 0.5f;
@@ -353,9 +356,10 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+
       OrientationTransformation::ResultType result;
-      FloatQVectorType qu(4);
+      TestType qu(4);
       qu[0] = quat.x();
       qu[1] = quat.y();
       qu[2] = quat.z();
@@ -422,13 +426,14 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+
       OrientationTransformation::ResultType result;
-      FloatQVectorType ax(4);
-      ax[0] = 0.0F;
-      ax[1] = 0.0F;
-      ax[2] = 1.0F;
-      ax[3] = EbsdLib::Constants::k_Pif - 0.00001F;
+      TestType ax(4);
+      ax[0] = 0.0f;
+      ax[1] = 0.0f;
+      ax[2] = 1.0f;
+      ax[3] = EbsdLib::Constants::k_Pi - 0.00001f;
       result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -500,18 +505,19 @@ public:
     }
 
     {
-      using TestType = QVector<float>;
+      using TestType = std::vector<float>;
+
       OrientationTransformation::ResultType result;
-      FloatQVectorType ax(9);
-      ax[0] = 1.0F;
-      ax[1] = 0.0F;
-      ax[2] = 0.0F;
-      ax[3] = 0.0F;
-      ax[4] = 1.0F;
-      ax[5] = 0.0F;
-      ax[6] = 0.0F;
-      ax[7] = 0.0F;
-      ax[8] = 1.0F;
+      TestType ax(9);
+      ax[0] = 1.0f;
+      ax[1] = 0.0f;
+      ax[2] = 0.0f;
+      ax[3] = 0.0f;
+      ax[4] = 1.0f;
+      ax[5] = 0.0f;
+      ax[6] = 0.0f;
+      ax[7] = 0.0f;
+      ax[8] = 1.0f;
       result = OrientationTransformation::om_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -546,11 +552,11 @@ public:
   void Test_GenRot()
   {
 
-    float eu[3] = {1.0F, 0.0F, 0.0F};
+    std::array<float, 3> eu = {1.0f, 0.0f, 0.0f};
     float omega = EbsdLib::Constants::k_PiOver2;
-    GenRotTest<FOrientArrayType, float>(eu, omega);
-    GenRotTest<FloatVectorType, float>(eu, omega);
-    GenRotTest<FloatQVectorType, float>(eu, omega);
+    GenRotTest<FOrientArrayType, float>(eu.data(), omega);
+    GenRotTest<FloatVectorType, float>(eu.data(), omega);
+    GenRotTest<FloatQVectorType, float>(eu.data(), omega);
   }
 
   // -----------------------------------------------------------------------------
@@ -590,7 +596,7 @@ public:
 
     T ro(4);
     ro = OrientationTransformation::eu2ro<T, T>(eu);
-    OrientationPrinters::Print_RO<T, FloatType>(ro);
+    OrientationPrinters::Print_RO<T>(ro);
     result = OrientationTransformation::ro_check<TestType>(ro);
     if(result.result <= 0)
     {
@@ -599,7 +605,7 @@ public:
 
     T ho(3);
     ho = OrientationTransformation::eu2ho<T, T>(eu);
-    OrientationPrinters::Print_HO<T, FloatType>(ho);
+    OrientationPrinters::Print_HO<T>(ho);
     result = OrientationTransformation::ho_check<TestType>(ho);
     if(result.result <= 0)
     {
@@ -666,7 +672,7 @@ ax2eu  eu2ax                                                     FAILED
   {
     using OrientType = Orientation<K>;
     using VectorType = std::vector<K>;
-    using QVectorType = QVector<K>;
+    using QVectorType = std::vector<K>;
     {
       K eu[3] = {static_cast<K>(0.3926990816987242L), static_cast<K>(0.0L), static_cast<K>(0.0L)};
       OrientationPrinters::Print_EU<K*>(eu);
@@ -695,7 +701,7 @@ ax2eu  eu2ax                                                     FAILED
 
     // Convert to Rodriques
     res = OrientationTransformation::om2ro<T, T>(om);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     Quaternion<K> quat = OrientationTransformation::om2qu<T, Quaternion<K>>(om);
@@ -786,8 +792,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   void Test_ro2_XXX()
   {
     std::cout << "Test_ro2_XXX  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-    float ro[4] = {0.0F, 0.0F, -1.0F, 1.0F};
-    OrientationPrinters::Print_RO<float*, float>(ro);
+    float ro[4] = {0.0f, 0.0f, -1.0f, 1.0f};
+    OrientationPrinters::Print_RO<float*>(ro);
     RO_2_XXX<FOrientArrayType>(ro);
     RO_2_XXX<FloatVectorType>(ro);
     RO_2_XXX<FloatQVectorType>(ro);
@@ -816,7 +822,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::ax2ro<T, T>(ax);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     Quaternion<K> quat = OrientationTransformation::ax2qu<T, Quaternion<K>>(ax);
@@ -863,7 +869,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::qu2ro<QuatType, T>(qu, layout);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     res = OrientationTransformation::qu2ax<QuatType, T>(qu, layout);
@@ -885,8 +891,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   {
     {
       std::cout << "Test_qu2_XXX  (SCALAR, <X, Y, Z>) ***************************************" << std::endl;
-      float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0F, 0.0F, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
-      OrientationPrinters::Print_QU<float*, float>(qu, QuatF::Order::ScalarVector);
+      float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
+      OrientationPrinters::Print_QU<QuatD>({qu[0], qu[1], qu[2], qu[3]}, QuatD::Order::ScalarVector);
       QU_2_XXX<FOrientArrayType>(qu, QuatF::Order::ScalarVector);
       //  QU_2_XXX<std::vector<float> >(qu);
       //  QU_2_XXX<FloatQVectorType>(qu);
@@ -894,8 +900,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     {
       std::cout << "Test_qu2_XXX  (<X, Y, Z>, SCALAR) ***************************************" << std::endl;
-      float qu[4] = {0.0F, 0.0F, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2), static_cast<float>(EbsdLib::Constants::k_1OverRoot2)};
-      OrientationPrinters::Print_QU<float*, float>(qu);
+      float qu[4] = {0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2), static_cast<float>(EbsdLib::Constants::k_1OverRoot2)};
+      OrientationPrinters::Print_QU<QuatD>({qu[0], qu[1], qu[2], qu[3]});
       QU_2_XXX<FOrientArrayType>(qu);
       //  QU_2_XXX<std::vector<float> >(qu);
       //  QU_2_XXX<FloatQVectorType>(qu);
@@ -931,7 +937,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Convert to Rodriques
     res = OrientationTransformation::ho2ro<T, T>(ho);
-    OrientationPrinters::Print_RO<T, K>(res);
+    OrientationPrinters::Print_RO<T>(res);
 
     // Convert to Quaternion
     QuatType quat = OrientationTransformation::ho2qu<T, QuatType>(ho);

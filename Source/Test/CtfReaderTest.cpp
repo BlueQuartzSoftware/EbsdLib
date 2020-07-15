@@ -37,8 +37,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <cstring>
-
-#include <QtCore/QFile>
+#include <fstream>
 
 #include "EbsdLib/IO/HKL/CtfReader.h"
 
@@ -68,7 +67,7 @@ public:
     DREAM3D_REQUIRE(ystep == 0.5f)
     DREAM3D_REQUIRE(reader.getNumPhases() == 1)
     CtfPhase::Pointer phase = reader.getPhaseVector().at(0);
-    QVector<float> latticeConstants = phase->getLatticeConstants();
+    std::vector<float> latticeConstants = phase->getLatticeConstants();
     DREAM3D_REQUIRE(latticeConstants[0] >= 3.230f && latticeConstants[0] <= 3.232f)
     DREAM3D_REQUIRE(latticeConstants[1] >= 3.230f && latticeConstants[1] <= 3.232f)
     DREAM3D_REQUIRE(latticeConstants[2] >= 5.147f && latticeConstants[2] <= 5.149f)
@@ -106,7 +105,7 @@ public:
     DREAM3D_REQUIRE(ystep == 0.5f)
     DREAM3D_REQUIRE(reader.getNumPhases() == 5)
     CtfPhase::Pointer phase = reader.getPhaseVector().at(0);
-    QVector<float> latticeConstants = phase->getLatticeConstants();
+    std::vector<float> latticeConstants = phase->getLatticeConstants();
     DREAM3D_REQUIRE(latticeConstants[0] >= 3.61f && latticeConstants[0] <= 3.61f)
     DREAM3D_REQUIRE(latticeConstants[1] >= 3.61f && latticeConstants[1] <= 3.61f)
     DREAM3D_REQUIRE(latticeConstants[2] >= 3.61f && latticeConstants[2] <= 3.61f)
@@ -144,7 +143,7 @@ public:
     DREAM3D_REQUIRE(ystep == 0.5f)
     DREAM3D_REQUIRE(reader.getNumPhases() == 5)
     CtfPhase::Pointer phase = reader.getPhaseVector().at(0);
-    QVector<float> latticeConstants = phase->getLatticeConstants();
+    std::vector<float> latticeConstants = phase->getLatticeConstants();
     DREAM3D_REQUIRE(latticeConstants[0] >= 3.61f && latticeConstants[0] <= 3.61f)
     DREAM3D_REQUIRE(latticeConstants[1] >= 3.61f && latticeConstants[1] <= 3.61f)
     DREAM3D_REQUIRE(latticeConstants[2] >= 3.61f && latticeConstants[2] <= 3.61f)
@@ -174,7 +173,7 @@ public:
     CtfReader reader;
     reader.setFileName(UnitTest::CtfReaderTest::Corrupted_XCells);
     int err = reader.readFile();
-    qDebug() << reader.getErrorMessage();
+    std::cout << reader.getErrorMessage();
     DREAM3D_REQUIRED(err, ==, -110)
   }
 
@@ -210,7 +209,7 @@ public:
     int err = reader.readFile();
     DREAM3D_REQUIRED(err, ==, 0)
 
-    // QString header = reader.getOriginalHeader();
+    // std::string header = reader.getOriginalHeader();
 
     float* phi2Ptr = reinterpret_cast<float*>(reader.getPointerByName("Euler3"));
     if(nullptr != phi2Ptr)
@@ -222,12 +221,13 @@ public:
       }
     }
 
-    QString filePath = QString("%1/%2").arg(UnitTest::TestTempDir).arg("CTF_WriteFile_test.ctf");
-    err = reader.writeFile(filePath);
+    std::stringstream filePath;
+    filePath << UnitTest::TestTempDir << "/CTF_WriteFile_test.ctf";
+    err = reader.writeFile(filePath.str());
     DREAM3D_REQUIRE(err == 0);
     if(REMOVE_TEST_FILES == 1)
     {
-      bool removed = QFile::remove(filePath);
+      bool removed = fs::remove(filePath.str());
       DREAM3D_REQUIRE(removed == true);
     }
   }

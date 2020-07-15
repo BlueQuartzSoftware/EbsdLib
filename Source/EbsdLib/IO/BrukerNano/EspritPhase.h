@@ -33,10 +33,9 @@
 #pragma once
 
 #include <array>
-
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
-#include <QtCore/QVector>
+#include <string>
+#include <sstream>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
@@ -56,11 +55,11 @@ public:
   /**
    * @brief Returns the name of the class for EspritPhase
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for EspritPhase
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~EspritPhase();
 
@@ -69,43 +68,43 @@ public:
   /**
    * @brief Setter property for Formula
    */
-  void setFormula(const QString& value);
+  void setFormula(const std::string& value);
   /**
    * @brief Getter property for Formula
    * @return Value of Formula
    */
-  QString getFormula() const;
+  std::string getFormula() const;
 
   EBSD_INSTANCE_PROPERTY(int, IT)
-  EBSD_INSTANCE_PROPERTY(QVector<float>, LatticeConstants)
+  EBSD_INSTANCE_PROPERTY(std::vector<float>, LatticeConstants)
   /**
    * @brief Setter property for Name
    */
-  void setName(const QString& value);
+  void setName(const std::string& value);
   /**
    * @brief Getter property for Name
    * @return Value of Name
    */
-  QString getName() const;
+  std::string getName() const;
 
   EBSD_INSTANCE_PROPERTY(int, Setting)
   /**
    * @brief Setter property for SpaceGroup
    */
-  void setSpaceGroup(const QString& value);
+  void setSpaceGroup(const std::string& value);
   /**
    * @brief Getter property for SpaceGroup
    * @return Value of SpaceGroup
    */
-  QString getSpaceGroup() const;
+  std::string getSpaceGroup() const;
 
-  QString getMaterialName();
+  std::string getMaterialName();
 
-  void parseFormula(QList<QByteArray>& tokens);
-  void parseName(QList<QByteArray>& tokens);
-  void parseSpaceGroup(QList<QByteArray>& tokens);
+  void parseFormula(std::vector<std::string>& tokens);
+  void parseName(std::vector<std::string>& tokens);
+  void parseSpaceGroup(std::vector<std::string>& tokens);
 
-  void printSelf(QTextStream& stream);
+  void printSelf(std::stringstream& stream);
 
   /**
    * @brief Returns the type of crystal structure for this phase.
@@ -116,10 +115,10 @@ protected:
   EspritPhase();
 
 private:
-  QString m_Name = {};
-  QString m_MaterialName = {};
-  QString m_SpaceGroup = {};
-  QString m_Formula = {};
+  std::string m_Name = {};
+  std::string m_MaterialName = {};
+  std::string m_SpaceGroup = {};
+  std::string m_Formula = {};
 
 public:
   EspritPhase(const EspritPhase&) = delete;            // Copy Constructor Not Implemented
@@ -128,18 +127,3 @@ public:
   EspritPhase& operator=(EspritPhase&&) = delete;      // Move Assignment Not Implemented
 };
 
-struct Esprit_Private_Data
-{
-  std::array<size_t, 3> dims;
-  std::array<float, 3> resolution;
-  std::array<float, 3> origin;
-  QVector<EspritPhase::Pointer> phases;
-  int32_t units;
-
-private:
-  QString m_Formula = {};
-  QString m_Name = {};
-  QString m_SpaceGroup = {};
-};
-
-Q_DECLARE_METATYPE(Esprit_Private_Data)

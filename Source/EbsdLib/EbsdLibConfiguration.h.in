@@ -18,6 +18,10 @@
 * during an MSVC build */
 #cmakedefine EbsdLib_DISABLE_MSVC_WARNINGS
 
+#include <vector>
+
+using ByteArrayType = std::vector<char>;
+
 #if (_MSC_VER >= 1)
 
   #pragma warning (error: 4715) /* Not all control points return a value */
@@ -28,4 +32,13 @@
     #pragma warning(disable:4305)
   #endif
 
+#endif
+
+#cmakedefine EbsdLib_USE_GHC_FILESYSTEM 
+#if defined EbsdLib_USE_GHC_FILESYSTEM
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem;
+#else
+#include <filesystem>
+namespace fs = std::filesystem;
 #endif

@@ -138,7 +138,7 @@ std::array<size_t, 3> TriclinicOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString TriclinicOps::getSymmetryName() const
+std::string TriclinicOps::getSymmetryName() const
 {
   return "Triclinic -1";
   ;
@@ -212,7 +212,7 @@ OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  throw std::runtime_error("TriclinicOps::getMDFFZRod not implemented");
+  throw EbsdLib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
 
   OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, 1, inRod);
 
@@ -662,9 +662,9 @@ EbsdLib::Rgb TriclinicOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  QString label0 = QString("<001>");
-  QString label1 = QString("<100>");
-  QString label2 = QString("<010>");
+  std::string label0 = std::string("<001>");
+  std::string label1 = std::string("<100>");
+  std::string label2 = std::string("<010>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -683,11 +683,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(P
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize0, dims, label0 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize1, dims, label1 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize2, dims, label2 + QString("xyzCoords"), true);
+  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * Triclinic::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -907,15 +907,15 @@ TriclinicOps::Pointer TriclinicOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString TriclinicOps::getNameOfClass() const
+std::string TriclinicOps::getNameOfClass() const
 {
-  return QString("TriclinicOps");
+  return std::string("TriclinicOps");
 }
 
 // -----------------------------------------------------------------------------
-QString TriclinicOps::ClassName()
+std::string TriclinicOps::ClassName()
 {
-  return QString("TriclinicOps");
+  return std::string("TriclinicOps");
 }
 
 // -----------------------------------------------------------------------------

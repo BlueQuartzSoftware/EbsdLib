@@ -34,7 +34,7 @@
 #include <list>
 #include <memory>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -59,12 +59,12 @@ public:
   /**
    * @brief Returns the name of the class for SO3Sampler
    */
-  virtual QString getNameOfClass() const;
+  virtual std::string getNameOfClass() const;
 
   /**
    * @brief Returns the name of the class for SO3Sampler
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~SO3Sampler();
 

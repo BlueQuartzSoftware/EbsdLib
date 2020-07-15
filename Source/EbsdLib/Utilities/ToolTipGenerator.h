@@ -34,7 +34,7 @@
 
 #include <vector>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 
@@ -58,8 +58,8 @@ class EbsdLib_EXPORT ToolTipGenerator
       Spacer
     };
     Type type = Type::Spacer;
-    QString name;
-    QString value;
+    std::string name;
+    std::string value;
   };
 
 public:
@@ -77,14 +77,14 @@ public:
    * @brief Adds a new title row.
    * @param title
    */
-  void addTitle(const QString& title);
+  void addTitle(const std::string& title);
 
   /**
    * @brief Adds a new value row.
    * @param name
    * @param value
    */
-  void addValue(const QString& name, const QString& value);
+  void addValue(const std::string& name, const std::string& value);
 
   /**
    * @brief Adds a new spacer row
@@ -106,19 +106,19 @@ public:
    * @brief Returns the color name string.
    * @return
    */
-  QString getRowColorStr() const;
+  std::string getRowColorStr() const;
 
   /**
    * @brief Sets the color name string.
    * @param colorStr
    */
-  void setRowColorStr(const QString& colorStr);
+  void setRowColorStr(const std::string& colorStr);
 
   /**
    * @brief Generates and returns an HTML string representation.
    * @return
    */
-  QString generateHTML() const;
+  std::string generateHTML() const;
 
 protected:
   /**
@@ -126,10 +126,10 @@ protected:
    * @param row
    * @return
    */
-  QString rowToHTML(const RowItem& row) const;
+  std::string rowToHTML(const RowItem& row) const;
 
 private:
-  QString m_RowColorStr = "#FFFCEA";
+  std::string m_RowColorStr = "#FFFCEA";
   std::vector<RowItem> m_Rows;
 };
 } // end namespace EbsdLib

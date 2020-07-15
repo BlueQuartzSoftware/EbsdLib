@@ -81,13 +81,13 @@ EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
 EbsdTransform::~EbsdTransform() = default;
 
 // -----------------------------------------------------------------------------
-QString EbsdTransform::getNameOfClass() const
+std::string EbsdTransform::getNameOfClass() const
 {
-  return QString("EbsdTransform");
+  return std::string("EbsdTransform");
 }
 
 // -----------------------------------------------------------------------------
-QString EbsdTransform::ClassName()
+std::string EbsdTransform::ClassName()
 {
-  return QString("EbsdTransform");
+  return std::string("EbsdTransform");
 }

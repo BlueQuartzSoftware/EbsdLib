@@ -144,7 +144,7 @@ std::array<size_t, 3> OrthoRhombicOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString OrthoRhombicOps::getSymmetryName() const
+std::string OrthoRhombicOps::getSymmetryName() const
 {
   return "OrthoRhombic mmm";
   ;
@@ -217,7 +217,7 @@ OrientationType OrthoRhombicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  throw std::runtime_error("OrthoRhombicOps::getMDFFZRod not implemented");
+  throw EbsdLib::method_not_implemented("OrthoRhombicOps::getMDFFZRod not implemented");
 
   double w, n1, n2, n3;
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
@@ -671,9 +671,9 @@ EbsdLib::Rgb OrthoRhombicOps::generateRodriguesColor(double r1, double r2, doubl
 std::vector<EbsdLib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
 
-  QString label0 = QString("<001>");
-  QString label1 = QString("<100>");
-  QString label2 = QString("<010>");
+  std::string label0 = std::string("<001>");
+  std::string label1 = std::string("<100>");
+  std::string label2 = std::string("<010>");
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);
@@ -692,9 +692,9 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigur
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   std::vector<size_t> dims(1, 3);
   std::vector<EbsdLib::FloatArrayType::Pointer> coords(3);
-  coords[0] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize0, dims, label0 + QString("001_Coords"), true);
-  coords[1] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize1, dims, label1 + QString("100_Coords"), true);
-  coords[2] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize2, dims, label2 + QString("010_Coords"), true);
+  coords[0] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize0, dims, label0 + std::string("001_Coords"), true);
+  coords[1] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize1, dims, label1 + std::string("100_Coords"), true);
+  coords[2] = EbsdLib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize2, dims, label2 + std::string("010_Coords"), true);
 
   config.sphereRadius = 1.0;
 
@@ -1106,15 +1106,15 @@ OrthoRhombicOps::Pointer OrthoRhombicOps::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString OrthoRhombicOps::getNameOfClass() const
+std::string OrthoRhombicOps::getNameOfClass() const
 {
-  return QString("OrthoRhombicOps");
+  return std::string("OrthoRhombicOps");
 }
 
 // -----------------------------------------------------------------------------
-QString OrthoRhombicOps::ClassName()
+std::string OrthoRhombicOps::ClassName()
 {
-  return QString("OrthoRhombicOps");
+  return std::string("OrthoRhombicOps");
 }
 
 // -----------------------------------------------------------------------------

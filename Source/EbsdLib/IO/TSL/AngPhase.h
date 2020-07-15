@@ -34,20 +34,20 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QVector>
-#include <QtCore/QTextStream>
+#include <cstdint>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/IO/TSL/AngConstants.h"
+#include "EbsdLib/EbsdLib.h"
 
-#pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
+//#pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
 /*!
  * @struct HKLFamily_t is used to write the HKL Family to an HDF5 file using a
  * compound data type.
  */
-using HKLFamily_t = struct
+struct HKLFamily_t
 {
   int h;
   int k;
@@ -72,74 +72,54 @@ public:
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
   using ConstWeakPointer = std::weak_ptr<Self>;
+
   static Pointer NullPointer();
 
+  HKLFamily();
+  //  HKLFamily(const HKLFamily&) = delete;            // Copy Constructor Not Implemented
+  //  HKLFamily(HKLFamily&) = delete;                  // Move Constructor Not Implemented
+  //  HKLFamily& operator=(const HKLFamily&) = delete; // Copy Assignment Not Implemented
+  //  HKLFamily& operator=(HKLFamily&) = delete;       // Move Assignment Not Implemented
+  virtual ~HKLFamily();
+
   EBSD_STATIC_NEW_MACRO(HKLFamily)
+
   /**
    * @brief Returns the name of the class for HKLFamily
    */
-  QString getNameOfClass() const;
+
+  std::string getNameOfClass() const;
+
   /**
    * @brief Returns the name of the class for HKLFamily
    */
-  static QString ClassName();
+  static std::string ClassName();
 
-  virtual ~HKLFamily() = default;
-
-  int h;
-  int k;
-  int l;
-  float diffractionIntensity;
-  char s1;
-  char s2;
+  int h = 0;
+  int k = 0;
+  int l = 0;
+  float diffractionIntensity = 0.0F;
+  char s1 = '\0';
+  char s2 = '\0';
 
   /**
    * @brief Prints this class to the output stream. Useful for debuggin
    * @param stream The stream to print to
    */
-  void printSelf(QTextStream& stream)
-  {
-    stream << EbsdLib::Ang::HKLFamilies;
-    stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
-  }
+  void printSelf(std::stringstream& stream) const;
 
   /**
    * @brief Copies the content of this instance to another class instance
    * @param ptr The destination of the copied contents
    */
-  void copyToStruct(HKLFamily_t* ptr)
-  {
-    ptr->h = h;
-    ptr->k = k;
-    ptr->l = l;
-    ptr->s1 = s1;
-    ptr->diffractionIntensity = diffractionIntensity;
-    ptr->s2 = s2;
-  }
+  void copyToStruct(HKLFamily_t* ptr);
 
   /**
    * @brief Copies the content <b>from</b> another structure into this structure
    * @param ptr The source of the copy, ie, the values from <i>ptr</i> will be copied
    * into this instance.
    */
-  void copyFromStruct(HKLFamily_t* ptr)
-  {
-    h = ptr->h;
-    k = ptr->k;
-    l = ptr->l;
-    s1 = ptr->s1;
-    diffractionIntensity = ptr->diffractionIntensity;
-    s2 = ptr->s2;
-  }
-
-protected:
-  HKLFamily() = default;
-
-public:
-  HKLFamily(const HKLFamily&) = delete;            // Copy Constructor Not Implemented
-  HKLFamily(HKLFamily&&) = delete;                 // Move Constructor Not Implemented
-  HKLFamily& operator=(const HKLFamily&) = delete; // Copy Assignment Not Implemented
-  HKLFamily& operator=(HKLFamily&&) = delete;      // Move Assignment Not Implemented
+  void copyFromStruct(HKLFamily_t* ptr);
 };
 
 /**
@@ -159,54 +139,62 @@ public:
   using ConstWeakPointer = std::weak_ptr<Self>;
   static Pointer NullPointer();
 
-  EBSD_STATIC_NEW_MACRO(AngPhase)
-  /**
-   * @brief Returns the name of the class for AngPhase
-   */
-  QString getNameOfClass() const;
-  /**
-   * @brief Returns the name of the class for AngPhase
-   */
-  static QString ClassName();
-
+  AngPhase();
+  //  AngPhase(const AngPhase&) = delete;            // Copy Constructor Not Implemented
+  //  AngPhase(AngPhase&) = delete;                  // Move Constructor Not Implemented
+  //  AngPhase& operator=(const AngPhase&) = delete; // Copy Assignment Not Implemented
+  //  AngPhase& operator=(AngPhase&) = delete;       // Move Assignment Not Implemented
   virtual ~AngPhase();
 
+  EBSD_STATIC_NEW_MACRO(AngPhase)
+
+  /**
+   * @brief Returns the name of the class for AngPhase
+   */
+  std::string getNameOfClass() const;
+
+  /**
+   * @brief Returns the name of the class for AngPhase
+   */
+  static std::string ClassName();
+
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
+
   /**
    * @brief Setter property for MaterialName
    */
-  void setMaterialName(const QString& value);
+  void setMaterialName(const std::string& value);
   /**
    * @brief Getter property for MaterialName
    * @return Value of MaterialName
    */
-  QString getMaterialName() const;
+  std::string getMaterialName() const;
 
   /**
    * @brief Setter property for Formula
    */
-  void setFormula(const QString& value);
+  void setFormula(const std::string& value);
   /**
    * @brief Getter property for Formula
    * @return Value of Formula
    */
-  QString getFormula() const;
+  std::string getFormula() const;
 
   /**
    * @brief Setter property for Info
    */
-  void setInfo(const QString& value);
+  void setInfo(const std::string& value);
   /**
    * @brief Getter property for Info
    * @return Value of Info
    */
-  QString getInfo() const;
+  std::string getInfo() const;
 
   EBSD_INSTANCE_PROPERTY(uint32_t, Symmetry)
-  EBSD_INSTANCE_PROPERTY(QVector<float>, LatticeConstants)
+  EBSD_INSTANCE_PROPERTY(std::vector<float>, LatticeConstants)
   EBSD_INSTANCE_PROPERTY(int, NumberFamilies)
-  EBSD_INSTANCE_PROPERTY(QVector<HKLFamily::Pointer>, HKLFamilies)
-  EBSD_INSTANCE_PROPERTY(QVector<int>, Categories)
+  EBSD_INSTANCE_PROPERTY(std::vector<HKLFamily::Pointer>, HKLFamilies)
+  EBSD_INSTANCE_PROPERTY(std::vector<int>, Categories)
 
   void setLatticeConstantA(float a);
   void setLatticeConstantB(float a);
@@ -215,43 +203,24 @@ public:
   void setLatticeConstantBeta(float a);
   void setLatticeConstantGamma(float a);
 
-  void parseMaterialName(QList<QByteArray>& tokens);
-  void parseFormula(QList<QByteArray>& tokens);
-  void parseInfo(QList<QByteArray>& tokens);
-  void parseLatticeConstants(QList<QByteArray>& tokens);
-  void parseHKLFamilies(QList<QByteArray>& tokens);
-  void parseCategories(QList<QByteArray>& tokens);
+  void parseMaterialName(std::vector<std::string>& tokens);
+  void parseFormula(std::vector<std::string>& tokens);
+  void parseInfo(std::vector<std::string>& tokens);
+  void parseLatticeConstants(std::vector<std::string>& tokens);
+  void parseHKLFamilies(std::vector<std::string>& tokens);
+  void parseCategories(std::vector<std::string>& tokens);
 
-  void printSelf(QTextStream& stream);
+  void printSelf(std::stringstream& stream);
 
   /**
    * @brief Returns the type of crystal structure for this phase.
    */
   unsigned int determineLaueGroup();
 
-protected:
-  AngPhase();
-
-public:
-  AngPhase(const AngPhase&) = delete;            // Copy Constructor Not Implemented
-  AngPhase(AngPhase&&) = delete;                 // Move Constructor Not Implemented
-  AngPhase& operator=(const AngPhase&) = delete; // Copy Assignment Not Implemented
-  AngPhase& operator=(AngPhase&&) = delete;      // Move Assignment Not Implemented
-
 private:
-  QString m_MaterialName = {};
-  QString m_Formula = {};
-  QString m_Info = {};
+  std::string m_MaterialName = {};
+  std::string m_Formula = {};
+  std::string m_Info = {};
 };
 
-struct Ang_Private_Data
-{
-  std::array<size_t, 3> dims;
-  std::array<float, 3> resolution;
-  std::array<float, 3> origin;
-  QVector<AngPhase::Pointer> phases;
-  int32_t units;
-};
-
-Q_DECLARE_METATYPE(Ang_Private_Data)
-#pragma pack(pop, r1)
+//#pragma pack(pop, r1)

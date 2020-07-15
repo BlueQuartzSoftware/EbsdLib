@@ -38,7 +38,7 @@
 #include <memory>
 #include <cmath>
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -66,11 +66,11 @@ public:
   /**
    * @brief Returns the name of the class for EbsdMatrixMath
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for EbsdMatrixMath
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   virtual ~EbsdMatrixMath();
 

@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QSet>
+#include <string>
+#include <set>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -63,11 +63,11 @@ public:
   /**
    * @brief Returns the name of the class for H5EbsdVolumeInfo
    */
-  QString getNameOfClass() const;
+  std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for H5EbsdVolumeInfo
    */
-  static QString ClassName();
+  static std::string ClassName();
 
   EBSD_STATIC_NEW_MACRO(H5EbsdVolumeInfo)
 
@@ -81,22 +81,22 @@ public:
   /**
    * @brief Setter property for ErrorMessage
    */
-  void setErrorMessage(const QString& value);
+  void setErrorMessage(const std::string& value);
   /**
    * @brief Getter property for ErrorMessage
    * @return Value of ErrorMessage
    */
-  QString getErrorMessage() const;
+  std::string getErrorMessage() const;
 
   /**
    * @brief Setter property for FileName
    */
-  void setFileName(const QString& value);
+  void setFileName(const std::string& value);
   /**
    * @brief Getter property for FileName
    * @return Value of FileName
    */
-  QString getFileName() const;
+  std::string getFileName() const;
 
   /**
    * @brief Reads all the volume header values
@@ -160,7 +160,7 @@ public:
    * @brief Returns the Manufacturer of the EBSD system
    * @return The Manufacturer string
    */
-  virtual QString getManufacturer();
+  virtual std::string getManufacturer();
 
   /**
    * @brief Convenience method that returns the number of Z Slices of data
@@ -199,14 +199,14 @@ public:
    * @brief getDataArrayNames
    * @return
    */
-  virtual QSet<QString> getDataArrayNames();
+  virtual std::set<std::string> getDataArrayNames();
 
 protected:
   H5EbsdVolumeInfo();
 
 private:
-  QString m_ErrorMessage = {};
-  QString m_FileName = {};
+  std::string m_ErrorMessage = {};
+  std::string m_FileName = {};
 
   bool m_ValuesAreCached = false;
   uint32_t m_FileVersion = 0;
@@ -225,9 +225,9 @@ private:
   float m_EulerTransformationAngle = 0.0f;
   std::array<float, 3> m_EulerTransformationAxis = {{0.0f, 0.0f, 1.0f}};
 
-  QSet<QString> m_DataArrayNames;
+  std::set<std::string> m_DataArrayNames;
 
-  QString m_Manufacturer = QString("Unknown");
+  std::string m_Manufacturer = std::string("Unknown");
 
 public:
   H5EbsdVolumeInfo(const H5EbsdVolumeInfo&) = delete;            // Copy Constructor Not Implemented

@@ -37,6 +37,7 @@
 
 #include <chrono>
 #include <random>
+#include <algorithm>
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
@@ -1187,13 +1188,13 @@ GeometryMath::Pointer GeometryMath::NullPointer()
 }
 
 // -----------------------------------------------------------------------------
-QString GeometryMath::getNameOfClass() const
+std::string GeometryMath::getNameOfClass() const
 {
-  return QString("GeometryMath");
+  return std::string("GeometryMath");
 }
 
 // -----------------------------------------------------------------------------
-QString GeometryMath::ClassName()
+std::string GeometryMath::ClassName()
 {
-  return QString("GeometryMath");
+  return std::string("GeometryMath");
 }

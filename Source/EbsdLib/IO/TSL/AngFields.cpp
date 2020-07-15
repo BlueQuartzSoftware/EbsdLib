@@ -48,9 +48,9 @@ AngFields::~AngFields() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> AngFields::getFieldNames()
+std::vector<std::string> AngFields::getFieldNames()
 {
-  QVector<QString> features;
+  std::vector<std::string> features;
   features.push_back(EbsdLib::Ang::Phi1);
   features.push_back(EbsdLib::Ang::Phi);
   features.push_back(EbsdLib::Ang::Phi2);

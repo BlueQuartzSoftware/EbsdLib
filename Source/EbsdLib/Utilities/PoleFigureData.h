@@ -35,9 +35,9 @@
 
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtCore/QVector>
-#include <QtCore/QString>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 
@@ -48,7 +48,7 @@
  * @date Nov 4, 2011
  * @version 1.0
  */
-class EbsdLib_EXPORT PoleFigureData : QObject
+class EbsdLib_EXPORT PoleFigureData
 {
 
 public:
@@ -60,19 +60,19 @@ public:
     kernelRadius[1] = 3;
   }
 
-  PoleFigureData(QVector<float>& xData, QVector<float>& yData, const QString& s, qint32* kernelRad, qint32* size);
+  PoleFigureData(std::vector<float>& xData, std::vector<float>& yData, const std::string& s, int32_t* kernelRad, int32_t* size);
 
   // We need a copy constructor
   PoleFigureData(const PoleFigureData& rhs);
 
-  ~PoleFigureData() override;
+  ~PoleFigureData();
 
-  QVector<float> xData;
-  QVector<float> yData;
+  std::vector<float> xData;
+  std::vector<float> yData;
 
-  qint32 kernelRadius[2];
-  qint32 imageSize[2];
-  QString label;
+  int32_t kernelRadius[2];
+  int32_t imageSize[2];
+  std::string label;
 
   void operator=(const PoleFigureData& rhs);
 
