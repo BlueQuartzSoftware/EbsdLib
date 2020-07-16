@@ -35,8 +35,6 @@
 
 #include "CubicLowOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -70,17 +68,17 @@ static const int symSize2 = 8;
 
 static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
-static const int k_NumSymQuats = 12;
+static const int k_SymOpsCount = 12;
 static const int k_NumMdfBins = 18;
 
-static const QuatD QuatSym[12] = {
+static const std::vector<QuatD> QuatSym = {
     QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),   QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),   QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
     QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),   QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),   QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
     QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),  QuatD(-0.500000000, 0.500000000, -0.500000000, 0.500000000), QuatD(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
     QuatD(0.500000000, -0.500000000, -0.500000000, 0.500000000), QuatD(-0.500000000, -0.500000000, 0.500000000, 0.500000000), QuatD(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
 
-static const double RodSym[12][3] = {{0.0, 0.0, 0.0},  {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}, {1.0, 1.0, 1.0},   {-1.0, -1.0, -1.0},
-                                     {1.0, -1.0, 1.0}, {-1.0, 1.0, -1.0},         {-1.0, 1.0, 1.0},          {1.0, -1.0, -1.0},         {-1.0, -1.0, 1.0}, {1.0, 1.0, -1.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},  {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}, {1.0, 1.0, 1.0},   {-1.0, -1.0, -1.0},
+                                                 {1.0, -1.0, 1.0}, {-1.0, 1.0, -1.0},         {-1.0, 1.0, 1.0},          {1.0, -1.0, -1.0},         {-1.0, -1.0, 1.0}, {1.0, 1.0, -1.0}};
 
 // static const double CubicLowSlipDirections[12][3] = {{0.0, 1.0, -1.0},
 //  {1.0, 0.0, -1.0},
@@ -110,29 +108,29 @@ static const double RodSym[12][3] = {{0.0, 0.0, 0.0},  {10000000000.0, 0.0, 0.0}
 //  { -1.0, 1.0, 1.0}
 //};
 
-static const double MatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                                {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                                {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                                {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                                {{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}},
 
-                                                {{0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
+                                                   {{0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
 
-                                                {{0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}},
 
-                                                {{0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
 
-                                                {{0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}},
 
-                                                {{0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
 
-                                                {{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}},
 
-                                                {{0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}};
+                                                   {{0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}};
 } // namespace CubicLow
 
 // -----------------------------------------------------------------------------
@@ -180,7 +178,7 @@ int CubicLowOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int CubicLowOps::getNumSymOps() const
 {
-  return CubicLow::k_NumSymQuats;
+  return CubicLow::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -202,7 +200,7 @@ std::string CubicLowOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 OrientationD CubicLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(CubicLow::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -211,7 +209,7 @@ OrientationF CubicLowOps::calculateMisorientation(const QuatF& q1f, const QuatF&
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(CubicLow::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -258,8 +256,7 @@ void CubicLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType CubicLowOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 12;
-  return _calcRodNearestOrigin(CubicLow::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(CubicLow::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -270,7 +267,7 @@ OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
   double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
 
-  OrientationType rod = _calcRodNearestOrigin(CubicLow::RodSym, CubicLow::k_NumSymQuats, inRod);
+  OrientationType rod = _calcRodNearestOrigin(CubicLow::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
   n1 = ax[0];
@@ -324,14 +321,14 @@ OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
 
 QuatD CubicLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(CubicLow::QuatSym, q1, q2);
 }
 
 QuatF CubicLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(CubicLow::QuatSym, CubicLow::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(CubicLow::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -394,7 +391,7 @@ OrientationType CubicLowOps::determineEulerAngles(double random[3], int choose) 
 // -----------------------------------------------------------------------------
 OrientationType CubicLowOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(CubicLow::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(CubicLow::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = CubicLow::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -474,7 +471,7 @@ void CubicLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double d
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < CubicLow::k_NumSymQuats; i++)
+  for(int i = 0; i < CubicLow::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -863,7 +860,7 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < CubicLow::k_NumSymQuats; j++)
+  for(int j = 0; j < CubicLow::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

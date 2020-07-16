@@ -94,12 +94,12 @@ QuatD LaueOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD LaueOps::calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const
+OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
   OrientationD axisAngleMin(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
   QuatD qc;
   QuatD qr = q1 * (q2.conjugate());
-
+  size_t numsym = quatsym.size();
   for(size_t i = 0; i < numsym; i++)
   {
     qc = quatsym[i] * qr;
@@ -140,7 +140,7 @@ OrientationD LaueOps::calculateMisorientationInternal(const QuatD* quatsym, size
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType LaueOps::_calcRodNearestOrigin(const double rodsym[24][3], int numsym, const OrientationType& inRod) const
+OrientationType LaueOps::_calcRodNearestOrigin(const std::vector<OrientationD>& rodsym, const OrientationType& inRod) const
 {
   double denom = 0.0f, dist = 0.0f;
   double smallestdist = 100000000.0f;
@@ -151,7 +151,8 @@ OrientationType LaueOps::_calcRodNearestOrigin(const double rodsym[24][3], int n
   rod[0] *= rod[3];
   rod[1] *= rod[3];
   rod[2] *= rod[3];
-  for(int i = 0; i < numsym; i++)
+  size_t numsym = rodsym.size();
+  for(size_t i = 0; i < numsym; i++)
   {
     denom = 1 - (rod[0] * rodsym[i][0] + rod[1] * rodsym[i][1] + rod[2] * rodsym[i][2]);
     rc1 = (rod[0] + rodsym[i][0] - (rod[1] * rodsym[i][2] - rod[2] * rodsym[i][1])) / denom;
@@ -184,14 +185,14 @@ OrientationType LaueOps::_calcRodNearestOrigin(const double rodsym[24][3], int n
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QuatD LaueOps::_calcNearestQuat(const QuatD quatsym[24], int numsym, const QuatD& q1, const QuatD& q2) const
+QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
   QuatD out;
   double dist = 0.0;
   double smallestdist = 1000000.0f;
   QuatD qmax;
-
-  for(int i = 0; i < numsym; i++)
+  size_t numsym = quatsym.size();
+  for(size_t i = 0; i < numsym; i++)
   {
     QuatD qc = quatsym[i] * q2;
     if(qc.w() < 0)
@@ -213,13 +214,13 @@ QuatD LaueOps::_calcNearestQuat(const QuatD quatsym[24], int numsym, const QuatD
   return out;
 }
 
-QuatD LaueOps::_calcQuatNearestOrigin(const QuatD quatsym[24], int numsym, const QuatD& qr) const
+QuatD LaueOps::_calcQuatNearestOrigin(const std::vector<QuatD>& quatsym, const QuatD& qr) const
 {
   double dist = 0.0;
   double smallestdist = 1000000.0f;
   QuatD qmax;
-
-  for(int i = 0; i < numsym; i++)
+  size_t numsym = quatsym.size();
+  for(size_t i = 0; i < numsym; i++)
   {
     QuatD qc = quatsym[i] * qr;
 

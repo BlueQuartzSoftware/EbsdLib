@@ -35,8 +35,6 @@
 
 #include "CubicOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -71,58 +69,58 @@ static const int symSize2 = 8;
 
 static const int k_OdfSize = 5832;
 static const int k_MdfSize = 5832;
-static const int k_NumSymQuats = 24;
+static const int k_SymOpsCount = 24;
 static const int k_NumMdfBins = 13;
 
-static const QuatD QuatSym[24] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
-                                     QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                     QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
-                                     QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                     QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                     QuatD(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                     QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                     QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),
-                                     QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
-                                     QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),
-                                     QuatD(-0.500000000, 0.500000000, -0.500000000, 0.500000000),
-                                     QuatD(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
-                                     QuatD(0.500000000, -0.500000000, -0.500000000, 0.500000000),
-                                     QuatD(-0.500000000, -0.500000000, 0.500000000, 0.500000000),
-                                     QuatD(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000),
+                                           QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                           QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
+                                           QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
+                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                           QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),
+                                           QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
+                                           QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),
+                                           QuatD(-0.500000000, 0.500000000, -0.500000000, 0.500000000),
+                                           QuatD(-0.500000000, 0.500000000, 0.500000000, 0.500000000),
+                                           QuatD(0.500000000, -0.500000000, -0.500000000, 0.500000000),
+                                           QuatD(-0.500000000, -0.500000000, 0.500000000, 0.500000000),
+                                           QuatD(0.500000000, 0.500000000, -0.500000000, 0.500000000)};
 
-static const double RodSym[24][3] = {{0.0, 0.0, 0.0},
-                                     {10000000000.0, 0.0, 0.0},
-                                     {0.0, 10000000000.0, 0.0},
-                                     {0.0, 0.0, 10000000000.0},
-                                     {1.0, 0.0, 0.0},
-                                     {0.0, 1.0, 0.0},
-                                     {0.0, 0.0, 1.0},
-                                     {-1.0, 0.0, 0.0},
-                                     {0.0, -1.0, 0.0},
-                                     {0.0, 0.0, -1.0},
-                                     {10000000000.0, 10000000000.0, 0.0},
-                                     {-10000000000.0, 10000000000.0, 0.0},
-                                     {0.0, 10000000000.0, 10000000000.0},
-                                     {0.0, -10000000000.0, 10000000000.0},
-                                     {10000000000.0, 0.0, 10000000000.0},
-                                     {-10000000000.0, 0.0, 10000000000.0},
-                                     {1.0, 1.0, 1.0},
-                                     {-1.0, -1.0, -1.0},
-                                     {1.0, -1.0, 1.0},
-                                     {-1.0, 1.0, -1.0},
-                                     {-1.0, 1.0, 1.0},
-                                     {1.0, -1.0, -1.0},
-                                     {-1.0, -1.0, 1.0},
-                                     {1.0, 1.0, -1.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},
+                                                 {10000000000.0, 0.0, 0.0},
+                                                 {0.0, 10000000000.0, 0.0},
+                                                 {0.0, 0.0, 10000000000.0},
+                                                 {1.0, 0.0, 0.0},
+                                                 {0.0, 1.0, 0.0},
+                                                 {0.0, 0.0, 1.0},
+                                                 {-1.0, 0.0, 0.0},
+                                                 {0.0, -1.0, 0.0},
+                                                 {0.0, 0.0, -1.0},
+                                                 {10000000000.0, 10000000000.0, 0.0},
+                                                 {-10000000000.0, 10000000000.0, 0.0},
+                                                 {0.0, 10000000000.0, 10000000000.0},
+                                                 {0.0, -10000000000.0, 10000000000.0},
+                                                 {10000000000.0, 0.0, 10000000000.0},
+                                                 {-10000000000.0, 0.0, 10000000000.0},
+                                                 {1.0, 1.0, 1.0},
+                                                 {-1.0, -1.0, -1.0},
+                                                 {1.0, -1.0, 1.0},
+                                                 {-1.0, 1.0, -1.0},
+                                                 {-1.0, 1.0, 1.0},
+                                                 {1.0, -1.0, -1.0},
+                                                 {-1.0, -1.0, 1.0},
+                                                 {1.0, 1.0, -1.0}};
 
 static const double SlipDirections[12][3] = {{0.0, 1.0, -1.0}, {1.0, 0.0, -1.0}, {1.0, -1.0, 0.0}, {1.0, -1.0, 0.0}, {1.0, 0.0, 1.0}, {0.0, 1.0, 1.0},
                                              {1.0, 1.0, 0.0},  {0.0, 1.0, 1.0},  {1.0, 0.0, -1.0}, {1.0, 1.0, 0.0},  {1.0, 0.0, 1.0}, {0.0, 1.0, -1.0}};
@@ -130,53 +128,53 @@ static const double SlipDirections[12][3] = {{0.0, 1.0, -1.0}, {1.0, 0.0, -1.0},
 static const double SlipPlanes[12][3] = {{1.0, 1.0, 1.0},  {1.0, 1.0, 1.0},  {1.0, 1.0, 1.0},  {1.0, 1.0, -1.0}, {1.0, 1.0, -1.0}, {1.0, 1.0, -1.0},
                                          {1.0, -1.0, 1.0}, {1.0, -1.0, 1.0}, {1.0, -1.0, 1.0}, {-1.0, 1.0, 1.0}, {-1.0, 1.0, 1.0}, {-1.0, 1.0, 1.0}};
 
-static const double MatSym[24][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}, {0.0, 1.0, 0.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}, {0.0, 1.0, 0.0}},
 
-                                        {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, -1.0, 0.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, -1.0, 0.0}},
 
-                                        {{0.0, 0.0, -1.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0}},
 
-                                        {{0.0, 0.0, 1.0}, {0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, 0.0, 1.0}, {0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}},
 
-                                        {{0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
+                                                   {{0.0, 0.0, 1.0}, {-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
 
-                                        {{0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}},
 
-                                        {{0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}},
 
-                                        {{0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}},
 
-                                        {{0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
 
-                                        {{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}},
 
-                                        {{0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
+                                                   {{0.0, 0.0, 1.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}},
 
-                                        {{0.0, 1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{0.0, 1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0, 0.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0, 0.0}},
 
-                                        {{0.0, 0.0, 1.0}, {0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}},
+                                                   {{0.0, 0.0, 1.0}, {0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}, {0.0, -1.0, 0.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}, {0.0, -1.0, 0.0}},
 
-                                        {{0.0, 0.0, -1.0}, {0.0, -1.0, 0.0}, {-1.0, 0.0, 0.0}},
+                                                   {{0.0, 0.0, -1.0}, {0.0, -1.0, 0.0}, {-1.0, 0.0, 0.0}},
 
-                                        {{0.0, -1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}}};
+                                                   {{0.0, -1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, -1.0}}};
 
 } // namespace CubicHigh
 
@@ -225,7 +223,7 @@ int CubicOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int CubicOps::getNumSymOps() const
 {
-  return CubicHigh::k_NumSymQuats;
+  return CubicHigh::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -247,7 +245,7 @@ std::string CubicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 OrientationD CubicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(CubicHigh::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -256,14 +254,14 @@ OrientationF CubicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(CubicHigh::QuatSym, q1, q2);
   return axisAngle;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD CubicOps::calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const
+OrientationD CubicOps::calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
   double wmin = 9999999.0f; //,na,nb,nc;
   QuatD qco;
@@ -560,7 +558,7 @@ void CubicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType CubicOps::getODFFZRod(const OrientationType& rod) const
 {
-  return _calcRodNearestOrigin(CubicHigh::RodSym, CubicHigh::k_NumSymQuats, rod);
+  return _calcRodNearestOrigin(CubicHigh::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -571,7 +569,7 @@ OrientationType CubicOps::getMDFFZRod(const OrientationType& inRod) const
   double w, n1, n2, n3;
   double FZw, FZn1, FZn2, FZn3;
 
-  OrientationType rod = _calcRodNearestOrigin(CubicHigh::RodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(CubicHigh::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
   n1 = ax[0];
@@ -625,21 +623,21 @@ OrientationType CubicOps::getMDFFZRod(const OrientationType& inRod) const
 
 QuatD CubicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(CubicHigh::QuatSym, q1, q2);
 }
 
 QuatF CubicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(CubicHigh::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
 
 QuatD CubicOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(CubicHigh::QuatSym, CubicHigh::k_NumSymQuats, qr);
+  return _calcQuatNearestOrigin(CubicHigh::QuatSym, qr);
 }
 
 // -----------------------------------------------------------------------------
@@ -700,7 +698,7 @@ OrientationType CubicOps::determineEulerAngles(double random[3], int choose) con
 // -----------------------------------------------------------------------------
 OrientationType CubicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(CubicHigh::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(CubicHigh::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = CubicHigh::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -901,7 +899,7 @@ void CubicOps::getSchmidFactorAndSS(double load[3], double plane[3], double dire
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < CubicHigh::k_NumSymQuats; i++)
+  for(int i = 0; i < CubicHigh::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -1619,7 +1617,7 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < CubicHigh::k_NumSymQuats; j++)
+  for(int j = 0; j < CubicHigh::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

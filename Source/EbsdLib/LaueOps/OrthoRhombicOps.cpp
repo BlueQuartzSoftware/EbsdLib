@@ -34,7 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "OrthoRhombicOps.h"
 
-#include <memory>
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
@@ -69,21 +68,21 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 46656;
 static const int k_MdfSize = 46656;
-static const int k_NumSymQuats = 4;
+static const int k_SymOpsCount = 4;
 static const int k_NumMdfBins = 36;
 
-static const QuatD QuatSym[4] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                    QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                           QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000)};
 
-static const double RodSym[4][3] = {{0.0, 0.0, 0.0}, {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {10000000000.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}, {0.0, 0.0, 10000000000.0}};
 
-static const double MatSym[4][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                       {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                       {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace OrthoRhombic
 
@@ -132,7 +131,7 @@ int OrthoRhombicOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int OrthoRhombicOps::getNumSymOps() const
 {
-  return OrthoRhombic::k_NumSymQuats;
+  return OrthoRhombic::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -152,7 +151,7 @@ std::string OrthoRhombicOps::getSymmetryName() const
 
 OrientationD OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -161,7 +160,7 @@ OrientationF OrthoRhombicOps::calculateMisorientation(const QuatF& q1f, const Qu
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -208,8 +207,7 @@ void OrthoRhombicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType OrthoRhombicOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 4;
-  return _calcRodNearestOrigin(OrthoRhombic::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(OrthoRhombic::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -222,7 +220,7 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
   double w, n1, n2, n3;
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
 
-  OrientationType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, 4, inRod);
+  OrientationType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
   n1 = ax[0];
   n2 = ax[1], n3 = ax[2], w = ax[3];
@@ -237,21 +235,21 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 QuatD OrthoRhombicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(OrthoRhombic::QuatSym, q1, q2);
 }
 
 QuatF OrthoRhombicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(OrthoRhombic::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
 
 QuatD OrthoRhombicOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(OrthoRhombic::QuatSym, OrthoRhombic::k_NumSymQuats, qr);
+  return _calcQuatNearestOrigin(OrthoRhombic::QuatSym, qr);
 }
 
 // -----------------------------------------------------------------------------
@@ -311,7 +309,7 @@ OrientationType OrthoRhombicOps::determineEulerAngles(double random[3], int choo
 // -----------------------------------------------------------------------------
 OrientationType OrthoRhombicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(OrthoRhombic::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(OrthoRhombic::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = OrthoRhombic::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -389,7 +387,7 @@ void OrthoRhombicOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < OrthoRhombic::k_NumSymQuats; i++)
+  for(int i = 0; i < OrthoRhombic::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -581,7 +579,7 @@ EbsdLib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < OrthoRhombic::k_NumSymQuats; j++)
+  for(int j = 0; j < OrthoRhombic::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

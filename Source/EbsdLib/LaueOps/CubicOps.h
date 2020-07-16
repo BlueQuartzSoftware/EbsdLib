@@ -235,7 +235,7 @@ protected:
    * @param q2
    * @return
    */
-  OrientationD calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const override;
+  OrientationD calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const override;
 
   /**
    * @brief area preserving projection of volume preserving transformation (for C. Shuch and S. Patala coloring legend generation)

@@ -34,8 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "TetragonalLowOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -69,22 +67,22 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 93312;
 static const int k_MdfSize = 93312;
-static const int k_NumSymQuats = 4;
+static const int k_SymOpsCount = 4;
 static const int k_NumMdfBins = 36;
 
-static const QuatD QuatSym[4] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                    QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, -EbsdLib::Constants::k_1OverRoot2),
-                                    QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, -EbsdLib::Constants::k_1OverRoot2),
+                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2)};
 
-static const double RodSym[4][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 10000000000.0}, {0.0, 0.0, -1.0}, {0.0, 0.0, 1.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 10000000000.0}, {0.0, 0.0, -1.0}, {0.0, 0.0, 1.0}};
 
-static const double MatSym[4][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace TetragonalLow
 
@@ -133,7 +131,7 @@ int TetragonalLowOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int TetragonalLowOps::getNumSymOps() const
 {
-  return TetragonalLow::k_NumSymQuats;
+  return TetragonalLow::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -153,7 +151,7 @@ std::string TetragonalLowOps::getSymmetryName() const
 
 OrientationD TetragonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(TetragonalLow::QuatSym, TetragonalLow::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(TetragonalLow::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -161,7 +159,7 @@ OrientationF TetragonalLowOps::calculateMisorientation(const QuatF& q1f, const Q
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(TetragonalLow::QuatSym, TetragonalLow::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(TetragonalLow::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -208,8 +206,7 @@ void TetragonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TetragonalLowOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 4;
-  return _calcRodNearestOrigin(TetragonalLow::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(TetragonalLow::RodSym, rod);
 }
 // -----------------------------------------------------------------------------
 //
@@ -218,7 +215,7 @@ OrientationType TetragonalLowOps::getMDFFZRod(const OrientationType& inRod) cons
 {
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
 
-  OrientationType rod = _calcRodNearestOrigin(TetragonalLow::RodSym, 4, inRod);
+  OrientationType rod = _calcRodNearestOrigin(TetragonalLow::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
   FZn1 = std::fabs(ax[0]);
@@ -234,13 +231,13 @@ OrientationType TetragonalLowOps::getMDFFZRod(const OrientationType& inRod) cons
 // -----------------------------------------------------------------------------
 QuatD TetragonalLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(TetragonalLow::QuatSym, TetragonalLow::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(TetragonalLow::QuatSym, q1, q2);
 }
 QuatF TetragonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(TetragonalLow::QuatSym, TetragonalLow::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(TetragonalLow::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -303,7 +300,7 @@ OrientationType TetragonalLowOps::determineEulerAngles(double random[3], int cho
 // -----------------------------------------------------------------------------
 OrientationType TetragonalLowOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(TetragonalLow::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(TetragonalLow::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = TetragonalLow::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -381,7 +378,7 @@ void TetragonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], dou
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < TetragonalLow::k_NumSymQuats; i++)
+  for(int i = 0; i < TetragonalLow::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -574,7 +571,7 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double 
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < TetragonalLow::k_NumSymQuats; j++)
+  for(int j = 0; j < TetragonalLow::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

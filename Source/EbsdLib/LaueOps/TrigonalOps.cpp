@@ -35,8 +35,6 @@
 
 #include "TrigonalOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -70,27 +68,28 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 31104;
 static const int k_MdfSize = 31104;
-static const int k_NumSymQuats = 6;
+static const int k_SymOpsCount = 6;
 static const int k_NumMdfBins = 12;
 
-static const QuatD QuatSym[6] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
-                                    QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
-                                    QuatD(-0.500000000, 0.86602540, 0.000000000, 0.000000000), QuatD(-0.500000000, -0.866025400, 0.000000000, 0.000000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
+                                           QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
+                                           QuatD(-0.500000000, 0.86602540, 0.000000000, 0.000000000), QuatD(-0.500000000, -0.866025400, 0.000000000, 0.000000000)};
 
-static const double RodSym[6][3] = {
+static const std::vector<OrientationD> RodSym = {
     {0.0, 0.0, 0.0}, {0.0, 0.0, 1.73205}, {0.0, 0.0, -1.73205}, {8660254000000.0, 5000000000000.0, 0.0}, {0.0, 1000000000000.0, 0.0}, {-8660254000000.0, 5000000000000.0, 0.0}};
 
-static const double MatSym[6][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                       {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+    {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                       {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
 
 } // namespace TrigonalHigh
 
@@ -145,7 +144,7 @@ int TrigonalOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int TrigonalOps::getNumSymOps() const
 {
-  return TrigonalHigh::k_NumSymQuats;
+  return TrigonalHigh::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -165,7 +164,7 @@ std::string TrigonalOps::getSymmetryName() const
 
 OrientationD TrigonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(TrigonalHigh::QuatSym, TrigonalHigh::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(TrigonalHigh::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -174,7 +173,7 @@ OrientationF TrigonalOps::calculateMisorientation(const QuatF& q1f, const QuatF&
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(TrigonalHigh::QuatSym, TrigonalHigh::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(TrigonalHigh::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -221,8 +220,7 @@ void TrigonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TrigonalOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 6;
-  return _calcRodNearestOrigin(TrigonalHigh::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(TrigonalHigh::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -234,7 +232,7 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag = 0.0f;
 
-  OrientationType rod = _calcRodNearestOrigin(TrigonalHigh::RodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(TrigonalHigh::RodSym, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
@@ -285,13 +283,13 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 QuatD TrigonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(TrigonalHigh::QuatSym, TrigonalHigh::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(TrigonalHigh::QuatSym, q1, q2);
 }
 QuatF TrigonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(TrigonalHigh::QuatSym, TrigonalHigh::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(TrigonalHigh::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -354,7 +352,7 @@ OrientationType TrigonalOps::determineEulerAngles(double random[3], int choose) 
 // -----------------------------------------------------------------------------
 OrientationType TrigonalOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(TrigonalHigh::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(TrigonalHigh::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = TrigonalHigh::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -429,7 +427,7 @@ void TrigonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double d
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < TrigonalHigh::k_NumSymQuats; i++)
+  for(int i = 0; i < TrigonalHigh::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -628,7 +626,7 @@ EbsdLib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2,
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < TrigonalHigh::k_NumSymQuats; j++)
+  for(int j = 0; j < TrigonalHigh::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
