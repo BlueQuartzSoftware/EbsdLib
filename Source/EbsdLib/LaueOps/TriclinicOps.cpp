@@ -35,8 +35,6 @@
 
 #include "TriclinicOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -70,14 +68,14 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 373248;
 static const int k_MdfSize = 373248;
-static const int k_NumSymQuats = 1;
+static const int k_SymOpsCount = 1;
 static const int k_NumMdfBins = 36;
 
-static const QuatD QuatSym[1] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
 
-static const double RodSym[1][3] = {{0.0, 0.0, 0.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}};
 
-static const double MatSym[1][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace Triclinic
 
@@ -126,7 +124,7 @@ int TriclinicOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int TriclinicOps::getNumSymOps() const
 {
-  return Triclinic::k_NumSymQuats;
+  return Triclinic::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -149,7 +147,7 @@ std::string TriclinicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 OrientationD TriclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(Triclinic::QuatSym, Triclinic::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(Triclinic::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -157,7 +155,7 @@ OrientationF TriclinicOps::calculateMisorientation(const QuatF& q1f, const QuatF
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(Triclinic::QuatSym, Triclinic::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(Triclinic::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -203,8 +201,7 @@ void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 1;
-  return _calcRodNearestOrigin(Triclinic::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(Triclinic::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -214,7 +211,7 @@ OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 {
   throw EbsdLib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
 
-  OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, 1, inRod);
+  OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
   /// FIXME: Are we missing code for TriclinicOps MDF FZ Rodrigues calculation?
@@ -227,13 +224,13 @@ OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 QuatD TriclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(Triclinic::QuatSym, Triclinic::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(Triclinic::QuatSym, q1, q2);
 }
 QuatF TriclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(Triclinic::QuatSym, Triclinic::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(Triclinic::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -296,7 +293,7 @@ OrientationType TriclinicOps::determineEulerAngles(double random[3], int choose)
 // -----------------------------------------------------------------------------
 OrientationType TriclinicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(Triclinic::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(Triclinic::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = Triclinic::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -374,7 +371,7 @@ void TriclinicOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < Triclinic::k_NumSymQuats; i++)
+  for(int i = 0; i < Triclinic::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -573,7 +570,7 @@ EbsdLib::Rgb TriclinicOps::generateIPFColor(double phi1, double phi, double phi2
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < Triclinic::k_NumSymQuats; j++)
+  for(int j = 0; j < Triclinic::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

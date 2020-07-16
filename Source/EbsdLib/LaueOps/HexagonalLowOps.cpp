@@ -35,7 +35,6 @@
 
 #include "HexagonalLowOps.h"
 
-#include <memory>
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
@@ -70,15 +69,15 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 62208;
 static const int k_MdfSize = 62208;
-static const int k_NumSymQuats = 6;
+static const int k_SymOpsCount = 6;
 static const int k_NumMdfBins = 36;
 
-static const QuatD QuatSym[k_NumSymQuats] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.500000000, 0.866025400),
-                                                QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                                QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(0.000000000, 0.000000000, 0.500000000, -0.86602540)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.500000000, 0.866025400),
+                                           QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+                                           QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(0.000000000, 0.000000000, 0.500000000, -0.86602540)};
 
-static const double RodSym[k_NumSymQuats][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.57735}, {0.0, 0.0, 1.73205}, {0.0, 0.0, 1000000000000.0}, {0.0, 0.0, -1.73205}, {0.0, 0.0, -0.57735}};
-static const double MatSym[k_NumSymQuats][3][3] = {
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.57735}, {0.0, 0.0, 1.73205}, {0.0, 0.0, 1000000000000.0}, {0.0, 0.0, -1.73205}, {0.0, 0.0, -0.57735}};
+static const double MatSym[k_SymOpsCount][3][3] = {
     {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
     {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
@@ -144,7 +143,7 @@ int HexagonalLowOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int HexagonalLowOps::getNumSymOps() const
 {
-  return HexagonalLow::k_NumSymQuats;
+  return HexagonalLow::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -164,7 +163,7 @@ std::string HexagonalLowOps::getSymmetryName() const
 
 OrientationD HexagonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(HexagonalLow::QuatSym, HexagonalLow::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(HexagonalLow::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -173,7 +172,7 @@ OrientationF HexagonalLowOps::calculateMisorientation(const QuatF& q1f, const Qu
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(HexagonalLow::QuatSym, HexagonalLow::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(HexagonalLow::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -220,8 +219,7 @@ void HexagonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType HexagonalLowOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 6;
-  return _calcRodNearestOrigin(HexagonalLow::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(HexagonalLow::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -233,7 +231,7 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag = 0.0;
 
-  OrientationType rod = _calcRodNearestOrigin(HexagonalLow::RodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(HexagonalLow::RodSym, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
@@ -281,14 +279,14 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
 
 QuatD HexagonalLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(HexagonalLow::QuatSym, HexagonalLow::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(HexagonalLow::QuatSym, q1, q2);
 }
 
 QuatF HexagonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(HexagonalLow::QuatSym, HexagonalLow::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(HexagonalLow::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -298,7 +296,7 @@ QuatF HexagonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 // -----------------------------------------------------------------------------
 QuatD HexagonalLowOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(HexagonalLow::QuatSym, HexagonalLow::k_NumSymQuats, qr);
+  return _calcQuatNearestOrigin(HexagonalLow::QuatSym, qr);
 }
 
 // -----------------------------------------------------------------------------
@@ -359,7 +357,7 @@ OrientationType HexagonalLowOps::determineEulerAngles(double random[3], int choo
 // -----------------------------------------------------------------------------
 OrientationType HexagonalLowOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(HexagonalLow::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(HexagonalLow::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = HexagonalLow::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -738,7 +736,7 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < HexagonalLow::k_NumSymQuats; i++)
+  for(int i = 0; i < HexagonalLow::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -1179,7 +1177,7 @@ EbsdLib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < HexagonalLow::k_NumSymQuats; j++)
+  for(int j = 0; j < HexagonalLow::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

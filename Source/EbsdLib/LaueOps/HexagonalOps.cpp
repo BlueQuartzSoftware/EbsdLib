@@ -36,7 +36,6 @@
 #include "HexagonalOps.h"
 
 #include <array>
-#include <memory>
 
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
@@ -71,50 +70,51 @@ static const int symSize2 = 6;
 
 static const int k_OdfSize = 15552;
 static const int k_MdfSize = 15552;
-static const int k_NumSymQuats = 12;
+static const int k_SymOpsCount = 12;
 static const int k_NumMdfBins = 20;
 
-static const QuatD QuatSym[12] = {
+static const std::vector<QuatD> QuatSym = {
     QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.500000000, 0.866025400), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
     QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(0.000000000, 0.000000000, 0.500000000, -0.86602540),
     QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000), QuatD(0.866025400, 0.500000000, 0.000000000, 0.000000000), QuatD(0.500000000, 0.866025400, 0.000000000, 0.000000000),
     QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000), QuatD(-0.50000000, 0.866025400, 0.000000000, 0.000000000), QuatD(-0.86602540, 0.500000000, 0.000000000, 0.000000000)};
 
-static const double RodSym[12][3] = {{0.0, 0.0, 0.0},
-                                     {0.0, 0.0, 0.57735},
-                                     {0.0, 0.0, 1.73205},
-                                     {0.0, 0.0, 1000000000000.0},
-                                     {0.0, 0.0, -1.73205},
-                                     {0.0, 0.0, -0.57735},
-                                     {1000000000000.0, 0.0, 0.0},
-                                     {8660254000000.0, 5000000000000.0, 0.0},
-                                     {5000000000000.0, 8660254000000.0, 0.0},
-                                     {0.0, 1000000000000.0, 0.0},
-                                     {-5000000000000.0, 8660254000000.0, 0.0},
-                                     {-8660254000000.0, 5000000000000.0, 0.0}};
-static const double MatSym[12][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},
+                                                 {0.0, 0.0, 0.57735},
+                                                 {0.0, 0.0, 1.73205},
+                                                 {0.0, 0.0, 1000000000000.0},
+                                                 {0.0, 0.0, -1.73205},
+                                                 {0.0, 0.0, -0.57735},
+                                                 {1000000000000.0, 0.0, 0.0},
+                                                 {8660254000000.0, 5000000000000.0, 0.0},
+                                                 {5000000000000.0, 8660254000000.0, 0.0},
+                                                 {0.0, 1000000000000.0, 0.0},
+                                                 {-5000000000000.0, 8660254000000.0, 0.0},
+                                                 {-8660254000000.0, 5000000000000.0, 0.0}};
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+    {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                        {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+    {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+    {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-                                        {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
 
 // Use a namespace for some detail that only this class needs
 } // namespace HexagonalHigh
@@ -164,7 +164,7 @@ int HexagonalOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int HexagonalOps::getNumSymOps() const
 {
-  return HexagonalHigh::k_NumSymQuats;
+  return HexagonalHigh::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ std::string HexagonalOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 OrientationD HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -193,7 +193,7 @@ OrientationF HexagonalOps::calculateMisorientation(const QuatF& q1f, const QuatF
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -243,8 +243,7 @@ void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType HexagonalOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 12;
-  return _calcRodNearestOrigin(HexagonalHigh::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(HexagonalHigh::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -256,7 +255,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag;
 
-  OrientationType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, inRod);
 
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
@@ -305,14 +304,14 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
 
 QuatD HexagonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(HexagonalHigh::QuatSym, q1, q2);
 }
 
 QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(HexagonalHigh::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -322,7 +321,7 @@ QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 // -----------------------------------------------------------------------------
 QuatD HexagonalOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(HexagonalHigh::QuatSym, HexagonalHigh::k_NumSymQuats, qr);
+  return _calcQuatNearestOrigin(HexagonalHigh::QuatSym, qr);
 }
 
 // -----------------------------------------------------------------------------
@@ -383,7 +382,7 @@ OrientationType HexagonalOps::determineEulerAngles(double random[3], int choose)
 // -----------------------------------------------------------------------------
 OrientationType HexagonalOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = HexagonalHigh::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -1228,7 +1227,7 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < HexagonalHigh::k_NumSymQuats; j++)
+  for(int j = 0; j < HexagonalHigh::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

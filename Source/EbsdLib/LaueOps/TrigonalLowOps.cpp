@@ -35,8 +35,6 @@
 
 #include "TrigonalLowOps.h"
 
-#include <memory>
-
 #include <cmath>
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -71,19 +69,19 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 124416;
 static const int k_MdfSize = 124416;
-static const int k_NumSymQuats = 3;
+static const int k_SymOpsCount = 3;
 static const int k_NumMdfBins = 12;
 
-static const QuatD QuatSym[3] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
-                                    QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
+                                           QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000)};
 
-static const double RodSym[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 1.73205}, {0.0, 0.0, -1.73205}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 1.73205}, {0.0, 0.0, -1.73205}};
 
-static const double MatSym[3][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-0.5, EbsdLib::Constants::k_Root3Over2, 0.0}, {-EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2, 0.0}, {-EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-0.5, -EbsdLib::Constants::k_Root3Over2, 0.0}, {EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2, 0.0}, {EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace TrigonalLow
 
@@ -138,7 +136,7 @@ int TrigonalLowOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int TrigonalLowOps::getNumSymOps() const
 {
-  return TrigonalLow::k_NumSymQuats;
+  return TrigonalLow::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -158,7 +156,7 @@ std::string TrigonalLowOps::getSymmetryName() const
 
 OrientationD TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(TrigonalLow::QuatSym, TrigonalLow::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -167,7 +165,7 @@ OrientationF TrigonalLowOps::calculateMisorientation(const QuatF& q1f, const Qua
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(TrigonalLow::QuatSym, TrigonalLow::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -213,8 +211,7 @@ void TrigonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType TrigonalLowOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 3;
-  return _calcRodNearestOrigin(TrigonalLow::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(TrigonalLow::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -225,7 +222,7 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   float n1n2mag = 0.0f;
 
-  OrientationType rod = _calcRodNearestOrigin(TrigonalLow::RodSym, 12, inRod);
+  OrientationType rod = _calcRodNearestOrigin(TrigonalLow::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
   float denom = sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]);
@@ -272,13 +269,13 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 QuatD TrigonalLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(TrigonalLow::QuatSym, TrigonalLow::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(TrigonalLow::QuatSym, q1, q2);
 }
 QuatF TrigonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(TrigonalLow::QuatSym, TrigonalLow::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(TrigonalLow::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -341,7 +338,7 @@ OrientationType TrigonalLowOps::determineEulerAngles(double random[3], int choos
 // -----------------------------------------------------------------------------
 OrientationType TrigonalLowOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(TrigonalLow::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(TrigonalLow::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = TrigonalLow::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -419,7 +416,7 @@ void TrigonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doubl
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < TrigonalLow::k_NumSymQuats; i++)
+  for(int i = 0; i < TrigonalLow::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -618,7 +615,7 @@ EbsdLib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double ph
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < TrigonalLow::k_NumSymQuats; j++)
+  for(int j = 0; j < TrigonalLow::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

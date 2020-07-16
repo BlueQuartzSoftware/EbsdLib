@@ -35,8 +35,6 @@
 
 #include "MonoclinicOps.h"
 
-#include <memory>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
@@ -70,16 +68,16 @@ static const int symSize2 = 2;
 
 static const int k_OdfSize = 186624;
 static const int k_MdfSize = 186624;
-static const int k_NumSymQuats = 2;
+static const int k_SymOpsCount = 2;
 static const int k_NumMdfBins = 36;
 
-static const QuatD QuatSym[2] = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000)};
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000)};
 
-static const double RodSym[2][3] = {{0.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}};
 
-static const double MatSym[2][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                       {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace Monoclinic
 
@@ -128,7 +126,7 @@ int MonoclinicOps::getMdfPlotBins() const
 // -----------------------------------------------------------------------------
 int MonoclinicOps::getNumSymOps() const
 {
-  return Monoclinic::k_NumSymQuats;
+  return Monoclinic::k_SymOpsCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -151,7 +149,7 @@ std::string MonoclinicOps::getSymmetryName() const
 // -----------------------------------------------------------------------------
 OrientationD MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
+  return calculateMisorientationInternal(Monoclinic::QuatSym, q1, q2);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,7 +158,7 @@ OrientationF MonoclinicOps::calculateMisorientation(const QuatF& q1f, const Quat
 {
   QuatD q1 = q1f.to<double>();
   QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
+  OrientationD axisAngle = calculateMisorientationInternal(Monoclinic::QuatSym, q1, q2);
   return axisAngle;
 }
 
@@ -207,8 +205,7 @@ void MonoclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 OrientationType MonoclinicOps::getODFFZRod(const OrientationType& rod) const
 {
-  int numsym = 2;
-  return _calcRodNearestOrigin(Monoclinic::RodSym, numsym, rod);
+  return _calcRodNearestOrigin(Monoclinic::RodSym, rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -221,7 +218,7 @@ OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
   double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
   double FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
 
-  OrientationType rod = LaueOps::_calcRodNearestOrigin(Monoclinic::RodSym, 24, inRod);
+  OrientationType rod = LaueOps::_calcRodNearestOrigin(Monoclinic::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
   n1 = ax[0];
   n2 = ax[1], n3 = ax[2], w = ax[3];
@@ -236,14 +233,14 @@ OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
 // -----------------------------------------------------------------------------
 QuatD MonoclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
+  return _calcNearestQuat(Monoclinic::QuatSym, q1, q2);
 }
 
 QuatF MonoclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
   QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(Monoclinic::QuatSym, Monoclinic::k_NumSymQuats, q1, q2);
+  QuatD temp = _calcNearestQuat(Monoclinic::QuatSym, q1, q2);
   QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
   return out;
 }
@@ -307,7 +304,7 @@ OrientationType MonoclinicOps::determineEulerAngles(double random[3], int choose
 // -----------------------------------------------------------------------------
 OrientationType MonoclinicOps::randomizeEulerAngles(const OrientationType& synea) const
 {
-  size_t symOp = getRandomSymmetryOperatorIndex(Monoclinic::k_NumSymQuats);
+  size_t symOp = getRandomSymmetryOperatorIndex(Monoclinic::k_SymOpsCount);
   QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
   QuatD qc = Monoclinic::QuatSym[symOp] * quat;
   return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
@@ -385,7 +382,7 @@ void MonoclinicOps::getSchmidFactorAndSS(double load[3], double plane[3], double
   directionMag *= loadMag;
 
   // loop over symmetry operators finding highest schmid factor
-  for(int i = 0; i < Monoclinic::k_NumSymQuats; i++)
+  for(int i = 0; i < Monoclinic::k_SymOpsCount; i++)
   {
     // compute slip system
     double slipPlane[3] = {0};
@@ -578,7 +575,7 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
   OrientationType om(9); // Reusable for the loop
   QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
 
-  for(int j = 0; j < Monoclinic::k_NumSymQuats; j++)
+  for(int j = 0; j < Monoclinic::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
     OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);

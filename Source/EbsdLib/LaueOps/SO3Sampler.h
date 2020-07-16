@@ -33,7 +33,6 @@
 
 #include <list>
 #include <memory>
-
 #include <string>
 
 #include "EbsdLib/EbsdLib.h"

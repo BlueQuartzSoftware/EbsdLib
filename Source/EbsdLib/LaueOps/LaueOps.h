@@ -36,7 +36,6 @@
 
 #include <memory>
 #include <vector>
-
 #include <string>
 
 #include "EbsdLib/EbsdLib.h"
@@ -285,13 +284,13 @@ protected:
    * @param q2 Input Quaternion 2
    * @return Returns Axis-Angle <XYZ>W form.
    */
-  virtual OrientationD calculateMisorientationInternal(const QuatD* quatsym, size_t numsym, const QuatD& q1, const QuatD& q2) const;
+  virtual OrientationD calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const;
 
-  OrientationType _calcRodNearestOrigin(const double rodsym[24][3], int numsym, const OrientationType& rod) const;
+  OrientationType _calcRodNearestOrigin(const std::vector<OrientationD>& rodsym, const OrientationType& rod) const;
 
-  QuatD _calcNearestQuat(const QuatD quatsym[24], int numsym, const QuatD& q1, const QuatD& q2) const;
+  QuatD _calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const;
 
-  QuatD _calcQuatNearestOrigin(const QuatD quatsym[24], int numsym, const QuatD& qr) const;
+  QuatD _calcQuatNearestOrigin(const std::vector<QuatD>& quatsym, const QuatD& qr) const;
 
   int _calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
   void _calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
