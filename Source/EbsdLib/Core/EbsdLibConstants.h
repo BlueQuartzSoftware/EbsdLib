@@ -45,11 +45,11 @@ namespace EbsdLib
 {
 
 using Rgb = uint32_t;
-const Rgb RGB_MASK = 0x00ffffff; // masks RGB values
-const std::string PathSep("|");
-static const uint8_t Unchecked = 0;
-static const uint8_t PartiallyChecked = 1;
-static const uint8_t Checked = 2;
+inline constexpr Rgb RGB_MASK = 0x00ffffff; // masks RGB values
+inline const std::string PathSep("|");
+inline constexpr uint8_t Unchecked = 0;
+inline constexpr uint8_t PartiallyChecked = 1;
+inline constexpr uint8_t Checked = 2;
 
 enum InfoStringFormat
 {
@@ -63,31 +63,31 @@ enum InfoStringFormat
 
 namespace StringConstants
 {
-const std::string Statistics("Statistics");
-const std::string StatsData("StatsData");
-const std::string StatsType("StatsType");
-const std::string GBCD("GBCD");
+inline const std::string Statistics("Statistics");
+inline const std::string StatsData("StatsData");
+inline const std::string StatsType("StatsType");
+inline const std::string GBCD("GBCD");
 } // namespace StringConstants
 
 namespace NumericTypes
 {
 namespace Names
 {
-const std::string Int8("signed   int 8  bit");
-const std::string UInt8("unsigned int 8  bit");
-const std::string Int16("signed   int 16 bit");
-const std::string UInt16("unsigned int 16 bit");
-const std::string Int32("signed   int 32 bit");
-const std::string UInt32("unsigned int 32 bit");
-const std::string Int64("signed   int 64 bit");
-const std::string UInt64("unsigned int 64 bit");
-const std::string Float("       Float 32 bit");
-const std::string Double("      Double 64 bit");
-const std::string Bool("Bool");
-const std::string SizeT("size_t");
+inline const std::string Int8("signed int 8 bit");
+inline const std::string UInt8("unsigned int 8 bit");
+inline const std::string Int16("signed int 16 bit");
+inline const std::string UInt16("unsigned int 16 bit");
+inline const std::string Int32("signed int 32 bit");
+inline const std::string UInt32("unsigned int 32 bit");
+inline const std::string Int64("signed int 64 bit");
+inline const std::string UInt64("unsigned int 64 bit");
+inline const std::string Float("Float 32 bit");
+inline const std::string Double("Double 64 bit");
+inline const std::string Bool("Bool");
+inline const std::string SizeT("size_t");
 } // namespace Names
 
-enum class Type : int
+enum class Type : int32_t
 {
   Int8 = 0,
   UInt8,
@@ -104,7 +104,7 @@ enum class Type : int
   UnknownNumType
 };
 
-const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
+inline const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
                                 NumericTypes::Names::Int32 + ", " + NumericTypes::Names::UInt32 + ", " + NumericTypes::Names::Int64 + ", " + NumericTypes::Names::UInt64 + ", " +
                                 NumericTypes::Names::Float + ", " + NumericTypes::Names::Double + ", " + NumericTypes::Names::Bool + ", " + NumericTypes::Names::SizeT);
 } // namespace NumericTypes
@@ -112,42 +112,42 @@ const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTy
 /** @brief RefFrameZDir defined for the Stacking order of images into a 3D Volume */
 namespace RefFrameZDir
 {
-static const unsigned int LowtoHigh = 0;
-static const unsigned int HightoLow = 1;
-static const unsigned int UnknownRefFrameZDirection = 2;
+inline constexpr uint32_t LowtoHigh = 0;
+inline constexpr uint32_t HightoLow = 1;
+inline constexpr uint32_t UnknownRefFrameZDirection = 2;
 } // namespace RefFrameZDir
 
 namespace H5Ebsd
 {
-const std::string Manufacturer("Manufacturer");
-const std::string Header("Header");
-const std::string Phases("Phases");
-const std::string Phase("Phase");
-const std::string Data("Data");
-const std::string Index("Index");
+inline const std::string Manufacturer("Manufacturer");
+inline const std::string Header("Header");
+inline const std::string Phases("Phases");
+inline const std::string Phase("Phase");
+inline const std::string Data("Data");
+inline const std::string Index("Index");
 
-const std::string ZStartIndex("ZStartIndex");
-const std::string ZEndIndex("ZEndIndex");
-const std::string ZResolution("Z Resolution");
-const std::string StackingOrder("Stacking Order");
-const std::string SampleTransformationAngle("SampleTransformationAngle");
-const std::string SampleTransformationAxis("SampleTransformationAxis");
-const std::string EulerTransformationAngle("EulerTransformationAngle");
-const std::string EulerTransformationAxis("EulerTransformationAxis");
+inline const std::string ZStartIndex("ZStartIndex");
+inline const std::string ZEndIndex("ZEndIndex");
+inline const std::string ZResolution("Z Resolution");
+inline const std::string StackingOrder("Stacking Order");
+inline const std::string SampleTransformationAngle("SampleTransformationAngle");
+inline const std::string SampleTransformationAxis("SampleTransformationAxis");
+inline const std::string EulerTransformationAngle("EulerTransformationAngle");
+inline const std::string EulerTransformationAxis("EulerTransformationAxis");
 
 // Each Manufacturer has their own naming scheme for these variables but for
 // DREAM.3D we are going to settle on using these names for consistency
-const std::string XResolution("X Resolution");
-const std::string YResolution("Y Resolution");
+inline const std::string XResolution("X Resolution");
+inline const std::string YResolution("Y Resolution");
 
 // We store the Maximum number of X and Y Points for the given volume. This
 // allows us to store slices that have different XY voxel dimensions.
-const std::string XPoints("Max X Points");
-const std::string YPoints("Max Y Points");
+inline const std::string XPoints("Max X Points");
+inline const std::string YPoints("Max Y Points");
 
-const std::string FileVersionStr("FileVersion");
-const unsigned int FileVersion = 5;
-const std::string EbsdLibVersionStr("EbsdLibVersion");
+inline const std::string FileVersionStr("FileVersion");
+inline constexpr uint32_t FileVersion = 5;
+inline const std::string EbsdLibVersionStr("EbsdLibVersion");
 } // namespace H5Ebsd
 
 using EnumType = int32_t;
@@ -166,8 +166,8 @@ enum class OEM : EnumType
 
 namespace CellData
 {
-const std::string EulerAngles("EulerAngles");
-const std::string Phases("Phases");
+inline const std::string EulerAngles("EulerAngles");
+inline const std::string Phases("Phases");
 } // namespace CellData
 
 enum EbsdToSampleCoordinateMapping
@@ -180,14 +180,13 @@ enum EbsdToSampleCoordinateMapping
 
 namespace StackingOrder
 {
-const std::string LowToHigh("Low To High");
-const std::string HighToLow("High To Low");
-const std::string UnknownStackingOrder("Unknown Stacking Order");
+inline const std::string LowToHigh("Low To High");
+inline const std::string HighToLow("High To Low");
+inline const std::string UnknownStackingOrder("Unknown Stacking Order");
 
-class Utils
+namespace Utils
 {
-public:
-  static std::string getStringForEnum(unsigned int v)
+  inline std::string getStringForEnum(uint32_t v)
   {
     if(EbsdLib::RefFrameZDir::LowtoHigh == v)
     {
@@ -200,19 +199,19 @@ public:
     return EbsdLib::StackingOrder::UnknownStackingOrder;
   }
 
-  static int getEnumForString(const std::string& v)
+  inline int32_t getEnumForString(const std::string& v)
   {
-    if(EbsdLib::StackingOrder::LowToHigh.compare(v) == 0)
+    if(EbsdLib::StackingOrder::LowToHigh == v)
     {
       return EbsdLib::RefFrameZDir::LowtoHigh;
     }
-    if(EbsdLib::StackingOrder::HighToLow.compare(v) == 0)
+    if(EbsdLib::StackingOrder::HighToLow == v)
     {
       return EbsdLib::RefFrameZDir::HightoLow;
     }
     return EbsdLib::RefFrameZDir::UnknownRefFrameZDirection;
   }
-};
+}
 } // namespace StackingOrder
 
 /**
@@ -222,69 +221,69 @@ public:
 namespace CrystalStructure
 {
 
-const unsigned int Triclinic = 4;       //!< Triclinic -1
-const unsigned int Monoclinic = 5;      //!< Monoclinic 2/m
-const unsigned int OrthoRhombic = 6;    //!< Orthorhombic mmm
-const unsigned int Tetragonal_Low = 7;  //!< Tetragonal-Low 4/m
-const unsigned int Tetragonal_High = 8; //!< Tetragonal-High 4/mmm
-const unsigned int Trigonal_Low = 9;    //!< Trigonal-Low -3
-const unsigned int Trigonal_High = 10;  //!< Trigonal-High -3m
+inline constexpr uint32_t Triclinic = 4;       //!< Triclinic -1
+inline constexpr uint32_t Monoclinic = 5;      //!< Monoclinic 2/m
+inline constexpr uint32_t OrthoRhombic = 6;    //!< Orthorhombic mmm
+inline constexpr uint32_t Tetragonal_Low = 7;  //!< Tetragonal-Low 4/m
+inline constexpr uint32_t Tetragonal_High = 8; //!< Tetragonal-High 4/mmm
+inline constexpr uint32_t Trigonal_Low = 9;    //!< Trigonal-Low -3
+inline constexpr uint32_t Trigonal_High = 10;  //!< Trigonal-High -3m
 
-const unsigned int Hexagonal_Low = 2;  //!< Hexagonal-Low 6/m
-const unsigned int Hexagonal_High = 0; //!< Hexagonal-High 6/mmm
-const unsigned int Cubic_Low = 3;      //!< Cubic Cubic-Low m3 (Tetrahedral)
-const unsigned int Cubic_High = 1;     //!< Cubic Cubic-High m3m
+inline constexpr uint32_t Hexagonal_Low = 2;  //!< Hexagonal-Low 6/m
+inline constexpr uint32_t Hexagonal_High = 0; //!< Hexagonal-High 6/mmm
+inline constexpr uint32_t Cubic_Low = 3;      //!< Cubic Cubic-Low m3 (Tetrahedral)
+inline constexpr uint32_t Cubic_High = 1;     //!< Cubic Cubic-High m3m
 
-const unsigned int LaueGroupEnd = 11;             //!< The end of the Laue groups
-const unsigned int UnknownCrystalStructure = 999; //!< UnknownCrystalStructure
+inline constexpr uint32_t LaueGroupEnd = 11;             //!< The end of the Laue groups
+inline constexpr uint32_t UnknownCrystalStructure = 999; //!< UnknownCrystalStructure
 } // namespace CrystalStructure
 
 namespace BravaisLattice
 {
-const std::string Unknown("Unknown");
-const std::string Cubic("Cubic");
-const std::string Hexagonal("Hexagonal");
+inline const std::string Unknown("Unknown");
+inline const std::string Cubic("Cubic");
+inline const std::string Hexagonal("Hexagonal");
 } // namespace BravaisLattice
 
 namespace AngleRepresentation
 {
-static const int Radians = 0;
-static const int Degrees = 1;
-static const int Invalid = 2;
+inline constexpr int32_t Radians = 0;
+inline constexpr int32_t Degrees = 1;
+inline constexpr int32_t Invalid = 2;
 }; // namespace AngleRepresentation
 
 namespace LambertParametersType
 {
-static const double iPi = 0.3183098861837910;   // 1/pi
-static const double sPi = 1.7724538509055160;   // sqrt(pi)
-static const double sPio2 = 1.2533141373155000; // sqrt(pi/2)
-static const double sPi2 = 0.8862269254527580;  // sqrt(pi)/2
-static const double srt = 0.8660254037844390;   // sqrt(3)/2
-static const double isrt = 0.5773502691896260;  // 1/sqrt(3)
-static const double alpha = 1.3467736870885980; // sqrt(pi)/3^(1/4)
-static const double rtt = 1.7320508075688770;   // sqrt(3)
-static const double prea = 0.5250375679043320;  // 3^(1/4)/sqrt(2pi)
-static const double preb = 1.0500751358086640;  // 3^(1/4)sqrt(2/pi)
-static const double prec = 0.9068996821171090;  // pi/2sqrt(3)
-static const double pred = 2.0943951023931950;  // 2pi/3
-static const double pree = 0.7598356856515930;  // 3^(-1/4)
-static const double pref = 1.3819765978853420;  // sqrt(6/pi)
+inline constexpr double iPi = 0.3183098861837910;   // 1/pi
+inline constexpr double sPi = 1.7724538509055160;   // sqrt(pi)
+inline constexpr double sPio2 = 1.2533141373155000; // sqrt(pi/2)
+inline constexpr double sPi2 = 0.8862269254527580;  // sqrt(pi)/2
+inline constexpr double srt = 0.8660254037844390;   // sqrt(3)/2
+inline constexpr double isrt = 0.5773502691896260;  // 1/sqrt(3)
+inline constexpr double alpha = 1.3467736870885980; // sqrt(pi)/3^(1/4)
+inline constexpr double rtt = 1.7320508075688770;   // sqrt(3)
+inline constexpr double prea = 0.5250375679043320;  // 3^(1/4)/sqrt(2pi)
+inline constexpr double preb = 1.0500751358086640;  // 3^(1/4)sqrt(2/pi)
+inline constexpr double prec = 0.9068996821171090;  // pi/2sqrt(3)
+inline constexpr double pred = 2.0943951023931950;  // 2pi/3
+inline constexpr double pree = 0.7598356856515930;  // 3^(-1/4)
+inline constexpr double pref = 1.3819765978853420;  // sqrt(6/pi)
 // ! the following constants are used for the cube to quaternion hemisphere mapping
-static const double a = 1.9257490199582530;    // pi^(5/6)/6^(1/6)
-static const double ap = 2.1450293971110250;   // pi^(2/3)
-static const double sc = 0.8977727869612860;   // a/ap
-static const double beta = 0.9628745099791260; // pi^(5/6)/6^(1/6)/2
-static const double R1 = 1.3306700394914690;   //(3pi/4)^(1/3)
-static const double r2 = 1.4142135623730950;   // sqrt(2)
-static const double r22 = 0.7071067811865470;  // 1/sqrt(2)
-static const double pi12 = 0.2617993877991490; // pi/12
-static const double pi8 = 0.3926990816987240;  // pi/8
-static const double prek = 1.6434564029725040; // R1 2^(1/4)/beta
-static const double r24 = 4.8989794855663560;  // sqrt(24)
-static const double tfit[16] = {1.00000000000188520,       -0.50000000021948470,     -0.0249999921275931260,    -0.0039287015447813740,     -0.00081527015354504380, -0.00020095004261197120,
+inline constexpr double a = 1.9257490199582530;    // pi^(5/6)/6^(1/6)
+inline constexpr double ap = 2.1450293971110250;   // pi^(2/3)
+inline constexpr double sc = 0.8977727869612860;   // a/ap
+inline constexpr double beta = 0.9628745099791260; // pi^(5/6)/6^(1/6)/2
+inline constexpr double R1 = 1.3306700394914690;   //(3pi/4)^(1/3)
+inline constexpr double r2 = 1.4142135623730950;   // sqrt(2)
+inline constexpr double r22 = 0.7071067811865470;  // 1/sqrt(2)
+inline constexpr double pi12 = 0.2617993877991490; // pi/12
+inline constexpr double pi8 = 0.3926990816987240;  // pi/8
+inline constexpr double prek = 1.6434564029725040; // R1 2^(1/4)/beta
+inline constexpr double r24 = 4.8989794855663560;  // sqrt(24)
+inline constexpr double tfit[16] = {1.00000000000188520,       -0.50000000021948470,     -0.0249999921275931260,    -0.0039287015447813740,     -0.00081527015354504380, -0.00020095004261197120,
                                 -0.000023979867760717560,  -0.000082028689266058410, +0.000124487150420900920,  -0.00017491142148225770,    +0.00017034819341400540, -0.000120620650041168280,
                                 +0.0000597197058686608260, -0.000019807567239656470, +0.0000039537146842128740, -0.000000365550014397195440};
-static const double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.4142135623730950, 0.0, 0.2679491924311230}; // used for Fundamental Zone determination in so3 module
+inline constexpr double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.4142135623730950, 0.0, 0.2679491924311230}; // used for Fundamental Zone determination in so3 module
 } // namespace LambertParametersType
 
 // Add some shortened namespace alias
