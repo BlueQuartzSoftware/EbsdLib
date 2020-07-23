@@ -45,10 +45,6 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 
-#if DATA_ARRAY_ENABLE_HDF5_IO
-using hid_t = int64_t;
-#endif
-
 /**
  * @class EbsdDataArray
  * @brief Template class for wrapping raw arrays of data and is the basis for storing data within the SIMPL data structure.
@@ -515,14 +511,6 @@ public:
    */
   std::string getTypeAsString() const;
 
-#ifdef DATA_ARRAY_ENABLE_HDF5_IO
-  /**
-   *
-   * @param parentId
-   * @return
-   */
-  int32_t writeH5Data(const hid_t& parentId, const comp_dims_type& tDims) const;
-#endif
   /**
    * @brief writeXdmfAttribute
    * @param out
@@ -531,55 +519,12 @@ public:
    */
   int writeXdmfAttribute(std::stringstream& out, const int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& label) const;
 
-#ifdef DATA_ARRAY_ENABLE_ToolTipGenerator
-  /**
-   * @brief Returns a ToolTipGenerator for creating HTML tooltip tables
-   * with values populated to match the current EbsdDataArray.
-   * @return
-   */
-  ToolTipGenerator getToolTipGenerator() const
-  {
-    ToolTipGenerator toolTipGen;
-    QLocale usa(QLocale::English, QLocale::UnitedStates);
-
-    toolTipGen.addTitle("Attribute Array Info");
-    toolTipGen.addValue("Name", getName());
-    toolTipGen.addValue("Type", getTypeAsString());
-    toolTipGen.addValue("Number of Tuples", usa.toString(static_cast<qlonglong>(getNumberOfTuples())));
-
-    std::string compDimStr = "(";
-    for(int i = 0; i < m_CompDims.size(); i++)
-    {
-      compDimStr = compDimStr + EbsdStringUtils::number(m_CompDims[i]);
-      if(i < m_CompDims.size() - 1)
-      {
-        compDimStr = compDimStr + std::string(", ");
-      }
-    }
-    compDimStr += ")";
-    toolTipGen.addValue("Component Dimensions", compDimStr);
-    toolTipGen.addValue("Total Elements", usa.toString(static_cast<qlonglong>(m_Size)));
-    toolTipGen.addValue("Total Memory Required", usa.toString(static_cast<qlonglong>(m_Size * sizeof(T))));
-
-    return toolTipGen;
-  }
-#endif
-
   /**
    * @brief getInfoString
    * @return Returns a formatted string that contains general infomation about
    * the instance of the object.
    */
   std::string getInfoString(EbsdLib::InfoStringFormat format) const;
-
-#ifdef DATA_ARRAY_ENABLE_HDF5_IO
-  /**
-   * @brief
-   * @param parentId
-   * @return
-   */
-  int readH5Data(const hid_t& parentId);
-#endif
 
   /**
    * @brief

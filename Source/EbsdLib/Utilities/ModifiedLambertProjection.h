@@ -42,7 +42,7 @@
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
-using hid_t = int64_t;
+#include "H5Support/H5SupportTypeDefs.h"
 #endif
 
 /**

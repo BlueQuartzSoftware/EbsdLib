@@ -45,7 +45,7 @@
 #include "EbsdLib/Utilities/ToolTipGenerator.h"
 
 #ifdef EbsdLib_ENABLE_HDF5
-using hid_t = int64_t;
+#include "H5Support/H5SupportTypeDefs.h"
 #endif
 
 /**

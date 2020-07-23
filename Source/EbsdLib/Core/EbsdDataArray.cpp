@@ -67,12 +67,6 @@
 #define EBSD_BYTE_SWAP_64(x) bswap_64(x)
 #endif
 
-#ifdef DATA_ARRAY_ENABLE_HDF5_IO
-#include <hdf5.h>
-#include "SIMPLib/HDF5/H5EbsdDataArrayReader.h"
-#include "SIMPLib/HDF5/H5EbsdDataArrayWriter.hpp"
-#endif
-
 #include "EbsdLib/Core/EbsdMacros.h"
 
 namespace
@@ -1089,19 +1083,6 @@ std::string EbsdDataArray<T>::getTypeAsString() const
   return "UnknownType";
 }
 
-#ifdef DATA_ARRAY_ENABLE_HDF5_IO
-// -----------------------------------------------------------------------------
-template <typename T>
-int EbsdDataArray<T>::writeH5Data(hid_t parentId, comp_dims_type tDims) const
-{
-  if(m_Array == nullptr)
-  {
-    return -85648;
-  }
-  return H5EbsdDataArrayWriter::writeEbsdDataArray<Self>(parentId, this, tDims);
-}
-#endif
-
 // -----------------------------------------------------------------------------
 template <typename T>
 int EbsdDataArray<T>::writeXdmfAttribute(std::stringstream& out, const int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& label) const
@@ -1219,38 +1200,6 @@ std::string EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) co
   }
   return info;
 }
-
-#ifdef DATA_ARRAY_ENABLE_HDF5_IO
-// -----------------------------------------------------------------------------
-template <typename T>
-int EbsdDataArray<T>::readH5Data(const hid_t& parentId)
-{
-  int err = -1;
-
-  resizeTuples(0);
-  Pointer p = H5EbsdDataArrayReader::ReadIEbsdDataArray(parentId, getName());
-  if(p.get() == nullptr)
-  {
-    return -1;
-  }
-  m_Array = reinterpret_cast<T*>(p->getVoidPointer(0));
-  m_Size = p->getSize();
-  m_OwnsData = true;
-  m_MaxId = (m_Size == 0) ? 0 : m_Size - 1;
-  m_IsAllocated = true;
-  setName(p->getName());
-  m_NumTuples = p->getNumberOfTuples();
-  m_CompDims = p->getComponentDimensions();
-  m_NumComponents = p->getNumberOfComponents();
-
-  // Tell the intermediate EbsdDataArray to release ownership of the data as we are going to be responsible
-  // for deleting the memory
-  p->releaseOwnership();
-
-  return err;
-}
-
-#endif
 
 // -----------------------------------------------------------------------------
 template <typename T>
