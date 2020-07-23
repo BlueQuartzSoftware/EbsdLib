@@ -68,6 +68,7 @@
 #endif
 
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
+#include <hdf5.h>
 #include "SIMPLib/HDF5/H5EbsdDataArrayReader.h"
 #include "SIMPLib/HDF5/H5EbsdDataArrayWriter.hpp"
 #endif
@@ -1219,13 +1220,13 @@ std::string EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) co
   return info;
 }
 
-#ifdef EbsdLib_ENABLE_HDF5
+#ifdef DATA_ARRAY_ENABLE_HDF5_IO
 // -----------------------------------------------------------------------------
 template <typename T>
-int EbsdDataArray<T>::readH5Data(hid_t parentId)
+int EbsdDataArray<T>::readH5Data(const hid_t& parentId)
 {
   int err = -1;
-#if 0
+
   resizeTuples(0);
   Pointer p = H5EbsdDataArrayReader::ReadIEbsdDataArray(parentId, getName());
   if(p.get() == nullptr)
@@ -1245,7 +1246,7 @@ int EbsdDataArray<T>::readH5Data(hid_t parentId)
   // Tell the intermediate EbsdDataArray to release ownership of the data as we are going to be responsible
   // for deleting the memory
   p->releaseOwnership();
-#endif
+
   return err;
 }
 

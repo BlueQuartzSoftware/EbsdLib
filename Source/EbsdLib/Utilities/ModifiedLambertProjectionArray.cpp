@@ -41,7 +41,7 @@
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #ifdef EbsdLib_ENABLE_HDF5
-#include "H5Support/H5Utilities.h"
+#include <hdf5.h>
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 #endif
@@ -618,7 +618,7 @@ void Create2DExpandableDataset(hid_t gid, const std::string& dsetName, int lambe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vector<size_t>& tDims) const
+int ModifiedLambertProjectionArray::writeH5Data(const hid_t& parentId, const std::vector<size_t>& tDims) const
 {
   herr_t err = 0;
   if(m_ModifiedLambertProjectionArray.empty())
@@ -662,7 +662,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
+int ModifiedLambertProjectionArray::readH5Data(const hid_t& parentId)
 {
   // bool ok = false;
   int err = 0;

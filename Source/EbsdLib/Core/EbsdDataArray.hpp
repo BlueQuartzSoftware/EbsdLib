@@ -39,14 +39,15 @@
 #include <vector>
 #include <iterator>
 #include <memory>
-
 #include <string>
 #include <sstream>
 
-#include <hdf5.h>
-
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+
+#if DATA_ARRAY_ENABLE_HDF5_IO
+using hid_t = int64_t;
+#endif
 
 /**
  * @class EbsdDataArray
@@ -520,7 +521,7 @@ public:
    * @param parentId
    * @return
    */
-  int32_t writeH5Data(hid_t parentId, comp_dims_type tDims) const;
+  int32_t writeH5Data(const hid_t& parentId, const comp_dims_type& tDims) const;
 #endif
   /**
    * @brief writeXdmfAttribute
@@ -571,12 +572,14 @@ public:
    */
   std::string getInfoString(EbsdLib::InfoStringFormat format) const;
 
+#ifdef DATA_ARRAY_ENABLE_HDF5_IO
   /**
    * @brief
    * @param parentId
    * @return
    */
-  int readH5Data(hid_t parentId);
+  int readH5Data(const hid_t& parentId);
+#endif
 
   /**
    * @brief

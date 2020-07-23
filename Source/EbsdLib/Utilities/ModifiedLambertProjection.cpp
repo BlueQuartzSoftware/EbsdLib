@@ -151,20 +151,19 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
   m_SouthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
   m_SouthSquare->initializeWithZeros();
 }
-#ifdef EbsdLib_ENABLE_HDF5
+#ifdef DATA_ARRAY_ENABLE_HDF5_IO
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
+int ModifiedLambertProjection::writeHDF5Data(const hid_t& groupId)
 {
   int err = -1;
-#if 0
+
   std::vector<size_t> dims = { static_cast<size_t>(m_Dimension), static_cast<size_t>(m_Dimension), 1};
   err = m_NorthSquare->writeH5Data(groupId, dims);
   std::cout << "Err: " << err << std::endl;
   err = m_SouthSquare->writeH5Data(groupId, dims);
   std::cout << "Err: " << err << std::endl;
-#endif
 
   return err;
 }
@@ -172,7 +171,7 @@ int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
+int ModifiedLambertProjection::readHDF5Data(const hid_t& groupId)
 {
   int err = -1;
   return err;

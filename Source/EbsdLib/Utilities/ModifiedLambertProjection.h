@@ -41,6 +41,10 @@
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
+#ifdef DATA_ARRAY_ENABLE_HDF5_IO
+using hid_t = int64_t;
+#endif
+
 /**
  * @class ModifiedLambertProjection ModifiedLambertProjection.h DREAM3DLib/Common/ModifiedLambertProjection.h
  * @brief  This class holds a pair of Modified Lambert Projection images. Based off the paper
@@ -127,9 +131,9 @@ public:
    */
   void initializeSquares(int dims, float sphereRadius);
 
-#ifdef EbsdLib_ENABLE_HDF5
-  virtual int writeHDF5Data(hid_t groupId);
-  virtual int readHDF5Data(hid_t groupId);
+#ifdef DATA_ARRAY_ENABLE_HDF5_IO
+  virtual int writeHDF5Data(const hid_t& groupId);
+  virtual int readHDF5Data(const hid_t& groupId);
 #endif
 
   /**
