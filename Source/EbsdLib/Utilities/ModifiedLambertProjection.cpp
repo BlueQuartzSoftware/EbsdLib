@@ -155,7 +155,7 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjection::writeHDF5Data(const hid_t& groupId)
+int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 {
   int err = -1;
 
@@ -171,7 +171,7 @@ int ModifiedLambertProjection::writeHDF5Data(const hid_t& groupId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int ModifiedLambertProjection::readHDF5Data(const hid_t& groupId)
+int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
 {
   int err = -1;
   return err;

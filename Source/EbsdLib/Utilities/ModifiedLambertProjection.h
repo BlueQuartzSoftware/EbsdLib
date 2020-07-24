@@ -132,8 +132,8 @@ public:
   void initializeSquares(int dims, float sphereRadius);
 
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
-  virtual int writeHDF5Data(const hid_t& groupId);
-  virtual int readHDF5Data(const hid_t& groupId);
+  virtual int writeHDF5Data(hid_t groupId);
+  virtual int readHDF5Data(hid_t groupId);
 #endif
 
   /**
