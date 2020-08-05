@@ -79,8 +79,7 @@ public:
 #ifdef EbsdLib_ENABLE_HDF5
   std::string getHDFType() override
   {
-    T value = static_cast<T>(0);
-    return H5Lite::HDFTypeForPrimitiveAsStr(value);
+    return H5Lite::HDFTypeForPrimitiveAsStr<T>();
   }
 #endif
 
