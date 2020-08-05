@@ -1,4 +1,3 @@
-
 set(DIR_NAME Texture)
 
 set(EbsdLib_${DIR_NAME}_HDRS
@@ -11,12 +10,11 @@ set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/TexturePreset.cpp
 )
 
-#cmp_IDE_SOURCE_PROPERTIES( "Common" "${EbsdLib_Texture_HDRS}" "${EbsdLib_Texture_SRCS}" "0")
+#cmp_IDE_SOURCE_PROPERTIES("Common" "${EbsdLib_Texture_HDRS}" "${EbsdLib_Texture_SRCS}" "0")
 
-
-if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
-    INSTALL (FILES ${EbsdLib_Texture_HDRS}
-            DESTINATION include/EbsdLib/Texture
-            COMPONENT Headers   )
+if(EbsdLib_INSTALL_FILES)
+  install(FILES ${EbsdLib_Texture_HDRS}
+    DESTINATION include/EbsdLib/Texture
+    COMPONENT Headers
+  )
 endif()
-

@@ -1,4 +1,3 @@
-
 set(DIR_NAME Core )
 set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/AbstractEbsdFields.h 
@@ -12,7 +11,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/OrientationMath.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/OrientationTransformation.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Quaternion.hpp
-  )
+)
 
 set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/AbstractEbsdFields.cpp 
@@ -21,9 +20,9 @@ set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/OrientationMath.cpp
 )
 
-
-if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
-    INSTALL (FILES ${EbsdLib_${DIR_NAME}_HDRS} ${EbsdLib_${DIR_NAME}_MOC_HDRS}
-            DESTINATION include/EbsdLib/${DIR_NAME}
-            COMPONENT Headers   )
+if(EbsdLib_INSTALL_FILES)
+  install(FILES ${EbsdLib_${DIR_NAME}_HDRS} ${EbsdLib_${DIR_NAME}_MOC_HDRS}
+    DESTINATION include/EbsdLib/${DIR_NAME}
+    COMPONENT Headers
+  )
 endif()

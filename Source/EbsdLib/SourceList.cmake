@@ -1,8 +1,14 @@
 get_property(EbsdLib_INSTALL_FILES GLOBAL PROPERTY EbsdLib_INSTALL_FILES)
+get_property(EbsdLib_INSTALL_LIB GLOBAL PROPERTY EbsdLib_INSTALL_LIB)
+
 if("${EbsdLib_INSTALL_FILES}" STREQUAL "")
-  set(EbsdLib_INSTALL_FILES 1)
+  set(EbsdLib_INSTALL_FILES ON)
 endif()
-set(EbsdLib_INSTALL_FILES ${EbsdLib_INSTALL_FILES})
+
+if("${EbsdLib_INSTALL_LIB}" STREQUAL "")
+  set(EbsdLib_INSTALL_LIB ON)
+endif()
+
 set(EXE_DEBUG_EXTENSION _debug)
 set(PROJECT_NAME EbsdLib)
 
@@ -109,7 +115,7 @@ set(EbsdLib_PROJECT_SRCS
   ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
-if(${EbsdLib_INSTALL_FILES} EQUAL 1)
+if(EbsdLib_INSTALL_FILES)
   install(FILES
     ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
     ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
@@ -120,25 +126,10 @@ endif()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 
-# Start building up the list of libraries to link against
-set(EBSDLib_LINK_LIBRARIES "")
-
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target
 if(EbsdLib_ENABLE_HDF5)
-  target_sources(${PROJECT_NAME}
-    PRIVATE
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Lite.h       
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Macros.h   
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedErrorHandler.h 
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5ScopedSentinel.h   
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Support.h         
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5SupportVersion.h   
-      ${H5Support_SOURCE_DIR}/Source/H5Support/H5Utilities.h
-  )
-   set(H5Support_USE_QT ON)
-   set(EBSDLib_LINK_LIBRARIES ${EBSDLib_LINK_LIBRARIES} hdf5::hdf5-shared)
-   target_compile_definitions(${PROJECT_NAME} PUBLIC -DH5Support_USE_QT)
+  target_link_libraries(${PROJECT_NAME} PUBLIC H5Support::H5Support)
 endif()
 
 CMP_AddDefinitions(TARGET ${PROJECT_NAME})
@@ -150,31 +141,21 @@ get_filename_component(TARGET_SOURCE_DIR_PARENT ${EbsdLibProj_SOURCE_DIR} PATH)
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
-)
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    ${EIGEN3_INCLUDE_DIR}
     $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
 )
-
-if(EbsdLib_ENABLE_HDF5)
-  target_include_directories(${PROJECT_NAME}
-    PUBLIC
-      ${HDF5_INCLUDE_DIRS}
-      ${HDF5_INCLUDE_DIR}
-      ${H5Support_SOURCE_DIR}/Source
-  )
-endif()
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+    Eigen3::Eigen
+)
 
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
 endif()
 	
 LibraryProperties(${PROJECT_NAME} ${EXE_DEBUG_EXTENSION})
-target_link_libraries(${PROJECT_NAME} ${EBSDLib_LINK_LIBRARIES})
 
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)
-  target_link_libraries(${PROJECT_NAME} TBB::tbb TBB::tbbmalloc)
+  target_link_libraries(${PROJECT_NAME} PUBLIC TBB::tbb TBB::tbbmalloc)
 endif()
 
 # --------------------------------------------------------------------
@@ -183,7 +164,7 @@ endif()
 # that is used instead.
 # --------------------------------------------------------------------
 if(APPLE)
-  target_link_libraries(${PROJECT_NAME} ghcFilesystem::ghc_filesystem)
+  target_link_libraries(${PROJECT_NAME} PUBLIC ghcFilesystem::ghc_filesystem)
 endif()
 
 # --------------------------------------------------------------------
@@ -192,7 +173,7 @@ endif()
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
   # message(STATUS "GCC Version < 9: Linking to stdc++fs")
   # target_link_libraries(${PROJECT_NAME} stdc++fs)
-  target_link_libraries(${PROJECT_NAME} ghcFilesystem::ghc_filesystem)
+  target_link_libraries(${PROJECT_NAME} PUBLIC ghcFilesystem::ghc_filesystem)
 endif()
 
 # --------------------------------------------------------------------
@@ -206,8 +187,7 @@ if(WIN32)
   set(lib_install_dir ".")
 endif()
 
-if(EbsdLib_INSTALL_FILES)
-
+if(EbsdLib_INSTALL_LIB OR EbsdLib_INSTALL_FILES)
   install(TARGETS ${PROJECT_NAME}
     COMPONENT Applications
     EXPORT ${PROJECT_NAME}Targets
@@ -215,7 +195,9 @@ if(EbsdLib_INSTALL_FILES)
     LIBRARY DESTINATION ${lib_install_dir}
     ARCHIVE DESTINATION lib
   )
+endif()
 
+if(EbsdLib_INSTALL_FILES)
   # --------------------------------------------------------------------
   # Allow the generation and installation of a CMake configuration file
   # which makes using EBSDLib from another project easier.

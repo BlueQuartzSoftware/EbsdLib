@@ -1,4 +1,3 @@
-
 set(DIR_NAME LaueOps)
 
 set(EbsdLib_${DIR_NAME}_HDRS
@@ -16,6 +15,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/MonoclinicOps.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/SO3Sampler.h
 )
+
 set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/LaueOps.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/CubicOps.cpp
@@ -32,10 +32,10 @@ set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/SO3Sampler.cpp
 )
 
-
-#cmp_IDE_SOURCE_PROPERTIES( "LaueOps" "${EbsdLib${DIR_NAME}HDRS}" "${EbsdLib${DIR_NAME}SRCS}" "0")
-if( ${EbsdLib_INSTALL_FILES} EQUAL 1 )
-    INSTALL (FILES ${EbsdLib_${DIR_NAME}_HDRS}
-            DESTINATION include/EbsdLib/LaueOps
-            COMPONENT Headers   )
+#cmp_IDE_SOURCE_PROPERTIES("LaueOps" "${EbsdLib${DIR_NAME}HDRS}" "${EbsdLib${DIR_NAME}SRCS}" "0")
+if(EbsdLib_INSTALL_FILES)
+  install(FILES ${EbsdLib_${DIR_NAME}_HDRS}
+    DESTINATION include/EbsdLib/LaueOps
+    COMPONENT Headers
+  )
 endif()
