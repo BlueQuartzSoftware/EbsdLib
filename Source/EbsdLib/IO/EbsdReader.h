@@ -45,8 +45,6 @@
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Lite.h"
-#include "H5Support/H5Lite.h"
-#include <hdf5.h>
 #endif
 
 /**
