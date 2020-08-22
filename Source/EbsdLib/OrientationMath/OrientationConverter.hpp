@@ -577,32 +577,32 @@ public:
     OC_CONVERT_BODY(9, OrientationMatrix, eu2om, Eu2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     OC_CONVERT_BODY(4, Quaternion, eu2qu, Eu2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     OC_CONVERT_BODY(4, AxisAngle, eu2ax, Eu2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     OC_CONVERT_BODY(4, Rodrigues, eu2ro, Eu2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     OC_CONVERT_BODY(3, Homochoric, eu2ho, Eu2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     OC_CONVERT_BODY(3, Cubochoric, eu2cu, Eu2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
     T* inPtr = input->getPointer(0);
@@ -763,37 +763,37 @@ public:
     this->setOutputData(output);
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     sanityCheckInputData();
     OC_CONVERT_BODY(4, Quaternion, om2qu, Om2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     sanityCheckInputData();
     OC_CONVERT_BODY(4, AxisAngle, om2ax, Om2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     sanityCheckInputData();
     OC_CONVERT_BODY(4, Rodrigues, om2ro, Om2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     sanityCheckInputData();
     OC_CONVERT_BODY(3, Homochoric, om2ho, Om2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     sanityCheckInputData();
     OC_CONVERT_BODY(3, Cubochoric, om2cu, Om2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
     T* inPtr = input->getPointer(0);
@@ -916,17 +916,17 @@ public:
     return OrientationRepresentation::Type::Quaternion;
   }
 
-  void toEulers()
+  void toEulers() override
   {
     OC_CONVERT_BODY(3, Eulers, qu2eu, Qu2Eu)
   }
 
-  void toOrientationMatrix()
+  void toOrientationMatrix() override
   {
     OC_CONVERT_BODY(9, OrientationMatrix, qu2om, Qu2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     using PointerType = DataArrayPointerType;
     PointerType input = this->getInputData();
@@ -934,27 +934,27 @@ public:
     this->setOutputData(output);
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     OC_CONVERT_BODY(4, AxisAngle, qu2ax, Qu2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     OC_CONVERT_BODY(4, Rodrigues, qu2ro, Qu2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     OC_CONVERT_BODY(3, Homochoric, qu2ho, Qu2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     OC_CONVERT_BODY(3, Cubochoric, qu2cu, Qu2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Quaternions, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
@@ -1074,22 +1074,22 @@ public:
     return OrientationRepresentation::Type::AxisAngle;
   }
 
-  void toEulers()
+  void toEulers() override
   {
     OC_CONVERT_BODY(3, Eulers, ax2eu, Ax2Eu)
   }
 
-  void toOrientationMatrix()
+  void toOrientationMatrix() override
   {
     OC_CONVERT_BODY(9, OrientationMatrix, ax2om, Ax2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     OC_CONVERT_BODY(4, Quaternions, ax2qu, Ax2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     using PointerType = DataArrayPointerType;
     PointerType input = this->getInputData();
@@ -1097,22 +1097,22 @@ public:
     this->setOutputData(output);
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     OC_CONVERT_BODY(4, Rodrigues, ax2ro, Ax2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     OC_CONVERT_BODY(3, Homochoric, ax2ho, Ax2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for AxisAngle, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
@@ -1233,27 +1233,27 @@ public:
     return OrientationRepresentation::Type::Rodrigues;
   }
 
-  void toEulers()
+  void toEulers() override
   {
     OC_CONVERT_BODY(3, Eulers, ro2eu, Ro2Eu)
   }
 
-  void toOrientationMatrix()
+  void toOrientationMatrix() override
   {
     OC_CONVERT_BODY(9, OrientationMatrix, ro2om, Ro2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     OC_CONVERT_BODY(4, Quaternions, ro2qu, Ro2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     OC_CONVERT_BODY(4, AxisAngle, ro2ax, Ro2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     using PointerType = DataArrayPointerType;
     PointerType input = this->getInputData();
@@ -1261,17 +1261,17 @@ public:
     this->setOutputData(output);
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     OC_CONVERT_BODY(3, Homochoric, ro2ho, Ro2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     OC_CONVERT_BODY(3, Cubochoric, ro2cu, Ro2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Rodrigues, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
@@ -1392,32 +1392,32 @@ public:
     return OrientationRepresentation::Type::Homochoric;
   }
 
-  void toEulers()
+  void toEulers() override
   {
     OC_CONVERT_BODY(3, Eulers, ho2eu, Ho2Eu)
   }
 
-  void toOrientationMatrix()
+  void toOrientationMatrix() override
   {
     OC_CONVERT_BODY(9, OrientationMatrix, ho2om, Ho2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     OC_CONVERT_BODY(4, Quaternions, ho2qu, Ho2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     OC_CONVERT_BODY(4, AxisAngle, ho2ax, Ho2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     OC_CONVERT_BODY(4, Rodrigues, ho2ro, Ho2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     using PointerType = DataArrayPointerType;
     PointerType input = this->getInputData();
@@ -1425,12 +1425,12 @@ public:
     this->setOutputData(output);
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Homochoric, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
@@ -1552,37 +1552,37 @@ public:
     return OrientationRepresentation::Type::Cubochoric;
   }
 
-  void toEulers()
+  void toEulers() override
   {
     OC_CONVERT_BODY(3, Eulers, cu2eu, Cu2Eu)
   }
 
-  void toOrientationMatrix()
+  void toOrientationMatrix() override
   {
     OC_CONVERT_BODY(9, OrientationMatrix, cu2om, Cu2Om)
   }
 
-  void toQuaternion()
+  void toQuaternion() override
   {
     OC_CONVERT_BODY(4, Quaternions, cu2qu, Cu2Qu)
   }
 
-  void toAxisAngle()
+  void toAxisAngle() override
   {
     OC_CONVERT_BODY(4, AxisAngle, cu2ax, Cu2Ax)
   }
 
-  void toRodrigues()
+  void toRodrigues() override
   {
     OC_CONVERT_BODY(4, Rodrigues, cu2ro, Cu2Ro)
   }
 
-  void toHomochoric()
+  void toHomochoric() override
   {
     OC_CONVERT_BODY(3, Homochoric, cu2ho, Cu2Ho)
   }
 
-  void toCubochoric()
+  void toCubochoric() override
   {
     using PointerType = DataArrayPointerType;
     PointerType input = this->getInputData();
@@ -1590,7 +1590,7 @@ public:
     this->setOutputData(output);
   }
 
-  void sanityCheckInputData()
+  void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Cubochoric, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
