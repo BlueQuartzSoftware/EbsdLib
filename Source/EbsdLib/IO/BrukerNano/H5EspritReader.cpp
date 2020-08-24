@@ -226,7 +226,7 @@ int H5EspritReader::readFile()
     return err;
   }
 
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
@@ -238,7 +238,7 @@ int H5EspritReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&gid);
+  sentinel.addGroupId(gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -250,7 +250,7 @@ int H5EspritReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&ebsdGid);
+  sentinel.addGroupId(ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -332,7 +332,7 @@ int H5EspritReader::readHeaderOnly()
     return err;
   }
 
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
@@ -344,7 +344,7 @@ int H5EspritReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&gid);
+  sentinel.addGroupId(gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -356,7 +356,7 @@ int H5EspritReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&ebsdGid);
+  sentinel.addGroupId(ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -397,7 +397,7 @@ int H5EspritReader::readScanNames(std::list<std::string>& names)
     names.clear();
     return getErrorCode();
   }
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
 
   int32_t err = H5Utilities::getGroupObjects(fileId, H5Utilities::CustomHDFDataTypes::Group, names);
   setErrorCode(err);
@@ -424,7 +424,7 @@ int H5EspritReader::readHeader(hid_t parId)
     setErrorMessage("H5EspritReader Error: Could not open 'Header' Group");
     return -1;
   }
-  H5ScopedGroupSentinel sentinel(&gid, false);
+  H5ScopedGroupSentinel sentinel(gid, false);
 
   // ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::CameraTilt, gid, m_HeaderMap);
   ReadH5EbsdHeaderStringData<H5EspritReader, std::string, AngStringHeaderEntry>(this, EbsdLib::H5Esprit::GridType, gid, m_HeaderMap);
@@ -498,7 +498,7 @@ int H5EspritReader::readHeader(hid_t parId)
     H5Gclose(gid);
     return getErrorCode();
   }
-  sentinel.addGroupId(&phasesGid);
+  sentinel.addGroupId(phasesGid);
 
   std::list<std::string> names;
   err = H5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);

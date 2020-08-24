@@ -120,7 +120,7 @@ int H5OIMReader::readFile()
     return err;
   }
 
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
@@ -131,7 +131,7 @@ int H5OIMReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&gid);
+  sentinel.addGroupId(gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -143,7 +143,7 @@ int H5OIMReader::readFile()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&ebsdGid);
+  sentinel.addGroupId(ebsdGid);
 
   // Read all the header information
   err = readHeader(ebsdGid);
@@ -225,7 +225,7 @@ int H5OIMReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
 
   if(m_HDF5Path.empty())
   {
@@ -265,7 +265,7 @@ int H5OIMReader::readHeaderOnly()
     setErrorMessage(str);
     return getErrorCode();
   }
-  sentinel.addGroupId(&gid);
+  sentinel.addGroupId(gid);
 
   hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
@@ -274,7 +274,7 @@ int H5OIMReader::readHeaderOnly()
     setErrorCode(-90007);
     return getErrorCode();
   }
-  sentinel.addGroupId(&ebsdGid);
+  sentinel.addGroupId(ebsdGid);
 
   err = readHeader(ebsdGid);
 
@@ -337,7 +337,7 @@ int H5OIMReader::readScanNames(std::list<std::string>& names)
     names.clear();
     return getErrorCode();
   }
-  H5ScopedFileSentinel sentinel(&fileId, false);
+  H5ScopedFileSentinel sentinel(fileId, false);
 
   err = H5Utilities::getGroupObjects(fileId, H5Utilities::CustomHDFDataTypes::Group, names);
   setErrorCode(err);
@@ -360,7 +360,7 @@ int H5OIMReader::readHeader(hid_t parId)
     setErrorMessage("H5OIMReader Error: Could not open 'Header' Group");
     return -1;
   }
-  H5ScopedGroupSentinel sentinel(&gid, false);
+  H5ScopedGroupSentinel sentinel(gid, false);
 
   // std::string path = EbsdLib::H5OIM::PatternCenterCalibration + "/" + EbsdLib::Ang::XStar;
   hid_t patternCenterCalibrationGid = H5Gopen(gid, EbsdLib::H5OIM::PatternCenterCalibration.c_str(), H5P_DEFAULT);
@@ -370,7 +370,7 @@ int H5OIMReader::readHeader(hid_t parId)
     setErrorMessage("H5OIMReader Error: Could not open 'Pattern Center Calibration' Group");
     return -1;
   }
-  sentinel.addGroupId(&patternCenterCalibrationGid);
+  sentinel.addGroupId(patternCenterCalibrationGid);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::XStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::YStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::ZStar, patternCenterCalibrationGid, m_HeaderMap);
@@ -418,7 +418,7 @@ int H5OIMReader::readHeader(hid_t parId)
     H5Gclose(gid);
     return getErrorCode();
   }
-  sentinel.addGroupId(&phasesGid);
+  sentinel.addGroupId(phasesGid);
 
   std::list<std::string> names;
   err = H5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);

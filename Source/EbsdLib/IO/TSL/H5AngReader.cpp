@@ -150,7 +150,7 @@ int H5AngReader::readHeaderOnly()
     return -1;
   }
 
-  H5ScopedFileSentinel sentinel(&fileId, true);
+  H5ScopedFileSentinel sentinel(fileId, true);
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
@@ -159,7 +159,7 @@ int H5AngReader::readHeaderOnly()
     err = H5Utilities::closeFile(fileId);
     return -1;
   }
-  sentinel.addGroupId(&gid);
+  sentinel.addGroupId(gid);
 
   // Read all the header information
   err = readHeader(gid);

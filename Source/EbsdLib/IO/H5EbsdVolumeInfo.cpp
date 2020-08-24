@@ -131,7 +131,7 @@ int H5EbsdVolumeInfo::updateToLatestVersion()
   }
   // This sentinel will make sure the file is closed and the errors turned back on when we
   // exit the function
-  H5ScopedFileSentinel sentinel(&fileId, true);
+  H5ScopedFileSentinel sentinel(fileId, true);
 
   // Update any existing datasets/attributes with new datasets/attributes/
 
@@ -152,7 +152,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
     // std::cout << "Error Opening file '" << m_FileName << "'" << std::endl;
     return -1;
   }
-  H5ScopedFileSentinel sentinel(&fileId, true);
+  H5ScopedFileSentinel sentinel(fileId, true);
 
   m_FileVersion = 0;
   // Attempt to read the file version number. If it is not there that is OK as early h5ebsd
