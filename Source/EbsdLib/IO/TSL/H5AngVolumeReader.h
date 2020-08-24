@@ -128,6 +128,7 @@ public:
   H5AngVolumeReader& operator=(const H5AngVolumeReader&) = delete; // Copy Assignment Not Implemented
   H5AngVolumeReader& operator=(H5AngVolumeReader&&) = delete;      // Move Assignment Not Implemented
 
+private:
   /**
    * @brief Allocats a contiguous chunk of memory to store values from the .ang file
    * @param numberOfElements The number of elements in the Array. This method can
@@ -145,7 +146,7 @@ public:
 #if defined(EBSD_USE_SSE) && defined(__SSE2__)
     buffer = static_cast<T*>(_mm_malloc(numberOfElements * sizeof(T), 16));
 #else
-    buffer = static_cast<T*>(malloc(sizeof(T) * numberOfElements));
+    buffer = new T[numberOfElements]();
 #endif
     return buffer;
   }
