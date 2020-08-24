@@ -960,8 +960,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
     EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor)
     {
@@ -993,8 +993,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
     EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
     EbsdMatrixMath::Normalize3x1(hkl2);
     EbsdMatrixMath::Normalize3x1(uvw2);
-    directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
-    planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
+    directionComponent2 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw2));
+    planeComponent2 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl2));
     schmidFactor2 = directionComponent2 * planeComponent2;
     if(schmidFactor2 > maxSchmidFactor)
     {
@@ -1012,8 +1012,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
   EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
   EbsdMatrixMath::Normalize3x1(hkl2);
   EbsdMatrixMath::Normalize3x1(uvw2);
-  planeMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
-  directionMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+  planeMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
+  directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
   return planeMisalignment * directionMisalignment;
 }
 
@@ -1054,8 +1054,8 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1079,7 +1079,7 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
       F1 = schmidFactor1 * directionComponent1 * totalDirectionMisalignment;
@@ -1136,8 +1136,8 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
     EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1162,8 +1162,8 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
-        planeMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+        planeMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
         totalPlaneMisalignment = totalPlaneMisalignment + planeMisalignment;
       }
@@ -1219,8 +1219,8 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1244,7 +1244,7 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
         // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
         // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
       F7 = directionComponent1 * directionComponent1 * totalDirectionMisalignment;
