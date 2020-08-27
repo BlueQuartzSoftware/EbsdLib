@@ -296,8 +296,6 @@ int H5EspritReader::readFile()
     return getErrorCode();
   }
 
-  err = H5Utilities::closeFile(fileId);
-  fileId = -1;
   if(err < 0)
   {
     std::string str;
