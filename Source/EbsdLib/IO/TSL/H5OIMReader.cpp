@@ -50,6 +50,7 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #if defined(H5Support_NAMESPACE)
 using namespace H5Support_NAMESPACE;
@@ -254,6 +255,16 @@ int H5OIMReader::readHeaderOnly()
     return getErrorCode();
   }
 
+  // Read and parse the OIM Analysis version that created the file.
+  if(H5Lite::datasetExists(fileId, EbsdLib::H5OIM::Version7))
+  {
+    err = H5Lite::readStringDataset(fileId, EbsdLib::H5OIM::Version7, m_OIMVersion);
+  }
+  // Read and parse the OIM Analysis version that created the file.
+  if(H5Lite::datasetExists(fileId, EbsdLib::H5OIM::Version8))
+  {
+    err = H5Lite::readStringDataset(fileId, EbsdLib::H5OIM::Version8, m_OIMVersion);
+  }
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
@@ -370,10 +381,11 @@ int H5OIMReader::readHeader(hid_t parId)
     setErrorMessage("H5OIMReader Error: Could not open 'Pattern Center Calibration' Group");
     return -1;
   }
-  sentinel.addGroupId(patternCenterCalibrationGid);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::XStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::YStar, patternCenterCalibrationGid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::ZStar, patternCenterCalibrationGid, m_HeaderMap);
+  err = H5Gclose(patternCenterCalibrationGid);
+  patternCenterCalibrationGid = -1;
 
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::Working_Distance, gid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::StepX, gid, m_HeaderMap);
@@ -405,10 +417,16 @@ int H5OIMReader::readHeader(hid_t parId)
   }
   HDF_ERROR_HANDLER_ON
 
-  ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::Operator, gid, m_HeaderMap);
-  ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::SampleID, gid, m_HeaderMap);
-  ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::ScanID, gid, m_HeaderMap);
+  // Version 7/8
   ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::GridType, gid, m_HeaderMap);
+
+  // Version 7 Only
+  if(m_OIMVersion.find(EbsdLib::H5OIM::OIMAnalysisVersion7) != std::string::npos)
+  {
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::Operator, gid, m_HeaderMap);
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::SampleID, gid, m_HeaderMap);
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::ScanID, gid, m_HeaderMap);
+  }
 
   hid_t phasesGid = H5Gopen(gid, EbsdLib::H5OIM::Phase.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)

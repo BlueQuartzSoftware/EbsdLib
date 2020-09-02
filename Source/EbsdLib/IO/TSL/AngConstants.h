@@ -136,7 +136,8 @@ namespace H5OIM
 {
 const std::string EDAX("EDAX");
 const std::string Manufacturer(" Manufacturer");
-const std::string Version(" Version");
+const std::string Version7(" Version");
+const std::string Version8("Version");
 const std::string H5FileExt("h5");
 
 const std::string OriginalHeader("OriginalHeader");
@@ -154,6 +155,10 @@ const std::string SEM("SEM");
 const std::string FileVersionStr("FileVersion");
 const unsigned int FileVersion = 5;
 const std::string EbsdLibVersionStr("EbsdLibVersion");
+
+const std::string OIMAnalysisVersion("OIM Analysis");
+const std::string OIMAnalysisVersion7("OIM Analysis 7");
+const std::string OIMAnalysisVersion8("OIM Analysis 8");
 } // namespace H5OIM
 
 namespace Ang
