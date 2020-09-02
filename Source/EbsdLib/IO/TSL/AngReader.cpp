@@ -83,6 +83,9 @@ AngReader::AngReader()
   m_HeaderMap[EbsdLib::Ang::OPERATOR] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::OPERATOR);
   m_HeaderMap[EbsdLib::Ang::SAMPLEID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::SAMPLEID);
   m_HeaderMap[EbsdLib::Ang::SCANID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::SCANID);
+  m_HeaderMap[EbsdLib::Ang::ColumnCount] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::ColumnCount);
+  m_HeaderMap[EbsdLib::Ang::ColumnHeaders] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::ColumnHeaders);
+  m_HeaderMap[EbsdLib::Ang::ColumnUnits] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::ColumnUnits);
 
   // Give these values some defaults
   setNumOddCols(-1);
@@ -319,6 +322,7 @@ int AngReader::readFile()
   }
   // Update the Original Header variable
   setOriginalHeader(origHeader);
+
   if(getErrorCode() < 0)
   {
     return getErrorCode();
@@ -339,10 +343,6 @@ int AngReader::readFile()
   }
   // We need to pass in the buffer because it has the first line of data
   readData(in, buf);
-  if(getErrorCode() < 0)
-  {
-    return getErrorCode();
-  }
 
   return getErrorCode();
 }
@@ -549,6 +549,19 @@ void AngReader::parseHeaderLine(std::string& buf)
     return;
   }
 
+  // For Version = 7 Files there is a notes section. Just read all of that into the m_Notes String and return
+  if(m_InsideNotes)
+  {
+    m_Notes += buf + '\n'; // The readLine removed the newline character but probably left the carriage return character
+    return;
+  }
+  // For Version = 7 Files there is a notes section. Just read all of that into the m_Notes String and return
+  if(m_InsideColumnNotes)
+  {
+    m_ColumnNotes += buf + '\n'; // The readLine removed the newline character but probably left the carriage return character
+    return;
+  }
+
   buf = buf.substr(1);                    // remove the '#' charater
   buf = EbsdStringUtils::simplified(buf); // remove leading/trailing white space and multiple white space characters internal to the array
 
@@ -564,12 +577,32 @@ void AngReader::parseHeaderLine(std::string& buf)
     word = EbsdStringUtils::chop(word, 1);
   }
 
+  if(buf == EbsdLib::Ang::NotesStart)
+  {
+    m_InsideNotes = true;
+    m_Notes = "# " + EbsdLib::Ang::NotesStart + "\r\n";
+  }
+  else if(buf == EbsdLib::Ang::NotesEnd)
+  {
+    m_InsideNotes = false;
+  }
+
+  if(buf == EbsdLib::Ang::ColumnNotesStart)
+  {
+    m_InsideColumnNotes = true;
+    m_ColumnNotes = "# " + EbsdLib::Ang::ColumnNotesStart + "\r\n";
+  }
+  else if(buf == EbsdLib::Ang::ColumnNotesEnd)
+  {
+    m_InsideColumnNotes = false;
+  }
+
   // If the word is "Phase" then we need to construct a "Phase" class and
   // store all the meta data for the phase into that class. When we are done
   // parsing data for the phase then stick the Phase instance into the header
   // map or stick it into a vector<Phase::Pointer> and stick the vector into
   // the map under the "Phase" key
-  if(word == EbsdLib::Ang::Phase)
+  if(word == EbsdLib::Ang::Phase && !m_InsideNotes)
   {
     m_CurrentPhase = AngPhase::New();
     m_CurrentPhase->setPhaseIndex(std::stoi(tokens.at(1)));
@@ -588,13 +621,6 @@ void AngReader::parseHeaderLine(std::string& buf)
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseFormula(tokens);
-    }
-  }
-  else if(word == EbsdLib::Ang::Info && m_CurrentPhase.get() != nullptr)
-  {
-    if(tokens.size() > 1)
-    {
-      m_CurrentPhase->parseInfo(tokens);
     }
   }
   else if(word == EbsdLib::Ang::Symmetry && m_CurrentPhase.get() != nullptr)
@@ -637,17 +663,17 @@ void AngReader::parseHeaderLine(std::string& buf)
     EbsdHeaderEntry::Pointer p = m_HeaderMap[word];
     if(nullptr == p.get())
     {
-/*
-std::cout << "---------------------------" << std::endl;
-std::cout << "Could not find header entry for key'" << word << "'" << std::endl;
-std::string upper(word);
-std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
-std::cout << "#define ANG_" << upper << "     \"" << word << "\"" << std::endl;
-std::cout << "const std::string " << word << "(ANG_" << upper << ");" << std::endl;
+#if 0
+      std::cout << "---------------------------" << std::endl;
+      std::cout << "Could not find header entry for key'" << word << "'" << std::endl;
+      std::string upper(word);
+      std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
 
-std::cout << "angInstanceProperty(AngHeaderEntry<float>. float, " << word << "EbsdLib::Ang::" << word << std::endl;
-std::cout << "m_HeaderMap[EbsdLib::Ang::" << word << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::" << word << ");" << std::endl;
-*/
+      std::cout << "#define ANG_" << upper << "     \"" << word << "\"" << std::endl;
+      std::cout << "const std::string " << word << "(ANG_" << upper << ");" << std::endl;
+      std::cout << "EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, " << word << "EbsdLib::Ang::" << word << ")" << std::endl;
+      std::cout << "m_HeaderMap[EbsdLib::Ang::" << word << "] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::" << word << ");" << std::endl;
+#endif
 #if 0
       std::cout << "<tr>\n    <td>" << word << "</td>\n    <td>" << "H5T_STRING" << "</td>\n";
       std::cout << "    <td colspan=\"2\"> Contains value for the header entry " << word << "</td>\n</tr>" << std::endl;

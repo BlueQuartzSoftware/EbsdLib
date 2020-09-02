@@ -296,6 +296,9 @@ int H5EspritReader::readFile()
     return getErrorCode();
   }
 
+  err = H5Utilities::closeFile(fileId);
+  fileId = -1;
+  sentinel.setFileID(fileId);
   if(err < 0)
   {
     std::string str;
@@ -303,7 +306,6 @@ int H5EspritReader::readFile()
     ss << getNameOfClass() << " Error: could not close file";
     setErrorCode(-900024);
     setErrorMessage(str);
-    return getErrorCode();
   }
 
   return getErrorCode();

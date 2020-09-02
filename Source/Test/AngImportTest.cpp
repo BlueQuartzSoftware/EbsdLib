@@ -166,14 +166,14 @@ public:
   void operator()()
   {
     int err = EXIT_SUCCESS;
-
     std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
+    
+    DREAM3D_REGISTER_TEST(TestNormalFile())
     DREAM3D_REGISTER_TEST(TestMissingHeaders())
     DREAM3D_REGISTER_TEST(TestHexGrid())
     DREAM3D_REGISTER_TEST(TestMissingGrid())
     DREAM3D_REGISTER_TEST(TestShortFile())
-    DREAM3D_REGISTER_TEST(TestNormalFile())
+
     DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 

@@ -106,6 +106,23 @@
 #define ANG_PATTERN_WIDTH "Pattern Width"
 #define ANG_PATTERN_HEIGHT "Pattern Height"
 
+#define ANG_VERSION "VERSION"
+
+#define ANG_NOTES "NOTES"
+#define ANG_NOTES_START "NOTES: Start"
+#define ANG_NOTES_END "NOTES: End"
+
+#define ANG_COLUMN_NOTES "COLUMN_NOTES"
+#define ANG_COLUMN_NOTES_START "COLUMN_NOTES: Start"
+#define ANG_COLUMN_NOTES_END "COLUMN_NOTES: End"
+
+#define COLUMN_COUNT "COLUMN_COUNT"
+#define COLUMN_HEADERS "COLUMN_HEADERS"
+#define COLUMN_UNITS "COLUMN_UNITS"
+
+#define HEADER_START "HEADER: Start"
+#define HEADER_END "HEADER: End"
+
 enum ANG_READ_FLAG
 {
   ANG_FULL_FILE,
@@ -241,6 +258,20 @@ const std::string HexGrid(ANG_HEX_GRID);
 const std::string ZStep(ANG_Z_STEP);
 const std::string ZPos(ANG_Z_POS);
 const std::string ZMax(ANG_Z_MAX);
+
+const std::string Version(ANG_VERSION);
+
+const std::string Notes(ANG_NOTES);
+const std::string NotesStart(ANG_NOTES_START);
+const std::string NotesEnd(ANG_NOTES_END);
+
+const std::string ColumnNotes(ANG_COLUMN_NOTES);
+const std::string ColumnNotesStart(ANG_COLUMN_NOTES_START);
+const std::string ColumnNotesEnd(ANG_COLUMN_NOTES_END);
+
+const std::string ColumnCount(COLUMN_COUNT);
+const std::string ColumnHeaders(COLUMN_HEADERS);
+const std::string ColumnUnits(COLUMN_UNITS);
 
 } // namespace Ang
 } // namespace EbsdLib

@@ -183,12 +183,12 @@ public:
   /**
    * @brief Setter property for Info
    */
-  void setInfo(const std::string& value);
+  // void setInfo(const std::string& value);
   /**
    * @brief Getter property for Info
    * @return Value of Info
    */
-  std::string getInfo() const;
+  // std::string getInfo() const;
 
   EBSD_INSTANCE_PROPERTY(uint32_t, Symmetry)
   EBSD_INSTANCE_PROPERTY(std::vector<float>, LatticeConstants)
@@ -205,7 +205,7 @@ public:
 
   void parseMaterialName(std::vector<std::string>& tokens);
   void parseFormula(std::vector<std::string>& tokens);
-  void parseInfo(std::vector<std::string>& tokens);
+  // void parseInfo(std::vector<std::string>& tokens);
   void parseLatticeConstants(std::vector<std::string>& tokens);
   void parseHKLFamilies(std::vector<std::string>& tokens);
   void parseCategories(std::vector<std::string>& tokens);
@@ -220,7 +220,7 @@ public:
 private:
   std::string m_MaterialName = {};
   std::string m_Formula = {};
-  std::string m_Info = {};
+  // std::string m_Info = {};
 };
 
 //#pragma pack(pop, r1)

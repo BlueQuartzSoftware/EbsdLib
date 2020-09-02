@@ -441,7 +441,7 @@ int H5OIMReader::readHeader(hid_t parId)
     currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
     READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::MaterialName, MaterialName, currentPhase)
     READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::Formula, Formula, currentPhase)
-    READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::Info, Info, currentPhase)
+    // READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::Info, Info, currentPhase)
     READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, EbsdLib::Ang::Symmetry, Symmetry, currentPhase)
     READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, EbsdLib::Ang::NumberFamilies, NumberFamilies, currentPhase)
 

@@ -203,19 +203,17 @@ inline std::string simplified(const std::string& text)
   }
   std::string out;
   out = trimmed(text);
-  char ch = 'a';
   std::string finalString;
-  for(const auto& c : text)
+  for(const auto& c : out)
   {
     if(std::isspace(c) == 0)
     {
       finalString += c;
     }
-    else if(std::isspace(ch) == 0)
+    else
     {
       finalString += ' ';
     }
-    ch = c;
   }
   return finalString;
 }

@@ -93,9 +93,18 @@ public:
 
   EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SCANID, EbsdLib::Ang::SCANID)
 
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, VERSION, EbsdLib::Ang::Version)
+
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, ColumnCount, EbsdLib::Ang::ColumnCount)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnHeaders, EbsdLib::Ang::ColumnHeaders)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnUnits, EbsdLib::Ang::ColumnUnits)
+
   EBSD_INSTANCE_PROPERTY(std::vector<AngPhase::Pointer>, PhaseVector)
 
   EBSD_INSTANCE_PROPERTY(bool, ReadHexGrid)
+
+  EBSD_INSTANCE_PROPERTY(std::string, Notes)
+  EBSD_INSTANCE_PROPERTY(std::string, ColumnNotes)
 
   /**
    * @brief These methods allow the developer to set/get the raw pointer for a given array, release ownership of the memory
@@ -176,6 +185,9 @@ private:
    * @param line The line of data to parse
    */
   void parseDataLine(std::string& line, size_t i);
+
+  bool m_InsideNotes = false;
+  bool m_InsideColumnNotes = false;
 
 public:
   AngReader(const AngReader&) = delete;            // Copy Constructor Not Implemented

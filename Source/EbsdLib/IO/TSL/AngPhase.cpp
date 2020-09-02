@@ -133,14 +133,14 @@ void AngPhase::parseFormula(std::vector<std::string>& tokens)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngPhase::parseInfo(std::vector<std::string>& tokens)
-{
-  m_Info.clear();
-  for(const auto& token : tokens)
-  {
-    m_Info += token + " ";
-  }
-}
+// void AngPhase::parseInfo(std::vector<std::string>& tokens)
+//{
+//  m_Info.clear();
+//  for(const auto& token : tokens)
+//  {
+//    m_Info += token + " ";
+//  }
+//}
 
 // -----------------------------------------------------------------------------
 //
@@ -236,7 +236,7 @@ void AngPhase::printSelf(std::stringstream& stream)
   stream << EbsdLib::Ang::Phase << ": " << m_PhaseIndex << std::string("\n");
   stream << EbsdLib::Ang::MaterialName << ": " << m_MaterialName << std::string("\n");
   stream << EbsdLib::Ang::Formula << ": " << m_Formula << std::string("\n");
-  stream << EbsdLib::Ang::Info << ": " << m_Info << std::string("\n");
+  // stream << EbsdLib::Ang::Info << ": " << m_Info << std::string("\n");
   stream << EbsdLib::Ang::Symmetry << ": " << m_Symmetry << std::string("\n");
 
   stream << EbsdLib::Ang::LatticeConstants;
@@ -392,17 +392,17 @@ std::string AngPhase::getFormula() const
   return m_Formula;
 }
 
-// -----------------------------------------------------------------------------
-void AngPhase::setInfo(const std::string& value)
-{
-  m_Info = value;
-}
+//// -----------------------------------------------------------------------------
+// void AngPhase::setInfo(const std::string& value)
+//{
+//  m_Info = value;
+//}
 
-// -----------------------------------------------------------------------------
-std::string AngPhase::getInfo() const
-{
-  return m_Info;
-}
+//// -----------------------------------------------------------------------------
+// std::string AngPhase::getInfo() const
+//{
+//  return m_Info;
+//}
 
 // -----------------------------------------------------------------------------
 std::string AngPhase::getNameOfClass() const
