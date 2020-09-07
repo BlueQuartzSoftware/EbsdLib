@@ -337,9 +337,9 @@ private:
     {                                                                                                                                                                                                  \
       using QuaternionType = Quaternion<NumericType>;                                                                                                                                                  \
       using OutputType = Orientation<NumericType>;                                                                                                                                                     \
-      QuaternionType inputQuat(input);                                                                                                                                                                 \
-      OutputType outputOrientation(output, OUTSTRIDE);                                                                                                                                                 \
-      outputOrientation = OrientationTransformation::CONVERSION_METHOD<QuaternionType, OutputType>(inputQuat);                                                                                         \
+      QuaternionType inputQuat(input[0], input[1], input[2], input[3]);                                                                                                                                \
+      OutputType outputOrientation = OrientationTransformation::CONVERSION_METHOD<QuaternionType, OutputType>(inputQuat);                                                                              \
+      outputOrientation.copyInto(output, OUTSTRIDE);                                                                                                                                                   \
     }                                                                                                                                                                                                  \
   };
 

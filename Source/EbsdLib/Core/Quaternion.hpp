@@ -81,23 +81,23 @@ public:
   {
   }
 
-  Quaternion(const T* q, Order o = Order::VectorScalar)
-  {
-    if(o == Order::VectorScalar)
-    {
-      m_X = q[0];
-      m_Y = q[1];
-      m_Z = q[2];
-      m_W = q[3];
-    }
-    else
-    {
-      m_W = q[0];
-      m_X = q[1];
-      m_Y = q[2];
-      m_Z = q[3];
-    }
-  }
+  //  Quaternion(const T* q, Order o = Order::VectorScalar)
+  //  {
+  //    if(o == Order::VectorScalar)
+  //    {
+  //      m_X = q[0];
+  //      m_Y = q[1];
+  //      m_Z = q[2];
+  //      m_W = q[3];
+  //    }
+  //    else
+  //    {
+  //      m_W = q[0];
+  //      m_X = q[1];
+  //      m_Y = q[2];
+  //      m_Z = q[3];
+  //    }
+  //  }
 
   template <class U, class = std::enable_if_t<std::is_floating_point_v<U> && std::numeric_limits<U>::has_infinity>>
   Quaternion<U> to() const

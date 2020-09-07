@@ -407,6 +407,8 @@ int main(int argc, char* argv[])
     }
   }
 
+  double* repPtr = array.data();
+
   if(conversion == "eu2om")
   {
     OrientationD eu(array.data(), 3);
@@ -673,7 +675,8 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2eu")
   {
-    QuatD qu(array.data());
+
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
@@ -684,7 +687,7 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2om")
   {
-    QuatD qu(array.data());
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
@@ -695,7 +698,7 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2ax")
   {
-    QuatD qu(array.data());
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
@@ -706,7 +709,7 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2ro")
   {
-    QuatD qu(array.data());
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
@@ -717,7 +720,7 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2ho")
   {
-    QuatD qu(array.data());
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
@@ -728,7 +731,7 @@ int main(int argc, char* argv[])
   }
   else if(conversion == "qu2cu")
   {
-    QuatD qu(array.data());
+    QuatD qu(repPtr[0], repPtr[2], repPtr[3], repPtr[4]);
     OrientationTransformation::ResultType res = OrientationTransformation::qu_check(qu);
     if(res.result < 0)
     {
