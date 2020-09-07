@@ -174,7 +174,7 @@ private:
   AngPhase::Pointer m_CurrentPhase;
   int m_ErrorColumn = 0;
 
-  void readData(std::fstream& in, std::string& buf);
+  void readData(std::ifstream& in, std::string& buf);
 
   /** @brief Parses the value from a single line of the header section of the TSL .ang file
    * @param line The line to parse

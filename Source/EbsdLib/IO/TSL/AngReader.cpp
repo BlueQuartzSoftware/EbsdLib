@@ -255,7 +255,7 @@ int AngReader::readHeaderOnly()
 {
   int err = 1;
   std::string buf;
-  std::fstream in(getFileName(), std::ios_base::in);
+  std::ifstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
   if(!in.is_open())
   {
@@ -294,7 +294,7 @@ int AngReader::readFile()
   std::string buf;
   setHeaderIsComplete(false);
 
-  std::fstream in(getFileName());
+  std::ifstream in(getFileName(), std::ios_base::in);
   if(!in.is_open())
   {
     std::string msg = "Ang file could not be opened:" + getFileName();
@@ -350,7 +350,7 @@ int AngReader::readFile()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AngReader::readData(std::fstream& in, std::string& buf)
+void AngReader::readData(std::ifstream& in, std::string& buf)
 {
   std::string streamBuf;
   std::stringstream ss(streamBuf);
