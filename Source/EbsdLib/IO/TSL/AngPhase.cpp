@@ -191,23 +191,34 @@ void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 {
   HKLFamily::Pointer family = HKLFamily::New();
-  family->h = std::stoi(tokens[1]);
-  family->k = std::stoi(tokens[2]);
-  family->l = std::stoi(tokens[3]);
-  family->s1 = std::stoi(tokens[4]);
-  family->diffractionIntensity = std::stof(tokens[5]);
-  if(tokens.size() > 6)
+  try
   {
-    family->s2 = tokens[6].at(0);
-  }
-  if(family->s1 > 1)
+    family->h = std::stoi(tokens[1]);
+    family->k = std::stoi(tokens[2]);
+    family->l = std::stoi(tokens[3]);
+    family->s1 = std::stoi(tokens[4]);
+    family->diffractionIntensity = std::stof(tokens[5]);
+    if(tokens.size() > 6)
+    {
+      family->s2 = tokens[6].at(0);
+    }
+    if(family->s1 > 1)
+    {
+      family->s1 = 1;
+    }
+    if(family->s2 > 1)
+    {
+      family->s2 = 1;
+    }
+  } catch(std::invalid_argument& e)
   {
-    family->s1 = 1;
-  }
-  if(family->s2 > 1)
+    std::cout << e.what() << std::endl;
+
+  } catch(std::out_of_range& e)
   {
-    family->s2 = 1;
+    std::cout << e.what() << std::endl;
   }
+
   m_HKLFamilies.push_back(family);
 }
 
@@ -217,14 +228,24 @@ void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 void AngPhase::parseCategories(std::vector<std::string>& tokens)
 {
   m_Categories.clear();
-  if(tokens[0].size() != EbsdLib::Ang::Categories.size())
+  try
   {
-    EbsdStringUtils::replace(tokens[0], EbsdLib::Ang::Categories, "");
-    m_Categories.push_back(std::stoi(tokens.at(0)));
-  }
-  for(size_t i = 1; i < tokens.size(); ++i)
+    if(tokens[0].size() != EbsdLib::Ang::Categories.size())
+    {
+      tokens[0] = EbsdStringUtils::replace(tokens[0], EbsdLib::Ang::Categories, "");
+      m_Categories.push_back(std::stoi(tokens.at(0)));
+    }
+    for(size_t i = 1; i < tokens.size(); ++i)
+    {
+      m_Categories.push_back(std::stoi(tokens.at(i)));
+    }
+  } catch(std::invalid_argument& e)
   {
-    m_Categories.push_back(std::stoi(tokens.at(i)));
+    std::cout << e.what() << std::endl;
+
+  } catch(std::out_of_range& e)
+  {
+    std::cout << e.what() << std::endl;
   }
 }
 

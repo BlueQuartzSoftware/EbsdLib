@@ -316,7 +316,7 @@ int AngReader::readFile()
     }
     else
     {
-      origHeader.append(buf);
+      origHeader.append(buf).append("\n");
       parseHeaderLine(buf);
     }
   }
@@ -605,7 +605,17 @@ void AngReader::parseHeaderLine(std::string& buf)
   if(word == EbsdLib::Ang::Phase && !m_InsideNotes)
   {
     m_CurrentPhase = AngPhase::New();
-    m_CurrentPhase->setPhaseIndex(std::stoi(tokens.at(1)));
+    try
+    {
+      m_CurrentPhase->setPhaseIndex(std::stoi(tokens.at(1)));
+    } catch(std::invalid_argument& e)
+    {
+      std::cout << e.what() << std::endl;
+
+    } catch(std::out_of_range& e)
+    {
+      std::cout << e.what() << std::endl;
+    }
     // Parsing the phase is complete, now add it to the vector of Phases
     m_PhaseVector.push_back(m_CurrentPhase);
   }
@@ -627,7 +637,17 @@ void AngReader::parseHeaderLine(std::string& buf)
   {
     if(tokens.size() > 1)
     {
-      m_CurrentPhase->setSymmetry(std::stoi(tokens.at(1)));
+      try
+      {
+        m_CurrentPhase->setSymmetry(std::stoi(tokens.at(1)));
+      } catch(std::invalid_argument& e)
+      {
+        std::cout << e.what() << std::endl;
+
+      } catch(std::out_of_range& e)
+      {
+        std::cout << e.what() << std::endl;
+      }
     }
   }
   else if(word == EbsdLib::Ang::LatticeConstants && m_CurrentPhase.get() != nullptr)
@@ -641,7 +661,17 @@ void AngReader::parseHeaderLine(std::string& buf)
   {
     if(tokens.size() > 1)
     {
-      m_CurrentPhase->setNumberFamilies(std::stoi(tokens.at(1)));
+      try
+      {
+        m_CurrentPhase->setNumberFamilies(std::stoi(tokens.at(1)));
+      } catch(std::invalid_argument& e)
+      {
+        std::cout << e.what() << std::endl;
+
+      } catch(std::out_of_range& e)
+      {
+        std::cout << e.what() << std::endl;
+      }
     }
   }
   else if(word == EbsdLib::Ang::HKLFamilies && m_CurrentPhase.get() != nullptr)
