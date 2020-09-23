@@ -262,8 +262,6 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   }
 
   m_ValuesAreCached = true;
-  err = H5Utilities::closeFile(fileId);
-  fileId = -1;
   return retErr;
 }
 

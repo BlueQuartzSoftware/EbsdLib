@@ -194,8 +194,6 @@ int H5OIMReader::readFile()
     return getErrorCode();
   }
 
-  err = H5Utilities::closeFile(fileId);
-  fileId = -1;
   if(err < 0)
   {
     std::string str;
@@ -271,7 +269,6 @@ int H5OIMReader::readHeaderOnly()
     std::string str;
     std::stringstream ss(str);
     ss << getNameOfClass() << "Error: Could not open path '" << m_HDF5Path << "'";
-    err = H5Utilities::closeFile(fileId);
     setErrorCode(-12);
     setErrorMessage(str);
     return getErrorCode();
@@ -296,7 +293,6 @@ int H5OIMReader::readHeaderOnly()
     std::string str;
     std::stringstream ss(str);
     ss << getNameOfClass() << "Error: could not close group id ";
-    err = H5Utilities::closeFile(fileId);
     setErrorMessage(str);
     setErrorCode(-900023);
     return getErrorCode();
@@ -309,21 +305,7 @@ int H5OIMReader::readHeaderOnly()
     std::string str;
     std::stringstream ss(str);
     ss << getNameOfClass() << "Error: could not close group id ";
-    err = H5Utilities::closeFile(fileId);
     setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
-  err = H5Utilities::closeFile(fileId);
-  fileId = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close file";
-    err = H5Utilities::closeFile(fileId);
-    setErrorCode(-900024);
     setErrorMessage(str);
     return getErrorCode();
   }
