@@ -49,6 +49,8 @@ get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
 if(EbsdLib_ENABLE_HDF5)
+	# This will find the HDF5 Libraries
+	include(${EbsdLibProj_SOURCE_DIR}/cmake/HDF5Support.cmake)
 	#------------------------------------------------------------------------------
 	# If the developer has set another H5Support directory then use that, otherwise look
 	# for the H5Support directory at the same level as the EBSDLib directory
@@ -60,8 +62,9 @@ if(EbsdLib_ENABLE_HDF5)
 		endif()
 		message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
 	endif()
-	# This will find the HDF5 Libraries
-	include(${EbsdLibProj_SOURCE_DIR}/cmake/HDF5Support.cmake)
+	if(NOT TARGET H5Support::H5Support)
+		add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
+	endif()
 endif()
 mark_as_advanced(EbsdLib_ENABLE_HDF5)
 
