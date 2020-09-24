@@ -487,7 +487,7 @@ public:
    * @param i
    * @param delimiter
    */
-  void printTuple(std::stringstream& out, size_t i, char delimiter = ',') const;
+  void printTuple(std::ostream& out, size_t i, char delimiter = ',') const;
 
   /**
    * @brief printComponent

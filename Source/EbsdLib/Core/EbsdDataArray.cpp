@@ -993,7 +993,7 @@ void EbsdDataArray<T>::resizeTuples(size_t numTuples)
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void EbsdDataArray<T>::printTuple(std::stringstream& out, size_t i, char delimiter) const
+void EbsdDataArray<T>::printTuple(std::ostream& out, size_t i, char delimiter) const
 {
   int32_t precision = 8;
   if constexpr(std::is_same_v<T, float>)
