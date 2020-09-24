@@ -4,7 +4,9 @@
 #include <string>
 #include <utility>
 
-class TiffWriter
+#include "EbsdLib/EbsdLib.h"
+
+class EbsdLib_EXPORT TiffWriter
 {
 public:
   TiffWriter();
