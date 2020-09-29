@@ -4,9 +4,6 @@
 #include <fstream>
 #include <vector>
 
-TiffWriter::TiffWriter() = default;
-
-TiffWriter::~TiffWriter() = default;
 
 using WORD = int16_t;
 using DWORD = int32_t;
