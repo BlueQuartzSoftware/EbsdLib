@@ -53,7 +53,7 @@ LambertUtilities::~LambertUtilities() = default;
 int32_t LambertUtilities::LambertSquareVertToSphereVert(float* vert, Hemisphere hemi)
 {
   static const float epsilon = 0.00001f;
-  static const float L = static_cast<float>(EbsdLib::Constants::k_SqrtHalfPi);
+  static const float L = EbsdLib::Constants::k_SqrtHalfPiF;
   static const float r = 1.0f; // radius of unit sphere
 
   float x = 0.0f;
@@ -82,19 +82,19 @@ int32_t LambertUtilities::LambertSquareVertToSphereVert(float* vert, Hemisphere 
   }
   else if(std::abs(b) <= std::abs(a))
   {
-    float var0 = (2.0f * a / EbsdLib::Constants::k_Pif) * std::sqrt(EbsdLib::Constants::k_Pif - (a * a / r * r));
-    float var1 = b * EbsdLib::Constants::k_Pif / (4.0f * a);
+    float var0 = (2.0f * a / EbsdLib::Constants::k_PiF) * std::sqrt(EbsdLib::Constants::k_PiF - (a * a / r * r));
+    float var1 = b * EbsdLib::Constants::k_PiF / (4.0f * a);
     x = var0 * std::cos(var1);
     y = var0 * std::sin(var1);
-    z = hemiFactor * ((2 * a * a / EbsdLib::Constants::k_Pif * r) - r);
+    z = hemiFactor * ((2 * a * a / EbsdLib::Constants::k_PiF * r) - r);
   }
   else if(std::abs(a) <= std::abs(b))
   {
-    float var0 = (2.0f * b / EbsdLib::Constants::k_Pif) * std::sqrt(EbsdLib::Constants::k_Pif - (b * b / r * r));
-    float var1 = a * EbsdLib::Constants::k_Pif / (4.0f * b);
+    float var0 = (2.0f * b / EbsdLib::Constants::k_PiF) * std::sqrt(EbsdLib::Constants::k_PiF - (b * b / r * r));
+    float var1 = a * EbsdLib::Constants::k_PiF / (4.0f * b);
     x = var0 * std::sin(var1);
     y = var0 * std::cos(var1);
-    z = hemiFactor * ((2 * b * b / EbsdLib::Constants::k_Pif * r) - r);
+    z = hemiFactor * ((2 * b * b / EbsdLib::Constants::k_PiF * r) - r);
   }
 
   if(std::abs(x * x + y * y + z * z - 1.0f) > epsilon)

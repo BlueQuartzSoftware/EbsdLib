@@ -516,9 +516,9 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      inPtr[0] = fmod(inPtr[0], EbsdLib::Constants::k_2Pi);
-      inPtr[1] = fmod(inPtr[1], EbsdLib::Constants::k_Pi);
-      inPtr[2] = fmod(inPtr[2], EbsdLib::Constants::k_2Pi);
+      inPtr[0] = fmod(inPtr[0], EbsdLib::Constants::k_2PiD);
+      inPtr[1] = fmod(inPtr[1], EbsdLib::Constants::k_PiD);
+      inPtr[2] = fmod(inPtr[2], EbsdLib::Constants::k_2PiD);
 
       if(inPtr[0] < 0.0)
       {

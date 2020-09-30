@@ -58,9 +58,9 @@ namespace HexagonalHigh
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2)) - std::sin(((EbsdLib::Constants::k_PiOver2))))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2D)) - std::sin(((EbsdLib::Constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (((EbsdLib::Constants::k_PiOver2D)) - std::sin(((EbsdLib::Constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiD / 6.0) - std::sin(EbsdLib::Constants::k_PiD / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -94,27 +94,27 @@ static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},
 static const double MatSym[k_SymOpsCount][3][3] = {
     {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
     {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
     {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}},
+    {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}},
 
     {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}}};
 
 // Use a namespace for some detail that only this class needs
 } // namespace HexagonalHigh
@@ -271,7 +271,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     n1 = -n1, n2 = -n2, n3 = -n3;
   }
 
-  float angle = 180.0f * atan2(n2, n1) * EbsdLib::Constants::k_1OverPi;
+  float angle = 180.0f * atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD;
   if(angle < 0)
   {
     angle = angle + 360.0f;
@@ -285,7 +285,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     if(int(angle / 30) % 2 == 0)
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -293,7 +293,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (30.0f * int(angle / 30.0f));
       FZw = 30.0f - FZw;
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -1103,7 +1103,7 @@ public:
 
       // -----------------------------------------------------------------------------
       // 1010 Family
-      direction[0] = EbsdLib::Constants::k_Root3Over2;
+      direction[0] = EbsdLib::Constants::k_Root3Over2D;
       direction[1] = 0.5;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18));
@@ -1115,7 +1115,7 @@ public:
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_Root3Over2;
+      direction[0] = -EbsdLib::Constants::k_Root3Over2D;
       direction[1] = 0.5;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 18 + 12));
@@ -1131,13 +1131,13 @@ public:
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
       direction[0] = 0.5;
-      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
       direction[0] = -0.5;
-      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 18 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
@@ -1194,7 +1194,7 @@ void HexagonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* euler
 // -----------------------------------------------------------------------------
 bool HexagonalOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < 0 || eta > (30.0 * EbsdLib::Constants::k_PiOver180) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
+  return !(eta < 0 || eta > (30.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
@@ -1212,9 +1212,9 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -1259,8 +1259,8 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
   double etaMin = 0.0;
   double etaMax = 30.0;
   double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
@@ -1493,7 +1493,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180D);
 
   EbsdLib::Rgb color;
   size_t idx = 0;
@@ -1602,16 +1602,16 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
     k = sqrtf(xo * xo + yo * yo);
     if(k > 0)
     {
-      k = (EbsdLib::Constants::k_Sqrt3 * xo + yo) / (2.0f * k);
+      k = (EbsdLib::Constants::k_Sqrt3D * xo + yo) / (2.0f * k);
     }
     else
     {
-      k = (EbsdLib::Constants::k_Sqrt3 * xo + yo) / 2.0f;
+      k = (EbsdLib::Constants::k_Sqrt3D * xo + yo) / 2.0f;
     }
   }
   xo1 = xo * k;
   yo1 = yo * k;
-  zo1 = zo / (2.0f - EbsdLib::Constants::k_Sqrt3);
+  zo1 = zo / (2.0f - EbsdLib::Constants::k_Sqrt3D);
 
   // eq c5.3
   k = 3.0f * atan2(yo1, xo1);
@@ -1641,7 +1641,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   // eq c1.2
   k = std::max(x, y);
   k = std::max(k, z);
-  k = (k * EbsdLib::Constants::k_Sqrt3) / (x + y + z);
+  k = (k * EbsdLib::Constants::k_Sqrt3D) / (x + y + z);
   x1 = x * k;
   y1 = y * k;
   z1 = z * k;
@@ -1649,14 +1649,14 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   // eq c1.3
   // 3 rotation matricies (in paper) can be multiplied into one (here) for simplicity / speed
   // g1*g2*g3 = {{sqrt(2/3), -1/sqrt(6), -1/sqrt(6)},{0, 1/sqrt(2), -1/sqrt(2)},{1/sqrt(3), 1/sqrt(3), 1/sqrt(3)}}
-  x2 = x1 * (EbsdLib::Constants::k_Sqrt2 / EbsdLib::Constants::k_Sqrt3) - (y1 + z1) / (EbsdLib::Constants::k_Sqrt2 * EbsdLib::Constants::k_Sqrt3);
-  y2 = (y1 - z1) / EbsdLib::Constants::k_Sqrt2;
-  z2 = (x1 + y1 + z1) / EbsdLib::Constants::k_Sqrt3;
+  x2 = x1 * (EbsdLib::Constants::k_Sqrt2D / EbsdLib::Constants::k_Sqrt3D) - (y1 + z1) / (EbsdLib::Constants::k_Sqrt2D * EbsdLib::Constants::k_Sqrt3D);
+  y2 = (y1 - z1) / EbsdLib::Constants::k_Sqrt2D;
+  z2 = (x1 + y1 + z1) / EbsdLib::Constants::k_Sqrt3D;
 
   // eq c1.4
-  k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2Pi, EbsdLib::Constants::k_2Pi);
-  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
-  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_Pi / 6.0f + std::fmod(k, EbsdLib::Constants::k_2Pi / 3.0)) / EbsdLib::Constants::k_HalfSqrt2;
+  k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2PiD, EbsdLib::Constants::k_2PiD);
+  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
+  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
   z3 = z2 - 1.0f;
 
   // eq c1.5
@@ -1680,8 +1680,8 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   if(k >= 0.0f && k < M_2PI / 3.0)
   {
     type = 1;
-    x5 = (x4 + y4 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
-    y5 = (-x4 * EbsdLib::Constants::k_Sqrt3 + y4) / 2.0f;
+    x5 = (x4 + y4 * EbsdLib::Constants::k_Sqrt3D) / 2.0f;
+    y5 = (-x4 * EbsdLib::Constants::k_Sqrt3D + y4) / 2.0f;
   }
   else if(k >= M_2PI / 3.0f && k < 4.0f * M_PI / 3.0)
   {
@@ -1692,8 +1692,8 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   else // k>=4*pi/3 && <2*pi
   {
     type = 3;
-    x5 = (x4 - y4 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
-    y5 = (x4 * EbsdLib::Constants::k_Sqrt3 + y4) / 2.0f;
+    x5 = (x4 - y4 * EbsdLib::Constants::k_Sqrt3D) / 2.0f;
+    y5 = (x4 * EbsdLib::Constants::k_Sqrt3D + y4) / 2.0f;
   }
   z5 = z4;
 
@@ -1714,8 +1714,8 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
 
   if(type == 1)
   {
-    x9 = (x8 - y8 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
-    y9 = (x8 * EbsdLib::Constants::k_Sqrt3 + y8) / 2.0f;
+    x9 = (x8 - y8 * EbsdLib::Constants::k_Sqrt3D) / 2.0f;
+    y9 = (x8 * EbsdLib::Constants::k_Sqrt3D + y8) / 2.0f;
   }
   else if(type == 2)
   {
@@ -1724,14 +1724,14 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   }
   else // type==3;
   {
-    x9 = (x8 + y8 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
-    y9 = (-x8 * EbsdLib::Constants::k_Sqrt3 + y8) / 2.0f;
+    x9 = (x8 + y8 * EbsdLib::Constants::k_Sqrt3D) / 2.0f;
+    y9 = (-x8 * EbsdLib::Constants::k_Sqrt3D + y8) / 2.0f;
   }
   z9 = z8;
 
   // c1.9
-  x10 = (x9 - y9 * EbsdLib::Constants::k_Sqrt3) / 2.0f;
-  y10 = (x9 * EbsdLib::Constants::k_Sqrt3 + y9) / 2.0f;
+  x10 = (x9 - y9 * EbsdLib::Constants::k_Sqrt3D) / 2.0f;
+  y10 = (x9 * EbsdLib::Constants::k_Sqrt3D + y9) / 2.0f;
   z10 = z9;
 
   // cartesian to traditional hsv

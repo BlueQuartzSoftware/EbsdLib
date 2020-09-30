@@ -419,13 +419,13 @@ bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
   }
   if(fabs(xyz[0]) >= fabs(xyz[1]))
   {
-    sqCoord[0] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPi;
-    sqCoord[1] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPi)*atan(xyz[1] / xyz[0]));
+    sqCoord[0] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPiD;
+    sqCoord[1] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*atan(xyz[1] / xyz[0]));
   }
   else
   {
-    sqCoord[0] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPi)*atan(xyz[0] / xyz[1]));
-    sqCoord[1] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPi);
+    sqCoord[0] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*atan(xyz[0] / xyz[1]));
+    sqCoord[1] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPiD);
   }
 
   if(sqCoord[0] >= m_MaxCoord)

@@ -56,9 +56,9 @@ namespace CubicHigh
 {
 
 static const std::array<size_t, 3> OdfNumBins = {18, 18, 18}; // Represents a 5Deg bin
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver4 - std::sin(EbsdLib::Constants::k_PiOver4))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver4 - std::sin(EbsdLib::Constants::k_PiOver4))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver4 - std::sin(EbsdLib::Constants::k_PiOver4))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver4D - std::sin(EbsdLib::Constants::k_PiOver4D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver4D - std::sin(EbsdLib::Constants::k_PiOver4D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver4D - std::sin(EbsdLib::Constants::k_PiOver4D))), (1.0 / 3.0))};
 
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
@@ -76,18 +76,18 @@ static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000
                                            QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
                                            QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000),
                                            QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                           QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2),
-                                           QuatD(EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000, 0.000000000),
-                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                           QuatD(EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
-                                           QuatD(-EbsdLib::Constants::k_1OverRoot2, 0.000000000, EbsdLib::Constants::k_1OverRoot2, 0.000000000),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2D, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2D, 0.000000000, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2D, 0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2D, 0.000000000, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(0.000000000, 0.000000000, -EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D, 0.000000000, 0.000000000),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D, 0.000000000, 0.000000000),
+                                           QuatD(0.000000000, EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D, 0.000000000),
+                                           QuatD(0.000000000, -EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D, 0.000000000),
+                                           QuatD(EbsdLib::Constants::k_1OverRoot2D, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, 0.000000000),
+                                           QuatD(-EbsdLib::Constants::k_1OverRoot2D, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, 0.000000000),
                                            QuatD(0.500000000, 0.500000000, 0.500000000, 0.500000000),
                                            QuatD(-0.500000000, -0.500000000, -0.500000000, 0.500000000),
                                            QuatD(0.500000000, -0.500000000, 0.500000000, 0.500000000),
@@ -448,9 +448,9 @@ OrientationD CubicOps::calculateMisorientationInternal(const std::vector<QuatD>&
     }
   }
   wmin = qco.w();
-  if(((qco.z() + qco.w()) / (EbsdLib::Constants::k_Sqrt2)) > wmin)
+  if(((qco.z() + qco.w()) / (EbsdLib::Constants::k_Sqrt2D)) > wmin)
   {
-    wmin = ((qco.z() + qco.w()) / (EbsdLib::Constants::k_Sqrt2));
+    wmin = ((qco.z() + qco.w()) / (EbsdLib::Constants::k_Sqrt2D));
     type = 2;
   }
   if(((qco.x() + qco.y() + qco.z() + qco.w()) / 2) > wmin)
@@ -461,13 +461,13 @@ OrientationD CubicOps::calculateMisorientationInternal(const std::vector<QuatD>&
   if(wmin < -1.0)
   {
     //  wmin = -1.0;
-    wmin = EbsdLib::Constants::k_ACosNeg1;
+    wmin = EbsdLib::Constants::k_ACosNeg1D;
     sin_wmin_over_2 = sinf(wmin);
   }
   else if(wmin > 1.0)
   {
     //   wmin = 1.0;
-    wmin = EbsdLib::Constants::k_ACos1;
+    wmin = EbsdLib::Constants::k_ACos1D;
     sin_wmin_over_2 = sinf(wmin);
   }
   else
@@ -487,9 +487,9 @@ OrientationD CubicOps::calculateMisorientationInternal(const std::vector<QuatD>&
   }
   if(type == 2)
   {
-    n1 = ((qco.x() - qco.y()) / (EbsdLib::Constants::k_Sqrt2)) / sin_wmin_over_2;
-    n2 = ((qco.x() + qco.y()) / (EbsdLib::Constants::k_Sqrt2)) / sin_wmin_over_2;
-    n3 = ((qco.z() - qco.w()) / (EbsdLib::Constants::k_Sqrt2)) / sin_wmin_over_2;
+    n1 = ((qco.x() - qco.y()) / (EbsdLib::Constants::k_Sqrt2D)) / sin_wmin_over_2;
+    n2 = ((qco.x() + qco.y()) / (EbsdLib::Constants::k_Sqrt2D)) / sin_wmin_over_2;
+    n3 = ((qco.z() - qco.w()) / (EbsdLib::Constants::k_Sqrt2D)) / sin_wmin_over_2;
   }
   if(type == 3)
   {
@@ -1322,66 +1322,66 @@ public:
 
       // -----------------------------------------------------------------------------
       // 011 Family
-      direction[0] = EbsdLib::Constants::k_1OverRoot2;
-      direction[1] = EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = EbsdLib::Constants::k_1OverRoot2D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
       direction[0] = 0.0;
-      direction[1] = EbsdLib::Constants::k_1OverRoot2;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
-      direction[1] = EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
       direction[0] = 0.0;
-      direction[1] = -EbsdLib::Constants::k_1OverRoot2;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
 
       // -----------------------------------------------------------------------------
       // 111 Family
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = -EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = -EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = -EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
@@ -1552,11 +1552,11 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
 
 bool inUnitTriangleD(double eta, double chi)
 {
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_Pi - eta) * std::tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {
@@ -1564,7 +1564,7 @@ bool inUnitTriangleD(double eta, double chi)
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
-  return !(eta < 0.0 || eta > (45.0 * EbsdLib::Constants::k_PiOver180) || chi < 0.0 || chi > chiMax);
+  return !(eta < 0.0 || eta > (45.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
 }
 
 // -----------------------------------------------------------------------------
@@ -1572,11 +1572,11 @@ bool inUnitTriangleD(double eta, double chi)
 // -----------------------------------------------------------------------------
 bool CubicOps::inUnitTriangle(double eta, double chi) const
 {
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(0.5 * EbsdLib::Constants::k_Pi - eta) * tanf(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + tanf(0.5 * EbsdLib::Constants::k_PiD - eta) * tanf(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {
@@ -1584,7 +1584,7 @@ bool CubicOps::inUnitTriangle(double eta, double chi) const
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
-  return !(eta < 0.0 || eta > (45.0 * EbsdLib::Constants::k_PiOver180) || chi < 0.0 || chi > chiMax);
+  return !(eta < 0.0 || eta > (45.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
 }
 
 // -----------------------------------------------------------------------------
@@ -1602,9 +1602,9 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -1646,11 +1646,11 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   }
   double etaMin = 0.0;
   double etaMax = 45.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_Pi - eta) * std::tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {
@@ -1936,7 +1936,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
       x1alt = x1alt / sqrt((x1alt * x1alt) + (y1 * y1));
       theta = acos(x1alt);
 
-      if(phi < (45.0f * EbsdLib::Constants::k_PiOver180) || phi > (90.0f * EbsdLib::Constants::k_PiOver180) || theta > (35.26f * EbsdLib::Constants::k_PiOver180))
+      if(phi < (45.0f * EbsdLib::Constants::k_PiOver180D) || phi > (90.0f * EbsdLib::Constants::k_PiOver180D) || theta > (35.26f * EbsdLib::Constants::k_PiOver180D))
       {
         color = 0xFFFFFFFF;
       }
@@ -1988,26 +1988,26 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& 
   x1 = x;
   y1 = y;
   z1 = z;
-  if(x >= EbsdLib::Constants::k_1Over3 && atan2(z, y) >= ((1.0f - 2.0f * x) / x))
+  if(x >= EbsdLib::Constants::k_1Over3D && atan2(z, y) >= ((1.0f - 2.0f * x) / x))
   {
     y1 = (x * (y + z)) / (1.0f - x);
     z1 = (x * z * (y + z)) / (y * (1.0f - x));
   }
 
   // eq c9.3
-  x2 = x1 - EbsdLib::Constants::k_Tan_OneEigthPi;
-  y2 = y1 * EbsdLib::Constants::k_Cos_ThreeEightPi - z1 * EbsdLib::Constants::k_Sin_ThreeEightPi;
-  z2 = y1 * EbsdLib::Constants::k_Sin_ThreeEightPi + z1 * EbsdLib::Constants::k_Cos_ThreeEightPi;
+  x2 = x1 - EbsdLib::Constants::k_Tan_OneEigthPiD;
+  y2 = y1 * EbsdLib::Constants::k_Cos_ThreeEightPiD - z1 * EbsdLib::Constants::k_Sin_ThreeEightPiD;
+  z2 = y1 * EbsdLib::Constants::k_Sin_ThreeEightPiD + z1 * EbsdLib::Constants::k_Cos_ThreeEightPiD;
 
   // eq c9.4
   x3 = x2;
-  y3 = y2 * (1 + (y2 / z2) * EbsdLib::Constants::k_Tan_OneEigthPi);
-  z3 = z2 + y2 * EbsdLib::Constants::k_Tan_OneEigthPi;
+  y3 = y2 * (1 + (y2 / z2) * EbsdLib::Constants::k_Tan_OneEigthPiD);
+  z3 = z2 + y2 * EbsdLib::Constants::k_Tan_OneEigthPiD;
 
   // eq c9.5
   x4 = x3;
-  y4 = (y3 * EbsdLib::Constants::k_Cos_OneEigthPi) / EbsdLib::Constants::k_Tan_OneEigthPi;
-  z4 = z3 - x3 / EbsdLib::Constants::k_Cos_OneEigthPi;
+  y4 = (y3 * EbsdLib::Constants::k_Cos_OneEigthPiD) / EbsdLib::Constants::k_Tan_OneEigthPiD;
+  z4 = z3 - x3 / EbsdLib::Constants::k_Cos_OneEigthPiD;
 
   // eq c9.6
   k = atan2(-x4, y4);
@@ -2022,9 +2022,9 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& 
   z6 = z5;
 
   // eq c9.8 these hsv are from 0 to 1 in cartesian coordinates
-  x7 = (x6 * EbsdLib::Constants::k_Sqrt3 - y6) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPi);
-  y7 = (x6 + y6 * EbsdLib::Constants::k_Sqrt3) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPi);
-  z7 = z6 * (EbsdLib::Constants::k_Cos_OneEigthPi / EbsdLib::Constants::k_Tan_OneEigthPi);
+  x7 = (x6 * EbsdLib::Constants::k_Sqrt3D - y6) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPiD);
+  y7 = (x6 + y6 * EbsdLib::Constants::k_Sqrt3D) / (2.0f * EbsdLib::Constants::k_Tan_OneEigthPiD);
+  z7 = z6 * (EbsdLib::Constants::k_Cos_OneEigthPiD / EbsdLib::Constants::k_Tan_OneEigthPiD);
 
   // convert to traditional hsv (0-1)
   h = fmod(atan2f(y7, x7) + M_2PI, M_2PI) / M_2PI;

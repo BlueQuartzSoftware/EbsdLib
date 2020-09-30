@@ -100,15 +100,15 @@ public:
     std::vector<size_t> cDims(1, 3);
 
     T phi1_min = static_cast<T>(0.0);
-    T phi1_max = DConst::k_2Pi;
+    T phi1_max = DConst::k_2PiD;
     T phi1_delta = (phi1_max - phi1_min) / static_cast<T>(nSteps);
 
     T phi_min = static_cast<T>(0.0);
-    T phi_max = DConst::k_Pi;
+    T phi_max = DConst::k_PiD;
     T phi_delta = (phi_max - phi_min) / static_cast<T>(nSteps);
 
     T phi2_min = static_cast<T>(0.0);
-    T phi2_max = DConst::k_2Pi;
+    T phi2_max = DConst::k_2PiD;
     T phi2_delta = (phi2_max - phi2_min) / static_cast<T>(nSteps);
 
     size_t nStepsCubed = (nSteps + 1) * (nSteps + 1) * (nSteps + 1);
@@ -131,14 +131,14 @@ public:
           eulers->setComponent(counter, 2, phi2_min + k * phi2_delta);
 
           T one80Check = phi1_min + i * phi1_delta + phi2_min + k * phi2_delta;
-          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
+          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
           {
             eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
             eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);
           }
 
-          one80Check = fmod(one80Check, EbsdLib::Constants::k_2Pi);
-          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_Pi), one80Check, static_cast<T>(1.0E-6)))
+          one80Check = fmod(one80Check, EbsdLib::Constants::k_2PiD);
+          if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
           {
             eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
             eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);

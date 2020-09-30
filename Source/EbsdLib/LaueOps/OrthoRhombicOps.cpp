@@ -56,9 +56,9 @@ namespace OrthoRhombic
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2D)-std::sin((EbsdLib::Constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2D)-std::sin((EbsdLib::Constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2D)-std::sin((EbsdLib::Constants::k_PiOver2D)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -546,7 +546,7 @@ void OrthoRhombicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eu
 // -----------------------------------------------------------------------------
 bool OrthoRhombicOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < 0 || eta > (90.0 * EbsdLib::Constants::k_PiOver180) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
+  return !(eta < 0 || eta > (90.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
@@ -564,9 +564,9 @@ EbsdLib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -611,8 +611,8 @@ EbsdLib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
   double etaMin = 0.0;
   double etaMax = 90.0;
   double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
@@ -947,9 +947,9 @@ EbsdLib::Rgb OrthoRhombicOps::generateMisorientationColor(const QuatD& q, const 
   z2 = (x1 + y1 + z1) / sqrt(3.0);
 
   // eq c1.4
-  k = std::fmod(std::atan2(y2, x2) + 2.0f * EbsdLib::Constants::k_Pi, 2.0f * EbsdLib::Constants::k_Pi);
-  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
-  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_Pi / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_Pi / 3.0)) / 0.5;
+  k = std::fmod(std::atan2(y2, x2) + 2.0f * EbsdLib::Constants::k_PiD, 2.0f * EbsdLib::Constants::k_PiD);
+  x3 = cos(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_PiD / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_PiD / 3.0)) / 0.5;
+  y3 = sin(k) * sqrt((x2 * x2 + y2 * y2) / 2.0) * sin(EbsdLib::Constants::k_PiD / 6.0 + std::fmod(k, 2.0f * EbsdLib::Constants::k_PiD / 3.0)) / 0.5;
   z3 = z2 - 1.0;
 
   // eq c1.5

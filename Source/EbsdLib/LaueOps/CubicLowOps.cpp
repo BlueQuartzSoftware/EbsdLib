@@ -56,9 +56,9 @@ namespace CubicLow
 {
 
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2 - std::sin(EbsdLib::Constants::k_PiOver2))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -581,66 +581,66 @@ public:
 
       // -----------------------------------------------------------------------------
       // 011 Family
-      direction[0] = EbsdLib::Constants::k_1OverRoot2;
-      direction[1] = EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = EbsdLib::Constants::k_1OverRoot2D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
       direction[0] = 0.0;
-      direction[1] = EbsdLib::Constants::k_1OverRoot2;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = EbsdLib::Constants::k_1OverRoot2D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
-      direction[1] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot2;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
       direction[0] = 0.0;
-      direction[1] = -EbsdLib::Constants::k_1OverRoot2;
-      direction[2] = EbsdLib::Constants::k_1OverRoot2;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
 
       // -----------------------------------------------------------------------------
       // 111 Family
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
-      direction[0] = -EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = -EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = -EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = -EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
-      direction[0] = EbsdLib::Constants::k_1OverRoot3;
-      direction[1] = EbsdLib::Constants::k_1OverRoot3;
-      direction[2] = -EbsdLib::Constants::k_1OverRoot3;
+      direction[0] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[1] = EbsdLib::Constants::k_1OverRoot3D;
+      direction[2] = -EbsdLib::Constants::k_1OverRoot3D;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
@@ -814,11 +814,11 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
 // -----------------------------------------------------------------------------
 bool CubicLowOps::inUnitTriangle(double eta, double chi) const
 {
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_Pi - eta) * tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_PiD - eta) * tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {
@@ -826,7 +826,7 @@ bool CubicLowOps::inUnitTriangle(double eta, double chi) const
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
-  return !(eta < 0.0 || eta > (90.0 * EbsdLib::Constants::k_PiOver180) || chi < 0.0 || chi > chiMax);
+  return !(eta < 0.0 || eta > (90.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
 }
 
 // -----------------------------------------------------------------------------
@@ -844,9 +844,9 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -890,11 +890,11 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   }
   double etaMin = 0.0;
   double etaMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_Pi - eta) * tan(0.5 * EbsdLib::Constants::k_Pi - eta)));
+    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_PiD - eta) * tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {

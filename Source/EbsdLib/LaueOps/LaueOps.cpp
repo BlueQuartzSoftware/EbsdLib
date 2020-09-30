@@ -114,9 +114,9 @@ OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& 
     }
 
     OrientationD axisAngle = OrientationTransformation::qu2ax<QuatD, OrientationType>(qc);
-    if(axisAngle[3] > EbsdLib::Constants::k_Pi)
+    if(axisAngle[3] > EbsdLib::Constants::k_PiD)
     {
-      axisAngle[3] = EbsdLib::Constants::k_2Pi - axisAngle[3];
+      axisAngle[3] = EbsdLib::Constants::k_2PiD - axisAngle[3];
     }
     if(axisAngle[3] < axisAngleMin[3])
     {

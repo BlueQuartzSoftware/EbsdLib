@@ -56,9 +56,9 @@ namespace Monoclinic
 
 static const std::array<size_t, 3> OdfNumBins = {72, 36, 72}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.7f * ((EbsdLib::Constants::k_Pi)-std::sin((EbsdLib::Constants::k_Pi)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2)-std::sin((EbsdLib::Constants::k_PiOver2)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi)-std::sin((EbsdLib::Constants::k_Pi)))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.7f * ((EbsdLib::Constants::k_PiD)-std::sin((EbsdLib::Constants::k_PiD)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver2D)-std::sin((EbsdLib::Constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiD)-std::sin((EbsdLib::Constants::k_PiD)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -542,7 +542,7 @@ void MonoclinicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eule
 // -----------------------------------------------------------------------------
 bool MonoclinicOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < 0 || eta > (180.0 * EbsdLib::Constants::k_PiOver180) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
+  return !(eta < 0 || eta > (180.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
@@ -560,9 +560,9 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -607,8 +607,8 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
   double etaMin = 0.0;
   double etaMax = 180.0;
   double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);

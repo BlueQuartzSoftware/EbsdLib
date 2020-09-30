@@ -101,7 +101,7 @@ public:
 
   void TestRotation()
   {
-    float phi1 = 0.0f * EbsdLib::Constants::k_PiOver180;
+    float phi1 = 0.0f * EbsdLib::Constants::k_PiOver180D;
     float PHI = 180.0f;
     float phi2 = 0.0f;
 

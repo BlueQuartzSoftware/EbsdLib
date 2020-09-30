@@ -104,7 +104,7 @@ public:
       eu_r[2] = 0.8661895f;
       result = OrientationTransformation::eu_check(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      eu_r[1] = eu_r[1] - EbsdLib::Constants::k_Pi;
+      eu_r[1] = eu_r[1] - EbsdLib::Constants::k_PiD;
       result = OrientationTransformation::eu_check(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -287,7 +287,7 @@ public:
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
-      ax[3] = EbsdLib::Constants::k_Pif - 0.00001f;
+      ax[3] = EbsdLib::Constants::k_PiF - 0.00001f;
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -295,7 +295,7 @@ public:
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
-      ax[3] = EbsdLib::Constants::k_Pif + 1.0f;
+      ax[3] = EbsdLib::Constants::k_PiF + 1.0f;
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
@@ -306,7 +306,7 @@ public:
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
-      ax[3] = EbsdLib::Constants::k_Pif - 0.00001f;
+      ax[3] = EbsdLib::Constants::k_PiF - 0.00001f;
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -314,7 +314,7 @@ public:
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
 
-      ax[3] = EbsdLib::Constants::k_Pif + 1.0f;
+      ax[3] = EbsdLib::Constants::k_PiF + 1.0f;
       result = OrientationTransformation::ax_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -1);
     }
@@ -346,7 +346,7 @@ public:
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
-      ax[3] = EbsdLib::Constants::k_Pif + 1.0f;
+      ax[3] = EbsdLib::Constants::k_PiF + 1.0f;
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -371,7 +371,7 @@ public:
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -3);
 
-      ax[3] = EbsdLib::Constants::k_Pif + 1.0f;
+      ax[3] = EbsdLib::Constants::k_PiF + 1.0f;
       result = OrientationTransformation::om_check(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -398,7 +398,7 @@ public:
   {
 
     float eu[3] = {1.0f, 0.0f, 0.0f};
-    float omega = static_cast<float>(EbsdLib::Constants::k_PiOver2);
+    float omega = EbsdLib::Constants::k_PiOver2F;
     GenRotTest<OrientationF, float>(eu, omega);
     GenRotTest<FloatVectorType, float>(eu, omega);
   }
@@ -415,9 +415,9 @@ public:
     eu[1] = in[1];
     eu[2] = in[2];
 
-    eu[0] = fmod(eu[0], EbsdLib::Constants::k_2Pi);
-    eu[1] = fmod(eu[1], EbsdLib::Constants::k_Pi);
-    eu[2] = fmod(eu[2], EbsdLib::Constants::k_2Pi);
+    eu[0] = fmod(eu[0], EbsdLib::Constants::k_2PiD);
+    eu[1] = fmod(eu[1], EbsdLib::Constants::k_PiD);
+    eu[2] = fmod(eu[2], EbsdLib::Constants::k_2PiD);
 
     T res(9);
 
@@ -677,7 +677,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   void Test_ax2_XXX()
   {
     std::cout << "Test_ax2_XXX  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
-    float ax[4] = {0.0f, 0.0f, -1.0f, static_cast<float>(k_PiOver2)};
+    float ax[4] = {0.0f, 0.0f, -1.0f, k_PiOver2F};
     OrientationPrinters::Print_AX<float*>(ax);
     AX_2_XXX<OrientationF>(ax);
     AX_2_XXX<std::vector<float>>(ax);
@@ -730,7 +730,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   {
     {
       std::cout << "Test_qu2_XXX  (SCALAR, <X, Y, Z>) ***************************************" << std::endl;
-      float qu[4] = {static_cast<float>(EbsdLib::Constants::k_1OverRoot2), 0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2)};
+      float qu[4] = {EbsdLib::Constants::k_1OverRoot2F, 0.0f, 0.0f, -EbsdLib::Constants::k_1OverRoot2F};
       OrientationPrinters::Print_QU<QuatF>({qu[0], qu[1], qu[2], qu[3]}, QuatF::Order::ScalarVector);
       using QuatFType = Quaternion<float>;
       QU_2_XXX<QuatFType, float>(qu, QuatF::Order::ScalarVector);
@@ -740,7 +740,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     {
       std::cout << "Test_qu2_XXX  (<X, Y, Z>, SCALAR) ***************************************" << std::endl;
-      float qu[4] = {0.0f, 0.0f, static_cast<float>(-EbsdLib::Constants::k_1OverRoot2), static_cast<float>(EbsdLib::Constants::k_1OverRoot2)};
+      float qu[4] = {0.0f, 0.0f, -EbsdLib::Constants::k_1OverRoot2F, EbsdLib::Constants::k_1OverRoot2F};
       OrientationPrinters::Print_QU<QuatF>({qu[0], qu[1], qu[2], qu[3]});
       using QuatFType = Quaternion<float>;
       QU_2_XXX<QuatFType, float>(qu);
@@ -808,19 +808,19 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     EbsdLib::FloatArrayType::Pointer data = EbsdLib::FloatArrayType::CreateArray(2, cDims, "Eulers", true);
     data->initializeWithZeros();
     float* fPtr = data->getPointer(0);
-    fPtr[0] = 90.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
+    fPtr[0] = 90.0f * EbsdLib::Constants::k_PiOver180F;
     fPtr[1] = 0.0f;
     fPtr[2] = 0.0f;
-    fPtr[3] = 90.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
+    fPtr[3] = 90.0f * EbsdLib::Constants::k_PiOver180F;
     fPtr[4] = 0.0f;
     fPtr[5] = 0.0f;
 
     //& Notation
     {
       OrientationF eu(&(fPtr[0]), 3); // Wrap the pointer with the &notation
-      eu[0] = 45.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
-      eu[1] = 90.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
-      eu[2] = 135.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
+      eu[0] = 45.0f * EbsdLib::Constants::k_PiOver180F;
+      eu[1] = 90.0f * EbsdLib::Constants::k_PiOver180F;
+      eu[2] = 135.0f * EbsdLib::Constants::k_PiOver180F;
 
       DREAM3D_REQUIRE_EQUAL(eu[0], fPtr[0]);
       DREAM3D_REQUIRE_EQUAL(eu[1], fPtr[1]);
@@ -830,9 +830,9 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     // Pointer Arithmetic (inputs)
     {
       OrientationF eu(fPtr + 3, 3);
-      eu[0] = 135.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
-      eu[1] = 45.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
-      eu[2] = 90.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
+      eu[0] = 135.0f * EbsdLib::Constants::k_PiOver180F;
+      eu[1] = 45.0f * EbsdLib::Constants::k_PiOver180F;
+      eu[2] = 90.0f * EbsdLib::Constants::k_PiOver180F;
 
       DREAM3D_REQUIRE_EQUAL(eu[0], fPtr[3]);
       DREAM3D_REQUIRE_EQUAL(eu[1], fPtr[4]);
@@ -841,7 +841,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
 
     // Pointer Arithmetic, placing results directly into an array
     {
-      OrientationF ax(0.0f, 0.0f, -1.0f, static_cast<float>(EbsdLib::Constants::k_PiOver2));
+      OrientationF ax(0.0f, 0.0f, -1.0f, EbsdLib::Constants::k_PiOver2F);
       OrientationF eu(fPtr + 3, 3);
       eu = OrientationTransformation::ax2eu<OrientationF, OrientationF>(ax);
 

@@ -118,7 +118,7 @@ float EbsdLibMath::Gamma(float x)
       ga *= r;
       if(x < 0.0f)
       {
-        ga = -1 * EbsdLib::Constants::k_Pif / (x * ga * sinf(EbsdLib::Constants::k_Pif * x));
+        ga = -1 * EbsdLib::Constants::k_PiF / (x * ga * sinf(EbsdLib::Constants::k_PiF * x));
       }
     }
   }
@@ -192,7 +192,7 @@ float EbsdLibMath::LnGamma(float x, float& sgngam)
       p = p + 1;
       z = p - q;
     }
-    z = q * sinf(EbsdLib::Constants::k_Pif * z);
+    z = q * sinf(EbsdLib::Constants::k_PiF * z);
     result = logpi - log(z) - w;
     return result;
   }

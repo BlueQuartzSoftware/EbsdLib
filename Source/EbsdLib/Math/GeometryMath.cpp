@@ -279,7 +279,7 @@ void GeometryMath::GenerateRandomRay(float length, float* ray)
   float rand2 = distribution(generator);
 
   ray[2] = (2.0f * rand1) - 1.0f;
-  float t = static_cast<float>(EbsdLib::Constants::k_2Pi) * rand2;
+  float t = EbsdLib::Constants::k_2PiF * rand2;
   float w = std::sqrt(1.0f - (ray[2] * ray[2]));
   ray[0] = w * std::cos(t);
   ray[1] = w * std::sin(t);

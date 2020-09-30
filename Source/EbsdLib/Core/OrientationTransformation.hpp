@@ -300,17 +300,17 @@ ResultType eu_check(const T& eu)
   ResultType res;
   res.result = 1;
 
-  if((eu[0] < 0.0) || (eu[0] > (EbsdLib::Constants::k_2Pi)))
+  if((eu[0] < 0.0) || (eu[0] > (EbsdLib::Constants::k_2PiD)))
   {
     res.msg = "rotations:eu_check:: phi1 Euler angle outside of valid range [0,2pi]";
     res.result = -1;
   }
-  if((eu[1] < 0.0) || (eu[1] > EbsdLib::Constants::k_Pi))
+  if((eu[1] < 0.0) || (eu[1] > EbsdLib::Constants::k_PiD))
   {
     res.msg = "rotations:eu_check:: Phi Euler angle outside of valid range [0,pi]";
     res.result = -2;
   }
-  if((eu[2] < 0.0) || (eu[2] > (EbsdLib::Constants::k_2Pi)))
+  if((eu[2] < 0.0) || (eu[2] > (EbsdLib::Constants::k_2PiD)))
   {
     res.msg = "rotations:eu_check:: phi2 Euler angle outside of valid range [0,2pi]";
     res.result = -3;
@@ -479,7 +479,7 @@ ResultType ax_check(const InputType& ax)
   using value_type = typename InputType::value_type;
   ResultType res;
   res.result = 1;
-  if((ax[3] < 0.0) || (ax[3] > EbsdLib::Constants::k_Pi))
+  if((ax[3] < 0.0) || (ax[3] > EbsdLib::Constants::k_PiD))
   {
     res.msg = "rotations:ax_check: angle must be in range [0,pi]";
     res.result = -1;
@@ -750,9 +750,9 @@ OutputType eu2ax(const InputType& e)
   value_type sig = static_cast<value_type>(0.5 * (e[0] + e[2]));
   value_type del = static_cast<value_type>(0.5 * (e[0] - e[2]));
   value_type tau = static_cast<value_type>(std::sqrt(t * t + sin(sig) * sin(sig)));
-  if(EbsdLibMath::closeEnough(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2), static_cast<typename OutputType::value_type>(1.0E-6L)))
+  if(EbsdLibMath::closeEnough(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2D), static_cast<typename OutputType::value_type>(1.0E-6L)))
   {
-    alpha = static_cast<value_type>(EbsdLib::Constants::k_Pi);
+    alpha = static_cast<value_type>(EbsdLib::Constants::k_PiD);
   }
   else
   {
@@ -804,7 +804,7 @@ OutputType eu2ro(const InputType& e)
 
   OutputType res = eu2ax<InputType, OutputType>(e);
   typename OutputType::value_type t = res[3];
-  if(std::fabs(t - EbsdLib::Constants::k_Pi) < thr)
+  if(std::fabs(t - EbsdLib::Constants::k_PiD) < thr)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
@@ -930,22 +930,22 @@ OutputType om2eu(const InputType& o)
     else
     {
       res[0] = static_cast<OutputValueType>(-atan2(-o[1], o[0]));
-      res[1] = static_cast<OutputValueType>(EbsdLib::Constants::k_Pi);
+      res[1] = static_cast<OutputValueType>(EbsdLib::Constants::k_PiD);
       res[2] = 0.0;
     }
   }
 
   if(res[0] < 0.0)
   {
-    res[0] = static_cast<typename OutputType::value_type>(fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
+    res[0] = static_cast<typename OutputType::value_type>(fmod(res[0] + 100.0 * DConst::k_PiD, DConst::k_2PiD));
   }
   if(res[1] < 0.0)
   {
-    res[1] = static_cast<typename OutputType::value_type>(fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi));
+    res[1] = static_cast<typename OutputType::value_type>(fmod(res[1] + 100.0 * DConst::k_PiD, DConst::k_PiD));
   }
   if(res[2] < 0.0)
   {
-    res[2] = static_cast<typename OutputType::value_type>(fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
+    res[2] = static_cast<typename OutputType::value_type>(fmod(res[2] + 100.0 * DConst::k_PiD, DConst::k_2PiD));
   }
   return res;
 }
@@ -1071,7 +1071,7 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
     }
     else
     {
-      Phi = static_cast<OutputValueType>(EbsdLib::Constants::k_Pi);
+      Phi = static_cast<OutputValueType>(EbsdLib::Constants::k_PiD);
       phi2 = 0.0; // arbitrarily due to degeneracy
       phi1 = static_cast<OutputValueType>(atan2(2.0 * qq.x() * qq.y(), qq.x() * qq.x() - qq.y() * qq.y()));
     }
@@ -1104,15 +1104,15 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
 
   if(res[0] < 0.0)
   {
-    res[0] = static_cast<OutputValueType>(fmod(res[0] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
+    res[0] = static_cast<OutputValueType>(fmod(res[0] + 100.0 * DConst::k_PiD, DConst::k_2PiD));
   }
   if(res[1] < 0.0)
   {
-    res[1] = static_cast<OutputValueType>(fmod(res[1] + 100.0 * DConst::k_Pi, DConst::k_Pi));
+    res[1] = static_cast<OutputValueType>(fmod(res[1] + 100.0 * DConst::k_PiD, DConst::k_PiD));
   }
   if(res[2] < 0.0)
   {
-    res[2] = static_cast<OutputValueType>(fmod(res[2] + 100.0 * DConst::k_Pi, DConst::k_2Pi));
+    res[2] = static_cast<OutputValueType>(fmod(res[2] + 100.0 * DConst::k_PiD, DConst::k_2PiD));
   }
 
   return res;
@@ -1188,10 +1188,10 @@ OutputType ho2ax(const InputType& h)
     res[0] = hn[0];
     res[1] = hn[1];
     res[2] = hn[2];
-    OutputValueType delta = static_cast<OutputValueType>(std::fabs(s - EbsdLib::Constants::k_Pi));
+    OutputValueType delta = static_cast<OutputValueType>(std::fabs(s - EbsdLib::Constants::k_PiD));
     if(delta < thr)
     {
-      res[3] = static_cast<value_type>(EbsdLib::Constants::k_Pi);
+      res[3] = static_cast<value_type>(EbsdLib::Constants::k_PiD);
     }
     else
     {
@@ -1436,7 +1436,7 @@ OutputType ro2ax(const InputType& r)
     res[0] = r[0];
     res[1] = r[1];
     res[2] = r[2];
-    res[3] = static_cast<OutputValueType>(DConst::k_Pi);
+    res[3] = static_cast<OutputValueType>(DConst::k_PiD);
   }
   else
   {
@@ -1484,7 +1484,7 @@ OutputType ax2ro(const InputType& ax)
   res[0] = ax[0];
   res[1] = ax[1];
   res[2] = ax[2];
-  if(fabs(ax[3] - EbsdLib::Constants::k_Pi) < thr)
+  if(fabs(ax[3] - EbsdLib::Constants::k_PiD) < thr)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
   }
@@ -1572,7 +1572,7 @@ OutputType ro2ho(const InputType& r)
   }
   if(r[3] == std::numeric_limits<typename OutputType::value_type>::infinity())
   {
-    f = static_cast<value_type>(0.75 * EbsdLib::Constants::k_Pi);
+    f = static_cast<value_type>(0.75 * EbsdLib::Constants::k_PiD);
   }
   else
   {

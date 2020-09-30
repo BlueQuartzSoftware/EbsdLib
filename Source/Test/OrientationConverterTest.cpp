@@ -69,12 +69,12 @@ public:
     std::vector<size_t> cDims(1, 3);
     EbsdLib::FloatArrayType::Pointer eulers = EbsdLib::FloatArrayType::CreateArray(nTuples, cDims, "Eulers", true);
     // Initialize the Eulers with some values
-    eulers->setComponent(0, 0, 302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
-    eulers->setComponent(0, 1, 51.282f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
-    eulers->setComponent(0, 2, 37.969f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
-    eulers->setComponent(1, 0, 45.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
-    eulers->setComponent(1, 1, 0.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
-    eulers->setComponent(1, 2, 0.0f * static_cast<float>(EbsdLib::Constants::k_PiOver180));
+    eulers->setComponent(0, 0, 302.84f * EbsdLib::Constants::k_PiOver180F);
+    eulers->setComponent(0, 1, 51.282f * EbsdLib::Constants::k_PiOver180F);
+    eulers->setComponent(0, 2, 37.969f * EbsdLib::Constants::k_PiOver180F);
+    eulers->setComponent(1, 0, 45.0f * EbsdLib::Constants::k_PiOver180F);
+    eulers->setComponent(1, 1, 0.0f * EbsdLib::Constants::k_PiOver180F);
+    eulers->setComponent(1, 2, 0.0f * EbsdLib::Constants::k_PiOver180F);
 
     // float rad = 302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180);
     // std::cout << "Rad: " << rad << std::endl;
@@ -97,8 +97,8 @@ public:
       DREAM3D_REQUIRE(delta < 1.0E6);
     }
 
-    OrientationF euler = {302.84f * static_cast<float>(EbsdLib::Constants::k_PiOver180), 51.282f * static_cast<float>(EbsdLib::Constants::k_PiOver180),
-                          37.969f * static_cast<float>(EbsdLib::Constants::k_PiOver180)};
+    OrientationF euler = {302.84f * EbsdLib::Constants::k_PiOver180F, 51.282f * EbsdLib::Constants::k_PiOver180F,
+                          37.969f * EbsdLib::Constants::k_PiOver180F};
     QuatF qOut = OrientationTransformation::eu2qu<OrientationF, QuatF>(euler);
     OrientationPrinters::Print_QU<QuatF>(qOut);
   }
@@ -183,7 +183,7 @@ public:
         for(float p1 = 0.0; p1 < 361.0; p1 = p1 + phi1Inc)
         {
           //        std::cout << "TESTING EULER ANGLE (Degrees): " << p1 << ", " << p << ", " << p2 << std::endl;
-          TestEulerAngle(p1 * EbsdLib::Constants::k_PiOver180, p * EbsdLib::Constants::k_PiOver180, p2 * EbsdLib::Constants::k_PiOver180);
+          TestEulerAngle(p1 * EbsdLib::Constants::k_PiOver180D, p * EbsdLib::Constants::k_PiOver180D, p2 * EbsdLib::Constants::k_PiOver180D);
         }
       }
     }

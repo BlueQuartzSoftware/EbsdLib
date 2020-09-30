@@ -57,9 +57,9 @@ namespace TrigonalLow
 {
 static const std::array<size_t, 3> OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiD - std::sin(EbsdLib::Constants::k_PiD))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiD - std::sin(EbsdLib::Constants::k_PiD))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiD / 6.0) - std::sin(EbsdLib::Constants::k_PiD / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -79,9 +79,9 @@ static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 1.7
 
 static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2, 0.0}, {-EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2, 0.0}, {EbsdLib::Constants::k_Root3Over2, -0.5, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace TrigonalLow
 
@@ -233,7 +233,7 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
   {
     ax[0] = -ax[0], ax[1] = -ax[1], ax[2] = -ax[2];
   }
-  float angle = 180.0f * atan2(ax[1], ax[0]) * EbsdLib::Constants::k_1OverPi;
+  float angle = 180.0f * atan2(ax[1], ax[0]) * EbsdLib::Constants::k_1OverPiD;
   if(angle < 0)
   {
     angle = angle + 360.0f;
@@ -247,7 +247,7 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     if(int(angle / 60) % 2 == 0)
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -255,7 +255,7 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = 60.0f - FZw;
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -516,7 +516,7 @@ public:
       // -----------------------------------------------------------------------------
       // 011 Family
       direction[0] = -0.5;
-      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
@@ -582,7 +582,7 @@ void TrigonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eul
 // -----------------------------------------------------------------------------
 bool TrigonalLowOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < (-120.0 * EbsdLib::Constants::k_PiOver180) || eta > 0.0 || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
+  return !(eta < (-120.0 * EbsdLib::Constants::k_PiOver180D) || eta > 0.0 || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
@@ -600,9 +600,9 @@ EbsdLib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double ph
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -647,8 +647,8 @@ EbsdLib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double ph
   double etaMin = -120.0;
   double etaMax = 0.0;
   double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
@@ -882,7 +882,7 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalLowOps::generateIPFTriangleLegend(int i
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180D);
 
   EbsdLib::Rgb color;
   size_t idx = 0;

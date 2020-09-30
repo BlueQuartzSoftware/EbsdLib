@@ -56,9 +56,9 @@
 namespace HexagonalLow
 {
 static const std::array<size_t, 3> OdfNumBins = {72, 72, 12}; // Represents a 5Deg bin
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_Pi - std::sin(EbsdLib::Constants::k_Pi))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_Pi / 6.0) - std::sin(EbsdLib::Constants::k_Pi / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiD - std::sin(EbsdLib::Constants::k_PiD))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiD - std::sin(EbsdLib::Constants::k_PiD))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiD / 6.0) - std::sin(EbsdLib::Constants::k_PiD / 6.0))), (1.0 / 3.0))};
 
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
@@ -80,15 +80,15 @@ static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.5
 static const double MatSym[k_SymOpsCount][3][3] = {
     {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), -0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.0, static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}},
+    {{0.0, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
     {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, static_cast<double>(-EbsdLib::Constants::k_Root3Over2), 0.0}, {static_cast<double>(EbsdLib::Constants::k_Root3Over2), 0.5, 0.0}, {0.0, 0.0, 1.0}}};
+    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace HexagonalLow
 
@@ -246,7 +246,7 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
   {
     n1 = -n1, n2 = -n2, n3 = -n3;
   }
-  float angle = 180.0 * atan2(n2, n1) * EbsdLib::Constants::k_1OverPi;
+  float angle = 180.0 * atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD;
   if(angle < 0)
   {
     angle = angle + 360.0;
@@ -260,7 +260,7 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     if(int(angle / 30) % 2 == 0)
     {
       FZw = angle - (30.0 * int(angle / 30.0));
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -268,7 +268,7 @@ OrientationType HexagonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     {
       FZw = angle - (30.0 * int(angle / 30.0));
       FZw = 30.0f - FZw;
-      FZw = FZw * EbsdLib::Constants::k_PiOver180;
+      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -1078,7 +1078,7 @@ public:
       // -----------------------------------------------------------------------------
       // 011 Family
       direction[0] = -0.5;
-      direction[1] = EbsdLib::Constants::k_Root3Over2;
+      direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
@@ -1144,7 +1144,7 @@ void HexagonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eu
 // -----------------------------------------------------------------------------
 bool HexagonalLowOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < 0 || eta > (60.0 * EbsdLib::Constants::k_PiOver180) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180));
+  return !(eta < 0 || eta > (60.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
@@ -1162,9 +1162,9 @@ EbsdLib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
 {
   if(degToRad)
   {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRad;
-    phi = phi * EbsdLib::Constants::k_DegToRad;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRad;
+    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
+    phi = phi * EbsdLib::Constants::k_DegToRadD;
+    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
   double g[3][3];
@@ -1209,8 +1209,8 @@ EbsdLib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
   double etaMin = 0.0;
   double etaMax = 60.0;
   double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPi;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPi;
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
 
   _rgb[0] = 1.0 - chiDeg / chiMax;
   _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
@@ -1443,7 +1443,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   double denom = 0.0;
 
   // Find the slope of the bounding line.
-  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180);
+  static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180D);
 
   EbsdLib::Rgb color;
   size_t idx = 0;

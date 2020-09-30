@@ -79,6 +79,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <type_traits>
 #include <vector>
 
 #include "EbsdLib/EbsdLib.h"
@@ -146,42 +147,193 @@
 
 namespace EbsdLib::Constants
 {
-static const float k_Pif = static_cast<float>(M_PI);
-static const double k_Pi = M_PI;
-static const double k_SqrtPi = sqrt(M_PI);
-static const double k_2OverSqrtPi = 2.0 / sqrt(M_PI);
-static const double k_HalfOfSqrtPi = sqrt(M_PI) / 2.0;
-static const double k_SqrtHalfPi = sqrt(M_PI_2);
-static const double k_2Pi = 2.0 * M_PI;
-static const double k_1OverPi = 1.0 / M_PI;
-static const double k_PiOver180 = M_PI / 180.0;
-static const double k_360OverPi = 360.0 / M_PI;
-static const double k_180OverPi = 180.0 / M_PI;
-static const double k_PiOver2 = M_PI / 2.0;
-static const double k_PiOver3 = M_PI / 3.0;
-static const double k_PiOver4 = M_PI / 4.0;
-static const double k_PiOver8 = M_PI / 8.0;
-static const double k_PiOver12 = M_PI / 12.0;
-static const double k_Sqrt2 = sqrt(2.0);
-static const double k_Sqrt3 = sqrt(3.0);
-static const double k_HalfSqrt2 = 0.5 * sqrt(2.0);
-static const double k_1OverRoot2 = 1.0 / sqrt(2.0);
-static const double k_1OverRoot3 = 1.0 / sqrt(3.0);
-static const double k_Root3Over2 = sqrt(3.0) / 2.0;
-static const double k_DegToRad = M_PI / 180.0;
-static const float k_DegToRadF = static_cast<float>(M_PI / 180.0F);
-static const double k_RadToDeg = 180.0 / M_PI;
-static const float k_RadToDegF = static_cast<float>(180.0F / M_PI);
-static const double k_1Point3 = 1.0 + 1.0 / 3.0;
-static const double k_1Over3 = 1.0 / 3.0;
+// In C++ 20, can be replaced with <numbers> header
 
-static const double k_ACosNeg1 = acos(-1.0);
-static const double k_ACos1 = acos(1.0);
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Pi = static_cast<T>(3.1415926535897932384);
 
-static const double k_Tan_OneEigthPi = tan(k_PiOver8);
-static const double k_Cos_OneEigthPi = cos(k_PiOver8);
-static const double k_Cos_ThreeEightPi = cos(3.0 * k_PiOver8);
-static const double k_Sin_ThreeEightPi = sin(3.0 * k_PiOver8);
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_SqrtPi = static_cast<T>(1.7724538509055159);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_2OverSqrtPi = static_cast<T>(1.1283791670955126);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_HalfOfSqrtPi = static_cast<T>(0.88622692545275794);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_SqrtHalfPi = static_cast<T>(1.2533141373155001);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_2Pi = static_cast<T>(6.2831853071795862);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_1OverPi = static_cast<T>(0.31830988618379069);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver180 = static_cast<T>(0.017453292519943295);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_360OverPi = static_cast<T>(114.59155902616465);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_180OverPi = static_cast<T>(57.295779513082323);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver2 = static_cast<T>(1.5707963267948966);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver3 = static_cast<T>(1.0471975511965976);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver4 = static_cast<T>(0.78539816339744828);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver8 = static_cast<T>(0.39269908169872414);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_PiOver12 = static_cast<T>(0.26179938779914941);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Sqrt2 = static_cast<T>(1.4142135623730951);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Sqrt3 = static_cast<T>(1.7320508075688772);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_HalfSqrt2 = static_cast<T>(0.70710678118654757);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_1OverRoot2 = static_cast<T>(0.70710678118654746);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_1OverRoot3 = static_cast<T>(0.57735026918962584);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Root3Over2 = static_cast<T>(0.8660254037844386);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_DegToRad = static_cast<T>(0.017453292519943295);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_RadToDeg = static_cast<T>(57.295779513082323);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_1Point3 = static_cast<T>(1.3333333333333333);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_1Over3 = static_cast<T>(0.33333333333333331);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_ACosNeg1 = k_Pi<T>;
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_ACos1 = static_cast<T>(0.0);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Tan_OneEigthPi = static_cast<T>(0.41421356237309503);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Cos_OneEigthPi = static_cast<T>(0.92387953251128674);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Cos_ThreeEightPi = static_cast<T>(0.38268343236508984);
+
+template <class T, class = std::enable_if_t<std::is_floating_point_v<T>>>
+inline constexpr T k_Sin_ThreeEightPi = static_cast<T>(0.92387953251128674);
+
+inline constexpr float k_PiF = k_Pi<float>;
+inline constexpr double k_PiD = k_Pi<double>;
+
+inline constexpr float k_SqrtPiF = k_SqrtPi<float>;
+inline constexpr double k_SqrtPiD = k_SqrtPi<double>;
+
+inline constexpr float k_2OverSqrtPiF = k_2OverSqrtPi<float>;
+inline constexpr double k_2OverSqrtPiD = k_2OverSqrtPi<double>;
+
+inline constexpr float k_HalfOfSqrtPiF = k_HalfOfSqrtPi<float>;
+inline constexpr double k_HalfOfSqrtPiD = k_HalfOfSqrtPi<double>;
+
+inline constexpr float k_SqrtHalfPiF = k_SqrtHalfPi<float>;
+inline constexpr double k_SqrtHalfPiD = k_SqrtHalfPi<double>;
+
+inline constexpr float k_2PiF = k_2Pi<float>;
+inline constexpr double k_2PiD = k_2Pi<double>;
+
+inline constexpr float k_1OverPiF = k_1OverPi<float>;
+inline constexpr double k_1OverPiD = k_1OverPi<double>;
+
+inline constexpr float k_PiOver180F = k_PiOver180<float>;
+inline constexpr double k_PiOver180D = k_PiOver180<double>;
+
+inline constexpr float k_360OverPiF = k_360OverPi<float>;
+inline constexpr double k_360OverPiD = k_360OverPi<double>;
+
+inline constexpr float k_180OverPiF = k_180OverPi<float>;
+inline constexpr double k_180OverPiD = k_180OverPi<double>;
+
+inline constexpr float k_PiOver2F = k_PiOver2<float>;
+inline constexpr double k_PiOver2D = k_PiOver2<double>;
+
+inline constexpr float k_PiOver3F = k_PiOver3<float>;
+inline constexpr double k_PiOver3D = k_PiOver3<double>;
+
+inline constexpr float k_PiOver4F = k_PiOver4<float>;
+inline constexpr double k_PiOver4D = k_PiOver4<double>;
+
+inline constexpr float k_PiOver8F = k_PiOver8<float>;
+inline constexpr double k_PiOver8D = k_PiOver8<double>;
+
+inline constexpr float k_PiOver12F = k_PiOver12<float>;
+inline constexpr double k_PiOver12D = k_PiOver12<double>;
+
+inline constexpr float k_Sqrt2F = k_Sqrt2<float>;
+inline constexpr double k_Sqrt2D = k_Sqrt2<double>;
+
+inline constexpr float k_Sqrt3F = k_Sqrt3<float>;
+inline constexpr double k_Sqrt3D = k_Sqrt3<double>;
+
+inline constexpr float k_HalfSqrt2F = k_HalfSqrt2<float>;
+inline constexpr double k_HalfSqrt2D = k_HalfSqrt2<double>;
+
+inline constexpr float k_1OverRoot2F = k_1OverRoot2<float>;
+inline constexpr double k_1OverRoot2D = k_1OverRoot2<double>;
+
+inline constexpr float k_1OverRoot3F = k_1OverRoot3<float>;
+inline constexpr double k_1OverRoot3D = k_1OverRoot3<double>;
+
+inline constexpr float k_Root3Over2F = k_Root3Over2<float>;
+inline constexpr double k_Root3Over2D = k_Root3Over2<double>;
+
+inline constexpr float k_DegToRadF = k_DegToRad<float>;
+inline constexpr double k_DegToRadD = k_DegToRad<double>;
+
+inline constexpr float k_RadToDegF = k_RadToDeg<float>;
+inline constexpr double k_RadToDegD = k_RadToDeg<double>;
+
+inline constexpr float k_1Point3F = k_1Point3<float>;
+inline constexpr double k_1Point3D = k_1Point3<double>;
+
+inline constexpr float k_1Over3F = k_1Over3<float>;
+inline constexpr double k_1Over3D = k_1Over3<double>;
+
+inline constexpr float k_ACosNeg1F = k_ACosNeg1<float>;
+inline constexpr double k_ACosNeg1D = k_ACosNeg1<double>;
+
+inline constexpr float k_ACos1F = k_ACos1<float>;
+inline constexpr double k_ACos1D = k_ACos1<double>;
+
+inline constexpr float k_Tan_OneEigthPiF = k_Tan_OneEigthPi<float>;
+inline constexpr double k_Tan_OneEigthPiD = k_Tan_OneEigthPi<double>;
+
+inline constexpr float k_Cos_OneEigthPiF = k_Cos_OneEigthPi<float>;
+inline constexpr double k_Cos_OneEigthPiD = k_Cos_OneEigthPi<double>;
+
+inline constexpr float k_Cos_ThreeEightPiF = k_Cos_ThreeEightPi<float>;
+inline constexpr double k_Cos_ThreeEightPiD = k_Cos_ThreeEightPi<double>;
+
+inline constexpr float k_Sin_ThreeEightPiF = k_Sin_ThreeEightPi<float>;
+inline constexpr double k_Sin_ThreeEightPiD = k_Sin_ThreeEightPi<double>;
 
 } // namespace EbsdLib::Constants
 
