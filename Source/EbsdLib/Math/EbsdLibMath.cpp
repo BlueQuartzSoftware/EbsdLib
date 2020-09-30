@@ -40,10 +40,6 @@ static const float k_MachineEpsilon = 5E-16f;
 // static const float k_MaxRealNumber = 1E300;
 // static const float k_MinRealNumber = 1E-300;
 
-EbsdLibMath::EbsdLibMath() = default;
-
-EbsdLibMath::~EbsdLibMath() = default;
-
 float EbsdLibMath::Gamma(float x)
 {
   int i, k, m;
