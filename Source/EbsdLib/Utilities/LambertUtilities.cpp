@@ -62,7 +62,7 @@ int32_t LambertUtilities::LambertSquareVertToSphereVert(float* vert, Hemisphere 
   float a = vert[0];
   float b = vert[1];
 
-  float hemiFactor = (hemi == Hemisphere::North) ? -1.0f : 1.0;
+  float hemiFactor = (hemi == Hemisphere::North) ? -1.0f : 1.0f;
 
   // force points inside the SEAP square
   if(std::abs(a) > L)

@@ -309,48 +309,48 @@ public:
     }
 
     // inverse M_3
-    q = sqrt(2.0 * rs / (rs + fabs(xyz3[2])));
+    q = static_cast<K>(std::sqrt(2.0 * rs / (rs + std::fabs(xyz3[2]))));
     xyz2[0] = xyz3[0] * q;
     xyz2[1] = xyz3[1] * q;
-    xyz2[2] = (fabs(xyz3[2]) / xyz3[2]) * rs / LPs::pref;
+    xyz2[2] = static_cast<K>((std::fabs(xyz3[2]) / xyz3[2]) * rs / LPs::pref);
 
     // inverse M_2
     qxy = xyz2[0] * xyz2[0] + xyz2[1] * xyz2[1];
     sx = 1.0;
     if(xyz2[0] != 0.0)
-      sx = fabs(xyz2[0]) / xyz2[0];
+      sx = std::fabs(xyz2[0]) / xyz2[0];
     sy = 1.0;
     if(xyz2[1] != 0.0)
-      sy = fabs(xyz2[1]) / xyz2[1];
+      sy = std::fabs(xyz2[1]) / xyz2[1];
 
     if(qxy != 0.0)
     {
-      if(fabs(xyz2[1]) <= fabs(xyz2[0]))
+      if(std::fabs(xyz2[1]) <= std::fabs(xyz2[0]))
       {
         q2xy = qxy + xyz2[0] * xyz2[0];
         sq2xy = sqrt(q2xy);
-        q = (LPs::beta / LPs::r2 / LPs::R1) * sqrt(q2xy * qxy / (q2xy - fabs(xyz2[0]) * sq2xy));
-        tt = (xyz2[1] * xyz2[1] + fabs(xyz2[0]) * sq2xy) / LPs::r2 / qxy;
+        q = static_cast<K>((LPs::beta / LPs::r2 / LPs::R1) * std::sqrt(q2xy * qxy / (q2xy - std::fabs(xyz2[0]) * sq2xy)));
+        tt = static_cast<K>((xyz2[1] * xyz2[1] + std::fabs(xyz2[0]) * sq2xy) / LPs::r2 / qxy);
         if(tt > 1.0)
           tt = 1.0;
         if(tt < -1.0)
           tt = -1.0;
-        ac = acos(tt);
+        ac = std::acos(tt);
         T1inv = q * sx;
-        T2inv = q * sy * ac / LPs::pi12;
+        T2inv = static_cast<K>(q * sy * ac / LPs::pi12);
       }
       else
       {
         qx2y = qxy + xyz2[1] * xyz2[1];
-        sqx2y = sqrt(qx2y);
-        q = (LPs::beta / LPs::r2 / LPs::R1) * sqrt(qx2y * qxy / (qx2y - fabs(xyz2[1]) * sqx2y));
-        tt = (xyz2[0] * xyz2[0] + fabs(xyz2[1]) * sqx2y) / LPs::r2 / qxy;
+        sqx2y = std::sqrt(qx2y);
+        q = static_cast<K>((LPs::beta / LPs::r2 / LPs::R1) * std::sqrt(qx2y * qxy / (qx2y - std::fabs(xyz2[1]) * sqx2y)));
+        tt = static_cast<K>((xyz2[0] * xyz2[0] + std::fabs(xyz2[1]) * sqx2y) / LPs::r2 / qxy);
         if(tt > 1.0)
           tt = 1.0;
         if(tt < -1.0)
           tt = -1.0;
-        ac = acos(tt);
-        T1inv = q * sx * ac / LPs::pi12;
+        ac = std::acos(tt);
+        T1inv = static_cast<K>(q * sx * ac / LPs::pi12);
         T2inv = q * sy;
       }
     }

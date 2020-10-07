@@ -833,7 +833,7 @@ void AngReader::parseDataLine(std::string& line, size_t i)
     try
     {
       ph = std::stoi(tokens[7]);
-    } catch(std::invalid_argument& e)
+    } catch([[maybe_unused]] const std::invalid_argument& e1)
     {
       setErrorCode(-2508);
       m_ErrorColumn = 7;
@@ -843,7 +843,7 @@ void AngReader::parseDataLine(std::string& line, size_t i)
         float f = std::stof(tokens[7]);
         setErrorCode(0);
         ph = static_cast<int32_t>(f);
-      } catch(std::invalid_argument& e)
+      } catch([[maybe_unused]] const std::invalid_argument& e2)
       {
         setErrorCode(-2588);
         m_ErrorColumn = 7;

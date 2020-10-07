@@ -239,7 +239,7 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
   n1 = ax[0];
   n2 = ax[1], n3 = ax[2], w = ax[3];
 
-  float denom = sqrt((n1 * n1 + n2 * n2 + n3 * n3));
+  float denom = static_cast<float>(std::sqrt((n1 * n1 + n2 * n2 + n3 * n3)));
   n1 = n1 / denom;
   n2 = n2 / denom;
   n3 = n3 / denom;
@@ -247,7 +247,7 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
   {
     n1 = -n1, n2 = -n2, n3 = -n3;
   }
-  float angle = 180.0f * atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD;
+  float angle = static_cast<float>(180.0 * std::atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD);
   if(angle < 0)
   {
     angle = angle + 360.0f;
@@ -257,7 +257,7 @@ OrientationType TrigonalOps::getMDFFZRod(const OrientationType& inRod) const
   FZn3 = n3;
   if(angle > 60.0f)
   {
-    n1n2mag = sqrt(n1 * n1 + n2 * n2);
+    n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
     if(int(angle / 60) % 2 == 0)
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
@@ -287,11 +287,7 @@ QuatD TrigonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 }
 QuatF TrigonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(TrigonalHigh::QuatSym, q1, q2);
-  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
-  return out;
+  return _calcNearestQuat(TrigonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -928,12 +924,12 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int imag
         b = (2 * x * x + 2 * y * y);
         c = (x * x + y * y - 1);
 
-        val = (-b + sqrtf(b * b - 4.0 * a * c)) / (2.0 * a);
+        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
         x1 = (1 + val) * x;
         y1 = (1 + val) * y;
         z1 = val;
         denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = sqrtf(denom);
+        denom = std::sqrt(denom);
         x1 = x1 / denom;
         y1 = y1 / denom;
         z1 = z1 / denom;

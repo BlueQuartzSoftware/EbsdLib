@@ -48,7 +48,7 @@ public:
     int32_t phase = 0;
     bool calcIPF = false;
     size_t index = 0;
-    int32_t numPhases = m_PhaseInfos.size();
+    int32_t numPhases = static_cast<int32_t>(m_PhaseInfos.size());
 
     std::vector<size_t> laueOpsIndex(m_PhaseInfos.size());
     for(size_t i = 0; i < laueOpsIndex.size(); i++)

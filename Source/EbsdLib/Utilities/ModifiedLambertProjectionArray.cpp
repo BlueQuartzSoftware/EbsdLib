@@ -638,7 +638,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
   hsize_t lambertElements = tmp->getDimension() * tmp->getDimension();
   float sphereRadius = tmp->getSphereRadius();
 
-  Create2DExpandableDataset(gid, dsetName, lambertElements, lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0));
+  Create2DExpandableDataset(gid, dsetName, static_cast<int>(lambertElements), lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0));
 
   EbsdLib::DoubleArrayType* north = nullptr;
   EbsdLib::DoubleArrayType* south = nullptr;
@@ -650,7 +650,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
     {
       north = m_ModifiedLambertProjectionArray[i]->getNorthSquare().get();
       south = m_ModifiedLambertProjectionArray[i]->getSouthSquare().get();
-      AppendRowToH5Dataset(gid, dsetName, lambertElements, north->getPointer(0), south->getPointer(0));
+      AppendRowToH5Dataset(gid, dsetName, static_cast<int>(lambertElements), north->getPointer(0), south->getPointer(0));
     }
   }
 

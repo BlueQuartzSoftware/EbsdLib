@@ -462,18 +462,18 @@ OrientationD CubicOps::calculateMisorientationInternal(const std::vector<QuatD>&
   {
     //  wmin = -1.0;
     wmin = EbsdLib::Constants::k_ACosNeg1D;
-    sin_wmin_over_2 = sinf(wmin);
+    sin_wmin_over_2 = std::sin(wmin);
   }
   else if(wmin > 1.0)
   {
     //   wmin = 1.0;
     wmin = EbsdLib::Constants::k_ACos1D;
-    sin_wmin_over_2 = sinf(wmin);
+    sin_wmin_over_2 = std::sin(wmin);
   }
   else
   {
     wmin = acos(wmin);
-    sin_wmin_over_2 = sinf(wmin);
+    sin_wmin_over_2 = std::sin(wmin);
   }
 
   double n1 = 0.0;
@@ -628,11 +628,7 @@ QuatD CubicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 
 QuatF CubicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(CubicHigh::QuatSym, q1, q2);
-  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
-  return out;
+  return _calcNearestQuat(CubicHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 QuatD CubicOps::getFZQuat(const QuatD& qr) const
@@ -1576,11 +1572,11 @@ bool CubicOps::inUnitTriangle(double eta, double chi) const
   double chiMax;
   if(etaDeg > 45.0)
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(0.5 * EbsdLib::Constants::k_PiD - eta) * tanf(0.5 * EbsdLib::Constants::k_PiD - eta)));
+    chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
   else
   {
-    chiMax = sqrt(1.0 / (2.0 + tanf(eta) * tanf(eta)));
+    chiMax = std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta)));
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
@@ -1920,12 +1916,12 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
       b = (2 * x * x + 2 * y * y);
       c = (x * x + y * y - 1);
 
-      val = (-b + sqrtf(b * b - 4.0f * a * c)) / (2.0f * a);
+      val = (-b + std::sqrt(b * b - 4.0f * a * c)) / (2.0f * a);
       x1 = (1 + val) * x;
       y1 = (1 + val) * y;
       z1 = val;
       denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-      denom = sqrtf(denom);
+      denom = std::sqrt(denom);
       x1 = x1 / denom;
       y1 = y1 / denom;
       z1 = z1 / denom;
@@ -2027,15 +2023,15 @@ EbsdLib::Rgb CubicOps::generateMisorientationColor(const QuatD& q, const QuatD& 
   z7 = z6 * (EbsdLib::Constants::k_Cos_OneEigthPiD / EbsdLib::Constants::k_Tan_OneEigthPiD);
 
   // convert to traditional hsv (0-1)
-  h = fmod(atan2f(y7, x7) + M_2PI, M_2PI) / M_2PI;
-  s = sqrt(x7 * x7 + y7 * y7);
+  h = std::fmod(std::atan2(y7, x7) + M_2PI, M_2PI) / M_2PI;
+  s = std::sqrt(x7 * x7 + y7 * y7);
   v = z7;
   if(v > 0)
   {
     s = s / v;
   }
 
-  EbsdLib::Rgb rgb = EbsdLib::ColorUtilities::ConvertHSVtoRgb(h, s, v);
+  EbsdLib::Rgb rgb = EbsdLib::ColorUtilities::ConvertHSVtoRgb(static_cast<float>(h), static_cast<float>(s), static_cast<float>(v));
 
   // now standard 0-255 rgb, needs rotation
   return EbsdLib::RgbColor::dRgb(255 - EbsdLib::RgbColor::dGreen(rgb), EbsdLib::RgbColor::dBlue(rgb), EbsdLib::RgbColor::dRed(rgb), 0);

@@ -256,11 +256,7 @@ QuatD TetragonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 }
 QuatF TetragonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(TetragonalHigh::QuatSym, q1, q2);
-  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
-  return out;
+  return _calcNearestQuat(TetragonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------

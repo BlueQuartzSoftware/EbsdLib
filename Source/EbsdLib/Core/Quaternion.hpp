@@ -453,7 +453,7 @@ public:
     }
     else
     {
-      constVal = 2 * std::acos(qw) / (std::sqrt(1.0 - (qw * qw)));
+      constVal = static_cast<T>(2 * std::acos(qw) / (std::sqrt(1.0 - (qw * qw))));
     }
 
     misoVec[0] = m_X * constVal;
@@ -515,9 +515,9 @@ public:
     std::array<T, 3> temp2;
     EbsdMatrixMath::CrossProduct(r.data(), temp.data(), temp2.data());
 
-    rotatedVector[0] = 2.0 * temp2[0] + inputVector[0];
-    rotatedVector[1] = 2.0 * temp2[1] + inputVector[1];
-    rotatedVector[2] = 2.0 * temp2[2] + inputVector[2];
+    rotatedVector[0] = static_cast<T>(2.0) * temp2[0] + inputVector[0];
+    rotatedVector[1] = static_cast<T>(2.0) * temp2[1] + inputVector[1];
+    rotatedVector[2] = static_cast<T>(2.0) * temp2[2] + inputVector[2];
 
     return rotatedVector;
   }

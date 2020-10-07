@@ -133,15 +133,15 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
   m_Dimension = dims;
   m_SphereRadius = sphereRadius;
   // We want half the sphere area for each square because each square represents a hemisphere.
-  float halfSphereArea = 4 * M_PI * sphereRadius * sphereRadius / 2.0;
+  float halfSphereArea = 4.0f * EbsdLib::Constants::k_PiF * sphereRadius * sphereRadius / 2.0f;
   // The length of a side of the square is the square root of the area
   float squareEdge = sqrt(halfSphereArea);
 
   m_StepSize = squareEdge / static_cast<float>(m_Dimension);
 
-  m_MaxCoord = squareEdge / 2.0;
-  m_MinCoord = -squareEdge / 2.0;
-  m_HalfDimension = static_cast<float>(m_Dimension) / 2.0;
+  m_MaxCoord = squareEdge / 2.0f;
+  m_MinCoord = -squareEdge / 2.0f;
+  m_HalfDimension = static_cast<float>(m_Dimension) / 2.0f;
   m_HalfDimensionTimesStepSize = m_HalfDimension * m_StepSize;
 
   std::vector<size_t> tDims(2, m_Dimension);
@@ -202,7 +202,7 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
   }
   else
   {
-    abinSign = modX / fabs(modX);
+    abinSign = static_cast<int>(modX / std::fabs(modX));
   }
   if(modY == 0.0)
   {
@@ -210,7 +210,7 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
   }
   else
   {
-    bbinSign = modY / fabs(modY);
+    bbinSign = static_cast<int>(modY / std::fabs(modY));
   }
   abin1 = abin;
   bbin1 = bbin;
@@ -341,7 +341,7 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqC
   }
   else
   {
-    abinSign = modX / fabs(modX);
+    abinSign = static_cast<int>(modX / std::fabs(modX));
   }
   if(modY == 0.0)
   {
@@ -349,7 +349,7 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqC
   }
   else
   {
-    bbinSign = modY / fabs(modY);
+    bbinSign = static_cast<int>(modY / std::fabs(modY));
   }
   abin1 = abin;
   bbin1 = bbin;
@@ -383,18 +383,18 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, float* sqC
   modY = fabs(modY);
   if(square == NorthSquare)
   {
-    float intensity1 = m_NorthSquare->getValue((abin1) + (bbin1 * m_Dimension));
-    float intensity2 = m_NorthSquare->getValue((abin2) + (bbin2 * m_Dimension));
-    float intensity3 = m_NorthSquare->getValue((abin3) + (bbin3 * m_Dimension));
-    float intensity4 = m_NorthSquare->getValue((abin4) + (bbin4 * m_Dimension));
+    float intensity1 = static_cast<float>(m_NorthSquare->getValue((abin1) + (bbin1 * m_Dimension)));
+    float intensity2 = static_cast<float>(m_NorthSquare->getValue((abin2) + (bbin2 * m_Dimension)));
+    float intensity3 = static_cast<float>(m_NorthSquare->getValue((abin3) + (bbin3 * m_Dimension)));
+    float intensity4 = static_cast<float>(m_NorthSquare->getValue((abin4) + (bbin4 * m_Dimension)));
     float interpolatedIntensity = ((intensity1 * (1 - modX) * (1 - modY)) + (intensity2 * (modX) * (1 - modY)) + (intensity3 * (1 - modX) * (modY)) + (intensity4 * (modX) * (modY)));
     return interpolatedIntensity;
   }
 
-  float intensity1 = m_SouthSquare->getValue((abin1) + (bbin1 * m_Dimension));
-  float intensity2 = m_SouthSquare->getValue((abin2) + (bbin2 * m_Dimension));
-  float intensity3 = m_SouthSquare->getValue((abin3) + (bbin3 * m_Dimension));
-  float intensity4 = m_SouthSquare->getValue((abin4) + (bbin4 * m_Dimension));
+  float intensity1 = static_cast<float>(m_SouthSquare->getValue((abin1) + (bbin1 * m_Dimension)));
+  float intensity2 = static_cast<float>(m_SouthSquare->getValue((abin2) + (bbin2 * m_Dimension)));
+  float intensity3 = static_cast<float>(m_SouthSquare->getValue((abin3) + (bbin3 * m_Dimension)));
+  float intensity4 = static_cast<float>(m_SouthSquare->getValue((abin4) + (bbin4 * m_Dimension)));
   float interpolatedIntensity = ((intensity1 * (1 - modX) * (1 - modY)) + (intensity2 * (modX) * (1 - modY)) + (intensity3 * (1 - modX) * (modY)) + (intensity4 * (modX) * (modY)));
   return interpolatedIntensity;
 }
@@ -417,24 +417,24 @@ bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
     sqCoord[1] = 0.0;
     return nhCheck;
   }
-  if(fabs(xyz[0]) >= fabs(xyz[1]))
+  if(std::fabs(xyz[0]) >= std::fabs(xyz[1]))
   {
-    sqCoord[0] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPiD;
-    sqCoord[1] = (xyz[0] / fabs(xyz[0])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*atan(xyz[1] / xyz[0]));
+    sqCoord[0] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPiD);
+    sqCoord[1] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[1] / xyz[0])));
   }
   else
   {
-    sqCoord[0] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*atan(xyz[0] / xyz[1]));
-    sqCoord[1] = (xyz[1] / fabs(xyz[1])) * sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPiD);
+    sqCoord[0] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[0] / xyz[1])));
+    sqCoord[1] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPiD));
   }
 
   if(sqCoord[0] >= m_MaxCoord)
   {
-    sqCoord[0] = (m_MaxCoord)-.0001;
+    sqCoord[0] = m_MaxCoord - 0.0001f;
   }
   if(sqCoord[1] >= m_MaxCoord)
   {
-    sqCoord[1] = (m_MaxCoord)-.0001;
+    sqCoord[1] = m_MaxCoord - 0.0001f;
   }
   return nhCheck;
 }
@@ -528,8 +528,8 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::
   int xpointshalf = xpoints / 2;
   int ypointshalf = ypoints / 2;
 
-  float xres = 2.0 / (float)(xpoints);
-  float yres = 2.0 / (float)(ypoints);
+  float xres = 2.0f / static_cast<float>(xpoints);
+  float yres = 2.0f / static_cast<float>(ypoints);
   float xtmp, ytmp;
   float sqCoord[2];
   float xyz[3];
@@ -544,9 +544,9 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::
     for(int64_t x = 0; x < xpoints; x++)
     {
       // get (x,y) for stereographic projection pixel
-      xtmp = float(x - xpointshalf) * xres + (xres * 0.5);
-      ytmp = float(y - ypointshalf) * yres + (yres * 0.5);
-      int index = y * xpoints + x;
+      xtmp = static_cast<float>(x - xpointshalf) * xres + (xres * 0.5f);
+      ytmp = static_cast<float>(y - ypointshalf) * yres + (yres * 0.5f);
+      int index = static_cast<int>(y * xpoints + x);
       if((xtmp * xtmp + ytmp * ytmp) <= 1.0)
       {
         // project xy from stereo projection to the unit spehere

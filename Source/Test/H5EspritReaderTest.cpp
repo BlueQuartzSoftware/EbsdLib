@@ -70,9 +70,9 @@ public:
     int32_t nrows = reader->getNumRows();
     DREAM3D_REQUIRED(nrows, ==, 600)
 
-    float xstep = reader->getXStep();
+    float xstep = static_cast<float>(reader->getXStep());
     DREAM3D_REQUIRED(xstep, ==, 0.0)
-    float ystep = reader->getYStep();
+    float ystep = static_cast<float>(reader->getYStep());
     DREAM3D_REQUIRED(ystep, ==, 0.0)
 
     std::string grid = reader->getGrid();

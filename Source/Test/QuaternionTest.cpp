@@ -338,8 +338,8 @@ public:
     // Rotate a vector by a quaternion
     Quaternion<float> quat(0.32732683f, -0.54554468f, 0.76376259f, 0.10910894f);
 
-    vec = {0.26726124, -0.53452247, 0.80178368};
-    ovec = quat.rotateVector(vec.data(), DREAM3D_PASSIVE);
+    vec = {0.26726124f, -0.53452247f, 0.80178368f};
+    ovec = quat.rotateVector(vec.data(), static_cast<int>(DREAM3D_PASSIVE));
 
     pass = EbsdLibMath::closeEnough(ovec[0], 0.381802f, 1.0E-4f);
     DREAM3D_REQUIRE_EQUAL(pass, true);

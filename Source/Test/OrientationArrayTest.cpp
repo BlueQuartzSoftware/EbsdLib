@@ -113,7 +113,7 @@ public:
       eu_r[2] = 0.8661895f;
       result = OrientationTransformation::eu_check<TestType>(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
-      eu_r[1] = eu_r[1] - EbsdLib::Constants::k_PiD;
+      eu_r[1] = eu_r[1] - EbsdLib::Constants::k_PiF;
       result = OrientationTransformation::eu_check<TestType>(eu_r);
       DREAM3D_REQUIRE_EQUAL(result.result, -2);
     }
@@ -433,7 +433,7 @@ public:
       ax[0] = 0.0f;
       ax[1] = 0.0f;
       ax[2] = 1.0f;
-      ax[3] = EbsdLib::Constants::k_PiD - 0.00001f;
+      ax[3] = EbsdLib::Constants::k_PiF - 0.00001f;
       result = OrientationTransformation::ax_check<TestType>(ax);
       DREAM3D_REQUIRE_EQUAL(result.result, 1);
 
@@ -553,7 +553,7 @@ public:
   {
 
     std::array<float, 3> eu = {1.0f, 0.0f, 0.0f};
-    float omega = EbsdLib::Constants::k_PiOver2D;
+    float omega = EbsdLib::Constants::k_PiOver2F;
     GenRotTest<FOrientArrayType, float>(eu.data(), omega);
     GenRotTest<FloatVectorType, float>(eu.data(), omega);
     GenRotTest<FloatQVectorType, float>(eu.data(), omega);
@@ -573,9 +573,9 @@ public:
     eu[1] = in[1];
     eu[2] = in[2];
 
-    eu[0] = fmod(eu[0], EbsdLib::Constants::k_2PiD);
-    eu[1] = fmod(eu[1], EbsdLib::Constants::k_PiD);
-    eu[2] = fmod(eu[2], EbsdLib::Constants::k_2PiD);
+    eu[0] = static_cast<FloatType>(std::fmod(eu[0], EbsdLib::Constants::k_2PiD));
+    eu[1] = static_cast<FloatType>(std::fmod(eu[1], EbsdLib::Constants::k_PiD));
+    eu[2] = static_cast<FloatType>(std::fmod(eu[2], EbsdLib::Constants::k_2PiD));
 
     T res(9);
 

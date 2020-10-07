@@ -31,7 +31,7 @@ public:
     // for(size_t i = 0; i < m_Combinations.size(); i++)
     for(auto& combination : m_Combinations)
     {
-      permutation(combination.size(), combination);
+      permutation(static_cast<int>(combination.size()), combination);
     }
     return m_Permutations;
   }
@@ -54,7 +54,7 @@ protected:
       {
         if(bitmask[i])
         {
-          entry.push_back(i);
+          entry.push_back(static_cast<int>(i));
         }
       }
       m_Combinations.push_back(entry);
@@ -78,7 +78,7 @@ protected:
     {
       std::vector<int> entry;
 
-      for(j = N - 1; j >= 0; j--)
+      for(j = static_cast<int>(N - 1); j >= 0; j--)
       {
         entry.push_back(ch[j]);
         // std::cout<<ch[j];

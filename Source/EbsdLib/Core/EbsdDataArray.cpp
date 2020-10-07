@@ -659,7 +659,7 @@ void EbsdDataArray<T>::initializeWithZeros()
   {
     return;
   }
-  std::fill_n(m_Array, m_Size, 0);
+  std::fill_n(m_Array, m_Size, static_cast<T>(0));
 }
 
 // -----------------------------------------------------------------------------

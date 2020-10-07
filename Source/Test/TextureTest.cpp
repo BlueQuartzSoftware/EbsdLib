@@ -119,7 +119,7 @@ public:
       {
         std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
       }
-    } catch(const EbsdLib::method_not_implemented& exception)
+    } catch([[maybe_unused]] const EbsdLib::method_not_implemented& exception)
     {
       std::cout << "   MDF Plot Values NOT implemented" << std::endl;
     }

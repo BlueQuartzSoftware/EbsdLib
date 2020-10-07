@@ -82,7 +82,7 @@ std::pair<int32_t, std::string> TiffWriter::WriteColorImage(const std::string& f
 
   // Now compute the offset to the image data so that we can put that into the tag.
   // THESE NEXT 2 LINES MUST BE THE LAST TAG TO BE PUSHED BACK INTO THE VECTOR OR THE MATH WILL BE WRONG
-  int32_t imageDataOffset = 8 + ((tags.size() + 1) * 12) + 6; // Header + tags + IDF Tag entry count and Next IFD Offset
+  int32_t imageDataOffset = static_cast<int32_t>(8 + ((tags.size() + 1) * 12) + 6); // Header + tags + IDF Tag entry count and Next IFD Offset
   tags.push_back(TIFTAG{0x0111, 0x0004, 1, imageDataOffset}); // StripOffsets
 
   // Write the number of tags to the IFD section

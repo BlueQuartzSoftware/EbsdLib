@@ -106,13 +106,8 @@ public:
       tokens = EbsdStringUtils::split(buf, delim);
       for(const auto& token : tokens)
       {
-        try
-        {
-          double value = std::atof(token.c_str());
-          orientations.push_back(value);
-        } catch(std::exception& e)
-        {
-        }
+        double value = std::atof(token.c_str());
+        orientations.push_back(value);
       }
     }
     in.close();

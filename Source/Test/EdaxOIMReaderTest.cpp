@@ -73,7 +73,7 @@ public:
     std::list<std::string> names;
     err = reader->readScanNames(names);
     DREAM3D_REQUIRED(err, >=, 0)
-    int count = names.size();
+    int count = static_cast<int>(names.size());
     DREAM3D_REQUIRED(count, ==, 1)
 
     reader->setHDF5Path("Scan_1");

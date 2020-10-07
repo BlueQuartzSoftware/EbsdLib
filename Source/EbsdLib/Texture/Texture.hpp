@@ -119,13 +119,13 @@ public:
       bin1 = bin % odfNumBins[0];
       bin2 = static_cast<int32_t>((bin / odfNumBins[0]) % odfNumBins[1]);
       bin3 = bin / static_cast<int32_t>((odfNumBins[0] * odfNumBins[1]));
-      for(int j = -sigmas[i]; j <= sigmas[i]; j++)
+      for(int j = static_cast<int>(-sigmas[i]); j <= sigmas[i]; j++)
       {
         int jsqrd = j * j;
-        for(int k = -sigmas[i]; k <= sigmas[i]; k++)
+        for(int k = static_cast<int>(-sigmas[i]); k <= sigmas[i]; k++)
         {
           int ksqrd = k * k;
-          for(int l = -sigmas[i]; l <= sigmas[i]; l++)
+          for(int l = static_cast<int>(-sigmas[i]); l <= sigmas[i]; l++)
           {
             int lsqrd = l * l;
             addbin1 = bin1 + int(j);
@@ -156,9 +156,9 @@ public:
             {
               good = 0;
             }
-            addbin = (addbin3 * odfNumBins[0] * odfNumBins[1]) + (addbin2 * odfNumBins[0]) + (addbin1);
-            dist = powf((jsqrd + ksqrd + lsqrd), 0.5);
-            fraction = 1.0 - (double(dist / int(sigmas[i])) * double(dist / int(sigmas[i])));
+            addbin = static_cast<int>((addbin3 * odfNumBins[0] * odfNumBins[1]) + (addbin2 * odfNumBins[0]) + (addbin1));
+            dist = static_cast<float>(std::pow(static_cast<float>(jsqrd + ksqrd + lsqrd), 0.5));
+            fraction = static_cast<float>(1.0 - (double(dist / int(sigmas[i])) * double(dist / int(sigmas[i]))));
             if(dist <= int(sigmas[i]) && good == 1)
             {
               addweight = (weights[i] * fraction);
@@ -248,14 +248,14 @@ public:
 
       rod = orientationOps.getMDFFZRod(rod);
       mbin = orientationOps.getMisoBin(rod);
-      mdf[mbin] = -1 * static_cast<int>((weights[i] / static_cast<float>(mdfsize)) * 10000.0);
-      remainingcount = remainingcount + mdf[mbin];
+      mdf[mbin] = static_cast<T>(-1 * static_cast<int>((weights[i] / static_cast<float>(mdfsize)) * 10000.0));
+      remainingcount = static_cast<int>(remainingcount + mdf[mbin]);
     }
 
     for(int i = 0; i < remainingcount; i++)
     {
-      random1 = distribution(generator);
-      random2 = distribution(generator);
+      random1 = static_cast<float>(distribution(generator));
+      random2 = static_cast<float>(distribution(generator));
       choose1 = 0;
       choose2 = 0;
       totaldensity = 0;
@@ -301,7 +301,7 @@ public:
       {
         mdf[i] = -mdf[i];
       }
-      mdf[i] = mdf[i] / 10000.0;
+      mdf[i] = mdf[i] / static_cast<T>(10000.0);
     }
   }
 

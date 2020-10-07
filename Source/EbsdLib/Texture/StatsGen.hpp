@@ -530,7 +530,7 @@ public:
     float td1 = 0.0f;
     for(int i = 0; i < size; i++)
     {
-      random = distribution(generator);
+      random = static_cast<float>(distribution(generator));
       choose = 0;
       totaldensity = 0;
       for(int j = 0; j < opsMdfSize; j++)
@@ -551,7 +551,7 @@ public:
       OrientationD rod = ops.determineRodriguesVector(randx3.data(), choose);
       OrientationD ax = OrientationTransformation::ro2ax<OrientationD, OrientationD>(rod);
 
-      float w = ax[3] * radtodeg;
+      float w = static_cast<float>(ax[3] * radtodeg);
       size_t index = static_cast<size_t>(w * 0.2f);
       if(index < yval.size())
       {
@@ -571,7 +571,7 @@ public:
     }
     for(int i = 0; i < yval.size(); i++)
     {
-      xval[i] = i * 5.0 + 2.5;
+      xval[i] = static_cast<T>(i * 5.0 + 2.5);
       yval[i] = yval[i] / static_cast<float>(size);
     }
     return err;

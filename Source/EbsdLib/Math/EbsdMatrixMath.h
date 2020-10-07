@@ -457,17 +457,17 @@ public:
     double denom;
     denom = g[0] * g[0] + g[1] * g[1] + g[2] * g[2];
     denom = sqrt(denom);
-    g[0] = g[0] / denom;
+    g[0] = static_cast<T>(g[0] / denom);
     if(g[0] > 1.0)
     {
       g[0] = 1.0;
     }
-    g[1] = g[1] / denom;
+    g[1] = static_cast<T>(g[1] / denom);
     if(g[1] > 1.0)
     {
       g[1] = 1.0;
     }
-    g[2] = g[2] / denom;
+    g[2] = static_cast<T>(g[2] / denom);
     if(g[2] > 1.0)
     {
       g[2] = 1.0;

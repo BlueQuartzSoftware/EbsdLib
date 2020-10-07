@@ -321,7 +321,7 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
     }
     if(ZDir == 0)
     {
-      zval = slice;
+      zval = static_cast<int>(slice);
     }
     if(ZDir == 1)
     {

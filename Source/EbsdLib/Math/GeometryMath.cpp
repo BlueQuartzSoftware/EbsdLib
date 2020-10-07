@@ -275,8 +275,8 @@ void GeometryMath::GenerateRandomRay(float length, float* ray)
   std::mt19937_64 generator(seed);
   std::uniform_real_distribution<> distribution(0.0, 1.0);
 
-  float rand1 = distribution(generator);
-  float rand2 = distribution(generator);
+  float rand1 = static_cast<float>(distribution(generator));
+  float rand2 = static_cast<float>(distribution(generator));
 
   ray[2] = (2.0f * rand1) - 1.0f;
   float t = EbsdLib::Constants::k_2PiF * rand2;

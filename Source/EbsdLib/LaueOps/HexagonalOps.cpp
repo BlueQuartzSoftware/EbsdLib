@@ -262,7 +262,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
   n1 = ax[0];
   n2 = ax[1], n3 = ax[2], w = ax[3];
 
-  float denom = sqrt((n1 * n1 + n2 * n2 + n3 * n3));
+  float denom = static_cast<float>(std::sqrt((n1 * n1 + n2 * n2 + n3 * n3)));
   n1 = n1 / denom;
   n2 = n2 / denom;
   n3 = n3 / denom;
@@ -271,7 +271,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     n1 = -n1, n2 = -n2, n3 = -n3;
   }
 
-  float angle = 180.0f * atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD;
+  float angle = static_cast<float>(180.0 * std::atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD);
   if(angle < 0)
   {
     angle = angle + 360.0f;
@@ -309,11 +309,7 @@ QuatD HexagonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 
 QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(HexagonalHigh::QuatSym, q1, q2);
-  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
-  return out;
+  return _calcNearestQuat(HexagonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -1534,12 +1530,12 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
         b = (2 * x * x + 2 * y * y);
         c = (x * x + y * y - 1);
 
-        val = (-b + sqrtf(b * b - 4.0 * a * c)) / (2.0 * a);
+        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
         x1 = (1 + val) * x;
         y1 = (1 + val) * y;
         z1 = val;
         denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = sqrtf(denom);
+        denom = std::sqrt(denom);
         x1 = x1 / denom;
         y1 = y1 / denom;
         z1 = z1 / denom;
@@ -1587,7 +1583,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
 
   if(k <= M_PI / 12.0)
   {
-    k = sqrtf(xo * xo + yo * yo);
+    k = std::sqrt(xo * xo + yo * yo);
     if(k > 0)
     {
       k = xo / k;
@@ -1599,7 +1595,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   }
   else
   {
-    k = sqrtf(xo * xo + yo * yo);
+    k = std::sqrt(xo * xo + yo * yo);
     if(k > 0)
     {
       k = (EbsdLib::Constants::k_Sqrt3D * xo + yo) / (2.0f * k);
@@ -1611,23 +1607,23 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   }
   xo1 = xo * k;
   yo1 = yo * k;
-  zo1 = zo / (2.0f - EbsdLib::Constants::k_Sqrt3D);
+  zo1 = zo / (2.0 - EbsdLib::Constants::k_Sqrt3D);
 
   // eq c5.3
-  k = 3.0f * atan2(yo1, xo1);
-  xo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * cos(k);
-  yo2 = sqrtf(xo1 * xo1 + yo1 * yo1) * sin(k);
+  k = 3.0 * std::atan2(yo1, xo1);
+  xo2 = std::sqrt(xo1 * xo1 + yo1 * yo1) * std::cos(k);
+  yo2 = std::sqrt(xo1 * xo1 + yo1 * yo1) * std::sin(k);
   zo2 = zo1;
 
   // eq c5.4
   k = std::max(xo2, yo2);
-  if(fabs(k) > 0)
+  if(std::fabs(k) > 0)
   {
-    k = sqrtf(xo2 * xo2 + yo2 * yo2) / k;
+    k = std::sqrt(xo2 * xo2 + yo2 * yo2) / k;
   }
   else
   {
-    k = sqrtf(xo2 * xo2 + yo2 * yo2);
+    k = std::sqrt(xo2 * xo2 + yo2 * yo2);
   }
   xo3 = xo2 * k;
   yo3 = yo2 * k;
@@ -1655,26 +1651,26 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
 
   // eq c1.4
   k = std::fmod(std::atan2(y2, x2) + EbsdLib::Constants::k_2PiD, EbsdLib::Constants::k_2PiD);
-  x3 = cos(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
-  y3 = sin(k) * sqrt(x2 * x2 + y2 * y2) * sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
+  x3 = std::cos(k) * std::sqrt(x2 * x2 + y2 * y2) * std::sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
+  y3 = std::sin(k) * std::sqrt(x2 * x2 + y2 * y2) * std::sin(EbsdLib::Constants::k_PiD / 6.0f + std::fmod(k, EbsdLib::Constants::k_2PiD / 3.0)) / EbsdLib::Constants::k_HalfSqrt2D;
   z3 = z2 - 1.0f;
 
   // eq c1.5
-  k = sqrt(x3 * x3 + y3 * y3 + z3 * z3);
+  k = std::sqrt(x3 * x3 + y3 * y3 + z3 * z3);
   if(k > 0)
   {
-    k = (sqrt(x3 * x3 + y3 * y3) - z3) / k;
+    k = (std::sqrt(x3 * x3 + y3 * y3) - z3) / k;
   }
   else
   {
-    k = (sqrt(x3 * x3 + y3 * y3) - z3);
+    k = (std::sqrt(x3 * x3 + y3 * y3) - z3);
   }
   x4 = x3 * k;
   y4 = y3 * k;
   z4 = z3 * k;
 
   // eq c1.6, 7, and 8 (from matlab code not paper)
-  k = fmod(atan2(y4, x4) + 2 * M_PI, 2 * M_PI);
+  k = std::fmod(std::atan2(y4, x4) + 2 * M_PI, 2 * M_PI);
 
   int type;
   if(k >= 0.0f && k < M_2PI / 3.0)
@@ -1697,19 +1693,19 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   }
   z5 = z4;
 
-  k = 1.5f * atan2(y5, x5);
-  x6 = sqrt(x5 * x5 + y5 * y5) * cos(k);
-  y6 = sqrt(x5 * x5 + y5 * y5) * sin(k);
+  k = 1.5f * std::atan2(y5, x5);
+  x6 = std::sqrt(x5 * x5 + y5 * y5) * std::cos(k);
+  y6 = std::sqrt(x5 * x5 + y5 * y5) * std::sin(k);
   z6 = z5;
 
-  k = 2.0f * atan2(x6, -z6);
-  x7 = sqrt(x6 * x6 + z6 * z6) * sin(k);
+  k = 2.0f * std::atan2(x6, -z6);
+  x7 = std::sqrt(x6 * x6 + z6 * z6) * std::sin(k);
   y7 = y6;
-  z7 = -sqrt(x6 * x6 + z6 * z6) * cos(k);
+  z7 = -std::sqrt(x6 * x6 + z6 * z6) * std::cos(k);
 
-  k = (2.0f / 3.0) * atan2(y7, x7);
-  x8 = sqrt(x7 * x7 + y7 * y7) * cos(k);
-  y8 = sqrt(x7 * x7 + y7 * y7) * sin(k);
+  k = (2.0f / 3.0) * std::atan2(y7, x7);
+  x8 = std::sqrt(x7 * x7 + y7 * y7) * std::cos(k);
+  y8 = std::sqrt(x7 * x7 + y7 * y7) * std::sin(k);
   z8 = z7;
 
   if(type == 1)
@@ -1735,9 +1731,9 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   z10 = z9;
 
   // cartesian to traditional hsv
-  x11 = sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                         // r
-  y11 = acos(z10 / x11) / M_PI;                                                          // theta
-  z11 = fmod(fmod(atan2(y10, x10) + M_2PI, M_2PI) + 4.0f * M_PI / 3.0, M_2PI) / (M_2PI); // rho
+  x11 = std::sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                    // r
+  y11 = std::acos(z10 / x11) / M_PI;                                                     // theta
+  z11 = std::fmod(std::fmod(std::atan2(y10, x10) + M_2PI, M_2PI) + 4.0f * M_PI / 3.0, M_2PI) / (M_2PI); // rho
 
   if(x11 == 0)
   {
@@ -1762,7 +1758,7 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
     v = 0.5f + x11 / 2;
   }
 
-  EbsdLib::Rgb rgb = EbsdLib::ColorUtilities::ConvertHSVtoRgb(h, s, v);
+  EbsdLib::Rgb rgb = EbsdLib::ColorUtilities::ConvertHSVtoRgb(static_cast<float>(h), static_cast<float>(s), static_cast<float>(v));
 
   // now standard 0-255 rgb, needs inversion
   return EbsdLib::RgbColor::dRgb(255 - EbsdLib::RgbColor::dRed(rgb), 255 - EbsdLib::RgbColor::dGreen(rgb), 255 - EbsdLib::RgbColor::dBlue(rgb), 0);

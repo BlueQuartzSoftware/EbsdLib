@@ -228,11 +228,7 @@ QuatD TriclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 }
 QuatF TriclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  QuatD q1(q1f[0], q1f[1], q1f[2], q1f[3]);
-  QuatD q2(q2f[0], q2f[1], q2f[2], q2f[3]);
-  QuatD temp = _calcNearestQuat(Triclinic::QuatSym, q1, q2);
-  QuatF out(temp.x(), temp.y(), temp.z(), temp.w());
-  return out;
+  return _calcNearestQuat(Triclinic::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -865,12 +861,12 @@ EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int ima
         b = (2 * x * x + 2 * y * y);
         c = (x * x + y * y - 1);
 
-        val = (-b + sqrtf(b * b - 4.0 * a * c)) / (2.0 * a);
+        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
         x1 = (1 + val) * x;
         y1 = (1 + val) * y;
         z1 = val;
         denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = sqrtf(denom);
+        denom = std::sqrt(denom);
         x1 = x1 / denom;
         y1 = y1 / denom;
         z1 = z1 / denom;

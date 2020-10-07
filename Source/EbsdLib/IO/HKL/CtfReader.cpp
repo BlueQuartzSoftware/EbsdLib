@@ -487,7 +487,7 @@ int CtfReader::readData(std::ifstream& in)
   EbsdStringUtils::StringTokenType tokens = EbsdStringUtils::split(buf, '\t'); // Tokenize the array with a tab
 
   EbsdLib::NumericTypes::Type pType = EbsdLib::NumericTypes::Type::UnknownNumType;
-  int32_t size = tokens.size();
+  int32_t size = static_cast<int32_t>(tokens.size());
   bool didAllocate = false;
   for(int32_t i = 0; i < size; ++i)
   {
@@ -604,7 +604,7 @@ int CtfReader::readData(std::ifstream& in)
 int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
 {
   int err = 0;
-  int32_t size = headerLines.size();
+  int32_t size = static_cast<int32_t>(headerLines.size());
   for(int32_t i = 0; i < size; ++i)
   {
     std::string line = headerLines[i];
@@ -949,7 +949,7 @@ int CtfReader::writeFile(const std::string& filepath)
 
   std::vector<std::string> colNames = getColumnNames();
 
-  using ColInfoType = struct
+  struct ColInfoType
   {
     std::string colName = {""};
     void* ptr = nullptr;

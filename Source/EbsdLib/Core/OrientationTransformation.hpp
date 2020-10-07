@@ -1725,10 +1725,10 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
     y = 1;
     z = 2;
   }
-  float s;
-  float f;
+  value_type s;
+  value_type f;
 
-  value_type omega = static_cast<value_type>(2.0 * acos(q[w]));
+  value_type omega = static_cast<value_type>(2.0 * std::acos(q[w]));
   if(omega == 0.0)
   {
     OMHelperType::splat(res, 0.0);
@@ -1739,10 +1739,10 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
     res[0] = q[x];
     res[1] = q[y];
     res[2] = q[z];
-    s = static_cast<value_type>(1.0 / sqrt(OMHelperType::sumofSquares(res)));
+    s = static_cast<value_type>(1.0 / std::sqrt(OMHelperType::sumofSquares(res)));
     OMHelperType::scalarMultiply(res, s);
-    f = static_cast<value_type>(0.75 * (omega - sin(omega)));
-    f = static_cast<value_type>(pow(f, 1.0 / 3.0));
+    f = static_cast<value_type>(0.75 * (omega - std::sin(omega)));
+    f = static_cast<value_type>(std::pow(f, 1.0 / 3.0));
     OMHelperType::scalarMultiply(res, f);
   }
   return res;

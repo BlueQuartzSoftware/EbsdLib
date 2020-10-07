@@ -200,7 +200,7 @@ int H5OIMReader::readHeaderOnly()
     std::string str;
     std::stringstream ss(str);
     ss << getNameOfClass() << "Error (Internal HDF5 Path is empty): The name of the scan was not specified. There are " << names.size() << " scans available. ";
-    int nameCount = names.size();
+    int nameCount = static_cast<int>(names.size());
     if(nameCount < 10)
     {
       ss << " The scan names are: ";
@@ -596,8 +596,8 @@ int H5OIMReader::readData(hid_t parId)
         totalDataRows = totalDataRows * dim;
       }
       // Set the pattern dimensions
-      m_PatternDims[0] = dims[1];
-      m_PatternDims[1] = dims[2];
+      m_PatternDims[0] = static_cast<int>(dims[1]);
+      m_PatternDims[1] = static_cast<int>(dims[2]);
 
       m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
       err = H5Lite::readPointerDataset(gid, EbsdLib::Ang::PatternData, m_PatternData);

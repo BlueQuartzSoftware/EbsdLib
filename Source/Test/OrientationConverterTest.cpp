@@ -183,7 +183,7 @@ public:
         for(float p1 = 0.0; p1 < 361.0; p1 = p1 + phi1Inc)
         {
           //        std::cout << "TESTING EULER ANGLE (Degrees): " << p1 << ", " << p << ", " << p2 << std::endl;
-          TestEulerAngle(p1 * EbsdLib::Constants::k_PiOver180D, p * EbsdLib::Constants::k_PiOver180D, p2 * EbsdLib::Constants::k_PiOver180D);
+          TestEulerAngle(p1 * EbsdLib::Constants::k_PiOver180F, p * EbsdLib::Constants::k_PiOver180F, p2 * EbsdLib::Constants::k_PiOver180F);
         }
       }
     }
