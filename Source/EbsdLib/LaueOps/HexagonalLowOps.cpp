@@ -95,13 +95,7 @@ static const double MatSym[k_SymOpsCount][3][3] = {
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-HexagonalLowOps::HexagonalLowOps()
-{
-  double junk1 = HexagonalLow::OdfDimStepValue[0] * 1.0;
-  double junk2 = junk1 / HexagonalLow::OdfDimStepValue[1];
-  double junk3 = junk2 / HexagonalLow::OdfDimStepValue[2];
-  junk1 = junk3 / junk2;
-}
+HexagonalLowOps::HexagonalLowOps() = default;
 
 // -----------------------------------------------------------------------------
 //

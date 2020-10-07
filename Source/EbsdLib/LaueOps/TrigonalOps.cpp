@@ -96,13 +96,7 @@ static const double MatSym[k_SymOpsCount][3][3] = {
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-TrigonalOps::TrigonalOps()
-{
-  double junk1 = TrigonalHigh::OdfDimStepValue[0] * 1.0f;
-  double junk2 = junk1 / TrigonalHigh::OdfDimStepValue[1];
-  double junk3 = junk2 / TrigonalHigh::OdfDimStepValue[2];
-  junk1 = junk3 / junk2;
-}
+TrigonalOps::TrigonalOps() = default;
 
 // -----------------------------------------------------------------------------
 //
