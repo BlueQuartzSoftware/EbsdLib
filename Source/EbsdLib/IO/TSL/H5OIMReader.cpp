@@ -170,40 +170,6 @@ int H5OIMReader::readFile()
     return getErrorCode();
   }
 
-  err = H5Gclose(ebsdGid);
-  ebsdGid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close group id ";
-    setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
-  err = H5Gclose(gid);
-  gid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close group id ";
-    setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close file";
-    setErrorCode(-900024);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
   return getErrorCode();
 }
 
@@ -285,30 +251,6 @@ int H5OIMReader::readHeaderOnly()
   sentinel.addGroupId(ebsdGid);
 
   err = readHeader(ebsdGid);
-
-  err = H5Gclose(ebsdGid);
-  ebsdGid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close group id ";
-    setErrorMessage(str);
-    setErrorCode(-900023);
-    return getErrorCode();
-  }
-
-  err = H5Gclose(gid);
-  gid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not close group id ";
-    setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
 
   return getErrorCode();
 }
@@ -480,11 +422,6 @@ int H5OIMReader::readHeader(hid_t parId)
 
   std::string completeHeader;
   setOriginalHeader(completeHeader);
-
-  err = H5Gclose(phasesGid);
-  phasesGid = -1;
-  err = H5Gclose(gid);
-  gid = -1;
 
   return getErrorCode();
 }

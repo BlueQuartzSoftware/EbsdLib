@@ -540,11 +540,6 @@ int H5EspritReader::readHeader(hid_t parId)
   std::string completeHeader;
   setOriginalHeader(completeHeader);
 
-  err = H5Gclose(phasesGid);
-  phasesGid = -1;
-  err = H5Gclose(gid);
-  gid = -1;
-
   return getErrorCode();
 }
 
