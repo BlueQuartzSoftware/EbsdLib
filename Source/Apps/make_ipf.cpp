@@ -25,10 +25,8 @@ using FloatVec3Type = std::array<float, 3>;
 class GenerateIPFColorsImpl
 {
 public:
-  GenerateIPFColorsImpl(Ang2IPF* filter, FloatVec3Type& referenceDir, const std::vector<float>& eulers, int32_t* phases, std::vector<AngPhase::Pointer>& crystalStructures, bool* goodVoxels,
-                        uint8_t* colors)
-  : m_Filter(filter)
-  , m_ReferenceDir(referenceDir)
+  GenerateIPFColorsImpl(FloatVec3Type& referenceDir, const std::vector<float>& eulers, int32_t* phases, std::vector<AngPhase::Pointer>& crystalStructures, bool* goodVoxels, uint8_t* colors)
+  : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
   , m_PhaseInfos(crystalStructures)
@@ -97,7 +95,6 @@ public:
   }
 
 private:
-  Ang2IPF* m_Filter = nullptr;
   FloatVec3Type m_ReferenceDir;
   const std::vector<float>& m_CellEulerAngles;
   int32_t* m_CellPhases;
@@ -182,7 +179,7 @@ public:
 
     bool* goodVoxels = nullptr;
     std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-    GenerateIPFColorsImpl generateIPF(this, normRefDir, eulers, phaseData, crystalStructures, goodVoxels, ipfColors.data());
+    GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, crystalStructures, goodVoxels, ipfColors.data());
     generateIPF.run();
 
     std::pair<int32_t, std::string> error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
