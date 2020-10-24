@@ -35,10 +35,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"

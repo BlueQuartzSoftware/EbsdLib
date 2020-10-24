@@ -97,8 +97,7 @@ public:
       DREAM3D_REQUIRE(delta < 1.0E6);
     }
 
-    OrientationF euler = {302.84f * EbsdLib::Constants::k_PiOver180F, 51.282f * EbsdLib::Constants::k_PiOver180F,
-                          37.969f * EbsdLib::Constants::k_PiOver180F};
+    OrientationF euler = {302.84f * EbsdLib::Constants::k_PiOver180F, 51.282f * EbsdLib::Constants::k_PiOver180F, 37.969f * EbsdLib::Constants::k_PiOver180F};
     QuatF qOut = OrientationTransformation::eu2qu<OrientationF, QuatF>(euler);
     OrientationPrinters::Print_QU<QuatF>(qOut);
   }

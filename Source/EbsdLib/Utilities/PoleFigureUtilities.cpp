@@ -38,11 +38,11 @@
 #include <fstream>
 #include <sstream>
 
-#include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/LaueOps/OrthoRhombicOps.h"
+#include "EbsdLib/Utilities/ColorTable.h"
+#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
 #define WRITE_XYZ_SPHERE_COORD_VTK 0
 #define WRITE_LAMBERT_SQUARES 0

@@ -37,15 +37,15 @@
 
 #include <hdf5.h>
 
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 
-#include "AngReader.h"
 #include "AngPhase.h"
+#include "AngReader.h"
 
 /**
  * @class H5AngReader H5AngReader.h EbsdLib/IO/TSL/H5AngReader.h

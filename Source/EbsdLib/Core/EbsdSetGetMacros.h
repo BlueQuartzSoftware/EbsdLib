@@ -35,10 +35,10 @@
 #pragma once
 
 //-- C++11 Includes
-#include <memory>
 #include <array>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -50,8 +50,8 @@
 
 #if defined(QT_CORE_LIB)
 //-- Qt includes
-#include <string>
 #include <QtCore/QSharedPointer>
+#include <string>
 //#define RAW_PTR  data
 #endif
 
@@ -301,11 +301,11 @@ public:                                                                         
  * @brief Creates a "setter" method to set the property.
  */
 #define EBSD_SET_STRING_PROPERTY(prpty, varname)                                                                                                                                                       \
-  void set##prpty(const std::string& value)                                                                                                                                                                \
+  void set##prpty(const std::string& value)                                                                                                                                                            \
   {                                                                                                                                                                                                    \
     this->varname = value;                                                                                                                                                                             \
   }                                                                                                                                                                                                    \
-  void set##prpty(std::string* value)                                                                                                                                                                      \
+  void set##prpty(std::string* value)                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
     this->varname = *value;                                                                                                                                                                            \
   }
@@ -314,7 +314,7 @@ public:                                                                         
  * @brief Creates a "getter" method to retrieve the value of the property.
  */
 #define EBSD_GET_STRING_PROPERTY(prpty, varname)                                                                                                                                                       \
-  std::string get##prpty()                                                                                                                                                                                 \
+  std::string get##prpty()                                                                                                                                                                             \
   {                                                                                                                                                                                                    \
     return varname;                                                                                                                                                                                    \
   }
@@ -324,7 +324,7 @@ public:                                                                         
  */
 #define EBSD_INSTANCE_STRING_PROPERTY(prpty)                                                                                                                                                           \
 private:                                                                                                                                                                                               \
-  std::string m_##prpty;                                                                                                                                                                                   \
+  std::string m_##prpty;                                                                                                                                                                               \
                                                                                                                                                                                                        \
 public:                                                                                                                                                                                                \
   EBSD_SET_STRING_PROPERTY(prpty, m_##prpty)                                                                                                                                                           \
@@ -332,7 +332,7 @@ public:                                                                         
 
 #define EBSD_VIRTUAL_INSTANCE_STRING_PROPERTY(prpty)                                                                                                                                                   \
 private:                                                                                                                                                                                               \
-  std::string m_##prpty;                                                                                                                                                                                   \
+  std::string m_##prpty;                                                                                                                                                                               \
                                                                                                                                                                                                        \
 public:                                                                                                                                                                                                \
   virtual EBSD_SET_STRING_PROPERTY(prpty, m_##prpty) virtual EBSD_GET_STRING_PROPERTY(prpty, m_##prpty)
@@ -353,7 +353,7 @@ public:                                                                         
     }                                                                                                                                                                                                  \
     else                                                                                                                                                                                               \
     {                                                                                                                                                                                                  \
-      std::cout << "Setting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                           \
+      std::cout << "Setting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                                         \
     }                                                                                                                                                                                                  \
   }
 
@@ -368,7 +368,7 @@ public:                                                                         
     {                                                                                                                                                                                                  \
       return p->getValue();                                                                                                                                                                            \
     }                                                                                                                                                                                                  \
-    std::cout << "Getting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                             \
+    std::cout << "Getting Property '" << #prpty << "': Value for Key: " << key << " was null." << std::endl;                                                                                           \
     return {};                                                                                                                                                                                         \
   }
 

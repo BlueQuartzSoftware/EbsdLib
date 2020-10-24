@@ -34,9 +34,9 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <QtCore/QDir>
-#include <fstream>
 #include <QtCore/QFileInfo>
 #include <QtGui/QImage>
+#include <fstream>
 
 #include "EbsdLib/EbsdLib.h"
 #include "UnitTestSupport.hpp"

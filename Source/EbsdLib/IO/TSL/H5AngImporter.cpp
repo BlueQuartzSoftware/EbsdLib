@@ -325,12 +325,12 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
 #define WRITE_PHASE_HEADER_DATA(reader, m_msgType, prpty, key)                                                                                                                                         \
   {                                                                                                                                                                                                    \
     m_msgType t = reader->get##prpty();                                                                                                                                                                \
-    err = H5Lite::writeScalarDataset(pid, key, t);                                                                                                                                                    \
+    err = H5Lite::writeScalarDataset(pid, key, t);                                                                                                                                                     \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      ss.str("");                                                                                                                                                                            \
+      ss.str("");                                                                                                                                                                                      \
       ss << "H5AngImporter Error: Could not write Ang Header value '" << t << "' to the HDF5 file with data set name '" << key << "'\n";                                                               \
-      progressMessage(ss.str(), 100);                                                                                                                                                               \
+      progressMessage(ss.str(), 100);                                                                                                                                                                  \
       err = H5Gclose(pid);                                                                                                                                                                             \
       return -1;                                                                                                                                                                                       \
     }                                                                                                                                                                                                  \
@@ -339,12 +339,12 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
 #define WRITE_PHASE_HEADER_STRING_DATA(reader, m_msgType, prpty, key)                                                                                                                                  \
   {                                                                                                                                                                                                    \
     m_msgType t = reader->get##prpty();                                                                                                                                                                \
-    err = H5Lite::writeStringDataset(pid, key, t);                                                                                                                                                    \
+    err = H5Lite::writeStringDataset(pid, key, t);                                                                                                                                                     \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      ss.str("");                                                                                                                                                                            \
+      ss.str("");                                                                                                                                                                                      \
       ss << "H5AngImporter Error: Could not write Ang Header value '" << t << "' to the HDF5 file with data set name '" << key << "'\n";                                                               \
-      progressMessage(ss.str(), 100);                                                                                                                                                               \
+      progressMessage(ss.str(), 100);                                                                                                                                                                  \
       err = H5Gclose(pid);                                                                                                                                                                             \
       return -1;                                                                                                                                                                                       \
     }                                                                                                                                                                                                  \
@@ -352,17 +352,17 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
 
 #define WRITE_PHASE_DATA_ARRAY(reader, m_msgType, gid, prpty, key)                                                                                                                                     \
   {                                                                                                                                                                                                    \
-    std::vector<m_msgType> tempVar = reader->get##prpty();                                                                                                                                                 \
+    std::vector<m_msgType> tempVar = reader->get##prpty();                                                                                                                                             \
     dims[0] = tempVar.size();                                                                                                                                                                          \
     m_msgType* dataPtr = tempVar.data();                                                                                                                                                               \
     if(nullptr != dataPtr)                                                                                                                                                                             \
     {                                                                                                                                                                                                  \
-      err = H5Lite::writePointerDataset(pid, key, rank, dims, dataPtr);                                                                                                                               \
+      err = H5Lite::writePointerDataset(pid, key, rank, dims, dataPtr);                                                                                                                                \
       if(err < 0)                                                                                                                                                                                      \
       {                                                                                                                                                                                                \
-        ss.str("");                                                                                                                                                                          \
+        ss.str("");                                                                                                                                                                                    \
         ss << "H5AngImporter Error: Could not write Ang Data array for '" << key << "' to the HDF5 file with data set name '" << key << "'\n";                                                         \
-        progressMessage(ss.str(), 100);                                                                                                                                                             \
+        progressMessage(ss.str(), 100);                                                                                                                                                                \
         err = H5Gclose(pid);                                                                                                                                                                           \
         return -1;                                                                                                                                                                                     \
       }                                                                                                                                                                                                \

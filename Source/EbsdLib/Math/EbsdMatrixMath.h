@@ -35,13 +35,13 @@
 
 #pragma once
 
-#include <memory>
 #include <cmath>
+#include <memory>
 
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
 /*

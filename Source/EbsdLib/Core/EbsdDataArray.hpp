@@ -36,14 +36,14 @@
 
 // STL Includes
 #include <cassert>
-#include <vector>
 #include <iterator>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @class EbsdDataArray

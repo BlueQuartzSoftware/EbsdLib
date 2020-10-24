@@ -34,8 +34,8 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
@@ -130,31 +130,30 @@ public:
     TestTextureMdf<CubicLowOps>();
     TestTextureMdf<CubicOps>();
     TestTextureMdf<HexagonalLowOps>();
-    TestTextureMdf<HexagonalOps>();   
+    TestTextureMdf<HexagonalOps>();
     TestTextureMdf<TetragonalLowOps>();
     TestTextureMdf<TetragonalOps>();
     TestTextureMdf<TrigonalLowOps>();
     TestTextureMdf<TrigonalOps>();
 
-    try {
+    try
+    {
       TestTextureMdf<TriclinicOps>();
-    } 
-    catch (std::runtime_error e) 
+    } catch(std::runtime_error e)
     {
     }
-    try {
+    try
+    {
       TestTextureMdf<MonoclinicOps>();
-    } 
-    catch (std::runtime_error e) 
+    } catch(std::runtime_error e)
     {
     }
-    try {
+    try
+    {
       TestTextureMdf<OrthoRhombicOps>();
-    } 
-    catch (std::runtime_error e) 
+    } catch(std::runtime_error e)
     {
     }
-
   }
 
   template <class LaueOps>

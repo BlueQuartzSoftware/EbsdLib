@@ -91,30 +91,29 @@ static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},
                                                  {0.0, 1000000000000.0, 0.0},
                                                  {-5000000000000.0, 8660254000000.0, 0.0},
                                                  {-8660254000000.0, 5000000000000.0, 0.0}};
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
 
-    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}}};
 
 // Use a namespace for some detail that only this class needs
 } // namespace HexagonalHigh
@@ -1731,8 +1730,8 @@ EbsdLib::Rgb HexagonalOps::generateMisorientationColor(const QuatD& q, const Qua
   z10 = z9;
 
   // cartesian to traditional hsv
-  x11 = std::sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                    // r
-  y11 = std::acos(z10 / x11) / M_PI;                                                     // theta
+  x11 = std::sqrt(x10 * x10 + y10 * y10 + z10 * z10);                                                   // r
+  y11 = std::acos(z10 / x11) / M_PI;                                                                    // theta
   z11 = std::fmod(std::fmod(std::atan2(y10, x10) + M_2PI, M_2PI) + 4.0f * M_PI / 3.0, M_2PI) / (M_2PI); // rho
 
   if(x11 == 0)

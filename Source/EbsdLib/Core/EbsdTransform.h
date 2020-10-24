@@ -37,9 +37,9 @@
 
 #include <array>
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 
 /**

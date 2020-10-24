@@ -42,8 +42,8 @@
 #include <string>
 #include <utility>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 
 #ifdef EbsdLib_ENABLE_HDF5

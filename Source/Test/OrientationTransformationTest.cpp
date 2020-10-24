@@ -37,20 +37,20 @@
 #include <limits>
 
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
 
 #include "EbsdLib/Common/Observer.h"
 #include "EbsdLib/CoreFilters/DataContainerWriter.h"
+#include "EbsdLib/DataContainers/DataContainer.h"
+#include "EbsdLib/DataContainers/DataContainerArray.h"
 #include "EbsdLib/Filtering/AbstractFilter.h"
 #include "EbsdLib/Filtering/FilterManager.h"
 #include "EbsdLib/Filtering/QMetaObjectUtilities.h"
-#include "EbsdLib/Plugin/IEbsdLibPlugin.h"
 #include "EbsdLib/Plugin/EbsdLibPluginLoader.h"
-#include "EbsdLib/DataContainers/DataContainerArray.h"
-#include "EbsdLib/DataContainers/DataContainer.h"
+#include "EbsdLib/Plugin/IEbsdLibPlugin.h"
 
 #include "UnitTestSupport.hpp"
 

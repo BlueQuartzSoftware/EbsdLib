@@ -35,10 +35,10 @@
 
 #include "CtfReader.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include "CtfPhase.h"
 #include "EbsdLib/Core/EbsdMacros.h"

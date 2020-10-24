@@ -35,17 +35,17 @@
 
 #pragma once
 
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationRepresentation.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -63,9 +63,9 @@
     Pointer sharedPtr(new(Self));                                                                                                                                                                      \
     return sharedPtr;                                                                                                                                                                                  \
   }                                                                                                                                                                                                    \
-  std::string getNameOfClass() const override                                                                                                                                                              \
+  std::string getNameOfClass() const override                                                                                                                                                          \
   {                                                                                                                                                                                                    \
-    return std::string(#name);                                                                                                                                                                             \
+    return std::string(#name);                                                                                                                                                                         \
   }
 
 /**

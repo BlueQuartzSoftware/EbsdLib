@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"

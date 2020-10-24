@@ -39,9 +39,9 @@
 #include <vector>
 
 //-- EbsdLib Includes
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/H5EbsdVolumeReader.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 

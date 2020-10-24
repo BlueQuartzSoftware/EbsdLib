@@ -38,8 +38,8 @@
 #include <string>
 #include <vector>
 
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 
 /**

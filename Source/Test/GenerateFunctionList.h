@@ -1,9 +1,8 @@
 #pragma once
 
-#include <stdio.h>
-#include <iostream>
 #include <algorithm>
 #include <iostream>
+#include <stdio.h>
 #include <string>
 #include <vector>
 

@@ -36,19 +36,19 @@
 #pragma once
 
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "CtfConstants.h"
 #include "CtfHeaderEntry.h"
 #include "CtfPhase.h"
 #include "DataParser.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdReader.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 #define CTF_READER_PTR_PROP(name, var, type)                                                                                                                                                           \
   type* get##name##Pointer()                                                                                                                                                                           \

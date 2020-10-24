@@ -35,10 +35,9 @@
 #include <memory>
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 /**
  * @brief The SO3Sampler class

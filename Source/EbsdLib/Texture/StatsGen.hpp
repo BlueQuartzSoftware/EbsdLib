@@ -39,8 +39,8 @@
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #endif
 
-#include <random>
 #include <chrono>
+#include <random>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"

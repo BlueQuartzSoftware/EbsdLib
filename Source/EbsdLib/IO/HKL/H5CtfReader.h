@@ -37,13 +37,13 @@
 
 #include <hdf5.h>
 
-#include <string>
 #include <set>
+#include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/IO/HKL/CtfReader.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
+#include "EbsdLib/IO/HKL/CtfReader.h"
 
 /**
  * @class H5CtfReader H5CtfReader EbsdLib/IO/HKL/H5CtfReader.h

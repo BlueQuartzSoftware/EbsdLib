@@ -49,9 +49,9 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Math/EbsdMatrixMath.h"
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
 /* This comment block is commented as Markdown. if you paste this into a text

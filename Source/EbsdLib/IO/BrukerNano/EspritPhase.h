@@ -33,13 +33,13 @@
 #pragma once
 
 #include <array>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 
 class EbsdLib_EXPORT EspritPhase
 {
@@ -126,4 +126,3 @@ public:
   EspritPhase& operator=(const EspritPhase&) = delete; // Copy Assignment Not Implemented
   EspritPhase& operator=(EspritPhase&&) = delete;      // Move Assignment Not Implemented
 };
-

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdio>
-#include <iostream>
 #include <algorithm>
-#include <limits>
+#include <cstdio>
 #include <iomanip>
+#include <iostream>
+#include <limits>
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 

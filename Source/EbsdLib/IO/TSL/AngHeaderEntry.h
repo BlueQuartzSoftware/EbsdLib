@@ -36,9 +36,9 @@
 #pragma once
 
 #include <cstring>
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"

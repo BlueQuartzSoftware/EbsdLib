@@ -38,14 +38,13 @@
 #include <vector>
 
 //<====== REPLACE std::list<std::string> with an Alias from a global header
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "AngConstants.h"
 
-#include "H5Support/H5Utilities.h"
-#include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/H5Lite.h"
+#include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"

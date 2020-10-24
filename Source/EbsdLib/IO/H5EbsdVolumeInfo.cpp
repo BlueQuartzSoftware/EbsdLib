@@ -35,12 +35,12 @@
 
 #include "H5EbsdVolumeInfo.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "H5Support/H5Lite.h"
-#include "H5Support/H5Utilities.h"
 #include "H5Support/H5ScopedSentinel.h"
+#include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/HKL/CtfConstants.h"
@@ -48,20 +48,20 @@
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #define EBSD_VOLREADER_READ_HEADER(fileId, path, var)                                                                                                                                                  \
-  err = H5Lite::readScalarDataset(fileId, path, var);                                                                                                                                    \
+  err = H5Lite::readScalarDataset(fileId, path, var);                                                                                                                                                  \
   if(err < 0)                                                                                                                                                                                          \
   {                                                                                                                                                                                                    \
-    std::cout << "H5EbsdVolumeInfo Error: Could not load header value for " << path;                                                                                                                    \
+    std::cout << "H5EbsdVolumeInfo Error: Could not load header value for " << path;                                                                                                                   \
     err = H5Utilities::closeFile(fileId);                                                                                                                                                              \
     return err;                                                                                                                                                                                        \
   }
 
 #define EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, path, var, type)                                                                                                                                    \
   {                                                                                                                                                                                                    \
-    err = H5Lite::readPointerDataset(fileId, path, var.data());                                                                                                                          \
+    err = H5Lite::readPointerDataset(fileId, path, var.data());                                                                                                                                        \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::cout << "H5EbsdVolumeInfo Error: Could not load header (as vector) for " << path;                                                                                                            \
+      std::cout << "H5EbsdVolumeInfo Error: Could not load header (as vector) for " << path;                                                                                                           \
       err = H5Utilities::closeFile(fileId);                                                                                                                                                            \
       return err;                                                                                                                                                                                      \
     }                                                                                                                                                                                                  \
@@ -70,10 +70,10 @@
 #define EBSD_VOLREADER_READ_HEADER_CAST(fileId, path, var, m_msgType, cast)                                                                                                                            \
   {                                                                                                                                                                                                    \
     cast t;                                                                                                                                                                                            \
-    err = H5Lite::readScalarDataset(fileId, path, t);                                                                                                                                    \
+    err = H5Lite::readScalarDataset(fileId, path, t);                                                                                                                                                  \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::cout << "H5EbsdVolumeInfo Error: Could not load header value (with cast) for " << path;                                                                                                      \
+      std::cout << "H5EbsdVolumeInfo Error: Could not load header value (with cast) for " << path;                                                                                                     \
       err = H5Utilities::closeFile(fileId);                                                                                                                                                            \
       return err;                                                                                                                                                                                      \
     }                                                                                                                                                                                                  \

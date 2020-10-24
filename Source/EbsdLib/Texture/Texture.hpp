@@ -35,24 +35,24 @@
 
 #pragma once
 
-#include <fstream>
-#include <vector>
 #include <chrono>
+#include <fstream>
 #include <random>
+#include <vector>
 
 #include <string>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/EbsdLibRandom.h"
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/LaueOps/OrthoRhombicOps.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/EbsdLibRandom.h"
 
 /**
  * @brief This class holds default data for Orientation Distribution Function (ODF)

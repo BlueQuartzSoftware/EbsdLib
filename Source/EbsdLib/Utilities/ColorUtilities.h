@@ -37,8 +37,8 @@
 
 #include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 
 namespace EbsdLib

@@ -35,10 +35,10 @@
 
 #pragma once
 
+#include <cstring>
 #include <exception>
 #include <sstream>
 #include <string>
-#include <cstring>
 
 namespace EbsdLib
 {
@@ -267,8 +267,8 @@ private:
     if(nullptr != _##name)                                                                                                                                                                             \
     {                                                                                                                                                                                                  \
       ::memset(_##name, 0, numBytes);                                                                                                                                                                  \
-      std::string dataName = h5name;                                                                                                                                                                       \
-      err = H5Lite::readPointerDataset(gid, dataName, _##name);                                                                                                                                       \
+      std::string dataName = h5name;                                                                                                                                                                   \
+      err = H5Lite::readPointerDataset(gid, dataName, _##name);                                                                                                                                        \
       if(err < 0)                                                                                                                                                                                      \
       {                                                                                                                                                                                                \
         deallocateArrayData(_##name); /*deallocate the array*/                                                                                                                                         \

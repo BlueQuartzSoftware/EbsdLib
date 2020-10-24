@@ -44,8 +44,8 @@
 #include "AngConstants.h"
 
 #include "H5Support/H5Lite.h"
-#include "H5Support/H5Utilities.h"
 #include "H5Support/H5ScopedSentinel.h"
+#include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"

@@ -39,11 +39,11 @@
 
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdImporter.h"
-#include "EbsdLib/IO/HKL/CtfReader.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
+#include "EbsdLib/IO/HKL/CtfReader.h"
 
 /**
  * @class H5CtfImporter H5CtfImporter.h EbsdLib/IO/HKL/H5CtfImporter.h

@@ -40,8 +40,8 @@
 #include <string>
 #include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @struct PoleFigureConfiguration_t
@@ -69,10 +69,10 @@ struct PoleFigureConfiguration_t
   float sphereRadius;              ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
   bool discrete;                   ///<* Should the Pole Figure be generated as a discrete plot
   bool discreteHeatMap;            ///<* Should the discrete be colored via a heat map style coloring
-  std::string colorMap;                ///<* Name of the ColorMap to use
-  std::vector<std::string> labels;         ///<* The labels for each of the 3 Pole Figures
-  std::vector<unsigned int> order;     ///<* The order that the pole figures should appear in.
-  std::string phaseName;               ///<* The Names of the phase
+  std::string colorMap;            ///<* Name of the ColorMap to use
+  std::vector<std::string> labels; ///<* The labels for each of the 3 Pole Figures
+  std::vector<unsigned int> order; ///<* The order that the pole figures should appear in.
+  std::string phaseName;           ///<* The Names of the phase
 };
 
 /**

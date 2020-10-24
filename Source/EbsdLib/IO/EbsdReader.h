@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"

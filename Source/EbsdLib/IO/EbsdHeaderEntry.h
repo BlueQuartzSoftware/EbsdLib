@@ -36,22 +36,22 @@
 
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @brief Creates a static "New" method that creates an instance of thisClass
  */
 #define HEADERENTRY_NEW_SUPERCLASS(thisClass, SuperClass)                                                                                                                                              \
   typedef SuperClass::Pointer SuperClass##Type;                                                                                                                                                        \
-  static SuperClass##Type New##SuperClass(const std::string& key)                                                                                                                                          \
+  static SuperClass##Type New##SuperClass(const std::string& key)                                                                                                                                      \
   {                                                                                                                                                                                                    \
     SuperClass##Type sharedPtr(new thisClass(key));                                                                                                                                                    \
     return sharedPtr;                                                                                                                                                                                  \
   }
 
 #define HEADERENTRY_NEW_SUPERCLASS_VALUE(thisClass, SuperClass)                                                                                                                                        \
-  static SuperClass##Type New##SuperClass(const std::string& key, T value)                                                                                                                                 \
+  static SuperClass##Type New##SuperClass(const std::string& key, T value)                                                                                                                             \
   {                                                                                                                                                                                                    \
     thisClass* object = new thisClass(key);                                                                                                                                                            \
     object->setValue(value);                                                                                                                                                                           \

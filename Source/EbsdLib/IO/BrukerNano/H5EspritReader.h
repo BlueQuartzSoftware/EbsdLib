@@ -37,13 +37,12 @@
 #include <string>
 #include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 #include "EbsdLib/IO/BrukerNano/EspritPhase.h"
 #include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/IO/TSL/AngHeaderEntry.h"
-#include "EbsdLib/IO/BrukerNano/EspritConstants.h"
 
 /**
  * @class H5EspritReader H5EspritReader.h EbsdLib/BrukerNano/H5EspritReader.h

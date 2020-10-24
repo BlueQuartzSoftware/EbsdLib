@@ -105,8 +105,8 @@ enum class Type : int32_t
 };
 
 inline const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
-                                NumericTypes::Names::Int32 + ", " + NumericTypes::Names::UInt32 + ", " + NumericTypes::Names::Int64 + ", " + NumericTypes::Names::UInt64 + ", " +
-                                NumericTypes::Names::Float + ", " + NumericTypes::Names::Double + ", " + NumericTypes::Names::Bool + ", " + NumericTypes::Names::SizeT);
+                                           NumericTypes::Names::Int32 + ", " + NumericTypes::Names::UInt32 + ", " + NumericTypes::Names::Int64 + ", " + NumericTypes::Names::UInt64 + ", " +
+                                           NumericTypes::Names::Float + ", " + NumericTypes::Names::Double + ", " + NumericTypes::Names::Bool + ", " + NumericTypes::Names::SizeT);
 } // namespace NumericTypes
 
 /** @brief RefFrameZDir defined for the Stacking order of images into a 3D Volume */
@@ -186,32 +186,32 @@ inline const std::string UnknownStackingOrder("Unknown Stacking Order");
 
 namespace Utils
 {
-  inline std::string getStringForEnum(uint32_t v)
+inline std::string getStringForEnum(uint32_t v)
+{
+  if(EbsdLib::RefFrameZDir::LowtoHigh == v)
   {
-    if(EbsdLib::RefFrameZDir::LowtoHigh == v)
-    {
-      return EbsdLib::StackingOrder::LowToHigh;
-    }
-    if(EbsdLib::RefFrameZDir::HightoLow == v)
-    {
-      return EbsdLib::StackingOrder::HighToLow;
-    }
-    return EbsdLib::StackingOrder::UnknownStackingOrder;
+    return EbsdLib::StackingOrder::LowToHigh;
   }
-
-  inline int32_t getEnumForString(const std::string& v)
+  if(EbsdLib::RefFrameZDir::HightoLow == v)
   {
-    if(EbsdLib::StackingOrder::LowToHigh == v)
-    {
-      return EbsdLib::RefFrameZDir::LowtoHigh;
-    }
-    if(EbsdLib::StackingOrder::HighToLow == v)
-    {
-      return EbsdLib::RefFrameZDir::HightoLow;
-    }
-    return EbsdLib::RefFrameZDir::UnknownRefFrameZDirection;
+    return EbsdLib::StackingOrder::HighToLow;
   }
+  return EbsdLib::StackingOrder::UnknownStackingOrder;
 }
+
+inline int32_t getEnumForString(const std::string& v)
+{
+  if(EbsdLib::StackingOrder::LowToHigh == v)
+  {
+    return EbsdLib::RefFrameZDir::LowtoHigh;
+  }
+  if(EbsdLib::StackingOrder::HighToLow == v)
+  {
+    return EbsdLib::RefFrameZDir::HightoLow;
+  }
+  return EbsdLib::RefFrameZDir::UnknownRefFrameZDirection;
+}
+} // namespace Utils
 } // namespace StackingOrder
 
 /**
@@ -281,8 +281,8 @@ inline constexpr double pi8 = 0.3926990816987240;  // pi/8
 inline constexpr double prek = 1.6434564029725040; // R1 2^(1/4)/beta
 inline constexpr double r24 = 4.8989794855663560;  // sqrt(24)
 inline constexpr double tfit[16] = {1.00000000000188520,       -0.50000000021948470,     -0.0249999921275931260,    -0.0039287015447813740,     -0.00081527015354504380, -0.00020095004261197120,
-                                -0.000023979867760717560,  -0.000082028689266058410, +0.000124487150420900920,  -0.00017491142148225770,    +0.00017034819341400540, -0.000120620650041168280,
-                                +0.0000597197058686608260, -0.000019807567239656470, +0.0000039537146842128740, -0.000000365550014397195440};
+                                    -0.000023979867760717560,  -0.000082028689266058410, +0.000124487150420900920,  -0.00017491142148225770,    +0.00017034819341400540, -0.000120620650041168280,
+                                    +0.0000597197058686608260, -0.000019807567239656470, +0.0000039537146842128740, -0.000000365550014397195440};
 inline constexpr double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.4142135623730950, 0.0, 0.2679491924311230}; // used for Fundamental Zone determination in so3 module
 } // namespace LambertParametersType
 

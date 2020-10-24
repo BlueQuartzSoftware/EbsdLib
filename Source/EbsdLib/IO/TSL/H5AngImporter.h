@@ -41,11 +41,11 @@
 
 #include "hdf5.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdImporter.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 

@@ -35,12 +35,12 @@
 
 #pragma once
 
-#include <string>
 #include <set>
+#include <string>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @class H5EbsdVolumeInfo H5EbsdVolumeInfo.h EbsdLib/H5EbsdVolumeInfo.h

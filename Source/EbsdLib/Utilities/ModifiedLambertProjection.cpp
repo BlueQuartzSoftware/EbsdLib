@@ -159,7 +159,7 @@ int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 {
   int err = -1;
 
-  std::vector<size_t> dims = { static_cast<size_t>(m_Dimension), static_cast<size_t>(m_Dimension), 1};
+  std::vector<size_t> dims = {static_cast<size_t>(m_Dimension), static_cast<size_t>(m_Dimension), 1};
   err = m_NorthSquare->writeH5Data(groupId, dims);
   std::cout << "Err: " << err << std::endl;
   err = m_SouthSquare->writeH5Data(groupId, dims);
@@ -420,11 +420,13 @@ bool ModifiedLambertProjection::getSquareCoord(float* xyz, float* sqCoord)
   if(std::fabs(xyz[0]) >= std::fabs(xyz[1]))
   {
     sqCoord[0] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPiD);
-    sqCoord[1] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[1] / xyz[0])));
+    sqCoord[1] =
+        static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[1] / xyz[0])));
   }
   else
   {
-    sqCoord[0] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[0] / xyz[1])));
+    sqCoord[0] =
+        static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[0] / xyz[1])));
     sqCoord[1] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPiD));
   }
 

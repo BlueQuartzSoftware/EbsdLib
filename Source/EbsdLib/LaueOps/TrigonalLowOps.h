@@ -36,11 +36,10 @@
 
 #include <memory>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/Orientation.hpp"
-#include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/LaueOps.h"
 
 /**
  * @class TrigonalLowOps TrigonalLowOps.h DREAM3DLib/Common/LaueOps/TrigonalLowOps.h

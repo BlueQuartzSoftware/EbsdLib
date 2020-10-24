@@ -167,7 +167,7 @@ public:
   {
     int err = EXIT_SUCCESS;
     std::cout << "<===== Start " << getNameOfClass() << std::endl;
-    
+
     DREAM3D_REGISTER_TEST(TestNormalFile())
     DREAM3D_REGISTER_TEST(TestMissingHeaders())
     DREAM3D_REGISTER_TEST(TestHexGrid())

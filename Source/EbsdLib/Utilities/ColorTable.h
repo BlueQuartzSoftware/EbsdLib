@@ -36,13 +36,13 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 #include <vector>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/EbsdLib.h"
 namespace EbsdLib
 {
 

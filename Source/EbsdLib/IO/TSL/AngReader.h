@@ -35,19 +35,19 @@
 
 #pragma once
 
-#include <vector>
 #include <fstream>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "AngConstants.h"
 #include "AngHeaderEntry.h"
 #include "AngPhase.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdReader.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
 
 /**
  * @class AngReader AngReader.h EbsdLib/IO/TSL/AngReader.h

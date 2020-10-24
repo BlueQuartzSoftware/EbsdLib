@@ -35,13 +35,12 @@
 
 #include "TetragonalOps.h"
 
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_group.h>
 #include <tbb/task.h>
+#include <tbb/task_group.h>
 #endif
 
 // Include this FIRST because there is a needed define for some compiles
@@ -62,7 +61,6 @@ static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib
                                                       std::pow((0.75 * ((EbsdLib::Constants::k_PiOver4D)-std::sin((EbsdLib::Constants::k_PiOver4D)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
-
 
 static const int symSize0 = 2;
 static const int symSize1 = 4;

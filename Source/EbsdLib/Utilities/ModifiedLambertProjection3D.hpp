@@ -33,10 +33,10 @@
 
 #include <cassert>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Math/ArrayHelpers.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/ArrayHelpers.hpp"
 
 namespace LPs = EbsdLib::LambertParametersType;
 

@@ -40,8 +40,8 @@
 
 #include <string>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/EbsdLib.h"
 
 /**
  * @brief The AngleFileLoader class

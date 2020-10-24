@@ -1,7 +1,7 @@
 
-#include <cstdlib>
 #include <algorithm>
 #include <complex>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -758,7 +758,6 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     }
 
     T res(9); // Just size to 9 as we are going to reuse the variable
-
 
     // Convert to Euler
     res = OrientationTransformation::ro2eu<T, T>(ro);

@@ -43,10 +43,10 @@
 #include <iostream>
 #include <vector>
 
+#include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Texture/StatsGen.hpp"
 #include "EbsdLib/Texture/Texture.hpp"
-#include "EbsdLib/LaueOps/CubicOps.h"
 
 #include "TestPrintFunctions.h"
 

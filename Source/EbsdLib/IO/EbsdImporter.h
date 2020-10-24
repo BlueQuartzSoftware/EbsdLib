@@ -36,8 +36,8 @@
 
 #include <iostream>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
+#include "EbsdLib/EbsdLib.h"
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include <hdf5.h>

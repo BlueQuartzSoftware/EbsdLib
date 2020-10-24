@@ -36,11 +36,11 @@
 #include "CubicOps.h"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_group.h>
 #include <tbb/task.h>
+#include <tbb/task_group.h>
 #endif
 
 // Include this FIRST because there is a needed define for some compiles

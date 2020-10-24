@@ -30,13 +30,13 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/SO3Sampler.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/LaueOps/SO3Sampler.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
 #include "UnitTestSupport.hpp"
@@ -60,7 +60,7 @@ public:
   void RemoveTestFiles()
   {
 #if REMOVE_TEST_FILES
-//fs::remove();
+// fs::remove();
 #endif
   }
 

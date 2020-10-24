@@ -35,13 +35,12 @@
 
 #include "HexagonalLowOps.h"
 
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_group.h>
 #include <tbb/task.h>
+#include <tbb/task_group.h>
 #endif
 
 // Include this FIRST because there is a needed define for some compiles
@@ -77,18 +76,17 @@ static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000
                                            QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(0.000000000, 0.000000000, 0.500000000, -0.86602540)};
 
 static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.57735}, {0.0, 0.0, 1.73205}, {0.0, 0.0, 1000000000000.0}, {0.0, 0.0, -1.73205}, {0.0, 0.0, -0.57735}};
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.0, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.0, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
 
-    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}}};
+                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}}};
 
 } // namespace HexagonalLow
 

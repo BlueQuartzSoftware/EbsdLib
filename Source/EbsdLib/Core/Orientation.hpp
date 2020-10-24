@@ -36,8 +36,8 @@
 #include <cstring>
 #include <iostream>
 
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 /**
  * @brief The Orientation class encapsulates one of many types of rotation representations

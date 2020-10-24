@@ -37,8 +37,8 @@
 
 #include <memory>
 
-#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO

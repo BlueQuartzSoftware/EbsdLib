@@ -65,15 +65,15 @@ std::pair<int32_t, std::string> TiffWriter::WriteColorImage(const std::string& f
   outputFile.write(reinterpret_cast<const char*>(&ifd_Offset), sizeof(ifd_Offset));
 
   std::vector<TIFTAG> tags;
-  tags.push_back(TIFTAG{0x00FE, 0x0004, 1, 0x00000000});                 // NewSubfileType
-  tags.push_back(TIFTAG{0x0100, 0x0004, 1, width});                      // ImageWidth
-  tags.push_back(TIFTAG{0x0101, 0x0004, 1, height});                     // ImageLength
-  tags.push_back(TIFTAG{0x0102, 0x0003, 1, 8 * sizeof(char)});           // BitsPerSample
-  tags.push_back(TIFTAG{0x0103, 0x0003, 1, 0x0001});                     // Compression
-  tags.push_back(TIFTAG{0x0106, 0x0003, 1, 0x0002});                     // PhotometricInterpretation  // For SamplesPerPixel = 3 or 4 (RGB or RGBA)
-  tags.push_back(TIFTAG{0x0112, 0x0003, 1, 1});                          // Orientation
-  tags.push_back(TIFTAG{0x0115, 0x0003, 1, samplesPerPixel});            // SamplesPerPixel
-  tags.push_back(TIFTAG{0x0116, 0x0004, 1, height});                     // RowsPerStrip
+  tags.push_back(TIFTAG{0x00FE, 0x0004, 1, 0x00000000});                       // NewSubfileType
+  tags.push_back(TIFTAG{0x0100, 0x0004, 1, width});                            // ImageWidth
+  tags.push_back(TIFTAG{0x0101, 0x0004, 1, height});                           // ImageLength
+  tags.push_back(TIFTAG{0x0102, 0x0003, 1, 8 * sizeof(char)});                 // BitsPerSample
+  tags.push_back(TIFTAG{0x0103, 0x0003, 1, 0x0001});                           // Compression
+  tags.push_back(TIFTAG{0x0106, 0x0003, 1, 0x0002});                           // PhotometricInterpretation  // For SamplesPerPixel = 3 or 4 (RGB or RGBA)
+  tags.push_back(TIFTAG{0x0112, 0x0003, 1, 1});                                // Orientation
+  tags.push_back(TIFTAG{0x0115, 0x0003, 1, samplesPerPixel});                  // SamplesPerPixel
+  tags.push_back(TIFTAG{0x0116, 0x0004, 1, height});                           // RowsPerStrip
   tags.push_back(TIFTAG{0x0117, 0x0004, 1, width * height * samplesPerPixel}); // StripByteCounts
   // TIFTAG XResolution;
   // TIFTAG YResolution;
@@ -83,7 +83,7 @@ std::pair<int32_t, std::string> TiffWriter::WriteColorImage(const std::string& f
   // Now compute the offset to the image data so that we can put that into the tag.
   // THESE NEXT 2 LINES MUST BE THE LAST TAG TO BE PUSHED BACK INTO THE VECTOR OR THE MATH WILL BE WRONG
   int32_t imageDataOffset = static_cast<int32_t>(8 + ((tags.size() + 1) * 12) + 6); // Header + tags + IDF Tag entry count and Next IFD Offset
-  tags.push_back(TIFTAG{0x0111, 0x0004, 1, imageDataOffset}); // StripOffsets
+  tags.push_back(TIFTAG{0x0111, 0x0004, 1, imageDataOffset});                       // StripOffsets
 
   // Write the number of tags to the IFD section
   uint16_t numEntries = static_cast<uint16_t>(tags.size());
