@@ -30,3 +30,5 @@ Support/Scripts/GMT/gmt.history
 /ExternalProjects
 .DS_Store
 .cmake
+venv/
+__pycache__/
