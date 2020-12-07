@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md', 'r') as file:
   long_description = file.read()
@@ -16,7 +16,7 @@ setup(
   long_description=long_description,
   long_description_content_type='text/markdown',
   url='https://github.com/BlueQuartzSoftware/EbsdLib',
-  py_modules=['ebsd'],
+  packages=find_packages(),
   license='BSD',
   platforms='any',
   classifiers=[
