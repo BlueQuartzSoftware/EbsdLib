@@ -597,6 +597,79 @@ EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographic
 }
 
 // -----------------------------------------------------------------------------
+std::vector<float> ModifiedLambertProjection::createCircularProjection(int dim)
+{
+
+  std::vector<float> stereoIntensity(dim * dim);
+  int xpoints = dim;
+  int ypoints = dim;
+
+  int xpointshalf = xpoints / 2;
+  int ypointshalf = ypoints / 2;
+
+  float unitRadius = std::sqrt(2.0f);
+  float span = unitRadius - (-unitRadius);
+
+  float xres = span / static_cast<float>(xpoints);
+  float yres = span / static_cast<float>(ypoints);
+  float xtmp, ytmp;
+  float sqCoord[2];
+  float xyz[3];
+  bool nhCheck = false;
+
+  std::fill(stereoIntensity.begin(), stereoIntensity.end(), 0.0f);
+  float* intensity = stereoIntensity.data();
+  // int sqIndex = 0;
+
+  for(int64_t y = 0; y < ypoints; y++)
+  {
+    for(int64_t x = 0; x < xpoints; x++)
+    {
+      // get (x,y) for stereographic projection pixel
+      xtmp = static_cast<float>(x - xpointshalf) * xres + (xres * 0.5f);
+      ytmp = static_cast<float>(y - ypointshalf) * yres + (yres * 0.5f);
+      size_t index = static_cast<size_t>(y * xpoints + x);
+      if((xtmp * xtmp + ytmp * ytmp) <= unitRadius * unitRadius)
+      {
+        // project xy from stereo projection to the unit sphere
+        float q = xtmp * xtmp + ytmp * ytmp;
+        float t = std::sqrt(1.0f - (q / 4.0f));
+
+        xyz[0] = xtmp * t;
+        xyz[1] = ytmp * t;
+        xyz[2] = (q / 2.0f) - 1.0f;
+
+        for(int64_t m = 0; m < 2; m++)
+        {
+          if(m == 1)
+          {
+            xyz[0] *= -1.0;
+            xyz[1] *= -1.0;
+            xyz[2] *= -1.0;
+          }
+          nhCheck = getSquareCoord(xyz, sqCoord);
+          // sqIndex = getSquareIndex(sqCoord);
+          if(nhCheck)
+          {
+            // get Value from North square
+            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::NorthSquare, sqCoord);
+            // intensity[index] += getValue(ModifiedLambertProjection::Square::NorthSquare, sqIndex);
+          }
+          else
+          {
+            // get Value from South square
+            intensity[index] += getInterpolatedValue(ModifiedLambertProjection::Square::SouthSquare, sqCoord);
+            // intensity[index] += getValue(ModifiedLambertProjection::SouthSquare, sqIndex);
+          }
+        }
+        intensity[index] = intensity[index] * 0.5f;
+      }
+    }
+  }
+  return stereoIntensity;
+}
+
+// -----------------------------------------------------------------------------
 ModifiedLambertProjection::Pointer ModifiedLambertProjection::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));

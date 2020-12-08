@@ -210,6 +210,13 @@ public:
 
   void createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity);
 
+  /**
+   * @brief Creates a circular Projection
+   * @param dim
+   * @return stereoIntensity
+   */
+  std::vector<float> createCircularProjection(int dim);
+
 protected:
   ModifiedLambertProjection();
 
