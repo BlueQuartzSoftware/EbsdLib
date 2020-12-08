@@ -174,7 +174,7 @@ public:
    * @param sqCoord
    * @return
    */
-  double getInterpolatedValue(Square square, float* sqCoord);
+  double getInterpolatedValue(Square square, const float* sqCoord) const;
 
   /**
    * @brief getSquareCoord
@@ -182,7 +182,7 @@ public:
    * @param sqCoord [output] The XY coordinate in the Modified Lambert Square
    * @return If the point was in the north or south squares
    */
-  bool getSquareCoord(float* xyz, float* sqCoord);
+  bool getSquareCoord(const float* xyz, float* sqCoord) const;
 
   /**
    * @brief getSquareIndex
@@ -208,7 +208,7 @@ public:
    */
   EbsdLib::DoubleArrayType::Pointer createStereographicProjection(int dim);
 
-  void createStereographicProjection(int dim, EbsdLib::DoubleArrayType* stereoIntensity);
+  void createStereographicProjection(int dim, EbsdLib::DoubleArrayType& stereoIntensity);
 
   /**
    * @brief Creates a circular Projection

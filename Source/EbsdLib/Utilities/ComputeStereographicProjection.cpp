@@ -108,6 +108,6 @@ void ComputeStereographicProjection::operator()() const
     lambert->writeHDF5Data(file_id);
     H5Fclose(file_id);
 #endif
-    lambert->createStereographicProjection(m_Config->imageDim, m_Intensity);
+    lambert->createStereographicProjection(m_Config->imageDim, *m_Intensity);
   }
 }
