@@ -232,7 +232,6 @@ int H5EspritReader::readFile()
     std::string str;
     std::stringstream ss(str);
     ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
-    err = H5Utilities::closeFile(fileId);
     setErrorCode(-90020);
     setErrorMessage(str);
     return getErrorCode();
@@ -269,42 +268,6 @@ int H5EspritReader::readFile()
     std::stringstream ss(str);
     ss << getNameOfClass() << " Error: could not read data. Internal Error code " << getErrorCode() << " generated.";
     return getErrorCode();
-  }
-
-  err = H5Gclose(ebsdGid);
-  ebsdGid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not close group id ";
-    setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
-  err = H5Gclose(gid);
-  gid = -1;
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not close group id ";
-    setErrorCode(-900023);
-    setErrorMessage(str);
-    return getErrorCode();
-  }
-
-  err = H5Utilities::closeFile(fileId);
-  fileId = -1;
-  sentinel.setFileID(fileId);
-  if(err < 0)
-  {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not close file";
-    setErrorCode(-900024);
-    setErrorMessage(str);
   }
 
   return getErrorCode();
