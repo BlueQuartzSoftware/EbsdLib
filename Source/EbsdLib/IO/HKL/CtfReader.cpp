@@ -493,6 +493,13 @@ int CtfReader::readData(std::ifstream& in)
   {
     std::string name = tokens[i];
     pType = getPointerType(name);
+    if(m_NamePointerMap.find(name) != m_NamePointerMap.end())
+    {
+      sBuf.clear();
+      ss << "Column Header '" << name << "' has been found multiple times in the Header Row. Please check the CTF file for mistakes.";
+      setErrorMessage(sBuf);
+      return -110;
+    }
     if(EbsdLib::NumericTypes::Type::Int32 == pType)
     {
       Int32Parser::Pointer dparser = Int32Parser::New(nullptr, totalScanPoints, name, i);
@@ -734,13 +741,13 @@ int CtfReader::parseDataLine(std::string& line, size_t row, size_t col, size_t o
     std::string msg;
     std::stringstream ss(msg);
     ss << "The number of tab delimited data columns (" << tokens.size() << ") does not match the number of tab delimited header columns (";
-    ss << m_NamePointerMap.size() << "). Please check the CTF file for mistakes.";
+    ss << m_NamePointerMap.size() << "). Please check the CTF file for mistakes, specifically the header line that labels each column of data.";
     ss << "The error occurred at data row " << row << " which is " << row << " past ";
     ss << "the column header row.";
     ss << "\nThe CTF Reader will now abort reading any further in the file.";
 
     setErrorMessage(msg);
-    return -106; // Could not allocate the memory
+    return -109;
   }
 
   for(const auto& iter : m_NamePointerMap)

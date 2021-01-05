@@ -18,4 +18,15 @@ namespace TiffWriter
  * @return
  */
 EbsdLib_EXPORT std::pair<int32_t, std::string> WriteColorImage(const std::string& filepath, int32_t width, int32_t height, uint16_t samplesPerPixel, const uint8_t* data);
+
+/**
+ * @brief WriteGrayScaleImage
+ * @param filepath
+ * @param width
+ * @param height
+ * @param data
+ * @return
+ */
+EbsdLib_EXPORT std::pair<int32_t, std::string> WriteGrayScaleImage(const std::string& filepath, int32_t width, int32_t height, const uint8_t* data);
+
 }; // namespace TiffWriter
