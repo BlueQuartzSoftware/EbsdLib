@@ -169,26 +169,70 @@ const std::string EDAX("EDAX");
 /* These are courtesy of TSL */
 // LAUE Symmetry Identifiers
 
-#define OH 43 // cubic            Oh         a=b=c     a=b=g=90
+// Old Style LAUE Symmetry Identifiers
+#define CIs 1    // triclinic      (S2, Ci) [-1]                 a!=b!=c  a!=b!=g!=90
+#define D2H 22   // orthrohombic   (D2h) [mmm]                   a!=b!=c  a=b=g=90
+#define C4H 4    // tetragonal     (C4h) [4/m]                   a=b!=c   a=b=g=90
+#define D4H 42   // ditetragonal   (D4h) [4/mmm]                 a=b!=c   a=b=g=90
+#define C3I 3    // trigonal       (S6, C3i) [-3]                a=b=c    a=b=g!=90
+#define D3D 32   // ditrigonal     (D3d) [-3m]                   a=b=c    a=b=g!=90
+#define C6H 6    // hexagonal      (C6h) [6/m]                   a=b!=c   a=b=90 g=120
+#define D6H 62   // dihexagonal    (D6h) [6/mmm]                 a=b!=c   a=b=90 g=120
+#define TH 23    // tetrahedral    (Th) [m3]                     a=b=c    a=b=g=90
+#define OH 43    // cubic          (Oh) [m3m]                    a=b=c    a=b=g=90
+#define C2H_c 2  // monoclinic c   (C2h) [2/m]                   a!=b!=c  a=b=90!=g
+#define C2H_b 20 // monoclinic b   (C2h) [2/m]                   a!=b!=c  a=g=90!=b
+#define C2H_a 21 // monoclinic a   (C2h) [2/m]                   a!=b!=c  b=g=90!=a
 
-#define TH 23  // tetrahedral      Th         a=b=c     a=b=g=90
-#define D4H 42 // ditetragonal     D4h        a=b!=c    a=b=g=90
-#define C4H 4  // tetragonal       C4h        a=b!=c    a=b=g=90
+// New Style Full Point Group Symmetry Identifiers
+#define Sym_C1 100 // Triclinic (C1) [1]
+#define Sym_S2 101 // Triclinic (S2, Ci) [-1]
 
-#define D2H 22 // orthrohombic     D2h        a!=b!=c   a=b=g=90
+#define Sym_D2 105  // Orthorhombic (D2) [222]
+#define Sym_C2v 106 // Orthorhombic (C2v) [mm2]
+#define Sym_D2h 107 // Orthorhombic (D2h) [mmm]
 
-#define C2H_c 2  // monoclinic       C2h        a!=b!=c   a=b=90!=g
-#define C2H_b 20 // monoclinic       C2h        a!=b!=c   a=g=90!=b
-#define C2H_a 21 // monoclinic       C2h        a!=b!=c   b=g=90!=a
+#define Sym_C4 108  // Tetragonal (C4) [4]
+#define Sym_S4 109  // Tetragonal (S4) [-4]
+#define Sym_C4h 110 // Tetragonal (C4h) [4/m]
 
-#define D6H 62 // dihexagonal      D6h        a=b!=c    a=b=90 g=120
-#define C6H 6  // hexagonal        C6h        a=b! =c   a=b=90 g=120
+#define Sym_D4 111  // Tetragonal (D4) [422]
+#define Sym_C4v 112 // Tetragonal (C4v) [4mm]
+#define Sym_D2d 113 // Tetragonal (D2d) [-42m]
+#define Sym_D4h 114 // Tetragonal (D4h) [4/mmm]
 
-#define D3D 32 // ditrigonal       D3d        a=b=c     a=b=g!=90
-#define C3I 3  // trigonal         C3i        a=b=c     a=b=g!=90
+#define Sym_C3 115 // Trigonal (C3) [3]
+#define Sym_S6 116 // Trigonal (S6, C3i) [-3]
 
-#define CIs 1 // triclinic        Ci         a!=b!=c  a!=b!=g!=90
+#define Sym_D3 117  // Trigonal (D3) [32]
+#define Sym_C3v 118 // Trigonal (C3v) [3m]
+#define Sym_D3d 119 // Trigonal (D3d) [-3m]
 
+#define Sym_C6 120  // Hexagonal (C6) [6]
+#define Sym_C3h 121 // Hexagonal (C3h) [-6]
+#define Sym_C6h 122 // Hexagonal (C6h) [6/m]
+
+#define Sym_D6 123  // Hexagonal (D6) [622]
+#define Sym_C6v 124 // Hexagonal (C6v) [6mm]
+#define Sym_D3h 125 // Hexagonal (D3h) [-6m2]
+#define Sym_D6h 126 // Hexagonal (D6h) [6/mmm]
+
+#define Sym_T 127  // Cubic (T) [23]
+#define Sym_Th 128 // Cubic (Th) [m-3]
+
+#define Sym_O 129  // Cubic (O) [432]
+#define Sym_Td 130 // Cubic (Td) [-43m]
+#define Sym_Oh 131 // Cubic (Oh) [m3m]
+
+#define Sym_C2_c 102  // Monoclinic c (C2)[2]
+#define Sym_C1h_c 103 // Monoclinic c (C1h, Cs) [m]
+#define Sym_C2h_c 104 // Monoclinic c (C2h) [2/m]
+#define Sym_C2_b 132  // Monoclinic b (C2)[2]
+#define Sym_C1h_b 133 // Monoclinic b (C1h, Cs) [m]
+#define Sym_C2h_b 134 // Monoclinic b (C2h) [2/m]
+#define Sym_C2_a 135  // Monoclinic a (C2)[2]
+#define Sym_C1h_a 136 // Monoclinic a (C1h, Cs) [m]
+#define Sym_C2h_a 137 // Monoclinic a (C2h) [2/m]
 namespace PhaseSymmetry
 {
 const unsigned int Cubic = OH;
@@ -204,7 +248,58 @@ const unsigned int Hexagonal = C6H;
 const unsigned int DiTrigonal = D3D;
 const unsigned int Trigonal = C3I;
 const unsigned int Triclinic = CIs;
+
+const unsigned int k_Sym_C1 = Sym_C1; // Triclinic (C1) [1]
+const unsigned int k_Sym_S2 = Sym_S2; // Triclinic (S2, Ci) [-1]
+
+const unsigned int k_Sym_D2 = Sym_D2;   // Orthorhombic (D2) [222]
+const unsigned int k_Sym_C2v = Sym_C2v; // Orthorhombic (C2v) [mm2]
+const unsigned int k_Sym_D2h = Sym_D2h; // Orthorhombic (D2h) [mmm]
+
+const unsigned int k_Sym_C4 = Sym_C4;   // Tetragonal (C4) [4]
+const unsigned int k_Sym_S4 = Sym_S4;   // Tetragonal (S4) [-4]
+const unsigned int k_Sym_C4h = Sym_C4h; // Tetragonal (C4h) [4/m]
+
+const unsigned int k_Sym_D4 = Sym_D4;   // Tetragonal (D4) [422]
+const unsigned int k_Sym_C4v = Sym_C4v; // Tetragonal (C4v) [4mm]
+const unsigned int k_Sym_D2d = Sym_D2d; // Tetragonal (D2d) [-42m]
+const unsigned int k_Sym_D4h = Sym_D4h; // Tetragonal (D4h) [4/mmm]
+
+const unsigned int k_Sym_C3 = Sym_C3; // Trigonal (C3) [3]
+const unsigned int k_Sym_S6 = Sym_S6; // Trigonal (S6, C3i) [-3]
+
+const unsigned int k_Sym_D3 = Sym_D3;   // Trigonal (D3) [32]
+const unsigned int k_Sym_C3v = Sym_C3v; // Trigonal (C3v) [3m]
+const unsigned int k_Sym_D3d = Sym_D3d; // Trigonal (D3d) [-3m]
+
+const unsigned int k_Sym_C6 = Sym_C6;   // Hexagonal (C6) [6]
+const unsigned int k_Sym_C3h = Sym_C3h; // Hexagonal (C3h) [-6]
+const unsigned int k_Sym_C6h = Sym_C6h; // Hexagonal (C6h) [6/m]
+
+const unsigned int k_Sym_D6 = Sym_D6;   // Hexagonal (D6) [622]
+const unsigned int k_Sym_C6v = Sym_C6v; // Hexagonal (C6v) [6mm]
+const unsigned int k_Sym_D3h = Sym_D3h; // Hexagonal (D3h) [-6m2]
+const unsigned int k_Sym_D6h = Sym_D6h; // Hexagonal (D6h) [6/mmm]
+
+const unsigned int k_Sym_T = Sym_T;   // Cubic (T) [23]
+const unsigned int k_Sym_Th = Sym_Th; // Cubic (Th) [m-3]  HIGH
+
+const unsigned int k_Sym_O = Sym_O;   // Cubic (O) [432]
+const unsigned int k_Sym_Td = Sym_Td; // Cubic (Td) [-43m]
+const unsigned int k_Sym_Oh = Sym_Oh; // Cubic (Oh) [m3m]
+
+const unsigned int k_Sym_C2_c = Sym_C2_c;   // Monoclinic c (C2)[2]
+const unsigned int k_Sym_C1h_c = Sym_C1h_c; // Monoclinic c (C1h, Cs) [m]
+const unsigned int k_Sym_C2h_c = Sym_C2h_c; // Monoclinic c (C2h) [2/m]
+const unsigned int k_Sym_C2_b = Sym_C2_b;   // Monoclinic b (C2)[2]
+const unsigned int k_Sym_C1h_b = Sym_C1h_b; // Monoclinic b (C1h, Cs) [m]
+const unsigned int k_Sym_C2h_b = Sym_C2h_b; // Monoclinic b (C2h) [2/m]
+const unsigned int k_Sym_C2_a = Sym_C2_a;   // Monoclinic a (C2)[2]
+const unsigned int k_Sym_C1h_a = Sym_C1h_a; // Monoclinic a (C1h, Cs) [m]
+const unsigned int k_Sym_C2h_a = Sym_C2h_a; // Monoclinic a (C2h) [2/m]
+
 const unsigned int UnknownSymmetry = 999;
+
 } // namespace PhaseSymmetry
 
 const std::string TEMPIXPerUM(ANG_TEM_PIXPERUM);

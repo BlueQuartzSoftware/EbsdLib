@@ -294,38 +294,76 @@ unsigned int AngPhase::determineLaueGroup()
   switch(symmetry)
   {
   case EbsdLib::Ang::PhaseSymmetry::Cubic:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_O:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Td:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Oh:
     crystal_structure = EbsdLib::CrystalStructure::Cubic_High;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Tetrahedral:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_T:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Th:
     crystal_structure = EbsdLib::CrystalStructure::Cubic_Low;
     break;
   case EbsdLib::Ang::PhaseSymmetry::DiTetragonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D4:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4v:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2d:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D4h:
     crystal_structure = EbsdLib::CrystalStructure::Tetragonal_High;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Tetragonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S4:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4h:
     crystal_structure = EbsdLib::CrystalStructure::Tetragonal_Low;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Orthorhombic:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2v:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2h:
     crystal_structure = EbsdLib::CrystalStructure::OrthoRhombic;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Monoclinic_c:
   case EbsdLib::Ang::PhaseSymmetry::Monoclinic_b:
   case EbsdLib::Ang::PhaseSymmetry::Monoclinic_a:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_c:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_c:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_c:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_b:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_b:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_b:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_a:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_a:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_a:
     crystal_structure = EbsdLib::CrystalStructure::Monoclinic;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Triclinic:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S2:
     crystal_structure = EbsdLib::CrystalStructure::Triclinic;
     break;
   case EbsdLib::Ang::PhaseSymmetry::DiHexagonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D6:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6v:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3h:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D6h:
     crystal_structure = EbsdLib::CrystalStructure::Hexagonal_High;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Hexagonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3h:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6h:
     crystal_structure = EbsdLib::CrystalStructure::Hexagonal_Low;
     break;
   case EbsdLib::Ang::PhaseSymmetry::DiTrigonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3v:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3d:
     crystal_structure = EbsdLib::CrystalStructure::Trigonal_High;
     break;
   case EbsdLib::Ang::PhaseSymmetry::Trigonal:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3:
+  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S6:
     crystal_structure = EbsdLib::CrystalStructure::Trigonal_Low;
     break;
 
