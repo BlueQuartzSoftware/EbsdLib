@@ -60,7 +60,7 @@ public:
 
   virtual ~LambertUtilities();
 
-  using EnumType = unsigned int;
+  using EnumType = uint32_t;
 
   enum class Hemisphere : EnumType
   {
