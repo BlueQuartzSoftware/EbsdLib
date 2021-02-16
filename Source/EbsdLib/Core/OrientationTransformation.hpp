@@ -139,7 +139,7 @@ namespace OrientationTransformation
 // using RotationMatrixMapType = Eigen::Map<RotationMatrixType>;
 // using OMHelperType = ArrayHelpers<T, K>;
 
-using ResultType = struct
+struct ResultType
 {
   int result;
   std::string msg;
