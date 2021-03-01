@@ -32,3 +32,8 @@ Support/Scripts/GMT/gmt.history
 .cmake
 venv/
 __pycache__/
+
+# Python build-related files
+pyebsd/build/
+pyebsd/ebsd.egg-info/
+pyebsd/dist/
