@@ -3,7 +3,7 @@ from typing import Any, Dict, Final, Generator, List, Optional, Type
 
 from ._utils import file_line_generator
 
-__all__ = ['HKLFamily', 'AngPhase', 'AngHeader', 'parse_header']
+__all__ = ['HKLFamily', 'AngPhase', 'AngHeader', 'parse_header', 'parse_header_as_dict']
 
 ANG_HEADER_CHAR: Final[str] = '#'
 ANG_PROPERTY_SEP: Final[str] = ':'
@@ -187,3 +187,31 @@ def parse_header(filepath: str) -> AngHeader:
       else:
         ang_header.unknown_entries[keyword] = ' '.join(tokens[1:])
   return ang_header
+
+def parse_header_as_dict(filepath: str) -> dict:
+  header = parse_header(filepath)
+  entries = header.entries
+  phases = header.phases
+
+  phases_dict = _get_phases_as_dict(phases)
+  entries["Phases"] = phases_dict
+
+  return entries
+
+def _get_phases_as_dict(phases: Dict[int, AngPhase]) -> dict:
+  phases_dict: dict = {}
+  for x in phases:
+    phase = phases[x]
+
+    phase_dict: dict = {}
+    phase_dict['MaterialName'] = phase.material_name
+    phase_dict['Formula'] = phase.formula
+    phase_dict['Symmetry'] = phase.symmetry
+    phase_dict['PointGroupID'] = phase.point_group_id
+    phase_dict['LatticeConstants (ABC)'] = [phase.lattice_constants[0], phase.lattice_constants[1], phase.lattice_constants[2]]
+    phase_dict['LatticeConstants (Alpha, Beta, Gamma)'] = [phase.lattice_constants[3], phase.lattice_constants[4], phase.lattice_constants[5]]
+    phase_dict['NumberFamilies'] = len(phase.hkl_families)
+
+    phases_dict[f"Phase {x}"] = phase_dict
+
+  return phases_dict
