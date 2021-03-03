@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, Final, Generator, List, Tuple
 
 from ._utils import file_line_generator
 
-__all__ = ['CtfPhase', 'CtfHeader', 'parse_header']
+__all__ = ['CtfPhase', 'CtfHeader', 'parse_header', 'parse_header_as_dict']
 
 CTF_DELIMITER: Final[str] = '\t'
 
@@ -163,3 +163,32 @@ def parse_header(filepath: str) -> CtfHeader:
     else:
       ctf_header.unknown_entries[keyword] = CTF_DELIMITER.join(tokens[1:])
   return ctf_header
+
+def parse_header_as_dict(filepath: str) -> dict:
+  header = parse_header(filepath)
+  entries = header.entries
+  phases = header.phases
+
+  phases_dict = _get_phases_as_dict(phases)
+  entries["Phases"] = phases_dict
+
+  return entries
+
+def _get_phases_as_dict(phases: Dict[int, CtfPhase]) -> dict:
+  phases_dict: dict = {}
+  for x in range(len(phases)):
+    phase = phases[x]
+
+    phase_dict: dict = {}
+    phase_dict['LaueGroup'] = str(phase.group.name)
+    phase_dict['Internal1'] = phase.internal1
+    phase_dict['Internal2'] = phase.internal2
+    phase_dict['LatticeAngles'] = phase.lattice_angles
+    phase_dict['LatticeConstants'] = phase.lattice_constants
+    phase_dict['Name'] = phase.name
+    phase_dict['SpaceGroup'] = phase.space_group
+    phase_dict['Comment'] = phase.comment
+    phase_num = x + 1
+    phases_dict[f"Phase {phase_num}"] = phase_dict
+
+  return phases_dict
