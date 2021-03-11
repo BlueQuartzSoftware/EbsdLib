@@ -1,3 +1,5 @@
+import os
+
 from dataclasses import dataclass
 from typing import Any, Dict, Final, Generator, List, Optional, Type
 
@@ -195,8 +197,10 @@ def parse_header_as_dict(filepath: str) -> dict:
 
   phases_dict = _get_phases_as_dict(phases)
   entries["Phases"] = phases_dict
+  file_name = os.path.basename(filepath)
+  file_dict = {file_name: entries}
 
-  return entries
+  return file_dict
 
 def _get_phases_as_dict(phases: Dict[int, AngPhase]) -> dict:
   phases_dict: dict = {}
