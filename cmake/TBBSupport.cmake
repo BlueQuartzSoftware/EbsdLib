@@ -111,15 +111,21 @@ if(TBB_FOUND)
     endif()
   endif()
 
-
+  if(NOT DEFINED CMP_TBB_ENABLE_COPY_INSTALL)
+    set(CMP_TBB_ENABLE_COPY_INSTALL ON)
+  endif()
 
   if(NOT APPLE)
-    AddTBBCopyInstallRules(LIBVAR tbb
-                        LIBNAME tbb
-                        TYPES ${BUILD_TYPES})
-    AddTBBCopyInstallRules(LIBVAR tbbmalloc
-                        LIBNAME tbbmalloc
-                        TYPES ${BUILD_TYPES})
+    if(CMP_TBB_ENABLE_COPY_INSTALL)
+      AddTBBCopyInstallRules(LIBVAR tbb
+        LIBNAME tbb
+        TYPES ${BUILD_TYPES}
+      )
+      AddTBBCopyInstallRules(LIBVAR tbbmalloc
+        LIBNAME tbbmalloc
+        TYPES ${BUILD_TYPES}
+      )
+    endif()
   endif()
 
 ELSE(TBB_FOUND)

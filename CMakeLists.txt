@@ -49,22 +49,21 @@ get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
 if(EbsdLib_ENABLE_HDF5)
-	# This will find the HDF5 Libraries
-	include(${EbsdLibProj_SOURCE_DIR}/cmake/HDF5Support.cmake)
-	#------------------------------------------------------------------------------
-	# If the developer has set another H5Support directory then use that, otherwise look
-	# for the H5Support directory at the same level as the EBSDLib directory
-	if("${H5Support_SOURCE_DIR}" STREQUAL "")
-		if(EXISTS "${EbsdLib_PARENT}/H5Support")
-			set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
-		else()
-			message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
-		endif()
-		message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
-	endif()
-	if(NOT TARGET H5Support::H5Support)
-		add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
-	endif()
+  # If H5Support already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
+  if(NOT TARGET H5Support::H5Support)
+    #------------------------------------------------------------------------------
+    # If the developer has set another H5Support directory then use that, otherwise look
+    # for the H5Support directory at the same level as the EBSDLib directory
+    if("${H5Support_SOURCE_DIR}" STREQUAL "")
+      if(EXISTS "${EbsdLib_PARENT}/H5Support")
+        set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
+      else()
+        message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
+      endif()
+      message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
+    endif()
+    add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
+  endif()
 endif()
 mark_as_advanced(EbsdLib_ENABLE_HDF5)
 
@@ -95,8 +94,10 @@ if(EbsdLib_USE_GHC_FILESYSTEM)
 endif()
 
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
-if(EbsdLib_USE_PARALLEL_ALGORITHMS)
-  include(${EbsdLibProj_SOURCE_DIR}/cmake/TBBSupport.cmake)
+if(EbsdLib_USE_PARALLEL_ALGORITHMS)  # If TBB already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
+  if(NOT TARGET TBB::tbb)
+    include(${EbsdLibProj_SOURCE_DIR}/cmake/TBBSupport.cmake)
+  endif()
 endif()
 
 include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)

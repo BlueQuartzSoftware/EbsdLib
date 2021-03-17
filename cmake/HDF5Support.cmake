@@ -131,7 +131,17 @@ endif()
 
 #message(STATUS "HDF5_DIR: ${HDF5_DIR}")
 
-find_package(HDF5 NAMES hdf5)
+set(hdf5_path_suffixes "")
+if(WIN32)
+  set(hdf5_path_suffixes hdf5)
+endif()
+
+find_package(HDF5 NAMES hdf5 REQUIRED PATH_SUFFIXES ${hdf5_path_suffixes})
+
+if(HDF5_ENABLE_THREADSAFE)
+  find_package(Threads REQUIRED)
+endif()
+
 if(NOT HDF5_FOUND)
   message(FATAL_ERROR "HDF5 was not found on your system. Please follow any instructions given to fix the problem")
 endif()
@@ -140,7 +150,7 @@ if(HDF5_FOUND)
   # Add the library directory to the file that has all the search directories stored in it.
   get_property(HDF5_STATUS_PRINTED GLOBAL PROPERTY HDF5_STATUS_PRINTED)
   if(NOT HDF5_STATUS_PRINTED)
-    message(STATUS "HDF5 Location: ${HDF5_DIR}")
+    message(STATUS "HDF5 Location: ${HDF5_INSTALL}")
     message(STATUS "HDF5 Version: ${HDF5_VERSION_STRING}")
     set_property(GLOBAL PROPERTY HDF5_STATUS_PRINTED TRUE)
 
@@ -174,15 +184,21 @@ if(HDF5_FOUND)
     set(CMP_HDF5_ENABLE_INSTALL ON)
   endif()
 
+  if(NOT DEFINED CMP_HDF5_ENABLE_COPY)
+    set(CMP_HDF5_ENABLE_COPY ON)
+  endif()
+
   if(NOT APPLE)
-    AddHDF5CopyRules(LIBVAR HDF5_LIB
-      LIBNAME ${HDF5_C_TARGET_NAME}
-      TYPES ${BUILD_TYPES}
-    )
-    AddHDF5CopyRules(LIBVAR HDF5_CPP_LIB
-      LIBNAME ${HDF5_CXX_TARGET_NAME}
-      TYPES ${BUILD_TYPES}
-    )
+    if(CMP_HDF5_ENABLE_COPY)
+      AddHDF5CopyRules(LIBVAR HDF5_LIB
+        LIBNAME ${HDF5_C_TARGET_NAME}
+        TYPES ${BUILD_TYPES}
+      )
+      AddHDF5CopyRules(LIBVAR HDF5_CPP_LIB
+        LIBNAME ${HDF5_CXX_TARGET_NAME}
+        TYPES ${BUILD_TYPES}
+      )
+    endif()
 
     if(CMP_HDF5_ENABLE_INSTALL)
       AddHDF5InstallRules(LIBVAR HDF5_LIB

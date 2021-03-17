@@ -178,12 +178,23 @@ if(WIN32)
   set(lib_install_dir ".")
 endif()
 
+if(DREAM3D_ANACONDA AND WIN32)
+  set(install_dir "bin")
+  set(lib_install_dir "bin")
+endif()
+
 if(EbsdLib_INSTALL_LIB OR EbsdLib_INSTALL_FILES)
   install(TARGETS ${PROJECT_NAME}
     COMPONENT Applications
-    EXPORT ${PROJECT_NAME}Targets
     RUNTIME DESTINATION ${install_dir}
     LIBRARY DESTINATION ${lib_install_dir}
+  )
+endif()
+
+if(NOT DREAM3D_ANACONDA)
+  install(TARGETS ${PROJECT_NAME}
+    COMPONENT Applications
+    EXPORT ${PROJECT_NAME}Targets
     ARCHIVE DESTINATION lib
   )
 endif()
