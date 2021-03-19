@@ -931,6 +931,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
   double g1[3][3];
   double g2[3][3];
+  double g1temp[3][3];
+  double g2temp[3][3];
   double hkl1[3], uvw1[3];
   double hkl2[3], uvw2[3];
   double slipDirection[3], slipPlane[3];
@@ -940,10 +942,10 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
   double planeMisalignment = 0, directionMisalignment = 0;
   int ss1 = 0, ss2 = 0;
 
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
-  EbsdMatrixMath::Transpose3x3(g1, g1);
-  EbsdMatrixMath::Transpose3x3(g2, g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
+  EbsdMatrixMath::Transpose3x3(g1temp, g1);
+  EbsdMatrixMath::Transpose3x3(g2temp, g2);
   for(int i = 0; i < 12; i++)
   {
     slipDirection[0] = CubicHigh::SlipDirections[i][0];
@@ -952,8 +954,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
@@ -971,8 +973,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
   slipPlane[0] = CubicHigh::SlipPlanes[ss1][0];
   slipPlane[1] = CubicHigh::SlipPlanes[ss1][1];
   slipPlane[2] = CubicHigh::SlipPlanes[ss1][2];
-  EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-  EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+  EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
+  EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
   EbsdMatrixMath::Normalize3x1(hkl1);
   EbsdMatrixMath::Normalize3x1(uvw1);
 
@@ -985,8 +987,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
     slipPlane[0] = CubicHigh::SlipPlanes[j][0];
     slipPlane[1] = CubicHigh::SlipPlanes[j][1];
     slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-    EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+    EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
+    EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
     EbsdMatrixMath::Normalize3x1(hkl2);
     EbsdMatrixMath::Normalize3x1(uvw2);
     directionComponent2 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw2));
@@ -1004,8 +1006,8 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
   slipPlane[0] = CubicHigh::SlipPlanes[ss2][0];
   slipPlane[1] = CubicHigh::SlipPlanes[ss2][1];
   slipPlane[2] = CubicHigh::SlipPlanes[ss2][2];
-  EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-  EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+  EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
+  EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
   EbsdMatrixMath::Normalize3x1(hkl2);
   EbsdMatrixMath::Normalize3x1(uvw2);
   planeMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
@@ -1017,6 +1019,8 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
 {
   double g1[3][3];
   double g2[3][3];
+  double g1temp[3][3];
+  double g2temp[3][3];
   double hkl1[3], uvw1[3];
   double hkl2[3], uvw2[3];
   double slipDirection[3], slipPlane[3];
@@ -1027,10 +1031,10 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
   double maxF1 = 0.0;
   double F1 = 0.0;
 
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
-  EbsdMatrixMath::Transpose3x3(g1, g1);
-  EbsdMatrixMath::Transpose3x3(g2, g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
+  EbsdMatrixMath::Transpose3x3(g1temp, g1);
+  EbsdMatrixMath::Transpose3x3(g2temp, g2);
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1046,8 +1050,8 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
@@ -1068,8 +1072,8 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
         EbsdMatrixMath::Normalize3x1(hkl2);
         EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
@@ -1099,6 +1103,8 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
 {
   double g1[3][3];
   double g2[3][3];
+  double g1temp[3][3];
+  double g2temp[3][3];
   double hkl1[3], uvw1[3];
   double hkl2[3], uvw2[3];
   double slipDirection[3], slipPlane[3];
@@ -1109,10 +1115,11 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
   // s double directionComponent2 = 0, planeComponent2 = 0;
   double maxF1spt = 0.0;
   double F1spt = 0.0f;
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
-  EbsdMatrixMath::Transpose3x3(g1, g1);
-  EbsdMatrixMath::Transpose3x3(g2, g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
+  EbsdMatrixMath::Transpose3x3(g1temp, g1);
+  EbsdMatrixMath::Transpose3x3(g2temp, g2);
+
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1128,8 +1135,8 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
@@ -1151,8 +1158,8 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
         EbsdMatrixMath::Normalize3x1(hkl2);
         EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
@@ -1184,6 +1191,8 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
 {
   double g1[3][3];
   double g2[3][3];
+  double g1temp[3][3];
+  double g2temp[3][3];
   double hkl1[3], uvw1[3];
   double hkl2[3], uvw2[3];
   double slipDirection[3], slipPlane[3];
@@ -1196,10 +1205,11 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
   double maxF7 = 0.0;
   double F7 = 0.0f;
 
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2);
-  EbsdMatrixMath::Transpose3x3(g1, g1);
-  EbsdMatrixMath::Transpose3x3(g2, g2);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
+  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
+  EbsdMatrixMath::Transpose3x3(g1temp, g1);
+  EbsdMatrixMath::Transpose3x3(g2temp, g2);
+
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1211,8 +1221,8 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, uvw1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
+    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
     EbsdMatrixMath::Normalize3x1(hkl1);
     EbsdMatrixMath::Normalize3x1(uvw1);
     directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
@@ -1233,8 +1243,8 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, uvw2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
+        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
         EbsdMatrixMath::Normalize3x1(hkl2);
         EbsdMatrixMath::Normalize3x1(uvw2);
         // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
