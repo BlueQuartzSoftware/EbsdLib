@@ -196,15 +196,18 @@ if(NOT DREAM3D_ANACONDA)
   if(EbsdLib_INSTALL_LIB OR EbsdLib_INSTALL_FILES)
     install(TARGETS ${PROJECT_NAME}
       COMPONENT Applications
+      EXPORT ${PROJECT_NAME}Targets
       RUNTIME DESTINATION ${install_dir}
       LIBRARY DESTINATION ${lib_install_dir}
-    )
-    install(TARGETS ${PROJECT_NAME}
-      COMPONENT Applications
-      EXPORT ${PROJECT_NAME}Targets
       ARCHIVE DESTINATION lib
     )
   endif()
+else()
+  install(TARGETS ${PROJECT_NAME}
+    COMPONENT Applications
+    RUNTIME DESTINATION ${install_dir}
+    LIBRARY DESTINATION ${lib_install_dir}
+  )
 endif()
 
 if(EbsdLib_INSTALL_FILES)
