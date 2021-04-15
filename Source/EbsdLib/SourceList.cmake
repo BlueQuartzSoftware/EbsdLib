@@ -1,5 +1,6 @@
 get_property(EbsdLib_INSTALL_FILES GLOBAL PROPERTY EbsdLib_INSTALL_FILES)
 get_property(EbsdLib_INSTALL_LIB GLOBAL PROPERTY EbsdLib_INSTALL_LIB)
+get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
 
 if("${EbsdLib_INSTALL_FILES}" STREQUAL "")
   set(EbsdLib_INSTALL_FILES ON)
@@ -7,6 +8,10 @@ endif()
 
 if("${EbsdLib_INSTALL_LIB}" STREQUAL "")
   set(EbsdLib_INSTALL_LIB ON)
+endif()
+
+if("${EbsdLib_PACKAGE_DEST_PREFIX}" STREQUAL "")
+  set(EbsdLib_PACKAGE_DEST_PREFIX "lib")
 endif()
 
 set(EXE_DEBUG_EXTENSION _debug)
@@ -173,18 +178,35 @@ set(install_dir "bin")
 set(lib_install_dir "lib")
 set(ConfigPackageLocation share/cmake/EbsdLib)
 
-if(WIN32)
+if(APPLE)
+  get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
+  set(install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}bin")
+  set(lib_install_dir "${EbsdLib_PACKAGE_DEST_PREFIX}lib")
+elseif(WIN32)
   set(install_dir ".")
   set(lib_install_dir ".")
 endif()
 
-if(EbsdLib_INSTALL_LIB OR EbsdLib_INSTALL_FILES)
+if(DREAM3D_ANACONDA AND WIN32)
+  set(install_dir "bin")
+  set(lib_install_dir "bin")
+endif()
+
+if(NOT DREAM3D_ANACONDA)
+  if(EbsdLib_INSTALL_LIB OR EbsdLib_INSTALL_FILES)
+    install(TARGETS ${PROJECT_NAME}
+      COMPONENT Applications
+      EXPORT ${PROJECT_NAME}Targets
+      RUNTIME DESTINATION ${install_dir}
+      LIBRARY DESTINATION ${lib_install_dir}
+      ARCHIVE DESTINATION lib
+    )
+  endif()
+else()
   install(TARGETS ${PROJECT_NAME}
     COMPONENT Applications
-    EXPORT ${PROJECT_NAME}Targets
     RUNTIME DESTINATION ${install_dir}
     LIBRARY DESTINATION ${lib_install_dir}
-    ARCHIVE DESTINATION lib
   )
 endif()
 
