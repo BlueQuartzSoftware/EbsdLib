@@ -35,6 +35,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -758,7 +759,7 @@ protected:
           || MUD_FLAP_4 != 0xABABABABABABABABul
           || MUD_FLAP_5 != 0xABABABABABABABABul)
       {
-        Q_∂(false);
+        throw std::runtime_error("MudFlap value changed during deallocation. This class was corrupted during its lifetime.");
       }
 #endif
     delete[](m_Array);
