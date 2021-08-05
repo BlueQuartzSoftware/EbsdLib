@@ -1,37 +1,37 @@
 /* ============================================================================
-* Copyright (c) 2009-2015 BlueQuartz Software, LLC
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* Redistributions of source code must retain the above copyright notice, this
-* list of conditions and the following disclaimer.
-*
-* Redistributions in binary form must reproduce the above copyright notice, this
-* list of conditions and the following disclaimer in the documentation and/or
-* other materials provided with the distribution.
-*
-* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its 
-* contributors may be used to endorse or promote products derived from this software 
-* without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-* The code contained herein was partially funded by the followig contracts:
-*    United States Air Force Prime Contract FA8650-07-D-5800
-*    United States Air Force Prime Contract FA8650-10-D-5210
-*    United States Prime Contract Navy N00173-07-C-2068
-*
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Copyright (c) 2009-2015 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the following contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #ifndef _EbsdTestFileLocation_h_
 #define _EbsdTestFileLocation_h_
@@ -46,74 +46,71 @@
 
 #define REMOVE_TEST_FILES 1
 
-
 namespace UnitTest
 {
 
-  const std::string DataDir("@EbsdLibProj_SOURCE_DIR@/Data/");
-  const std::string TestTempDir("@TEST_TEMP_DIR@");
-  const std::string DREAM3DProjDir("@EbsdLibProj_SOURCE_DIR@");
+const std::string DataDir("@EbsdLibProj_SOURCE_DIR@/Data/");
+const std::string TestTempDir("@TEST_TEMP_DIR@");
+const std::string DREAM3DProjDir("@EbsdLibProj_SOURCE_DIR@");
 
-  namespace AngImportTest {
-    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
-    const std::string TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
-    const std::string TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
-    const std::string TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
-    const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromAng.h5ebsd");
-    const std::string MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
-    const std::string GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
-    const std::string MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
-    const std::string HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHeader.ang");
-    const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
-    const std::string EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
-  }
+namespace AngImportTest
+{
+const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
+const std::string TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
+const std::string TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
+const std::string TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
+const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromAng.h5ebsd");
+const std::string MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
+const std::string GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
+const std::string MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
+const std::string HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHeader.ang");
+const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
+const std::string EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
+} // namespace AngImportTest
 
-  namespace CtfReaderTest
-  {
-    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
-    const std::string EuropeanInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_1.ctf");
-    const std::string USInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_1.ctf");
-    const std::string EuropeanInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_2.ctf");
-    const std::string USInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2.ctf");
-    const std::string Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Corrupted_XCells.ctf");
-    const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
-    const std::string ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
+namespace CtfReaderTest
+{
+const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
+const std::string EuropeanInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_1.ctf");
+const std::string USInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_1.ctf");
+const std::string EuropeanInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_2.ctf");
+const std::string USInputFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2.ctf");
+const std::string Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Corrupted_XCells.ctf");
+const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
+const std::string ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
 
-    const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromCtf.h5ebsd");
-  }
+const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromCtf.h5ebsd");
+} // namespace CtfReaderTest
 
-  namespace HedmReaderTest
-  {
-    const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles");
-    const std::string ConfigFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.config");
-    const std::string DatFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.dat");
-    const std::string MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.mic");
-  }
+namespace HedmReaderTest
+{
+const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles");
+const std::string ConfigFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.config");
+const std::string DatFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.dat");
+const std::string MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.mic");
+} // namespace HedmReaderTest
 
-  namespace H5EspritReaderTest
-  {
-     const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
-     const std::string OutputFile("@EbsdLibTest_BINARY_DIR@/H5Esprit_Output_File.h5");
-  }
+namespace H5EspritReaderTest
+{
+const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
+const std::string OutputFile("@EbsdLibTest_BINARY_DIR@/H5Esprit_Output_File.h5");
+} // namespace H5EspritReaderTest
 
-  namespace IPFLegendTest
-  {
-    const std::string CubicLowFile("@TEST_TEMP_DIR@/Cubic_Low_m3(Tetrahedral).png");
-    const std::string CubicHighFile("@TEST_TEMP_DIR@/Cubic_High_m3m.png");
-    const std::string HexagonalLowFile("@TEST_TEMP_DIR@/Hexagonal-Low_6_m.png");
-    const std::string HexagonalHighFile("@TEST_TEMP_DIR@/Hexagonal-High_6_mmm.png");
-    const std::string MonoclinicFile("@TEST_TEMP_DIR@/Monoclinic-2_m.png");
-    const std::string OrthorhombicFile("@TEST_TEMP_DIR@/Orthorhombic_mmm.png");
-    const std::string TetragonalLowFile("@TEST_TEMP_DIR@/Tetragonal_Low_4m.png");
-    const std::string TetragonalHighFile("@TEST_TEMP_DIR@/Tetragonal_High_4mmm.png");
-    const std::string TriclinicFile("@TEST_TEMP_DIR@/Triclinic-1.png");
-    const std::string TrignonalLowFile("@TEST_TEMP_DIR@/Trigonal-3.png");
-    const std::string TrignonalHighFile("@TEST_TEMP_DIR@/Trigonal_high-3m.png");
-  }
+namespace IPFLegendTest
+{
+const std::string CubicLowFile("@TEST_TEMP_DIR@/Cubic_Low_m3(Tetrahedral).png");
+const std::string CubicHighFile("@TEST_TEMP_DIR@/Cubic_High_m3m.png");
+const std::string HexagonalLowFile("@TEST_TEMP_DIR@/Hexagonal-Low_6_m.png");
+const std::string HexagonalHighFile("@TEST_TEMP_DIR@/Hexagonal-High_6_mmm.png");
+const std::string MonoclinicFile("@TEST_TEMP_DIR@/Monoclinic-2_m.png");
+const std::string OrthorhombicFile("@TEST_TEMP_DIR@/Orthorhombic_mmm.png");
+const std::string TetragonalLowFile("@TEST_TEMP_DIR@/Tetragonal_Low_4m.png");
+const std::string TetragonalHighFile("@TEST_TEMP_DIR@/Tetragonal_High_4mmm.png");
+const std::string TriclinicFile("@TEST_TEMP_DIR@/Triclinic-1.png");
+const std::string TrignonalLowFile("@TEST_TEMP_DIR@/Trigonal-3.png");
+const std::string TrignonalHighFile("@TEST_TEMP_DIR@/Trigonal_high-3m.png");
+} // namespace IPFLegendTest
 
-
-}
-
-
+} // namespace UnitTest
 
 #endif
