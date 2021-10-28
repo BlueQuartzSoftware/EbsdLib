@@ -79,20 +79,23 @@ else()
   message(WARNING "The Eigen Library is required for some algorithms to execute. These algorithms will be disabled.")
 endif()
 
-if(NOT DEFINED EbsdLib_USE_GHC_FILESYSTEM)
-  set(EbsdLib_USE_GHC_FILESYSTEM OFF)
-
-  if(APPLE OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set(EbsdLib_USE_GHC_FILESYSTEM ON)
-  elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-    set(EbsdLib_USE_GHC_FILESYSTEM ON)
-  endif()
+#-------------------------------------------------------------------------------
+# Determine if we need the ghcFilesystem library
+#-------------------------------------------------------------------------------
+set(EbsdLib_USE_GHC_FILESYSTEM OFF)
+if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.15)
+  set(EbsdLib_USE_GHC_FILESYSTEM ON)
+elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+  set(EbsdLib_USE_GHC_FILESYSTEM ON)
 endif()
 
-if(EbsdLib_USE_GHC_FILESYSTEM)
+if(SIMPL_USE_GHC_FILESYSTEM)
   find_package(ghcFilesystem REQUIRED NAMES ghc_filesystem ghcFilesystem)
 endif()
 
+#-------------------------------------------------------------------------------
+# Are we using Parallel Algorithms.
+#-------------------------------------------------------------------------------
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)  # If TBB already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
   if(NOT TARGET TBB::tbb)
