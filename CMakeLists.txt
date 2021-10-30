@@ -48,7 +48,13 @@ get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 #-------------------------------------------------------------------------------
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
+
 if(EbsdLib_ENABLE_HDF5)
+
+  find_package(HDF5 NAMES hdf5 REQUIRED)
+  
+  find_package(H5Support)
+
   # If H5Support already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
   if(NOT TARGET H5Support::H5Support)
     #------------------------------------------------------------------------------
@@ -57,6 +63,8 @@ if(EbsdLib_ENABLE_HDF5)
     if("${H5Support_SOURCE_DIR}" STREQUAL "")
       if(EXISTS "${EbsdLib_PARENT}/H5Support")
         set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
+      elseif(EXISTS "${EbsdLib_SOURCE_DIR}/H5Support")
+        set(H5Support_SOURCE_DIR "${EbsdLib_SOURCE_DIR}/H5Support")
       else()
         message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
       endif()
@@ -89,7 +97,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQU
   set(EbsdLib_USE_GHC_FILESYSTEM ON)
 endif()
 
-if(SIMPL_USE_GHC_FILESYSTEM)
+if(EbsdLib_USE_GHC_FILESYSTEM)
   find_package(ghcFilesystem REQUIRED NAMES ghc_filesystem ghcFilesystem)
 endif()
 

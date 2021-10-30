@@ -147,6 +147,7 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/Source>
     $<BUILD_INTERFACE:${EbsdLibProj_BINARY_DIR}>
+    ${H5Support_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
