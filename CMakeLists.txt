@@ -41,6 +41,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 option(EbsdLib_DISABLE_MSVC_WARNINGS ON)
 option(BUILD_SHARED_LIBS "Build Shared Libs" ON)
 
+
 get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 
 #-------------------------------------------------------------------------------
@@ -48,15 +49,14 @@ get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 #-------------------------------------------------------------------------------
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
+option(EbsdLib_BUILD_H5SUPPORT ON)
 
 if(EbsdLib_ENABLE_HDF5)
 
   find_package(HDF5 NAMES hdf5 REQUIRED)
-  
-  find_package(H5Support)
 
   # If H5Support already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
-  if(NOT TARGET H5Support::H5Support)
+  if(NOT TARGET H5Support::H5Support AND EbsdLib_BUILD_H5SUPPORT)
     #------------------------------------------------------------------------------
     # If the developer has set another H5Support directory then use that, otherwise look
     # for the H5Support directory at the same level as the EBSDLib directory
@@ -71,7 +71,9 @@ if(EbsdLib_ENABLE_HDF5)
       message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
     endif()
     add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
-  endif()
+    else()
+      find_package(H5Support NAMES H5Support)
+    endif()
 endif()
 mark_as_advanced(EbsdLib_ENABLE_HDF5)
 
