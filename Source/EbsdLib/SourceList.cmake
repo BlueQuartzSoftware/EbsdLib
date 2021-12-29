@@ -209,8 +209,10 @@ if(NOT DREAM3D_ANACONDA)
 else()
   install(TARGETS ${PROJECT_NAME}
     COMPONENT Applications
+    EXPORT ${PROJECT_NAME}Targets
     RUNTIME DESTINATION ${install_dir}
     LIBRARY DESTINATION ${lib_install_dir}
+    ARCHIVE DESTINATION lib
   )
 endif()
 
