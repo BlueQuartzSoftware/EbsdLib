@@ -48,6 +48,7 @@
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include "H5Support/H5Lite.h"
+using namespace H5Support;
 #endif
 
 class Int32HeaderParser

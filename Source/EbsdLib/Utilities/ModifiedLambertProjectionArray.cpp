@@ -44,6 +44,7 @@
 #include <hdf5.h>
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
+using namespace H5Support;
 #endif
 
 // -----------------------------------------------------------------------------
