@@ -216,7 +216,7 @@ endif()
 
 if(EbsdLib_INSTALL_FILES)
   # Install a copyright file. This makes vcpkg happy
-  configure_file("${EbsdLibProj}/LICENSE" "${CMAKE_CURRENT_BINARY_DIR}/copyright")
+  configure_file("${EbsdLibProj_SOURCE_DIR}/LICENSE" "${CMAKE_CURRENT_BINARY_DIR}/copyright")
   install(
     FILES
       "${CMAKE_CURRENT_BINARY_DIR}/copyright"
