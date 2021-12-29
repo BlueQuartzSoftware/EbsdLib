@@ -180,7 +180,7 @@ endif()
 # Setup the install rules for the various platforms
 set(install_dir "bin")
 set(lib_install_dir "lib")
-set(ConfigPackageLocation share/cmake/EbsdLib)
+set(ConfigPackageLocation share/EbsdLib)
 
 if(APPLE)
   get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
@@ -215,6 +215,17 @@ else()
 endif()
 
 if(EbsdLib_INSTALL_FILES)
+  # Install a copyright file. This makes vcpkg happy
+  configure_file("${EbsdLib_SOURCE_DIR}/LICENSE" "${CMAKE_CURRENT_BINARY_DIR}/copyright")
+  install(
+    FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/copyright"
+    DESTINATION
+      ${ConfigPackageLocation}
+    COMPONENT
+      Devel
+  )
+
   # --------------------------------------------------------------------
   # Allow the generation and installation of a CMake configuration file
   # which makes using EBSDLib from another project easier.
