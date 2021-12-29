@@ -44,9 +44,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/IO/TSL/H5AngReader.h"
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 // -----------------------------------------------------------------------------
 //

@@ -43,9 +43,7 @@
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 // -----------------------------------------------------------------------------
 //

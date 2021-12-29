@@ -44,9 +44,7 @@
 #include "EbsdLib/IO/HKL/H5CtfReader.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 // -----------------------------------------------------------------------------
 //

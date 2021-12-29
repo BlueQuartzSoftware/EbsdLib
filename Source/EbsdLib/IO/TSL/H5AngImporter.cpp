@@ -41,9 +41,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLibVersion.h"
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 #define AIM_STRING std::string
 

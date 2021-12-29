@@ -35,9 +35,7 @@
 #include "H5EbsdVolumeReader.h"
 #include <utility>
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 // -----------------------------------------------------------------------------
 //

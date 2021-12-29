@@ -80,9 +80,7 @@
     var = static_cast<m_msgType>(t);                                                                                                                                                                   \
   }
 
-#if defined(H5Support_NAMESPACE)
-using namespace H5Support_NAMESPACE;
-#endif
+using namespace H5Support;
 
 // -----------------------------------------------------------------------------
 //
