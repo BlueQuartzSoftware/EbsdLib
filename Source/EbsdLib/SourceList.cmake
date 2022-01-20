@@ -180,7 +180,7 @@ endif()
 # Setup the install rules for the various platforms
 set(install_dir "bin")
 set(lib_install_dir "lib")
-set(ConfigPackageLocation share/EbsdLib)
+set(EbsdLib_CMAKE_CONFIG_INSTALL_DIR "share/EbsdLib" CACHE STRING "Relative path to install EbsdLibConfig.cmake in")
 
 if(APPLE)
   get_property(EbsdLib_PACKAGE_DEST_PREFIX GLOBAL PROPERTY EbsdLib_PACKAGE_DEST_PREFIX)
@@ -223,7 +223,7 @@ if(EbsdLib_INSTALL_FILES)
     FILES
       "${CMAKE_CURRENT_BINARY_DIR}/copyright"
     DESTINATION
-      ${ConfigPackageLocation}
+      ${EbsdLib_CMAKE_CONFIG_INSTALL_DIR}
     COMPONENT
       Devel
   )
@@ -256,7 +256,7 @@ if(EbsdLib_INSTALL_FILES)
     NAMESPACE
       EbsdLib::
     DESTINATION
-      ${ConfigPackageLocation}
+      ${EbsdLib_CMAKE_CONFIG_INSTALL_DIR}
   )
 
   install(
@@ -264,7 +264,7 @@ if(EbsdLib_INSTALL_FILES)
       "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/EbsdLibConfig.cmake"
       "${CMAKE_CURRENT_BINARY_DIR}/EbsdLib/${PROJECT_NAME}TargetsConfigVersion.cmake"
     DESTINATION
-      ${ConfigPackageLocation}
+      ${EbsdLib_CMAKE_CONFIG_INSTALL_DIR}
     COMPONENT
       Devel
   )
