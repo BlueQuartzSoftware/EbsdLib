@@ -154,9 +154,6 @@ target_link_libraries(${PROJECT_NAME}
     Eigen3::Eigen
 )
 
-# Force HDF5 1.10 API
-target_compile_definitions(${PROJECT_NAME} PUBLIC "H5_USE_110_API")
-
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
 endif()
