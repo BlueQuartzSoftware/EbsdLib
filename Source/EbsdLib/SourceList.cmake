@@ -135,6 +135,10 @@ add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 # Now add in the H5Support sources to the current target
 if(EbsdLib_ENABLE_HDF5)
   target_link_libraries(${PROJECT_NAME} PUBLIC H5Support::H5Support)
+  target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${H5Support_INCLUDE_DIRS}>
+)
 endif()
 
 CMP_AddDefinitions(TARGET ${PROJECT_NAME})
