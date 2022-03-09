@@ -691,7 +691,7 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
       if(nullptr == p.get())
       {
         std::cout << "---------------------------" << std::endl;
-        std::cout << "Could not find header entry for key '" << line[0] << "'" << std::endl;
+        std::cout << "Could not find header entry for key '" << line << "'" << std::endl;
         //        std::string upper(line[0]);
         //        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
         //        std::cout << "#define ANG_" << upper << "     \"" << line[0] << "\"" << std::endl;
