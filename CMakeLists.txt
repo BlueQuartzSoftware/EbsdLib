@@ -49,11 +49,17 @@ get_filename_component(EbsdLib_PARENT ${EbsdLibProj_SOURCE_DIR} DIRECTORY CACHE)
 #-------------------------------------------------------------------------------
 # Extra Variables that need to be set before all the configured files are generated.
 option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
-option(EbsdLib_BUILD_H5SUPPORT ON)
+option(EbsdLib_BUILD_H5SUPPORT "Build H5Support Library" ON)
 
 if(EbsdLib_ENABLE_HDF5)
-
-  find_package(HDF5 NAMES hdf5 REQUIRED)
+  if(EbsdLib_Anaconda_Install)
+    set(HDF5_USE_STATIC_LIBRARIES OFF)
+    set(HDF5_FIND_COMPONENTS OFF)
+    find_package(HDF5 1.10.6 EXACT MODULE REQUIRED)
+    set(HDF5_C_TARGET_NAME hdf5::hdf5)
+  else()
+    find_package(HDF5 NAMES hdf5 REQUIRED)
+  endif()
 
   # If H5Support already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
   if(NOT TARGET H5Support::H5Support AND EbsdLib_BUILD_H5SUPPORT)
