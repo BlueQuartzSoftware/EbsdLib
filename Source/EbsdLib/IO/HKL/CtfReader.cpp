@@ -616,6 +616,10 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
   {
     std::string line = headerLines[i];
     EbsdStringUtils::StringTokenType tabTokens = EbsdStringUtils::split(line, '\t'); // Tab Delimit the line
+    for(auto& token : tabTokens)
+    {
+      token = EbsdStringUtils::trimmed(token);
+    }
 
     if(line.find("Prj") == 0) // This is a special case/bug in HKL's writing code. This line is space delimited
     {
