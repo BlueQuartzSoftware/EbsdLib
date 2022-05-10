@@ -50,6 +50,45 @@
 //#define TWO_PIf          360.0f
 //#define ONE_PIf          180.0f
 
+namespace
+{
+std::istream& safeGetline(std::istream& is, std::string& t)
+{
+  t.clear();
+
+  // The characters in the stream are read one-by-one using a std::streambuf.
+  // That is faster than reading them one-by-one using the std::istream.
+  // Code that uses streambuf this way must be guarded by a sentry object.
+  // The sentry object performs various tasks,
+  // such as thread synchronization and updating the stream state.
+
+  std::istream::sentry se(is, true);
+  std::streambuf* sb = is.rdbuf();
+
+  for(;;)
+  {
+    int c = sb->sbumpc();
+    switch(c)
+    {
+    case '\n':
+      return is;
+    case '\r':
+      if(sb->sgetc() == '\n')
+        sb->sbumpc();
+      return is;
+    case std::streambuf::traits_type::eof():
+      // Also handle the case when the last line has no line ending
+      if(t.empty())
+        is.setstate(std::ios::eofbit);
+      return is;
+    default:
+      t += (char)c;
+    }
+  }
+}
+
+} // namespace
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -621,11 +660,16 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
       token = EbsdStringUtils::trimmed(token);
     }
 
-    if(line.find("Prj") == 0) // This is a special case/bug in HKL's writing code. This line is space delimited
+    if(line.find("Prj") == 0) // This line can be either space or tab delimited. and can be empty BTW...
     {
-      line = EbsdStringUtils::simplified(line);
+      line = EbsdStringUtils::trimmed(line);    // Remove non-printables
+      line = EbsdStringUtils::simplified(line); // Remove multiple Spaces
+      std::string value;
+      if(line.size() > 3)
+      {
+        value = line.substr(4); // Get the value part of the line
+      }
 
-      std::string value = line.substr(4); // Get the value part of the line
       EbsdHeaderEntry::Pointer p = m_HeaderMap["Prj"];
       if(nullptr == p.get())
       {
@@ -705,7 +749,7 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
       }
       else
       {
-        if(line.size() > 1)
+        if(line.size() > 1 && tabTokens.size() > 1)
         {
           p->parseValue(tabTokens[1]);
           PRINT_HTML_TABLE_ROW(p)
@@ -793,11 +837,12 @@ std::vector<std::string> CtfReader::tokenize(char* buf, char delimiter)
 int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& headerLines)
 {
   int err = 0;
-  std::string buf;
+
   int numPhases = -1;
   while(!reader.eof() && !getHeaderIsComplete())
   {
-    std::getline(reader, buf);
+    std::string buf;
+    ::safeGetline(reader, buf);
     // Append the line to the complete header. The trailing newline is already removed at this point
     appendOriginalHeader(std::string(buf));
     headerLines.push_back(buf);
@@ -811,6 +856,7 @@ int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& h
   // Now read the phases line
   for(int p = 0; p < numPhases; ++p)
   {
+    std::string buf;
     std::getline(reader, buf);
     appendOriginalHeader(std::string(buf));
 
