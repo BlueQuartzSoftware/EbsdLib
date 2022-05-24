@@ -561,14 +561,14 @@ ResultType om_check(const InputType& om)
 
   for(int c = 0; c < 3; c++)
   {
-    for(int r = 0; r < 3; r++)
+    for(int rIndex = 0; r < 3; r++)
     {
-      if(identity(r, c) > threshold)
+      if(identity(rIndex, c) > threshold)
       {
-        std::stringstream ss;
-        ss << "rotations:om_check: rotation matrix times transpose must be identity matrix: (";
-        ss << r << ", " << c << ") = " << abv(r, c);
-        res.msg = ss.str();
+        std::stringstream ss_error;
+        ss_error << "rotations:om_check: rotation matrix times transpose must be identity matrix: (";
+        ss_error << rIndex << ", " << c << ") = " << abv(rIndex, c);
+        res.msg = ss_error.str();
         res.result = -3;
       }
     }

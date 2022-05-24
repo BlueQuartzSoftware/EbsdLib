@@ -33,6 +33,8 @@ Support/Scripts/GMT/gmt.history
 venv/
 __pycache__/
 /.mypy_cache/
+release
+debug
 
 # Python build-related files
 pyebsd/build/

@@ -177,6 +177,9 @@ if(EbsdLib_USE_GHC_FILESYSTEM)
   target_link_libraries(${PROJECT_NAME} PUBLIC ghcFilesystem::ghc_filesystem)
 endif()
 
+include (${EbsdLibProj_SOURCE_DIR}/cmake/EbsdLibMacros.cmake)
+complex_enable_warnings(TARGET ${PROJECT_NAME})
+
 # --------------------------------------------------------------------
 # Setup the install rules for the various platforms
 set(install_dir "bin")

@@ -228,8 +228,7 @@ int H5CtfReader::readHeader(hid_t parId)
     std::cout << "H5CtfReader Error: Could not open 'Header' Group";
     return -1;
   }
-  using CtfIntHeaderType = CtfHeaderEntry<int, Int32HeaderParser>;
-  using CtfFloatHeaderType = CtfHeaderEntry<float, FloatHeaderParser>;
+
   READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Prj, EbsdLib::Ctf::Prj, gid)
   READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Author, EbsdLib::Ctf::Author, gid)
   READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, JobMode, EbsdLib::Ctf::JobMode, gid)

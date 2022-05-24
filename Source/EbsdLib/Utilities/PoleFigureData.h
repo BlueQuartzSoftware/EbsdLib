@@ -60,7 +60,7 @@ public:
     kernelRadius[1] = 3;
   }
 
-  PoleFigureData(std::vector<float>& xData, std::vector<float>& yData, const std::string& s, int32_t* kernelRad, int32_t* size);
+  PoleFigureData(std::vector<float>& xData, std::vector<float>& yData, const std::string& title, int32_t* kernelRad, int32_t* size);
 
   // We need a copy constructor
   PoleFigureData(const PoleFigureData& rhs);

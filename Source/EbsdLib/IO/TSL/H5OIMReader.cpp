@@ -454,7 +454,7 @@ int H5OIMReader::readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase)
     if(nDims > 0)
     {
       data.resize(dimsFam[0]);
-      herr_t status = H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)(data.data()));
+      status = H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)(data.data()));
       if(status < 0)
       {
         setErrorCode(-90011);

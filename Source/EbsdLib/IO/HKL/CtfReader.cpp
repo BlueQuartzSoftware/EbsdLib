@@ -476,29 +476,26 @@ void CtfReader::readOnlySliceIndex(int slice)
 // -----------------------------------------------------------------------------
 int CtfReader::readData(std::ifstream& in)
 {
-  std::string sBuf;
-  std::stringstream ss(sBuf);
+
   // Initialize new pointers
   int32_t xCells = getXCells();
   if(xCells < 0)
   {
     setErrorCode(-110);
-    std::string msg;
-    std::stringstream ss(msg);
+    std::stringstream ss;
     ss << "The number of X Cells was reported as " << xCells << ". This value must be larger than ZERO. This error can be caused by "
        << " a missing X Cells header value, an incorrect  XCells value or a value of X Cells larger than 2^31.\n";
-    setErrorMessage(msg);
+    setErrorMessage(ss.str());
     return -110;
   }
   int32_t yCells = getYCells();
   if(yCells < 0)
   {
     setErrorCode(-111);
-    std::string msg;
-    std::stringstream ss(msg);
+    std::stringstream ss;
     ss << "The number of Y Cells was reported as " << yCells << ". This value must be larger than ZERO. This error can be caused by "
        << " a missing Y Cells header value, an incorrect Y Cells value or a value of Y Cells larger than 2^31.\n";
-    setErrorMessage(msg);
+    setErrorMessage(ss.str());
     return -111;
   }
 
@@ -530,13 +527,15 @@ int CtfReader::readData(std::ifstream& in)
   bool didAllocate = false;
   for(int32_t i = 0; i < size; ++i)
   {
+
+
     std::string name = tokens[i];
     pType = getPointerType(name);
     if(m_NamePointerMap.find(name) != m_NamePointerMap.end())
     {
-      sBuf.clear();
+      std::stringstream ss;
       ss << "Column Header '" << name << "' has been found multiple times in the Header Row. Please check the CTF file for mistakes.";
-      setErrorMessage(sBuf);
+      setErrorMessage(ss.str());
       return -110;
     }
     if(EbsdLib::NumericTypes::Type::Int32 == pType)
@@ -563,23 +562,22 @@ int CtfReader::readData(std::ifstream& in)
     }
     else
     {
-      sBuf.clear();
+      std::stringstream ss;
       ss << "Column Header '" << tokens[i] << "' is not a recognized column for CTF Files. Please recheck your .ctf file and report this error to the DREAM3D developers.";
-      setErrorMessage(sBuf);
+      setErrorMessage(ss.str());
       return -107;
     }
 
     if(!didAllocate)
     {
       setErrorCode(-106);
-      std::string msg;
-      std::stringstream ss(msg);
+      std::stringstream ss;
       ss << "The CTF reader could not allocate memory for the data. Check the header for the number of X, Y and Z Cells.";
       ss << "\n X Cells: " << getXCells();
       ss << "\n Y Cells: " << getYCells();
       ss << "\n Z Cells: " << getZCells();
       ss << "\n Total Scan Points: " << totalScanPoints;
-      setErrorMessage(msg);
+      setErrorMessage(ss.str());
       return -106; // Could not allocate the memory
     }
   }
@@ -627,9 +625,9 @@ int CtfReader::readData(std::ifstream& in)
 
   if(counter != getNumberOfElements() && in.eof())
   {
-    sBuf.clear();
+    std::stringstream ss;
     ss << "Premature End Of File reached.\n" << getFileName() << "\nNumRows=" << getNumberOfElements() << "\ncounter=" << counter << "\nTotal Data Points Read=" << counter << "\n";
-    setErrorMessage(sBuf);
+    setErrorMessage(ss.str());
     setErrorCode(-105);
     return -105;
   }
@@ -689,12 +687,12 @@ int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
       p->parseValue(tabTokens[1]);
       int nPhases = getNumPhases();
       // We start the Phase Index at "1" instead of Zero by convention
-      for(int p = 1; p <= nPhases; ++p)
+      for(int phaseIndex = 1; phaseIndex <= nPhases; ++phaseIndex)
       {
         ++i; // Increment the outer loop
         line = headerLines[i];
         CtfPhase::Pointer phase = CtfPhase::New();
-        phase->setPhaseIndex(p);
+        phase->setPhaseIndex(phaseIndex);
         phase->parsePhase(line); // All the phase information is on a single line
 
         m_PhaseVector.push_back(phase);
@@ -786,15 +784,14 @@ int CtfReader::parseDataLine(std::string& line, size_t row, size_t col, size_t o
   if(tokens.size() != m_NamePointerMap.size())
   {
     setErrorCode(-107);
-    std::string msg;
-    std::stringstream ss(msg);
+    std::stringstream ss;
     ss << "The number of tab delimited data columns (" << tokens.size() << ") does not match the number of tab delimited header columns (";
     ss << m_NamePointerMap.size() << "). Please check the CTF file for mistakes, specifically the header line that labels each column of data.";
     ss << "The error occurred at data row " << row << " which is " << row << " past ";
     ss << "the column header row.";
     ss << "\nThe CTF Reader will now abort reading any further in the file.";
 
-    setErrorMessage(msg);
+    setErrorMessage(ss.str());
     return -109;
   }
 

@@ -217,23 +217,23 @@ int H5AngReader::readHeader(hid_t parId)
   for(const auto& phaseGroupName : names)
   {
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
-    AngPhase::Pointer m_CurrentPhase = AngPhase::New();
+    AngPhase::Pointer currentPhase = AngPhase::New();
 
-    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::Phase, PhaseIndex, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::MaterialName, MaterialName, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::Formula, Formula, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::Phase, PhaseIndex, currentPhase)
+    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::MaterialName, MaterialName, currentPhase)
+    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::Formula, Formula, currentPhase)
     // READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::Info, Info, m_CurrentPhase)
-    READ_PHASE_HEADER_DATA_CAST("H5AngReader", pid, uint32_t, int, EbsdLib::Ang::Symmetry, Symmetry, m_CurrentPhase)
-    READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, EbsdLib::Ang::LatticeConstants, LatticeConstants, m_CurrentPhase)
-    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::NumberFamilies, NumberFamilies, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA_CAST("H5AngReader", pid, uint32_t, int, EbsdLib::Ang::Symmetry, Symmetry, currentPhase)
+    READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, EbsdLib::Ang::LatticeConstants, LatticeConstants, currentPhase)
+    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::NumberFamilies, NumberFamilies, currentPhase)
 
-    if(m_CurrentPhase->getNumberFamilies() > 0)
+    if(currentPhase->getNumberFamilies() > 0)
     {
       hid_t hklGid = H5Gopen(pid, EbsdLib::Ang::HKLFamilies.c_str(), H5P_DEFAULT);
       // Only read the HKL Families if they are there. Trying to open the group will tell us if there
       // are any families to read
 
-      err = readHKLFamilies(hklGid, m_CurrentPhase);
+      err = readHKLFamilies(hklGid, currentPhase);
       err = H5Gclose(hklGid);
       if(getErrorCode() < 0)
       {
@@ -246,9 +246,9 @@ int H5AngReader::readHeader(hid_t parId)
     /* The 'Categories' header may actually be missing from certain types of .ang files */
     if(H5Lite::datasetExists(pid, EbsdLib::Ang::Categories))
     {
-      READ_PHASE_HEADER_ARRAY("H5AngReader", pid, int, EbsdLib::Ang::Categories, Categories, m_CurrentPhase)
+      READ_PHASE_HEADER_ARRAY("H5AngReader", pid, int, EbsdLib::Ang::Categories, Categories, currentPhase)
     }
-    m_Phases.push_back(m_CurrentPhase);
+    m_Phases.push_back(currentPhase);
     err = H5Gclose(pid);
   }
 

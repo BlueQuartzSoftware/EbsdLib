@@ -39,10 +39,10 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PoleFigureData::PoleFigureData(std::vector<float>& xData, std::vector<float>& yData, const std::string& s, int32_t* kernelRad, int32_t* size)
-: xData(xData)
-, yData(yData)
-, label(s)
+PoleFigureData::PoleFigureData(std::vector<float>& x_data, std::vector<float>& y_data, const std::string& title, int32_t* kernelRad, int32_t* size)
+: xData(x_data)
+, yData(y_data)
+, label(title)
 {
   imageSize[0] = size[0];
   imageSize[1] = size[1];
