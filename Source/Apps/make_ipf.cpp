@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 {
   if(argc != 3)
   {
-    std::cout << "Program needs file path to .ang file" << std::endl;
+    std::cout << "Program needs file path to .ang file and output image file" << std::endl;
     return 1;
   }
   std::cout << "WARNING: This program makes NO attempt to fix the sample and crystal reference frame issue that is common on TSL systems." << std::endl;
