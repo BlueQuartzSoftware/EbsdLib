@@ -10,3 +10,8 @@ target_include_directories(make_ipf PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 add_executable(convert_orientations ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ConvertOrientations.cpp)
 target_link_libraries(convert_orientations PUBLIC EbsdLib)
 target_include_directories(convert_orientations PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
+add_executable(rearrange ${EbsdLibProj_SOURCE_DIR}/Source/Apps/rearrange.cpp)
+target_link_libraries(rearrange PUBLIC EbsdLib)
+target_include_directories(rearrange PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
