@@ -1,4 +1,3 @@
-
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -14,6 +13,95 @@
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
+
+namespace
+{
+template <typename T>
+void CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap)
+{
+  T* oldArr = reinterpret_cast<T*>(oldArray);
+  std::vector<T> buffer(indexMap.size(), static_cast<T>(0));
+
+  for(int i = 0; i < indexMap.size(); i++)
+  {
+    int m_NewIndex = indexMap[i];
+
+    buffer[m_NewIndex] = oldArr[i];
+  }
+
+  std::copy(buffer.begin(), buffer.end(), oldArr);
+}
+
+std::pair<int, std::string> FixGrid(AngReader& reader, std::vector<int64_t>& indexMap)
+{
+  int64_t numCols = reader.getNumEvenCols();
+  int64_t numRows = reader.getNumRows();
+  int64_t numElements = numCols * numRows;
+
+  float* xPosition = reader.getXPositionPointer(); // Inputs
+  float* yPosition = reader.getYPositionPointer(); // Inputs
+
+  float xStep = reader.getXStep(); // Inputs
+  float yStep = reader.getYStep(); // Inputs
+
+  // Getting the min and max values for xPosition and yPosition
+  auto resultX = std::minmax_element(xPosition, xPosition + numElements);
+  auto resultY = std::minmax_element(yPosition, yPosition + numElements);
+  int64_t xMin = *resultX.first;
+  int64_t xMax = *resultX.second;
+  int64_t yMin = *resultY.first;
+  int64_t yMax = *resultY.second;
+
+  if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
+  {
+    std::stringstream message;
+    message << "Error: The calculated number of columns (" 
+            << ((xMax - xMin) / xStep) + 1 << ") does not match the actual number of columns ("
+            << numCols << ")" << std::endl;
+    return {-100, message.str()};
+  }
+  if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
+  {
+    std::stringstream message;
+    message << "Error: The calculated number of rows (" 
+            << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows ("
+            << numRows + 1 << ")" << std::endl;
+    return {-101, message.str()};
+  }
+
+  // Initialize vector with size numElements (cols * rows)
+  indexMap.resize(numElements);
+
+  // If the vectors are NOT the same size immediately exit
+  // if(xPosition.size() != yPosition.size())
+  // {
+  //   return;
+  // }
+
+  for(int i = 0; i < numElements; i++)
+  {
+    int64_t xIndex = (xPosition[i] - xMin) / xStep;
+    int64_t yIndex = (yPosition[i] - yMin) / yStep;
+
+    if(xIndex >= 0 && xIndex < numCols && yIndex >= 0 && yIndex < numRows)
+    {
+      indexMap[i] = (numCols * yIndex) + xIndex;
+    }
+    else
+    {
+      std::stringstream message;
+      message << "Error: The given indices (" << xIndex << ", " << yIndex 
+              << ") does not fit within the grid size (" 
+              << numCols << ", " << numRows << ")" << std::endl;
+      return {-10, message.str()};
+    }
+  }
+
+  return {0, ""};
+}
+}
 
 class Ang2IPF;
 
@@ -141,6 +229,35 @@ public:
     if(err < 0)
     {
       return err;
+    }
+
+    std::vector<int64_t> indexMap;
+    std::pair<int, std::string> result = FixGrid(reader, indexMap);
+
+    if(result.first < 0)
+    {
+      std::cout << result.second << std::endl;
+      return result.first;
+    }
+
+    std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
+    
+    for(const auto& arrayName : arrayNames)
+    {
+      void* oldArray = reader.getPointerByName(arrayName);
+
+      if(reader.getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+      {
+        CopyTupleUsingIndexList<float>(oldArray, indexMap);
+      }
+      else if(reader.getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+      {
+        CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
+      }
+      else
+      {
+        std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
+      }
     }
 
     std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
