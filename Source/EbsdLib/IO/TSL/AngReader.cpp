@@ -38,11 +38,13 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 #include "AngConstants.h"
 
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/IO/EbsdReader.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -343,6 +345,34 @@ int AngReader::readFile()
   }
   // We need to pass in the buffer because it has the first line of data
   readData(in, buf);
+
+  std::vector<int64_t> indexMap;
+  std::pair<int, std::string> result = fixOrderOfData(indexMap);
+
+  if(result.first < 0)
+  {
+    std::cout << result.second << std::endl;
+    return result.first;
+  }
+
+  std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
+  for(const auto& arrayName : arrayNames)
+  {
+    void* oldArray = getPointerByName(arrayName);
+
+    if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+    {
+      CopyTupleUsingIndexList<float>(oldArray, indexMap);
+    }
+    else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+    {
+      CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
+    }
+    else
+    {
+      std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
+    }
+  }
 
   return getErrorCode();
 }
@@ -872,6 +902,82 @@ void AngReader::parseDataLine(std::string& line, size_t i)
     }
     m_Fit[offset] = fit;
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& indexMap)
+{
+  int64_t numCols = getNumEvenCols();
+  int64_t numRows = getNumRows();
+  int64_t numElements = numCols * numRows;
+
+  float* xPosition = getXPositionPointer();
+  float* yPosition = getYPositionPointer();
+
+  float xStep = getXStep();
+  float yStep = getYStep();
+
+  auto resultX = std::minmax_element(xPosition, xPosition + numElements);
+  auto resultY = std::minmax_element(yPosition, yPosition + numElements);
+  int64_t xMin = *resultX.first;
+  int64_t xMax = *resultX.second;
+  int64_t yMin = *resultY.first;
+  int64_t yMax = *resultY.second;
+
+  if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
+  {
+    std::stringstream message;
+    message << "Error: The calculated number of columns (" << ((xMax - xMin) / xStep) + 1 << ") does not match the actual number of columns (" << numCols << ")" << std::endl;
+    return {-100, message.str()};
+  }
+  if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
+  {
+    std::stringstream message;
+    message << "Error: The calculated number of rows (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
+    return {-101, message.str()};
+  }
+
+  indexMap.resize(numElements);
+
+  for(int i = 0; i < numElements; i++)
+  {
+    int64_t xIndex = (xPosition[i] - xMin) / xStep;
+    int64_t yIndex = (yPosition[i] - yMin) / yStep;
+
+    if(xIndex >= 0 && xIndex < numCols && yIndex >= 0 && yIndex < numRows)
+    {
+      indexMap[i] = (numCols * yIndex) + xIndex;
+    }
+    else
+    {
+      std::stringstream message;
+      message << "Error: The given indices (" << xIndex << ", " << yIndex << ") does not fit within the grid size (" << numCols << ", " << numRows << ")" << std::endl;
+      return {-10, message.str()};
+    }
+  }
+
+  return {0, ""};
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+template <typename T>
+void AngReader::CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap)
+{
+  T* oldArr = reinterpret_cast<T*>(oldArray);
+  std::vector<T> buffer(indexMap.size(), static_cast<T>(0));
+
+  for(int i = 0; i < indexMap.size(); i++)
+  {
+    int m_NewIndex = indexMap[i];
+
+    buffer[m_NewIndex] = oldArr[i];
+  }
+
+  std::copy(buffer.begin(), buffer.end(), oldArr);
 }
 
 // -----------------------------------------------------------------------------
