@@ -18,6 +18,7 @@
 
 namespace
 {
+#if 0
 template <typename T>
 void CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap)
 {
@@ -101,6 +102,7 @@ std::pair<int, std::string> FixGrid(AngReader& reader, std::vector<int64_t>& ind
 
   return {0, ""};
 }
+#endif
 }
 
 class Ang2IPF;
@@ -230,7 +232,7 @@ public:
     {
       return err;
     }
-
+    #if 0
     std::vector<int64_t> indexMap;
     std::pair<int, std::string> result = FixGrid(reader, indexMap);
 
@@ -259,7 +261,7 @@ public:
         std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
       }
     }
-
+    #endif
     std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
 
     size_t totalPoints = reader.getNumberOfElements();
@@ -316,13 +318,15 @@ int main(int argc, char* argv[])
 {
   if(argc != 3)
   {
-    std::cout << "Program needs file path to .ang file and output image file" << std::endl;
-    return 1;
+    //std::cout << "Program needs file path to .ang file and output image file" << std::endl;
+    //return 1;
   }
   std::cout << "WARNING: This program makes NO attempt to fix the sample and crystal reference frame issue that is common on TSL systems." << std::endl;
   std::cout << "WARNING: You are probably *not* seeing the correct colors. Use something like DREAM.3D to fully correct for these issues." << std::endl;
-  std::string filePath(argv[1]);
-  std::string outPath(argv[2]);
+  //::string filePath(argv[1]);
+  //std::string outPath(argv[2]);
+  std::string filePath = ("C:\\Users\\bpennie\\Documents\\EbsdLib\\Data\\EbsdTestFiles\\Out_Of_Order.ang");
+  std::string outPath = ("C:\\Users\\bpennie\\Documents\\EbsdLib\\Data\\EbsdTestFiles\\Out_Of_Order.tiff");
   std::cout << "Creating IPF Color Map for " << filePath << std::endl;
 
   Ang2IPF Ang2IPF;

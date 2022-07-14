@@ -170,6 +170,11 @@ public:
   int getYDimension() override;
   void setYDimension(int ydim) override;
 
+  std::pair<int, std::string> fixOrderOfData(std::vector<int64_t>& indexMap);
+
+  template <typename T>
+  void CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap);
+
 private:
   AngPhase::Pointer m_CurrentPhase;
   int m_ErrorColumn = 0;
@@ -185,7 +190,7 @@ private:
    * @param line The line of data to parse
    */
   void parseDataLine(std::string& line, size_t i);
-
+  
   bool m_InsideNotes = false;
   bool m_InsideColumnNotes = false;
 

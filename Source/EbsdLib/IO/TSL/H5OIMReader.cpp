@@ -42,6 +42,7 @@
 #include <vector>
 
 #include "AngConstants.h"
+#include "AngReader.h"
 
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5ScopedSentinel.h"
@@ -165,6 +166,34 @@ int H5OIMReader::readFile()
     setErrorCode(-900022);
     setErrorMessage(str);
     return getErrorCode();
+  }
+
+  std::vector<int64_t> indexMap;
+  std::pair<int, std::string> result = fixOrderOfData(indexMap);
+
+  if(result.first < 0)
+  {
+    std::cout << result.second << std::endl;
+    return result.first;
+  }
+
+  std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
+  for(const auto& arrayName : arrayNames)
+  {
+    void* oldArray = getPointerByName(arrayName);
+
+    if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+    {
+      CopyTupleUsingIndexList<float>(oldArray, indexMap);
+    }
+    else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+    {
+      CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
+    }
+    else
+    {
+      std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
+    }
   }
 
   return getErrorCode();
