@@ -22,15 +22,58 @@ namespace @VERSION_GEN_NAMESPACE@
       Version& operator=(const Version&) = delete; // Copy Assignment Not Implemented
       Version& operator=(Version&&) = delete;      // Move Assignment Not Implemented
 
-
+      /**
+       * @brief Returns "@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Complete();
+      
+      /**
+       * @brief Returns "@VERSION_GEN_VER_MAJOR@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Major   ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Minor   ();
+      
+      /**
+       * @brief Returns "@VERSION_GEN_VER_MINOR@"
+       * 
+       */
+       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Minor   ();
+      
+      /**
+       * @brief Returns "@VERSION_GEN_VER_PATCH@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Patch   ();
-      static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Package ();
+      
+      /**
+       * @brief Returns "@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@"
+       * 
+       */
+       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Package ();
+      
+      /**
+       * @brief Returns "@VERSION_GEN_VER_REVISION@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string Revision ();
+      
+      /**
+       * @brief Returns "@PROJECT_PREFIX@ Version @VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string PackageComplete ();
+
+      /**
+       * @brief Returns "@VERSION_BUILD_DATE@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string BuildDate();
+
+      /**
+       * @brief Returns "@GVS_GIT_HASH@"
+       * 
+       */
       static @VERSION_GEN_NAMESPACE_EXPORT@ std::string GitHash();
 
     protected:
