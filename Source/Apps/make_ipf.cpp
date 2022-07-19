@@ -1,4 +1,3 @@
-
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -14,6 +13,9 @@
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
+
 
 class Ang2IPF;
 
@@ -142,7 +144,7 @@ public:
     {
       return err;
     }
-
+   
     std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
 
     size_t totalPoints = reader.getNumberOfElements();
