@@ -345,7 +345,10 @@ int AngReader::readFile()
   }
   // We need to pass in the buffer because it has the first line of data
   readData(in, buf);
-
+  if(getErrorCode() < 0)
+  {
+    return getErrorCode();
+  }
   std::vector<int64_t> indexMap;
   std::pair<int, std::string> result = fixOrderOfData(indexMap);
 
@@ -914,17 +917,29 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
   int64_t numElements = numCols * numRows;
 
   float* xPosition = getXPositionPointer();
+  if(nullptr == xPosition)
+  {
+    std::stringstream message;
+    message << "Error: XPosition Pointer was NULL" << std::endl;
+    return {-110, message.str()};
+  }
   float* yPosition = getYPositionPointer();
+  if(nullptr == yPosition)
+  {
+    std::stringstream message;
+    message << "Error: YPosition Pointer was NULL" << std::endl;
+    return {-111, message.str()};
+  }
 
   float xStep = getXStep();
   float yStep = getYStep();
 
   auto resultX = std::minmax_element(xPosition, xPosition + numElements);
   auto resultY = std::minmax_element(yPosition, yPosition + numElements);
-  int64_t xMin = *resultX.first;
-  int64_t xMax = *resultX.second;
-  int64_t yMin = *resultY.first;
-  int64_t yMax = *resultY.second;
+  float xMin = *resultX.first;
+  float xMax = *resultX.second;
+  float yMin = *resultY.first;
+  float yMax = *resultY.second;
 
   if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
   {
@@ -935,7 +950,7 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
   if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
   {
     std::stringstream message;
-    message << "Error: The calculated number of rows (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
+    message << "Error: The calculated number of rows " << yMax << ", " << yMin << ", " << yStep <<  "  (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
     return {-101, message.str()};
   }
 
