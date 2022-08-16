@@ -216,13 +216,14 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 {
   throw EbsdLib::method_not_implemented("OrthoRhombicOps::getMDFFZRod not implemented");
 
-  double w, n1, n2, n3;
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
 
   OrientationType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
-  n1 = ax[0];
-  n2 = ax[1], n3 = ax[2], w = ax[3];
+  double n1 = ax[0];
+  double n2 = ax[1];
+  double n3 = ax[2];
+  double w = ax[3];
 
   /// FIXME: Are we missing code for OrthoRhombic MDF FZ Rodrigues calculation?
 

@@ -1026,17 +1026,7 @@ template <typename InputType, typename OutputType>
 OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(3);
-  size_t w = 0;
-  size_t x = 1;
-  size_t y = 2;
-  size_t z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
-  {
-    w = 3;
-    x = 0;
-    y = 1;
-    z = 2;
-  }
+
 
   InputType qq(4);
   using OutputValueType = typename OutputType::value_type;

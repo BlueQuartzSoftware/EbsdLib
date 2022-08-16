@@ -612,16 +612,11 @@ public:
    */
   void resize(size_t size)
   {
-    T* newArray;
-    size_t newSize;
-    size_t oldSize;
-
     if(size == m_Size) // Requested size is equal to current size.  Do nothing.
     {
       return;
     }
-    newSize = size;
-    oldSize = m_Size;
+    size_t newSize = size;
 
     // Wipe out the array completely if new size is zero.
     if(newSize == 0)
@@ -636,7 +631,8 @@ public:
 #if defined __APPLE__
     dontUseRealloc = true;
 #endif
-
+    
+    T* newArray;
     // Allocate a new array if we DO NOT own the current array
     if((nullptr != m_Array) && (!m_OwnsData))
     {
