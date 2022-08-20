@@ -27,9 +27,9 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * The code contained herein was partially funded by the following contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-0s_NumReps-D-5800
  *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Prime Contract Navy N00173-07-C-2068
+ *    United States Prime Contract Navy N001s_NumReps3-0s_NumReps-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -97,7 +97,7 @@ public:
   template <typename T>
   void GenerateEulers(size_t nSteps, std::map<std::string, typename EbsdDataArray<T>::Pointer>& attrMat)
   {
-    std::vector<size_t> cDims(1, 3);
+    std::vector<size_t> cDims = {3};
 
     T phi1_min = static_cast<T>(0.0);
     T phi1_max = DConst::k_2PiD;
@@ -192,6 +192,11 @@ public:
     typename EbsdDataArray<T>::Pointer cu = euConv->getOutputData();
     cu->setName(k_InputNames[6]);
     attrMat[k_InputNames[6]] = cu;
+
+    euConv->toStereographic();
+    typename EbsdDataArray<T>::Pointer st = euConv->getOutputData();
+    st->setName(k_InputNames[7]);
+    attrMat[k_InputNames[7]] = st;
   }
 
   // -----------------------------------------------------------------------------
@@ -203,7 +208,7 @@ public:
     // using ArrayType = typename EbsdDataArray<T>::Pointer;
     using OCType = OrientationConverter<EbsdDataArray<T>, T>;
 
-    std::vector<typename OCType::Pointer> converters(7);
+    std::vector<typename OCType::Pointer> converters(s_NumReps);
 
     converters[0] = EulerConverter<EbsdDataArray<T>, T>::New();
     converters[1] = OrientationMatrixConverter<EbsdDataArray<T>, T>::New();
@@ -212,6 +217,7 @@ public:
     converters[4] = RodriguesConverter<EbsdDataArray<T>, T>::New();
     converters[5] = HomochoricConverter<EbsdDataArray<T>, T>::New();
     converters[6] = CubochoricConverter<EbsdDataArray<T>, T>::New();
+    converters[7] = StereographicConverter<EbsdDataArray<T>, T>::New();
 
     std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
 
@@ -273,6 +279,9 @@ public:
       break;
     case 6:
       res = OrientationTransformation::cu_check<OrientationType>(wrapper);
+      break;
+    case 7:
+      res = OrientationTransformation::st_check<OrientationType>(wrapper);
       break;
     default:
       break;
@@ -395,10 +404,10 @@ public:
         for(size_t t = 0; t < tuples; t++)
         {
           int nComp = diff.getNumberOfComponents();
-          if(entry[0] == 4)
+          if(entry[0] == 4) // for Rodrigues vectors we only want to compare the first 3 components.
           {
             nComp--;
-          } // for Rodrigues vectors we only want to compare the first 3 components.
+          }
           for(int c = 0; c < nComp; c++)
           {
             K delta = fabs(diff.getComponent(t, c));
@@ -406,6 +415,8 @@ public:
             {
               numErrors++;
               std::cout << "Delta Failed: " << delta << " EbsdDataArray: '" << diff.getName() << "' Tuple[" << t << "] Comp[" << c << "] Value:" << diff.getComponent(t, c) << std::endl;
+              std::cout << " InputArray(" << t << "," << c << ") = " << inputArray.getComponent(t, c) << std::endl;
+              std::cout << "OutputArray(" << t << "," << c << ") = " << outputArray.getComponent(t, c) << std::endl;
               // Get the AttributeMatrix:
               //              dap = EbsdDataArrayPath(DCName, AMName, k_InputNames[0]);
               //              AttributeMatrix::Pointer attrMat = dca->getAttributeMatrix(dap);
@@ -499,10 +510,10 @@ public:
     //  std::vector<std::string> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
 
     GenerateFunctionList generator;
-    std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(7, 2);
+    std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(s_NumReps, 2);
 
     // This outer loop will group the tests based on the first orientation representation
-    for(int t = 0; t < 7; t++)
+    for(int t = 0; t < s_NumReps; t++)
     {
       // Start looping on each entry in the function table.
       for(auto& entry : entries)
@@ -522,9 +533,9 @@ public:
       }
     }
 
-    entries = generator.GeneratePermutationsOfCombinations(7, 3);
+    entries = generator.GeneratePermutationsOfCombinations(s_NumReps, 3);
     // This outer loop will group the tests based on the first orientation representation
-    for(int t = 0; t < 7; t++)
+    for(int t = 0; t < s_NumReps; t++)
     {
       for(auto& entry : entries)
       {

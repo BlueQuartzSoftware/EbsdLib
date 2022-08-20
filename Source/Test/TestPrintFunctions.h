@@ -11,8 +11,10 @@
 static const std::string DCName("Orientation Transforms Test");
 static const std::string AMName("Angles");
 
-std::string k_InputNames[7] = {"eu", "om", "qu", "ax", "ro", "ho", "cu"};
-int k_CompDims[7] = {3, 9, 4, 4, 4, 3, 3};
+#define s_NumReps 8
+
+std::string k_InputNames[s_NumReps] = {"eu", "om", "qu", "ax", "ro", "ho", "cu", "st"};
+int k_CompDims[s_NumReps] = {3, 9, 4, 4, 4, 3, 3, 3};
 
 namespace OrientationPrinters
 {
@@ -98,6 +100,15 @@ template <typename T>
 void Print_CU(const T& om)
 {
   printf("Cu:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+template <typename T>
+void Print_ST(const T& om)
+{
+  printf("St:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
 }
 
 // -----------------------------------------------------------------------------

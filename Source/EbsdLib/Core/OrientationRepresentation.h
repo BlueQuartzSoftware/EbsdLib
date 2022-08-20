@@ -42,6 +42,7 @@ enum class Type : int
   Rodrigues,
   Homochoric,
   Cubochoric,
+  Stereographic,
   Unknown
 };
 }

@@ -34,6 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
+
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
@@ -55,10 +56,10 @@
 #include <string>
 
 /* This comment block is commented as Markdown. if you paste this into a text
- * editor then render it with a Markdown aware system a nice table should show
- * up for you.
+* editor then render it with a Markdown aware system a nice table should show
+* up for you.
 
- ## Function Mapping Check List ##
+## Function Mapping Check List ##
 
 #### Master Table of Conversions ####
 
@@ -150,7 +151,7 @@ struct ResultType
 //  std::cout << func << "::" << msg << std::endl;
 //}
 /* ###################################################################
- Original Fotran codes written by Dr. Marc De Graef.
+Original Fotran codes written by Dr. Marc De Graef.
 
 * MODULE: rotations
 *
@@ -498,6 +499,25 @@ ResultType ax_check(const InputType& ax)
   return res;
 }
 
+template <typename InputType>
+ResultType st_check(const InputType& st)
+{
+  using ValueType = typename InputType::value_type;
+  ResultType res;
+  res.result = 1;
+
+  ValueType r = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+  typename InputType::value_type eps = std::numeric_limits<ValueType>::epsilon();
+
+  if(std::abs(r - 1.0) > eps)
+  {
+    res.msg = "rotations:st_check: stereographic vector must have unit norm";
+    res.result = -2;
+  }
+
+  return res;
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -578,91 +598,91 @@ ResultType om_check(const InputType& om)
 }
 
 #if 0
-    /**: genrot
-    *
-    * @author Marc De Graef, Carnegie Mellon University
-    *
-    * @brief generate a passive rotation representation, given the unit axis vector and the rotation angle
-    *
-    * @param av 3-component vector
-    * @param omega rotation angle (radians)
-    *
-    *
-    * @date 9/30/14   MDG 1.0 original
-    */
-    template <typename InputType, typename OutputType> void genrot(const T& av, typename OutputType::value_type omega, OutputType& res)
+  /**: genrot
+  *
+  * @author Marc De Graef, Carnegie Mellon University
+  *
+  * @brief generate a passive rotation representation, given the unit axis vector and the rotation angle
+  *
+  * @param av 3-component vector
+  * @param omega rotation angle (radians)
+  *
+  *
+  * @date 9/30/14   MDG 1.0 original
+  */
+  template <typename InputType, typename OutputType> void genrot(const T& av, typename OutputType::value_type omega, OutputType& res)
+  {
+    //*** use local
+    //*** use constants
+    //*** use error
+    //*** IMPLICIT NONE
+    //real(kind=sgl),INTENT(IN)       :: av[2]
+    //real(kind=sgl),INTENT(IN)       :: omega
+    type(orientationtype)           :: res;
+    typename OutputType::value_type axang[4];
+    typename OutputType::value_type s;
+
+    if ((omega < 0.0) || (omega > M_PI))
     {
-      //*** use local
-      //*** use constants
-      //*** use error
-      //*** IMPLICIT NONE
-      //real(kind=sgl),INTENT(IN)       :: av[2]
-      //real(kind=sgl),INTENT(IN)       :: omega
-      type(orientationtype)           :: res;
-      typename OutputType::value_type axang[4];
-      typename OutputType::value_type s;
-
-      if ((omega < 0.0) || (omega > M_PI))
-      {
-        assert(false);
-      }
-
-      axang[0] = -RConst::epsijk * av[0];
-      axang[1] = -RConst::epsijk * av[1];
-      axang[2] = -RConst::epsijk * av[2];
-      axang[3] = omega;
-      s = sqrt(sumofSquares(av));
-
-      if (s != 0.0)
-      {
-        axang[0] = axang[0] / s;
-        axang[1] = axang[1] / s;
-        axang[2] = axang[2] / s;
-      }
-      else
-      {
-        assert(false);
-      }
-      init_orientation(axang, 'ax', res);
+      assert(false);
     }
 
+    axang[0] = -RConst::epsijk * av[0];
+    axang[1] = -RConst::epsijk * av[1];
+    axang[2] = -RConst::epsijk * av[2];
+    axang[3] = omega;
+    s = sqrt(sumofSquares(av));
+
+    if (s != 0.0)
+    {
+      axang[0] = axang[0] / s;
+      axang[1] = axang[1] / s;
+      axang[2] = axang[2] / s;
+    }
+    else
+    {
+      assert(false);
+    }
+    init_orientation(axang, 'ax', res);
+  }
 
 
-    /**: init_orientation
-    *
-    * @author Marc De Graef, Carnegie Mellon University
-    *
-    * @brief take an orientation representation with 3 components and init all others
-    *
-    * @param orient 3-component vector
-    * @param intype input type ['eu', 'ro', 'ho', 'cu']
-    * @param rotcheck  optional parameter to enforce strict range checking
-    *
-    * @date 8/04/13   MDG 1.0 original
-    * @date 9/30/14   MDG 1.1 added testing of valid ranges
-    */
 
-    template <typename InputType, typename OutputType>
+  /**: init_orientation
+  *
+  * @author Marc De Graef, Carnegie Mellon University
+  *
+  * @brief take an orientation representation with 3 components and init all others
+  *
+  * @param orient 3-component vector
+  * @param intype input type ['eu', 'ro', 'ho', 'cu']
+  * @param rotcheck  optional parameter to enforce strict range checking
+  *
+  * @date 8/04/13   MDG 1.0 original
+  * @date 9/30/14   MDG 1.1 added testing of valid ranges
+  */
+
+  template <typename InputType, typename OutputType>
 void init_orientation(const T& orient, char intype[2], bool rotcheck, OutputType& res)
-    {
+  {
 
-    }
+  }
 
-    /**: init_orientation_om
-    *
-    * @author Marc De Graef, Carnegie Mellon University
-    *
-    * @brief take an orientation representation with 3x3 components and init all others
-    *
-    * @param orient r-component vector
-    * @param intype input type ['om']
-    * @param rotcheck  optional parameter to enforce strict range checking
-    *
-    *
-    * @date 8/04/13   MDG 1.0 original
-    */
+  /**: init_orientation_om
+  *
+  * @author Marc De Graef, Carnegie Mellon University
+  *
+  * @brief take an orientation representation with 3x3 components and init all others
+  *
+  * @param orient r-component vector
+  * @param intype input type ['om']
+  * @param rotcheck  optional parameter to enforce strict range checking
+  *
+  *
+  * @date 8/04/13   MDG 1.0 original
+  */
 
-    void init_orientation_om(float* orient, char intype[2], bool rotcheck, float* res);
+  void init_orientation_om(float* orient, char intype[2], bool rotcheck, float* res);
 #endif
 
 /**: eu2om
@@ -1417,6 +1437,7 @@ OutputType ro2ax(const InputType& r)
     res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
     return res;
   }
+
   if(ta == std::numeric_limits<typename OutputType::value_type>::infinity())
   {
     res[0] = r[0];
@@ -2168,6 +2189,222 @@ OutputType cu2qu(const InputType& cu, typename Quaternion<typename OutputType::v
   return ho2qu<InputType, OutputType>(ho);        // Convert Homochoric to Quaternion
 }
 
+/***********************************************************************************************************************
+ * Stereographic Coordinates Section
+ **********************************************************************************************************************/
+template <typename InputType, typename OutputType>
+OutputType qu2st(const InputType& qu, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+{
+
+  using SizeType = typename OutputType::size_type;
+  SizeType w = 0;
+  SizeType x = 1;
+  SizeType y = 2;
+  SizeType z = 3;
+  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  {
+    w = 3;
+    x = 0;
+    y = 1;
+    z = 2;
+  }
+
+  OutputType res = {qu[x], qu[y], qu[z]};
+
+  if(qu[w] != 0.0)
+  {
+    res[0] = qu[x] / (1.0f + qu[w]);
+    res[1] = qu[y] / (1.0f + qu[w]);
+    res[2] = qu[z] / (1.0f + qu[w]);
+  }
+  return res;
+}
+
+template <typename InputType, typename OutputType>
+OutputType eu2st(const InputType& eu)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = eu2qu<InputType, QuatType>(eu);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType om2st(const InputType& om)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = om2qu<InputType, QuatType>(om);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType ax2st(const InputType& aa)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = ax2qu<InputType, QuatType>(aa);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType ro2st(const InputType& ro)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = ro2qu<InputType, QuatType>(ro);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType ho2st(const InputType& ho)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = ho2qu<InputType, QuatType>(ho);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType cu2st(const InputType& cu)
+{
+  using QuatType = Quaternion<typename OutputType::value_type>;
+  QuatType qu = cu2qu<InputType, QuatType>(cu);
+  return qu2st<QuatType, OutputType>(qu);
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2ax(const InputType& st)
+{
+  using ValueType = typename OutputType::value_type;
+  ValueType threshold = static_cast<ValueType>(1.0E-5L);
+  OutputType res = {0.0, 0.0, 1.0, 0.0};
+
+  ValueType l = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+  if(l > 0.0)
+  {
+    InputType tmp = st;
+    ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
+    OutputType ax(4);
+    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    {
+      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(EbsdLib::Constants::k_PiD)};
+    }
+    else
+    {
+      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(4.0 * std::atan(l))};
+    }
+  }
+  return res;
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2eu(const InputType& st)
+{
+  InputType ax = st2ax<InputType, InputType>(st); // Convert to Axis-Angle
+  return ax2eu<InputType, OutputType>(ax);        // Convert to Euler
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2qu(const InputType& st, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+{
+  InputType ax = st2ax<InputType, InputType>(st);  // Convert to Axis-Angle
+  return ax2qu<InputType, OutputType>(ax, layout); // Convert to Quaternion
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2om(const InputType& st)
+{
+  using ValueType = typename OutputType::value_type;
+  ValueType threshold = static_cast<ValueType>(1.0E-5L);
+  OutputType res = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}; // Init with identity matrix
+
+  ValueType l = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+  if(l > 0.0)
+  {
+    InputType tmp = st;
+    ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
+    InputType ax(4);
+    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    {
+      ax = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(EbsdLib::Constants::k_PiD)};
+    }
+    else
+    {
+      ax = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(4.0 * std::atan(l))};
+    }
+    res = ax2om<InputType, OutputType>(ax);
+  }
+  return res;
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2ro(const InputType& st)
+{
+  using ValueType = typename OutputType::value_type;
+  ValueType threshold = static_cast<ValueType>(1.0E-5L);
+  OutputType res = {0.0, 0.0, 1.0, 0.0};
+  ValueType l = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+
+  if(l > 0.0) // ! not the identity rotation
+  {
+    InputType tmp = st;
+    ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
+
+    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    {
+      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(std::numeric_limits<ValueType>::infinity())};
+    }
+    else
+    {
+      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(std::tan(2.0 * std::atan(l)))};
+    }
+  }
+  return res;
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2ho(const InputType& st)
+{
+  using ValueType = typename OutputType::value_type;
+  OutputType res = {0.0, 0.0, 0.0};
+  ValueType l = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+
+  if(l > 0.0)
+  {
+    InputType tmp = st;
+    ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
+
+    ValueType angle = 4.0 * std::atan(l);
+    ValueType temp2 = (3.0 * (angle - std::sin(angle)) / 4.0);
+    temp2 = std::pow(temp2, (1.0 / 3.0));
+
+    ArrayHelpers<InputType, ValueType>::scalarMultiply(tmp, temp2);
+    res[0] = tmp[0];
+    res[1] = tmp[1];
+    res[2] = tmp[2];
+  }
+  return res;
+}
+
+template <typename InputType, typename OutputType>
+OutputType st2cu(const InputType& st)
+{
+  using ValueType = typename OutputType::value_type;
+  OutputType res = {0.0, 0.0, 0.0};
+  ValueType l = std::sqrt(ArrayHelpers<InputType, ValueType>::sumofSquares(st));
+
+  if(l > 0.0)
+  {
+    InputType tmp = st;
+    ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
+
+    ValueType angle = 4.0 * std::atan(l);
+    ValueType temp2 = (3.0 * (angle - std::sin(angle)) / 4.0);
+    temp2 = std::pow(temp2, (1.0 / 3.0));
+
+    ArrayHelpers<InputType, ValueType>::scalarMultiply(tmp, temp2);
+    return ho2cu<InputType, OutputType>(tmp);
+  }
+
+  return res;
+}
+
 /**: RotVec_om
  *
  * @author Marc De Graef, Carnegie Mellon University
@@ -2230,13 +2467,13 @@ void RotTensor2_om(float* tensor, float* om, char ap, float* res);
 
 /**
 * SUBROUTINE: print_orientation
-              *
-              * @author Marc De Graef, Carnegie Mellon University
-              *
-              * @brief  prints a complete orientationtype record or a single entry
-              *
-              * @param o orientationtype record
-              * @param outtype (optional) indicates which representation to print
+            *
+            * @author Marc De Graef, Carnegie Mellon University
+            *
+            * @brief  prints a complete orientationtype record or a single entry
+            *
+            * @param o orientationtype record
+            * @param outtype (optional) indicates which representation to print
 * @param pretext (optional) up to 10 characters that will precede each line
 *
 * @date  8/4/13   MDG 1.0 original
@@ -2245,8 +2482,8 @@ print the entire record with all representations
 * SUBROUTINE: print_orientation_d
 *
 * @author Marc De Graef, Carnegie Mellon University
-                         *
-                         * @brief  prints a complete orientationtype record or a single entry (double precision)
+                       *
+                       * @brief  prints a complete orientationtype record or a single entry (double precision)
 *
 * @param o orientationtype record
 * @param outtype (optional) indicates which representation to print

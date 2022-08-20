@@ -3,11 +3,11 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <cmath>
 
 /**
  * @brief ArrayHelpers: Some quick methods that act on an "array" of POD values.
@@ -125,6 +125,15 @@ public:
       c[i] = (a[i] < 0.0 ? -a[i] : a[i]);
     }
     return c;
+  }
+
+  static void power(T& a, K exp)
+  {
+    size_t size = a.size();
+    for(size_t i = 0; i < size; i++)
+    {
+      a[i] = std::pow(a[i], exp);
+    }
   }
 
   /* Auxiliary routine: printing eigenvectors */

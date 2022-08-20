@@ -39,10 +39,7 @@ std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int3
 }
 
 // -----------------------------------------------------------------------------
-std::map<std::string, int32_t> k_AlgorithmIndexMap = {{"eu", 0}, {"om", 1}, {"qu", 2}, {"aa", 3},
-                                                      {"ro", 4}, {"ho", 5}, {"cu", 6}
-
-};
+std::map<std::string, int32_t> k_AlgorithmIndexMap = {{"eu", 0}, {"om", 1}, {"qu", 2}, {"aa", 3}, {"ro", 4}, {"ho", 5}, {"cu", 6}, {"st", 7}};
 
 // -----------------------------------------------------------------------------
 class ConvertOrientations

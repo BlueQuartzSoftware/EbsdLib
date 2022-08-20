@@ -33,11 +33,12 @@
 
 #pragma once
 
+#include "EbsdLib/Math/EbsdMatrixMath.h"
+
 #include <array>
 #include <cmath>
 #include <stdexcept>
-
-#include "EbsdLib/Math/EbsdMatrixMath.h"
+#include <algorithm>
 
 template <class T>
 class Quaternion

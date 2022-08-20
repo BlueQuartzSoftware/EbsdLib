@@ -555,6 +555,10 @@ ax2eu  eu2ax                                                     FAILED
     // Convert to HomoChoric
     res = OrientationTransformation::om2cu<T, T>(om);
     OrientationPrinters::Print_CU<T>(res);
+
+    // Convert to Stereographic
+    res = OrientationTransformation::om2st<T, T>(om);
+    OrientationPrinters::Print_ST<T>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -587,7 +591,7 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
   template <typename T, typename K>
   void RO_2_XXX(K* in)
   {
-    T ro(9);
+    T ro(4);
     for(size_t i = 0; i < 4; i++)
     {
       ro[i] = in[i];
@@ -615,9 +619,19 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     res = OrientationTransformation::ro2ho<T, T>(ro);
     OrientationPrinters::Print_HO<T>(res);
 
-    // Convert to HomoChoric
+    // Convert to CuboChoric
     res = OrientationTransformation::ro2cu<T, T>(ro);
     OrientationPrinters::Print_CU<T>(res);
+
+    // Convert to Stereographic
+    res = OrientationTransformation::ro2st<T, T>(ro);
+    OrientationPrinters::Print_ST<T>(res);
+
+    // Convert to Stereographic and back
+    OrientationPrinters::Print_RO<T>(ro);
+    OrientationPrinters::Print_ST<T>(res);
+    res = OrientationTransformation::st2ro<T, T>(res);
+    OrientationPrinters::Print_RO<T>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -630,6 +644,72 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     OrientationPrinters::Print_RO<float*>(ro);
     RO_2_XXX<OrientationF>(ro);
     RO_2_XXX<FloatVectorType>(ro);
+  }
+
+  // -----------------------------------------------------------------------------
+  template <typename T, typename K>
+  void ST_2_XXX(K* in)
+  {
+    T st(3);
+    for(size_t i = 0; i < 3; i++)
+    {
+      st[i] = in[i];
+    }
+
+    T res(9); // Just size to 9 as we are going to reuse the variable
+
+    // Convert to Euler
+    res = OrientationTransformation::st2eu<T, T>(st);
+    OrientationPrinters::Print_EU<T>(res);
+
+    // Convert to Orientation Matrix
+    res = OrientationTransformation::st2om<T, T>(st);
+    OrientationPrinters::Print_OM<T>(res);
+
+    // Convert to Axis Angle
+    res = OrientationTransformation::st2ax<T, T>(st);
+    OrientationPrinters::Print_AX<T>(res);
+
+    // Convert to Quaternion
+    Quaternion<K> qres = OrientationTransformation::st2qu<T, Quaternion<K>>(st);
+    OrientationPrinters::Print_QU<Quaternion<K>>(qres);
+
+    // Convert to Homochoric
+    res = OrientationTransformation::st2ho<T, T>(st);
+    OrientationPrinters::Print_HO<T>(res);
+
+    // Convert to CuboChoric
+    res = OrientationTransformation::st2cu<T, T>(st);
+    OrientationPrinters::Print_CU<T>(res);
+
+    // Convert to Rodrigues
+    res = OrientationTransformation::st2ro<T, T>(st);
+    OrientationPrinters::Print_RO<T>(res);
+  }
+
+  // -----------------------------------------------------------------------------
+  /*
+Stereographic                    : -0.1989   0.0000   0.0000
+Euler angles                     :   0.0000000   45.0000000    0.0000000
+                                   /  1.0000   0.0000   0.0000 \
+Orientation Matrix               : |  0.0000   0.7071   0.7071  |
+                                   \  0.0000  -0.7071   0.7071/
+Axis angle pair [n; angle]       :  -1.0000000    0.0000000    0.0000000 ;   45.0000000
+Quaternion                       :  <-0.3826834    0.0000000    0.0000000 >  0.9238795
+Homochoric representation        :  -0.3886796    0.0000000    0.0000000
+Cubochoric representation        :  -0.3132742    0.0000000    0.0000000
+Rodrigues vector                 :  -0.4142136    0.0000000    0.0000000
+
+Rotation vector map              : -0.7854   0.0000   0.0000
+
+*/
+  void Test_st2_XXX()
+  {
+    std::cout << "Test_st2_XXX  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+    float st[3] = {0.0F, 0.0F, 0.0F};
+    OrientationPrinters::Print_ST<float*>(st);
+    ST_2_XXX<OrientationF>(st);
+    ST_2_XXX<FloatVectorType>(st);
   }
 
   // -----------------------------------------------------------------------------
@@ -669,6 +749,10 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     // Convert to HomoChoric
     res = OrientationTransformation::ax2cu<T, T>(ax);
     OrientationPrinters::Print_CU<T>(res);
+
+    // Convert to Stereographic
+    res = OrientationTransformation::ax2st<T, T>(ax);
+    OrientationPrinters::Print_ST<T>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -721,6 +805,10 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     // Convert to HomoChoric
     res = OrientationTransformation::qu2cu<T, OrientationType>(qu, layout);
     OrientationPrinters::Print_CU<OrientationType>(res);
+
+    // Convert to Stereographic
+    res = OrientationTransformation::qu2st<T, OrientationType>(qu, layout);
+    OrientationPrinters::Print_ST<OrientationType>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -785,6 +873,10 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     // Convert to HomoChoric
     res = OrientationTransformation::ho2cu<T, T>(ho);
     OrientationPrinters::Print_CU<T>(res);
+
+    // Convert to Stereographic
+    res = OrientationTransformation::ho2st<T, T>(ho);
+    OrientationPrinters::Print_ST<T>(res);
   }
 
   // -----------------------------------------------------------------------------
@@ -930,6 +1022,8 @@ Orientation Matrix               : | -1.0000   0.0000   0.0000 |
     DREAM3D_REGISTER_TEST(Test_ro2_XXX());
     DREAM3D_REGISTER_TEST(Test_qu2_XXX());
     DREAM3D_REGISTER_TEST(Test_ho2_XXX());
+
+    DREAM3D_REGISTER_TEST(Test_st2_XXX());
 
     DREAM3D_REGISTER_TEST(TestInputs());
   }

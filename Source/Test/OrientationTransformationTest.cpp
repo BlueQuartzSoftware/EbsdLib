@@ -67,16 +67,16 @@
 
 DREAM.3D Testing
 
-    | From/To |  e   |  o   |  a   |  r   |  q   |  h   |  c   |
-    |  -      |  -   |  -   |  -   |  -   |  -   |  -   |  -   |
-    |  e      |  #   |  X   |  X   |  X   |  X   |  X   |      |
-    |  o      |  X   |  #   |  X   |  X   |  X   |  X   |      |
-    |  a      |  X   |  X   |  #   |  X   |  X   |  X   |      |
-    |  r      |  X   |  X   |  X   |  #   |  X   |  X   |      |
-    |  q      |  X   |  X   |  X   |  X   |  #   |  X   |      |
-    |  h      |  X   |  X   |  X   |  X   |  X   |  #   |      |
-    |  c      |      |      |      |      |      |      |  #   |
-
+    | From/To |  e   |  o   |  a   |  r   |  q   |  h   |  c   |  s  |
+    |  -      |  -   |  -   |  -   |  -   |  -   |  -   |  -   |     |
+    |  e      |  #   |  X   |  X   |  X   |  X   |  X   |      |     |
+    |  o      |  X   |  #   |  X   |  X   |  X   |  X   |      |     |
+    |  a      |  X   |  X   |  #   |  X   |  X   |  X   |      |     |
+    |  r      |  X   |  X   |  X   |  #   |  X   |  X   |      |     |
+    |  q      |  X   |  X   |  X   |  X   |  #   |  X   |      |     |
+    |  h      |  X   |  X   |  X   |  X   |  X   |  #   |      |     |
+    |  c      |      |      |      |      |      |      |  #   |     |
+    |  s      |      |      |      |      |      |      |      |     |
 
     */
 
@@ -232,6 +232,12 @@ public:
     typename DataArray<T>::Pointer cu = euConv->getOutputData();
     cu->setName(k_InputNames[6]);
     attrMat->insertOrAssign(cu);
+
+    euConv->toStereographic();
+    typename DataArray<T>::Pointer st = euConv->getOutputData();
+    st->setName(k_InputNames[7]);
+    attrMat->insertOrAssign(st);
+
   }
 
   // -----------------------------------------------------------------------------
@@ -589,10 +595,10 @@ public:
     //  std::vector<std::string> functionNames = OrientationConverter<float>::GetOrientationTypeStrings();
 
     GenerateFunctionList generator;
-    std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(7, 2);
+    std::vector<GenerateFunctionList::EntryType> entries = generator.GeneratePermutationsOfCombinations(8, 2);
 
     // This outer loop will group the tests based on the first orientation representation
-    for(int t = 0; t < 7; t++)
+    for(int t = 0; t < 8; t++)
     {
       // Start looping on each entry in the function table.
       for(std::vector<GenerateFunctionList::EntryType>::size_type i = 0; i < entries.size(); i++)
@@ -614,7 +620,7 @@ public:
       }
     }
 
-    entries = generator.GeneratePermutationsOfCombinations(7, 3);
+    entries = generator.GeneratePermutationsOfCombinations(8, 3);
     // This outer loop will group the tests based on the first orientation representation
     for(int t = 0; t < 7; t++)
     {

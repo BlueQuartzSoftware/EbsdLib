@@ -220,10 +220,10 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 
   OrientationType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
   OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
-  double n1 = ax[0];
-  double n2 = ax[1];
-  double n3 = ax[2];
-  double w = ax[3];
+  //  double n1 = ax[0];
+  //  double n2 = ax[1];
+  //  double n3 = ax[2];
+  //  double w = ax[3];
 
   /// FIXME: Are we missing code for OrthoRhombic MDF FZ Rodrigues calculation?
 

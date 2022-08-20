@@ -131,6 +131,10 @@ public:
     {
       toCubochoric();
     }
+    else if(repType == OrientationRepresentation::Type::Stereographic)
+    {
+      toStereographic();
+    }
   }
 
   /**
@@ -167,6 +171,12 @@ public:
    * @brief toCubochoric  Converts the input orientations to Cubochoric
    */
   virtual void toCubochoric() = 0;
+
+  /**
+   * @brief toStereographic Converts the input orientations to Stereographic
+   * 
+   */
+  virtual void toStereographic() = 0;
 
   /**
    * @brief sanityCheckInputData Runs basic checks on the input data to ensure
@@ -214,7 +224,7 @@ public:
   template <typename ContainerType>
   static ContainerType GetOrientationTypeStrings()
   {
-    ContainerType otypes(7);
+    ContainerType otypes(8);
     otypes[0] = "Euler";
     otypes[1] = "Orientation Matrix";
     otypes[2] = "Quaternion";
@@ -222,6 +232,7 @@ public:
     otypes[4] = "Rodrigues";
     otypes[5] = "Homochoric";
     otypes[6] = "Cubochoric";
+    otypes[7] = "Stereographic";
     return otypes;
   }
 
@@ -232,7 +243,7 @@ public:
   template <typename ContainerType>
   static ContainerType GetComponentCounts()
   {
-    ContainerType counts(7);
+    ContainerType counts(8);
     counts[0] = 3; // Euler
     counts[1] = 9; // Orientation Matrix
     counts[2] = 4; // Quaternion
@@ -240,6 +251,7 @@ public:
     counts[4] = 4; // Rodrigues
     counts[5] = 3; // Homchoric
     counts[6] = 3; // Cubochoric
+    counts[7] = 3; // Stereographic
     return counts;
   }
 
@@ -249,7 +261,7 @@ public:
    */
   static std::vector<OrientationRepresentation::Type> GetOrientationTypes()
   {
-    std::vector<OrientationRepresentation::Type> ocTypes(7);
+    std::vector<OrientationRepresentation::Type> ocTypes(8);
     ocTypes[0] = OrientationRepresentation::Type::Euler;
     ocTypes[1] = OrientationRepresentation::Type::OrientationMatrix;
     ocTypes[2] = OrientationRepresentation::Type::Quaternion;
@@ -257,6 +269,7 @@ public:
     ocTypes[4] = OrientationRepresentation::Type::Rodrigues;
     ocTypes[5] = OrientationRepresentation::Type::Homochoric;
     ocTypes[6] = OrientationRepresentation::Type::Cubochoric;
+    ocTypes[7] = OrientationRepresentation::Type::Stereographic;
     return ocTypes;
   }
 
@@ -356,6 +369,7 @@ OC_CONVERTOR_FUNCTOR(Eu2Ax, 3, 4, eu2ax)
 OC_CONVERTOR_FUNCTOR(Eu2Ro, 3, 4, eu2ro)
 OC_CONVERTOR_FUNCTOR(Eu2Ho, 3, 3, eu2ho)
 OC_CONVERTOR_FUNCTOR(Eu2Cu, 3, 3, eu2cu)
+OC_CONVERTOR_FUNCTOR(Eu2St, 3, 3, eu2st)
 
 /* OrientationMatrix Functors */
 OC_CONVERTOR_FUNCTOR(Om2Eu, 9, 3, om2eu)
@@ -364,6 +378,7 @@ OC_CONVERTOR_FUNCTOR(Om2Ax, 9, 4, om2ax)
 OC_CONVERTOR_FUNCTOR(Om2Ro, 9, 4, om2ro)
 OC_CONVERTOR_FUNCTOR(Om2Ho, 9, 3, om2ho)
 OC_CONVERTOR_FUNCTOR(Om2Cu, 9, 3, om2cu)
+OC_CONVERTOR_FUNCTOR(Om2St, 9, 3, om2st)
 
 /* Quaterion Functors */
 OC_QU2_CONVERTOR_FUNCTOR(Qu2Eu, 4, 3, qu2eu)
@@ -372,6 +387,7 @@ OC_QU2_CONVERTOR_FUNCTOR(Qu2Ax, 4, 4, qu2ax)
 OC_QU2_CONVERTOR_FUNCTOR(Qu2Ro, 4, 4, qu2ro)
 OC_QU2_CONVERTOR_FUNCTOR(Qu2Ho, 4, 3, qu2ho)
 OC_QU2_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu)
+OC_QU2_CONVERTOR_FUNCTOR(Qu2St, 4, 3, qu2st)
 
 /* AxisAngles Functors */
 OC_CONVERTOR_FUNCTOR(Ax2Eu, 4, 3, ax2eu)
@@ -380,6 +396,7 @@ OC_CONVERTOR_FUNCTOR_2QU(Ax2Qu, 4, 4, ax2qu)
 OC_CONVERTOR_FUNCTOR(Ax2Ro, 4, 4, ax2ro)
 OC_CONVERTOR_FUNCTOR(Ax2Ho, 4, 3, ax2ho)
 OC_CONVERTOR_FUNCTOR(Ax2Cu, 4, 3, ax2cu)
+OC_CONVERTOR_FUNCTOR(Ax2St, 4, 3, ax2st)
 
 /* Rodrigues Functors */
 OC_CONVERTOR_FUNCTOR(Ro2Eu, 4, 3, ro2eu)
@@ -388,22 +405,34 @@ OC_CONVERTOR_FUNCTOR_2QU(Ro2Qu, 4, 4, ro2qu)
 OC_CONVERTOR_FUNCTOR(Ro2Ax, 4, 4, ro2ax)
 OC_CONVERTOR_FUNCTOR(Ro2Ho, 4, 3, ro2ho)
 OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)
+OC_CONVERTOR_FUNCTOR(Ro2St, 4, 3, ro2st)
 
-/* Rodrigues Functors */
+/* Homochoric Functors */
 OC_CONVERTOR_FUNCTOR(Ho2Eu, 3, 3, ho2eu)
 OC_CONVERTOR_FUNCTOR(Ho2Om, 3, 9, ho2om)
 OC_CONVERTOR_FUNCTOR_2QU(Ho2Qu, 3, 4, ho2qu)
 OC_CONVERTOR_FUNCTOR(Ho2Ax, 3, 4, ho2ax)
 OC_CONVERTOR_FUNCTOR(Ho2Ro, 3, 4, ho2ro)
 OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)
+OC_CONVERTOR_FUNCTOR(Ho2St, 3, 3, ho2st)
 
-/* Rodrigues Functors */
+/* Cubochoric Functors */
 OC_CONVERTOR_FUNCTOR(Cu2Eu, 3, 3, cu2eu)
 OC_CONVERTOR_FUNCTOR(Cu2Om, 3, 9, cu2om)
 OC_CONVERTOR_FUNCTOR_2QU(Cu2Qu, 3, 4, cu2qu)
 OC_CONVERTOR_FUNCTOR(Cu2Ax, 3, 4, cu2ax)
 OC_CONVERTOR_FUNCTOR(Cu2Ro, 3, 4, cu2ro)
 OC_CONVERTOR_FUNCTOR(Cu2Ho, 3, 3, cu2ho)
+OC_CONVERTOR_FUNCTOR(Cu2St, 3, 3, cu2st)
+
+/* Stereographic Functors */
+OC_CONVERTOR_FUNCTOR(St2Eu, 3, 3, st2eu)
+OC_CONVERTOR_FUNCTOR(St2Om, 3, 9, st2om)
+OC_CONVERTOR_FUNCTOR_2QU(St2Qu, 3, 4, st2qu)
+OC_CONVERTOR_FUNCTOR(St2Ax, 3, 4, st2ax)
+OC_CONVERTOR_FUNCTOR(St2Ro, 3, 4, st2ro)
+OC_CONVERTOR_FUNCTOR(St2Ho, 3, 3, st2ho)
+OC_CONVERTOR_FUNCTOR(St2Cu, 3, 3, st2cu)
 
 } // namespace Convertors
 
@@ -601,7 +630,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, eu2cu, Eu2Cu)
   }
-
+  
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, eu2st, Eu2St)
+  }
+  
   void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
@@ -793,6 +827,11 @@ public:
     OC_CONVERT_BODY(3, Cubochoric, om2cu, Om2Cu)
   }
 
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, om2st, Om2St)
+  }
+  
   void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
@@ -954,6 +993,11 @@ public:
     OC_CONVERT_BODY(3, Cubochoric, qu2cu, Qu2Cu)
   }
 
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, qu2st, Qu2St)
+  }
+  
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Quaternions, Odd. We place this
@@ -1111,7 +1155,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
   }
-
+  
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, ax2st, Ax2St)
+  }
+  
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for AxisAngle, Odd. We place this
@@ -1271,6 +1320,11 @@ public:
     OC_CONVERT_BODY(3, Cubochoric, ro2cu, Ro2Cu)
   }
 
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, ro2st, Ro2St)
+  }
+  
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Rodrigues, Odd. We place this
@@ -1429,7 +1483,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
   }
-
+  
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, ho2st, Ho2St)
+  }
+  
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Homochoric, Odd. We place this
@@ -1590,6 +1649,11 @@ public:
     this->setOutputData(output);
   }
 
+  void toStereographic() override
+  {
+    OC_CONVERT_BODY(3, Stereographic, cu2st, Cu2St)
+  }
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Cubochoric, Odd. We place this
@@ -1660,4 +1724,168 @@ public:
   CubochoricConverter(CubochoricConverter&&) = delete;                 // Move Constructor Not Implemented
   CubochoricConverter& operator=(const CubochoricConverter&) = delete; // Copy Assignment Not Implemented
   CubochoricConverter& operator=(CubochoricConverter&&) = delete;      // Move Assignment Not Implemented
+};
+
+/* =============================================================================
+ *
+ * ===========================================================================*/
+
+template <typename T>
+class StereographicSanityCheck
+{
+public:
+  StereographicSanityCheck(T* input, size_t stride)
+  : m_Input(input)
+  , m_Stride(stride)
+  {
+  }
+  virtual ~StereographicSanityCheck() = default;
+
+  void sanityCheck(size_t start, size_t end) const
+  {
+    T* inPtr = m_Input + (start * m_Stride);
+
+    for(size_t i = start; i < end; ++i)
+    {
+    }
+  }
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    sanityCheck(r.begin(), r.end());
+  }
+#endif
+
+private:
+  T* m_Input = nullptr;
+  size_t m_Stride = 0;
+};
+
+template <class DataArrayType, typename T>
+class StereographicConverter : public OrientationConverter<DataArrayType, T>
+{
+public:
+  OC_CLASS_DEFINES(StereographicConverter)
+
+  virtual ~StereographicConverter() = default;
+
+  OrientationRepresentation::Type getOrientationRepresentation()
+  {
+    return OrientationRepresentation::Type::Stereographic;
+  }
+
+  void toEulers() override
+  {
+    OC_CONVERT_BODY(3, Eulers, st2eu, St2Eu)
+  }
+
+  void toOrientationMatrix() override
+  {
+    OC_CONVERT_BODY(9, OrientationMatrix, st2om, St2Om)
+  }
+
+  void toQuaternion() override
+  {
+    OC_CONVERT_BODY(4, Quaternions, st2qu, St2Qu)
+  }
+
+  void toAxisAngle() override
+  {
+    OC_CONVERT_BODY(4, AxisAngle, st2ax, St2Ax)
+  }
+
+  void toRodrigues() override
+  {
+    OC_CONVERT_BODY(4, Rodrigues, st2ro, St2Ro)
+  }
+
+  void toHomochoric() override
+  {
+    OC_CONVERT_BODY(3, Homochoric, st2ho, St2Ho)
+  }
+
+  void toCubochoric() override
+  {
+    OC_CONVERT_BODY(3, Cubochoric, st2cu, St2Cu)
+  }
+
+  void toStereographic() override
+  {
+    using PointerType = DataArrayPointerType;
+    PointerType input = this->getInputData();
+    PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
+    this->setOutputData(output);
+  }
+  
+  void sanityCheckInputData() override
+  {
+    /* Apparently there is no sanity check for Spbochoric, Odd. We place this
+     * code here in case we come up with one, the parallel version is ready to
+     * go
+     */
+#if 0
+      DataArrayPointerType input = this->getInputData();
+      T* inPtr = input->getPointer(0);
+      size_t nTuples = input->getNumberOfTuples();
+      int inStride = input->getNumberOfComponents();
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), StereographicSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+#else
+      StereographicSanityCheck<T> serial(inPtr, inStride);
+      serial.sanityCheck(0, nTuples);
+#endif
+#endif
+  }
+
+  /**
+   * @brief compareRepresentations
+   * @param a
+   * @param b
+   * @param epsilon
+   * @return
+   */
+  bool compareRepresentations(T* a, T* b, const T& epsilon = std::numeric_limits<T>::epsilon())
+  {
+    bool close = false;
+    for(int i = 0; i < 3; i++)
+    {
+      close = (epsilon > std::fabs(a[i] - b[i]));
+      if(!close)
+      {
+        return close;
+      }
+    }
+    return close;
+  }
+
+  /**
+   * @brief printRepresentation
+   * @param out
+   * @param sp
+   * @param label
+   */
+  void printRepresentation(std::ostream& out, T* sp, const std::string& label = std::string("St"))
+  {
+    out.precision(16);
+    out << label << sp[0] << '\t' << sp[1] << '\t' << sp[2] << std::endl;
+  }
+
+protected:
+  StereographicConverter()
+  : OrientationConverter<DataArrayType, T>()
+  {
+  }
+
+  explicit StereographicConverter(DataArrayPointerType data)
+  : OrientationConverter<DataArrayType, T>()
+  {
+    this->setInputData(data);
+  }
+
+public:
+  StereographicConverter(const StereographicConverter&) = delete;            // Copy Constructor Not Implemented
+  StereographicConverter(StereographicConverter&&) = delete;                 // Move Constructor Not Implemented
+  StereographicConverter& operator=(const StereographicConverter&) = delete; // Copy Assignment Not Implemented
+  StereographicConverter& operator=(StereographicConverter&&) = delete;      // Move Assignment Not Implemented
 };
