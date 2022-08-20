@@ -34,12 +34,10 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
-
-#include <algorithm>
-#include <cassert> /* assert */
-#include <complex>
-#include <iostream>
-#include <string>
+#include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/EbsdMatrixMath.h"
+#include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
 #if __APPLE__
 #include <Accelerate/Accelerate.h>
@@ -49,10 +47,12 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
 
-#include "EbsdLib/Core/Quaternion.hpp"
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Math/EbsdMatrixMath.h"
-#include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
+#include <algorithm>
+#include <cassert> /* assert */
+#include <cmath>
+#include <complex>
+#include <iostream>
+#include <string>
 
 /* This comment block is commented as Markdown. if you paste this into a text
  * editor then render it with a Markdown aware system a nice table should show
@@ -543,7 +543,7 @@ ResultType om_check(const InputType& om)
   }
 
   ValueType r = fabs(det - static_cast<ValueType>(1.0L));
-  if(!EbsdLibMath::closeEnough(r, static_cast<ValueType>(0.0L), threshold))
+  if(!EbsdLibMath::closeEnough<ValueType>(r, static_cast<ValueType>(0.0L), threshold))
   {
     ss << "rotations:om_check: Determinant (" << det << ") of rotation matrix must be unity (1.0)";
     res.msg = ss.str();
@@ -750,7 +750,7 @@ OutputType eu2ax(const InputType& e)
   value_type sig = static_cast<value_type>(0.5 * (e[0] + e[2]));
   value_type del = static_cast<value_type>(0.5 * (e[0] - e[2]));
   value_type tau = static_cast<value_type>(std::sqrt(t * t + sin(sig) * sin(sig)));
-  if(EbsdLibMath::closeEnough(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2D), static_cast<typename OutputType::value_type>(1.0E-6L)))
+  if(EbsdLibMath::closeEnough<value_type>(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2D), static_cast<typename OutputType::value_type>(1.0E-6L)))
   {
     alpha = static_cast<value_type>(EbsdLib::Constants::k_PiD);
   }
@@ -803,19 +803,18 @@ OutputType eu2ro(const InputType& e)
   typename OutputType::value_type thr = 1.0E-6f;
 
   OutputType res = eu2ax<InputType, OutputType>(e);
+  using OutputValueType = typename OutputType::value_type;
   typename OutputType::value_type t = res[3];
+
   if(std::fabs(t - EbsdLib::Constants::k_PiD) < thr)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
 
-  if(t == 0.0)
+  if(EbsdLibMath::closeEnough<OutputValueType>(t, static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
-    res[0] = 0.0;
-    res[1] = 0.0;
-    res[2] = 0.0;
-    res[3] = 0.0;
+    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
   }
   else
   {
@@ -910,7 +909,7 @@ OutputType om2eu(const InputType& o)
   using OutputValueType = typename OutputType::value_type;
   OutputType res(3);
   typename OutputType::value_type zeta = 0.0;
-  bool close = EbsdLibMath::closeEnough(std::fabs(o[8]), static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
+  bool close = EbsdLibMath::closeEnough<OutputValueType>(std::fabs(o[8]), static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
   if(!close)
   {
     res[1] = acos(o[8]);
@@ -920,7 +919,7 @@ OutputType om2eu(const InputType& o)
   }
   else
   {
-    close = EbsdLibMath::closeEnough(o[8], static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
+    close = EbsdLibMath::closeEnough<OutputValueType>(o[8], static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
     if(close)
     {
       res[0] = atan2(o[1], o[0]);
@@ -1026,7 +1025,6 @@ template <typename InputType, typename OutputType>
 OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(3);
-
 
   InputType qq(4);
   using OutputValueType = typename OutputType::value_type;
@@ -1231,25 +1229,25 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   OutputValueType s3 = 0.0;
 
   s = static_cast<OutputValueType>(om[0] + om[4] + om[8] + 1.0);
-  if(EbsdLibMath::closeEnough(std::fabs(s), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s = 0.0;
   }
   s = sqrt(s);
   s1 = static_cast<OutputValueType>(om[0] - om[4] - om[8] + 1.0);
-  if(EbsdLibMath::closeEnough(std::fabs(s1), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s1), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s1 = 0.0;
   }
   s1 = sqrt(s1);
   s2 = static_cast<OutputValueType>(-om[0] + om[4] - om[8] + 1.0);
-  if(EbsdLibMath::closeEnough(std::fabs(s2), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s2), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s2 = 0.0;
   }
   s2 = sqrt(s2);
   s3 = static_cast<OutputValueType>(-om[0] - om[4] + om[8] + 1.0);
-  if(EbsdLibMath::closeEnough(std::fabs(s3), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s3), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s3 = 0.0;
   }
@@ -1411,14 +1409,12 @@ OutputType ro2ax(const InputType& r)
   OutputType res(4);
   OutputValueType ta = 0.0L;
   OutputValueType angle = 0.0L;
+  typename OutputType::value_type threshold = 1.0E-6f;
 
   ta = r[3];
-  if(ta == 0.0L)
+  if(EbsdLibMath::closeEnough<OutputValueType>(ta, static_cast<OutputValueType>(0.0L), threshold))
   {
-    res[0] = 0.0L;
-    res[1] = 0.0L;
-    res[2] = 1.0L;
-    res[3] = 0.0L;
+    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
     return res;
   }
   if(ta == std::numeric_limits<typename OutputType::value_type>::infinity())
@@ -1461,20 +1457,16 @@ OutputType ax2ro(const InputType& ax)
   OutputType res(4);
   using OutputValueType = typename OutputType::value_type;
 
-  OutputValueType thr = 1.0E-7f;
-
-  if(ax[3] == 0.0)
+  OutputValueType threshold = 1.0E-7f;
+  if(EbsdLibMath::closeEnough<OutputValueType>(ax[3], static_cast<OutputValueType>(0.0L), threshold))
   {
-    res[0] = 0.0;
-    res[1] = 0.0;
-    res[2] = 0.0;
-    res[3] = 0.0;
+    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
     return res;
   }
   res[0] = ax[0];
   res[1] = ax[1];
   res[2] = ax[2];
-  if(fabs(ax[3] - EbsdLib::Constants::k_PiD) < thr)
+  if(fabs(ax[3] - EbsdLib::Constants::k_PiD) < threshold)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
   }
@@ -1643,20 +1635,21 @@ OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::va
 template <typename InputType, typename OutputType>
 OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
 {
+  using ValueType = typename OutputType::value_type;
   OutputType res(4);
   using SizeType = typename OutputType::size_type;
   SizeType w = 0;
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quaternion<ValueType>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
     y = 1;
     z = 2;
   }
-  typename OutputType::value_type thr = static_cast<typename OutputType::value_type>(1.0E-8L);
+  ValueType thr = static_cast<ValueType>(1.0E-8L);
   res[0] = q[x];
   res[1] = q[y];
   res[2] = q[z];
@@ -1667,13 +1660,12 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
-  typename OutputType::value_type s = EbsdMatrixMath::Magnitude3x1(&(res[0]));
+  // ValueType s = EbsdMatrixMath::Magnitude3x1(&(res[0]));
+  ValueType s = ArrayHelpers<OutputType, ValueType>::sqrtSumOfSquares(res);
+
   if(s < thr)
   {
-    res[0] = 0.0;
-    res[1] = 0.0;
-    res[2] = 0.0;
-    res[3] = 0.0;
+    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
     return res;
   }
 

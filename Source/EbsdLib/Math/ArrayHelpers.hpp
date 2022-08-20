@@ -1,12 +1,13 @@
 #pragma once
 
+#include "EbsdLib/Math/EbsdLibMath.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <limits>
-
-#include "EbsdLib/Math/EbsdLibMath.h"
+#include <cmath>
 
 /**
  * @brief ArrayHelpers: Some quick methods that act on an "array" of POD values.
@@ -96,6 +97,11 @@ public:
       s += a[i] * a[i];
     }
     return s;
+  }
+
+  static K sqrtSumOfSquares(const T& a)
+  {
+    return std::sqrt(sumofSquares(a));
   }
 
   static K maxval(const T& a)
