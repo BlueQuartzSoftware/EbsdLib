@@ -43,8 +43,8 @@
 #include "AngConstants.h"
 
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/IO/EbsdReader.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -950,7 +950,8 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
   if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
   {
     std::stringstream message;
-    message << "Error: The calculated number of rows " << yMax << ", " << yMin << ", " << yStep <<  "  (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
+    message << "Error: The calculated number of rows " << yMax << ", " << yMin << ", " << yStep << "  (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1
+            << ")" << std::endl;
     return {-101, message.str()};
   }
 

@@ -631,7 +631,7 @@ public:
 #if defined __APPLE__
     dontUseRealloc = true;
 #endif
-    
+
     T* newArray;
     // Allocate a new array if we DO NOT own the current array
     if((nullptr != m_Array) && (!m_OwnsData))

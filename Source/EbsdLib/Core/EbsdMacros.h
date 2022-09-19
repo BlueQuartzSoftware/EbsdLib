@@ -145,10 +145,10 @@ private:
     err = H5Lite::readScalarDataset(gid, key, t);                                                                                                                                                      \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream ss##getName;                                                                                                                                                                            \
-      ss##getName << cname << ": The header value for '" << key << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";               \
+      std::stringstream ss##getName;                                                                                                                                                                   \
+      ss##getName << cname << ": The header value for '" << key << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";      \
       setErrorCode(-90002);                                                                                                                                                                            \
-      setErrorMessage(ss##getName.str());                                                                                                                                                                       \
+      setErrorMessage(ss##getName.str());                                                                                                                                                              \
       err = H5Gclose(gid);                                                                                                                                                                             \
       return -1;                                                                                                                                                                                       \
     }                                                                                                                                                                                                  \
@@ -163,10 +163,10 @@ private:
     err = H5Lite::readStringDataset(gid, key, t);                                                                                                                                                      \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream getName##ss;                                                                                                                                                                            \
-      getName##ss << cname << ": The header value for '" << key << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";               \
+      std::stringstream getName##ss;                                                                                                                                                                   \
+      getName##ss << cname << ": The header value for '" << key << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";      \
       setErrorCode(-90002);                                                                                                                                                                            \
-      setErrorMessage(getName##ss.str());                                                                                                                                                                       \
+      setErrorMessage(getName##ss.str());                                                                                                                                                              \
       err = H5Gclose(gid);                                                                                                                                                                             \
       return -1;                                                                                                                                                                                       \
     }                                                                                                                                                                                                  \
@@ -181,10 +181,10 @@ private:
     err = H5Lite::readStringDataset(pid, fqKey, t);                                                                                                                                                    \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream ss##getName;                                                                                                                                                                            \
-      ss##getName << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";             \
+      std::stringstream ss##getName;                                                                                                                                                                   \
+      ss##getName << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";    \
       setErrorCode(-90003);                                                                                                                                                                            \
-      setErrorMessage(ss##getName.str());                                                                                                                                                                       \
+      setErrorMessage(ss##getName.str());                                                                                                                                                              \
       err = H5Gclose(pid);                                                                                                                                                                             \
       H5Gclose(phasesGid);                                                                                                                                                                             \
       H5Gclose(gid);                                                                                                                                                                                   \
@@ -199,10 +199,10 @@ private:
     err = H5Lite::readScalarDataset(pid, fqKey, t);                                                                                                                                                    \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream ss##getName;                                                                                                                                                                            \
-      ss##getName << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";             \
+      std::stringstream ss##getName;                                                                                                                                                                   \
+      ss##getName << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";    \
       setErrorCode(-90004);                                                                                                                                                                            \
-      setErrorMessage(ss##getName.str());                                                                                                                                                                       \
+      setErrorMessage(ss##getName.str());                                                                                                                                                              \
       err = H5Gclose(pid);                                                                                                                                                                             \
       H5Gclose(phasesGid);                                                                                                                                                                             \
       H5Gclose(gid);                                                                                                                                                                                   \
@@ -217,10 +217,10 @@ private:
     err = H5Lite::readScalarDataset(pid, fqKey, t);                                                                                                                                                    \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream ss##key;                                                                                                                                                                            \
-      ss##key << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";             \
+      std::stringstream ss##key;                                                                                                                                                                       \
+      ss##key << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";        \
       setErrorCode(-90005);                                                                                                                                                                            \
-      setErrorMessage(ss##key.str());                                                                                                                                                                       \
+      setErrorMessage(ss##key.str());                                                                                                                                                                  \
       err = H5Gclose(pid);                                                                                                                                                                             \
       H5Gclose(phasesGid);                                                                                                                                                                             \
       H5Gclose(gid);                                                                                                                                                                                   \
@@ -235,10 +235,10 @@ private:
     err = H5Lite::readVectorDataset(pid, fqKey, t);                                                                                                                                                    \
     if(err < 0)                                                                                                                                                                                        \
     {                                                                                                                                                                                                  \
-      std::stringstream ss##key;                                                                                                                                                                            \
-      ss##key << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";             \
+      std::stringstream ss##key;                                                                                                                                                                       \
+      ss##key << cname << ": The header value for '" << fqKey << "' was not found in the H5EBSD file. Was this header originally found in the files that were imported into this H5EBSD File?";        \
       setErrorCode(-90006);                                                                                                                                                                            \
-      setErrorMessage(ss##key.str());                                                                                                                                                                       \
+      setErrorMessage(ss##key.str());                                                                                                                                                                  \
       err = H5Gclose(pid);                                                                                                                                                                             \
       H5Gclose(phasesGid);                                                                                                                                                                             \
       H5Gclose(gid);                                                                                                                                                                                   \

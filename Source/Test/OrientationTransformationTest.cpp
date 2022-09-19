@@ -237,7 +237,6 @@ public:
     typename DataArray<T>::Pointer st = euConv->getOutputData();
     st->setName(k_InputNames[7]);
     attrMat->insertOrAssign(st);
-
   }
 
   // -----------------------------------------------------------------------------

@@ -35,10 +35,10 @@
 
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <stdexcept>
-#include <algorithm>
 
 template <class T>
 class Quaternion

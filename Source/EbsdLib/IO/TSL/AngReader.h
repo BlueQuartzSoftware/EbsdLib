@@ -173,13 +173,13 @@ public:
   std::pair<int, std::string> fixOrderOfData(std::vector<int64_t>& indexMap);
 
   /**
-  * @brief Copys Tuples based on an index mapping
-  * 
-  * @tparam T Primitive type.
-  * @param oldArray The array that holds the values from the file that need to be repositioned within the grid
-  * @param indexMap The index mapping
-  */
-  template<typename T>
+   * @brief Copys Tuples based on an index mapping
+   *
+   * @tparam T Primitive type.
+   * @param oldArray The array that holds the values from the file that need to be repositioned within the grid
+   * @param indexMap The index mapping
+   */
+  template <typename T>
   void CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap)
   {
     T* oldArr = reinterpret_cast<T*>(oldArray);
@@ -209,7 +209,7 @@ private:
    * @param line The line of data to parse
    */
   void parseDataLine(std::string& line, size_t i);
-  
+
   bool m_InsideNotes = false;
   bool m_InsideColumnNotes = false;
 

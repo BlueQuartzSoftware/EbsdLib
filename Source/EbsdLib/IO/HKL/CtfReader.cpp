@@ -528,7 +528,6 @@ int CtfReader::readData(std::ifstream& in)
   for(int32_t i = 0; i < size; ++i)
   {
 
-
     std::string name = tokens[i];
     pType = getPointerType(name);
     if(m_NamePointerMap.find(name) != m_NamePointerMap.end())

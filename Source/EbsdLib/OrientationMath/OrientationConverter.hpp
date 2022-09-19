@@ -174,7 +174,7 @@ public:
 
   /**
    * @brief toStereographic Converts the input orientations to Stereographic
-   * 
+   *
    */
   virtual void toStereographic() = 0;
 
@@ -630,12 +630,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, eu2cu, Eu2Cu)
   }
-  
+
   void toStereographic() override
   {
     OC_CONVERT_BODY(3, Stereographic, eu2st, Eu2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
@@ -831,7 +831,7 @@ public:
   {
     OC_CONVERT_BODY(3, Stereographic, om2st, Om2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     DataArrayPointerType input = this->getInputData();
@@ -997,7 +997,7 @@ public:
   {
     OC_CONVERT_BODY(3, Stereographic, qu2st, Qu2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Quaternions, Odd. We place this
@@ -1155,12 +1155,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
   }
-  
+
   void toStereographic() override
   {
     OC_CONVERT_BODY(3, Stereographic, ax2st, Ax2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for AxisAngle, Odd. We place this
@@ -1324,7 +1324,7 @@ public:
   {
     OC_CONVERT_BODY(3, Stereographic, ro2st, Ro2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Rodrigues, Odd. We place this
@@ -1483,12 +1483,12 @@ public:
   {
     OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
   }
-  
+
   void toStereographic() override
   {
     OC_CONVERT_BODY(3, Stereographic, ho2st, Ho2St)
   }
-  
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Homochoric, Odd. We place this
@@ -1817,7 +1817,7 @@ public:
     PointerType output = std::dynamic_pointer_cast<DataArrayType>(input->deepCopy());
     this->setOutputData(output);
   }
-  
+
   void sanityCheckInputData() override
   {
     /* Apparently there is no sanity check for Spbochoric, Odd. We place this
