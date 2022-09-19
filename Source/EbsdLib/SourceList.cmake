@@ -74,16 +74,19 @@ set(PROJECT_PREFIX "EbsdLib")
 cmpGenerateBuildDate(PROJECT_NAME EbsdLibProj)
 set(VERSION_BUILD_DATE ${EbsdLibProj_BUILD_DATE})
 
-#------------------------------------------------------------------------------
-# Find the Git Package for Versioning. It should be ok if Git is NOT found
-find_package(Git)
-execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
-  OUTPUT_VARIABLE GVS_GIT_HASH
-  RESULT_VARIABLE did_run
-  ERROR_VARIABLE git_error
-  WORKING_DIRECTORY ${EbsdLibProj_SOURCE_DIR} 
-)
-string(REPLACE "\n" "" GVS_GIT_HASH "${GVS_GIT_HASH}")
+if(NOT DEFINED GVS_GIT_HASH)
+  #------------------------------------------------------------------------------
+  # Find the Git Package for Versioning. It should be ok if Git is NOT found
+  find_package(Git)
+
+  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
+    OUTPUT_VARIABLE GVS_GIT_HASH
+    RESULT_VARIABLE did_run
+    ERROR_VARIABLE git_error
+    WORKING_DIRECTORY ${EbsdLibProj_SOURCE_DIR} 
+  )
+  string(REPLACE "\n" "" GVS_GIT_HASH "${GVS_GIT_HASH}")
+endif()
 
 configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/cmpVersion.h.in
   ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLibVersion.h
