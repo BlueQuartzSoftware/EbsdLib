@@ -354,7 +354,8 @@ int AngReader::readFile()
 
   if(result.first < 0)
   {
-    std::cout << result.second << std::endl;
+    setErrorCode(result.first);
+    setErrorMessage(result.second);
     return result.first;
   }
 
@@ -912,7 +913,7 @@ void AngReader::parseDataLine(std::string& line, size_t i)
 // -----------------------------------------------------------------------------
 std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& indexMap)
 {
-  int64_t numCols = getNumEvenCols();
+  int64_t numCols = getNumOddCols();
   int64_t numRows = getNumRows();
   int64_t numElements = numCols * numRows;
 
