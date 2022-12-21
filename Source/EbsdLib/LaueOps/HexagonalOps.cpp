@@ -212,6 +212,19 @@ void HexagonalOps::getRodSymOp(int i, double* r) const
   r[2] = HexagonalHigh::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D HexagonalOps::getMatSymOpD(int i) const
+{
+  return {HexagonalHigh::MatSym[i][0][0], HexagonalHigh::MatSym[i][0][1], HexagonalHigh::MatSym[i][0][2], HexagonalHigh::MatSym[i][1][0], HexagonalHigh::MatSym[i][1][1],
+          HexagonalHigh::MatSym[i][1][2], HexagonalHigh::MatSym[i][2][0], HexagonalHigh::MatSym[i][2][1], HexagonalHigh::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F HexagonalOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(HexagonalHigh::MatSym[i][0][0]), static_cast<float>(HexagonalHigh::MatSym[i][0][1]), static_cast<float>(HexagonalHigh::MatSym[i][0][2]),
+          static_cast<float>(HexagonalHigh::MatSym[i][1][0]), static_cast<float>(HexagonalHigh::MatSym[i][1][1]), static_cast<float>(HexagonalHigh::MatSym[i][1][2]),
+          static_cast<float>(HexagonalHigh::MatSym[i][2][0]), static_cast<float>(HexagonalHigh::MatSym[i][2][1]), static_cast<float>(HexagonalHigh::MatSym[i][2][2])};
+}
+
 void HexagonalOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = HexagonalHigh::MatSym[i][0][0];

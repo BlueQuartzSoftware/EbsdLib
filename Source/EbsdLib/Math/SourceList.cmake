@@ -6,6 +6,8 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ArrayHelpers.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdMatrixMath.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdLibRandom.h
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Matrix3X1.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Matrix3X3.hpp  
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS

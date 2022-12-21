@@ -174,6 +174,19 @@ void MonoclinicOps::getRodSymOp(int i, double* r) const
   r[2] = Monoclinic::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D MonoclinicOps::getMatSymOpD(int i) const
+{
+  return {Monoclinic::MatSym[i][0][0], Monoclinic::MatSym[i][0][1], Monoclinic::MatSym[i][0][2], Monoclinic::MatSym[i][1][0], Monoclinic::MatSym[i][1][1],
+          Monoclinic::MatSym[i][1][2], Monoclinic::MatSym[i][2][0], Monoclinic::MatSym[i][2][1], Monoclinic::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F MonoclinicOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(Monoclinic::MatSym[i][0][0]), static_cast<float>(Monoclinic::MatSym[i][0][1]), static_cast<float>(Monoclinic::MatSym[i][0][2]),
+          static_cast<float>(Monoclinic::MatSym[i][1][0]), static_cast<float>(Monoclinic::MatSym[i][1][1]), static_cast<float>(Monoclinic::MatSym[i][1][2]),
+          static_cast<float>(Monoclinic::MatSym[i][2][0]), static_cast<float>(Monoclinic::MatSym[i][2][1]), static_cast<float>(Monoclinic::MatSym[i][2][2])};
+}
+
 void MonoclinicOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = Monoclinic::MatSym[i][0][0];

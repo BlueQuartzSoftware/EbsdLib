@@ -183,6 +183,19 @@ void TrigonalOps::getRodSymOp(int i, double* r) const
   r[2] = TrigonalHigh::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D TrigonalOps::getMatSymOpD(int i) const
+{
+  return {TrigonalHigh::MatSym[i][0][0], TrigonalHigh::MatSym[i][0][1], TrigonalHigh::MatSym[i][0][2], TrigonalHigh::MatSym[i][1][0], TrigonalHigh::MatSym[i][1][1],
+          TrigonalHigh::MatSym[i][1][2], TrigonalHigh::MatSym[i][2][0], TrigonalHigh::MatSym[i][2][1], TrigonalHigh::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F TrigonalOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(TrigonalHigh::MatSym[i][0][0]), static_cast<float>(TrigonalHigh::MatSym[i][0][1]), static_cast<float>(TrigonalHigh::MatSym[i][0][2]),
+          static_cast<float>(TrigonalHigh::MatSym[i][1][0]), static_cast<float>(TrigonalHigh::MatSym[i][1][1]), static_cast<float>(TrigonalHigh::MatSym[i][1][2]),
+          static_cast<float>(TrigonalHigh::MatSym[i][2][0]), static_cast<float>(TrigonalHigh::MatSym[i][2][1]), static_cast<float>(TrigonalHigh::MatSym[i][2][2])};
+}
+
 void TrigonalOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = TrigonalHigh::MatSym[i][0][0];

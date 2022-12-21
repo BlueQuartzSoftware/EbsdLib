@@ -171,6 +171,19 @@ void TriclinicOps::getRodSymOp(int i, double* r) const
   r[2] = Triclinic::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D TriclinicOps::getMatSymOpD(int i) const
+{
+  return {Triclinic::MatSym[i][0][0], Triclinic::MatSym[i][0][1], Triclinic::MatSym[i][0][2], Triclinic::MatSym[i][1][0], Triclinic::MatSym[i][1][1],
+          Triclinic::MatSym[i][1][2], Triclinic::MatSym[i][2][0], Triclinic::MatSym[i][2][1], Triclinic::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F TriclinicOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(Triclinic::MatSym[i][0][0]), static_cast<float>(Triclinic::MatSym[i][0][1]), static_cast<float>(Triclinic::MatSym[i][0][2]),
+          static_cast<float>(Triclinic::MatSym[i][1][0]), static_cast<float>(Triclinic::MatSym[i][1][1]), static_cast<float>(Triclinic::MatSym[i][1][2]),
+          static_cast<float>(Triclinic::MatSym[i][2][0]), static_cast<float>(Triclinic::MatSym[i][2][1]), static_cast<float>(Triclinic::MatSym[i][2][2])};
+}
+
 void TriclinicOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = Triclinic::MatSym[i][0][0];

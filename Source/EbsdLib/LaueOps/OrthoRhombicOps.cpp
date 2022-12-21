@@ -175,6 +175,19 @@ void OrthoRhombicOps::getRodSymOp(int i, double* r) const
   r[2] = OrthoRhombic::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D OrthoRhombicOps::getMatSymOpD(int i) const
+{
+  return {OrthoRhombic::MatSym[i][0][0], OrthoRhombic::MatSym[i][0][1], OrthoRhombic::MatSym[i][0][2], OrthoRhombic::MatSym[i][1][0], OrthoRhombic::MatSym[i][1][1],
+          OrthoRhombic::MatSym[i][1][2], OrthoRhombic::MatSym[i][2][0], OrthoRhombic::MatSym[i][2][1], OrthoRhombic::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F OrthoRhombicOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(OrthoRhombic::MatSym[i][0][0]), static_cast<float>(OrthoRhombic::MatSym[i][0][1]), static_cast<float>(OrthoRhombic::MatSym[i][0][2]),
+          static_cast<float>(OrthoRhombic::MatSym[i][1][0]), static_cast<float>(OrthoRhombic::MatSym[i][1][1]), static_cast<float>(OrthoRhombic::MatSym[i][1][2]),
+          static_cast<float>(OrthoRhombic::MatSym[i][2][0]), static_cast<float>(OrthoRhombic::MatSym[i][2][1]), static_cast<float>(OrthoRhombic::MatSym[i][2][2])};
+}
+
 void OrthoRhombicOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = OrthoRhombic::MatSym[i][0][0];

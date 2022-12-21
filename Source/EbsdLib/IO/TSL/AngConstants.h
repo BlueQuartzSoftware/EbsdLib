@@ -170,17 +170,17 @@ const std::string EDAX("EDAX");
 // LAUE Symmetry Identifiers
 
 // Old Style LAUE Symmetry Identifiers
-#define CIs 1    // triclinic      (S2, Ci) [-1]                 a!=b!=c  a!=b!=g!=90
-#define D2H 22   // orthrohombic   (D2h) [mmm]                   a!=b!=c  a=b=g=90
-#define C4H 4    // tetragonal     (C4h) [4/m]                   a=b!=c   a=b=g=90
-#define D4H 42   // ditetragonal   (D4h) [4/mmm]                 a=b!=c   a=b=g=90
-#define C3I 3    // trigonal       (S6, C3i) [-3]                a=b=c    a=b=g!=90
-#define D3D 32   // ditrigonal     (D3d) [-3m]                   a=b=c    a=b=g!=90
-#define C6H 6    // hexagonal      (C6h) [6/m]                   a=b!=c   a=b=90 g=120
-#define D6H 62   // dihexagonal    (D6h) [6/mmm]                 a=b!=c   a=b=90 g=120
-#define TH 23    // tetrahedral    (Th) [m3]                     a=b=c    a=b=g=90
-#define OH 43    // cubic          (Oh) [m3m]                    a=b=c    a=b=g=90
-#define C2H_c 2  // monoclinic c   (C2h) [2/m]                   a!=b!=c  a=b=90!=g
+#define CIs 1 // triclinic      (S2, Ci) [-1]                 a!=b!=c  a!=b!=g!=90
+#define D2H 22 // orthrohombic   (D2h) [mmm]                   a!=b!=c  a=b=g=90
+#define C4H 4 // tetragonal     (C4h) [4/m]                   a=b!=c   a=b=g=90
+#define D4H 42 // ditetragonal   (D4h) [4/mmm]                 a=b!=c   a=b=g=90
+#define C3I 3 // trigonal       (S6, C3i) [-3]                a=b=c    a=b=g!=90
+#define D3D 32 // ditrigonal     (D3d) [-3m]                   a=b=c    a=b=g!=90
+#define C6H 6 // hexagonal      (C6h) [6/m]                   a=b!=c   a=b=90 g=120
+#define D6H 62 // dihexagonal    (D6h) [6/mmm]                 a=b!=c   a=b=90 g=120
+#define TH 23 // tetrahedral    (Th) [m3]                     a=b=c    a=b=g=90
+#define OH 43 // cubic          (Oh) [m3m]                    a=b=c    a=b=g=90
+#define C2H_c 2 // monoclinic c   (C2h) [2/m]                   a!=b!=c  a=b=90!=g
 #define C2H_b 20 // monoclinic b   (C2h) [2/m]                   a!=b!=c  a=g=90!=b
 #define C2H_a 21 // monoclinic a   (C2h) [2/m]                   a!=b!=c  b=g=90!=a
 
@@ -188,15 +188,15 @@ const std::string EDAX("EDAX");
 #define Sym_C1 100 // Triclinic (C1) [1]
 #define Sym_S2 101 // Triclinic (S2, Ci) [-1]
 
-#define Sym_D2 105  // Orthorhombic (D2) [222]
+#define Sym_D2 105 // Orthorhombic (D2) [222]
 #define Sym_C2v 106 // Orthorhombic (C2v) [mm2]
 #define Sym_D2h 107 // Orthorhombic (D2h) [mmm]
 
-#define Sym_C4 108  // Tetragonal (C4) [4]
-#define Sym_S4 109  // Tetragonal (S4) [-4]
+#define Sym_C4 108 // Tetragonal (C4) [4]
+#define Sym_S4 109 // Tetragonal (S4) [-4]
 #define Sym_C4h 110 // Tetragonal (C4h) [4/m]
 
-#define Sym_D4 111  // Tetragonal (D4) [422]
+#define Sym_D4 111 // Tetragonal (D4) [422]
 #define Sym_C4v 112 // Tetragonal (C4v) [4mm]
 #define Sym_D2d 113 // Tetragonal (D2d) [-42m]
 #define Sym_D4h 114 // Tetragonal (D4h) [4/mmm]
@@ -204,33 +204,33 @@ const std::string EDAX("EDAX");
 #define Sym_C3 115 // Trigonal (C3) [3]
 #define Sym_S6 116 // Trigonal (S6, C3i) [-3]
 
-#define Sym_D3 117  // Trigonal (D3) [32]
+#define Sym_D3 117 // Trigonal (D3) [32]
 #define Sym_C3v 118 // Trigonal (C3v) [3m]
 #define Sym_D3d 119 // Trigonal (D3d) [-3m]
 
-#define Sym_C6 120  // Hexagonal (C6) [6]
+#define Sym_C6 120 // Hexagonal (C6) [6]
 #define Sym_C3h 121 // Hexagonal (C3h) [-6]
 #define Sym_C6h 122 // Hexagonal (C6h) [6/m]
 
-#define Sym_D6 123  // Hexagonal (D6) [622]
+#define Sym_D6 123 // Hexagonal (D6) [622]
 #define Sym_C6v 124 // Hexagonal (C6v) [6mm]
 #define Sym_D3h 125 // Hexagonal (D3h) [-6m2]
 #define Sym_D6h 126 // Hexagonal (D6h) [6/mmm]
 
-#define Sym_T 127  // Cubic (T) [23]
+#define Sym_T 127 // Cubic (T) [23]
 #define Sym_Th 128 // Cubic (Th) [m-3]
 
-#define Sym_O 129  // Cubic (O) [432]
+#define Sym_O 129 // Cubic (O) [432]
 #define Sym_Td 130 // Cubic (Td) [-43m]
 #define Sym_Oh 131 // Cubic (Oh) [m3m]
 
-#define Sym_C2_c 102  // Monoclinic c (C2)[2]
+#define Sym_C2_c 102 // Monoclinic c (C2)[2]
 #define Sym_C1h_c 103 // Monoclinic c (C1h, Cs) [m]
 #define Sym_C2h_c 104 // Monoclinic c (C2h) [2/m]
-#define Sym_C2_b 132  // Monoclinic b (C2)[2]
+#define Sym_C2_b 132 // Monoclinic b (C2)[2]
 #define Sym_C1h_b 133 // Monoclinic b (C1h, Cs) [m]
 #define Sym_C2h_b 134 // Monoclinic b (C2h) [2/m]
-#define Sym_C2_a 135  // Monoclinic a (C2)[2]
+#define Sym_C2_a 135 // Monoclinic a (C2)[2]
 #define Sym_C1h_a 136 // Monoclinic a (C1h, Cs) [m]
 #define Sym_C2h_a 137 // Monoclinic a (C2h) [2/m]
 namespace PhaseSymmetry

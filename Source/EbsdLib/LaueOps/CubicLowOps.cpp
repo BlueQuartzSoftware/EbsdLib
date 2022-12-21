@@ -225,6 +225,19 @@ void CubicLowOps::getRodSymOp(int i, double* r) const
   r[2] = CubicLow::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D CubicLowOps::getMatSymOpD(int i) const
+{
+  return {CubicLow::MatSym[i][0][0], CubicLow::MatSym[i][0][1], CubicLow::MatSym[i][0][2], CubicLow::MatSym[i][1][0], CubicLow::MatSym[i][1][1],
+          CubicLow::MatSym[i][1][2], CubicLow::MatSym[i][2][0], CubicLow::MatSym[i][2][1], CubicLow::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F CubicLowOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(CubicLow::MatSym[i][0][0]), static_cast<float>(CubicLow::MatSym[i][0][1]), static_cast<float>(CubicLow::MatSym[i][0][2]),
+          static_cast<float>(CubicLow::MatSym[i][1][0]), static_cast<float>(CubicLow::MatSym[i][1][1]), static_cast<float>(CubicLow::MatSym[i][1][2]),
+          static_cast<float>(CubicLow::MatSym[i][2][0]), static_cast<float>(CubicLow::MatSym[i][2][1]), static_cast<float>(CubicLow::MatSym[i][2][2])};
+}
+
 void CubicLowOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = CubicLow::MatSym[i][0][0];
