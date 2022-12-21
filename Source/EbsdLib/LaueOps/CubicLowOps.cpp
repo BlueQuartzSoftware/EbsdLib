@@ -556,35 +556,34 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    double g[3][3];
-    double gTranpose[3][3];
-    double direction[3] = {0.0, 0.0, 0.0};
+    EbsdLib::Matrix3X3D gTranspose;
+    EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     for(size_t i = start; i < end; ++i)
     {
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
 
-      EbsdMatrixMath::Transpose3x3(g, gTranpose);
+      gTranspose = g.transpose();
 
       // -----------------------------------------------------------------------------
       // 001 Family
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18));
       EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 6));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 18 + 12));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
 
@@ -593,37 +592,37 @@ public:
       direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 6));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
       direction[0] = 0.0;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 12));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 18));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 24));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 24));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
       direction[0] = 0.0;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 36 + 30));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 30));
       EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
 
@@ -632,25 +631,25 @@ public:
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
       direction[0] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 6));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 6));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 12));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 12));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = -EbsdLib::Constants::k_1OverRoot3D;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 24 + 18));
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 18));
       EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
       EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
     }
@@ -858,9 +857,7 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
     phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
-  double g[3][3];
-  double p[3];
-  double refDirection[3] = {0.0f, 0.0f, 0.0f};
+  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
   double chi = 0.0f;
   double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
@@ -872,13 +869,8 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   for(int j = 0; j < CubicLow::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
-
-    refDirection[0] = refDir0;
-    refDirection[1] = refDir1;
-    refDirection[2] = refDir2;
-    EbsdMatrixMath::Multiply3x3with3x1(g, refDirection, p);
-    EbsdMatrixMath::Normalize3x1(p);
+    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
+    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
 
     if(!getHasInversion() && p[2] < 0)
     {

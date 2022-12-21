@@ -249,7 +249,7 @@ public:
    * @brief Inverts the 3x3 matrix and returns the result
    * @return outMat
    */
-  void invert(T g[3][3], T outMat[3][3])
+  void invert()
   {
     SelfType adjoint = this->adjoint();
     T oneOverDeterminant = 1.0 / this->determinant();
@@ -339,14 +339,14 @@ public:
    * @param g
    */
 
-  Matrix3X3 normalize()
+  Matrix3X3 normalize() const
   {
     T denom = m_Data[0] * m_Data[0] + m_Data[3] * m_Data[3] + m_Data[6] * m_Data[6];
     if(denom == 0.0)
     {
       return {};
     }
-    Matrix3X3 outMat = this;
+    SelfType outMat(*this);
 
     denom = sqrt(denom);
     outMat[0] = outMat[0] / denom;
@@ -407,6 +407,24 @@ public:
       outMat[8] = 1;
     }
     return outMat;
+  }
+
+  /**
+   * @brief Copies the values into the pointer
+   * @param ptr The pointer to the destination
+   */
+  template <typename K>
+  void copyInto(K* ptr)
+  {
+    ptr[0] = static_cast<K>(m_Data[0]);
+    ptr[1] = static_cast<K>(m_Data[1]);
+    ptr[2] = static_cast<K>(m_Data[2]);
+    ptr[3] = static_cast<K>(m_Data[3]);
+    ptr[4] = static_cast<K>(m_Data[4]);
+    ptr[5] = static_cast<K>(m_Data[5]);
+    ptr[6] = static_cast<K>(m_Data[6]);
+    ptr[7] = static_cast<K>(m_Data[7]);
+    ptr[8] = static_cast<K>(m_Data[8]);
   }
 
 private:

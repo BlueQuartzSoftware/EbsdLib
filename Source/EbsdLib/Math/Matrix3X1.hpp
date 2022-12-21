@@ -116,12 +116,12 @@ public:
   }
 
   /**
-   * @brief Performs an "in place" normalization of the 3x1 vector.
+   * @brief returns a normalization of the 3x1 vector.
    * @param g
    */
-  SelfType normalize()
+  SelfType normalize() const
   {
-    SelfType outMat = this;
+    SelfType outMat(*this);
 
     T denom = outMat[0] * outMat[0] + outMat[1] * outMat[1] + outMat[2] * outMat[2];
     denom = sqrt(denom);
@@ -275,6 +275,18 @@ public:
     c[1] = m_Data[2] * b[0] - m_Data[0] * b[2];
     c[2] = m_Data[0] * b[1] - m_Data[1] * b[0];
     return c;
+  }
+
+  /**
+   * @brief Copies the values into the pointer
+   * @param ptr The pointer to the destination
+   */
+  template <typename K>
+  void copyInto(K* ptr)
+  {
+    ptr[0] = static_cast<K>(m_Data[0]);
+    ptr[1] = static_cast<K>(m_Data[1]);
+    ptr[2] = static_cast<K>(m_Data[2]);
   }
 
 private:
