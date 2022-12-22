@@ -39,6 +39,7 @@
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/Matrix3X3.hpp"
 
 /**
  * @brief The Orientation class encapsulates one of many types of rotation representations
@@ -53,7 +54,6 @@
 template <typename T>
 class Orientation
 {
-
 public:
   //========================================= STL INTERFACE COMPATIBILITY =================================
   using size_type = size_t;
@@ -167,7 +167,7 @@ public:
 
   /**
    * @brief Orientation Copy constructor
-   * @param quat
+   * @param gMatrix 3x3 Matrix (C Style) that is row major
    */
   explicit Orientation(T g[3][3])
   : m_Size(9)
@@ -182,6 +182,25 @@ public:
     m_Array[6] = g[2][0];
     m_Array[7] = g[2][1];
     m_Array[8] = g[2][2];
+  }
+
+  /**
+   * @brief Orientation Copy constructor
+   * @param gMatrix
+   */
+  explicit Orientation(const EbsdLib::Matrix3X3<T>& gMatrix)
+  : m_Size(9)
+  {
+    allocate();
+    m_Array[0] = gMatrix[0];
+    m_Array[1] = gMatrix[1];
+    m_Array[2] = gMatrix[2];
+    m_Array[3] = gMatrix[3];
+    m_Array[4] = gMatrix[4];
+    m_Array[5] = gMatrix[5];
+    m_Array[6] = gMatrix[6];
+    m_Array[7] = gMatrix[7];
+    m_Array[8] = gMatrix[8];
   }
 
   /**
@@ -576,6 +595,15 @@ public:
     g[2][0] = m_Array[6];
     g[2][1] = m_Array[7];
     g[2][2] = m_Array[8];
+  }
+
+  EbsdLib::Matrix3X3<T> toGMatrixObj() const
+  {
+    if(m_Size != 9)
+    {
+      throw std::out_of_range("Orientation subscript out of range");
+    }
+    return {m_Array[0], m_Array[1], m_Array[2], m_Array[3], m_Array[4], m_Array[5], m_Array[6], m_Array[7], m_Array[8]};
   }
 
   /**

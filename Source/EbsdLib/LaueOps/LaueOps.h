@@ -43,6 +43,8 @@
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+#include "EbsdLib/Math/Matrix3X3.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 /*
@@ -162,8 +164,15 @@ public:
    */
   virtual void getRodSymOp(int i, double* r) const = 0;
 
+  /**
+   * @brief Retrieves a specific Symmetry Operator for a giving index
+   * @param i The index from the Symmetry Operator Array to retrieve
+   * @return void or a Matrix3X3 object.
+   */
   virtual void getMatSymOp(int i, double g[3][3]) const = 0;
   virtual void getMatSymOp(int i, float g[3][3]) const = 0;
+  virtual EbsdLib::Matrix3X3F getMatSymOpF(int i) const = 0;
+  virtual EbsdLib::Matrix3X3D getMatSymOpD(int i) const = 0;
 
   /**
    * @brief getODFFZRod

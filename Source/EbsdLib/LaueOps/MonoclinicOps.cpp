@@ -174,6 +174,19 @@ void MonoclinicOps::getRodSymOp(int i, double* r) const
   r[2] = Monoclinic::RodSym[i][2];
 }
 
+EbsdLib::Matrix3X3D MonoclinicOps::getMatSymOpD(int i) const
+{
+  return {Monoclinic::MatSym[i][0][0], Monoclinic::MatSym[i][0][1], Monoclinic::MatSym[i][0][2], Monoclinic::MatSym[i][1][0], Monoclinic::MatSym[i][1][1],
+          Monoclinic::MatSym[i][1][2], Monoclinic::MatSym[i][2][0], Monoclinic::MatSym[i][2][1], Monoclinic::MatSym[i][2][2]};
+}
+
+EbsdLib::Matrix3X3F MonoclinicOps::getMatSymOpF(int i) const
+{
+  return {static_cast<float>(Monoclinic::MatSym[i][0][0]), static_cast<float>(Monoclinic::MatSym[i][0][1]), static_cast<float>(Monoclinic::MatSym[i][0][2]),
+          static_cast<float>(Monoclinic::MatSym[i][1][0]), static_cast<float>(Monoclinic::MatSym[i][1][1]), static_cast<float>(Monoclinic::MatSym[i][1][2]),
+          static_cast<float>(Monoclinic::MatSym[i][2][0]), static_cast<float>(Monoclinic::MatSym[i][2][1]), static_cast<float>(Monoclinic::MatSym[i][2][2])};
+}
+
 void MonoclinicOps::getMatSymOp(int i, double g[3][3]) const
 {
   g[0][0] = Monoclinic::MatSym[i][0][0];
@@ -455,43 +468,45 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    double g[3][3];
-    double gTranpose[3][3];
-    double direction[3] = {0.0, 0.0, 0.0};
+    EbsdLib::Matrix3X3D gTranspose;
+    EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     for(size_t i = start; i < end; ++i)
     {
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).toGMatrix(g);
+      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
 
-      EbsdMatrixMath::Transpose3x3(g, gTranpose);
+      gTranspose = g.transpose();
 
       // -----------------------------------------------------------------------------
       // 001 Family
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz001->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
+      std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
+                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 011 Family
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz011->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
+      std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
+                     m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 111 Family
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0;
-      EbsdMatrixMath::Multiply3x3with3x1(gTranpose, direction, m_xyz111->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
+      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
+      std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
+                     m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
     }
   }
 
@@ -561,9 +576,7 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
     phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
   }
 
-  double g[3][3];
-  double p[3];
-  double refDirection[3] = {0.0f, 0.0f, 0.0f};
+  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
   double chi = 0.0f, eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
 
@@ -574,13 +587,8 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
   for(int j = 0; j < Monoclinic::k_SymOpsCount; j++)
   {
     QuatD qu = getQuatSymOp(j) * q1;
-    OrientationTransformation::qu2om<QuatD, OrientationType>(qu).toGMatrix(g);
-
-    refDirection[0] = refDir0;
-    refDirection[1] = refDir1;
-    refDirection[2] = refDir2;
-    EbsdMatrixMath::Multiply3x3with3x1(g, refDirection, p);
-    EbsdMatrixMath::Normalize3x1(p);
+    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
+    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
 
     if(!getHasInversion() && p[2] < 0)
     {

@@ -44,6 +44,8 @@
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+#include "EbsdLib/Math/Matrix3X3.hpp"
 
 #include "UnitTestSupport.hpp"
 
@@ -353,6 +355,25 @@ public:
     std::cout << ovec[0] << ", " << ovec[1] << ", " << ovec[2] << std::endl;
   }
 
+  void Matrix3x3Test()
+  {
+    EbsdLib::Matrix3X1D vec0 = {1.0, 0.0, 0.0};
+    EbsdLib::Matrix3X1D vec1 = {0.0, 1.0, 0.0};
+    EbsdLib::Matrix3X1D vec2 = {-1.0, 0.0, 0.0};
+    EbsdLib::Matrix3X1D vec3 = {1.0, 1.0, 0.0};
+
+    double cosTheta = vec0.cosTheta(vec1);
+    DREAM3D_REQUIRE_EQUAL(cosTheta, 0.0)
+    cosTheta = vec0.cosTheta(vec2);
+    DREAM3D_REQUIRE_EQUAL(cosTheta, -1.0)
+    cosTheta = vec0.cosTheta(vec0);
+    DREAM3D_REQUIRE_EQUAL(cosTheta, 1.0)
+
+    cosTheta = vec0.cosTheta(vec3);
+    bool pass = EbsdLibMath::closeEnough(cosTheta, 0.70710678118654746, 1.0E-4);
+    DREAM3D_REQUIRE_EQUAL(pass, true);
+  }
+
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
@@ -363,6 +384,7 @@ public:
     DREAM3D_REGISTER_TEST(TestEbsdMatrixMath())
     DREAM3D_REGISTER_TEST(TestQuaternion())
     DREAM3D_REGISTER_TEST(RemoveTestFiles())
+    DREAM3D_REGISTER_TEST(Matrix3x3Test())
   }
 
 public:

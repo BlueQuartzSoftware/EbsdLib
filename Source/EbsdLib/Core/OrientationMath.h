@@ -122,14 +122,14 @@ public:
 #endif
   /**
    * @brief Converts lattice parameters to metric tensor
-   * @param lattive parameters as a, b, c, alpha, beta, gamma
+   * @param lattice parameters as a, b, c, alpha, beta, gamma
    * @param Output metric tensor
    */
   static void MetricTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float mt[3][3]);
 
   /**
    * @brief Converts lattice parameters to metric tensor
-   * @param lattive parameters as a, b, c, alpha, beta, gamma
+   * @param lattice parameters as a, b, c, alpha, beta, gamma
    * @param Output metric tensor
    */
   static void RootTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float rt[3][3]);
