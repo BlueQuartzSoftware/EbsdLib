@@ -115,6 +115,17 @@ public:
     return {1.0f, 0.0f, 0.0f};
   }
 
+  T cosTheta(const SelfType& b) const
+  {
+    T norm1 = this->magnitude();
+    T norm2 = b.magnitude();
+    if(norm1 == 0 || norm2 == 0)
+    {
+      return 1.0;
+    }
+    return this->dot(b) / (norm1 * norm2);
+  }
+
   /**
    * @brief returns a normalization of the 3x1 vector.
    * @param g
@@ -245,9 +256,9 @@ public:
   /**
    * @brief Returns the magnitude of the 3x1 vector
    */
-  T magnitude()
+  T magnitude() const
   {
-    return sqrt(dot(this));
+    return sqrt(dot(*this));
   }
 
   /**
@@ -256,7 +267,7 @@ public:
    * @param b 1x3 Vector
    * @return
    */
-  T dot(const SelfType& b)
+  T dot(const SelfType& b) const
   {
     return (m_Data[0] * b[0] + m_Data[1] * b[1] + m_Data[2] * b[2]);
   }
@@ -268,7 +279,7 @@ public:
    * @return
    */
 
-  SelfType cross(const SelfType& b)
+  SelfType cross(const SelfType& b) const
   {
     SelfType c;
     c[0] = m_Data[1] * b[2] - m_Data[2] * b[1];
@@ -282,7 +293,7 @@ public:
    * @param ptr The pointer to the destination
    */
   template <typename K>
-  void copyInto(K* ptr)
+  void copyInto(K* ptr) const
   {
     ptr[0] = static_cast<K>(m_Data[0]);
     ptr[1] = static_cast<K>(m_Data[1]);

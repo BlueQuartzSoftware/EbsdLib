@@ -473,8 +473,9 @@ public:
       direction[1] = 0.0;
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
+      std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
+                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 011 Family
@@ -482,8 +483,9 @@ public:
       direction[1] = 0.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 6 + 3), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
+                     m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 111 Family
@@ -491,8 +493,9 @@ public:
       direction[1] = 1.0;
       direction[2] = 0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 6 + 3), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
+                     m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
     }
   }
 

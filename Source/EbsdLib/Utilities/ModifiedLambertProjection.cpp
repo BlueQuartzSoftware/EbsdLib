@@ -39,7 +39,6 @@
 
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
-#include "EbsdLib/Math/EbsdMatrixMath.h"
 
 #define WRITE_LAMBERT_SQUARE_COORD_VTK 0
 

@@ -986,18 +986,17 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
     }
   }
 
+  slipDirection[0] = CubicHigh::SlipDirections[ss1][0];
+  slipDirection[1] = CubicHigh::SlipDirections[ss1][1];
+  slipDirection[2] = CubicHigh::SlipDirections[ss1][2];
+  slipPlane[0] = CubicHigh::SlipPlanes[ss1][0];
+  slipPlane[1] = CubicHigh::SlipPlanes[ss1][1];
+  slipPlane[2] = CubicHigh::SlipPlanes[ss1][2];
 
-    slipDirection[0] = CubicHigh::SlipDirections[ss1][0];
-    slipDirection[1] = CubicHigh::SlipDirections[ss1][1];
-    slipDirection[2] = CubicHigh::SlipDirections[ss1][2];
-    slipPlane[0] = CubicHigh::SlipPlanes[ss1][0];
-    slipPlane[1] = CubicHigh::SlipPlanes[ss1][1];
-    slipPlane[2] = CubicHigh::SlipPlanes[ss1][2];
-
-    hkl1 = g1 * slipPlane;
-    uvw1 = g1 * slipDirection;
-    hkl1 = hkl1.normalize();
-    uvw1 = uvw1.normalize();
+  hkl1 = g1 * slipPlane;
+  uvw1 = g1 * slipDirection;
+  hkl1 = hkl1.normalize();
+  uvw1 = uvw1.normalize();
 
   maxSchmidFactor = 0;
   for(int j = 0; j < 12; j++)
@@ -1042,13 +1041,17 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 
 double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
-  double g1[3][3];
-  double g2[3][3];
-  double g1temp[3][3];
-  double g2temp[3][3];
-  double hkl1[3], uvw1[3];
-  double hkl2[3], uvw2[3];
-  double slipDirection[3], slipPlane[3];
+  // double g1[3][3];
+  // double g2[3][3];
+  // double g1temp[3][3];
+  // double g2temp[3][3];
+  EbsdLib::Matrix3X1D hkl1;
+  EbsdLib::Matrix3X1D uvw1;
+  EbsdLib::Matrix3X1D hkl2;
+  EbsdLib::Matrix3X1D uvw2;
+  EbsdLib::Matrix3X1D slipDirection;
+  EbsdLib::Matrix3X1D slipPlane;
+
   double directionMisalignment = 0, totalDirectionMisalignment = 0;
   double schmidFactor1 = 0, maxSchmidFactor = 0;
   double directionComponent1 = 0, planeComponent1 = 0;
@@ -1056,10 +1059,11 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
   double maxF1 = 0.0;
   double F1 = 0.0;
 
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
-  EbsdMatrixMath::Transpose3x3(g1temp, g1);
-  EbsdMatrixMath::Transpose3x3(g2temp, g2);
+  EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(q1).data());
+  EbsdLib::Matrix3X3D g1 = g.transpose();
+
+  g = EbsdLib::Matrix3X3D(OrientationTransformation::qu2om<QuatD, OrientationType>(q2).data());
+  EbsdLib::Matrix3X3D g2 = g.transpose();
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1075,12 +1079,12 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
-    EbsdMatrixMath::Normalize3x1(hkl1);
-    EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    hkl1 = g1 * slipPlane;
+    uvw1 = g1 * slipDirection;
+    hkl1 = hkl1.normalize();
+    uvw1 = uvw1.normalize();
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1.data()));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1.data()));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1097,14 +1101,12 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
-        EbsdMatrixMath::Normalize3x1(hkl2);
-        EbsdMatrixMath::Normalize3x1(uvw2);
-        // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
-        // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
-        // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+        hkl2 = g2 * slipPlane;
+        uvw2 = g2 * slipDirection;
+        hkl2 = hkl2.normalize();
+        uvw2 = uvw2.normalize();
+
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw2.data(), uvw2.data()));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
       F1 = schmidFactor1 * directionComponent1 * totalDirectionMisalignment;
@@ -1333,20 +1335,23 @@ public:
       direction[1] = 0.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 3), -1.0f);
+      std::transform(m_xyz001->getPointer(i * 18), m_xyz001->getPointer(i * 18 + 3),
+                     m_xyz001->getPointer(i * 18 + 3),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 6));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 9), -1.0f);
+      std::transform(m_xyz001->getPointer(i * 18 + 6), m_xyz001->getPointer(i * 18 + 9),
+                     m_xyz001->getPointer(i * 18 + 9),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 12));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 18 + 15), -1.0f);
+      std::transform(m_xyz001->getPointer(i * 18 + 12), m_xyz001->getPointer(i * 18 + 15),
+                     m_xyz001->getPointer(i * 18 + 15),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 011 Family
@@ -1354,38 +1359,44 @@ public:
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 3), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3),
+                     m_xyz011->getPointer(i * 36 + 3),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 6));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 9), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9),
+                     m_xyz011->getPointer(i * 36 + 9),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 12));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 15), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15),
+                     m_xyz011->getPointer(i * 36 + 15),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 18));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 21), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21),
+                     m_xyz011->getPointer(i * 36 + 21),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 24));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 27), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27),
+                     m_xyz011->getPointer(i * 36 + 27),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 30));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 36 + 33), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33),
+                     m_xyz011->getPointer(i * 36 + 33),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 111 Family
@@ -1393,26 +1404,30 @@ public:
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 3), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3),
+                     m_xyz111->getPointer(i * 24 + 3),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 6));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 9), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9),
+                     m_xyz111->getPointer(i * 24 + 9),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 12));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 15), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15),
+                     m_xyz111->getPointer(i * 24 + 15),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = -EbsdLib::Constants::k_1OverRoot3D;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 18));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 24 + 21), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21),
+                     m_xyz111->getPointer(i * 24 + 21),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
     }
   }
 

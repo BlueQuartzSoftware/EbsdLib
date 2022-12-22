@@ -1105,8 +1105,9 @@ public:
       direction[1] = 0.0;
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      EbsdMatrixMath::Copy3x1(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz001->getPointer(i * 6 + 3), -1.0f);
+      std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
+                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 1010 Family
@@ -1114,20 +1115,23 @@ public:
       direction[1] = 0.5;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 3), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3),
+                     m_xyz011->getPointer(i * 18 + 3),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 6));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 9), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9),
+                     m_xyz011->getPointer(i * 18 + 9),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_Root3Over2D;
       direction[1] = 0.5;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 12));
-      EbsdMatrixMath::Copy3x1(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz011->getPointer(i * 18 + 15), -1.0f);
+      std::transform(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15),
+                     m_xyz011->getPointer(i * 18 + 15),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 1120 Family
@@ -1135,20 +1139,23 @@ public:
       direction[1] = 0.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 3), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3),
+                     m_xyz111->getPointer(i * 18 + 3),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.5;
       direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 6));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 9), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9),
+                     m_xyz111->getPointer(i * 18 + 9),            // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -0.5;
       direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 18 + 12));
-      EbsdMatrixMath::Copy3x1(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15));
-      EbsdMatrixMath::Multiply3x1withConstant(m_xyz111->getPointer(i * 18 + 15), -1.0f);
+      std::transform(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15),
+                     m_xyz111->getPointer(i * 18 + 15),           // write to the next triplet in memory
+                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
     }
   }
 
