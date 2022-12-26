@@ -595,42 +595,42 @@ public:
       direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36));
       std::transform(m_xyz011->getPointer(i * 36), m_xyz011->getPointer(i * 36 + 3),
                      m_xyz011->getPointer(i * 36 + 3),            // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 6));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36 + 6));
       std::transform(m_xyz011->getPointer(i * 36 + 6), m_xyz011->getPointer(i * 36 + 9),
                      m_xyz011->getPointer(i * 36 + 9),            // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 12));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36 + 12));
       std::transform(m_xyz011->getPointer(i * 36 + 12), m_xyz011->getPointer(i * 36 + 15),
                      m_xyz011->getPointer(i * 36 + 15),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 18));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36 + 18));
       std::transform(m_xyz011->getPointer(i * 36 + 18), m_xyz011->getPointer(i * 36 + 21),
                      m_xyz011->getPointer(i * 36 + 21),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = 0.0;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 24));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36 + 24));
       std::transform(m_xyz011->getPointer(i * 36 + 24), m_xyz011->getPointer(i * 36 + 27),
                      m_xyz011->getPointer(i * 36 + 27),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = EbsdLib::Constants::k_1OverRoot2D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 36 + 30));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 36 + 30));
       std::transform(m_xyz011->getPointer(i * 36 + 30), m_xyz011->getPointer(i * 36 + 33),
                      m_xyz011->getPointer(i * 36 + 33),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
@@ -640,28 +640,28 @@ public:
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24));
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 24));
       std::transform(m_xyz111->getPointer(i * 24), m_xyz111->getPointer(i * 24 + 3),
                      m_xyz111->getPointer(i * 24 + 3),            // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 6));
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 24 + 6));
       std::transform(m_xyz111->getPointer(i * 24 + 6), m_xyz111->getPointer(i * 24 + 9),
                      m_xyz111->getPointer(i * 24 + 9),            // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = -EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = EbsdLib::Constants::k_1OverRoot3D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 12));
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 24 + 12));
       std::transform(m_xyz111->getPointer(i * 24 + 12), m_xyz111->getPointer(i * 24 + 15),
                      m_xyz111->getPointer(i * 24 + 15),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
       direction[0] = EbsdLib::Constants::k_1OverRoot3D;
       direction[1] = EbsdLib::Constants::k_1OverRoot3D;
       direction[2] = -EbsdLib::Constants::k_1OverRoot3D;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 24 + 18));
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 24 + 18));
       std::transform(m_xyz111->getPointer(i * 24 + 18), m_xyz111->getPointer(i * 24 + 21),
                      m_xyz111->getPointer(i * 24 + 21),           // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0

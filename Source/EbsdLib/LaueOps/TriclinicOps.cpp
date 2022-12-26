@@ -482,7 +482,7 @@ public:
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
       std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
                      m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
@@ -492,7 +492,7 @@ public:
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
       std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
                      m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
                      [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0

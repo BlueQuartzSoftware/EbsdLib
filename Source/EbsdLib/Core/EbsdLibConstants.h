@@ -231,8 +231,8 @@ inline constexpr uint32_t Trigonal_High = 10;  //!< Trigonal-High -3m
 
 inline constexpr uint32_t Hexagonal_Low = 2;  //!< Hexagonal-Low 6/m
 inline constexpr uint32_t Hexagonal_High = 0; //!< Hexagonal-High 6/mmm
-inline constexpr uint32_t Cubic_Low = 3;      //!< Cubic Cubic-Low m3 (Tetrahedral)
-inline constexpr uint32_t Cubic_High = 1;     //!< Cubic Cubic-High m3m
+inline constexpr uint32_t Cubic_Low = 3;      //!< Cubic Cubic-Low m-3 (Tetrahedral)
+inline constexpr uint32_t Cubic_High = 1;     //!< Cubic Cubic-High m-3m
 
 inline constexpr uint32_t LaueGroupEnd = 11;             //!< The end of the Laue groups
 inline constexpr uint32_t UnknownCrystalStructure = 999; //!< UnknownCrystalStructure
