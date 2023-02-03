@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set project's name
-project(EbsdLibProj VERSION 1.0.16)
+project(EbsdLibProj VERSION 1.0.17)
 
 # ---------- Setup output Directories -------------------------
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
@@ -99,8 +99,13 @@ endif()
 # Determine if we need the ghcFilesystem library
 #-------------------------------------------------------------------------------
 set(EbsdLib_USE_GHC_FILESYSTEM OFF)
-if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.15)
+if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+  set(EbsdLib_USE_GHC_FILESYSTEM OFF)
+elseif(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.15)
   set(EbsdLib_USE_GHC_FILESYSTEM ON)
+  if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
+    message(WARNING "CMAKE_OSX_DEPLOYMENT_TARGET is empty. Assuming macOS deployment *OLDER* than 10.15 Catalina. This will require ghcFilesystem library.")
+  endif()
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
   set(EbsdLib_USE_GHC_FILESYSTEM ON)
 endif()
