@@ -11,6 +11,7 @@ if(EbsdLib_ENABLE_HDF5)
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/BrukerNano/H5EspritFields.cpp
   )
   set(BRUKER_NANO_HDRS ${BRUKER_NANO_HDRS}
+    ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/BrukerNano/EspritConstants.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/BrukerNano/EspritPhase.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/BrukerNano/H5EspritReader.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/BrukerNano/H5EspritFields.h
