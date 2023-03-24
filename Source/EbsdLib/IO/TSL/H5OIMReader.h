@@ -128,16 +128,6 @@ public:
 
   EBSD_INSTANCE_2DVECTOR_PROPERTY(int, PatternDims)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumColumns, EbsdLib::Ang::nColumns)
-
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::nRows)
-
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::StepX)
-
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::StepY)
-
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::Ang::GridType)
-
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::Ang::PatternWidth)
 
   EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, EbsdLib::Ang::PatternHeight)
@@ -185,11 +175,6 @@ public:
    * @param b
    */
   void readAllArrays(bool b);
-
-  int getXDimension() override;
-  void setXDimension(int xdim) override;
-  int getYDimension() override;
-  void setYDimension(int ydim) override;
 
 protected:
   H5OIMReader();

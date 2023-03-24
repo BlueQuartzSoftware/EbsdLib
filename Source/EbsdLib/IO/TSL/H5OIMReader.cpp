@@ -343,6 +343,20 @@ int H5OIMReader::readHeader(hid_t parId)
   ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, EbsdLib::Ang::nColumns, gid, m_HeaderMap);
   ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, EbsdLib::Ang::nRows, gid, m_HeaderMap);
 
+  {
+    AngHeaderIntType::Pointer intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[EbsdLib::Ang::nColumns]);
+    setNumOddCols(intValuePtr->getValue());
+    setNumEvenCols(intValuePtr->getValue());
+
+    intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[EbsdLib::Ang::nRows]);
+    setNumRows(intValuePtr->getValue());
+
+    AngHeaderFloatType::Pointer floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[EbsdLib::Ang::StepX]);
+    setXStep(floatValuePtr->getValue());
+    floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[EbsdLib::Ang::StepY]);
+    setYStep(floatValuePtr->getValue());
+  }
+
   HDF_ERROR_HANDLER_OFF
   int value = 0;
   if(H5Lite::datasetExists(gid, EbsdLib::Ang::PatternWidth))
@@ -369,6 +383,10 @@ int H5OIMReader::readHeader(hid_t parId)
 
   // Version 7/8
   ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::GridType, gid, m_HeaderMap);
+  {
+    AngStringHeaderEntry::Pointer strValuePtr = std::dynamic_pointer_cast<AngStringHeaderEntry>(m_HeaderMap[EbsdLib::Ang::GridType]);
+    setGrid(strValuePtr->getValue());
+  }
 
   // Version 7 Only
   if(m_OIMVersion.find(EbsdLib::H5OIM::OIMAnalysisVersion7) != std::string::npos)
@@ -524,7 +542,7 @@ int H5OIMReader::readData(hid_t parId)
 
   std::string grid = getGrid();
 
-  size_t nColumns = getNumColumns();
+  size_t nColumns = getNumOddCols();
   size_t nRows = getNumRows();
 
   if(nRows < 1)
@@ -648,38 +666,6 @@ void H5OIMReader::setArraysToRead(const std::set<std::string>& names)
 void H5OIMReader::readAllArrays(bool b)
 {
   m_ReadAllArrays = b;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int H5OIMReader::getXDimension()
-{
-  return getNumColumns();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void H5OIMReader::setXDimension(int xdim)
-{
-  setNumColumns(xdim);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int H5OIMReader::getYDimension()
-{
-  return getNumRows();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void H5OIMReader::setYDimension(int ydim)
-{
-  setNumRows(ydim);
 }
 
 // -----------------------------------------------------------------------------
