@@ -117,6 +117,12 @@ int HexagonalLowOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> HexagonalLowOps::getNumSymmetry() const
+{
+  return {HexagonalLow::symSize0, HexagonalLow::symSize1, HexagonalLow::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int HexagonalLowOps::getMDFSize() const

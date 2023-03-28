@@ -81,11 +81,17 @@ public:
    */
   bool getHasInversion() const override;
 
-  /**
+    /**
    * @brief getODFSize Returns the number of ODF bins
    * @return
    */
   int getODFSize() const override;
+
+/**
+   * @brief getNumSymmetry Returns the internal variables for symSize0, symSize1, symSize2
+   * @return
+   */
+ std::array<int32_t, 3> getNumSymmetry() const override;
 
   /**
    * @brief getMDFSize Returns the number of MDF bins

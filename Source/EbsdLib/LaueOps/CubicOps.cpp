@@ -205,6 +205,12 @@ int CubicOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> CubicOps::getNumSymmetry() const
+{
+  return {CubicHigh::symSize0, CubicHigh::symSize1, CubicHigh::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int CubicOps::getMDFSize() const

@@ -119,6 +119,12 @@ int TrigonalOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> TrigonalOps::getNumSymmetry() const
+{
+  return {TrigonalHigh::symSize0, TrigonalHigh::symSize1, TrigonalHigh::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int TrigonalOps::getMDFSize() const

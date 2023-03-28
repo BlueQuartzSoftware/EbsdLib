@@ -108,6 +108,12 @@ int MonoclinicOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> MonoclinicOps::getNumSymmetry() const
+{
+  return {Monoclinic::symSize0, Monoclinic::symSize1, Monoclinic::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int MonoclinicOps::getMDFSize() const

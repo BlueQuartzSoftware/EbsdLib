@@ -113,6 +113,12 @@ int TetragonalLowOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> TetragonalLowOps::getNumSymmetry() const
+{
+  return {TetragonalLow::symSize0, TetragonalLow::symSize1, TetragonalLow::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int TetragonalLowOps::getMDFSize() const

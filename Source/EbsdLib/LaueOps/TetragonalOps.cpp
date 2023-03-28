@@ -128,6 +128,12 @@ int TetragonalOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> TetragonalOps::getNumSymmetry() const
+{
+  return {TetragonalHigh::symSize0, TetragonalHigh::symSize1, TetragonalHigh::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int TetragonalOps::getMDFSize() const

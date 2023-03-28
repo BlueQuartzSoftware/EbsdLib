@@ -145,6 +145,12 @@ int HexagonalOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> HexagonalOps::getNumSymmetry() const
+{
+  return {HexagonalHigh::symSize0, HexagonalHigh::symSize1, HexagonalHigh::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int HexagonalOps::getMDFSize() const

@@ -99,6 +99,12 @@ public:
   virtual int getODFSize() const = 0;
 
   /**
+   * @brief getNumSymmetry Returns the internal variables for symSize0, symSize1, symSize2
+   * @return
+   */
+  virtual std::array<int32_t, 3> getNumSymmetry() const = 0;
+
+  /**
    * @brief Returns the number of bins for an MDF Plot assuming 5 degree increments
    * @return
    */

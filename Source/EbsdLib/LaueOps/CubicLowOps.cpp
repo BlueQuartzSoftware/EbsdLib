@@ -160,6 +160,12 @@ int CubicLowOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> CubicLowOps::getNumSymmetry() const
+{
+  return {CubicLow::symSize0, CubicLow::symSize1, CubicLow::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int CubicLowOps::getMDFSize() const

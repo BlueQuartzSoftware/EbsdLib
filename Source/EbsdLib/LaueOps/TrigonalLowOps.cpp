@@ -112,6 +112,12 @@ int TrigonalLowOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> TrigonalLowOps::getNumSymmetry() const
+{
+  return {TrigonalLow::symSize0, TrigonalLow::symSize1, TrigonalLow::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int TrigonalLowOps::getMDFSize() const

@@ -106,6 +106,12 @@ int TriclinicOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> TriclinicOps::getNumSymmetry() const
+{
+  return {Triclinic::symSize0, Triclinic::symSize1, Triclinic::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int TriclinicOps::getMDFSize() const

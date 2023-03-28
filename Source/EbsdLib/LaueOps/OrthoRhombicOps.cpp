@@ -112,6 +112,12 @@ int OrthoRhombicOps::getODFSize() const
 }
 
 // -----------------------------------------------------------------------------
+std::array<int32_t, 3> OrthoRhombicOps::getNumSymmetry() const
+{
+  return {OrthoRhombic::symSize0, OrthoRhombic::symSize1, OrthoRhombic::symSize2};
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int OrthoRhombicOps::getMDFSize() const
