@@ -112,6 +112,7 @@ AngPhase::~AngPhase() = default;
 void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 {
   m_MaterialName.clear();
+  tokens.erase(tokens.begin());
   for(const auto& token : tokens)
   {
     m_MaterialName += token + " ";
@@ -124,6 +125,7 @@ void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 void AngPhase::parseFormula(std::vector<std::string>& tokens)
 {
   m_Formula.clear();
+  tokens.erase(tokens.begin());
   for(const auto& token : tokens)
   {
     m_Formula += token + " ";
