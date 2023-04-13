@@ -961,11 +961,20 @@ EbsdLib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+std::array<std::string, 3> CubicLowOps::getDefaultPoleFigureNames() const
+{
+return {"<001>", "<011>", "<111>"}; 
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::string label0 = std::string("<001>");
-  std::string label1 = std::string("<011>");
-  std::string label2 = std::string("<111>");
+  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::string label0 = labels[0];
+  std::string label1 = labels[1];
+  std::string label2 = labels[2];
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);

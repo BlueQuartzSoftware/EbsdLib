@@ -226,6 +226,12 @@ public:
   std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
   /**
+   * @brief Returns the names for each of the three standard pole figures that are generated. For example
+   *<001>, <011> and <111> for a cubic system
+   */
+ std::array<std::string, 3> getDefaultPoleFigureNames() const override;
+
+  /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */

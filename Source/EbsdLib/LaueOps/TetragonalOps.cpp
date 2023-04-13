@@ -705,11 +705,21 @@ EbsdLib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+std::array<std::string, 3> TetragonalOps::getDefaultPoleFigureNames() const
+{
+return {"<001>", "<100>", "<110>"};
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::string label0 = std::string("<001>");
-  std::string label1 = std::string("<100>");
-  std::string label2 = std::string("<110>");
+  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::string label0 = labels[0];
+  std::string label1 = labels[1];
+  std::string label2 = labels[2];
+
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);

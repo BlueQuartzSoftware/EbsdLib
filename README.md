@@ -48,9 +48,9 @@ can set to allow the orientation transformations to accept this layout.
 
 EbsdLib is dependent on:
 
-+ Qt5 5.12.x (minimum)
-+ Eigen 3.5
-+ HDF5 1.8.20 or 1.10.4 (HDF5 is optional only if you want the HDF5 functionality)
++ Qt5 5.15.x (minimum)
++ Eigen 3.4
++ HDF5 1.10.4 (HDF5 is optional only if you want the HDF5 functionality)
 
 ## Rotation Convention ##
 

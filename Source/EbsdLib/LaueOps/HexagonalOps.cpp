@@ -1327,11 +1327,21 @@ EbsdLib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+std::array<std::string, 3> HexagonalOps::getDefaultPoleFigureNames() const
+{
+return {"<0001>", "<10-10>", "<2-1-10>"};
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::string label0 = std::string("<0001>");
-  std::string label1 = std::string("<10-10>");
-  std::string label2 = std::string("<2-1-10>");
+  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::string label0 = labels[0];
+  std::string label1 = labels[1];
+  std::string label2 = labels[2];
+
   if(!config.labels.empty())
   {
     label0 = config.labels.at(0);

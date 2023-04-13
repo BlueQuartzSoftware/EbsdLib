@@ -287,6 +287,12 @@ public:
    */
   virtual std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
+  /**
+   * @brief Returns the names for each of the three standard pole figures that are generated. For example
+   *<001>, <011> and <111> for a cubic system
+   */
+  virtual std::array<std::string, 3> getDefaultPoleFigureNames() const = 0;
+
 protected:
   LaueOps();
 
