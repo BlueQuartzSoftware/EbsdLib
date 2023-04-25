@@ -34,17 +34,62 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "AngReader.h"
-
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <utility>
-
 #include "AngConstants.h"
 
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <utility>
+#include <optional>
+
+namespace
+{
+
+using Vec3Type = std::array<float, 3>;
+using Size3Type = std::array<size_t, 3>;
+
+std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Type& m_Spacing, Size3Type& m_Dimensions )
+{
+  if(coords[0] < m_Origin[0] || coords[0]  > (static_cast<float>(m_Dimensions[0]) * m_Spacing[0] + m_Origin[0]))
+  {
+    return {};
+  }
+
+  if(coords[1] < m_Origin[1] || coords[1] > (static_cast<float>(m_Dimensions[1]) * m_Spacing[1] + m_Origin[1]))
+  {
+    return {};
+  }
+
+  if(coords[2] < m_Origin[2] || coords[2] > (static_cast<float>(m_Dimensions[2]) * m_Spacing[2] + m_Origin[2]))
+  {
+    return {};
+  }
+
+  size_t x = static_cast<size_t>(std::floor((coords[0]  - m_Origin[0]) / m_Spacing[0]));
+  if(x >= m_Dimensions[0])
+  {
+    return {};
+  }
+
+  size_t y = static_cast<size_t>(std::floor((coords[1] - m_Origin[1]) / m_Spacing[1]));
+  if(y >= m_Dimensions[1])
+  {
+    return {};
+  }
+
+  size_t z = static_cast<size_t>(std::floor((coords[2] - m_Origin[2]) / m_Spacing[2]));
+  if(z >= m_Dimensions[2])
+  {
+    return {};
+  }
+
+  return (m_Dimensions[1] * m_Dimensions[0] * z) + (m_Dimensions[0] * y) + x;
+}
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -942,6 +987,11 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
   float yMin = *resultY.first;
   float yMax = *resultY.second;
 
+  std::array<float, 3> m_Origin = {xMin - 0.5f * xStep, yMin - 0.5f * yStep, 0.0f};
+  std::array<float, 3> m_Spacing = {xStep, yStep, 1.0f};
+  std::array<size_t, 3> m_Dimensions = {static_cast<size_t>(numCols), static_cast<size_t>(numRows), 1ULL};
+  std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
+
   if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
   {
     std::stringstream message;
@@ -953,28 +1003,30 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
     std::stringstream message;
     message << "Error: The calculated number of rows " << yMax << ", " << yMin << ", " << yStep << "  (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1
             << ")" << std::endl;
-    return {-101, message.str()};
+    return {-101101, message.str()};
   }
 
   indexMap.resize(numElements);
 
   for(int i = 0; i < numElements; i++)
   {
-    int64_t xIndex = (xPosition[i] - xMin) / xStep;
-    int64_t yIndex = (yPosition[i] - yMin) / yStep;
-
-    if(xIndex >= 0 && xIndex < numCols && yIndex >= 0 && yIndex < numRows)
+    coords[0] = xPosition[i];
+    coords[1] = yPosition[i];
+    auto result = ::GetGridIndex(coords, m_Origin, m_Spacing, m_Dimensions);
+    if(result.has_value())
     {
-      indexMap[i] = (numCols * yIndex) + xIndex;
+      indexMap[i] = *result;
     }
     else
     {
       std::stringstream message;
-      message << "Error: The given indices (" << xIndex << ", " << yIndex << ") does not fit within the grid size (" << numCols << ", " << numRows << ")" << std::endl;
-      return {-10, message.str()};
+      message << "AngReader Error: The calculated index for the X and Y Position " << coords[0] << ", " << coords[1] << " will fall outside of the calculated grid.\n  "
+      << "Origin: " << m_Origin[0] <<", " << m_Origin[1] << "\n  "
+      << "Spacing: " << m_Spacing[1] << ", " << m_Spacing[1] << "\n  "
+      << "Dimensions: " << m_Dimensions[0] << ", " << m_Dimensions[1] << "\n" << std::endl;
+      return {-101111, message.str()};
     }
   }
-
   return {0, ""};
 }
 
