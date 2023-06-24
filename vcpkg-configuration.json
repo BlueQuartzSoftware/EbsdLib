@@ -1,0 +1,21 @@
+{
+  "default-registry": null,
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/bluequartzsoftware/complex-registry",
+      "packages": [
+        "h5support",
+        "hdf5",
+        "lz4",
+        "eigen3",
+        "tbb",
+        "vcpkg-cmake",
+        "vcpkg-cmake-config",
+        "zlib",
+        "zstd"
+      ],
+      "baseline": "a7f8a05a400087e5dd4b0a5e46ece1b2123dc608"
+    }
+  ]
+}
