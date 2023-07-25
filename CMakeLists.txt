@@ -52,22 +52,23 @@ option(EbsdLib_ENABLE_HDF5 "Enable HDF5 Support in the EbsdLibProj" ON)
 option(EbsdLib_BUILD_H5SUPPORT "Build H5Support Library" ON)
 
 if(EbsdLib_ENABLE_HDF5)
-  # If H5Support already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
-  if(NOT TARGET H5Support::H5Support AND EbsdLib_BUILD_H5SUPPORT)
-    #------------------------------------------------------------------------------
-    # If the developer has set another H5Support directory then use that, otherwise look
-    # for the H5Support directory at the same level as the EBSDLib directory
-    if("${H5Support_SOURCE_DIR}" STREQUAL "")
-      if(EXISTS "${EbsdLib_PARENT}/H5Support")
-        set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
-      elseif(EXISTS "${EbsdLib_SOURCE_DIR}/H5Support")
-        set(H5Support_SOURCE_DIR "${EbsdLib_SOURCE_DIR}/H5Support")
-      else()
-        message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
+  if(EbsdLib_BUILD_H5SUPPORT)
+    if(NOT TARGET H5Support::H5Support)
+      #------------------------------------------------------------------------------
+      # If the developer has set another H5Support directory then use that, otherwise look
+      # for the H5Support directory at the same level as the EBSDLib directory
+      if("${H5Support_SOURCE_DIR}" STREQUAL "")
+        if(EXISTS "${EbsdLib_PARENT}/H5Support")
+          set(H5Support_SOURCE_DIR "${EbsdLib_PARENT}/H5Support")
+        elseif(EXISTS "${EbsdLib_SOURCE_DIR}/H5Support")
+          set(H5Support_SOURCE_DIR "${EbsdLib_SOURCE_DIR}/H5Support")
+        else()
+          message(FATAL_ERROR "H5Support_SOURCE_DIR was not set. Where is the H5Support project directory. Please set the H5Support_SOURCE_DIR variable to the CMP directory.")
+        endif()
+        message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
       endif()
-      message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
+      add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
     endif()
-    add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
   else()
     find_package(H5Support REQUIRED)
   endif()
