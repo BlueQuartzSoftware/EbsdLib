@@ -42,9 +42,9 @@
 
 #include <algorithm>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <utility>
-#include <optional>
 
 namespace
 {
@@ -52,9 +52,9 @@ namespace
 using Vec3Type = std::array<float, 3>;
 using Size3Type = std::array<size_t, 3>;
 
-std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Type& m_Spacing, Size3Type& m_Dimensions )
+std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Type& m_Spacing, Size3Type& m_Dimensions)
 {
-  if(coords[0] < m_Origin[0] || coords[0]  > (static_cast<float>(m_Dimensions[0]) * m_Spacing[0] + m_Origin[0]))
+  if(coords[0] < m_Origin[0] || coords[0] > (static_cast<float>(m_Dimensions[0]) * m_Spacing[0] + m_Origin[0]))
   {
     return {};
   }
@@ -69,7 +69,7 @@ std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Typ
     return {};
   }
 
-  size_t x = static_cast<size_t>(std::floor((coords[0]  - m_Origin[0]) / m_Spacing[0]));
+  size_t x = static_cast<size_t>(std::floor((coords[0] - m_Origin[0]) / m_Spacing[0]));
   if(x >= m_Dimensions[0])
   {
     return {};
@@ -89,7 +89,7 @@ std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Typ
 
   return (m_Dimensions[1] * m_Dimensions[0] * z) + (m_Dimensions[0] * y) + x;
 }
-}
+} // namespace
 
 // -----------------------------------------------------------------------------
 //
@@ -395,13 +395,17 @@ int AngReader::readFile()
     return getErrorCode();
   }
   std::vector<int64_t> indexMap;
-  std::pair<int, std::string> result = fixOrderOfData(indexMap);
-
-  if(result.first < 0)
+  std::string grid = getGrid();
+  if(grid.find(EbsdLib::Ang::SquareGrid) == 0)
   {
-    setErrorCode(result.first);
-    setErrorMessage(result.second);
-    return result.first;
+    std::pair<int, std::string> result = fixOrderOfData(indexMap);
+
+    if(result.first < 0)
+    {
+      setErrorCode(result.first);
+      setErrorMessage(result.second);
+      return result.first;
+    }
   }
 
   std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
@@ -995,14 +999,15 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
   if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
   {
     std::stringstream message;
-    message << "Error: The calculated number of columns (" << ((xMax - xMin) / xStep) + 1 << ") does not match the actual number of columns (" << numCols << ")" << std::endl;
-    return {-100, message.str()};
+    message << "Error: The calculated number of columns XMax: " << xMax << ", XMin: " << xMin << ", XStep: " << xStep << "  (" << ((xMax - xMin) / xStep) + 1
+            << ") does not match the actual number of columns (" << numCols + 1 << ")" << std::endl;
+    return {-101100, message.str()};
   }
   if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
   {
     std::stringstream message;
-    message << "Error: The calculated number of rows YMax: " << yMax << ", YMin: " << yMin << ", YStep: " << yStep << "  (" << ((yMax - yMin) / yStep) + 1 << ") does not match the actual number of rows (" << numRows + 1
-            << ")" << std::endl;
+    message << "Error: The calculated number of rows YMax: " << yMax << ", YMin: " << yMin << ", YStep: " << yStep << "  (" << ((yMax - yMin) / yStep) + 1
+            << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
     return {-101101, message.str()};
   }
 
@@ -1021,9 +1026,10 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
     {
       std::stringstream message;
       message << "AngReader Error: The calculated index for the X and Y Position " << coords[0] << ", " << coords[1] << " will fall outside of the calculated grid.\n  "
-      << "Origin: " << m_Origin[0] <<", " << m_Origin[1] << "\n  "
-      << "Spacing: " << m_Spacing[1] << ", " << m_Spacing[1] << "\n  "
-      << "Dimensions: " << m_Dimensions[0] << ", " << m_Dimensions[1] << "\n" << std::endl;
+              << "Origin: " << m_Origin[0] << ", " << m_Origin[1] << "\n  "
+              << "Spacing: " << m_Spacing[1] << ", " << m_Spacing[1] << "\n  "
+              << "Dimensions: " << m_Dimensions[0] << ", " << m_Dimensions[1] << "\n"
+              << std::endl;
       return {-101111, message.str()};
     }
   }
