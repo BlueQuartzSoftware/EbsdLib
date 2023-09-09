@@ -288,7 +288,7 @@ public:
    */
   static int GetMaxIndex()
   {
-    return 6;
+    return static_cast<int>(static_cast<int>(OrientationRepresentation::Type::Unknown) - 1);
   }
 
 protected:
