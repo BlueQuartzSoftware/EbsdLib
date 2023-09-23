@@ -65,12 +65,23 @@ file(MAKE_DIRECTORY ${TEST_TEMP_DIR})
 
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
                ${EbsdLibProj_BINARY_DIR}/EbsdLib/Test/EbsdLibTestFileLocations.h @ONLY IMMEDIATE)
+set(TEST_NAMES "")
+
+if(EbsdLib_ENABLE_HDF5)
+    set(TEST_NAMES
+        ${TEST_NAMES}
+        H5EspritReaderTest
+        EdaxOIMReaderTest
+    #   H5OINAReaderTest
+    )
+endif()
 
 #------------------------------------------------------------------------------
 # List all the source files here. They will NOT be compiled but instead
 # be directly included in the main test source file. We list them here so that
 # they will show up in IDEs
 set(TEST_NAMES
+    ${TEST_NAMES}
   OrientationTest
   OrientationArrayTest
   OrientationConverterTest
@@ -86,15 +97,6 @@ set(TEST_NAMES
   SO3SamplerTest
   TextureTest
 )
-
-if(EbsdLib_ENABLE_HDF5)
-  set(TEST_NAMES
-    ${TEST_NAMES}
-    H5EspritReaderTest
-    EdaxOIMReaderTest
-  )
-
-endif()
 
 
 set(EbsdLibProj_TEST_SRCS )

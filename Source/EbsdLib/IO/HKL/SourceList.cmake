@@ -19,11 +19,13 @@ if(EbsdLib_ENABLE_HDF5)
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfImporter.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfReader.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfVolumeReader.cpp
+      ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5OINAReader.cpp
   )
   set(HKL_HDRS ${HKL_HDRS}
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfImporter.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfReader.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfVolumeReader.h
+      ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5OINAReader.h
   )
 endif()
 
