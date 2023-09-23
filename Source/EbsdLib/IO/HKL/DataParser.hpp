@@ -116,6 +116,111 @@ public:
   DataParser& operator=(const DataParser&) = delete; // Copy Assignment Not Implemented
   DataParser& operator=(DataParser&&) = delete;      // Move Assignment Not Implemented
 };
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+class UInt8Parser : public DataParser
+{
+public:
+  using Self = UInt8Parser;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer()
+  {
+    return Pointer(static_cast<Self*>(nullptr));
+  }
+
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  std::string getNameOfClass() const
+  {
+    return std::string("UInt8Parser");
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  static std::string ClassName()
+  {
+    return std::string("UInt8Parser");
+  }
+
+  int32_t IsA() const override
+  {
+    return 1;
+  }
+
+  static Pointer New(uint8_t* ptr, size_t size, const std::string& name, int index)
+  {
+    Pointer sharedPtr(new UInt8Parser(ptr, size, name, index));
+    return sharedPtr;
+  }
+
+  ~UInt8Parser() override
+  {
+    if(m_Ptr != nullptr && getManageMemory())
+    {
+      delete[] m_Ptr;
+      m_Ptr = nullptr;
+    }
+  }
+
+  void setPtr(uint8_t* value)
+  {
+    this->m_Ptr = value;
+  }
+  uint8_t* getPtr()
+  {
+    return m_Ptr;
+  }
+
+  bool allocateArray(size_t numberOfElements) override
+  {
+    m_Ptr = new(std::nothrow) uint8_t[numberOfElements]();
+    return (m_Ptr != nullptr);
+  }
+
+  void* getVoidPointer() override
+  {
+    return reinterpret_cast<void*>(m_Ptr);
+  }
+  void setVoidPointer(void* p) override
+  {
+    m_Ptr = reinterpret_cast<uint8_t*>(p);
+  }
+
+  uint8_t* getPointer(size_t offset)
+  {
+    return m_Ptr + offset;
+  }
+
+  void parse(const std::string& token, size_t index) override
+  {
+    EBSD_INDEX_OUT_OF_RANGE(index < getSize());
+    m_Ptr[index] = std::stoi(token);
+  }
+
+protected:
+  UInt8Parser(uint8_t* ptr, size_t size, const std::string& name, int index)
+  : m_Ptr(ptr)
+  {
+    setManageMemory(true);
+    setSize(size);
+    setColumnName(name);
+    setColumnIndex(index);
+  }
+
+private:
+  uint8_t* m_Ptr;
+
+public:
+  UInt8Parser(const UInt8Parser&) = delete;            // Copy Constructor Not Implemented
+  UInt8Parser(UInt8Parser&&) = delete;                 // Move Constructor Not Implemented
+  UInt8Parser& operator=(const UInt8Parser&) = delete; // Copy Assignment Not Implemented
+  UInt8Parser& operator=(UInt8Parser&&) = delete;      // Move Assignment Not Implemented
+};
 
 // -----------------------------------------------------------------------------
 //
@@ -223,8 +328,7 @@ public:
   Int32Parser& operator=(Int32Parser&&) = delete;      // Move Assignment Not Implemented
 };
 
-// -----------------------------------------------------------------------------
-//
+
 // -----------------------------------------------------------------------------
 class FloatParser : public DataParser
 {
@@ -327,3 +431,107 @@ public:
   FloatParser& operator=(const FloatParser&) = delete; // Copy Assignment Not Implemented
   FloatParser& operator=(FloatParser&&) = delete;      // Move Assignment Not Implemented
 };
+
+template<typename T>
+class NumericParser : public DataParser
+{
+public:
+  using Self = NumericParser<T>;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer()
+  {
+    return Pointer(static_cast<Self*>(nullptr));
+  }
+
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  const std::string getNameOfClass() const
+  {
+    return std::string("NumericParser");
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  static std::string ClassName()
+  {
+    return std::string("NumericParser");
+  }
+
+  int32_t IsA() const override
+  {
+    return 2;
+  }
+
+  static Pointer New(T* ptr, size_t size, const std::string& name, int index)
+  {
+    Pointer sharedPtr(new NumericParser<T>(ptr, size, name, index));
+    return sharedPtr;
+  }
+
+  ~NumericParser() override
+  {
+    if(m_Ptr != nullptr && getManageMemory())
+    {
+      delete[] m_Ptr;
+      m_Ptr = nullptr;
+    }
+  }
+
+  void setPtr(T* value)
+  {
+    this->m_Ptr = value;
+  }
+  T* getPtr()
+  {
+    return m_Ptr;
+  }
+
+  bool allocateArray(size_t numberOfElements) override
+  {
+    m_Ptr = new(std::nothrow) T[numberOfElements]();
+    return (m_Ptr != nullptr);
+  }
+
+  void* getVoidPointer() override
+  {
+    return reinterpret_cast<void*>(m_Ptr);
+  }
+  void setVoidPointer(void* p) override
+  {
+    m_Ptr = reinterpret_cast<T*>(p);
+  }
+
+  T* getPointer(size_t offset)
+  {
+    return m_Ptr + offset;
+  }
+
+  void parse(const std::string& token, size_t index) override
+  {
+    m_Ptr[index] = std::stof(token);
+  }
+
+protected:
+  NumericParser<T>(T* ptr, size_t size, const std::string& name, int index)
+  : m_Ptr(ptr)
+  {
+    setManageMemory(true);
+    setSize(size);
+    setColumnName(name);
+    setColumnIndex(index);
+  }
+
+private:
+  T* m_Ptr;
+
+public:
+  NumericParser<T>(const NumericParser<T>&) = delete;            // Copy Constructor Not Implemented
+  NumericParser<T>(NumericParser<T>&&) = delete;                 // Move Constructor Not Implemented
+  NumericParser<T>& operator=(const NumericParser<T>&) = delete; // Copy Assignment Not Implemented
+  NumericParser<T>& operator=(NumericParser<T>&&) = delete;      // Move Assignment Not Implemented
+};
+

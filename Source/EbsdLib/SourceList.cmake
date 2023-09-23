@@ -133,6 +133,7 @@ if(EbsdLib_INSTALL_FILES)
 endif()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target

@@ -143,6 +143,7 @@ public:
    * Different manufacturers call this value different thingsl. TSL = NumRows | NumCols,
    * HKL=XCells. These methods should be implemented by subclasses to return the proper value.
    */
+
   /**
    * @brief Returns the X Dimension of the data. This method is pure virtual
    * and should be implemented by subclasses.
