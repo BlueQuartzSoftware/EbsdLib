@@ -406,27 +406,26 @@ int AngReader::readFile()
       setErrorMessage(result.second);
       return result.first;
     }
+
+    std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
+    for(const auto& arrayName : arrayNames)
+    {
+      void* oldArray = getPointerByName(arrayName);
+
+      if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+      {
+        CopyTupleUsingIndexList<float>(oldArray, indexMap);
+      }
+      else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+      {
+        CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
+      }
+      else
+      {
+        std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
+      }
+    }
   }
-
-  std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
-  for(const auto& arrayName : arrayNames)
-  {
-    void* oldArray = getPointerByName(arrayName);
-
-    if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
-    {
-      CopyTupleUsingIndexList<float>(oldArray, indexMap);
-    }
-    else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
-    {
-      CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
-    }
-    else
-    {
-      std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
-    }
-  }
-
   return getErrorCode();
 }
 
