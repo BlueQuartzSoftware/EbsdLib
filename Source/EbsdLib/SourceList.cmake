@@ -161,7 +161,16 @@ target_link_libraries(${PROJECT_NAME}
 if(WIN32 AND BUILD_SHARED_LIBS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC "-DEbsdLib_BUILT_AS_DYNAMIC_LIB")
 endif()
-	
+
+# --------------------------------------------------------------------
+# This is here to enable consistent results for some of the operations
+# with newer versions of Clang. Clang versions above verison 14 default
+# this to ON where as before it was OFF. This can have the effect of 
+# changing outputs between clang versions.
+target_compile_options( ${PROJECT_NAME} PUBLIC
+  $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang,Intel>: "-ffp-contract=off">
+ )
+
 LibraryProperties(${PROJECT_NAME} ${EXE_DEBUG_EXTENSION})
 
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)
