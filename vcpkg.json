@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "complex",
+  "version": "0.1.0",
+  "dependencies": [
+    {
+      "name": "h5support"
+    },
+    {
+      "name": "eigen3"
+    },
+    {
+      "name": "hdf5",
+      "features": [
+        "cpp",
+        "zlib"
+      ]
+    }
+  ],
+  "features": {
+    "parallel": {
+      "description": "Parallel support with TBB",
+      "dependencies": [
+        {
+          "name": "tbb"
+        }
+      ]
+    }
+  }
+}
