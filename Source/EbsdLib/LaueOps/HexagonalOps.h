@@ -206,13 +206,6 @@ public:
    */
   EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
 
-  /**
-   * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
-   * @param q Quaternion representing the direction
-   * @param refDir The sample reference direction
-   * @return Returns the ARGB Quadruplet EbsdLib::Rgb
-   */
-  EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const override;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler

@@ -274,7 +274,7 @@ public:
    * @param refDir A Quaternion representing the sample reference direction
    * @return A EbsdLib::Rgb value
    */
-  virtual EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const = 0;
+  virtual EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler

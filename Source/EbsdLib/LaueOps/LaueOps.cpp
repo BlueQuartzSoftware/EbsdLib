@@ -38,6 +38,7 @@
 #include <chrono>
 #include <limits>
 #include <random>
+#include <exception>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
@@ -448,3 +449,10 @@ std::string LaueOps::ClassName()
 {
   return std::string("LaueOps");
 }
+
+//-----------------------------------------------------------------------------
+EbsdLib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
+{
+  throw std::runtime_error("LaueOps::generateMisorientationColor is not implemented.");
+}
+

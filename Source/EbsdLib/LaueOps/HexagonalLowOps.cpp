@@ -1514,17 +1514,6 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   return image;
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb HexagonalLowOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
-{
-  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
-
-  EBSD_METHOD_NOT_IMPLEMENTED()
-
-  return rgb;
-}
 
 // -----------------------------------------------------------------------------
 HexagonalLowOps::Pointer HexagonalLowOps::NullPointer()

@@ -962,18 +962,6 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalLowOps::generateIPFTriangleLegend(int i
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb TrigonalLowOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
-{
-  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
-
-  EBSD_METHOD_NOT_IMPLEMENTED()
-
-  return rgb;
-}
-
-// -----------------------------------------------------------------------------
 TrigonalLowOps::Pointer TrigonalLowOps::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));

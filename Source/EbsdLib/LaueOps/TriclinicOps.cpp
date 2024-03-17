@@ -906,18 +906,6 @@ EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int ima
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb TriclinicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
-{
-  EbsdLib::Rgb rgb = EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
-
-  EBSD_METHOD_NOT_IMPLEMENTED()
-
-  return rgb;
-}
-
-// -----------------------------------------------------------------------------
 TriclinicOps::Pointer TriclinicOps::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));

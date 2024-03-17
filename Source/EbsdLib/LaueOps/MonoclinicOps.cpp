@@ -917,15 +917,6 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int im
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb MonoclinicOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
-{
-  EBSD_METHOD_NOT_IMPLEMENTED()
-  return EbsdLib::RgbColor::dRgb(0, 0, 0, 0);
-}
-
-// -----------------------------------------------------------------------------
 MonoclinicOps::Pointer MonoclinicOps::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
