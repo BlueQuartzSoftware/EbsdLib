@@ -48,17 +48,25 @@
 
 namespace EbsdStringUtils
 {
-
-using StringTokenType = std::vector<std::string>;
-
-// 5 statements
-template <class InputIt, class ForwardIt, class BinOp>
-void for_each_token(InputIt first, InputIt last, ForwardIt s_first, ForwardIt s_last, BinOp binary_op)
+namespace detail
+{
+template <bool ProcessEmptyV, class InputIt, class ForwardIt, typename TokenT>
+void tokenize(InputIt first, InputIt last, ForwardIt s_first, ForwardIt s_last, std::vector<TokenT>& tokens)
 {
   while(true)
   {
     const auto pos = std::find_first_of(first, last, s_first, s_last);
-    binary_op(first, pos);
+    if(first != pos)
+    {
+      tokens.emplace_back(std::string{first, pos});
+    }
+    else
+    {
+      if constexpr(ProcessEmptyV)
+      {
+        tokens.emplace_back("");
+      }
+    }
     if(pos == last)
     {
       break;
@@ -67,39 +75,137 @@ void for_each_token(InputIt first, InputIt last, ForwardIt s_first, ForwardIt s_
   }
 }
 
-// 2 statements
-inline StringTokenType split(const std::string& str, char delim)
+template <bool ConsecutiveAsEmptyV, bool EmptyInitialV, bool EmptyFinalV>
+struct SplitTypeOptions
 {
-  StringTokenType tokens;
-  std::string temp(str);
-  std::array<char, 1> delims = {delim};
-  auto endPos = std::end(temp);
-  for_each_token(std::begin(temp), endPos, std::cbegin(delims), std::cend(delims), [&endPos, &tokens](auto first, auto second) {
-    if(first != second)
+  static inline constexpr bool AllowConsecutiveAsEmpty = ConsecutiveAsEmptyV;
+  static inline constexpr bool AllowEmptyInital = EmptyInitialV;
+  static inline constexpr bool AllowEmptyFinal = EmptyFinalV;
+};
+
+using SplitIgnoreEmpty = SplitTypeOptions<false, false, false>;
+using SplitAllowAll = SplitTypeOptions<true, true, true>;
+using SplitNoStripIgnoreConsecutive = SplitTypeOptions<false, true, true>;
+using SplitOnlyConsecutive = SplitTypeOptions<true, false, false>;
+using SplitAllowEmptyLeftAnalyze = SplitTypeOptions<true, true, false>;
+using SplitAllowEmptyRightAnalyze = SplitTypeOptions<true, false, true>;
+
+template <class SplitTypeOptionsV = SplitIgnoreEmpty>
+inline std::vector<std::string> optimized_split(std::string_view str, std::vector<char>&& delimiters)
+{
+  if(str.empty())
+  {
+    return {};
+  }
+  auto endPos = str.end();
+  auto startPos = str.begin();
+
+  std::vector<std::string> tokens;
+  tokens.reserve(str.size() / 2);
+
+  if constexpr(SplitTypeOptionsV::AllowEmptyInital)
+  {
+    if(std::find(delimiters.cbegin(), delimiters.cend(), str[0]) != delimiters.cend())
     {
-      if(second != endPos)
-      {
-        *second = '\0';
-      }
-      tokens.push_back({&*first});
+      tokens.emplace_back("");
+      startPos++;
     }
-  });
-  // std::cout << "Tokens: " << tokens.size() << std::endl;
+  }
+
+  if constexpr(!SplitTypeOptionsV::AllowEmptyFinal)
+  {
+    if(std::find(delimiters.cbegin(), delimiters.cend(), str[str.size() - 1]) != delimiters.cend())
+    {
+      endPos--;
+    }
+  }
+
+  if constexpr(!SplitTypeOptionsV::AllowConsecutiveAsEmpty)
+  {
+    tokenize<false>(startPos, endPos, delimiters.cbegin(), delimiters.cend(), tokens);
+    if constexpr(SplitTypeOptionsV::AllowEmptyFinal)
+    {
+      if(std::find(delimiters.cbegin(), delimiters.cend(), str[str.size() - 1]) != delimiters.cend())
+      {
+        tokens.emplace_back("");
+      }
+    }
+  }
+  else
+  {
+    if constexpr(!SplitTypeOptionsV::AllowEmptyInital)
+    {
+      if(std::find(delimiters.cbegin(), delimiters.cend(), str[0]) != delimiters.cend())
+      {
+        startPos++;
+      }
+    }
+    tokenize<true>(startPos, endPos, delimiters.cbegin(), delimiters.cend(), tokens);
+  }
+
+  tokens.shrink_to_fit();
+
+  // No Delimiters found
+  if(tokens.empty())
+  {
+    tokens.emplace_back(str);
+  }
+
   return tokens;
 }
+} // namespace detail
 
-inline StringTokenType split_2(const std::string& line, char delimiter)
+inline const std::string k_Whitespaces = " \t\f\v\n\r";
+
+using StringTokenType = std::vector<std::string>;
+
+enum SplitType : uint8_t
 {
-  std::stringstream ss(line);
+  IgnoreEmpty,
+  AllowAll,
+  NoStripIgnoreConsecutive,
+  OnlyConsecutive,
+  AllowEmptyLeftAnalyze,
+  AllowEmptyRightAnalyze
+};
 
-  StringTokenType tokens;
-  std::string temp_str;
-
-  while(getline(ss, temp_str, delimiter))
+inline std::vector<std::string> specific_split(std::string_view str,  std::vector<char>&& delimiters, SplitType splitType)
+{
+  switch(splitType)
   {
-    tokens.push_back(temp_str);
+  case IgnoreEmpty:
+    return detail::optimized_split<detail::SplitIgnoreEmpty>(str, std::move(delimiters));
+  case AllowAll:
+    return detail::optimized_split<detail::SplitAllowAll>(str, std::move(delimiters));
+  case NoStripIgnoreConsecutive:
+    return detail::optimized_split<detail::SplitNoStripIgnoreConsecutive>(str, std::move(delimiters));
+  case OnlyConsecutive:
+    return detail::optimized_split<detail::SplitOnlyConsecutive>(str, std::move(delimiters));
+  case AllowEmptyLeftAnalyze:
+    return detail::optimized_split<detail::SplitAllowEmptyLeftAnalyze>(str, std::move(delimiters));
+  case AllowEmptyRightAnalyze:
+    return detail::optimized_split<detail::SplitAllowEmptyRightAnalyze>(str, std::move(delimiters));
   }
-  return tokens;
+
+  return {};
+}
+
+inline std::vector<std::string> split(std::string_view str, std::vector<char>&& delimiters, bool consecutiveDelimiters)
+{
+  if(consecutiveDelimiters)
+  {
+    // Split Allow All was selected to match QString's base split functionality
+    return detail::optimized_split<detail::SplitAllowAll>(str, std::move(delimiters));
+  }
+  else
+  {
+    return detail::optimized_split<detail::SplitIgnoreEmpty>(str, std::move(delimiters));
+  }
+}
+
+inline std::vector<std::string> split(std::string_view str, char delim)
+{
+  return detail::optimized_split<detail::SplitIgnoreEmpty>(str, std::vector<char>{delim});
 }
 
 inline std::string replace(std::string str, const std::string& from, const std::string& to)
@@ -120,8 +226,7 @@ inline std::string ltrim(const std::string& s)
   {
     return out;
   }
-  std::string whitespaces(" \t\f\v\n\r");
-  std::string::size_type front = out.find_first_not_of(whitespaces);
+  std::string::size_type front = out.find_first_not_of(k_Whitespaces);
   if(front != std::string::npos)
   {
     out = out.substr(front);
@@ -140,8 +245,7 @@ inline std::string rtrim(const std::string& s)
   {
     return out;
   }
-  std::string whitespaces(" \t\f\v\n\r");
-  std::string::size_type back = out.find_last_not_of(whitespaces);
+  std::string::size_type back = out.find_last_not_of(k_Whitespaces);
   if(back != std::string::npos)
   {
     out.erase(back + 1);
@@ -160,8 +264,7 @@ inline std::string trimmed(const std::string& s)
   {
     return out;
   }
-  std::string whitespaces(" \t\f\v\n\r");
-  std::string::size_type back = out.find_last_not_of(whitespaces);
+  std::string::size_type back = out.find_last_not_of(k_Whitespaces);
   if(back != std::string::npos)
   {
     out.erase(back + 1);
@@ -170,7 +273,7 @@ inline std::string trimmed(const std::string& s)
   {
     out.clear();
   }
-  std::string::size_type front = out.find_first_not_of(whitespaces);
+  std::string::size_type front = out.find_first_not_of(k_Whitespaces);
   if(front != std::string::npos)
   {
     out = out.substr(front);
@@ -217,5 +320,4 @@ inline std::string simplified(const std::string& text)
   }
   return finalString;
 }
-
 } // namespace EbsdStringUtils
