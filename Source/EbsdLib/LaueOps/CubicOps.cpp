@@ -948,16 +948,13 @@ void CubicOps::getSchmidFactorAndSS(double load[3], double plane[3], double dire
 
 double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
-  // double g1[3][3];
-  // double g2[3][3];
-  // double g1temp[3][3];
-  // double g2temp[3][3];
   EbsdLib::Matrix3X1D hkl1;
   EbsdLib::Matrix3X1D uvw1;
   EbsdLib::Matrix3X1D hkl2;
   EbsdLib::Matrix3X1D uvw2;
   EbsdLib::Matrix3X1D slipDirection;
   EbsdLib::Matrix3X1D slipPlane;
+
   double schmidFactor1 = 0, schmidFactor2 = 0, maxSchmidFactor = 0;
   double directionComponent1 = 0, planeComponent1 = 0;
   double directionComponent2 = 0, planeComponent2 = 0;
@@ -1047,10 +1044,6 @@ double CubicOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 
 double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
-  // double g1[3][3];
-  // double g2[3][3];
-  // double g1temp[3][3];
-  // double g2temp[3][3];
   EbsdLib::Matrix3X1D hkl1;
   EbsdLib::Matrix3X1D uvw1;
   EbsdLib::Matrix3X1D hkl2;
@@ -1112,7 +1105,7 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         hkl2 = hkl2.normalize();
         uvw2 = uvw2.normalize();
 
-        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw2.data(), uvw2.data()));
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1.data(), uvw2.data()));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
       F1 = schmidFactor1 * directionComponent1 * totalDirectionMisalignment;
@@ -1134,24 +1127,25 @@ double CubicOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
 
 double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
-  double g1[3][3];
-  double g2[3][3];
-  double g1temp[3][3];
-  double g2temp[3][3];
-  double hkl1[3], uvw1[3];
-  double hkl2[3], uvw2[3];
-  double slipDirection[3], slipPlane[3];
+  EbsdLib::Matrix3X1D hkl1;
+  EbsdLib::Matrix3X1D uvw1;
+  EbsdLib::Matrix3X1D hkl2;
+  EbsdLib::Matrix3X1D uvw2;
+  EbsdLib::Matrix3X1D slipDirection;
+  EbsdLib::Matrix3X1D slipPlane;
+
   double directionMisalignment = 0, totalDirectionMisalignment = 0;
   double planeMisalignment = 0, totalPlaneMisalignment = 0;
   double schmidFactor1 = 0, maxSchmidFactor = 0;
   double directionComponent1 = 0, planeComponent1 = 0;
-  // s double directionComponent2 = 0, planeComponent2 = 0;
   double maxF1spt = 0.0;
   double F1spt = 0.0f;
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
-  EbsdMatrixMath::Transpose3x3(g1temp, g1);
-  EbsdMatrixMath::Transpose3x3(g2temp, g2);
+
+  EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(q1).data());
+  EbsdLib::Matrix3X3D g1 = g.transpose();
+
+  g = EbsdLib::Matrix3X3D(OrientationTransformation::qu2om<QuatD, OrientationType>(q2).data());
+  EbsdLib::Matrix3X3D g2 = g.transpose();
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1167,12 +1161,14 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
-    EbsdMatrixMath::Normalize3x1(hkl1);
-    EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    hkl1 = g1 * slipPlane;
+    uvw1 = g1 * slipDirection;
+
+    hkl1 = hkl1.normalize();
+    uvw1 = uvw1.normalize();
+
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1.data()));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1.data()));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1190,15 +1186,14 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
-        EbsdMatrixMath::Normalize3x1(hkl2);
-        EbsdMatrixMath::Normalize3x1(uvw2);
-        // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
-        // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
-        // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
-        planeMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(hkl1, hkl2));
+
+        hkl2 = g2 * slipPlane;
+        uvw2 = g2 * slipDirection;
+        hkl2 = hkl2.normalize();
+        uvw2 = uvw2.normalize();
+
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1.data(), uvw2.data()));
+        planeMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(hkl1.data(), hkl2.data()));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
         totalPlaneMisalignment = totalPlaneMisalignment + planeMisalignment;
       }
@@ -1221,13 +1216,13 @@ double CubicOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool m
 
 double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const
 {
-  double g1[3][3];
-  double g2[3][3];
-  double g1temp[3][3];
-  double g2temp[3][3];
-  double hkl1[3], uvw1[3];
-  double hkl2[3], uvw2[3];
-  double slipDirection[3], slipPlane[3];
+  EbsdLib::Matrix3X1D hkl1;
+  EbsdLib::Matrix3X1D uvw1;
+  EbsdLib::Matrix3X1D hkl2;
+  EbsdLib::Matrix3X1D uvw2;
+  EbsdLib::Matrix3X1D slipDirection;
+  EbsdLib::Matrix3X1D slipPlane;
+
   double directionMisalignment = 0, totalDirectionMisalignment = 0;
   double schmidFactor1 = 0.0, maxSchmidFactor = 0.0;
   double directionComponent1 = 0.0;
@@ -1237,10 +1232,11 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
   double maxF7 = 0.0;
   double F7 = 0.0f;
 
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q1).toGMatrix(g1temp);
-  OrientationTransformation::qu2om<QuatD, OrientationType>(q2).toGMatrix(g2temp);
-  EbsdMatrixMath::Transpose3x3(g1temp, g1);
-  EbsdMatrixMath::Transpose3x3(g2temp, g2);
+  EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(q1).data());
+  EbsdLib::Matrix3X3D g1 = g.transpose();
+
+  g = EbsdLib::Matrix3X3D(OrientationTransformation::qu2om<QuatD, OrientationType>(q2).data());
+  EbsdLib::Matrix3X3D g2 = g.transpose();
 
   EbsdMatrixMath::Normalize3x1(LD);
 
@@ -1252,12 +1248,12 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
     slipPlane[0] = CubicHigh::SlipPlanes[i][0];
     slipPlane[1] = CubicHigh::SlipPlanes[i][1];
     slipPlane[2] = CubicHigh::SlipPlanes[i][2];
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipPlane, hkl1);
-    EbsdMatrixMath::Multiply3x3with3x1(g1, slipDirection, uvw1);
-    EbsdMatrixMath::Normalize3x1(hkl1);
-    EbsdMatrixMath::Normalize3x1(uvw1);
-    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1));
-    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1));
+    hkl1 = g1 * slipPlane;
+    uvw1 = g1 * slipDirection;
+    hkl1 = hkl1.normalize();
+    uvw1 = uvw1.normalize();
+    directionComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, uvw1.data()));
+    planeComponent1 = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(LD, hkl1.data()));
     schmidFactor1 = directionComponent1 * planeComponent1;
     if(schmidFactor1 > maxSchmidFactor || !maxSF)
     {
@@ -1274,14 +1270,12 @@ double CubicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS
         slipPlane[0] = CubicHigh::SlipPlanes[j][0];
         slipPlane[1] = CubicHigh::SlipPlanes[j][1];
         slipPlane[2] = CubicHigh::SlipPlanes[j][2];
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipPlane, hkl2);
-        EbsdMatrixMath::Multiply3x3with3x1(g2, slipDirection, uvw2);
-        EbsdMatrixMath::Normalize3x1(hkl2);
-        EbsdMatrixMath::Normalize3x1(uvw2);
-        // directionComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, uvw2));
-        // planeComponent2 = std::fabs(GeometryMath::CosThetaBetweenVectors(LD, hkl2));
-        // schmidFactor2 = directionComponent2 * planeComponent2;
-        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1, uvw2));
+        hkl2 = g2 * slipPlane;
+        uvw2 = g2 * slipDirection;
+        hkl2 = hkl2.normalize();
+        uvw2 = uvw2.normalize();
+
+        directionMisalignment = std::fabs(EbsdLib::GeometryMath::CosThetaBetweenVectors(uvw1.data(), uvw2.data()));
         totalDirectionMisalignment = totalDirectionMisalignment + directionMisalignment;
       }
       F7 = directionComponent1 * directionComponent1 * totalDirectionMisalignment;

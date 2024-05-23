@@ -810,7 +810,7 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
 
 double HexagonalOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
+  return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
    * they could unknowningly get really bad results
@@ -845,12 +845,11 @@ double HexagonalOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) c
   directionmisalignment = fabs((u1 * u2 + v1 * v2 + w1 * w2) / (denomuvw1 * denomuvw2));
   mPrime = planemisalignment * directionmisalignment;
 #endif
-  return 0.0;
 }
 
 double HexagonalOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
+  return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
    * they could unknowningly get really bad results
@@ -922,11 +921,10 @@ double HexagonalOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool 
   }
   */
 #endif
-  return 0.0;
 }
 double HexagonalOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
+  return 0.0;
 #if 0
   double g1[3][3];
   double g2[3][3];
@@ -999,12 +997,11 @@ double HexagonalOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bo
   }
   */
 #endif
-  return 0.0;
 }
 
 double HexagonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
+  return 0.0;
 #if 0
   double g1[3][3];
   double g2[3][3];
@@ -1068,7 +1065,6 @@ double HexagonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool 
   }
   */
 #endif
-  return 0.0;
 }
 // -----------------------------------------------------------------------------
 //

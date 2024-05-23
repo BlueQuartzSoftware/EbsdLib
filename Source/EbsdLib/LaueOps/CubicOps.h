@@ -81,17 +81,17 @@ public:
    */
   bool getHasInversion() const override;
 
-    /**
+  /**
    * @brief getODFSize Returns the number of ODF bins
    * @return
    */
   int getODFSize() const override;
 
-/**
+  /**
    * @brief getNumSymmetry Returns the internal variables for symSize0, symSize1, symSize2
    * @return
    */
- std::array<int32_t, 3> getNumSymmetry() const override;
+  std::array<int32_t, 3> getNumSymmetry() const override;
 
   /**
    * @brief getMDFSize Returns the number of MDF bins
@@ -167,9 +167,56 @@ public:
   int getOdfBin(const OrientationType& rod) const override;
   void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
   void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
+
+  /**
+   * @brief Compute the Luster-Morris parameter
+   * @param q1
+   * @param q2
+   * @param LD
+   * @return
+   */
   double getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const override;
+
+  /**
+   * @brief Compute the Fracture Initiation Parameter F1 variation.
+   *
+   * [2] [D. Kumar, T. R. Bieler, P. Eisenlohr, D. E. Mason, M. A. Crimp, F. Roters, and D. Raabe. On Predicting Nucleation of Microcracks Due to Slip Twin Interactions at Grain Boundaries in Duplex
+   * Near γ-TiAl. Journal of Engineering Materials and Technology, 130(2):021012–12, 2008. doi:10.1115/1.2841620.](https://doi.org/10.1115/1.2841620)
+   *
+   * @param q1
+   * @param q2
+   * @param LD
+   * @param maxSF
+   * @return
+   */
   double getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
+
+  /**
+   * @brief Compute the Fracture Initiation Parameter F1spt variation.
+   *
+   * [2] [D. Kumar, T. R. Bieler, P. Eisenlohr, D. E. Mason, M. A. Crimp, F. Roters, and D. Raabe. On Predicting Nucleation of Microcracks Due to Slip Twin Interactions at Grain Boundaries in Duplex
+   * Near γ-TiAl. Journal of Engineering Materials and Technology, 130(2):021012–12, 2008. doi:10.1115/1.2841620.](https://doi.org/10.1115/1.2841620)
+   *
+   * @param q1
+   * @param q2
+   * @param LD
+   * @param maxSF
+   * @return
+   */
   double getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
+
+  /**
+   * @brief Compute the Fracture Initiation Parameter F7 variation.
+   *
+   * [2] [D. Kumar, T. R. Bieler, P. Eisenlohr, D. E. Mason, M. A. Crimp, F. Roters, and D. Raabe. On Predicting Nucleation of Microcracks Due to Slip Twin Interactions at Grain Boundaries in Duplex
+   * Near γ-TiAl. Journal of Engineering Materials and Technology, 130(2):021012–12, 2008. doi:10.1115/1.2841620.](https://doi.org/10.1115/1.2841620)
+   *
+   * @param q1
+   * @param q2
+   * @param LD
+   * @param maxSF
+   * @return
+   */
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
   void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const override;
@@ -220,7 +267,7 @@ public:
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
    *<001>, <011> and <111> for a cubic system
    */
- std::array<std::string, 3> getDefaultPoleFigureNames() const override;
+  std::array<std::string, 3> getDefaultPoleFigureNames() const override;
 
   /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.

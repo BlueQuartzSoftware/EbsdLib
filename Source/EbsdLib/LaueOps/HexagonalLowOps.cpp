@@ -777,7 +777,7 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
 
 double HexagonalLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
+  return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
    * they could unknowningly get really bad results
@@ -817,7 +817,6 @@ double HexagonalLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]
 
 double HexagonalLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
@@ -893,7 +892,6 @@ double HexagonalLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bo
 }
 double HexagonalLowOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   double g1[3][3];
@@ -971,7 +969,6 @@ double HexagonalLowOps::getF1spt(const QuatD& q1, const QuatD& q2, double LD[3],
 
 double HexagonalLowOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxS) const
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
   return 0.0;
 #if 0
   double g1[3][3];
