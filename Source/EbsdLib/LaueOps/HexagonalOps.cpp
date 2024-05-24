@@ -91,29 +91,55 @@ static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0},
                                                  {0.0, 1000000000000.0, 0.0},
                                                  {-5000000000000.0, 8660254000000.0, 0.0},
                                                  {-8660254000000.0, 5000000000000.0, 0.0}};
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+// clang-format off
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
+                                                    {0.0, 1.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                   {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                   {0.0, 0.0, 1.0}},
 
-                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, 
+                                                   {0.0, 0.0, 1.0}},
 
-                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{-1.0, 0.0, 0.0}, 
+                                                   {0.0, -1.0, 0.0}, 
+                                                   {0.0, 0.0, 1.0}},
 
-                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, 
+                                                   {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {-EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, 
+                                                   {0.0, 0.0, -1.0}},
 
-                                                   {{1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{1.0, 0.0, 0.0}, 
+                                                   {0.0, -1.0, 0.0}, 
+                                                   {0.0, 0.0, -1.0}},
 
-                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {EbsdLib::Constants::k_Root3Over2D, 0.5, 0.0}, 
+                                                   {0.0, 0.0, -1.0}},
 
-                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                   {0.0, 0.0, -1.0}},
 
-                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                   {{-1.0, 0.0, 0.0}, 
+                                                   {0.0, 1.0, 0.0}, 
+                                                   {0.0, 0.0, -1.0}},
 
-                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}}};
+                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                   {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                   {0.0, 0.0, -1.0}}};
+// clang-format on
 
 // Use a namespace for some detail that only this class needs
 } // namespace HexagonalHigh
