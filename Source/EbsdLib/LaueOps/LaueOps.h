@@ -293,6 +293,12 @@ public:
    */
   virtual std::array<std::string, 3> getDefaultPoleFigureNames() const = 0;
 
+  /**
+   * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
+   * @return
+   */
+  virtual EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const = 0;
+
 protected:
   LaueOps();
 
