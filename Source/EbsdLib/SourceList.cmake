@@ -167,9 +167,10 @@ endif()
 # with newer versions of Clang. Clang versions above verison 14 default
 # this to ON where as before it was OFF. This can have the effect of 
 # changing outputs between clang versions.
-target_compile_options( ${PROJECT_NAME} PUBLIC
-  $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang,Intel>: "-ffp-contract=off">
- )
+target_compile_options(${PROJECT_NAME}
+  PUBLIC
+    $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang,Intel>:-ffp-contract=off>
+)
 
 LibraryProperties(${PROJECT_NAME} ${EXE_DEBUG_EXTENSION})
 
