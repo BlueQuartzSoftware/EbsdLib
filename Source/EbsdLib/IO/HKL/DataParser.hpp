@@ -516,7 +516,7 @@ public:
   }
 
 protected:
-  NumericParser<T>(T* ptr, size_t size, const std::string& name, int index)
+  NumericParser(T* ptr, size_t size, const std::string& name, int index)
   : m_Ptr(ptr)
   {
     setManageMemory(true);
@@ -529,9 +529,9 @@ private:
   T* m_Ptr;
 
 public:
-  NumericParser<T>(const NumericParser<T>&) = delete;            // Copy Constructor Not Implemented
-  NumericParser<T>(NumericParser<T>&&) = delete;                 // Move Constructor Not Implemented
-  NumericParser<T>& operator=(const NumericParser<T>&) = delete; // Copy Assignment Not Implemented
-  NumericParser<T>& operator=(NumericParser<T>&&) = delete;      // Move Assignment Not Implemented
+  NumericParser(const NumericParser&) = delete;            // Copy Constructor Not Implemented
+  NumericParser(NumericParser&&) = delete;                 // Move Constructor Not Implemented
+  NumericParser& operator=(const NumericParser&) = delete; // Copy Assignment Not Implemented
+  NumericParser& operator=(NumericParser&&) = delete;      // Move Assignment Not Implemented
 };
 
