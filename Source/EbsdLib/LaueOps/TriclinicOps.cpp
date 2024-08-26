@@ -70,13 +70,15 @@ static const int k_OdfSize = 373248;
 static const int k_MdfSize = 373248;
 static const int k_SymOpsCount = 1;
 static const int k_NumMdfBins = 36;
-
+// clang-format off
 static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
 
 static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
-
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
+                                                    {0.0, 1.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}}};
+// clang-format on
 } // namespace Triclinic
 
 // -----------------------------------------------------------------------------

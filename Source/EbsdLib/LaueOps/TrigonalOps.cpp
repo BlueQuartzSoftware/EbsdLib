@@ -70,7 +70,7 @@ static const int k_OdfSize = 31104;
 static const int k_MdfSize = 31104;
 static const int k_SymOpsCount = 6;
 static const int k_NumMdfBins = 12;
-
+// clang-format off
 static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
                                            QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000), QuatD(1.000000000, 0.000000000, 0.000000000, 0.000000000),
                                            QuatD(-0.500000000, 0.86602540, 0.000000000, 0.000000000), QuatD(-0.500000000, -0.866025400, 0.000000000, 0.000000000)};
@@ -78,18 +78,30 @@ static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000
 static const std::vector<OrientationD> RodSym = {
     {0.0, 0.0, 0.0}, {0.0, 0.0, 1.73205}, {0.0, 0.0, -1.73205}, {8660254000000.0, 5000000000000.0, 0.0}, {0.0, 1000000000000.0, 0.0}, {-8660254000000.0, 5000000000000.0, 0.0}};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
+                                                    {0.0, 1.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                    {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                    {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
+                                                    {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                    {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}},
+                                                    {{0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                    {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                    {0.0, 0.0, -1.0}},
 
-                                                   {{-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}},
+                                                    {{-1.0, 0.0, 0.0}, 
+                                                    {0.0, 1.0, 0.0}, 
+                                                    {0.0, 0.0, -1.0}},
 
-                                                   {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, -1.0}}};
-
+                                                    {{0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, 
+                                                    {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, 
+                                                    {0.0, 0.0, -1.0}}};
+// clang-format on
 } // namespace TrigonalHigh
 
 // -----------------------------------------------------------------------------

@@ -70,19 +70,33 @@ static const int k_MdfSize = 93312;
 static const int k_SymOpsCount = 4;
 static const int k_NumMdfBins = 36;
 
-static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
+// clang-format off
+static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), 
+                                           QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
                                            QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, -EbsdLib::Constants::k_1OverRoot2D),
                                            QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D)};
 
-static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 10000000000.0}, {0.0, 0.0, -1.0}, {0.0, 0.0, 1.0}};
+static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, 
+                                                {0.0, 0.0, 10000000000.0}, 
+                                                {0.0, 0.0, -1.0}, 
+                                                {0.0, 0.0, 1.0}};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
+                                                    {0.0, 1.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                    {{-1.0, 0.0, 0.0}, 
+                                                    {0.0, -1.0, 0.0},
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{0.0, 1.0, 0.0}, {-1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                    {{0.0, 1.0, 0.0},
+                                                    {-1.0, 0.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}},
 
-                                                   {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};
+                                                    {{0.0, -1.0, 0.0}, 
+                                                    {1.0, 0.0, 0.0}, 
+                                                    {0.0, 0.0, 1.0}}};
+// clang-format on
 
 } // namespace TetragonalLow
 
