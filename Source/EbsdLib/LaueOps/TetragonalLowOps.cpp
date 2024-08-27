@@ -69,35 +69,41 @@ static const int k_OdfSize = 93312;
 static const int k_MdfSize = 93312;
 static const int k_SymOpsCount = 4;
 static const int k_NumMdfBins = 36;
-
+// Rotation Point Group: 4
 // clang-format off
-static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), 
-                                           QuatD(0.000000000, 0.000000000, 1.000000000, 0.000000000),
-                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, -EbsdLib::Constants::k_1OverRoot2D),
-                                           QuatD(0.000000000, 0.000000000, EbsdLib::Constants::k_1OverRoot2D, EbsdLib::Constants::k_1OverRoot2D)};
+static const std::vector<QuatD> QuatSym ={
+    QuatD(0.0, 0.0, 0.0, 1.0),
+    QuatD(0.0, 0.0, 1.0, 0.0),
+    QuatD(0.0, 0.0, 0.7071067811865476, 0.7071067811865476),
+    QuatD(0.0, 0.0, -0.7071067811865476, 0.7071067811865476),
+};
 
-static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, 
-                                                {0.0, 0.0, 10000000000.0}, 
-                                                {0.0, 0.0, -1.0}, 
-                                                {0.0, 0.0, 1.0}};
+static const std::vector<OrientationD> RodSym = {
+    {0.0, 0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0, 10000000000000.0},
+    {0.0, 0.0, 1.0, 1.0},
+    {0.0, 0.0, -1.0, 1.0},
+};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
-                                                    {0.0, 1.0, 0.0}, 
-                                                    {0.0, 0.0, 1.0}},
-
-                                                    {{-1.0, 0.0, 0.0}, 
-                                                    {0.0, -1.0, 0.0},
-                                                    {0.0, 0.0, 1.0}},
-
-                                                    {{0.0, 1.0, 0.0},
-                                                    {-1.0, 0.0, 0.0}, 
-                                                    {0.0, 0.0, 1.0}},
-
-                                                    {{0.0, -1.0, 0.0}, 
-                                                    {1.0, 0.0, 0.0}, 
-                                                    {0.0, 0.0, 1.0}}};
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{-1.0, 0.0, 0.0},
+    {0.0, -1.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{0.0, -1.0, 0.0},
+    {1.0, 0.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{0.0, 1.0, 0.0},
+    {-1.0, 0.0, -0.0},
+    {-0.0, 0.0, 1.0}},
+    
+};
 // clang-format on
-
 } // namespace TetragonalLow
 
 // -----------------------------------------------------------------------------
@@ -166,7 +172,14 @@ std::array<size_t, 3> TetragonalLowOps::getOdfNumBins() const
 std::string TetragonalLowOps::getSymmetryName() const
 {
   return "Tetragonal 4/m";
-  ;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::string TetragonalLowOps::getRotationPointGroup() const
+{
+  return "4";
 }
 
 OrientationD TetragonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
@@ -684,7 +697,7 @@ EbsdLib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TetragonalLowOps::getDefaultPoleFigureNames() const
 {
-return {"<001>", "<100>", "<010>"};
+  return {"<001>", "<100>", "<010>"};
 }
 
 // -----------------------------------------------------------------------------
@@ -692,7 +705,7 @@ return {"<001>", "<100>", "<010>"};
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];

@@ -36,9 +36,9 @@
 #include "LaueOps.h"
 
 #include <chrono>
+#include <exception>
 #include <limits>
 #include <random>
-#include <exception>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
@@ -55,6 +55,22 @@
 #include "EbsdLib/LaueOps/TrigonalOps.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/Utilities/ColorTable.h"
+
+/**
+| Index | Verified | Class           | Group | Num Sym Ops |
+|-------|----------|-----------------|-------|-------------|
+|   X    |   X     | TriclinicOps    | 1     | 1           |
+|    X   |   X     | MonoclinicOps   | 2     | 2           |
+|    X   |   X     | Orthorhombic    | 222   | 4           |
+|  X     |   X     | TetragonalLow   | 4     | 4           |
+|   X    |   X     | TetragonalOps   | 422    | 8           |
+|   X    |   X     | TrigonalLow     | 3     | 3           |
+|   X    |   X     | TrigonalOps     | 32    | 6           |
+|    X   |   X     | HexagonalLow    | 6     | 6           |
+|   X    |   X     | HexagonalOps    | 622   | 12          |
+|   X    |   X     | CubicLow        | 23    | 12          |
+|   X    |   X     | CubicOps        | 432   | 24          |
+*/
 
 namespace Detail
 {
@@ -326,24 +342,24 @@ int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const Or
 std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 {
   std::vector<LaueOps::Pointer> m_OrientationOps;
-  m_OrientationOps.push_back(HexagonalOps::New());
+  /*[0]*/ m_OrientationOps.push_back(HexagonalOps::New());
 
-  m_OrientationOps.push_back(CubicOps::New());
+  /*[1]*/ m_OrientationOps.push_back(CubicOps::New());
 
-  m_OrientationOps.push_back(HexagonalLowOps::New()); // Hex Low
-  m_OrientationOps.push_back(CubicLowOps::New());     // Cubic Low
-  m_OrientationOps.push_back(TriclinicOps::New());    // Triclinic
-  m_OrientationOps.push_back(MonoclinicOps::New());   // Monoclinic
+  /*[2]*/ m_OrientationOps.push_back(HexagonalLowOps::New()); // Hex Low
+  /*[3]*/ m_OrientationOps.push_back(CubicLowOps::New());     // Cubic Low
+  /*[4]*/ m_OrientationOps.push_back(TriclinicOps::New());    // Triclinic
+  /*[5]*/ m_OrientationOps.push_back(MonoclinicOps::New());   // Monoclinic
 
-  m_OrientationOps.push_back(OrthoRhombicOps::New()); // OrthoRhombic
+  /*[6]*/ m_OrientationOps.push_back(OrthoRhombicOps::New()); // OrthoRhombic
 
-  m_OrientationOps.push_back(TetragonalLowOps::New()); // Tetragonal-low
-  m_OrientationOps.push_back(TetragonalOps::New());    // Tetragonal-high
+  /*[7]*/ m_OrientationOps.push_back(TetragonalLowOps::New()); // Tetragonal-low
+  /*[8]*/ m_OrientationOps.push_back(TetragonalOps::New());    // Tetragonal-high
 
-  m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
-  m_OrientationOps.push_back(TrigonalOps::New());    // Trigonal-High
+  /*[9]*/ m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
+  /*[10]*/ m_OrientationOps.push_back(TrigonalOps::New());   // Trigonal-High
 
-  m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
+  /*[11]*/ m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
 
   return m_OrientationOps;
 }
@@ -455,4 +471,3 @@ EbsdLib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& r
 {
   throw std::runtime_error("LaueOps::generateMisorientationColor is not implemented.");
 }
-

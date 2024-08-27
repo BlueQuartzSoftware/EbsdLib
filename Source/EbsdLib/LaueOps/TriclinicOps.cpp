@@ -70,14 +70,22 @@ static const int k_OdfSize = 373248;
 static const int k_MdfSize = 373248;
 static const int k_SymOpsCount = 1;
 static const int k_NumMdfBins = 36;
+// Rotation Point Group: 1
 // clang-format off
-static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000)};
+static const std::vector<QuatD> QuatSym ={
+    QuatD(0.0, 0.0, 0.0, 1.0),
+};
 
-static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}};
+static const std::vector<OrientationD> RodSym = {
+    {0.0, 0.0, 1.0, 0.0},
+};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, 
-                                                    {0.0, 1.0, 0.0}, 
-                                                    {0.0, 0.0, 1.0}}};
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+};
 // clang-format on
 } // namespace Triclinic
 
@@ -147,7 +155,14 @@ std::array<size_t, 3> TriclinicOps::getOdfNumBins() const
 std::string TriclinicOps::getSymmetryName() const
 {
   return "Triclinic -1";
-  ;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::string TriclinicOps::getRotationPointGroup() const
+{
+  return "1";
 }
 
 // -----------------------------------------------------------------------------
@@ -671,7 +686,7 @@ EbsdLib::Rgb TriclinicOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TriclinicOps::getDefaultPoleFigureNames() const
 {
-return {"<001>", "<100>", "<010>"};
+  return {"<001>", "<100>", "<010>"};
 }
 
 // -----------------------------------------------------------------------------
@@ -679,7 +694,7 @@ return {"<001>", "<100>", "<010>"};
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];

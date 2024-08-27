@@ -82,17 +82,17 @@ public:
    */
   bool getHasInversion() const override;
 
-    /**
+  /**
    * @brief getODFSize Returns the number of ODF bins
    * @return
    */
   int getODFSize() const override;
 
-/**
+  /**
    * @brief getNumSymmetry Returns the internal variables for symSize0, symSize1, symSize2
    * @return
    */
- std::array<int32_t, 3> getNumSymmetry() const override;
+  std::array<int32_t, 3> getNumSymmetry() const override;
 
   /**
    * @brief getMDFSize Returns the number of MDF bins
@@ -117,6 +117,12 @@ public:
    * @return
    */
   std::string getSymmetryName() const override;
+
+  /**
+   * @brief Returns the Rotation Point Group for the LaueClass.
+   * @return
+   */
+  virtual std::string getRotationPointGroup() const override;
 
   /**
    * @brief Returns the number of bins in each of the 3 dimensions
@@ -205,7 +211,6 @@ public:
    */
   EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
 
-
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
    * angles that are passed in.
@@ -221,7 +226,7 @@ public:
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
    *<001>, <011> and <111> for a cubic system
    */
- std::array<std::string, 3> getDefaultPoleFigureNames() const override;
+  std::array<std::string, 3> getDefaultPoleFigureNames() const override;
 
   /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
