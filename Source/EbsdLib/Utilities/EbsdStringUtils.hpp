@@ -169,7 +169,7 @@ enum SplitType : uint8_t
   AllowEmptyRightAnalyze
 };
 
-inline std::vector<std::string> specific_split(std::string_view str,  std::vector<char>&& delimiters, SplitType splitType)
+inline std::vector<std::string> specific_split(std::string_view str, std::vector<char>&& delimiters, SplitType splitType)
 {
   switch(splitType)
   {

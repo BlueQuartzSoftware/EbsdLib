@@ -52,7 +52,7 @@
 //-- Qt includes
 #include <QtCore/QSharedPointer>
 #include <string>
-//#define RAW_PTR  data
+// #define RAW_PTR  data
 #endif
 
 /**

@@ -30,10 +30,10 @@ public:
 #endif
   }
 
-#define H5OINA_CHECK_POINTERS(name, def, type)                                                                                                                                                              \
+#define H5OINA_CHECK_POINTERS(name, def, type)                                                                                                                                                         \
   {                                                                                                                                                                                                    \
     type* ptr0 = reader->get##name##Pointer();                                                                                                                                                         \
-    void* ptr1 = reader->getPointerByName(def);                                                                                                                                                      \
+    void* ptr1 = reader->getPointerByName(def);                                                                                                                                                        \
     DREAM3D_REQUIRED(ptr0, ==, ptr1)                                                                                                                                                                   \
   }
 
@@ -52,15 +52,14 @@ public:
     DREAM3D_REQUIRED(err, ==, 0)
 
     H5OINA_CHECK_POINTERS(BandContrast, EbsdLib::H5OINA::BandContrast, uint8_t)
-    H5OINA_CHECK_POINTERS(BandSlope, EbsdLib::H5OINA::BandSlope,uint8_t)
-    H5OINA_CHECK_POINTERS(Bands, EbsdLib::H5OINA::Bands,uint8_t)
-    H5OINA_CHECK_POINTERS(Error, EbsdLib::H5OINA::Error,uint8_t)
-    H5OINA_CHECK_POINTERS(Euler, EbsdLib::H5OINA::Euler,float)
-    H5OINA_CHECK_POINTERS(MeanAngularDeviation, EbsdLib::H5OINA::MeanAngularDeviation,float)
-    H5OINA_CHECK_POINTERS(Phase, EbsdLib::H5OINA::Phase,uint8_t)
-    H5OINA_CHECK_POINTERS(X, EbsdLib::H5OINA::X,float)
-    H5OINA_CHECK_POINTERS(Y, EbsdLib::H5OINA::Y,float)
-
+    H5OINA_CHECK_POINTERS(BandSlope, EbsdLib::H5OINA::BandSlope, uint8_t)
+    H5OINA_CHECK_POINTERS(Bands, EbsdLib::H5OINA::Bands, uint8_t)
+    H5OINA_CHECK_POINTERS(Error, EbsdLib::H5OINA::Error, uint8_t)
+    H5OINA_CHECK_POINTERS(Euler, EbsdLib::H5OINA::Euler, float)
+    H5OINA_CHECK_POINTERS(MeanAngularDeviation, EbsdLib::H5OINA::MeanAngularDeviation, float)
+    H5OINA_CHECK_POINTERS(Phase, EbsdLib::H5OINA::Phase, uint8_t)
+    H5OINA_CHECK_POINTERS(X, EbsdLib::H5OINA::X, float)
+    H5OINA_CHECK_POINTERS(Y, EbsdLib::H5OINA::Y, float)
   }
 
   // -----------------------------------------------------------------------------

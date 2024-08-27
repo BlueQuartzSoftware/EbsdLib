@@ -328,7 +328,6 @@ public:
   Int32Parser& operator=(Int32Parser&&) = delete;      // Move Assignment Not Implemented
 };
 
-
 // -----------------------------------------------------------------------------
 class FloatParser : public DataParser
 {
@@ -432,7 +431,7 @@ public:
   FloatParser& operator=(FloatParser&&) = delete;      // Move Assignment Not Implemented
 };
 
-template<typename T>
+template <typename T>
 class NumericParser : public DataParser
 {
 public:
@@ -534,4 +533,3 @@ public:
   NumericParser& operator=(const NumericParser&) = delete; // Copy Assignment Not Implemented
   NumericParser& operator=(NumericParser&&) = delete;      // Move Assignment Not Implemented
 };
-

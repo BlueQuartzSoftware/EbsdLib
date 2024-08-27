@@ -45,10 +45,10 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
-//#define PI_OVER_2f       90.0f
-//#define THREE_PI_OVER_2f 270.0f
-//#define TWO_PIf          360.0f
-//#define ONE_PIf          180.0f
+// #define PI_OVER_2f       90.0f
+// #define THREE_PI_OVER_2f 270.0f
+// #define TWO_PIf          360.0f
+// #define ONE_PIf          180.0f
 
 namespace
 {

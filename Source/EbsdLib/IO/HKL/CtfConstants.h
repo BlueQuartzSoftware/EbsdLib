@@ -193,7 +193,6 @@ const std::string LatticeConstants("LatticeConstants");
 const std::string BravaisLattice("BravaisLattice");
 } // namespace CtfFile
 
-
 //-----------------------------------------------------------------------------
 // https://github.com/oinanoanalysis/h5oina/blob/master/H5OINAFile.md#ebsd-data
 //-----------------------------------------------------------------------------
@@ -202,8 +201,8 @@ namespace H5OINA
 
 const std::string H5FileExt("h5oina");
 const std::string Index("Index");
-const std::string FormatVersion("Format Version"); // String 2.0 is the earliest that I seem to have
-const std::string Manufacturer("Manufacturer"); // String
+const std::string FormatVersion("Format Version");     // String 2.0 is the earliest that I seem to have
+const std::string Manufacturer("Manufacturer");        // String
 const std::string SoftwareVersion("Software Version"); // String
 
 const std::string FormatVersion_2("2.0");
@@ -247,27 +246,21 @@ const std::string SpaceGroup("Space Group");
 // Data: Format Version 2
 const std::string EBSD("EBSD");
 const std::string Data("Data");
-const std::string BandContrast("Band Contrast"); // uint8
-const std::string BandSlope("Band Slope"); // uint8
-const std::string Bands("Bands"); // uint8
-const std::string Error("Error"); // uint8
-const std::string Euler("Euler"); // 3xFloat32
+const std::string BandContrast("Band Contrast");                  // uint8
+const std::string BandSlope("Band Slope");                        // uint8
+const std::string Bands("Bands");                                 // uint8
+const std::string Error("Error");                                 // uint8
+const std::string Euler("Euler");                                 // 3xFloat32
 const std::string MeanAngularDeviation("Mean Angular Deviation"); // Float
-const std::string Phase("Phase"); // uint8
-const std::string X("X"); // uint8
-const std::string Y("Y"); // uint8
-
+const std::string Phase("Phase");                                 // uint8
+const std::string X("X");                                         // uint8
+const std::string Y("Y");                                         // uint8
 
 // Data Format Version 5
 
 const std::string UnprocessedPatterns("Unprocessed Patterns");
 const std::string ProcessedPatterns("Processed Patterns");
 
-
-
-
-
-
-}
+} // namespace H5OINA
 
 } // namespace EbsdLib

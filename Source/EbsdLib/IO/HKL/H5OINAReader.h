@@ -123,7 +123,7 @@ public:
 
   void setReadPatternData(bool value);
   uint16_t* getPatternData();
-  void getPatternDims(std::array<int32_t,2 > dims);
+  void getPatternDims(std::array<int32_t, 2> dims);
 
   /**
    * @brief Returns the pointer to the data for a given feature

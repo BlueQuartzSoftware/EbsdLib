@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <iostream>
 
-//#include <QtCore/QJsonArray>
+// #include <QtCore/QJsonArray>
 
 using namespace EbsdLib;
 // -----------------------------------------------------------------------------

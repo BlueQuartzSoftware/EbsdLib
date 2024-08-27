@@ -123,31 +123,31 @@ void* H5OINAReader::getPointerByName(const std::string& featureName)
   {
     return m_BandSlope.data();
   }
-   if(featureName == EbsdLib::H5OINA::Bands)
+  if(featureName == EbsdLib::H5OINA::Bands)
   {
     return m_Bands.data();
   }
-   if(featureName == EbsdLib::H5OINA::Error)
+  if(featureName == EbsdLib::H5OINA::Error)
   {
     return m_Error.data();
   }
-   if(featureName == EbsdLib::H5OINA::Euler)
+  if(featureName == EbsdLib::H5OINA::Euler)
   {
     return m_Euler.data();
   }
-   if(featureName == EbsdLib::H5OINA::MeanAngularDeviation)
+  if(featureName == EbsdLib::H5OINA::MeanAngularDeviation)
   {
     return m_MeanAngularDeviation.data();
   }
-   if(featureName == EbsdLib::H5OINA::Phase)
+  if(featureName == EbsdLib::H5OINA::Phase)
   {
     return m_Phase.data();
   }
-   if(featureName == EbsdLib::H5OINA::X)
+  if(featureName == EbsdLib::H5OINA::X)
   {
     return m_X.data();
   }
-   if(featureName == EbsdLib::H5OINA::Y)
+  if(featureName == EbsdLib::H5OINA::Y)
   {
     return m_Y.data();
   }
@@ -202,19 +202,18 @@ EbsdLib::NumericTypes::Type H5OINAReader::getPointerType(const std::string& feat
   return EbsdLib::NumericTypes::Type::UnknownNumType;
 }
 
-void  H5OINAReader::setReadPatternData(bool value)
+void H5OINAReader::setReadPatternData(bool value)
 {
   m_ReadPatternData = value;
 }
-
 
 uint16_t* H5OINAReader::getPatternData()
 {
   return nullptr;
 }
-void H5OINAReader::getPatternDims(std::array<int32_t,2 > dims)
+void H5OINAReader::getPatternDims(std::array<int32_t, 2> dims)
 {
-;
+  ;
 }
 
 // -----------------------------------------------------------------------------

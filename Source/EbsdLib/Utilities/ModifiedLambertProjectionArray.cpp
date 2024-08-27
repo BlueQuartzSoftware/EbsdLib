@@ -458,10 +458,7 @@ void ModifiedLambertProjectionArray::printTuple(std::stringstream& out, size_t i
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjectionArray::printComponent(std::stringstream& out, size_t i, int j) const
-{
-  EBSD_METHOD_NOT_IMPLEMENTED()
-}
+void ModifiedLambertProjectionArray::printComponent(std::stringstream& out, size_t i, int j) const {EBSD_METHOD_NOT_IMPLEMENTED()}
 
 #ifdef EbsdLib_ENABLE_HDF5
 std::string getNameOfClass()
