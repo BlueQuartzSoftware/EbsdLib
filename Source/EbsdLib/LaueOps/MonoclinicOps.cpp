@@ -70,15 +70,29 @@ static const int k_OdfSize = 186624;
 static const int k_MdfSize = 186624;
 static const int k_SymOpsCount = 2;
 static const int k_NumMdfBins = 36;
+// Rotation Point Group: 2
+// clang-format off
+static const std::vector<QuatD> QuatSym ={
+    QuatD(0.0, 0.0, 0.0, 1.0),
+    QuatD(0.0, 1.0, 0.0, 0.0),
+};
 
-static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 1.000000000, 0.000000000, 0.000000000)};
+static const std::vector<OrientationD> RodSym = {
+    {0.0, 0.0, 1.0, 0.0},
+    {0.0, 1.0, 0.0, 10000000000000.0},
+};
 
-static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 10000000000.0, 0.0}};
-
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
-
-                                                   {{-1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}};
-
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{-1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, -1.0}},
+    
+};
+// clang-format on
 } // namespace Monoclinic
 
 // -----------------------------------------------------------------------------
@@ -147,7 +161,14 @@ std::array<size_t, 3> MonoclinicOps::getOdfNumBins() const
 std::string MonoclinicOps::getSymmetryName() const
 {
   return "Monoclinic 2/m";
-  ;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::string MonoclinicOps::getRotationPointGroup() const
+{
+  return "2";
 }
 
 // -----------------------------------------------------------------------------
@@ -674,7 +695,7 @@ EbsdLib::Rgb MonoclinicOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> MonoclinicOps::getDefaultPoleFigureNames() const
 {
-return {"<001>", "<100>", "<010>"};
+  return {"<001>", "<100>", "<010>"};
 }
 
 // -----------------------------------------------------------------------------
@@ -682,7 +703,7 @@ return {"<001>", "<100>", "<010>"};
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> MonoclinicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];

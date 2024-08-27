@@ -72,17 +72,37 @@ static const int k_MdfSize = 124416;
 static const int k_SymOpsCount = 3;
 static const int k_NumMdfBins = 12;
 
-static const std::vector<QuatD> QuatSym = {QuatD(0.000000000, 0.000000000, 0.000000000, 1.000000000), QuatD(0.000000000, 0.000000000, 0.866025400, 0.500000000),
-                                           QuatD(0.000000000, 0.000000000, 0.866025400, -0.50000000)};
+static double sq32 = std::sqrt(3.0) / 2.0;
 
-static const std::vector<OrientationD> RodSym = {{0.0, 0.0, 0.0}, {0.0, 0.0, 1.73205}, {0.0, 0.0, -1.73205}};
+// Rotation Point Group: 3
+// clang-format off
+static const std::vector<QuatD> QuatSym ={
+    QuatD(0.0, 0.0, 0.0, 1.0),
+    QuatD(0.0, 0.0, sq32, 0.5),
+    QuatD(0.0, 0.0, sq32, -0.5),
+};
 
-static const double MatSym[k_SymOpsCount][3][3] = {{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+static const std::vector<OrientationD> RodSym = {
+    {0.0, 0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0, 1.7320508075688767},
+    {0.0, 0.0, sq32, 10000000000000.0},
+};
 
-                                                   {{-0.5, EbsdLib::Constants::k_Root3Over2D, 0.0}, {-EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}},
-
-                                                   {{-0.5, -EbsdLib::Constants::k_Root3Over2D, 0.0}, {EbsdLib::Constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 0.0, 1.0}}};
-
+static const double MatSym[k_SymOpsCount][3][3] = {
+    {{1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{-0.5, -sq32, 0.0},
+    {sq32, -0.5, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+    {{-0.5, sq32, 0.0},
+    {-sq32, -0.5, 0.0},
+    {0.0, 0.0, 1.0}},
+    
+};
+// clang-format on
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
@@ -151,7 +171,14 @@ std::array<size_t, 3> TrigonalLowOps::getOdfNumBins() const
 std::string TrigonalLowOps::getSymmetryName() const
 {
   return "Trigonal -3";
-  ;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::string TrigonalLowOps::getRotationPointGroup() const
+{
+  return "3";
 }
 
 OrientationD TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
@@ -708,7 +735,7 @@ EbsdLib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TrigonalLowOps::getDefaultPoleFigureNames() const
 {
-return {"<0001>", "<-1-120>", "<2-1-10>"};
+  return {"<0001>", "<-1-120>", "<2-1-10>"};
 }
 
 // -----------------------------------------------------------------------------
@@ -716,7 +743,7 @@ return {"<0001>", "<-1-120>", "<2-1-10>"};
 // -----------------------------------------------------------------------------
 std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3>labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];

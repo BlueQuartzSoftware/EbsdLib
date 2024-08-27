@@ -118,6 +118,12 @@ public:
   std::string getSymmetryName() const override;
 
   /**
+   * @brief Returns the Rotation Point Group for the LaueClass.
+   * @return
+   */
+  virtual std::string getRotationPointGroup() const override;
+
+  /**
    * @brief Returns the number of bins in each of the 3 dimensions
    * @return
    */
