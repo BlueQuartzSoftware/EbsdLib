@@ -45,6 +45,7 @@
 #include "EbsdLib/Utilities/ColorUtilities.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -226,7 +227,7 @@ std::array<size_t, 3> HexagonalOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 std::string HexagonalOps::getSymmetryName() const
 {
-  return "Hexagonal 6/mmm";
+  return "Hexagonal 6/mmm (D6h)";
 }
 
 // -----------------------------------------------------------------------------
@@ -1284,7 +1285,8 @@ EbsdLib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
   }
 
   EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f, eta = 0.0f;
+  double chi = 0.0f;
+  double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
 
   OrientationType eu(phi1, phi, phi2);
@@ -1542,7 +1544,8 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
 EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) const
 {
   std::vector<size_t> dims(1, 4);
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0f / static_cast<double>(imageDim);
@@ -1567,7 +1570,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
   EbsdLib::Rgb color;
   size_t idx = 0;
   size_t yScanLineIndex = imageDim - 1; // We use this to control where the data
-  // is drawn. Otherwise the image will come out flipped vertically
+  // is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
@@ -1585,7 +1588,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int ima
       {
         color = 0xFFFFFFFF;
       }
-      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Border line
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
       {
         color = 0xFF000000;
       }

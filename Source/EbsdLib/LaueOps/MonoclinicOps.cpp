@@ -50,6 +50,7 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 namespace Monoclinic
 {
@@ -160,7 +161,7 @@ std::array<size_t, 3> MonoclinicOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 std::string MonoclinicOps::getSymmetryName() const
 {
-  return "Monoclinic 2/m";
+  return "Monoclinic 2/m (C2h)";
 }
 
 // -----------------------------------------------------------------------------
@@ -604,7 +605,8 @@ EbsdLib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi
   }
 
   EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f, eta = 0.0f;
+  double chi = 0.0f;
+  double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
 
   OrientationType eu(phi1, phi, phi2);
@@ -863,7 +865,8 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int im
 {
 
   std::vector<size_t> dims(1, 4);
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0f / static_cast<double>(imageDim);
@@ -884,7 +887,7 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int im
 
   EbsdLib::Rgb color;
   size_t idx = 0;
-  size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
+  size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
@@ -902,12 +905,12 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int im
       {
         color = 0xFFFFFFFF;
       }
-      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Border line
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
       {
         color = 0xFF000000;
       }
 
-      else if(xIndex == 0) // Black Border line
+      else if(xIndex == 0) // Black Borderline
       {
         color = 0xFF000000;
       }

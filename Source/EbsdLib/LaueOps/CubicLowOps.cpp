@@ -51,6 +51,7 @@
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 namespace CubicLow
 {
@@ -221,7 +222,7 @@ std::array<size_t, 3> CubicLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 std::string CubicLowOps::getSymmetryName() const
 {
-  return "Cubic m-3 (Tetrahedral)"; /* Group 23*/
+  return "Cubic m-3 (Th)"; /* Group 23*/
 }
 
 // -----------------------------------------------------------------------------
@@ -928,7 +929,7 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
     }
     if(getHasInversion() && p[2] < 0)
     {
-      p[0] = -p[0], p[1] = -p[1], p[2] = -p[2];
+      p = p * -1.0;
     }
     chi = std::acos(p[2]);
     eta = std::atan2(p[1], p[0]);
@@ -936,7 +937,6 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
     {
       continue;
     }
-
     break;
   }
   double etaMin = 0.0;
@@ -955,13 +955,27 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   chiMax = acos(chiMax);
 
   _rgb[0] = 1.0 - chi / chiMax;
-  _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
+  _rgb[2] = std::fabs(etaDeg - etaMin) / (etaMax - etaMin);
   _rgb[1] = 1 - _rgb[2];
   _rgb[1] *= chi / chiMax;
   _rgb[2] *= chi / chiMax;
   _rgb[0] = sqrt(_rgb[0]);
   _rgb[1] = sqrt(_rgb[1]);
   _rgb[2] = sqrt(_rgb[2]);
+
+  double max = _rgb[0];
+  if(_rgb[1] > max)
+  {
+    max = _rgb[1];
+  }
+  if(_rgb[2] > max)
+  {
+    max = _rgb[2];
+  }
+
+  _rgb[0] = _rgb[0] / max;
+  _rgb[1] = _rgb[1] / max;
+  _rgb[2] = _rgb[2] / max;
 
   return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
@@ -1161,7 +1175,8 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int imag
 {
 
   std::vector<size_t> dims(1, 4);
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   image->initializeWithValue(255);
   return image;
 }

@@ -51,6 +51,8 @@
 #include "EbsdLib/Math/GeometryMath.h"
 #include "EbsdLib/Utilities/ColorUtilities.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/ColorTable.h"
 
 namespace CubicHigh
 {
@@ -300,7 +302,7 @@ std::array<size_t, 3> CubicOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 std::string CubicOps::getSymmetryName() const
 {
-  return "Cubic m-3m"; /* Group 432 */
+  return "Cubic m-3m (Oh)"; /* Group 432 */
 }
 
 // -----------------------------------------------------------------------------
@@ -1716,7 +1718,8 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   }
 
   EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f, eta = 0.0f;
+  double chi = 0.0f;
+  double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
 
   OrientationType eu(phi1, phi, phi2);
@@ -1735,7 +1738,7 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
     }
     if(getHasInversion() && p[2] < 0)
     {
-      p[0] = -p[0], p[1] = -p[1], p[2] = -p[2];
+      p = p * -1.0;
     }
     chi = std::acos(p[2]);
     eta = std::atan2(p[1], p[0]);
@@ -1988,7 +1991,8 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
 {
 
   std::vector<size_t> dims(1, 4);
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double indexConst1 = 0.414f / static_cast<double>(imageDim);
@@ -2014,7 +2018,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDi
 
   EbsdLib::Rgb color;
   size_t idx = 0;
-  size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
+  size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)

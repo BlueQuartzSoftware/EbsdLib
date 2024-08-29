@@ -51,6 +51,7 @@
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 namespace HexagonalLow
 {
@@ -188,7 +189,7 @@ std::array<size_t, 3> HexagonalLowOps::getOdfNumBins() const
 // -----------------------------------------------------------------------------
 std::string HexagonalLowOps::getSymmetryName() const
 {
-  return "Hexagonal 6/m";
+  return "Hexagonal 6/m (C6h)";
 }
 
 // -----------------------------------------------------------------------------
@@ -1471,7 +1472,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
 {
 
   std::vector<size_t> dims(1, 4);
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, getSymmetryName() + " Triangle Legend", true);
+  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0 / static_cast<double>(imageDim);
@@ -1495,7 +1497,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
 
   EbsdLib::Rgb color;
   size_t idx = 0;
-  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data is drawn. Otherwise the image will come out flipped vertically
+  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
@@ -1513,7 +1515,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
       {
         color = 0xFFFFFFF;
       }
-      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Border line
+      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
       {
         color = 0xFF000000;
       }
