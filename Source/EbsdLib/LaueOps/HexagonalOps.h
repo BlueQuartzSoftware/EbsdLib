@@ -180,7 +180,12 @@ public:
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
   void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const override;
-
+  /**
+   * @brief
+   * @param eta Optional input value only needed for the "Cubic" Laue classes
+   * @return Triplet of etaMin, etaMax, chiMax
+   */
+  std::array<double, 3> getIpfColorAngleLimits(double eta) const override;
   /**
    * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
    * @param eulers Pointer to the 3 component Euler Angle

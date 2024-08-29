@@ -50,8 +50,8 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
-#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
 namespace CubicLow
 {
@@ -155,6 +155,8 @@ static const double MatSym[k_SymOpsCount][3][3] = {
     
 };
 // clang-format on
+static const double k_EtaMin = 0.0;
+static const double k_EtaMax = 45.0;
 } // namespace CubicLow
 
 // -----------------------------------------------------------------------------
@@ -867,6 +869,23 @@ void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
     z = c;
   }
 }
+// -----------------------------------------------------------------------------
+std::array<double, 3> CubicLowOps::getIpfColorAngleLimits(double eta) const
+{
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiMax;
+  if(etaDeg > 45.0)
+  {
+    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_PiD - eta) * tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
+  }
+  else
+  {
+    chiMax = sqrt(1.0 / (2.0 + tan(eta) * tan(eta)));
+  }
+  EbsdLibMath::bound(chiMax, -1.0, 1.0);
+  chiMax = acos(chiMax);
+  return {CubicLow::k_EtaMin * EbsdLib::Constants::k_DegToRadD, CubicLow::k_EtaMax * EbsdLib::Constants::k_DegToRadD, chiMax};
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -885,15 +904,15 @@ bool CubicLowOps::inUnitTriangle(double eta, double chi) const
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = acos(chiMax);
-  return !(eta < 0.0 || eta > (90.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
+  return !(eta < CubicLow::k_EtaMin || eta > (CubicLow::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const
+EbsdLib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
-  return generateIPFColor(eulers[0], eulers[1], eulers[2], refDir[0], refDir[1], refDir[2], convertDegrees);
+  return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------
@@ -901,83 +920,9 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool 
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
-  if(degToRad)
-  {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
-    phi = phi * EbsdLib::Constants::k_DegToRadD;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
-  }
-
-  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f;
-  double eta = 0.0f;
-  double _rgb[3] = {0.0, 0.0, 0.0};
-
-  OrientationType eu(phi1, phi, phi2);
-  OrientationType om(9); // Reusable for the loop
-  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
-
-  for(int j = 0; j < CubicLow::k_SymOpsCount; j++)
-  {
-    QuatD qu = getQuatSymOp(j) * q1;
-    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
-    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
-
-    if(!getHasInversion() && p[2] < 0)
-    {
-      continue;
-    }
-    if(getHasInversion() && p[2] < 0)
-    {
-      p = p * -1.0;
-    }
-    chi = std::acos(p[2]);
-    eta = std::atan2(p[1], p[0]);
-    if(!inUnitTriangle(eta, chi))
-    {
-      continue;
-    }
-    break;
-  }
-  double etaMin = 0.0;
-  double etaMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
-  double chiMax;
-  if(etaDeg > 45.0)
-  {
-    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_PiD - eta) * tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
-  }
-  else
-  {
-    chiMax = sqrt(1.0 / (2.0 + tan(eta) * tan(eta)));
-  }
-  EbsdLibMath::bound(chiMax, -1.0, 1.0);
-  chiMax = acos(chiMax);
-
-  _rgb[0] = 1.0 - chi / chiMax;
-  _rgb[2] = std::fabs(etaDeg - etaMin) / (etaMax - etaMin);
-  _rgb[1] = 1 - _rgb[2];
-  _rgb[1] *= chi / chiMax;
-  _rgb[2] *= chi / chiMax;
-  _rgb[0] = sqrt(_rgb[0]);
-  _rgb[1] = sqrt(_rgb[1]);
-  _rgb[2] = sqrt(_rgb[2]);
-
-  double max = _rgb[0];
-  if(_rgb[1] > max)
-  {
-    max = _rgb[1];
-  }
-  if(_rgb[2] > max)
-  {
-    max = _rgb[2];
-  }
-
-  _rgb[0] = _rgb[0] / max;
-  _rgb[1] = _rgb[1] / max;
-  _rgb[2] = _rgb[2] / max;
-
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+  double eulers[3] = {phi1, phi, phi2};
+  double refDir[3] = {refDir0, refDir1, refDir2};
+  return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------

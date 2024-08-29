@@ -102,6 +102,76 @@ LaueOps::LaueOps() = default;
 LaueOps::~LaueOps() = default;
 
 // -----------------------------------------------------------------------------
+EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad) const
+{
+
+  EbsdLib::Matrix3X1D refDirection(refDir);
+  double chi = 0.0f;
+  double eta = 0.0f;
+  double _rgb[3] = {0.0, 0.0, 0.0};
+
+  OrientationType eu(eulers, 3);
+  if(degToRad)
+  {
+    eu[0] = eu[0] * EbsdLib::Constants::k_DegToRadD;
+    eu[1] = eu[1] * EbsdLib::Constants::k_DegToRadD;
+    eu[2] = eu[2] * EbsdLib::Constants::k_DegToRadD;
+  }
+  OrientationType om(9); // Reusable for the loop
+  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
+
+  for(int j = 0; j < getNumSymOps(); j++)
+  {
+    QuatD qu = getQuatSymOp(j) * q1;
+    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
+    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
+
+    if(!getHasInversion() && p[2] < 0)
+    {
+      continue;
+    }
+    if(getHasInversion() && p[2] < 0)
+    {
+      p = p * -1.0;
+    }
+    chi = std::acos(p[2]);
+    eta = std::atan2(p[1], p[0]);
+    if(!inUnitTriangle(eta, chi))
+    {
+      continue;
+    }
+    break;
+  }
+
+  std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
+
+  _rgb[0] = 1.0 - chi / angleLimits[2];
+  _rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);
+  _rgb[1] = 1 - _rgb[2];
+  _rgb[1] *= chi / angleLimits[2];
+  _rgb[2] *= chi / angleLimits[2];
+  _rgb[0] = std::sqrt(_rgb[0]);
+  _rgb[1] = std::sqrt(_rgb[1]);
+  _rgb[2] = std::sqrt(_rgb[2]);
+
+  double max = _rgb[0];
+  if(_rgb[1] > max)
+  {
+    max = _rgb[1];
+  }
+  if(_rgb[2] > max)
+  {
+    max = _rgb[2];
+  }
+
+  _rgb[0] = _rgb[0] / max;
+  _rgb[1] = _rgb[1] / max;
+  _rgb[2] = _rgb[2] / max;
+
+  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+}
+
+// -----------------------------------------------------------------------------
 QuatD LaueOps::getFZQuat(const QuatD& qr) const
 {
   EBSD_METHOD_NOT_IMPLEMENTED()

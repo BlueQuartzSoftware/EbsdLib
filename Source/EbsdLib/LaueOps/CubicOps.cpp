@@ -49,10 +49,10 @@
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/GeometryMath.h"
+#include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ColorUtilities.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
-#include "EbsdLib/Utilities/ColorTable.h"
 
 namespace CubicHigh
 {
@@ -235,6 +235,9 @@ static const double MatSym[k_SymOpsCount][3][3] = {
     
 };
 // clang-format on
+static const double k_EtaMin = 0.0;
+static const double k_EtaMax = 45.0;
+
 } // namespace CubicHigh
 
 // -----------------------------------------------------------------------------
@@ -1678,81 +1681,11 @@ bool inUnitTriangleD(double eta, double chi)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool CubicOps::inUnitTriangle(double eta, double chi) const
+std::array<double, 3> CubicOps::getIpfColorAngleLimits(double eta) const
 {
   double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
   double chiMax;
-  if(etaDeg > 45.0)
-  {
-    chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
-  }
-  else
-  {
-    chiMax = std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta)));
-  }
-  EbsdLibMath::bound(chiMax, -1.0, 1.0);
-  chiMax = acos(chiMax);
-  return !(eta < 0.0 || eta > (45.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const
-{
-  return generateIPFColor(eulers[0], eulers[1], eulers[2], refDir[0], refDir[1], refDir[2], convertDegrees);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
-{
-  if(degToRad)
-  {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
-    phi = phi * EbsdLib::Constants::k_DegToRadD;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
-  }
-
-  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f;
-  double eta = 0.0f;
-  double _rgb[3] = {0.0, 0.0, 0.0};
-
-  OrientationType eu(phi1, phi, phi2);
-  OrientationType om(9); // Reusable for the loop
-  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
-
-  for(int j = 0; j < CubicHigh::k_SymOpsCount; j++)
-  {
-    QuatD qu = getQuatSymOp(j) * q1;
-    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
-    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
-
-    if(!getHasInversion() && p[2] < 0)
-    {
-      continue;
-    }
-    if(getHasInversion() && p[2] < 0)
-    {
-      p = p * -1.0;
-    }
-    chi = std::acos(p[2]);
-    eta = std::atan2(p[1], p[0]);
-    if(!inUnitTriangleD(eta, chi))
-    {
-      continue;
-    }
-    break;
-  }
-  double etaMin = 0.0;
-  double etaMax = 45.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
-  double chiMax;
-  if(etaDeg > 45.0)
+  if(etaDeg > CubicHigh::k_EtaMax)
   {
     chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
@@ -1762,31 +1695,45 @@ EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, do
   }
   EbsdLibMath::bound(chiMax, -1.0, 1.0);
   chiMax = std::acos(chiMax);
+  return {CubicHigh::k_EtaMin * EbsdLib::Constants::k_DegToRadD, CubicHigh::k_EtaMax * EbsdLib::Constants::k_DegToRadD, chiMax};
+}
 
-  _rgb[0] = 1.0 - chi / chiMax;
-  _rgb[2] = std::fabs(etaDeg - etaMin) / (etaMax - etaMin);
-  _rgb[1] = 1 - _rgb[2];
-  _rgb[1] *= chi / chiMax;
-  _rgb[2] *= chi / chiMax;
-  _rgb[0] = std::sqrt(_rgb[0]);
-  _rgb[1] = std::sqrt(_rgb[1]);
-  _rgb[2] = std::sqrt(_rgb[2]);
-
-  double max = _rgb[0];
-  if(_rgb[1] > max)
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool CubicOps::inUnitTriangle(double eta, double chi) const
+{
+  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
+  double chiMax;
+  if(etaDeg > CubicHigh::k_EtaMax)
   {
-    max = _rgb[1];
+    chiMax = std::sqrt(1.0 / (2.0 + std::tan(0.5 * EbsdLib::Constants::k_PiD - eta) * std::tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
   }
-  if(_rgb[2] > max)
+  else
   {
-    max = _rgb[2];
+    chiMax = std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta)));
   }
+  EbsdLibMath::bound(chiMax, -1.0, 1.0);
+  chiMax = acos(chiMax);
+  return !(eta < CubicHigh::k_EtaMin || eta > (CubicHigh::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
+}
 
-  _rgb[0] = _rgb[0] / max;
-  _rgb[1] = _rgb[1] / max;
-  _rgb[2] = _rgb[2] / max;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdLib::Rgb CubicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
+{
+  return computeIPFColor(eulers, refDir, degToRad);
+}
 
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdLib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
+{
+  double eulers[3] = {phi1, phi, phi2};
+  double refDir[3] = {refDir0, refDir1, refDir2};
+  return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------

@@ -50,8 +50,8 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 namespace TrigonalHigh
 {
@@ -120,6 +120,9 @@ static const double MatSym[k_SymOpsCount][3][3] = {
     
 };
 // clang-format on
+static const double k_EtaMin = -90.0;
+static const double k_EtaMax = -30.0;
+static const double k_ChiMax = 90.0;
 } // namespace TrigonalHigh
 
 // -----------------------------------------------------------------------------
@@ -635,19 +638,26 @@ void TrigonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool TrigonalOps::inUnitTriangle(double eta, double chi) const
+std::array<double, 3> TrigonalOps::getIpfColorAngleLimits(double eta) const
 {
-  return !(eta < (-90.0 * EbsdLib::Constants::k_PiOver180D) || eta > (-30.0 * EbsdLib::Constants::k_PiOver180D) || chi < 0 || chi > (90.0 * EbsdLib::Constants::k_PiOver180D));
+  return {TrigonalHigh::k_EtaMin * EbsdLib::Constants::k_DegToRadD, TrigonalHigh::k_EtaMax * EbsdLib::Constants::k_DegToRadD, TrigonalHigh::k_ChiMax * EbsdLib::Constants::k_DegToRadD};
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const
+bool TrigonalOps::inUnitTriangle(double eta, double chi) const
 {
-  return generateIPFColor(eulers[0], eulers[1], eulers[2], refDir[0], refDir[1], refDir[2], convertDegrees);
+  return !(eta < (TrigonalHigh::k_EtaMin * EbsdLib::Constants::k_PiOver180D) || eta > (TrigonalHigh::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0 ||
+           chi > (TrigonalHigh::k_ChiMax * EbsdLib::Constants::k_PiOver180D));
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+EbsdLib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
+{
+  return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------
@@ -655,76 +665,9 @@ EbsdLib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool 
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
-  if(degToRad)
-  {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
-    phi = phi * EbsdLib::Constants::k_DegToRadD;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
-  }
-
-  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f;
-  double eta = 0.0f;
-  double _rgb[3] = {0.0, 0.0, 0.0};
-
-  OrientationType eu(phi1, phi, phi2);
-  OrientationType om(9); // Reusable for the loop
-  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
-
-  for(int j = 0; j < TrigonalHigh::k_SymOpsCount; j++)
-  {
-    QuatD qu = getQuatSymOp(j) * q1;
-    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
-    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
-
-    if(!getHasInversion() && p[2] < 0)
-    {
-      continue;
-    }
-    if(getHasInversion() && p[2] < 0)
-    {
-      p[0] = -p[0], p[1] = -p[1], p[2] = -p[2];
-    }
-    chi = std::acos(p[2]);
-    eta = std::atan2(p[1], p[0]);
-    if(!inUnitTriangle(eta, chi))
-    {
-      continue;
-    }
-
-    break;
-  }
-
-  double etaMin = -90.0;
-  double etaMax = -30.0;
-  double chiMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
-  double chiDeg = chi * EbsdLib::Constants::k_180OverPiD;
-
-  _rgb[0] = 1.0 - chiDeg / chiMax;
-  _rgb[2] = fabs(etaDeg - etaMin) / (etaMax - etaMin);
-  _rgb[1] = 1 - _rgb[2];
-  _rgb[1] *= chiDeg / chiMax;
-  _rgb[2] *= chiDeg / chiMax;
-  _rgb[0] = sqrt(_rgb[0]);
-  _rgb[1] = sqrt(_rgb[1]);
-  _rgb[2] = sqrt(_rgb[2]);
-
-  double max = _rgb[0];
-  if(_rgb[1] > max)
-  {
-    max = _rgb[1];
-  }
-  if(_rgb[2] > max)
-  {
-    max = _rgb[2];
-  }
-
-  _rgb[0] = _rgb[0] / max;
-  _rgb[1] = _rgb[1] / max;
-  _rgb[2] = _rgb[2] / max;
-
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+  double eulers[3] = {phi1, phi, phi2};
+  double refDir[3] = {refDir0, refDir1, refDir2};
+  return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------

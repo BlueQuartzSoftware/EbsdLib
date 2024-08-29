@@ -244,6 +244,13 @@ public:
   virtual void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const = 0;
 
   /**
+   * @brief
+   * @param eta Optional input value only needed for the "Cubic" Laue classes
+   * @return Triplet of etaMin, etaMax, chiMax
+   */
+  virtual std::array<double, 3> getIpfColorAngleLimits(double eta) const = 0;
+
+  /**
    * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
@@ -327,6 +334,19 @@ protected:
   int _calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
   void _calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
   int _calcODFBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
+
+  /**
+   * @brief Generates an IPF Color for a given Euler and Reference Direction. This should be called from the subclass so the
+   * specific etaMin, etaMax and ChiMax can be passed in.
+   * @param eulers
+   * @param refDir
+   * @param deg2Rad
+   * @param etaMin
+   * @param etaMax
+   * @param chiMax
+   * @return
+   */
+  EbsdLib::Rgb computeIPFColor(double* eulers, double* refDir, bool deg2Rad) const;
 
 public:
   LaueOps(const LaueOps&) = delete;            // Copy Constructor Not Implemented
