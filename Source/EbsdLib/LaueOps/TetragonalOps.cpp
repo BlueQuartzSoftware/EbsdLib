@@ -549,7 +549,7 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
       std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
                      m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 011 Family
@@ -559,14 +559,14 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12));
       std::transform(m_xyz011->getPointer(i * 12), m_xyz011->getPointer(i * 12 + 3),
                      m_xyz011->getPointer(i * 12 + 3),            // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12 + 6));
       std::transform(m_xyz011->getPointer(i * 12 + 6), m_xyz011->getPointer(i * 12 + 9),
                      m_xyz011->getPointer(i * 12 + 9),            // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 111 Family
@@ -576,14 +576,14 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12));
       std::transform(m_xyz111->getPointer(i * 12), m_xyz111->getPointer(i * 12 + 3),
                      m_xyz111->getPointer(i * 12 + 3),            // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12 + 6));
       std::transform(m_xyz111->getPointer(i * 12 + 6), m_xyz111->getPointer(i * 12 + 9),
                      m_xyz111->getPointer(i * 12 + 9),            // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
     }
   }
 

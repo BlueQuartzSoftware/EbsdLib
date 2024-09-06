@@ -520,7 +520,7 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
       std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
                      m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 011 Family
@@ -530,7 +530,7 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
       std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
                      m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
       // 111 Family
@@ -540,7 +540,7 @@ public:
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
       std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
                      m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
     }
   }
 
