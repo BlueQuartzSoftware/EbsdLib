@@ -13,3 +13,7 @@ target_include_directories(convert_orientations PUBLIC ${EbsdLibProj_SOURCE_DIR}
 add_executable(gen_sym_code ${EbsdLibProj_SOURCE_DIR}/Source/Apps/gen_sym_code.cpp)
 target_link_libraries(gen_sym_code PUBLIC EbsdLib)
 target_include_directories(gen_sym_code PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
+add_executable(generate_ipf_legends ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_legends.cpp)
+target_link_libraries(generate_ipf_legends PUBLIC EbsdLib)
+target_include_directories(generate_ipf_legends PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)

@@ -6,12 +6,9 @@
 #include <vector>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/IO/TSL/AngPhase.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
@@ -198,6 +195,7 @@ private:
 // -----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+
   if(argc != 3)
   {
     std::cout << "Program needs file path to .ang file and output image file" << std::endl;

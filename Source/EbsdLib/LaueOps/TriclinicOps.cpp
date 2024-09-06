@@ -796,7 +796,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TriclinicOps::generatePoleFigure(P
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
 
   std::vector<size_t> dims(1, 4);

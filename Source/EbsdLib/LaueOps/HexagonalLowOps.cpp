@@ -1412,7 +1412,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
 
   std::vector<size_t> dims(1, 4);

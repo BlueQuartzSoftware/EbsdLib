@@ -805,7 +805,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> MonoclinicOps::generatePoleFigure(
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
 
   std::vector<size_t> dims(1, 4);

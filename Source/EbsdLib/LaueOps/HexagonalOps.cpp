@@ -1483,7 +1483,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");

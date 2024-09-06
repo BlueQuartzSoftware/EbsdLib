@@ -40,6 +40,11 @@
 #include <limits>
 #include <random>
 
+#include "EbsdLib/Utilities/LatoBold.hpp"
+#include "EbsdLib/Utilities/LatoRegular.hpp"
+#include "EbsdLib/Utilities/FiraSansRegular.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
+
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
@@ -94,7 +99,13 @@ namespace Detail
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps() = default;
+LaueOps::LaueOps()
+{
+  // Initialize our fonts
+  fonts::Base64Decode(fonts::k_FiraSansRegularBase64, m_FiraSansRegular);
+  fonts::Base64Decode(fonts::k_LatoRegularBase64, m_LatoRegular);
+  fonts::Base64Decode(fonts::k_LatoBoldBase64, m_LatoBold);
+}
 
 // -----------------------------------------------------------------------------
 //

@@ -807,7 +807,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
 
   std::vector<size_t> dims(1, 4);

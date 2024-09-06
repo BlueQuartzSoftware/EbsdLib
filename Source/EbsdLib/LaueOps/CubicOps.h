@@ -284,7 +284,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const override;
+  EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
 
   /**
    * @brief generates a misorientation coloring legend

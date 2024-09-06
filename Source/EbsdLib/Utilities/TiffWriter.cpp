@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 namespace
 {
@@ -60,7 +61,9 @@ std::pair<int32_t, std::string> TiffWriter::WriteColorImage(const std::string& f
   std::ofstream outputFile(filepath, std::ios::binary);
   if(!outputFile.is_open())
   {
-    return {-1, "Could not open output file for writing"};
+    std::stringstream ss;
+    ss << "Could not open output file for writing. '" << filepath << "'";
+    return {-1, ss.str()};
   }
 
   outputFile.write(magicNumber.data(), magicNumber.size());
@@ -125,7 +128,9 @@ std::pair<int32_t, std::string> TiffWriter::WriteGrayScaleImage(const std::strin
   std::ofstream outputFile(filepath, std::ios::binary);
   if(!outputFile.is_open())
   {
-    return {-1, "Could not open output file for writing"};
+    std::stringstream ss;
+    ss << "Could not open output file for writing. '" << filepath << "'";
+    return {-1, ss.str()};
   }
 
   outputFile.write(magicNumber.data(), magicNumber.size());

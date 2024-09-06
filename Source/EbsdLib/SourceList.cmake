@@ -135,6 +135,14 @@ endif()
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${EbsdLib_PROJECT_SRCS})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
+# ------------------------------------------------------------------------------
+# If there are additional include directories that are needed for this plugin
+# you can use the target_include_directories(.....) cmake call
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src"
+)
+
 #------------------------------------------------------------------------------
 # Now add in the H5Support sources to the current target
 if(EbsdLib_ENABLE_HDF5)

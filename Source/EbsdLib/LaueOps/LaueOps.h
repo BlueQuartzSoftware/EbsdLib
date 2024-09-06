@@ -310,7 +310,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  virtual EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const = 0;
+  virtual EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
 
 protected:
   LaueOps();
@@ -347,6 +347,11 @@ protected:
    * @return
    */
   EbsdLib::Rgb computeIPFColor(double* eulers, double* refDir, bool deg2Rad) const;
+
+
+  std::vector<unsigned char> m_FiraSansRegular;
+  std::vector<unsigned char> m_LatoRegular;
+  std::vector<unsigned char> m_LatoBold;
 
 public:
   LaueOps(const LaueOps&) = delete;            // Copy Constructor Not Implemented

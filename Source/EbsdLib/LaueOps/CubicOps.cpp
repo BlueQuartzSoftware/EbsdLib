@@ -1934,7 +1934,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
 {
 
   std::vector<size_t> dims(1, 4);
