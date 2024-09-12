@@ -251,7 +251,7 @@ public:
   virtual std::array<double, 3> getIpfColorAngleLimits(double eta) const = 0;
 
   /**
-   * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
+   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
    * @param rgb [output] The pointer to store the RGB value
@@ -260,7 +260,7 @@ public:
   virtual EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
 
   /**
-   * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
+   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
    * @param e0 First component of the Euler Angle
    * @param e1 Second component of the Euler Angle
    * @param e2 Third component of the Euler Angle

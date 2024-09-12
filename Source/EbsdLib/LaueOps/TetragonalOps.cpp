@@ -35,23 +35,21 @@
 
 #include "TetragonalOps.h"
 
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task.h>
-#include <tbb/task_group.h>
-#endif
-
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#endif
 
 namespace TetragonalHigh
 {
@@ -548,7 +546,7 @@ public:
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
       std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
-                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     m_xyz001->getPointer(i * 6 + 3),            // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
@@ -558,14 +556,14 @@ public:
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12));
       std::transform(m_xyz011->getPointer(i * 12), m_xyz011->getPointer(i * 12 + 3),
-                     m_xyz011->getPointer(i * 12 + 3),            // write to the next triplet in memory
+                     m_xyz011->getPointer(i * 12 + 3),           // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
       direction[0] = 0.0;
       direction[1] = 1.0;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12 + 6));
       std::transform(m_xyz011->getPointer(i * 12 + 6), m_xyz011->getPointer(i * 12 + 9),
-                     m_xyz011->getPointer(i * 12 + 9),            // write to the next triplet in memory
+                     m_xyz011->getPointer(i * 12 + 9),           // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
@@ -575,14 +573,14 @@ public:
       direction[2] = 0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12));
       std::transform(m_xyz111->getPointer(i * 12), m_xyz111->getPointer(i * 12 + 3),
-                     m_xyz111->getPointer(i * 12 + 3),            // write to the next triplet in memory
+                     m_xyz111->getPointer(i * 12 + 3),           // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
       direction[0] = -EbsdLib::Constants::k_1OverRoot2D;
       direction[1] = EbsdLib::Constants::k_1OverRoot2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12 + 6));
       std::transform(m_xyz111->getPointer(i * 12 + 6), m_xyz111->getPointer(i * 12 + 9),
-                     m_xyz111->getPointer(i * 12 + 9),            // write to the next triplet in memory
+                     m_xyz111->getPointer(i * 12 + 9),           // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
     }
   }
@@ -852,14 +850,12 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   return poleFigures;
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const
+namespace
 {
-
+EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalOps* ops, int imageDim, bool generateEntirePlane)
+{
   std::vector<size_t> dims(1, 4);
-  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
   EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
@@ -890,15 +886,23 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       idx = (imageDim * yScanLineIndex) + xIndex;
-
-      x = xIndex * xInc;
-      y = yIndex * yInc;
+      if(generateEntirePlane) // Color is full unit circle
+      {
+        x = -1.0f + 2.0f * xIndex * xInc;
+        y = -1.0f + 2.0f * yIndex * yInc;
+      }
+      else
+      {
+        x = -1.0f + 2.0f * xIndex * xInc;
+        y = -1.0f + 2.0f * yIndex * yInc;
+      }
 
       double sumSquares = (x * x) + (y * y);
-      if(x > y || sumSquares > 1.0) // Outside unit circle
+      if((!generateEntirePlane && x < y) || sumSquares > 1.0 || (!generateEntirePlane && y < 0.0F)) // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
+
       else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black border on the edges
       {
         color = 0xFF000000;
@@ -923,7 +927,7 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
         y1 = y1 / denom;
         z1 = z1 / denom;
 
-        color = generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        color = ops->generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
       }
 
       pixelPtr[idx] = color;
@@ -931,6 +935,188 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int im
     yScanLineIndex++;
   }
   return image;
+}
+
+// -----------------------------------------------------------------------------
+void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
+                               bool drawFullCircle)
+{
+  int legendHeight = canvasDim - margins[0] - margins[2];
+  int legendWidth = canvasDim - margins[1] - margins[3];
+
+  if(legendHeight > legendWidth)
+  {
+    legendHeight = legendWidth;
+  }
+  else
+  {
+    legendWidth = legendHeight;
+  }
+  int pageHeight = canvasDim;
+  int pageWidth = canvasDim;
+  int halfWidth = legendWidth / 2;
+  int halfHeight = legendHeight / 2;
+
+  std::vector<float> angles = {0.0f, 45.0F, 90.0F, 135.0F, 180.0F, 225.0F, 270.0F, 315.0F};
+  std::vector<std::string> labels2 = {
+      "[100]", "[110]", "[010]", "[-110]", "[-100]", "[-1-10]", "[0-10]", "[1-10]",
+  };
+
+  std::vector<float> xAdj = {0.1F, 0.0F, -0.5F, -1.0F, -1.1F, -1.0F, -0.5F, 0.0F};
+  std::vector<float> yAdj = {
+      +0.25F, 0.0F, -0.1F, 0.0F, 0.25F, 0.75F, 1.1F, 1.0F,
+  };
+  std::vector<bool> drawAngle = {true, true, false, false, false, false, false, false};
+  float radius = 1.0; // Work with a Unit Circle.
+  for(size_t idx = 0; idx < angles.size(); idx++)
+  {
+    radius = 1.0F;
+    float angle = angles[idx];
+    float rads = angle * M_PI / 180.0f;
+    float x = radius * (cos(rads));
+    float y = radius * (sin(rads));
+
+    // Transform from Unit Circle to our flipped Screen Pixel Coordinates
+    // First Scale up to our image dimensions
+    x = x * halfWidth;
+    y = y * halfHeight;
+
+    // Next, translate to the center of the image
+    x = x + halfWidth;
+    y = y + halfHeight;
+
+    // Now mirror across the x-axis (vertically) because this is the transformation from
+    // cartesian coords to screen coords
+    y = legendHeight - y;
+
+    x = x + figureOrigin[0];
+    y = y + figureOrigin[1];
+
+    // Draw the line from the center point to the point on the circle
+    if(drawAngle[idx] || drawFullCircle)
+    {
+      float penWidth = 1.0f;
+      context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
+      context.set_line_width(penWidth);
+      EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+    }
+    std::string label = labels2[idx];
+    std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
+    float fontWidth = context.measure_text(fontWidthString.c_str());
+
+    x = x + (xAdj[idx] * fontWidth);
+    y = y + (yAdj[idx] * fontPtSize);
+
+    context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
+    if(drawAngle[idx] || drawFullCircle)
+    {
+      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    }
+  }
+
+  // Draw the [0001] in the center of the image
+  {
+    float x = figureCenter[0];
+    float y = figureCenter[1] + fontPtSize;
+
+    std::string label("[001]");
+    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+  }
+}
+
+} // namespace
+
+// -----------------------------------------------------------------------------
+EbsdLib::UInt8ArrayType::Pointer TetragonalOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
+{
+  // Figure out the Legend Pixel Size
+  const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
+  const std::vector<float> margins = {fontPtSize * 3,                        // Top
+                                      static_cast<float>(canvasDim / 7.0f),  // Right
+                                      fontPtSize * 2,                        // Bottom
+                                      static_cast<float>(canvasDim / 7.0f)}; // Left
+
+  int legendHeight = canvasDim - margins[0] - margins[2];
+  int legendWidth = canvasDim - margins[1] - margins[3];
+
+  if(legendHeight > legendWidth)
+  {
+    legendHeight = legendWidth;
+  }
+  else
+  {
+    legendWidth = legendHeight;
+  }
+  int pageHeight = canvasDim;
+  int pageWidth = canvasDim;
+  int halfWidth = legendWidth / 2;
+  int halfHeight = legendHeight / 2;
+
+  std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
+  if(!generateEntirePlane)
+  {
+    figureOrigin[0] = -margins[2];
+    figureOrigin[1] = fontPtSize * 2.0F;
+  }
+  std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
+
+  // Create the actual Legend which will come back as ARGB values
+  EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+
+  // Convert from ARGB to RGBA which is what canvas_itk wants
+  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // we are going to mirror across the X Axis so that the Legend mimics those from EDAX OIMAnalysis
+  // We can do this because the legend is symmetric across the X Axis. DO NOT DO THIS FOR OTHER
+  // Laue Classes.
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+
+  // Create a 2D Canvas to draw into now that the Legend is in the proper form
+  canvas_ity::canvas context(pageWidth, pageHeight);
+
+  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize);
+  context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
+  canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
+  context.text_baseline = baselines[0];
+
+  // Fill the whole background with white
+  context.move_to(0.0f, 0.0f);
+  context.line_to(static_cast<float>(pageWidth), 0.0f);
+  context.line_to(static_cast<float>(pageWidth), static_cast<float>(pageHeight));
+  context.line_to(0.0f, static_cast<float>(pageHeight));
+  context.line_to(0.0f, 0.0f);
+  context.close_path();
+  context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
+  context.fill();
+
+  // Draw the legend image onto the canvas at the correct spot.
+  context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
+                     static_cast<float>(legendHeight));
+
+  // Draw Title of Legend
+  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
+  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+
+  if(generateEntirePlane)
+  {
+    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
+  }
+  else
+  {
+    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
+  }
+
+  // Fetch the rendered RGBA pixels from the entire canvas.
+  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
+  context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
+
+  // Remove the Alpha channel from the final image
+  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+
+  return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------

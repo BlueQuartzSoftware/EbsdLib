@@ -527,7 +527,7 @@ public:
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
       std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
-                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     m_xyz001->getPointer(i * 6 + 3),            // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
@@ -537,7 +537,7 @@ public:
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
       std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
-                     m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     m_xyz011->getPointer(i * 6 + 3),            // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
@@ -547,7 +547,7 @@ public:
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
       std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
-                     m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
+                     m_xyz111->getPointer(i * 6 + 3),            // write to the next triplet in memory
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
     }
   }
@@ -854,11 +854,16 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
       }
       else
       {
-        x = xIndex * xInc;
-        y = yIndex * yInc;
+        x = -1.0f + 2.0f * xIndex * xInc;
+        y = -1.0f + 2.0f * yIndex * yInc;
       }
+
       double sumSquares = (x * x) + (y * y);
       if(sumSquares > 1.0) // Outside unit circle
+      {
+        color = 0xFFFFFFFF;
+      }
+      else if(!generateEntirePlane && (y < 0.0F || x < 0.0F))
       {
         color = 0xFFFFFFFF;
       }
@@ -870,10 +875,10 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
       {
         color = 0xFF000000;
       }
-      else if(x < 0.0f || y < 0.0f)
-      {
-        color = 0xFF808080;
-      }
+//      else if(x < 0.0f || y < 0.0f)
+//      {
+//        color = 0xFF808080;
+//      }
       else
       {
         a = (x * x + y * y + 1);
@@ -901,7 +906,11 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
 }
 
 // -----------------------------------------------------------------------------
-void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter)
+void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize,
+                               std::vector<float> margins,
+                               std::array<float, 2> figureOrigin,
+                               std::array<float, 2> figureCenter,
+                               bool drawFullCircle)
 {
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];
@@ -919,12 +928,20 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   int halfWidth = legendWidth / 2;
   int halfHeight = legendHeight / 2;
 
-  std::vector<float> angles = {0.0f, 45.0f, 90.0f, 135.0f, 180.0f, 225.0f, 270.0f, 315.0f};
-  std::vector<std::string> labels2 = {"[100]", "[110]", "[010]", "[-110]", "[-100]", "[-1-10]", "[0-10]", "[1-10]"};
+  std::vector<float> angles = {0.0f, 45.0F, 90.0F, 135.0F, 180.0F, 225.0F, 270.0F, 315.0F};
+  std::vector<std::string> labels2 = {
+      "[100]", "[110]", "[010]", "[-110]", "[-100]", "[-1-10]", "[0-10]", "[1-10]",
+  };
 
+  std::vector<float> xAdj = {0.1F, 0.0F, -0.5F, -1.0F, -1.1F, -1.0F, -0.5F, 0.0F};
+  std::vector<float> yAdj = {
+      +0.25F, 0.0F, -0.1F, 0.0F, 0.25F, 0.75F, 1.1F, 1.0F,
+  };
+  std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false};
   float radius = 1.0; // Work with a Unit Circle.
-  for(size_t idx = 0; idx < labels2.size(); idx++)
+  for(size_t idx = 0; idx < angles.size(); idx++)
   {
+    radius = 1.0F;
     float angle = angles[idx];
     float rads = angle * M_PI / 180.0f;
     float x = radius * (cos(rads));
@@ -947,54 +964,25 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     y = y + figureOrigin[1];
 
     // Draw the line from the center point to the point on the circle
-    float penWidth = 2.0f;
-    context.set_line_width(penWidth);
-    EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
-
+    if(drawAngle[idx] || drawFullCircle)
+    {
+      float penWidth = 1.0f;
+      context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
+      context.set_line_width(penWidth);
+      EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+    }
     std::string label = labels2[idx];
-    float fontWidth = context.measure_text(label.c_str());
+    std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
+    float fontWidth = context.measure_text(fontWidthString.c_str());
 
-    // Special Adjustments based on idx
-    if(idx == 0)
+    x = x + (xAdj[idx] * fontWidth);
+    y = y + (yAdj[idx] * fontPtSize);
+
+    context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
+    if(drawAngle[idx] || drawFullCircle)
     {
-      // x = x - fontWidth / 2.0f;
+      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
     }
-    if(idx == 1)
-    {
-      // x = x - fontWidth / 2.0f;
-      y = y - fontPtSize * 0.1f;
-    }
-    if(idx == 2)
-    {
-      x = x - fontWidth / 2.0f;
-      y = y - (fontPtSize * 0.1f);
-    }
-    if(idx == 3)
-    {
-      x = x - fontWidth;
-      // y = y + fontPtSize;
-    }
-    if(idx == 4)
-    {
-      x = x - fontWidth / 2.0f;
-      y = y + fontPtSize;
-    }
-    if(idx == 5)
-    {
-      x = x - (fontWidth * 0.6f);
-      y = y + fontPtSize;
-    }
-    if(idx == 6)
-    {
-      x = x - (fontWidth * 0.5f);
-      y = y + fontPtSize;
-    }
-    if(idx == 7)
-    {
-      //      x = x + (fontWidth * 0.2f);
-      y = y + fontPtSize;
-    }
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
   }
 
   // Draw the [0001] in the center of the image
@@ -1007,59 +995,16 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   }
 }
 
-// -----------------------------------------------------------------------------
-void DrawReducedAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter)
-{
-  int legendHeight = canvasDim - margins[0] - margins[2];
-  int legendWidth = canvasDim - margins[1] - margins[3];
-
-  if(legendHeight > legendWidth)
-  {
-    legendHeight = legendWidth;
-  }
-  else
-  {
-    legendWidth = legendHeight;
-  }
-  int pageHeight = canvasDim;
-
-  // Draw the [010]
-  {
-
-    std::string label("[010]"); // Blue
-    float fontWidth = context.measure_text(label.c_str());
-    float x = margins[3] - fontWidth * 0.5f;
-    float y = margins[0] - (margins[0] * 0.10f);
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
-  }
-
-  // Draw the [100]
-  {
-    std::string label("[100]"); // Green
-    float fontWidth = context.measure_text(label.c_str());
-    float x = margins[3] + legendWidth - (fontWidth * 0.5f);
-    float y = pageHeight - fontPtSize;
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
-  }
-
-  // Draw the [001]
-  {
-    std::string label("[001]");
-    float fontWidth = context.measure_text(label.c_str());
-    float x = margins[3] - fontWidth * 0.5f;
-    float y = pageHeight - fontPtSize;
-
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
-  }
-}
-
 } // namespace
 // -----------------------------------------------------------------------------
 EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
 {
   // Figure out the Legend Pixel Size
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
-  const std::vector<float> margins = {fontPtSize * 3, static_cast<float>(canvasDim / 16.0f), fontPtSize * 2, static_cast<float>(canvasDim / 16.0f)};
+  const std::vector<float> margins = {fontPtSize * 3,                        // Top
+                                      static_cast<float>(canvasDim / 7.0f),  // Right
+                                      fontPtSize * 2,                        // Bottom
+                                      static_cast<float>(canvasDim / 7.0f)}; // Left
 
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];
@@ -1077,12 +1022,26 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
   int halfWidth = legendWidth / 2;
   int halfHeight = legendHeight / 2;
 
-  std::array<float, 2> figureOrigin = {margins[3], margins[0]};
+  std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
+  if(!generateEntirePlane)
+  {
+    figureOrigin[0] = -margins[3];
+    // figureOrigin[1] = 0.0F - legendHeight * 0.15F;
+  }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
+  // Create the actual Legend which will come back as ARGB values
   EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
 
-  // Create a Canvas to draw into
+  // Convert from ARGB to RGBA which is what canvas_itk wants
+  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // we are going to mirror across the X Axis so that the Legend mimics those from EDAX OIMAnalysis
+  // We can do this because the legend is symmetric across the X Axis. DO NOT DO THIS FOR OTHER
+  // Laue Classes.
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+
+  // Create a 2D Canvas to draw into now that the Legend is in the proper form
   canvas_ity::canvas context(pageWidth, pageHeight);
 
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize);
@@ -1100,17 +1059,9 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
 
-  image = EbsdLib::MirrorImage(image.get(), legendHeight);
-  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
-
+  // Draw the legend image onto the canvas at the correct spot.
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
-
-  //  context.set_line_width(5.0f);
-  //  EbsdLib::DrawLine(context, 0.0f, margins[0], pageWidth, margins[0]);
-  //  EbsdLib::DrawLine(context, 0.0f, pageHeight - margins[2], pageWidth, pageHeight - margins[2]);
-  //  EbsdLib::DrawLine(context, margins[3], 0, margins[3], pageHeight);
-  //  EbsdLib::DrawLine(context, pageWidth - margins[1], 0, pageWidth - margins[1], pageHeight);
 
   // Draw Title of Legend
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
@@ -1119,18 +1070,21 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
   if(generateEntirePlane)
   {
     context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter);
+    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
   }
   else
   {
     context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawReducedAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter);
+    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
   }
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
+
+  // Remove the Alpha channel from the final image
+  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
 
   return rgbaCanvasImage;
 }

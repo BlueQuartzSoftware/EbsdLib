@@ -73,6 +73,7 @@ struct PoleFigureConfiguration_t
   std::vector<std::string> labels; ///<* The labels for each of the 3 Pole Figures
   std::vector<unsigned int> order; ///<* The order that the pole figures should appear in.
   std::string phaseName;           ///<* The Names of the phase
+  bool FlipFinalImage;             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
 };
 
 /**

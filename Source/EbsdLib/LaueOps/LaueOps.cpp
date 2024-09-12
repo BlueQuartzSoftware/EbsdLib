@@ -44,7 +44,6 @@
 #include "EbsdLib/Utilities/LatoRegular.hpp"
 #include "EbsdLib/Utilities/FiraSansRegular.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
-
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"

@@ -87,6 +87,17 @@ public:
   }
 
   /**
+   * @brief Performs the Matrix Addition.
+   * @param rhs
+   * @return result
+   */
+  SelfType operator+(T scalar)
+  {
+    return {m_Data[0] + scalar, m_Data[1] + scalar, m_Data[2] + scalar};
+  }
+
+
+  /**
    * @brief Performs the Matrix Subtraction
    * @param rhs
    * @return outMat result

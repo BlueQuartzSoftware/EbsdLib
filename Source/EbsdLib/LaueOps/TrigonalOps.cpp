@@ -882,9 +882,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
   double denom = 0.0f;
 
   // Find the slope of the bounding line.
-  // #ifndef EBSD_LIB_GENERATE_ENTIRE_CIRCLE
   static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180D);
-  // #endif
+
   EbsdLib::Rgb color;
   size_t idx = 0;
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
@@ -1150,7 +1149,8 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int imag
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-  return rgbaCanvasImage;
+    rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+    return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------
