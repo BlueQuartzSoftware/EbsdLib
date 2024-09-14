@@ -1549,8 +1549,9 @@ void CubicOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, E
  * @param c
  * @param sorted The array to store the sorted values.
  */
+#if 0
 template <typename T>
-void _TripletSort(T a, T b, T c, T* sorted)
+void TripleSort(T a, T b, T c, T* sorted)
 {
   if(a > b && a > c)
   {
@@ -1599,7 +1600,7 @@ void _TripletSort(T a, T b, T c, T* sorted)
     sorted[2] = c;
   }
 }
-
+#endif
 /**
  * @brief Sorts the 3 values from low to high
  * @param a Input
@@ -1610,54 +1611,56 @@ void _TripletSort(T a, T b, T c, T* sorted)
  * @param z Output
  */
 template <typename T>
-void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
+EbsdLib::Matrix3X1<T> TripletSort(EbsdLib::Matrix3X1<T>& vec)
 {
-  if(a > b && a > c)
+  T x, y, z;
+  if(vec[0] > vec[1] && vec[0] > vec[2])
   {
-    z = a;
-    if(b > c)
+    z = vec[0];
+    if(vec[1] > vec[2])
     {
-      y = b;
-      x = c;
+      y = vec[1];
+      x = vec[2];
     }
     else
     {
-      y = c;
-      x = b;
+      y = vec[2];
+      x = vec[1];
     }
   }
-  else if(b > a && b > c)
+  else if(vec[1] > vec[0] && vec[1] > vec[2])
   {
-    z = b;
-    if(a > c)
+    z = vec[1];
+    if(vec[0] > vec[2])
     {
-      y = a;
-      x = c;
+      y = vec[0];
+      x = vec[2];
     }
     else
     {
-      y = c;
-      x = a;
+      y = vec[2];
+      x = vec[0];
     }
   }
-  else if(a > b)
+  else if(vec[0] > vec[1])
   {
-    y = a;
-    x = b;
-    z = c;
+    y = vec[0];
+    x = vec[1];
+    z = vec[2];
   }
-  else if(a >= c && b >= c)
+  else if(vec[0] >= vec[2] && vec[1] >= vec[2])
   {
-    x = c;
-    y = a;
-    z = b;
+    x = vec[2];
+    y = vec[0];
+    z = vec[1];
   }
   else
   {
-    x = a;
-    y = b;
-    z = c;
+    x = vec[0];
+    y = vec[1];
+    z = vec[2];
   }
+  return {x,y,z};
 }
 
 bool inUnitTriangleD(double eta, double chi)
@@ -1946,21 +1949,14 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
 
   double x = 0.0f;
   double y = 0.0f;
-  double a = 0.0f;
-  double b = 0.0f;
-  double c = 0.0f;
 
-  double val = 0.0f;
-  double x1 = 0.0f;
-  double y1 = 0.0f;
-  double z1 = 0.0f;
-  double denom = 0.0f;
   double phi = 0.0f;
   double x1alt = 0.0f;
   double theta = 0.0f;
   double k_RootOfHalf = sqrtf(0.5f);
-  double cd[3];
 
+
+  EbsdLib::Matrix3X1D orientation(0.0, 0.0, 0.0);
   EbsdLib::Rgb color;
   size_t idx = 0;
   size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
@@ -1980,32 +1976,17 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
       }
       else
       {
-        //          x = -1.0f + 2.0f * xIndex * xInc;
-        //          y = -1.0f + 2.0f * yIndex * yInc;
         x = xIndex * indexConst1 + indexConst2;
         y = yIndex * indexConst1 + indexConst2;
       }
       double sumSquares = (x * x) + (y * y);
 
-      //     z = -1.0;
-      a = (x * x + y * y + 1);
-      b = (2 * x * x + 2 * y * y);
-      c = (x * x + y * y - 1);
+      auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
 
-      val = (-b + std::sqrt(b * b - 4.0f * a * c)) / (2.0f * a);
-      x1 = (1 + val) * x;
-      y1 = (1 + val) * y;
-      z1 = val;
-      denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-      denom = std::sqrt(denom);
-      x1 = x1 / denom;
-      y1 = y1 / denom;
-      z1 = z1 / denom;
-
-      red1 = x1 * (-k_RootOfHalf) + z1 * k_RootOfHalf;
+      red1 = sphericalCoords[0] * (-k_RootOfHalf) + sphericalCoords[2] * k_RootOfHalf;
       phi = acos(red1);
-      x1alt = x1 / k_RootOfHalf;
-      x1alt = x1alt / sqrt((x1alt * x1alt) + (y1 * y1));
+      x1alt = sphericalCoords[0] / k_RootOfHalf;
+      x1alt = x1alt / sqrt((x1alt * x1alt) + (sphericalCoords[1] * sphericalCoords[1]));
       theta = acos(x1alt);
 
       if(sumSquares > 1.0f)
@@ -2016,10 +1997,6 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
       {
         color = 0xFFFFFFFF;
       }
-      //        else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline on circle
-      //        {
-      //          color = 0xFF000000;
-      //        }
       else if(!generateEntirePlane && (phi <= (45.0f * EbsdLib::Constants::k_PiOver180D) || phi >= (90.0f * EbsdLib::Constants::k_PiOver180D) || theta >= (35.26f * EbsdLib::Constants::k_PiOver180D)))
       {
         color = 0xFFFFFFFF;
@@ -2027,14 +2004,11 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
       else
       {
         // 3) move that direction to a single standard triangle - using the 001-011-111 triangle
-        cd[0] = std::fabs(x1);
-        cd[1] = std::fabs(y1);
-        cd[2] = std::fabs(z1);
-
+        sphericalCoords = sphericalCoords.abs();
         // Sort the cd array from smallest to largest
-        _TripletSort(cd[0], cd[1], cd[2], cd);
+        sphericalCoords = TripletSort(sphericalCoords);
 
-        color = ops->generateIPFColor(0.0, 0.0, 0.0, cd[0], cd[1], cd[2], false);
+        color = ops->generateIPFColor(orientation.data(), sphericalCoords.data(), false);
       }
       pixelPtr[idx] = color;
     }
@@ -2057,8 +2031,8 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   {
     legendWidth = legendHeight;
   }
-  int pageHeight = canvasDim;
-  int pageWidth = canvasDim;
+//  int pageHeight = canvasDim;
+//  int pageWidth = canvasDim;
   int halfWidth = legendWidth / 2;
   int halfHeight = legendHeight / 2;
 
@@ -2084,16 +2058,16 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
 
     // Transform from Unit Circle to our flipped Screen Pixel Coordinates
     // First Scale up to our image dimensions
-    x = x * halfWidth;
-    y = y * halfHeight;
+    x = x * static_cast<float>(halfWidth);
+    y = y * static_cast<float>(halfHeight);
 
     // Next, translate to the center of the image
-    x = x + halfWidth;
-    y = y + halfHeight;
+    x = x + static_cast<float>(halfWidth);
+    y = y + static_cast<float>(halfHeight);
 
     // Now mirror across the x-axis (vertically) because this is the transformation from
     // cartesian coords to screen coords
-    y = legendHeight - y;
+    y = static_cast<float>(legendHeight) - y;
 
     x = x + figureOrigin[0];
     y = y + figureOrigin[1];
@@ -2175,8 +2149,8 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasD
                                       fontPtSize * 2,                        // Bottom
                                       static_cast<float>(canvasDim / 7.0f)}; // Left
 
-  int legendHeight = canvasDim - margins[0] - margins[2];
-  int legendWidth = canvasDim - margins[1] - margins[3];
+  int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
+  int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
 
   if(legendHeight > legendWidth)
   {

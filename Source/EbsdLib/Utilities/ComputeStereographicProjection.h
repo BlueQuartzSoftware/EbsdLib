@@ -33,13 +33,70 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
+namespace Stereographic::Utils
+{
+
+
+
+
+
+template <typename T>
+EbsdLib::Matrix3X1<T> StereoToSpherical(const EbsdLib::Matrix3X1<T>& stereo)
+{
+  T sumOfSquares = stereo.dot();
+  return {(2.0 * stereo[0]) / (1 + sumOfSquares), (2.0 * stereo[1]) / (1 + sumOfSquares), (1 - sumOfSquares) / (1 + sumOfSquares)};
+}
+
+template <typename T>
+EbsdLib::Matrix3X1<T> StereoToSpherical(T x, T y)
+{
+  T sumOfSquares = x * x + y * y;
+  return {(2.0 * x) / (1 + sumOfSquares), (2.0 * y) / (1 + sumOfSquares), (1 - sumOfSquares) / (1 + sumOfSquares)};
+}
+
+template <typename T>
+EbsdLib::Matrix3X1<T> SphericalToStereo(const EbsdLib::Matrix3X1<T>& spherical)
+{
+  return {spherical[0] / (1 + spherical[2]), spherical[1] / (1 + spherical[2]), 0.0};
+}
+
+template <typename T>
+EbsdLib::Matrix3X1<T> SphericalToStereo(T x, T y, T z)
+{
+  return {x / (1 + z), y / (1 + z), 0.0};
+}
+
 /**
- * @class ComputeStereographicProjection This class is a wrapper around simply generating a stereo graphically projected intensity "image" (2D Array) based
- * off the intended final size of an image and a modified Lambert projection for a set of XYZ coordinates that represent
- * the Coords generated from Euler Angles. This all feeds into generating a pole figure.
+ * @brief Function to transform points on a unit sphere into stereographic coords
+ * @param points
+ * @return
  */
+template<typename T>
+std::vector<EbsdLib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(const std::vector<EbsdLib::Matrix3X1<T>>& points)
+{
+  using Point3DType = EbsdLib::Matrix3X1<T>;
+  std::vector<EbsdLib::Matrix3X1<T>> stereoPts;
+
+  for(const auto& point : points)
+  {
+    if(point[2] < 0) // project southern hemisphere
+    {
+      stereoPts.emplace_back(Point3DType{(point[0] / (1.0F - point[2])), (point[1] / (1.0F - point[2])), 0});
+    }
+    else
+    {
+      stereoPts.emplace_back(Point3DType{(point[0] / (1.0F + point[2])), (point[1] / (1.0F + point[2])), 0});
+    }
+  }
+
+  return stereoPts;
+}
+
+} // namespace Stereographic::Utils
+
 class EbsdLib_EXPORT ComputeStereographicProjection
 {
 public:

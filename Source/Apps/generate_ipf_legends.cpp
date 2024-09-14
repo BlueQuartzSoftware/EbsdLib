@@ -175,13 +175,10 @@ using FloatVec3Type = std::array<float, 3>;
 class GenerateIPFColorsImpl
 {
 public:
-  GenerateIPFColorsImpl(const FloatVec3Type& referenceDir, FloatArrayType::Pointer& eulers, Int32ArrayType::Pointer& phases,
-                        // std::vector<AngPhase::Pointer>& crystalStructures,
-                        bool* goodVoxels, UInt8ArrayType::Pointer& colors)
+  GenerateIPFColorsImpl(const FloatVec3Type& referenceDir, FloatArrayType::Pointer& eulers, Int32ArrayType::Pointer& phases, bool* goodVoxels, UInt8ArrayType::Pointer& colors)
   : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
-  //, m_PhaseInfos(crystalStructures)
   , m_GoodVoxels(goodVoxels)
   , m_CellIPFColors(colors)
   {
@@ -198,13 +195,9 @@ public:
     int32_t phase = 0;
     bool calcIPF = false;
     size_t index = 0;
-    int32_t numPhases = 1; // static_cast<int32_t>(m_PhaseInfos.size());
+    int32_t numPhases = 11;
 
-    std::vector<size_t> laueOpsIndex = {3ULL}; // (m_PhaseInfos.size());
-                                               //    for(size_t i = 0; i < laueOpsIndex.size(); i++)
-                                               //    {
-                                               //      laueOpsIndex[i] = m_PhaseInfos[i]->determineLaueGroup();
-                                               //    }
+    std::vector<size_t> laueOpsIndex = {3ULL}; // This is hard coded for Cubic-Low ops
 
     size_t totalPoints = m_CellEulerAngles->size() / 3;
     for(size_t i = 0; i < totalPoints; i++)
@@ -231,17 +224,12 @@ public:
         std::cout << "phase > number of phases" << std::endl;
       }
 
-      size_t currentLaueOpsIndex = laueOpsIndex[phase];
-
-      if(phase < numPhases && calcIPF && currentLaueOpsIndex < EbsdLib::CrystalStructure::LaueGroupEnd)
+      if(phase < numPhases && calcIPF && phase < EbsdLib::CrystalStructure::LaueGroupEnd)
       {
-        argb = ops[currentLaueOpsIndex]->generateIPFColor(dEuler, refDir, false);
+        argb = ops[phase]->generateIPFColor(dEuler, refDir, false);
         (*m_CellIPFColors)[index] = static_cast<uint8_t>(EbsdLib::RgbColor::dRed(argb));
         (*m_CellIPFColors)[index + 1] = static_cast<uint8_t>(EbsdLib::RgbColor::dGreen(argb));
         (*m_CellIPFColors)[index + 2] = static_cast<uint8_t>(EbsdLib::RgbColor::dBlue(argb));
-
-        //  std::cout << (int32_t)(m_CellIPFColors[index]) << "\t" << (int32_t)(m_CellIPFColors[index + 1]) << (int32_t)(m_CellIPFColors[index + 2]) << m_CellEulerAngles[index] << "\t"
-        //            << m_CellEulerAngles[index + 1] << "\t" << m_CellEulerAngles[index + 2] << std::endl;
       }
     }
   }
@@ -256,37 +244,28 @@ private:
   UInt8ArrayType::Pointer m_CellIPFColors;
 };
 
-void GenerateIPFColors()
+void GenerateTestIPFImages(const std::vector<FloatVec3Type>& referenceDirections, const std::vector<std::string>& colorNames, int32_t phase)
 {
-  std::stringstream ss;
-
+  auto ops = LaueOps::GetAllOrientationOps();
   // Read in the Quats File
   ConvertOrientations convertor;
   auto outputOrientations = convertor.execute("/Users/mjackson/Downloads/IPF_Triangle_Legend_Validation/quats_000_1_deg.txt", "eulers_000_1_deg.csv", ",", "qu2eu", true);
-
-  std::vector<FloatVec3Type> referenceDirections = {
-      {0.0F, 0.0F, 1.0F}, // Red
-      {1.0F, 0.0F, 1.0F}, // Green
-      {1.0F, 1.0F, 1.0F}, // Aqua
-      {0.0F, 1.0F, 1.0F}, // Blue
-      {1.0F, 0.0F, 2.0F}, // Yellow
-      {0.0F, 1.0F, 2.0F}, // Pink
-      {1.0F, 1.0F, 2.0F}, // Flesh
-  };
-
+  size_t idx = 0;
   for(const auto& referenceDir : referenceDirections)
   {
     Int32ArrayType::Pointer phases = Int32ArrayType::CreateArray(outputOrientations->getNumberOfTuples(), "Phases", true);
-    phases->initializeWithValue(0);
+    phases->initializeWithValue(phase);
     UInt8ArrayType::Pointer colors = UInt8ArrayType::CreateArray(outputOrientations->getNumberOfTuples(), {3ULL}, "IPF Colors", true);
     colors->initializeWithValue(128);
     GenerateIPFColorsImpl ipfColors(referenceDir, outputOrientations, phases, nullptr, colors);
     ipfColors.run();
 
-    ss.str("");
-    ss << k_Output_Dir << "IPF_Colors_" << static_cast<int>(referenceDir[0]) << "_" << static_cast<int>(referenceDir[1]) << "_" << static_cast<int>(referenceDir[2]) << ".tiff";
+    std::stringstream ss;
+    ss << k_Output_Dir << ops[phase]->getSymmetryName() << "_" << static_cast<int>(referenceDir[0]) << "_" << static_cast<int>(referenceDir[1]) << "_" << static_cast<int>(referenceDir[2]) << "_"
+       << colorNames[idx] << ".tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), 100, 100, 3, colors->getTuplePointer(0));
     std::cout << "IPF Colors Result: " << result.first << ": " << result.second << std::endl;
+    idx++;
   }
 }
 
@@ -346,25 +325,36 @@ int main(int argc, char* argv[])
 {
   std::stringstream ss;
   int imageDim = 512;
-
-  GenerateIPFColors();
-
   {
+    std::vector<FloatVec3Type> referenceDirections = {
+        {0.0F, 0.0F, 1.0F}, // Red
+        {1.0F, 0.0F, 1.0F}, // Green
+        {1.0F, 1.0F, 1.0F}, // Aqua
+        {0.0F, 1.0F, 1.0F}, // Blue
+        {1.0F, 0.0F, 2.0F}, // Yellow
+        {0.0F, 1.0F, 2.0F}, // Pink
+        {1.0F, 1.0F, 2.0F}, // Flesh
+    };
+    std::vector<std::string> colorNames{"Red", "Green", "Aqua", "Blue", "Yellow", "Pink", "Flesh"};
+    GenerateTestIPFImages(referenceDirections, colorNames, 3);
     CubicLowOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
-    ss.str("");
+    {
+      auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+      ss.str("");
 
-    ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
-    auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
-    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
-
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
-    ss.str("");
-    ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
-    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
-    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
+      ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+      auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+      std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
+    }
+    {
+      auto legend = ops.generateIPFTriangleLegend(imageDim, false);
+      ss.str("");
+      ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+      auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+      std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
+    }
   }
-#if 0
+
   {
     CubicOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
@@ -473,9 +463,7 @@ int main(int argc, char* argv[])
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
   }
 
-
-
-// ****************************************************************************************
+  // ****************************************************************************************
   {
     HexagonalOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
@@ -534,6 +522,5 @@ int main(int argc, char* argv[])
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
   }
 
-#endif
   return 0;
 }

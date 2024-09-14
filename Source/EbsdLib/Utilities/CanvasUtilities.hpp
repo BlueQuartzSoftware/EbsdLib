@@ -11,8 +11,23 @@ namespace EbsdLib
 
 using Point3DType = EbsdLib::Matrix3X1<float>;
 
+/**
+ * @brief
+ * @param context
+ * @param figureSubtitle
+ * @param textOrigin
+ * @param fontPtSize
+ */
 EbsdLib_EXPORT void WriteText(canvas_ity::canvas& context, const std::string& figureSubtitle, std::array<float, 2> textOrigin, int fontPtSize);
 
+/**
+* @brief
+ * @param context
+ * @param xStart
+ * @param yStart
+ * @param xEnd
+ * @param yEnd
+ */
 EbsdLib_EXPORT void DrawLine(canvas_ity::canvas& context, float xStart, float yStart, float xEnd, float yEnd);
 
 /**
@@ -24,13 +39,6 @@ EbsdLib_EXPORT void DrawLine(canvas_ity::canvas& context, float xStart, float yS
 EbsdLib_EXPORT std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction, int num_points);
 
 /**
- * @brief Function to transform points on a unit sphere into stereographic coords
- * @param points
- * @return
- */
-EbsdLib_EXPORT std::vector<Point3DType> TransformUnitSphereToStereographicCoords(const std::vector<Point3DType>& points);
-
-/**
  * @brief
  * @param image
  * @param width
@@ -39,6 +47,14 @@ EbsdLib_EXPORT std::vector<Point3DType> TransformUnitSphereToStereographicCoords
  */
 EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8ArrayType::Pointer image, int width, int height);
 
+/**
+* @brief
+ * @param context
+ * @param directions
+ * @param numPoints
+ * @param halfWidth
+ * @param figureOrigin
+ */
 EbsdLib_EXPORT void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdLib::Point3DType>& directions, int numPoints, int halfWidth,
                                       std::array<float, 2> figureOrigin);
 

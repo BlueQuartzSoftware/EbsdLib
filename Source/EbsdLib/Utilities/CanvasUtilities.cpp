@@ -5,6 +5,8 @@
 #include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/LatoBold.hpp"
 #include "EbsdLib/Utilities/LatoRegular.hpp"
+#include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 
 #define CANVAS_ITY_IMPLEMENTATION
 #include <canvas_ity.hpp>
@@ -13,7 +15,8 @@ namespace EbsdLib
 {
 
 // -----------------------------------------------------------------------------
-void WriteText(canvas_ity::canvas& context, const std::string& figureSubtitle, std::array<float, 2> textOrigin, int fontPtSize)
+void WriteText(canvas_ity::canvas& context, const std::string& figureSubtitle,
+               std::array<float, 2> textOrigin, int fontPtSize)
 {
   std::string bottomPart;
   // std::array<float, 2> textOrigin = {figureOrigin[0] + margins, figureOrigin[1] + fontPtSize + 2 * margins};
@@ -96,11 +99,13 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
 
   // Find another vector (v2) that is perpendicular to both the normal and v1 using the cross product
   Point3DType v2 = dirNormalized.cross(v1).normalize();
+  double angleStart = 0.0 * EbsdLib::Constants::k_PiOver180D;
+  double arc = 360.0 * EbsdLib::Constants::k_PiOver180D;
 
   // Generate points on the unit circle that has been rotated according to the direction
   for(int i = 0; i < num_points + 1; ++i)
   {
-    float theta = 2 * M_PI * i / num_points;
+    float theta = angleStart + arc * i / num_points;
 
     Point3DType point = {
         std::cos(theta) * v1[0] + std::sin(theta) * v2[0],
@@ -112,26 +117,6 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
   }
 
   return points;
-}
-
-// -----------------------------------------------------------------------------
-std::vector<Point3DType> TransformUnitSphereToStereographicCoords(const std::vector<Point3DType>& points)
-{
-  std::vector<Point3DType> stereoPts;
-
-  for(const auto& point : points)
-  {
-    if(point[2] < 0) // project southern hemisphere
-    {
-      stereoPts.emplace_back(Point3DType{(point[0] / (1.0F - point[2])), (point[1] / (1.0F - point[2])), 0});
-    }
-    else
-    {
-      stereoPts.emplace_back(Point3DType{(point[0] / (1.0F + point[2])), (point[1] / (1.0F + point[2])), 0});
-    }
-  }
-
-  return stereoPts;
 }
 
 
@@ -198,7 +183,7 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8Array
   std::array<float, 2> figureOrigin = {0.0F, 0.0F};
   for(const auto& direction : directions)
   {
-    std::vector<EbsdLib::Point3DType> stereoPoints = EbsdLib::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, num_points));
+    std::vector<EbsdLib::Point3DType> stereoPoints = Stereographic::Utils::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, num_points));
 
     for(size_t i = 1; i < stereoPoints.size(); i++)
     {
@@ -246,7 +231,7 @@ void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdL
 
   for(const auto& direction : directions)
   {
-    std::vector<EbsdLib::Point3DType> stereoPoints = EbsdLib::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, numPoints));
+    std::vector<EbsdLib::Point3DType> stereoPoints = Stereographic::Utils::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, numPoints));
     for(size_t i = 1; i < stereoPoints.size(); i++)
     {
       EbsdLib::Point3DType p0 = stereoPoints[i - 1];

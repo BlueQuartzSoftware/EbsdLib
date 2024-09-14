@@ -49,9 +49,6 @@
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task.h>
-#include <tbb/task_group.h>
 #endif
 
 namespace CubicLow
@@ -61,8 +58,8 @@ static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5D
 static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0))};
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0]) / 2.0, OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1]) / 2.0,
+                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2]) / 2.0};
 
 static const int symSize0 = 6;
 static const int symSize1 = 12;
@@ -318,16 +315,14 @@ OrientationType CubicLowOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
 {
-  double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
-  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
-
   OrientationType rod = _calcRodNearestOrigin(CubicLow::RodSym, inRod);
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  auto ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
 
-  n1 = ax[0];
-  n2 = ax[1], n3 = ax[2], w = ax[3];
+  double n1 = ax[0];
+  double n2 = ax[1], n3 = ax[2], w = ax[3];
 
-  FZw = w;
+  double FZn1 = w, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
+
   n1 = fabs(n1);
   n2 = fabs(n2);
   n3 = fabs(n3);
@@ -392,7 +387,7 @@ int CubicLowOps::getMisoBin(const OrientationType& rod) const
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
   dim[0] = CubicLow::OdfDimInitValue[0];
   dim[1] = CubicLow::OdfDimInitValue[1];
@@ -430,9 +425,9 @@ OrientationType CubicLowOps::determineEulerAngles(double random[3], int choose) 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
   OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  auto eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
   return eu;
 }
 
@@ -469,7 +464,7 @@ OrientationType CubicLowOps::determineRodriguesVector(double random[3], int choo
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -483,7 +478,7 @@ int CubicLowOps::getOdfBin(const OrientationType& rod) const
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
 
   dim[0] = CubicLow::OdfDimInitValue[0];
   dim[1] = CubicLow::OdfDimInitValue[1];
@@ -753,123 +748,6 @@ void CubicLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers
   }
 }
 
-/**
- * @brief Sorts the 3 values from low to high
- * @param a
- * @param b
- * @param c
- * @param sorted The array to store the sorted values.
- */
-template <typename T>
-void _TripletSort(T a, T b, T c, T* sorted)
-{
-  if(a > b && a > c)
-  {
-    sorted[2] = a;
-    if(b > c)
-    {
-      sorted[1] = b;
-      sorted[0] = c;
-    }
-    else
-    {
-      sorted[1] = c;
-      sorted[0] = b;
-    }
-  }
-  else if(b > a && b > c)
-  {
-    sorted[2] = b;
-    if(a > c)
-    {
-      sorted[1] = a;
-      sorted[0] = c;
-    }
-    else
-    {
-      sorted[1] = c;
-      sorted[0] = a;
-    }
-  }
-  else if(a > b)
-  {
-    sorted[1] = a;
-    sorted[0] = b;
-    sorted[2] = c;
-  }
-  else if(a >= c && b >= c)
-  {
-    sorted[0] = c;
-    sorted[1] = a;
-    sorted[2] = b;
-  }
-  else
-  {
-    sorted[0] = a;
-    sorted[1] = b;
-    sorted[2] = c;
-  }
-}
-
-/**
- * @brief Sorts the 3 values from low to high
- * @param a Input
- * @param b Input
- * @param c Input
- * @param x Output
- * @param y Output
- * @param z Output
- */
-template <typename T>
-void _TripletSort(T a, T b, T c, T& x, T& y, T& z)
-{
-  if(a > b && a > c)
-  {
-    z = a;
-    if(b > c)
-    {
-      y = b;
-      x = c;
-    }
-    else
-    {
-      y = c;
-      x = b;
-    }
-  }
-  else if(b > a && b > c)
-  {
-    z = b;
-    if(a > c)
-    {
-      y = a;
-      x = c;
-    }
-    else
-    {
-      y = c;
-      x = a;
-    }
-  }
-  else if(a > b)
-  {
-    y = a;
-    x = b;
-    z = c;
-  }
-  else if(a >= c && b >= c)
-  {
-    x = c;
-    y = a;
-    z = b;
-  }
-  else
-  {
-    x = a;
-    y = b;
-    z = c;
-  }
-}
 // -----------------------------------------------------------------------------
 std::array<double, 3> CubicLowOps::getIpfColorAngleLimits(double eta) const
 {
@@ -908,7 +786,6 @@ bool CubicLowOps::inUnitTriangle(double eta, double chi) const
   return !(eta < CubicLow::k_EtaMin || eta > (CubicLow::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0.0 || chi > chiMax);
 }
 
-#if 1
 // -----------------------------------------------------------------------------
 EbsdLib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
@@ -922,96 +799,6 @@ EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
   double refDir[3] = {refDir0, refDir1, refDir2};
   return computeIPFColor(eulers, refDir, degToRad);
 }
-
-#else
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const
-{
-  return generateIPFColor(eulers[0], eulers[1], eulers[2], refDir[0], refDir[1], refDir[2], convertDegrees);
-}
-
-// -----------------------------------------------------------------------------
-EbsdLib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
-{
-  if(degToRad)
-  {
-    phi1 = phi1 * EbsdLib::Constants::k_DegToRadD;
-    phi = phi * EbsdLib::Constants::k_DegToRadD;
-    phi2 = phi2 * EbsdLib::Constants::k_DegToRadD;
-  }
-
-  EbsdLib::Matrix3X1D refDirection = {refDir0, refDir1, refDir2};
-  double chi = 0.0f;
-  double eta = 0.0f;
-  double _rgb[3] = {0.0, 0.0, 0.0};
-
-  OrientationType eu(phi1, phi, phi2);
-  OrientationType om(9); // Reusable for the loop
-  QuatD q1 = OrientationTransformation::eu2qu<OrientationType, QuatD>(eu);
-
-  for(int j = 0; j < CubicLow::k_SymOpsCount; j++)
-  {
-    QuatD qu = getQuatSymOp(j) * q1;
-    EbsdLib::Matrix3X3D g(OrientationTransformation::qu2om<QuatD, OrientationType>(qu).data());
-    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
-
-    if(!getHasInversion() && p[2] < 0)
-    {
-      continue;
-    }
-    if(getHasInversion() && p[2] < 0)
-    {
-      p = p * -1.0;
-    }
-    chi = std::acos(p[2]);
-    eta = std::atan2(p[1], p[0]);
-    if(!inUnitTriangle(eta, chi))
-    {
-      continue;
-    }
-    break;
-  }
-  double etaMin = 0.0;
-  double etaMax = 90.0;
-  double etaDeg = eta * EbsdLib::Constants::k_180OverPiD;
-  double chiMax;
-  if(etaDeg > 45.0)
-  {
-    chiMax = sqrt(1.0 / (2.0 + tan(0.5 * EbsdLib::Constants::k_PiD - eta) * tan(0.5 * EbsdLib::Constants::k_PiD - eta)));
-  }
-  else
-  {
-    chiMax = sqrt(1.0 / (2.0 + tan(eta) * tan(eta)));
-  }
-  EbsdLibMath::bound(chiMax, -1.0, 1.0);
-  chiMax = acos(chiMax);
-
-  _rgb[0] = 1.0 - chi / chiMax;
-  _rgb[2] = std::fabs(etaDeg - etaMin) / (etaMax - etaMin);
-  _rgb[1] = 1 - _rgb[2];
-  _rgb[1] *= chi / chiMax;
-  _rgb[2] *= chi / chiMax;
-  _rgb[0] = sqrt(_rgb[0]);
-  _rgb[1] = sqrt(_rgb[1]);
-  _rgb[2] = sqrt(_rgb[2]);
-
-  double max = _rgb[0];
-  if(_rgb[1] > max)
-  {
-    max = _rgb[1];
-  }
-  if(_rgb[2] > max)
-  {
-    max = _rgb[2];
-  }
-
-  _rgb[0] = _rgb[0] / max;
-  _rgb[1] = _rgb[1] / max;
-  _rgb[2] = _rgb[2] / max;
-
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
-}
-#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -1109,7 +896,7 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> CubicLowOps::generatePoleFigure(Po
     m111();
   }
 
-  // Find the Max and Min values based on ALL 3 arrays so we can color scale them all the same
+  // Find the Max and Min values based on ALL 3 arrays, so we can color scale them all the same
   double max = std::numeric_limits<double>::min();
   double min = std::numeric_limits<double>::max();
 
@@ -1208,34 +995,11 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
   EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
-  uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
+  auto* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
-  double indexConst1 = 0.414f / static_cast<double>(imageDim);
-  double indexConst2 = 0.207f / static_cast<double>(imageDim);
-  double xInc = 1.0f / static_cast<double>(imageDim);
-  double yInc = 1.0f / static_cast<double>(imageDim);
-  double rad = 1.0f;
-  double red1 = 0.0f;
+  double xInc = 1.0 / static_cast<double>(imageDim);
+  double yInc = 1.0 / static_cast<double>(imageDim);
 
-  double x = 0.0f;
-  double y = 0.0f;
-  double a = 0.0f;
-  double b = 0.0f;
-  double c = 0.0f;
-
-  double val = 0.0f;
-  double x1 = 0.0f;
-  double y1 = 0.0f;
-  double z1 = 0.0f;
-  double denom = 0.0f;
-  double phi = 0.0f;
-  double x1alt = 0.0f;
-  double theta = 0.0f;
-  double k_RootOfHalf = sqrtf(0.5f);
-  double cd[3];
-
-  EbsdLib::Rgb color;
-  size_t idx = 0;
   size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
@@ -1244,70 +1008,28 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
     yScanLineIndex--;
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
 
-      if(generateEntirePlane) // Color is full unit circle
+      double x = 0.5 * static_cast<double>(xIndex) * xInc; // normalized x coord
+      double y = 0.5 * static_cast<double>(yIndex) * yInc; // normalized y coord
+      if(generateEntirePlane)                              // Color is full unit circle
       {
-        x = -1.0f + 2.0f * xIndex * xInc;
-        y = -1.0f + 2.0f * yIndex * yInc;
+        x = -1.0 + 2.0 * static_cast<double>(xIndex) * xInc;
+        y = -1.0 + 2.0 * static_cast<double>(yIndex) * yInc;
       }
-      else
-      {
-        //          x = -1.0f + 2.0f * xIndex * xInc;
-        //          y = -1.0f + 2.0f * yIndex * yInc;
-        x = xIndex * indexConst1 + indexConst2;
-        y = yIndex * indexConst1 + indexConst2;
-      }
+
       double sumSquares = (x * x) + (y * y);
 
-      //     z = -1.0;
-      a = (x * x + y * y + 1);
-      b = (2 * x * x + 2 * y * y);
-      c = (x * x + y * y - 1);
-
-      val = (-b + std::sqrt(b * b - 4.0f * a * c)) / (2.0f * a);
-      x1 = (1 + val) * x;
-      y1 = (1 + val) * y;
-      z1 = val;
-      denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-      denom = std::sqrt(denom);
-      x1 = x1 / denom;
-      y1 = y1 / denom;
-      z1 = z1 / denom;
-
-      red1 = x1 * (-k_RootOfHalf) + z1 * k_RootOfHalf;
-      phi = acos(red1);
-      x1alt = x1 / k_RootOfHalf;
-      x1alt = x1alt / sqrt((x1alt * x1alt) + (y1 * y1));
-      theta = acos(x1alt);
+      auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
 
       if(sumSquares > 1.0f)
       {
         color = 0xFFFFFFFF;
       }
-      else if(!generateEntirePlane && (y < 0.0F || x < 0.0F))
+      else if((sphericalCoords[2] > sphericalCoords[0] && sphericalCoords[2] > sphericalCoords[1]) || generateEntirePlane)
       {
-        color = 0xFF808080;
-      }
-      //        else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline on circle
-      //        {
-      //          color = 0xFF000000;
-      //        }
-      else if(!generateEntirePlane &&
-              (   phi <= (45.0f * EbsdLib::Constants::k_PiOver180D)
-               || phi >= (90.0f * EbsdLib::Constants::k_PiOver180D)
-               ))
-      {
-        color = 0xFFFFFFFF;
-      }
-//      if(!generateEntirePlane &&
-//         (   theta >= (35.26f * EbsdLib::Constants::k_PiOver180D)))
-//      {
-//        color = 0xFF80FF80;
-//      }
-      else
-      {
-        color = ops->generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        color = ops->generateIPFColor(0.0, 0.0, 0.0, sphericalCoords[0], sphericalCoords[1], sphericalCoords[2], false);
       }
       pixelPtr[idx] = color;
     }
@@ -1319,8 +1041,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
 void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
                                bool drawFullCircle)
 {
-  int legendHeight = canvasDim - margins[0] - margins[2];
-  int legendWidth = canvasDim - margins[1] - margins[3];
+  int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
+  int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
 
   if(legendHeight > legendWidth)
   {
@@ -1346,27 +1068,26 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   };
   std::vector<bool> drawAngle = {false, false, false, false, false, false, false, false};
 
-  float radius = 1.0; // Work with a Unit Circle.
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0; // Work with a Unit Circle.
     float angle = angles[idx];
-    float rads = angle * M_PI / 180.0f;
+    float rads = angle * EbsdLib::Constants::k_DegToRadF;
     float x = radius * (cos(rads));
     float y = radius * (sin(rads));
 
     // Transform from Unit Circle to our flipped Screen Pixel Coordinates
     // First Scale up to our image dimensions
-    x = x * halfWidth;
-    y = y * halfHeight;
+    x = x * static_cast<float>(halfWidth);
+    y = y * static_cast<float>(halfHeight);
 
     // Next, translate to the center of the image
-    x = x + halfWidth;
-    y = y + halfHeight;
+    x = x + static_cast<float>(halfWidth);
+    y = y + static_cast<float>(halfHeight);
 
     // Now mirror across the x-axis (vertically) because this is the transformation from
     // cartesian coords to screen coords
-    y = legendHeight - y;
+    y = static_cast<float>(legendHeight) - y;
 
     x = x + figureOrigin[0];
     y = y + figureOrigin[1];
@@ -1389,18 +1110,18 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
     if(drawAngle[idx] || drawFullCircle)
     {
-      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+      EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
     }
   }
 
-  // Draw the [0001] in the center of the image
+  // Draw the [001] in the center of the image
   if(drawFullCircle)
   {
     float x = figureCenter[0];
     float y = figureCenter[1] + fontPtSize;
 
     std::string label("[001]");
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
 
     std::vector<EbsdLib::Point3DType> directions = {
         {1.0, 0.0, 1.0},  // Horizontal Meridian Line
@@ -1423,30 +1144,27 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     float fontWidth = context.measure_text(label.c_str());
     float x = figureCenter[0] + fontWidth * 0.20F;
     float y = fontPtSize * 3.0F;
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
-  }
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
 
-  if(!drawFullCircle)
-  {
-    float x = figureCenter[0];
-    float y = figureCenter[1] + fontPtSize;
-    std::string label("[001]");
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    x = figureCenter[0];
+    y = figureCenter[1] + fontPtSize;
+    label = "[001]";
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
 
-    x = figureCenter[0] + legendWidth;
+    x = figureCenter[0] + static_cast<float>(legendWidth) * 0.85F;
     y = figureCenter[1] + fontPtSize;
     label = "[101]";
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
 
-    x = figureCenter[0] + legendWidth * 0.90F;
-    y = figureCenter[1] - legendHeight * 0.90F;
+    x = figureCenter[0] + static_cast<float>(legendWidth) * 0.75F;
+    y = figureCenter[1] - static_cast<float>(legendHeight) * 0.75F;
     label = "[111]";
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
 
     label = "[011]";
     x = figureCenter[0] - context.measure_text(label.c_str());
-    y = figureCenter[1] - legendHeight;
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    y = figureCenter[1] - static_cast<float>(legendHeight) * 0.85F;
+    EbsdLib::WriteText(context, label, {x, y}, static_cast<int>(fontPtSize));
   }
 }
 
@@ -1458,12 +1176,12 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
   // Figure out the Legend Pixel Size
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
   const std::vector<float> margins = {fontPtSize * 3,                        // Top
-                                      static_cast<float>(canvasDim / 7.0f),  // Right
+                                      static_cast<float>(canvasDim) / 7.0F,  // Right
                                       fontPtSize * 2,                        // Bottom
-                                      static_cast<float>(canvasDim / 7.0f)}; // Left
+                                      static_cast<float>(canvasDim) / 7.0F}; // Left
 
-  int legendHeight = canvasDim - margins[0] - margins[2];
-  int legendWidth = canvasDim - margins[1] - margins[3];
+  int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
+  int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
 
   if(legendHeight > legendWidth)
   {
@@ -1482,9 +1200,9 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
   if(!generateEntirePlane)
   {
     // figureOrigin[0] =  margins[3] * 2.0F;
-    figureOrigin[1] = 0.0F + fontPtSize * 4.0F;
+    figureOrigin[1] = 0.0F + fontPtSize * 2.0F;
   }
-  std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
+  std::array<float, 2> figureCenter = {figureOrigin[0] + static_cast<float>(halfWidth), figureOrigin[1] + static_cast<float>(halfHeight)};
 
   // Create the actual Legend which will come back as ARGB values
   EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
@@ -1519,8 +1237,8 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
                      static_cast<float>(legendHeight));
 
   // Draw Title of Legend
-  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
-  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5F);
+  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5F);
 
   if(generateEntirePlane)
   {
@@ -1529,7 +1247,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
   }
   else
   {
-    figureCenter = {figureOrigin[0], figureOrigin[1] + legendHeight};
+    figureCenter = {figureOrigin[0], figureOrigin[1] + static_cast<float>(legendHeight)};
     context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
     DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
   }
@@ -1554,13 +1272,13 @@ CubicLowOps::Pointer CubicLowOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string CubicLowOps::getNameOfClass() const
 {
-  return std::string("CubicLowOps");
+  return {"CubicLowOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string CubicLowOps::ClassName()
 {
-  return std::string("CubicLowOps");
+  return {"CubicLowOps"};
 }
 
 // -----------------------------------------------------------------------------
