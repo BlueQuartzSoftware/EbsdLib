@@ -861,22 +861,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalOps* ops, int i
 
   double xInc = 1.0f / static_cast<double>(imageDim);
   double yInc = 1.0f / static_cast<double>(imageDim);
-  double rad = 1.0f;
+  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
-  double x = 0.0f;
-  double y = 0.0f;
-  double a = 0.0f;
-  double b = 0.0f;
-  double c = 0.0f;
-
-  double val = 0.0f;
-  double x1 = 0.0f;
-  double y1 = 0.0f;
-  double z1 = 0.0f;
-  double denom = 0.0f;
-
-  EbsdLib::Rgb color;
-  size_t idx = 0;
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
@@ -885,27 +871,17 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalOps* ops, int i
 
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
-      if(generateEntirePlane) // Color is full unit circle
-      {
-        x = -1.0f + 2.0f * xIndex * xInc;
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
-      else
-      {
-        x = -1.0f + 2.0f * xIndex * xInc;
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
+      // Always compute entire unit circle
+      double x = -1.0f + 2.0f * xIndex * xInc;
+      double y = -1.0f + 2.0f * yIndex * yInc;
 
       double sumSquares = (x * x) + (y * y);
+      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
+
       if((!generateEntirePlane && x < y) || sumSquares > 1.0 || (!generateEntirePlane && y < 0.0F)) // Outside unit circle
       {
         color = 0xFFFFFFFF;
-      }
-
-      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black border on the edges
-      {
-        color = 0xFF000000;
       }
       else if(xIndex == 0 || yIndex == 0 || xIndex == yIndex) // Black border on the edges
       {
@@ -913,21 +889,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalOps* ops, int i
       }
       else
       {
-        a = (x * x + y * y + 1);
-        b = (2 * x * x + 2 * y * y);
-        c = (x * x + y * y - 1);
-
-        val = (-b + sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-        x1 = (1 + val) * x;
-        y1 = (1 + val) * y;
-        z1 = val;
-        denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = sqrt(denom);
-        x1 = x1 / denom;
-        y1 = y1 / denom;
-        z1 = z1 / denom;
-
-        color = ops->generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
 
       pixelPtr[idx] = color;

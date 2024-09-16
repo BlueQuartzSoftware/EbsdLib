@@ -1418,49 +1418,26 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalLowOps* ops, int
   EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
-  double xInc = 1.0 / static_cast<double>(imageDim);
-  double yInc = 1.0 / static_cast<double>(imageDim);
-  double rad = 1.0;
-
-  double x = 0.0;
-  double y = 0.0;
-  double a = 0.0;
-  double b = 0.0;
-  double c = 0.0;
-
-  double val = 0.0;
-  double x1 = 0.0;
-  double y1 = 0.0;
-  double z1 = 0.0;
-  double denom = 0.0;
+  double xInc = 1.0f / static_cast<double>(imageDim);
+  double yInc = 1.0f / static_cast<double>(imageDim);
+  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
   // Find the slope of the bounding line.
   static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180D);
 
-  EbsdLib::Rgb color;
-  size_t idx = 0;
-  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
+  size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
-
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
-
-      if(generateEntirePlane) // Color is full unit circle
-      {
-        x = -1.0f + 2.0f * xIndex * xInc;
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
-      else
-      {
-        //         x = xIndex * xInc;
-        //         y = yIndex * yInc;
-        x = -1.0f + 2.0f * xIndex * xInc; // X Scales from ( -1 -> +1)
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
+      // Always compute entire unit circle
+      double x = -1.0f + 2.0f * xIndex * xInc;
+      double y = -1.0f + 2.0f * yIndex * yInc;
+      double sumSquares = (x * x) + (y * y);
+      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
 
       bool xGTyOverM = x < y / m;
       if(generateEntirePlane)
@@ -1468,16 +1445,15 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalLowOps* ops, int
         xGTyOverM = false;
       }
 
-      double sumSquares = (x * x) + (y * y);
-      if(sumSquares > 1.0f || (!generateEntirePlane && x < 0.0F) || (!generateEntirePlane && y < 0.0F)) // Outside unit circle
+      if(sumSquares > 1.0f) // Outside unit circle
       {
         color = 0xFFFFFFF;
       }
-      //       else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
-      //       {
-      //         color = 0xFF000000;
-      //       }
-      else if((!generateEntirePlane && xGTyOverM))
+      else if((!generateEntirePlane && x < 0.0F) || (!generateEntirePlane && y < 0.0F))
+      {
+        color = 0xFFFFFFF;
+      }
+      else if(!generateEntirePlane && xGTyOverM)
       {
         color = 0xFFFFFFF;
       }
@@ -1491,26 +1467,12 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalLowOps* ops, int
       }
       else
       {
-        a = (x * x + y * y + 1);
-        b = (2 * x * x + 2 * y * y);
-        c = (x * x + y * y - 1);
-
-        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-        x1 = (1 + val) * x;
-        y1 = (1 + val) * y;
-        z1 = val;
-        denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = std::sqrt(denom);
-        x1 = x1 / denom;
-        y1 = y1 / denom;
-        z1 = z1 / denom;
-
-        color = ops->generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
-
       pixelPtr[idx] = color;
     }
-    yScanLineIndex--;
+    yScanLineIndex++;
   }
   return image;
 }
@@ -1544,7 +1506,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   std::vector<float> yAdj = {
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
-  std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false, false, false, false, false};
+  std::vector<bool> drawAngle = {true, false, false, false, false, false, false, false, false, false, true, true};
   float radius = 1.0; // Work with a Unit Circle.
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
@@ -1594,10 +1556,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
 
   // Draw the [0001] in the center of the image
   {
-    float x = figureCenter[0];
-    float y = figureCenter[1] + fontPtSize * 1.2F;
-
     std::string label("[0001]");
+    float fontWidth = context.measure_text(label.c_str());
+    float x = figureCenter[0] - fontWidth;
+    float y = figureCenter[1] - fontPtSize * 0.0F;
     EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
   }
 
@@ -1605,12 +1567,11 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   if(!drawFullCircle)
   {
     float x = figureCenter[0];
-    float y = pageHeight - fontPtSize * 1.1;
+    float y = halfHeight  * 1.5;
 
     std::string label("[0001]");
     EbsdLib::WriteText(context, "Discontinuous Colors", {x, y}, fontPtSize);
   }
-
 }
 
 } // namespace
@@ -1645,6 +1606,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   if(!generateEntirePlane)
   {
     figureOrigin[0] = 0.0F - halfWidth * 0.25F;
+    figureOrigin[1] = 0.0F - halfHeight + margins[0];
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
@@ -1668,7 +1630,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
 
-  // image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  //image = EbsdLib::MirrorImage(image.get(), legendHeight);
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
@@ -1694,8 +1656,9 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-    rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
-    return rgbaCanvasImage;}
+  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  return rgbaCanvasImage;
+}
 
 // -----------------------------------------------------------------------------
 HexagonalLowOps::Pointer HexagonalLowOps::NullPointer()

@@ -1489,26 +1489,12 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int im
 
   double xInc = 1.0f / static_cast<double>(imageDim);
   double yInc = 1.0f / static_cast<double>(imageDim);
-  double rad = 1.0f;
-
-  double x = 0.0f;
-  double y = 0.0f;
-  double a = 0.0f;
-  double b = 0.0f;
-  double c = 0.0f;
-
-  double val = 0.0f;
-  double x1 = 0.0f;
-  double y1 = 0.0f;
-  double z1 = 0.0f;
-  double denom = 0.0f;
+  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
   // Find the slope of the bounding line.
   static const double m = -1.0F * std::sin(30.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180D);
 
-  EbsdLib::Rgb color;
-  size_t idx = 0;
-  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data
+  size_t yScanLineIndex = 0; // We use this to control where the data
   // is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
@@ -1517,27 +1503,15 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int im
 
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
-
-      if(generateEntirePlane) // Color is full unit circle
-      {
-        x = -1.0f + 2.0f * xIndex * xInc;
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
-      else
-      {
-        //        x = xIndex * xInc;
-        //        y = yIndex * yInc;
-        x = -1.0f + 2.0f * xIndex * xInc; // X Scales from ( -1 -> +1)
-        y = -1.0f + 2.0f * yIndex * yInc;
-      }
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
+      // Always compute entire unit circle
+      double x = -1.0f + 2.0f * xIndex * xInc;
+      double y = -1.0f + 2.0f * yIndex * yInc;
 
       double sumSquares = (x * x) + (y * y);
+      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
 
-      if(sumSquares > 1.0f
-         // ||
-         //||
-         ) // Outside unit circle
+      if(sumSquares > 1.0f) // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
@@ -1554,44 +1528,15 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int im
       {
         color = 0xFFFFFFFF;
       }
-      //      else if(!generateEntirePlane && y < 0.0F)
-      //      {
-      //        color = 0xFF00FF00;
-      //      }
-      //      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
-      //      {
-      //        color = 0xFF000000;
-      //      }
-      //      else if(!generateEntirePlane && x - y / m < 0.001)
-      //      {
-      //        color = 0xFF000000;
-      //      }
-      //      else if(xIndex == 0 || yIndex == 0)
-      //      {
-      //        color = 0xFF000000;
-      //      }
       else
       {
-        a = (x * x + y * y + 1);
-        b = (2 * x * x + 2 * y * y);
-        c = (x * x + y * y - 1);
-
-        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-        x1 = (1 + val) * x;
-        y1 = (1 + val) * y;
-        z1 = val;
-        denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = std::sqrt(denom);
-        x1 = x1 / denom;
-        y1 = y1 / denom;
-        z1 = z1 / denom;
-
-        color = ops->generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
 
       pixelPtr[idx] = color;
     }
-    yScanLineIndex--;
+    yScanLineIndex++;
   }
   return image;
 }
@@ -1625,7 +1570,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   std::vector<float> yAdj = {
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
-  std::vector<bool> drawAngle = {true, true, false, false, false, false, false, false, false, false, false, false};
+  std::vector<bool> drawAngle = {true, false, false, false, false, false, false, false, false, false, false, true};
   float radius = 1.0; // Work with a Unit Circle.
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
@@ -1675,10 +1620,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
 
   // Draw the [0001] in the center of the image
   {
-    float x = figureCenter[0];
-    float y = figureCenter[1] + fontPtSize;
-
     std::string label("[0001]");
+    float fontWidth = context.measure_text(label.c_str());
+    float x = figureCenter[0] - fontWidth;
+    float y = figureCenter[1] - fontPtSize * 0.25F;
     EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
   }
 }
@@ -1713,7 +1658,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
   if(!generateEntirePlane)
   {
-    figureOrigin[1] = 0.0F + halfHeight * 0.15;
+    figureOrigin[0] = 0.0 - margins[3] * 0.5F;// -halfWidth * 0.45F ;
+    figureOrigin[1] = 0.0F - halfHeight + margins[0] + fontPtSize ;
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
@@ -1736,6 +1682,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   context.close_path();
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
+
 
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
@@ -1763,8 +1710,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-    rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
-    return rgbaCanvasImage;
+  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------

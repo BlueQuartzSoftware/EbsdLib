@@ -48,6 +48,16 @@ EbsdLib_EXPORT std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3D
 EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8ArrayType::Pointer image, int width, int height);
 
 /**
+ * @brief
+ * @param image
+ * @param pageWidth
+ * @param pageHeight
+ * @return
+ */
+EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight);
+
+
+/**
 * @brief
  * @param context
  * @param directions

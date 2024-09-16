@@ -1000,12 +1000,11 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
   double xInc = 1.0 / static_cast<double>(imageDim);
   double yInc = 1.0 / static_cast<double>(imageDim);
 
-  size_t yScanLineIndex = imageDim; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
+  size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
-    yScanLineIndex--;
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
       size_t idx = (imageDim * yScanLineIndex) + xIndex;
@@ -1033,6 +1032,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
       }
       pixelPtr[idx] = color;
     }
+    yScanLineIndex++;
   }
   return image;
 }
@@ -1212,7 +1212,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
 
   // We are NOT going to mirror the image because the math worked out
   // in the generate function to generate the triangle how we want it
-  // image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form
   canvas_ity::canvas context(pageWidth, pageHeight);

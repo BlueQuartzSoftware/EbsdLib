@@ -35,13 +35,15 @@
 
 #pragma once
 
-#include <memory>
-
-#include <string>
-#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+
+#include <memory>
+#include <string>
+#include <vector>
+
 
 /**
  * @struct PoleFigureConfiguration_t
