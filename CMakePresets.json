@@ -39,7 +39,7 @@
             },
             "VCPKG_APPLOCAL_DEPS": {
                 "type": "BOOL",
-                "value": "OFF"
+                "value": "ON"
             },
             "VCPKG_MANIFEST_FEATURES": {
                 "type": "STRING",
@@ -52,6 +52,14 @@
             "EbsdLib_BUILD_H5SUPPORT": {
                 "type": "BOOL",
                 "value": "OFF"
+            },
+            "BUILDNAME": {
+              "type": "STRING",
+              "value": "$env{PRESET_NAME}-$env{BUILD_BUILDNUMBER}-PR$env{SYSTEM_PULLREQUEST_PULLREQUESTNUMBER}"
+            },
+            "SITE": {
+              "type": "STRING",
+              "value": "$env{AGENT_NAME}.bluequartz.net"
             }
         }
       },

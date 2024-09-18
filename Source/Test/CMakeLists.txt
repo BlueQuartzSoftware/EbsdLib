@@ -152,3 +152,4 @@ if(MSVC)
   set_source_files_properties(${EbsdLibProj_BINARY_DIR}/EbsdLibUnitTest.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 
+get_property(EbsdLib_EXTRA_LIBRARY_DIRS GLOBAL PROPERTY EbsdLib_EXTRA_LIBRARY_DIRS)
