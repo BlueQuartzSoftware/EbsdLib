@@ -35,6 +35,7 @@ __pycache__/
 /.mypy_cache/
 release
 debug
+Test/ProjectTest/Build
 
 # Python build-related files
 pyebsd/build/

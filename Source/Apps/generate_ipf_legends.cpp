@@ -33,7 +33,7 @@
 
 using namespace EbsdLib;
 
-//const std::string k_Output_Dir(UnitTest::DataDir + "IPF_Legend/");
+// const std::string k_Output_Dir(UnitTest::DataDir + "IPF_Legend/");
 const std::string k_Output_Dir(UnitTest::TestTempDir + "IPF_Legend/");
 
 using EbsdDoubleArrayType = EbsdDataArray<float>;
