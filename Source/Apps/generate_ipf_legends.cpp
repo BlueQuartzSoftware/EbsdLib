@@ -33,8 +33,8 @@
 
 using namespace EbsdLib;
 
-// const std::string k_Output_Dir(UnitTest::DataDir + "IPF_Legend/");
-const std::string k_Output_Dir(UnitTest::TestTempDir + "IPF_Legend/");
+const std::string k_Output_Dir(UnitTest::DataDir + "IPF_Legend/");
+//const std::string k_Output_Dir(UnitTest::TestTempDir + "IPF_Legend/");
 
 using EbsdDoubleArrayType = EbsdDataArray<float>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
@@ -260,7 +260,7 @@ void GenerateTestIPFImages(const std::vector<FloatVec3Type>& referenceDirections
     ipfColors.run();
 
     std::stringstream ss;
-    ss << k_Output_Dir << EbsdStringUtils::replace(ops[phase]->getSymmetryName(), "/", "|") << "/ipf_test_image_" << static_cast<int>(referenceDir[0]) << "_" << static_cast<int>(referenceDir[1])
+    ss << k_Output_Dir << EbsdStringUtils::replace(ops[phase]->getSymmetryName(), "/", "_") << "/ipf_test_image_" << static_cast<int>(referenceDir[0]) << "_" << static_cast<int>(referenceDir[1])
        << "_" << static_cast<int>(referenceDir[2]) << "_" << colorNames[idx] << ".tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), 100, 100, 3, colors->getTuplePointer(0));
     std::cout << "IPF Colors Result: " << result.first << ": " << result.second << std::endl;
@@ -312,7 +312,12 @@ void GeneratePoleFigures(LaueOps& ops, int symType)
       poleFigure = EbsdLib::DrawStandardHexagonalProjection(poleFigure, config.imageDim, config.imageDim);
     }
     ss.str("");
-    ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << config.labels[index] << "_pole_figure.tiff";
+
+    std::string cleanedLabel = EbsdStringUtils::replace(config.labels[index], "<", "[");
+    cleanedLabel = EbsdStringUtils::replace(cleanedLabel, ">", "]");
+    cleanedLabel = EbsdStringUtils::replace(cleanedLabel, "|", "_");
+
+    ss << k_Output_Dir << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << cleanedLabel << "_pole_figure.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), config.imageDim, config.imageDim, 3, poleFigure->getTuplePointer(0));
     std::cout << ops.getSymmetryName() << " Pole Figure Result: " << result.first << ": " << result.second << std::endl;
     index++;
@@ -328,7 +333,7 @@ int main(int argc, char* argv[])
   for(const auto& op : ops)
   {
     std::stringstream ss;
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(op->getSymmetryName(), "/", "|");
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(op->getSymmetryName(), "/", "_");
     std::filesystem::create_directories(ss.str());
   }
 
@@ -339,13 +344,13 @@ int main(int argc, char* argv[])
     TriclinicOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -368,7 +373,7 @@ int main(int argc, char* argv[])
     MonoclinicOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -376,7 +381,7 @@ int main(int argc, char* argv[])
     int yCropped = imageDim * 0.6F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, 0, 0, imageDim, yCropped);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, yCropped, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -400,13 +405,13 @@ int main(int argc, char* argv[])
 
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -430,12 +435,12 @@ int main(int argc, char* argv[])
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
 
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -458,7 +463,7 @@ int main(int argc, char* argv[])
     OrthoRhombicOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -469,7 +474,7 @@ int main(int argc, char* argv[])
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -493,7 +498,7 @@ int main(int argc, char* argv[])
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
 
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -504,7 +509,7 @@ int main(int argc, char* argv[])
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -527,7 +532,7 @@ int main(int argc, char* argv[])
     TetragonalLowOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -538,7 +543,7 @@ int main(int argc, char* argv[])
     int numRows = imageDim * 0.6F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -561,7 +566,7 @@ int main(int argc, char* argv[])
     HexagonalOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -572,7 +577,7 @@ int main(int argc, char* argv[])
     int numRows = imageDim * 0.5F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -595,7 +600,7 @@ int main(int argc, char* argv[])
     HexagonalLowOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -606,7 +611,7 @@ int main(int argc, char* argv[])
     int numRows = imageDim * 0.5F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -629,7 +634,7 @@ int main(int argc, char* argv[])
     TrigonalOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -640,7 +645,7 @@ int main(int argc, char* argv[])
     int numRows = imageDim * 0.65F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -663,7 +668,7 @@ int main(int argc, char* argv[])
     TrigonalLowOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
     ss.str("");
-    ss << k_Output_Dir << ops.getSymmetryName() << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "_FULL.tiff";
+    ss << k_Output_Dir << ops.getSymmetryName() << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
     auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
@@ -674,7 +679,7 @@ int main(int argc, char* argv[])
     int numRows = imageDim * 0.65F;
     legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
