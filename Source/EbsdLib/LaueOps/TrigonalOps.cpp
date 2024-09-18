@@ -1035,7 +1035,7 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   if(!generateEntirePlane)
   {
     figureOrigin[0] = -halfWidth * 0.25;
-    figureOrigin[1] = 0.0F + halfHeight * 0.05;
+    figureOrigin[1] = 0.0F - halfHeight * .5;
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 

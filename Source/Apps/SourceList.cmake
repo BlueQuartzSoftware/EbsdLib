@@ -1,3 +1,6 @@
+configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in
+               ${EbsdLibProj_BINARY_DIR}/EbsdLib/Apps/EbsdLibFileLocations.h @ONLY IMMEDIATE)
+
 add_executable(rotconvert ${EbsdLibProj_SOURCE_DIR}/Source/Apps/rotconvert.cpp)
 target_link_libraries(rotconvert PUBLIC EbsdLib)
 target_include_directories(rotconvert PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
@@ -16,4 +19,4 @@ target_include_directories(gen_sym_code PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 
 add_executable(generate_ipf_legends ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_legends.cpp)
 target_link_libraries(generate_ipf_legends PUBLIC EbsdLib)
-target_include_directories(generate_ipf_legends PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+target_include_directories(generate_ipf_legends PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source ${EbsdLibProj_BINARY_DIR})

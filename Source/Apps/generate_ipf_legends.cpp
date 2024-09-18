@@ -19,6 +19,8 @@
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
+#include "EbsdLib/Apps/EbsdLibFileLocations.h"
+
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
@@ -31,7 +33,8 @@
 
 using namespace EbsdLib;
 
-const std::string k_Output_Dir("/tmp/ebsd_lib_legends/");
+//const std::string k_Output_Dir(UnitTest::DataDir + "IPF_Legend/");
+const std::string k_Output_Dir(UnitTest::TestTempDir + "IPF_Legend/");
 
 using EbsdDoubleArrayType = EbsdDataArray<float>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
@@ -39,7 +42,8 @@ using OCType = OrientationConverter<EbsdLib::DoubleArrayType, float>;
 
 std::map<std::string, int32_t> k_AlgorithmIndexMap = {{"eu", 0}, {"om", 1}, {"qu", 2}, {"aa", 3}, {"ro", 4}, {"ho", 5}, {"cu", 6}, {"st", 7}};
 
-const std::string k_QuatsFilePath("/Users/mjackson/Downloads/IPF_Triangle_Legend_Validation/quats_000_1_deg.txt");
+const std::string k_QuatsFilePath(UnitTest::DataDir + "IPF_Legend/quats_000_1_deg.txt");
+
 // -----------------------------------------------------------------------------
 template <typename T>
 std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int32_t outputType, typename EbsdDataArray<T>::Pointer inputOrientations)
@@ -630,9 +634,14 @@ int main(int argc, char* argv[])
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
     legend = ops.generateIPFTriangleLegend(imageDim, false);
+    int xStart = imageDim * 0.05F;
+    int yStart = 0;
+    int numCols = imageDim * 0.75F;
+    int numRows = imageDim * 0.65F;
+    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "|") << ".tiff";
-    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
     std::vector<FloatVec3Type> referenceDirections = {

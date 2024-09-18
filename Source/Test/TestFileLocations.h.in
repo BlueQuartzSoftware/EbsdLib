@@ -59,7 +59,7 @@ const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
 const std::string TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
 const std::string TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
 const std::string TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
-const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromAng.h5ebsd");
+const std::string H5EbsdOutputFile("@TEST_TEMP_DIR@/FromAng.h5ebsd");
 const std::string MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
 const std::string GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
 const std::string MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
@@ -79,7 +79,7 @@ const std::string Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/
 const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
 const std::string ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
 
-const std::string H5EbsdOutputFile("@EbsdLibTest_BINARY_DIR@/FromCtf.h5ebsd");
+const std::string H5EbsdOutputFile("@TEST_TEMP_DIR@/FromCtf.h5ebsd");
 } // namespace CtfReaderTest
 
 namespace HedmReaderTest
@@ -93,7 +93,7 @@ const std::string MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.
 namespace H5EspritReaderTest
 {
 const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
-const std::string OutputFile("@EbsdLibTest_BINARY_DIR@/H5Esprit_Output_File.h5");
+const std::string OutputFile("@TEST_TEMP_DIR@/H5Esprit_Output_File.h5");
 } // namespace H5EspritReaderTest
 
 namespace IPFLegendTest
