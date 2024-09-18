@@ -36,7 +36,7 @@ including the generation of an IPF Color which is a prevalent visualization sche
 the EBSD community. Note that each vendor has slightly different algorithms and this
 library has selected to aligh with the AMETEK/EDAX output.
 
-The folder Data/IPF_Legend has premade IPF Legends for most of the Laue classes.
+The folder Data/IPF_Legend has premade IPF Legends for all the Laue classes.
 
 ## Quaternion Convention ##
 
