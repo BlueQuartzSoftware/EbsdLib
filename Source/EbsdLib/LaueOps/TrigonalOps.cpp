@@ -44,6 +44,7 @@
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
@@ -1044,7 +1045,9 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize);
+  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
   context.text_baseline = baselines[0];
@@ -1069,10 +1072,10 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
                      static_cast<float>(legendHeight));
 
   // Draw Title of Legend
-  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
   DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.

@@ -53,12 +53,8 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
-#include "EbsdLib/Math/EbsdLibRandom.h"
+
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/FiraSansRegular.hpp"
-#include "EbsdLib/Utilities/Fonts.hpp"
-#include "EbsdLib/Utilities/LatoBold.hpp"
-#include "EbsdLib/Utilities/LatoRegular.hpp"
 
 /**
 | Index | Verified | Class           | Group | Num Sym Ops |
@@ -98,13 +94,7 @@ namespace Detail
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps()
-{
-  // Initialize our fonts
-  fonts::Base64Decode(fonts::k_FiraSansRegularBase64, m_FiraSansRegular);
-  fonts::Base64Decode(fonts::k_LatoRegularBase64, m_LatoRegular);
-  fonts::Base64Decode(fonts::k_LatoBoldBase64, m_LatoBold);
-}
+LaueOps::LaueOps() = default;
 
 // -----------------------------------------------------------------------------
 //

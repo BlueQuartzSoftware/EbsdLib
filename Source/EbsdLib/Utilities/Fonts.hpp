@@ -1,9 +1,17 @@
 #pragma once
 
+#include "EbsdLib/EbsdLib.h"
+
 #include <vector>
 
-namespace fonts
+namespace EbsdLib::fonts
 {
+
+EbsdLib_EXPORT std::vector<unsigned char> GetFiraSansRegular();
+
+EbsdLib_EXPORT std::vector<unsigned char> GetLatoRegular();
+
+EbsdLib_EXPORT std::vector<unsigned char> GetLatoBold();
 
 // Simple Base64 decoder.  This is used at startup to decode the string
 // literals containing embedded resource data, namely font files in TTF form.
@@ -37,4 +45,4 @@ inline void Base64Decode(char const* input, std::vector<unsigned char>& output)
     }
   }
 }
-} // namespace fonts
+} // namespace EbsdLib::fonts

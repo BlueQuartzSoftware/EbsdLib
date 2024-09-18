@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-namespace fonts
+namespace EbsdLib::fonts
 {
 // clang-format off
   char const k_FiraSansRegularBase64 [] = 
@@ -7384,4 +7384,4 @@ namespace fonts
     "sECIWLEDZESxJgGIUVi6CIAAAQRAiGNUWLEDAERZWVlZQAxZCEUIMwclBRkEBQwquAH/hbAE"
     "jbECAESxBWREAAAAAAAAAQAAAAA=";
 // clang-format on
-} // namespace fonts
+} // namespace EbsdLib::fonts

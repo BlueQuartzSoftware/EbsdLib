@@ -32,7 +32,6 @@
 #pragma once
 
 #include <memory>
-
 #include <string>
 
 #include "EbsdLib/EbsdLib.h"

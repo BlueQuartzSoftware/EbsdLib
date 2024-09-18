@@ -122,19 +122,17 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
 // -----------------------------------------------------------------------------
 EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
 {
-  std::vector<unsigned char> m_FiraSansRegular;
-  std::vector<unsigned char> m_LatoRegular;
-  std::vector<unsigned char> m_LatoBold;
+  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
   // Initialize our fonts
-  fonts::Base64Decode(fonts::k_FiraSansRegularBase64, m_FiraSansRegular);
-  fonts::Base64Decode(fonts::k_LatoRegularBase64, m_LatoRegular);
-  fonts::Base64Decode(fonts::k_LatoBoldBase64, m_LatoBold);
+  fonts::Base64Decode(fonts::k_LatoRegularBase64, latoRegular);
+  fonts::Base64Decode(fonts::k_LatoBoldBase64, latoBold);
   const float fontPtSize = static_cast<float>(pageWidth) / 24.0f;
 
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize);
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
   context.text_baseline = baselines[0];
@@ -242,19 +240,15 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8A
   std::array<float, 2> figureOrigin = {0.0F, 0.0F};
   std::array<float, 2> figureCenter = {pageWidth * 0.5F, pageHeight * 0.5F};
 
-  std::vector<unsigned char> m_FiraSansRegular;
-  std::vector<unsigned char> m_LatoRegular;
-  std::vector<unsigned char> m_LatoBold;
   // Initialize our fonts
-  fonts::Base64Decode(fonts::k_FiraSansRegularBase64, m_FiraSansRegular);
-  fonts::Base64Decode(fonts::k_LatoRegularBase64, m_LatoRegular);
-  fonts::Base64Decode(fonts::k_LatoBoldBase64, m_LatoBold);
   const float fontPtSize = static_cast<float>(pageWidth) / 24.0f;
 
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize);
+  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
   context.text_baseline = baselines[0];

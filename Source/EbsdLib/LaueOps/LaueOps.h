@@ -348,10 +348,6 @@ protected:
    */
   EbsdLib::Rgb computeIPFColor(double* eulers, double* refDir, bool deg2Rad) const;
 
-  std::vector<unsigned char> m_FiraSansRegular;
-  std::vector<unsigned char> m_LatoRegular;
-  std::vector<unsigned char> m_LatoBold;
-
 public:
   LaueOps(const LaueOps&) = delete;            // Copy Constructor Not Implemented
   LaueOps(LaueOps&&) = delete;                 // Move Constructor Not Implemented
