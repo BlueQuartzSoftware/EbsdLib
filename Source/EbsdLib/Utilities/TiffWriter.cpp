@@ -3,8 +3,8 @@
 #include <array>
 #include <cstddef>
 #include <fstream>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 namespace
 {

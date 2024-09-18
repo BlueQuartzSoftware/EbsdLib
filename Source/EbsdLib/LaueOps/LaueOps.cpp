@@ -40,10 +40,6 @@
 #include <limits>
 #include <random>
 
-#include "EbsdLib/Utilities/LatoBold.hpp"
-#include "EbsdLib/Utilities/LatoRegular.hpp"
-#include "EbsdLib/Utilities/FiraSansRegular.hpp"
-#include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
@@ -59,6 +55,10 @@
 #include "EbsdLib/LaueOps/TrigonalOps.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/Utilities/ColorTable.h"
+#include "EbsdLib/Utilities/FiraSansRegular.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/LatoBold.hpp"
+#include "EbsdLib/Utilities/LatoRegular.hpp"
 
 /**
 | Index | Verified | Class           | Group | Num Sym Ops |

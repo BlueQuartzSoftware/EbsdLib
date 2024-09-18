@@ -348,7 +348,6 @@ protected:
    */
   EbsdLib::Rgb computeIPFColor(double* eulers, double* refDir, bool deg2Rad) const;
 
-
   std::vector<unsigned char> m_FiraSansRegular;
   std::vector<unsigned char> m_LatoRegular;
   std::vector<unsigned char> m_LatoBold;

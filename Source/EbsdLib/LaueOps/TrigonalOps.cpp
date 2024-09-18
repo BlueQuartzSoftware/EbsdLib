@@ -555,7 +555,7 @@ public:
     EbsdLib::Matrix3X3D gTranspose;
     EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
-    // Geneate all the Coordinates
+    // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
@@ -564,7 +564,7 @@ public:
       gTranspose = g.transpose();
 
       // -----------------------------------------------------------------------------
-      // 001 Family
+      // [0001] Family
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
@@ -574,7 +574,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 011 Family
+      // [0-110]
       direction[0] = 0;
       direction[1] = -1.0;
       direction[2] = 0.0;
@@ -584,7 +584,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 111 Family
+      // [1-100]
       direction[0] = EbsdLib::Constants::k_Root3Over2D;
       direction[1] = -0.5;
       direction[2] = 0;
@@ -868,13 +868,10 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
 
   double xInc = 1.0f / static_cast<double>(imageDim);
   double yInc = 1.0f / static_cast<double>(imageDim);
-  double rad = 1.0f;
 
   // Find the slope of the bounding line.
   static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180D);
 
-  EbsdLib::Rgb color;
-  size_t idx = 0;
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
@@ -882,10 +879,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
   {
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
 
-      //      double x = xIndex * xInc; // normalized x coord
-      //      double y = yIndex * yInc; // normalized y coord
       double x = -1.0f + 2.0f * xIndex * xInc;
       double y = -1.0f + 2.0f * yIndex * yInc;
       if(!generateEntirePlane)
@@ -893,38 +888,24 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
         x = -1.0f + 2.0f * xIndex * xInc;
         y = -1.0f + 2.0f * yIndex * yInc;
       }
-
-      bool xGTyOverM = x > y / m;
-      if(generateEntirePlane)
-      {
-        xGTyOverM = false;
-      }
-
+      auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+      EbsdLib::Rgb color = 0xFFFFFFFF;
       double sumSquares = (x * x) + (y * y);
 
-      if(sumSquares > 1.0f || xGTyOverM) // Outside unit circle
+      if(sumSquares > 1.0f) // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
-      //      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
-      //      {
-      //        color = 0xFF000000;
-      //      }
-      else if(!generateEntirePlane && (x < 0.0 || y < 0.0))
+      else if(!generateEntirePlane && (x < 0.0 || y > 0.0))
       {
         color = 0xFFFFFFFF;
       }
-      else if(!generateEntirePlane && fabs(x - y / m) < 0.005)
+      else if(!generateEntirePlane && std::fabs(sphericalCoords[1] / sphericalCoords[0]) < m)
       {
-        color = 0xFF000000;
+        color = 0xFFFFFFFF;
       }
-      //      else if(!generateEntirePlane && (xIndex == 0 || yIndex == 0))
-      //      {
-      //        color = 0xFF000000;
-      //      }
       else
       {
-        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
         color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
 
@@ -1014,10 +995,11 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
 
   // Draw the [0001] in the center of the image
   {
-    float x = figureCenter[0];
-    float y = figureCenter[1] + fontPtSize;
-
     std::string label("[0001]");
+    std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
+    float fontWidth = context.measure_text(fontWidthString.c_str());
+    float x = figureCenter[0] - fontWidth * 0.5;
+    float y = figureCenter[1] - fontPtSize * 0.25;
     EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
   }
 }
@@ -1077,9 +1059,11 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
 
-  // Do NOT mirror Trigonal High.
-  // image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
@@ -1088,16 +1072,8 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);

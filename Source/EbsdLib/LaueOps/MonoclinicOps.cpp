@@ -1003,9 +1003,7 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int ca
   // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
-  // we are going to mirror across the X Axis so that the Legend mimics those from EDAX OIMAnalysis
-  // We can do this because the legend is symmetric across the X Axis. DO NOT DO THIS FOR OTHER
-  // Laue Classes.
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form
@@ -1034,16 +1032,8 @@ EbsdLib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int ca
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);

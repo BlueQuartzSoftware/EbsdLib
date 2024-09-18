@@ -94,12 +94,15 @@ static const std::vector<OrientationD> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {0.0, 0.0, 1.0, 0.5773502691896258},
     {0.0, 0.0, 1.0, 1.7320508075688767},
+
     {0.0, 0.0, 1.0, 10000000000000.0},
     {0.0, 0.0, sq32, 10000000000000.0},
     {0.0, 0.0, 0.5, 10000000000000.0},
+
     {1.0, 0.0, 0.0, 10000000000000.0},
     {sq32, 0.5, 0.0, 10000000000000.0},
     {0.5, sq32, 0.0, 10000000000000.0},
+
     {0.0, 1.0, 0.0, 10000000000000.0},
     {-0.5, sq32, 0.0, 10000000000000.0},
     {-sq32, 0.5, 0.0, 10000000000000.0},
@@ -1144,7 +1147,7 @@ public:
     EbsdLib::Matrix3X3D gTranspose;
     EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
-    // Geneate all the Coordinates
+    // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
@@ -1163,7 +1166,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 1010 Family
+      // [10-10], also [210]
       direction[0] = EbsdLib::Constants::k_Root3Over2D;
       direction[1] = 0.5;
       direction[2] = 0.0;
@@ -1187,7 +1190,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 1120 Family
+      // [2-1-10] also [100]
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
@@ -1658,8 +1661,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
   if(!generateEntirePlane)
   {
-    figureOrigin[0] = 0.0 - margins[3] * 0.5F;// -halfWidth * 0.45F ;
-    figureOrigin[1] = 0.0F - halfHeight + margins[0] + fontPtSize ;
+    figureOrigin[0] = 0.0 - margins[3] * 0.5F; // -halfWidth * 0.45F ;
+    figureOrigin[1] = 0.0F - halfHeight + margins[0] + fontPtSize;
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
@@ -1683,9 +1686,11 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
 
-
-  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
@@ -1694,16 +1699,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);

@@ -1122,7 +1122,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 011 Family
+      // [10-10], also [210]
       direction[0] = -0.5;
       direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
@@ -1132,7 +1132,7 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 111 Family
+      // [2-1-10] also [100]
       direction[0] = 1;
       direction[1] = 0;
       direction[2] = 0;
@@ -1152,8 +1152,22 @@ public:
 };
 } // namespace HexagonalLow
 
-// -----------------------------------------------------------------------------
-//
+std::vector<EbsdLib::Point3DType> GenerateSphereCoordsUsingReferenceDirection(EbsdLib::FloatArrayType::Pointer& eulers, const EbsdLib::Matrix3X1F& referenceDirection)
+{
+  std::vector<EbsdLib::Point3DType> allCoords(eulers->getNumberOfTuples() * 2);
+  EbsdLib::Matrix3X1F direction = referenceDirection.normalize();
+
+  for(size_t i = 0; i < eulers->getNumberOfTuples(); ++i)
+  {
+    OrientationF eu(eulers->getValue(i * 3), eulers->getValue(i * 3 + 1), eulers->getValue(i * 3 + 2));
+    auto om = OrientationTransformation::eu2om<OrientationF, OrientationF>(eu);
+    EbsdLib::Matrix3X3F g = om.toGMatrixObj().transpose();
+    allCoords[i * 2] = g * direction;
+    allCoords[i * 2 + 1] = allCoords[i * 2] * -1.0;
+  }
+  return allCoords;
+}
+
 // -----------------------------------------------------------------------------
 void HexagonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz0001, EbsdLib::FloatArrayType* xyz1010, EbsdLib::FloatArrayType* xyz1120) const
 {
@@ -1506,7 +1520,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   std::vector<float> yAdj = {
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
-  std::vector<bool> drawAngle = {true, false, false, false, false, false, false, false, false, false, true, true};
+  std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false, false, false, false, false};
   float radius = 1.0; // Work with a Unit Circle.
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
@@ -1567,7 +1581,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   if(!drawFullCircle)
   {
     float x = figureCenter[0];
-    float y = halfHeight  * 1.5;
+    float y = halfHeight * 1.5;
 
     std::string label("[0001]");
     EbsdLib::WriteText(context, "Discontinuous Colors", {x, y}, fontPtSize);
@@ -1606,7 +1620,7 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   if(!generateEntirePlane)
   {
     figureOrigin[0] = 0.0F - halfWidth * 0.25F;
-    figureOrigin[1] = 0.0F - halfHeight + margins[0];
+    figureOrigin[1] = 0.0F + margins[0];
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
@@ -1630,8 +1644,11 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
   context.fill();
 
-  //image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
@@ -1640,16 +1657,8 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);

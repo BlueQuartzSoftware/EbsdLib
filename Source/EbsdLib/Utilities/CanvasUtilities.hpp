@@ -21,7 +21,7 @@ using Point3DType = EbsdLib::Matrix3X1<float>;
 EbsdLib_EXPORT void WriteText(canvas_ity::canvas& context, const std::string& figureSubtitle, std::array<float, 2> textOrigin, int fontPtSize);
 
 /**
-* @brief
+ * @brief
  * @param context
  * @param xStart
  * @param yStart
@@ -56,17 +56,15 @@ EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(Ebsd
  */
 EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight);
 
-
 /**
-* @brief
+ * @brief
  * @param context
  * @param directions
  * @param numPoints
  * @param halfWidth
  * @param figureOrigin
  */
-EbsdLib_EXPORT void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdLib::Point3DType>& directions, int numPoints, int halfWidth,
-                                      std::array<float, 2> figureOrigin);
+EbsdLib_EXPORT void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdLib::Point3DType>& directions, int numPoints, int halfWidth, std::array<float, 2> figureOrigin);
 
 // -----------------------------------------------------------------------------
 template <typename T>
@@ -98,7 +96,7 @@ typename EbsdDataArray<T>::Pointer RotateImage90About001(EbsdDataArray<T>* src, 
   typename EbsdDataArray<T>::Pointer converted = EbsdDataArray<T>::CreateArray(width * height, src->getComponentDimensions(), src->getName(), true);
 
   int rotWidth = height;
-  //int rotHeight = width;
+  // int rotHeight = width;
 
   bool counterClockwise = false;
 
@@ -163,10 +161,7 @@ typename EbsdDataArray<T>::Pointer RemoveAlphaChannel(EbsdDataArray<T>* src)
 }
 
 template <typename T>
-typename EbsdDataArray<T>::Pointer CropRGBImage(typename EbsdDataArray<T>::Pointer src,
-                                                int width, int height,
-                                                int colStart, int rowStart,
-                                                int numCols, int numRows)
+typename EbsdDataArray<T>::Pointer CropRGBImage(typename EbsdDataArray<T>::Pointer src, int width, int height, int colStart, int rowStart, int numCols, int numRows)
 {
   size_t numTuples = numCols * numRows;
 
@@ -177,14 +172,12 @@ typename EbsdDataArray<T>::Pointer CropRGBImage(typename EbsdDataArray<T>::Point
     for(size_t x = colStart; x < colStart + numCols; x++)
     {
       const size_t srcIdx = y * width + x;
-      const size_t destIdx = (y -rowStart) * numCols + (x-colStart);
+      const size_t destIdx = (y - rowStart) * numCols + (x - colStart);
 
       converted->setTuple(destIdx, src->getTuplePointer(srcIdx));
     }
   }
   return converted;
 }
-
-
 
 } // namespace EbsdLib

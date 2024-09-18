@@ -823,7 +823,6 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
   double yInc = 1.0f / static_cast<double>(imageDim);
   static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
-
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
@@ -839,7 +838,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
 
       double sumSquares = (x * x) + (y * y);
       EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
-      if(sumSquares > 1.0) // Outside unit circle
+      if(sumSquares > 1.0)             // Outside unit circle
       {
         color = 0xFFFFFFFF;
       }
@@ -865,10 +864,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const OrthoRhombicOps* ops, int
 }
 
 // -----------------------------------------------------------------------------
-void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize,
-                               std::vector<float> margins,
-                               std::array<float, 2> figureOrigin,
-                               std::array<float, 2> figureCenter,
+void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
                                bool drawFullCircle)
 {
   int legendHeight = canvasDim - margins[0] - margins[2];
@@ -995,9 +991,7 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
   // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
-  // we are going to mirror across the X Axis so that the Legend mimics those from EDAX OIMAnalysis
-  // We can do this because the legend is symmetric across the X Axis. DO NOT DO THIS FOR OTHER
-  // Laue Classes.
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form
@@ -1026,16 +1020,8 @@ EbsdLib::UInt8ArrayType::Pointer OrthoRhombicOps::generateIPFTriangleLegend(int 
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);

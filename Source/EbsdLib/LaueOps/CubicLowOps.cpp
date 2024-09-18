@@ -1210,8 +1210,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
   // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
-  // We are NOT going to mirror the image because the math worked out
-  // in the generate function to generate the triangle how we want it
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form

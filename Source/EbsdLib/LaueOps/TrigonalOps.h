@@ -247,6 +247,4 @@ public:
   TrigonalOps(TrigonalOps&&) = delete;                 // Move Constructor Not Implemented
   TrigonalOps& operator=(const TrigonalOps&) = delete; // Copy Assignment Not Implemented
   TrigonalOps& operator=(TrigonalOps&&) = delete;      // Move Assignment Not Implemented
-
-
 };

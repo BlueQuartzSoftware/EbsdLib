@@ -39,10 +39,6 @@
 namespace Stereographic::Utils
 {
 
-
-
-
-
 template <typename T>
 EbsdLib::Matrix3X1<T> StereoToSpherical(const EbsdLib::Matrix3X1<T>& stereo)
 {
@@ -74,7 +70,7 @@ EbsdLib::Matrix3X1<T> SphericalToStereo(T x, T y, T z)
  * @param points
  * @return
  */
-template<typename T>
+template <typename T>
 std::vector<EbsdLib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(const std::vector<EbsdLib::Matrix3X1<T>>& points)
 {
   using Point3DType = EbsdLib::Matrix3X1<T>;

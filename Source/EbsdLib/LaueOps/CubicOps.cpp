@@ -1660,7 +1660,7 @@ EbsdLib::Matrix3X1<T> TripletSort(EbsdLib::Matrix3X1<T>& vec)
     y = vec[1];
     z = vec[2];
   }
-  return {x,y,z};
+  return {x, y, z};
 }
 
 bool inUnitTriangleD(double eta, double chi)
@@ -1955,7 +1955,6 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
   double theta = 0.0f;
   double k_RootOfHalf = sqrtf(0.5f);
 
-
   EbsdLib::Matrix3X1D orientation(0.0, 0.0, 0.0);
   EbsdLib::Rgb color;
   size_t idx = 0;
@@ -1996,9 +1995,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
       {
         color = 0xFFFFFFFF;
       }
-      else if(!generateEntirePlane && (phi <= (45.0f * EbsdLib::Constants::k_PiOver180D)
-                                       || phi >= (90.0f * EbsdLib::Constants::k_PiOver180D)
-                                       || theta >= (35.26f * EbsdLib::Constants::k_PiOver180D)))
+      else if(!generateEntirePlane && (phi <= (45.0f * EbsdLib::Constants::k_PiOver180D) || phi >= (90.0f * EbsdLib::Constants::k_PiOver180D) || theta >= (35.26f * EbsdLib::Constants::k_PiOver180D)))
       {
         color = 0xFFFFFFFF;
       }
@@ -2033,8 +2030,8 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   {
     legendWidth = legendHeight;
   }
-//  int pageHeight = canvasDim;
-//  int pageWidth = canvasDim;
+  //  int pageHeight = canvasDim;
+  //  int pageWidth = canvasDim;
   int halfWidth = legendWidth / 2;
   int halfHeight = legendHeight / 2;
 
@@ -2181,8 +2178,7 @@ EbsdLib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasD
   // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
-  // We are NOT going to mirror the image because the math worked out
-  // in the generate function to generate the triangle how we want it
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form

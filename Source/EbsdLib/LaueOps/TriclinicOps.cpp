@@ -489,7 +489,7 @@ public:
     EbsdLib::Matrix3X3D gTranspose;
     EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
-    // Geneate all the Coordinates
+    // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
       OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
@@ -941,7 +941,6 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     context.set_line_width(penWidth);
     EbsdLib::DrawStereographicLines(context, directions, numPoints, halfWidth, figureOrigin);
   }
-
 }
 
 } // namespace
@@ -986,9 +985,7 @@ EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int can
   // Convert from ARGB to RGBA which is what canvas_itk wants
   image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
 
-  // we are going to mirror across the X Axis so that the Legend mimics those from EDAX OIMAnalysis
-  // We can do this because the legend is symmetric across the X Axis. DO NOT DO THIS FOR OTHER
-  // Laue Classes.
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
   image = EbsdLib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form
@@ -1017,16 +1014,8 @@ EbsdLib::UInt8ArrayType::Pointer TriclinicOps::generateIPFTriangleLegend(int can
   context.set_font(m_LatoBold.data(), static_cast<int>(m_LatoBold.size()), fontPtSize * 1.5);
   EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
-  if(generateEntirePlane)
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
+  context.set_font(m_LatoRegular.data(), static_cast<int>(m_LatoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
   EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
