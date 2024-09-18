@@ -140,3 +140,10 @@ option(EbsdLib_BUILD_TOOLS "Build example applications" ON)
 if(EbsdLib_BUILD_TOOLS)
   include(${EbsdLibProj_SOURCE_DIR}/Source/Apps/SourceList.cmake)
 endif()
+
+
+# -----------------------------------------------------------------------
+# Include the packaging Cmake codes
+# -----------------------------------------------------------------------
+include(${EbsdLibProj_SOURCE_DIR}/cmake/Packaging.cmake)
+

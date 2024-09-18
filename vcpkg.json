@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "simplnx",
+  "version": "0.1.0",
+  "dependencies": [
+    {
+      "name": "eigen3"
+    },
+    {
+      "name": "hdf5",
+      "features": [
+        "cpp",
+        "zlib"
+      ]
+    },
+    {
+      "name": "h5support"
+    }
+  ],
+  "features": {
+    "parallel": {
+      "description": "Parallel support with TBB",
+      "dependencies": [
+        {
+          "name": "tbb"
+        }
+      ]
+    }
+  }
+}
