@@ -339,6 +339,39 @@ int main(int argc, char* argv[])
 
   std::stringstream ss;
   int imageDim = 512;
+  {
+    TrigonalOps ops;
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    ss.str("");
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
+    auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
+
+    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    int xStart = imageDim * 0.05F;
+    int yStart = 0;
+    int numCols = imageDim * 0.75F;
+    int numRows = imageDim * 0.65F;
+    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    ss.str("");
+    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
+
+    std::vector<FloatVec3Type> referenceDirections = {
+        {0.0F, 0.0F, 1.0F},                    // Red  DONE
+        {0.0F, 1.0F, 0.0F},                    // Green
+        {-0.5F, std::sqrt(3.0F) / 2.0F, 0.0F}, // Aqua
+        {2.0F, 1.0F, 0.0F},                    // Blue
+        {0.0F, 1.0F, -1.0F},                   // Yellow  DONE
+        {1.0F, -1.0F, 1.0F},                   // Pink  DONE
+        {1.0F, 0.0F, 1.0F},                    // Flesh
+    };
+    std::vector<std::string> colorNames{"Red", "Green", "Aqua", "Blue", "Yellow", "Pink", "Flesh"};
+    GenerateTestIPFImages(referenceDirections, colorNames, 10);
+    // Generate Pole Figures for the Input Test Orientations
+    GeneratePoleFigures(ops, 2);
+  }
 
   {
     TriclinicOps ops;
@@ -626,40 +659,6 @@ int main(int argc, char* argv[])
     };
     std::vector<std::string> colorNames{"Red", "Green", "Aqua", "Blue", "Yellow", "Flesh"};
     GenerateTestIPFImages(referenceDirections, colorNames, 2);
-    // Generate Pole Figures for the Input Test Orientations
-    GeneratePoleFigures(ops, 2);
-  }
-
-  {
-    TrigonalOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
-    ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.tiff";
-    auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
-    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
-
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
-    int xStart = imageDim * 0.05F;
-    int yStart = 0;
-    int numCols = imageDim * 0.75F;
-    int numRows = imageDim * 0.65F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
-    ss.str("");
-    ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
-    result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
-    std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
-
-    std::vector<FloatVec3Type> referenceDirections = {
-        {0.0F, 0.0F, 1.0F},                    // Red  DONE
-        {0.0F, 1.0F, 0.0F},                    // Green
-        {-0.5F, std::sqrt(3.0F) / 2.0F, 0.0F}, // Aqua
-        {2.0F, 1.0F, 0.0F},                    // Blue
-        {0.0F, 1.0F, -1.0F},                   // Yellow  DONE
-        {1.0F, -1.0F, 1.0F},                   // Pink  DONE
-        {1.0F, 0.0F, 1.0F},                    // Flesh
-    };
-    std::vector<std::string> colorNames{"Red", "Green", "Aqua", "Blue", "Yellow", "Pink", "Flesh"};
-    GenerateTestIPFImages(referenceDirections, colorNames, 10);
     // Generate Pole Figures for the Input Test Orientations
     GeneratePoleFigures(ops, 2);
   }

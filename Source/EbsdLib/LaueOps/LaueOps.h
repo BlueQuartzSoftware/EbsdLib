@@ -204,7 +204,7 @@ public:
   virtual QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const = 0;
 
   /**
-   * @brief getFZQuat Returns a Quaternioni that lies in the Fundemental Zone (FZ)
+   * @brief getFZQuat Returns a Quaternion that lies in the Fundamental Zone (FZ)
    * @param qr Input Quaternion
    * @return
    */

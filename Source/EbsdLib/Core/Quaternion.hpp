@@ -397,7 +397,7 @@ public:
 
   /**
    * @brief Conjugate Converts quaternion q into its conjugate
-   * @return new quaternioin that is the conjugate of the current quaternion
+   * @return new quaternion that is the conjugate of the current quaternion
    */
   Quaternion conjugate() const
   {
