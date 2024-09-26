@@ -46,14 +46,10 @@
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task.h>
-#include <tbb/task_group.h>
 #endif
 
 namespace TrigonalHigh
