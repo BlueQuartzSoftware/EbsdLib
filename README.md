@@ -4,12 +4,12 @@ EBSDLib is a C++ Library that can read EBSD Files from OEMs and perform basic EB
 library is to be able to convert between the seven orientation representations that
 are typically used through out materials science and engineering domains.
 
-The DREAM.3D project ( [code repository](http://www.github.com/bluequartzsoftware/DREAM3D) and [web site](http://dream3d.bluequartz.net) ) uses this library for all of the EBSD processing.
+The DREAM.3D project ( [code repository](http://www.github.com/bluequartzsoftware/DREAM3D) and [web site](https://www.dream3d.io) ) uses this library for all of the EBSD processing.
 
 ## Supported EBSD OEM Data Files ##
 
 + EDAX/AMETEK: .ang and HDF5 based file formats
-+ Oxford Instruments: .ctf file format
++ Oxford Instruments: .ctf and .h5oina file formats
 + Bruker: HDF5 based file format
 
 Please have a look at the unit tests for examples on using the various readers.
@@ -34,9 +34,9 @@ In addition to the OrientationTransformation class there are also classes that r
 the 11 Laue classes that allow a user to perform Laue class specific calculations
 including the generation of an IPF Color which is a prevalent visualization scheme within
 the EBSD community. Note that each vendor has slightly different algorithms and this
-library has selected to aligh with the AMETEK/EDAX output.
+library has selected to align with the AMETEK/EDAX output.
 
-The folder Data/IPF_Legend has premade IPF Legends for most of the Laue classes.
+The folder Data/IPF_Legend has premade IPF Legends for all the Laue classes.
 
 ## Quaternion Convention ##
 
@@ -48,9 +48,12 @@ can set to allow the orientation transformations to accept this layout.
 
 EbsdLib is dependent on:
 
-+ Qt5 5.15.x (minimum)
 + Eigen 3.4
+
+## Optional Libraries
+
 + HDF5 1.10.4 (HDF5 is optional only if you want the HDF5 functionality)
++ Qt5 5.15.x (minimum)
 
 ## Rotation Convention ##
 

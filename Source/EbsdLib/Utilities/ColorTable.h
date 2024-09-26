@@ -84,7 +84,7 @@ public:
 
   inline static void print(std::ostream& out, const char& sep, const EbsdLib::Rgb& rgb)
   {
-    out << "rgb: " << EbsdLib::RgbColor::dRed(rgb) << sep << EbsdLib::RgbColor::dGreen(rgb) << sep << EbsdLib::RgbColor::dBlue(rgb);
+    out << EbsdLib::RgbColor::dRed(rgb) << sep << EbsdLib::RgbColor::dGreen(rgb) << sep << EbsdLib::RgbColor::dBlue(rgb);
   }
 
   inline static bool compare(const EbsdLib::Rgb& left, const EbsdLib::Rgb& right)

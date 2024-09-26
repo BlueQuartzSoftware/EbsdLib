@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set project's name
-project(EbsdLibProj VERSION 1.0.32)
+project(EbsdLibProj VERSION 1.0.33)
 
 # ---------- Setup output Directories -------------------------
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
@@ -67,6 +67,7 @@ if(EbsdLib_ENABLE_HDF5)
         endif()
         message(STATUS "H5Support_SOURCE_DIR: ${H5Support_SOURCE_DIR}")
       endif()
+      set(H5Support_INCLUDE_QT_API OFF)
       add_subdirectory("${H5Support_SOURCE_DIR}" "${EbsdLibProj_BINARY_DIR}/H5Support")
     endif()
   else()
@@ -123,9 +124,11 @@ endif()
 #-------------------------------------------------------------------------------
 option(EbsdLib_USE_PARALLEL_ALGORITHMS "Enable EBSDLib to use parallel algorithms" ON)
 if(EbsdLib_USE_PARALLEL_ALGORITHMS)  # If TBB already exists no need to look for it (e.g. EbsdLib is added as a subdirectory in DREAM3D)
-  if(NOT TARGET TBB::tbb)
-    include(${EbsdLibProj_SOURCE_DIR}/cmake/TBBSupport.cmake)
-  endif()
+  find_package(TBB CONFIG REQUIRED)
+  get_target_property(tbb_dll_path TBB::tbb IMPORTED_LOCATION_RELEASE)
+  get_filename_component(tbb_dll_path "${tbb_dll_path}" DIRECTORY)
+  get_property(EbsdLib_EXTRA_LIBRARY_DIRS GLOBAL PROPERTY EbsdLib_EXTRA_LIBRARY_DIRS)
+  set_property(GLOBAL PROPERTY EbsdLib_EXTRA_LIBRARY_DIRS ${EbsdLib_EXTRA_LIBRARY_DIRS} ${tbb_dll_path})
 endif()
 
 include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
@@ -139,3 +142,10 @@ option(EbsdLib_BUILD_TOOLS "Build example applications" ON)
 if(EbsdLib_BUILD_TOOLS)
   include(${EbsdLibProj_SOURCE_DIR}/Source/Apps/SourceList.cmake)
 endif()
+
+
+# -----------------------------------------------------------------------
+# Include the packaging Cmake codes
+# -----------------------------------------------------------------------
+include(${EbsdLibProj_SOURCE_DIR}/cmake/Packaging.cmake)
+

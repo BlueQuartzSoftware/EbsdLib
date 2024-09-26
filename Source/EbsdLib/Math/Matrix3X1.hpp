@@ -87,6 +87,16 @@ public:
   }
 
   /**
+   * @brief Performs the Matrix Addition.
+   * @param rhs
+   * @return result
+   */
+  SelfType operator+(T scalar)
+  {
+    return {m_Data[0] + scalar, m_Data[1] + scalar, m_Data[2] + scalar};
+  }
+
+  /**
    * @brief Performs the Matrix Subtraction
    * @param rhs
    * @return outMat result
@@ -270,6 +280,16 @@ public:
   T dot(const SelfType& b) const
   {
     return (m_Data[0] * b[0] + m_Data[1] * b[1] + m_Data[2] * b[2]);
+  }
+
+  T dot() const
+  {
+    return (m_Data[0] * m_Data[0] + m_Data[1] * m_Data[1] + m_Data[2] * m_Data[2]);
+  }
+
+  SelfType abs() const
+  {
+    return {std::abs(m_Data[0]), std::abs(m_Data[1]), std::abs(m_Data[2])};
   }
 
   /**

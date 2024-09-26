@@ -562,11 +562,11 @@ public:
         // yval.resize(index + 1);
         // yval[index] = 0.0f;
         // xval.resize(index + 1);
-        std::cout << "yval[14]: " << yval[index] << std::endl;
-        std::cout << "w: " << w << "   choose: " << choose << std::endl;
-        std::cout << "randx3: " << randx3[0] << ", " << randx3[1] << ", " << randx3[2] << std::endl;
-        std::cout << "rod: " << rod[0] << ", " << rod[1] << ", " << rod[2] << ", " << rod[3] << std::endl;
-        std::cout << "ax: " << ax[0] << ", " << ax[1] << ", " << ax[2] << ", " << ax[3] << std::endl;
+        // std::cout << "yval[14]: " << yval[index] << std::endl;
+        // std::cout << "w: " << w << "   choose: " << choose << std::endl;
+        // std::cout << "randx3: " << randx3[0] << ", " << randx3[1] << ", " << randx3[2] << std::endl;
+        // std::cout << "rod: " << rod[0] << ", " << rod[1] << ", " << rod[2] << ", " << rod[3] << std::endl;
+        // std::cout << "ax: " << ax[0] << ", " << ax[1] << ", " << ax[2] << ", " << ax[3] << std::endl;
       }
     }
     for(int i = 0; i < yval.size(); i++)

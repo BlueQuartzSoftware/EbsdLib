@@ -44,10 +44,7 @@
 
 /**
  * @class EbsdTransform EbsdTransform.h EbsdLib/EbsdTransform.h
- * @brief This class is the super class to transform an Ebsd data file. This class is
- * meant to be subclassed for each manufacturer so that custom transformations
- * can be written for those data files. The current subclasses are for TSL (.ang)
- * and HKL (.ctf) data files and their HDF5 versions also.
+ * @brief
  *
  *
  * @date Aug 24, 2011

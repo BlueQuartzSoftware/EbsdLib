@@ -341,7 +341,10 @@ int H5CtfReader::readData(hid_t parId)
     return err;
   }
 
+  // This data _SHOULD_ always be present in the file
   ANG_READER_ALLOCATE_AND_READ(Phase, EbsdLib::Ctf::Phase, int);
+  ANG_READER_ALLOCATE_AND_READ(X, EbsdLib::Ctf::X, float);
+  ANG_READER_ALLOCATE_AND_READ(Y, EbsdLib::Ctf::Y, float);
   ANG_READER_ALLOCATE_AND_READ(BandCount, EbsdLib::Ctf::Bands, int);
   ANG_READER_ALLOCATE_AND_READ(Error, EbsdLib::Ctf::Error, int);
   ANG_READER_ALLOCATE_AND_READ(Euler1, EbsdLib::Ctf::Euler1, float);
@@ -350,6 +353,8 @@ int H5CtfReader::readData(hid_t parId)
   ANG_READER_ALLOCATE_AND_READ(MeanAngularDeviation, EbsdLib::Ctf::MAD, float);
   ANG_READER_ALLOCATE_AND_READ(BandContrast, EbsdLib::Ctf::BC, int);
   ANG_READER_ALLOCATE_AND_READ(BandSlope, EbsdLib::Ctf::BS, int);
+  // This data is optional in the file.
+  ANG_READER_ALLOCATE_AND_READ(Z, EbsdLib::Ctf::Z, float);
   ANG_READER_ALLOCATE_AND_READ(GrainIndex, EbsdLib::Ctf::GrainIndex, int);
   ANG_READER_ALLOCATE_AND_READ(GrainRandomColourR, EbsdLib::Ctf::GrainRandomColourR, int);
   ANG_READER_ALLOCATE_AND_READ(GrainRandomColourG, EbsdLib::Ctf::GrainRandomColourG, int);

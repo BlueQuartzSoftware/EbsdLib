@@ -188,7 +188,7 @@ public:
   std::array<double, 3> getIpfColorAngleLimits(double eta) const override;
 
   /**
-   * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
+   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
    * @param convertDegrees Are the input angles in Degrees
@@ -197,7 +197,7 @@ public:
   EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const override;
 
   /**
-   * @brief generateIPFColor Generates an RGB Color from a Euler Angle and Reference Direction
+   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
    * @param e0 First component of the Euler Angle
    * @param e1 Second component of the Euler Angle
    * @param e2 Third component of the Euler Angle
@@ -239,7 +239,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim) const override;
+  EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
 
 protected:
 public:

@@ -587,7 +587,7 @@ class EulerConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(EulerConverter)
 
-  virtual ~EulerConverter() = default;
+  ~EulerConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -777,7 +777,7 @@ class OrientationMatrixConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(OrientationMatrixConverter)
 
-  virtual ~OrientationMatrixConverter() = default;
+  ~OrientationMatrixConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -948,7 +948,7 @@ class QuaternionConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(QuaternionConverter)
 
-  virtual ~QuaternionConverter() = default;
+  ~QuaternionConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -1111,7 +1111,7 @@ class AxisAngleConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(AxisAngleConverter)
 
-  virtual ~AxisAngleConverter() = default;
+  ~AxisAngleConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -1275,7 +1275,7 @@ class RodriguesConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(RodriguesConverter)
 
-  virtual ~RodriguesConverter() = default;
+  ~RodriguesConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -1439,7 +1439,7 @@ class HomochoricConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(HomochoricConverter)
 
-  virtual ~HomochoricConverter() = default;
+  ~HomochoricConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -1604,7 +1604,7 @@ class CubochoricConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(CubochoricConverter)
 
-  virtual ~CubochoricConverter() = default;
+  ~CubochoricConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {
@@ -1768,7 +1768,7 @@ class StereographicConverter : public OrientationConverter<DataArrayType, T>
 public:
   OC_CLASS_DEFINES(StereographicConverter)
 
-  virtual ~StereographicConverter() = default;
+  ~StereographicConverter() override = default;
 
   OrientationRepresentation::Type getOrientationRepresentation()
   {

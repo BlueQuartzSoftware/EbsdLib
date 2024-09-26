@@ -53,7 +53,7 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
-#include "EbsdLib/Math/EbsdLibRandom.h"
+
 #include "EbsdLib/Utilities/ColorTable.h"
 
 /**
@@ -187,6 +187,7 @@ OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& 
   QuatD qc;
   QuatD qr = q1 * (q2.conjugate());
   size_t numsym = quatsym.size();
+  // Loop through all the symmetry operators and find the Axis Angle with the smallest angular part.
   for(size_t i = 0; i < numsym; i++)
   {
     qc = quatsym[i] * qr;
@@ -211,14 +212,18 @@ OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& 
     }
   }
   double denom = sqrt((axisAngleMin[0] * axisAngleMin[0] + axisAngleMin[1] * axisAngleMin[1] + axisAngleMin[2] * axisAngleMin[2]));
-  axisAngleMin[0] = axisAngleMin[0] / denom;
-  axisAngleMin[1] = axisAngleMin[1] / denom;
-  axisAngleMin[2] = axisAngleMin[2] / denom;
+
   if(denom == 0.0 || axisAngleMin[3] == 0.0)
   {
     axisAngleMin[0] = 0.0;
     axisAngleMin[1] = 0.0;
     axisAngleMin[2] = 1.0;
+  }
+  else
+  {
+    axisAngleMin[0] = axisAngleMin[0] / denom;
+    axisAngleMin[1] = axisAngleMin[1] / denom;
+    axisAngleMin[2] = axisAngleMin[2] / denom;
   }
 
   return axisAngleMin;

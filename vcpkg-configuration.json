@@ -1,0 +1,31 @@
+{
+  "default-registry": {
+    "kind": "git",
+    "repository": "https://github.com/microsoft/vcpkg",
+    "baseline": "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50"
+  },
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/bluequartzsoftware/simplnx-registry",
+      "packages": [
+        "eigen3",
+        "expected-lite",
+        "fmt",
+        "h5support",
+        "hdf5",
+        "lz4",
+        "nlohmann-json",
+        "nod",
+        "span-lite",
+        "tbb",
+        "ninja",
+        "vcpkg-cmake",
+        "vcpkg-cmake-config",
+        "zlib",
+        "zstd"
+      ],
+      "baseline": "c9415182598df306f0d3f2f2b354d9d79cf1bf8b"
+    }
+  ]
+}

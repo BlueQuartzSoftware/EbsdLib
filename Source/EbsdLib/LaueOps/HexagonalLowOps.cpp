@@ -35,23 +35,22 @@
 
 #include "HexagonalLowOps.h"
 
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task.h>
-#include <tbb/task_group.h>
-#endif
-
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+
+#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#endif
 
 namespace HexagonalLow
 {
@@ -1120,28 +1119,28 @@ public:
       direction[2] = 1.0;
       (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
       std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
-                     m_xyz001->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     m_xyz001->getPointer(i * 6 + 3),            // write to the next triplet in memory
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 011 Family
+      // [10-10], also [210]
       direction[0] = -0.5;
       direction[1] = EbsdLib::Constants::k_Root3Over2D;
       direction[2] = 0.0;
       (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
       std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
-                     m_xyz011->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     m_xyz011->getPointer(i * 6 + 3),            // write to the next triplet in memory
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 111 Family
+      // [2-1-10] also [100]
       direction[0] = 1;
       direction[1] = 0;
       direction[2] = 0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
       std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
-                     m_xyz111->getPointer(i * 6 + 3),             // write to the next triplet in memory
-                     [](float value) { return value *= -1.0F; }); // Multiply each value by -1.0
+                     m_xyz111->getPointer(i * 6 + 3),            // write to the next triplet in memory
+                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
     }
   }
 
@@ -1154,8 +1153,22 @@ public:
 };
 } // namespace HexagonalLow
 
-// -----------------------------------------------------------------------------
-//
+std::vector<EbsdLib::Point3DType> GenerateSphereCoordsUsingReferenceDirection(EbsdLib::FloatArrayType::Pointer& eulers, const EbsdLib::Matrix3X1F& referenceDirection)
+{
+  std::vector<EbsdLib::Point3DType> allCoords(eulers->getNumberOfTuples() * 2);
+  EbsdLib::Matrix3X1F direction = referenceDirection.normalize();
+
+  for(size_t i = 0; i < eulers->getNumberOfTuples(); ++i)
+  {
+    OrientationF eu(eulers->getValue(i * 3), eulers->getValue(i * 3 + 1), eulers->getValue(i * 3 + 2));
+    auto om = OrientationTransformation::eu2om<OrientationF, OrientationF>(eu);
+    EbsdLib::Matrix3X3F g = om.toGMatrixObj().transpose();
+    allCoords[i * 2] = g * direction;
+    allCoords[i * 2 + 1] = allCoords[i * 2] * -1.0;
+  }
+  return allCoords;
+}
+
 // -----------------------------------------------------------------------------
 void HexagonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz0001, EbsdLib::FloatArrayType* xyz1010, EbsdLib::FloatArrayType* xyz1120) const
 {
@@ -1409,61 +1422,57 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   return poleFigures;
 }
 
+namespace
+{
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int imageDim) const
+EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalLowOps* ops, int imageDim, bool generateEntirePlane)
 {
 
   std::vector<size_t> dims(1, 4);
-  std::string arrayName = EbsdStringUtils::replace(getSymmetryName(), "/", "_");
+  std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
   EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
-  double xInc = 1.0 / static_cast<double>(imageDim);
-  double yInc = 1.0 / static_cast<double>(imageDim);
-  double rad = 1.0;
-
-  double x = 0.0;
-  double y = 0.0;
-  double a = 0.0;
-  double b = 0.0;
-  double c = 0.0;
-
-  double val = 0.0;
-  double x1 = 0.0;
-  double y1 = 0.0;
-  double z1 = 0.0;
-  double denom = 0.0;
+  double xInc = 1.0f / static_cast<double>(imageDim);
+  double yInc = 1.0f / static_cast<double>(imageDim);
+  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
   // Find the slope of the bounding line.
   static const double m = std::sin(60.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(60.0 * EbsdLib::Constants::k_PiOver180D);
 
-  EbsdLib::Rgb color;
-  size_t idx = 0;
-  size_t yScanLineIndex = imageDim - 1; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
+  size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
   // there.
   for(int32_t yIndex = 0; yIndex < imageDim; ++yIndex)
   {
-
     for(int32_t xIndex = 0; xIndex < imageDim; ++xIndex)
     {
-      idx = (imageDim * yScanLineIndex) + xIndex;
-
-      x = xIndex * xInc;
-      y = yIndex * yInc;
-
+      size_t idx = (imageDim * yScanLineIndex) + xIndex;
+      // Always compute entire unit circle
+      double x = -1.0f + 2.0f * xIndex * xInc;
+      double y = -1.0f + 2.0f * yIndex * yInc;
       double sumSquares = (x * x) + (y * y);
-      if(sumSquares > 1.0f || x < y / m) // Outside unit circle
+      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
+
+      bool xGTyOverM = x < y / m;
+      if(generateEntirePlane)
+      {
+        xGTyOverM = false;
+      }
+
+      if(sumSquares > 1.0f) // Outside unit circle
       {
         color = 0xFFFFFFF;
       }
-      else if(sumSquares > (rad - 2 * xInc) && sumSquares < (rad + 2 * xInc)) // Black Borderline
+      else if((!generateEntirePlane && x < 0.0F) || (!generateEntirePlane && y < 0.0F))
       {
-        color = 0xFF000000;
+        color = 0xFFFFFFF;
       }
-      else if(x - y / m < 0.001)
+      else if(!generateEntirePlane && xGTyOverM)
+      {
+        color = 0xFFFFFFF;
+      }
+      else if(!generateEntirePlane && x - y / m < 0.001)
       {
         color = 0xFF000000;
       }
@@ -1473,28 +1482,194 @@ EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int 
       }
       else
       {
-        a = (x * x + y * y + 1);
-        b = (2 * x * x + 2 * y * y);
-        c = (x * x + y * y - 1);
-
-        val = (-b + std::sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
-        x1 = (1 + val) * x;
-        y1 = (1 + val) * y;
-        z1 = val;
-        denom = (x1 * x1) + (y1 * y1) + (z1 * z1);
-        denom = std::sqrt(denom);
-        x1 = x1 / denom;
-        y1 = y1 / denom;
-        z1 = z1 / denom;
-
-        color = generateIPFColor(0.0, 0.0, 0.0, x1, y1, z1, false);
+        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
-
       pixelPtr[idx] = color;
     }
-    yScanLineIndex--;
+    yScanLineIndex++;
   }
   return image;
+}
+
+// -----------------------------------------------------------------------------
+void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
+                               bool drawFullCircle)
+{
+  int legendHeight = canvasDim - margins[0] - margins[2];
+  int legendWidth = canvasDim - margins[1] - margins[3];
+
+  if(legendHeight > legendWidth)
+  {
+    legendHeight = legendWidth;
+  }
+  else
+  {
+    legendWidth = legendHeight;
+  }
+  int pageHeight = canvasDim;
+  int pageWidth = canvasDim;
+  int halfWidth = legendWidth / 2;
+  int halfHeight = legendHeight / 2;
+
+  std::vector<float> angles = {0.0f, 30.0f, 60.0f, 90.0f, 120.0f, 150.0f, 180.0f, 210.0f, 240.0f, 270.0f, 300.0f, 330.0f};
+  std::vector<std::string> labels2 = {"[2-1-10]", "[10-10]", "[11-20]", "[01-10]", "[-12-10]", "[-1100]", "[-2110]", "[-1010]", "[-1-120]", "[0-110]", "[1-210]", "[1-100]"};
+
+  std::vector<float> xAdj = {
+      0.1F, 0.0F, 0.0F, -0.5F, -1.0F, -1.0F, -1.1F, -1.1F, -1.1F, -0.5F, 0.0F, 0.0F,
+  };
+  std::vector<float> yAdj = {
+      +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
+  };
+  std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false, false, false, false, false};
+  float radius = 1.0; // Work with a Unit Circle.
+  for(size_t idx = 0; idx < angles.size(); idx++)
+  {
+    radius = 1.0F;
+    float angle = angles[idx];
+    float rads = angle * M_PI / 180.0f;
+    float x = radius * (cos(rads));
+    float y = radius * (sin(rads));
+
+    // Transform from Unit Circle to our flipped Screen Pixel Coordinates
+    // First Scale up to our image dimensions
+    x = x * halfWidth;
+    y = y * halfHeight;
+
+    // Next, translate to the center of the image
+    x = x + halfWidth;
+    y = y + halfHeight;
+
+    // Now mirror across the x-axis (vertically) because this is the transformation from
+    // cartesian coords to screen coords
+    y = legendHeight - y;
+
+    x = x + figureOrigin[0];
+    y = y + figureOrigin[1];
+
+    // Draw the line from the center point to the point on the circle
+    if(drawAngle[idx] || drawFullCircle)
+    {
+      float penWidth = 1.0f;
+      context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
+      context.set_line_width(penWidth);
+      EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+    }
+    std::string label = labels2[idx];
+    std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
+    float fontWidth = context.measure_text(fontWidthString.c_str());
+
+    x = x + (xAdj[idx] * fontWidth);
+    y = y + (yAdj[idx] * fontPtSize);
+
+    context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
+    if(drawAngle[idx] || drawFullCircle)
+    {
+      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    }
+  }
+
+  // Draw the [0001] in the center of the image
+  {
+    std::string label("[0001]");
+    float fontWidth = context.measure_text(label.c_str());
+    float x = figureCenter[0] - fontWidth;
+    float y = figureCenter[1] - fontPtSize * 0.0F;
+    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+  }
+
+  // Draw the [0001] in the center of the image
+  if(!drawFullCircle)
+  {
+    float x = figureCenter[0];
+    float y = halfHeight * 1.5;
+
+    std::string label("[0001]");
+    EbsdLib::WriteText(context, "Discontinuous Colors", {x, y}, fontPtSize);
+  }
+}
+
+} // namespace
+
+// -----------------------------------------------------------------------------
+EbsdLib::UInt8ArrayType::Pointer HexagonalLowOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
+{
+  // Figure out the Legend Pixel Size
+  const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
+  const std::vector<float> margins = {fontPtSize * 3,                        // Top
+                                      static_cast<float>(canvasDim / 7.0f),  // Right
+                                      fontPtSize * 2,                        // Bottom
+                                      static_cast<float>(canvasDim / 7.0f)}; // Left
+
+  int legendHeight = canvasDim - margins[0] - margins[2];
+  int legendWidth = canvasDim - margins[1] - margins[3];
+
+  if(legendHeight > legendWidth)
+  {
+    legendHeight = legendWidth;
+  }
+  else
+  {
+    legendWidth = legendHeight;
+  }
+  int pageHeight = canvasDim;
+  int pageWidth = canvasDim;
+  int halfWidth = legendWidth / 2;
+  int halfHeight = legendHeight / 2;
+
+  std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
+  if(!generateEntirePlane)
+  {
+    figureOrigin[0] = 0.0F - halfWidth * 0.25F;
+    figureOrigin[1] = 0.0F + margins[0];
+  }
+  std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
+
+  EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+
+  // Create a Canvas to draw into
+  canvas_ity::canvas context(pageWidth, pageHeight);
+
+  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
+  context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
+  canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
+  context.text_baseline = baselines[0];
+
+  // Fill the whole background with white
+  context.move_to(0.0f, 0.0f);
+  context.line_to(static_cast<float>(pageWidth), 0.0f);
+  context.line_to(static_cast<float>(pageWidth), static_cast<float>(pageHeight));
+  context.line_to(0.0f, static_cast<float>(pageHeight));
+  context.line_to(0.0f, 0.0f);
+  context.close_path();
+  context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
+  context.fill();
+
+  // Convert from ARGB to RGBA which is what canvas_itk wants
+  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+
+  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
+  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+
+  context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
+                     static_cast<float>(legendHeight));
+
+  // Draw Title of Legend
+  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
+  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+
+  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
+  DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
+
+  // Fetch the rendered RGBA pixels from the entire canvas.
+  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
+  context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
+
+  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------

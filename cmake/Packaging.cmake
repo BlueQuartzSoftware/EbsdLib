@@ -1,0 +1,49 @@
+set(CPACK_PACKAGE_VENDOR "BlueQuartz Software")
+
+if(UNIX OR APPLE)
+    set(CPACK_BINARY_BUNDLE "OFF")
+    set(CPACK_BINARY_DEB "OFF")
+    set(CPACK_BINARY_DRAGNDROP "OFF")
+    set(CPACK_BINARY_FREEBSD "OFF")
+    set(CPACK_BINARY_IFW "OFF")
+    set(CPACK_BINARY_NSIS "OFF")
+    set(CPACK_BINARY_OSXX11 "OFF")
+    set(CPACK_BINARY_PACKAGEMAKER "OFF")
+    set(CPACK_BINARY_PRODUCTBUILD "OFF")
+    set(CPACK_BINARY_RPM "OFF")
+    set(CPACK_BINARY_STGZ "OFF")
+    set(CPACK_BINARY_TBZ2 "OFF")
+    set(CPACK_BINARY_TGZ "ON")
+    set(CPACK_BINARY_TXZ "OFF")
+    set(CPACK_BINARY_TZ "OFF")
+else()
+    set(CPACK_BINARY_NSIS OFF)
+    set(CPACK_BINARY_ZIP ON)
+endif()
+
+if(WIN32)
+    set(EbsdLib_HOST_NAME "windows")
+elseif(APPLE)
+    set(EbsdLib_HOST_NAME "macos")
+else()
+    set(EbsdLib_HOST_NAME "linux")
+endif()
+
+
+
+set(EbsdLib_MAIN_PACKAGE_NAME "EbsdLib")
+
+
+set(CPACK_COMPONENTS_ALL "Applications;Unspecified;license")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.github.com/bluequartzsoftware/ebsdlib")
+set(CPACK_DEFAULT_PACKAGE_DESCRIPTION_SUMMARY "EbsdLib: C++ Codes to import and analyze EBSD data.")
+set(CPACK_PACKAGE_NAME "EbsdLib")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY EbsdLib)
+set(CPACK_PACKAGE_FILE_NAME "EbsdLib-${EbsdLibProj_VERSION}-${EbsdLib_HOST_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+
+
+
+# THIS MUST BE THE LAST LINE OF THIS FILE BECAUSE ALL THE CPACK VARIABLES MUST BE
+# DEFINED BEFORE CPack IS INCLUDED
+INCLUDE(CPack)
+
