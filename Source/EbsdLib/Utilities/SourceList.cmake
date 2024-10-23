@@ -21,6 +21,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/LatoBold.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/LatoRegular.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/CanvasUtilities.hpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/inipp.h
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS

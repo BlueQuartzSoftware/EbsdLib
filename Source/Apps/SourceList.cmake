@@ -26,6 +26,10 @@ target_include_directories(generate_ipf_legends
     PRIVATE
         "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src")
 
+add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
+target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
+target_include_directories(ParseAztecProject PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
 
 if(EbsdLib_INSTALL_FILES)
   install(FILES

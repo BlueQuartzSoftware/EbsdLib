@@ -36,9 +36,8 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-
 #include <string>
+#include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"

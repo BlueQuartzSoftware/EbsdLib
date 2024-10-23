@@ -99,7 +99,7 @@ public:
   /**
    * @brief Returns the name of the class for H5OIMReader
    */
-  std::string getNameOfClass() const;
+  std::string getNameOfClass() const override;
   /**
    * @brief Returns the name of the class for H5OIMReader
    */
