@@ -132,9 +132,9 @@ public:
   void printSelf(std::ostream& stream);
 
   /**
-   * @brief Returns the type of crystal structure for this phase.
+   * @brief Returns the index of the appropriate LaueOps class
    */
-  unsigned int determineLaueGroup();
+  unsigned int determineOrientationOpsIndex();
 
   std::string getMaterialName();
 

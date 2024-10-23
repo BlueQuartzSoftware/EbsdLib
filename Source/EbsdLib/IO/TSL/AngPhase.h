@@ -215,7 +215,7 @@ public:
   /**
    * @brief Returns the type of crystal structure for this phase.
    */
-  unsigned int determineLaueGroup();
+  unsigned int determineOrientationOpsIndex();
 
 private:
   std::string m_MaterialName = {};

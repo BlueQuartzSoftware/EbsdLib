@@ -101,6 +101,8 @@ public:
   {
   }
 
+  virtual EbsdLib::NumericTypes::Type getNumericType() const = 0;
+
 protected:
   DataParser()
   : m_ManageMemory(false)
@@ -145,6 +147,11 @@ public:
   static std::string ClassName()
   {
     return std::string("UInt8Parser");
+  }
+
+  EbsdLib::NumericTypes::Type getNumericType() const override
+  {
+    return EbsdLib::NumericTypes::Type::UInt8;
   }
 
   int32_t IsA() const override
@@ -253,6 +260,11 @@ public:
     return std::string("Int32Parser");
   }
 
+  EbsdLib::NumericTypes::Type getNumericType() const override
+  {
+    return EbsdLib::NumericTypes::Type::Int32;
+  }
+
   int32_t IsA() const override
   {
     return 1;
@@ -355,6 +367,11 @@ public:
   static std::string ClassName()
   {
     return std::string("FloatParser");
+  }
+
+  EbsdLib::NumericTypes::Type getNumericType() const override
+  {
+    return EbsdLib::NumericTypes::Type::Float;
   }
 
   int32_t IsA() const override

@@ -66,7 +66,7 @@ public:
   /**
    * @brief Returns the name of the class for EbsdReader
    */
-  std::string getNameOfClass() const;
+  virtual std::string getNameOfClass() const;
   /**
    * @brief Returns the name of the class for EbsdReader
    */
