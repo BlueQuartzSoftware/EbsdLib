@@ -38,6 +38,9 @@
 #include <cstdint>
 #include <string>
 
+#include "EbsdLib/Core/StringLiteral.hpp"
+
+
 /**
  * @file EbsdConstants.h
  * @brief This file contains many constants that are generic to the EBSD library
@@ -47,7 +50,7 @@ namespace EbsdLib
 
 using Rgb = uint32_t;
 inline constexpr Rgb RGB_MASK = 0x00ffffff; // masks RGB values
-inline const std::string PathSep("|");
+inline constexpr StringLiteral PathSep = "|";
 inline constexpr uint8_t Unchecked = 0;
 inline constexpr uint8_t PartiallyChecked = 1;
 inline constexpr uint8_t Checked = 2;
@@ -64,28 +67,28 @@ enum InfoStringFormat
 
 namespace StringConstants
 {
-inline const std::string Statistics("Statistics");
-inline const std::string StatsData("StatsData");
-inline const std::string StatsType("StatsType");
-inline const std::string GBCD("GBCD");
+inline constexpr StringLiteral Statistics = "Statistics";
+inline constexpr StringLiteral StatsData = "StatsData";
+inline constexpr StringLiteral StatsType = "StatsType";
+inline constexpr StringLiteral GBCD = "GBCD";
 } // namespace StringConstants
 
 namespace NumericTypes
 {
 namespace Names
 {
-inline const std::string Int8("signed int 8 bit");
-inline const std::string UInt8("unsigned int 8 bit");
-inline const std::string Int16("signed int 16 bit");
-inline const std::string UInt16("unsigned int 16 bit");
-inline const std::string Int32("signed int 32 bit");
-inline const std::string UInt32("unsigned int 32 bit");
-inline const std::string Int64("signed int 64 bit");
-inline const std::string UInt64("unsigned int 64 bit");
-inline const std::string Float("Float 32 bit");
-inline const std::string Double("Double 64 bit");
-inline const std::string Bool("Bool");
-inline const std::string SizeT("size_t");
+inline constexpr StringLiteral Int8 = "signed int 8 bit";
+inline constexpr StringLiteral UInt8 = "unsigned int 8 bit";
+inline constexpr StringLiteral Int16 = "signed int 16 bit";
+inline constexpr StringLiteral UInt16 = "unsigned int 16 bit";
+inline constexpr StringLiteral Int32 = "signed int 32 bit";
+inline constexpr StringLiteral UInt32 = "unsigned int 32 bit";
+inline constexpr StringLiteral Int64 = "signed int 64 bit";
+inline constexpr StringLiteral UInt64 = "unsigned int 64 bit";
+inline constexpr StringLiteral Float = "Float 32 bit";
+inline constexpr StringLiteral Double = "Double 64 bit";
+inline constexpr StringLiteral Bool = "Bool";
+inline constexpr StringLiteral SizeT = "size_t";
 } // namespace Names
 
 enum class Type : int32_t
@@ -105,9 +108,9 @@ enum class Type : int32_t
   UnknownNumType
 };
 
-inline const std::string SupportedTypeList(NumericTypes::Names::Int8 + ", " + NumericTypes::Names::UInt8 + ", " + NumericTypes::Names::Int16 + ", " + NumericTypes::Names::UInt16 + ", " +
-                                           NumericTypes::Names::Int32 + ", " + NumericTypes::Names::UInt32 + ", " + NumericTypes::Names::Int64 + ", " + NumericTypes::Names::UInt64 + ", " +
-                                           NumericTypes::Names::Float + ", " + NumericTypes::Names::Double + ", " + NumericTypes::Names::Bool + ", " + NumericTypes::Names::SizeT);
+inline std::string SupportedTypeList(NumericTypes::Names::Int8.str() + ", " + NumericTypes::Names::UInt8.str()  + ", " + NumericTypes::Names::Int16.str()  + ", " + NumericTypes::Names::UInt16.str()  + ", " +
+                                           NumericTypes::Names::Int32.str()  + ", " + NumericTypes::Names::UInt32.str()  + ", " + NumericTypes::Names::Int64.str()  + ", " + NumericTypes::Names::UInt64.str()  + ", " +
+                                           NumericTypes::Names::Float.str()  + ", " + NumericTypes::Names::Double.str()  + ", " + NumericTypes::Names::Bool.str()  + ", " + NumericTypes::Names::SizeT.str() );
 } // namespace NumericTypes
 
 /** @brief RefFrameZDir defined for the Stacking order of images into a 3D Volume */
@@ -120,35 +123,35 @@ inline constexpr uint32_t UnknownRefFrameZDirection = 2;
 
 namespace H5Ebsd
 {
-inline const std::string Manufacturer("Manufacturer");
-inline const std::string Header("Header");
-inline const std::string Phases("Phases");
-inline const std::string Phase("Phase");
-inline const std::string Data("Data");
-inline const std::string Index("Index");
+inline constexpr StringLiteral Manufacturer = "Manufacturer";
+inline constexpr StringLiteral Header = "Header";
+inline constexpr StringLiteral Phases = "Phases";
+inline constexpr StringLiteral Phase = "Phase";
+inline constexpr StringLiteral Data = "Data";
+inline constexpr StringLiteral Index = "Index";
 
-inline const std::string ZStartIndex("ZStartIndex");
-inline const std::string ZEndIndex("ZEndIndex");
-inline const std::string ZResolution("Z Resolution");
-inline const std::string StackingOrder("Stacking Order");
-inline const std::string SampleTransformationAngle("SampleTransformationAngle");
-inline const std::string SampleTransformationAxis("SampleTransformationAxis");
-inline const std::string EulerTransformationAngle("EulerTransformationAngle");
-inline const std::string EulerTransformationAxis("EulerTransformationAxis");
+inline constexpr StringLiteral ZStartIndex = "ZStartIndex";
+inline constexpr StringLiteral ZEndIndex = "ZEndIndex";
+inline constexpr StringLiteral ZResolution = "Z Resolution";
+inline constexpr StringLiteral StackingOrder = "Stacking Order";
+inline constexpr StringLiteral SampleTransformationAngle = "SampleTransformationAngle";
+inline constexpr StringLiteral SampleTransformationAxis = "SampleTransformationAxis";
+inline constexpr StringLiteral EulerTransformationAngle = "EulerTransformationAngle";
+inline constexpr StringLiteral EulerTransformationAxis = "EulerTransformationAxis";
 
 // Each Manufacturer has their own naming scheme for these variables but for
 // DREAM.3D we are going to settle on using these names for consistency
-inline const std::string XResolution("X Resolution");
-inline const std::string YResolution("Y Resolution");
+inline constexpr StringLiteral XResolution = "X Resolution";
+inline constexpr StringLiteral YResolution = "Y Resolution";
 
 // We store the Maximum number of X and Y Points for the given volume. This
 // allows us to store slices that have different XY voxel dimensions.
-inline const std::string XPoints("Max X Points");
-inline const std::string YPoints("Max Y Points");
+inline constexpr StringLiteral XPoints = "Max X Points";
+inline constexpr StringLiteral YPoints = "Max Y Points";
 
-inline const std::string FileVersionStr("FileVersion");
+inline constexpr StringLiteral FileVersionStr = "FileVersion";
 inline constexpr uint32_t FileVersion = 5;
-inline const std::string EbsdLibVersionStr("EbsdLibVersion");
+inline constexpr StringLiteral EbsdLibVersionStr = "EbsdLibVersion";
 } // namespace H5Ebsd
 
 using EnumType = int32_t;
@@ -167,8 +170,8 @@ enum class OEM : EnumType
 
 namespace CellData
 {
-inline const std::string EulerAngles("EulerAngles");
-inline const std::string Phases("Phases");
+inline constexpr StringLiteral EulerAngles = "EulerAngles";
+inline constexpr StringLiteral Phases = "Phases";
 } // namespace CellData
 
 enum EbsdToSampleCoordinateMapping
@@ -181,9 +184,9 @@ enum EbsdToSampleCoordinateMapping
 
 namespace StackingOrder
 {
-inline const std::string LowToHigh("Low To High");
-inline const std::string HighToLow("High To Low");
-inline const std::string UnknownStackingOrder("Unknown Stacking Order");
+inline constexpr StringLiteral LowToHigh = "Low To High";
+inline constexpr StringLiteral HighToLow = "High To Low";
+inline constexpr StringLiteral UnknownStackingOrder = "Unknown Stacking Order";
 
 namespace Utils
 {
@@ -241,9 +244,9 @@ inline constexpr uint32_t UnknownCrystalStructure = 999; //!< UnknownCrystalStru
 
 namespace BravaisLattice
 {
-inline const std::string Unknown("Unknown");
-inline const std::string Cubic("Cubic");
-inline const std::string Hexagonal("Hexagonal");
+inline constexpr StringLiteral Unknown = "Unknown";
+inline constexpr StringLiteral Cubic = "Cubic";
+inline constexpr StringLiteral Hexagonal = "Hexagonal";
 } // namespace BravaisLattice
 
 namespace AngleRepresentation
@@ -292,3 +295,4 @@ inline constexpr double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.414213562373095
 namespace LPs = LambertParametersType;
 
 } // namespace EbsdLib
+
