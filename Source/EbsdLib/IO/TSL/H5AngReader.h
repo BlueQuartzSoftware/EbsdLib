@@ -111,7 +111,7 @@ public:
   /**
    * @brief Returns the name of the class for H5AngReader
    */
-  std::string getNameOfClass() const;
+  std::string getNameOfClass() const override;
   /**
    * @brief Returns the name of the class for H5AngReader
    */

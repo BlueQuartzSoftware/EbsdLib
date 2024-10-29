@@ -40,7 +40,6 @@
 
 #include "EbsdLib/Core/StringLiteral.hpp"
 
-
 /**
  * @file EbsdConstants.h
  * @brief This file contains many constants that are generic to the EBSD library
@@ -108,9 +107,10 @@ enum class Type : int32_t
   UnknownNumType
 };
 
-inline std::string SupportedTypeList(NumericTypes::Names::Int8.str() + ", " + NumericTypes::Names::UInt8.str()  + ", " + NumericTypes::Names::Int16.str()  + ", " + NumericTypes::Names::UInt16.str()  + ", " +
-                                           NumericTypes::Names::Int32.str()  + ", " + NumericTypes::Names::UInt32.str()  + ", " + NumericTypes::Names::Int64.str()  + ", " + NumericTypes::Names::UInt64.str()  + ", " +
-                                           NumericTypes::Names::Float.str()  + ", " + NumericTypes::Names::Double.str()  + ", " + NumericTypes::Names::Bool.str()  + ", " + NumericTypes::Names::SizeT.str() );
+inline std::string SupportedTypeList(NumericTypes::Names::Int8.str() + ", " + NumericTypes::Names::UInt8.str() + ", " + NumericTypes::Names::Int16.str() + ", " + NumericTypes::Names::UInt16.str() +
+                                     ", " + NumericTypes::Names::Int32.str() + ", " + NumericTypes::Names::UInt32.str() + ", " + NumericTypes::Names::Int64.str() + ", " +
+                                     NumericTypes::Names::UInt64.str() + ", " + NumericTypes::Names::Float.str() + ", " + NumericTypes::Names::Double.str() + ", " + NumericTypes::Names::Bool.str() +
+                                     ", " + NumericTypes::Names::SizeT.str());
 } // namespace NumericTypes
 
 /** @brief RefFrameZDir defined for the Stacking order of images into a 3D Volume */
@@ -295,4 +295,3 @@ inline constexpr double BP[6] = {0.0, 1.0, 0.5773502691896260, 0.414213562373095
 namespace LPs = LambertParametersType;
 
 } // namespace EbsdLib
-

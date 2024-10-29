@@ -288,7 +288,7 @@ void AngPhase::printSelf(std::stringstream& stream)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-unsigned int AngPhase::determineLaueGroup()
+unsigned int AngPhase::determineOrientationOpsIndex()
 {
   uint32_t symmetry = getSymmetry();
   unsigned int crystal_structure = EbsdLib::CrystalStructure::UnknownCrystalStructure;

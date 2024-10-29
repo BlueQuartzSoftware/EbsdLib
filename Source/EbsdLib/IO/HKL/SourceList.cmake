@@ -3,6 +3,7 @@ set(HKL_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/CtfReader.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/CtfPhase.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/CtfFields.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/CprReader.cpp
 )
 
 set(HKL_HDRS
@@ -26,6 +27,7 @@ if(EbsdLib_ENABLE_HDF5)
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfReader.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5CtfVolumeReader.h
       ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/H5OINAReader.h
+      ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/IO/HKL/CprReader.h
   )
 endif()
 

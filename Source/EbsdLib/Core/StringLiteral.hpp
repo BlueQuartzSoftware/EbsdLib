@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -209,7 +208,7 @@ using StringLiteral = BasicStringLiteral<char>;
 using WStringLiteral = BasicStringLiteral<wchar_t>;
 using String16Literal = BasicStringLiteral<char16_t>;
 using String32Literal = BasicStringLiteral<char32_t>;
-} // namespace nx::core
+} // namespace EbsdLib
 
 #if 0
 template <class CharT>

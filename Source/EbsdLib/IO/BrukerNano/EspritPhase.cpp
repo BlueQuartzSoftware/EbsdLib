@@ -58,7 +58,7 @@ std::string EspritPhase::getMaterialName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-unsigned int EspritPhase::determineLaueGroup()
+unsigned int EspritPhase::determineOrientationOpsIndex()
 {
   int sg = getIT();
 

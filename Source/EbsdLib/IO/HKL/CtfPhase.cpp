@@ -35,6 +35,7 @@
 
 #include "CtfPhase.h"
 
+#include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 // -----------------------------------------------------------------------------
@@ -119,7 +120,7 @@ void CtfPhase::printSelf(std::ostream& stream)
          << m_LatticeConstants[4] << ", " << m_LatticeConstants[5] << std::endl;
   stream << EbsdLib::Ctf::PhaseName << " " << m_PhaseName << std::endl;
   stream << EbsdLib::Ctf::LaueGroup << " " << m_LaueGroup << std::endl;
-  stream << EbsdLib::Ctf::SpaceGroup << " " << m_SpaceGroup << std::endl;
+  stream << EbsdLib::Ctf::SpaceGroup << " " << m_SpaceGroup << "  " << LaueOps::GetOrientationOpsFromSpaceGroupNumber(m_SpaceGroup)->getSymmetryName() << std::endl;
   stream << EbsdLib::Ctf::Internal1 << " " << m_Internal1 << std::endl;
   stream << EbsdLib::Ctf::Internal2 << " " << m_Internal2 << std::endl;
   stream << EbsdLib::Ctf::Comment << " " << m_Comment << std::endl;
@@ -128,7 +129,7 @@ void CtfPhase::printSelf(std::ostream& stream)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-unsigned int CtfPhase::determineLaueGroup()
+unsigned int CtfPhase::determineOrientationOpsIndex()
 {
   EbsdLib::Ctf::LaueGroupTable symmetry = getLaueGroup();
 

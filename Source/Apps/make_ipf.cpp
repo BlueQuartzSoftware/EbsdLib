@@ -49,7 +49,7 @@ public:
     std::vector<size_t> laueOpsIndex(m_PhaseInfos.size());
     for(size_t i = 0; i < laueOpsIndex.size(); i++)
     {
-      laueOpsIndex[i] = m_PhaseInfos[i]->determineLaueGroup();
+      laueOpsIndex[i] = m_PhaseInfos[i]->determineOrientationOpsIndex();
     }
 
     size_t totalPoints = m_CellEulerAngles.size() / 3;
