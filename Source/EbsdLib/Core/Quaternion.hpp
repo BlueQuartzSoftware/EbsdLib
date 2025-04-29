@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2020 BlueQuartz Software, LLC
+ * Copyright (c) 2020-2025 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -223,8 +223,7 @@ public:
   }
 
   /**
-   * @brief ElementWiseAbs inline assigns the absolute value of each element to itself
-   * @param q
+   * @brief ElementWiseAbs inline assigns the absolute value of each element to itself (in place)
    */
   Quaternion& elementWiseAbs()
   {
@@ -236,7 +235,7 @@ public:
   }
 
   /**
-   * @brief ScalarMultiply Multiplies each element in the quaternion by the argument v
+   * @brief ScalarMultiply Multiplies each element in the quaternion by the argument v (in place)
    * @param v
    */
   Quaternion& scalarMultiply(T v)
@@ -249,7 +248,7 @@ public:
   }
 
   /**
-   * @brief ScalarDivide Divides each element in the quaternion by the argument v
+   * @brief ScalarDivide Divides each element in the quaternion by the argument v (in place)
    * @param v
    */
   Quaternion& scalarDivide(T v)
@@ -262,7 +261,7 @@ public:
   }
 
   /**
-   * @brief ScalarAdd Adds value to each element of the vector and scalar part of the Quaternion
+   * @brief ScalarAdd Adds value to each element of the vector and scalar part of the Quaternion (in place)
    * @param v Input Quat to add elements
    */
   Quaternion& scalarAdd(T v)
@@ -275,7 +274,7 @@ public:
   }
 
   /**
-   * @brief ElementWiseAssign Assigns each element the quaternion
+   * @brief ElementWiseAssign Assigns each element the quaternion (in place)
    * @param v Input Quat to add elements
    */
   Quaternion& elementWiseAssign(T v)
@@ -288,7 +287,7 @@ public:
   }
 
   /**
-   * @brief Negate  −q = (−a, −v) In Place operation
+   * @brief Negate  −q = (−a, −v) In Place operation (in place)
    */
   Quaternion& negate()
   {
@@ -352,7 +351,7 @@ public:
   }
 
   /**
-   * @brief Add   q1 + q2 = (w1+w2, v1+v2)
+   * @brief Add   q1 + q2 = (w1+w2, v1+v2) (in place)
    * @param rhs
    * @return self
    */
@@ -366,7 +365,7 @@ public:
   }
 
   /**
-   * @brief Add   q1 - q2 = (w1-w2, v1-v2)
+   * @brief Add   q1 - q2 = (w1-w2, v1-v2) (in place)
    * @param rhs
    * @return self
    */
@@ -380,8 +379,8 @@ public:
   }
 
   /**
-   * @brief Multiply current quaternion by another quaternion returning a third quaternion according to quaternion
-   * multiplication. Note that Quaternioin multiplication is NOT cummunitive i.e., A * B != B * A
+   * @brief Multiply current quaternion by another quaternion (in place)
+   * multiplication. Note that Quaternion multiplication is NOT communicative i.e., A * B != B * A
    * @param rhs Input Quaternion
    * @return self
    */
@@ -393,6 +392,18 @@ public:
     /* Verified */
     w() = rhs.w() * m_W - rhs.x() * m_X - rhs.y() * m_Y - rhs.z() * m_Z;
     return *this;
+  }
+
+  /**
+   * @brief Computes the dot product between the current quaternion and an input quaternion
+   * @param rhs Second quaternion to use to compute the dot product
+   * @return scalar dot product
+   */
+  T dotProduct(const Quaternion& rhs) const
+  {
+    T dot = m_X * rhs.x() + m_Y * rhs.y() + m_Z * rhs.z() + m_W * rhs.w();
+    // Clamp dot to [-1, 1] to avoid domain errors in acos()
+    return std::clamp(dot, -1.0, 1.0);
   }
 
   /**
@@ -423,19 +434,39 @@ public:
   }
 
   /**
+   * @brief Computes the inverse of the Quaternion
+   * @return
+   */
+  Quaternion inverse() const
+  {
+    double normSq = this->norm(); // Use your existing Norm()
+    if(normSq == 0.0)
+    {
+      throw std::runtime_error("Cannot invert a quaternion with zero norm.");
+    }
+    Quaternion conj = this->conjugate();
+    return Quaternion(conj.x() / normSq, conj.y() / normSq, conj.z() / normSq, conj.w() / normSq);
+  }
+
+  /**
+   * @brief heck if this is a unit quaternion
+   * @param tolerance
+   * @return
+   */
+  bool IsUnit(double tolerance = 1e-6) const
+  {
+    return std::abs(this->norm() - 1.0) < tolerance;
+  }
+
+  /**
    * @brief UnitQuaternion (Normalize) Converts the quaternion into its normalized values (x/L, y/L, z/L, w/L) where "L"
    * is the "length" of the quaternion
    * @return qr
    */
   Quaternion unitQuaternion() const
   {
-    Quaternion out;
     T l = length();
-    out.x() = m_X / l;
-    out.y() = m_Y / l;
-    out.z() = m_Z / l;
-    out.w() = m_W / l;
-    return out;
+    return {m_X / l, m_Y / l, m_Z / l, m_W / l};
   }
 
   /**
@@ -465,9 +496,7 @@ public:
 
   /**
    * @brief MultiplyQuatVec Rotates a 3d vector 'v' by the quaternion 'q'
-   * @param q Input Quaternion
    * @param v Input Vector
-   * @param out Output Vector
    * SIMPLView uses
    * PASSIVE rotations by default.
    */
@@ -497,7 +526,7 @@ public:
   /**
    * @brief rotateVector ACTIVELY rotates input vector by this quaternion.
    * @param inputVector Input vector
-   * @param passive argument: Passive = 1, Active = -1; Default is Passive
+   * @param p argument: Passive = 1, Active = -1; Default is Passive
    * @return Output Vector
    */
   std::array<T, 3> rotateVector(const T* inputVector, int32_t p = 1) const
