@@ -256,6 +256,47 @@ std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
   return m_Phases;
 }
 
+std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhaseVector()
+{
+  return getPhases();
+}
+
+int32_t H5AngVolumeReader::getNumEvenCols()
+{
+  int64_t x = 0;
+  int64_t y = 0;
+  int64_t z = 0;
+  getDims(x, y, x);
+  return static_cast<int32_t>(x);
+}
+
+int32_t H5AngVolumeReader::getNumRows()
+{
+  int64_t x = 0;
+  int64_t y = 0;
+  int64_t z = 0;
+  getDims(x, y, x);
+  return static_cast<int32_t>(y);
+}
+
+float H5AngVolumeReader::getXStep()
+{
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  getSpacing(x, y, x);
+  return x;
+}
+
+float H5AngVolumeReader::getYStep()
+{
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  getSpacing(x, y, x);
+  return y;
+}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
