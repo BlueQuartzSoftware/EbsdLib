@@ -252,6 +252,48 @@ std::vector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
 }
 
 // -----------------------------------------------------------------------------
+std::vector<CtfPhase::Pointer> H5CtfVolumeReader::getPhaseVector()
+{
+  return getPhases();
+}
+
+int32_t H5CtfVolumeReader::getXCells()
+{
+  int64_t x = 0;
+  int64_t y = 0;
+  int64_t z = 0;
+  getDims(x, y, x);
+  return static_cast<int32_t>(x);
+}
+
+int32_t H5CtfVolumeReader::getYCells()
+{
+  int64_t x = 0;
+  int64_t y = 0;
+  int64_t z = 0;
+  getDims(x, y, x);
+  return static_cast<int32_t>(y);
+}
+
+float H5CtfVolumeReader::getXStep()
+{
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  getSpacing(x, y, x);
+  return x;
+}
+
+float H5CtfVolumeReader::getYStep()
+{
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  getSpacing(x, y, x);
+  return y;
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoints, uint32_t ZDir)

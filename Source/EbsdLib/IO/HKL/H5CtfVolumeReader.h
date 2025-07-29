@@ -109,6 +109,18 @@ public:
   std::vector<CtfPhase::Pointer> getPhases();
 
   /**
+   * @brief Returns the vector of Phase Objects
+   * @note This is here to provide compatibility with AngReader
+   * @return
+   */
+  std::vector<CtfPhase::Pointer> getPhaseVector();
+
+  int32_t getXCells();
+  int32_t getYCells();
+  float getXStep();
+  float getYStep();
+
+  /**
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
