@@ -316,6 +316,12 @@ std::string CubicOps::getRotationPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+int CubicOps::getPointGroup() const
+{
+  return 32;
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD CubicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
@@ -721,7 +727,9 @@ QuatF CubicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 
 QuatD CubicOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(CubicHigh::QuatSym, qr);
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(CubicHigh::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

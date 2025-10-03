@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ * Copyright (c) 2009-2025 BlueQuartz Software, LLC
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -35,11 +35,6 @@
 
 #include "LaueOps.h"
 
-#include <chrono>
-#include <exception>
-#include <limits>
-#include <random>
-
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
@@ -53,12 +48,17 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
-
 #include "EbsdLib/Utilities/ColorTable.h"
 
+#include <algorithm> // for std::max
+#include <chrono>
+#include <exception>
+#include <limits>
+#include <random>
+
 /**
-| Index | Verified | Class           | Group | Num Sym Ops |
-|-------|----------|-----------------|-------|-------------|
+| Index | Verified | Class           | Rotation Point Group | Num Sym Ops |
+|-------|----------|-----------------|----------------------|-------------|
 |   X    |   X     | TriclinicOps    | 1     | 1           |
 |    X   |   X     | MonoclinicOps   | 2     | 2           |
 |    X   |   X     | Orthorhombic    | 222   | 4           |
@@ -72,24 +72,21 @@
 |   X    |   X     | CubicOps        | 432   | 24          |
 */
 
-namespace Detail
+namespace
 {
 
-// const static double m_OnePointThree = 1.33333333333f;
+// Based on P1830R1
+template <class...>
+inline constexpr bool dependent_false = false;
 
-// const static double sin_wmin_neg_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACosNeg1 / 2.0f));
-// const static double sin_wmin_pos_1_over_2 = static_cast<double>(std::sin(EbsdLib::Constants::k_ACos1 / 2.0f));
-// const static double sin_of_acos_neg_1 = std::sin(EbsdLib::Constants::k_ACosNeg1);
-// const static double sin_of_acos_pos_1 = std::sin(EbsdLib::Constants::k_ACos1);
+// Based on std::to_underlying from c++23
+template <class Enum>
+constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
+{
+  return static_cast<std::underlying_type_t<Enum>>(e);
+}
 
-//  const double recip_sin_of_acos_neg_1 = 1.0f / sin_of_acos_neg_1;
-//  const double recip_sin_of_acos_pos_1 = 1.0f / sin_of_acos_pos_1;
-
-// const static double SinOfHalf = std::sin(0.5f);
-// const static double CosOfHalf = cosf(0.5f);
-// const static double SinOfZero = std::sin(0.0f);
-// const static double CosOfZero = cosf(0.0f);
-} // namespace Detail
+} // namespace
 
 // -----------------------------------------------------------------------------
 //
@@ -102,10 +99,68 @@ LaueOps::LaueOps() = default;
 LaueOps::~LaueOps() = default;
 
 // -----------------------------------------------------------------------------
+std::string LaueOps::FZTypeToString(const FZType value)
+{
+  switch(value)
+  {
+  case FZType::Anorthic:
+    return "Anorthic (Triclinic)";
+  case FZType::Cyclic:
+    return "Cyclic";
+  case FZType::Dihedral:
+    return "Dihedral";
+  case FZType::Tetrahedral:
+    return "Tetrahedral";
+  case FZType::Octahedral:
+    return "Octahedral";
+  default:
+    return "Unknown FZType";
+  }
+}
+
+// -----------------------------------------------------------------------------
+std::string LaueOps::AxisOrderingTypeToString(const AxisOrderingType value)
+{
+  switch(value)
+  {
+  case AxisOrderingType::None:
+    return "None";
+  case AxisOrderingType::TwoFold:
+    return "TwoFold";
+  case AxisOrderingType::ThreeFold:
+    return "ThreeFold";
+  case AxisOrderingType::FourFold:
+    return "FourFold";
+  case AxisOrderingType::SixFold:
+    return "SixFold";
+  case AxisOrderingType::EightFold:
+    return "EightFold";
+  case AxisOrderingType::TenFold:
+    return "TenFold";
+  case AxisOrderingType::TwelveFold:
+    return "TwelveFold";
+  default:
+    return "Unknown AxisOrderingType";
+  }
+}
+
+// -----------------------------------------------------------------------------
+LaueOps::FZType LaueOps::getFZType() const
+{
+  return laue_ops::FZtarray[getPointGroup() - 1];
+}
+
+// -----------------------------------------------------------------------------
+LaueOps::AxisOrderingType LaueOps::getAxisOrderingType() const
+{
+  return laue_ops::FZoarray[getPointGroup() - 1];
+}
+
+// -----------------------------------------------------------------------------
 EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
 
-  EbsdLib::Matrix3X1D refDirection(refDir);
+  const EbsdLib::Matrix3X1D refDirection(refDir);
   double chi = 0.0f;
   double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
@@ -143,7 +198,7 @@ EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
     break;
   }
 
-  std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
+  const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
 
   _rgb[0] = 1.0 - chi / angleLimits[2];
   _rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);
@@ -172,25 +227,279 @@ EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
 }
 
 // -----------------------------------------------------------------------------
-QuatD LaueOps::getFZQuat(const QuatD& qr) const
+void LaueOps::RodriguesComposition(OrientationD sigma, OrientationD& rod)
 {
-  EBSD_METHOD_NOT_IMPLEMENTED()
-  return QuatD();
+  OrientationD rho(3), rhomis(3);
+  rho[0] = -rod[0] * rod[3];
+  rho[1] = -rod[1] * rod[3];
+  rho[2] = -rod[2] * rod[3];
+
+  // perform the Rodrigues rotation composition with sigma to get rhomis
+  double denom = 1.0 + (sigma[0] * rho[0] + sigma[1] * rho[1] + sigma[2] * rho[2]);
+  if(denom == 0.0)
+  {
+    const double len = sqrt(sigma[0] * sigma[0] + sigma[1] * sigma[1] + sigma[2] * sigma[2]);
+    rod[0] = sigma[0] / len;
+    rod[1] = sigma[1] / len;
+    rod[2] = sigma[2] / len;
+    rod[3] = std::numeric_limits<double>::infinity(); // set this to infinity
+  }
+  else
+  {
+    rhomis[0] = (rho[0] - sigma[0] + (rho[1] * sigma[2] - rho[2] * sigma[1])) / denom;
+    rhomis[1] = (rho[1] - sigma[1] + (rho[2] * sigma[0] - rho[0] * sigma[2])) / denom;
+    rhomis[2] = (rho[2] - sigma[2] + (rho[0] * sigma[1] - rho[1] * sigma[0])) / denom;
+    // revert rhomis to a four-component Rodrigues vector
+    double len = sqrt(rhomis[0] * rhomis[0] + rhomis[1] * rhomis[1] + rhomis[2] * rhomis[2]);
+    if(len != 0.0)
+    {
+      rod[0] = -rhomis[0] / len;
+      rod[1] = -rhomis[1] / len;
+      rod[2] = -rhomis[2] / len;
+      rod[3] = len;
+    }
+    else
+    {
+      rod[0] = 0.0;
+      rod[1] = 0.0;
+      rod[2] = 0.0;
+      rod[3] = 0.0;
+    }
+  }
 }
 
+// -----------------------------------------------------------------------------
+bool LaueOps::InsideCyclicFZ(const OrientationD& rod, FZType fzType, AxisOrderingType order)
+{
+  bool res = false;
+  bool doM = false;
+
+  // if (M.has_value() && *M)
+  //   doM = true;
+
+  int32_t orderAsArrayIndex = to_underlying(order) - 1;
+  auto x = rod; // Make a copy of the input Rodrigues vector .r_copyd();
+
+  // Case: finite x(4)
+  if(x[3] != std::numeric_limits<double>::infinity())
+  {
+    if(doM)
+    {
+      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
+      {
+        // Check y-component vs tan(pi/2n)
+        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
+      }
+      else
+      {
+        // Check z-component vs tan(pi/2n)
+        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
+      }
+    }
+    else
+    {
+      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
+      {
+        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
+      }
+      else
+      {
+        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
+      }
+    }
+  }
+  // Case: infinite x(4)
+  else
+  {
+    if(doM)
+    {
+      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
+      {
+        if(x[1] == 0.0)
+          res = true;
+      }
+      else
+      {
+        if(x[2] == 0.0)
+          res = true;
+      }
+    }
+    else
+    {
+      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
+      {
+        if(x[1] == 0.0)
+          res = true;
+      }
+      else
+      {
+        if(x[2] == 0.0)
+          res = true;
+      }
+    }
+  }
+
+  return res;
+}
+
+// -----------------------------------------------------------------------------
+bool LaueOps::InsideDihedralFZ(const OrientationD& rod, const AxisOrderingType order)
+{
+  constexpr double eps = 1.0e-10;
+
+  bool res = false;
+  bool c1 = false;
+
+  if(rod[3] > LPs::rtt) // sqrt(3.0)
+  {
+    return false;
+  }
+
+  if(AxisOrderingType::None == order)
+  {
+    return false;
+  }
+
+  const std::array<double, 4> x = {rod[0], rod[1], rod[2], rod[3]}; // Make a copy of rod
+  const std::array<double, 3> r = {x[0] * x[3], x[1] * x[3], x[2] * x[3]};
+
+  // first, check the z-component vs. tan(pi/2n)  (same as insideCyclicFZ)
+  const int32_t orderAsArrayIndex = to_underlying(order) - 1;
+  c1 = std::fabs(r[2]) <= (LPs::BP[orderAsArrayIndex] + eps);
+  res = false;
+  //! check the square boundary planes if c1=.TRUE.
+  if(c1)
+  {
+    constexpr double r1 = 1.0;
+    bool c2 = false;
+    switch(order)
+    {
+    case AxisOrderingType::TwoFold: {
+      c2 = (std::max({std::fabs(r[0]), std::fabs(r[1]), std::fabs(r[2])}) <= r1 + eps);
+      break;
+    }
+    case AxisOrderingType::ThreeFold:
+      c2 = std::fabs(LPs::srt * r[1] + 0.5 * r[0]) <= (r1 + eps);
+      c2 &= std::fabs(LPs::srt * r[1] - 0.5 * r[0]) <= (r1 + eps);
+      c2 &= std::fabs(r[0]) <= (r1 + eps);
+      break;
+
+    case AxisOrderingType::FourFold:
+      c2 = (std::fabs(r[0]) <= r1) && (std::fabs(r[1]) <= r1);
+      c2 &= (LPs::r22 * std::fabs(r[0] + r[1]) <= r1) && (LPs::r22 * std::fabs(r[0] - r[1]) <= r1);
+      break;
+
+    case AxisOrderingType::SixFold:
+      c2 = std::fabs(0.5 * r[0] + LPs::srt * r[1]) <= (r1 + eps);
+      c2 &= std::fabs(LPs::srt * r[0] + 0.5 * r[1]) <= (r1 + eps);
+      c2 &= std::fabs(LPs::srt * r[0] - 0.5 * r[1]) <= (r1 + eps);
+      c2 &= std::fabs(0.5 * r[0] - LPs::srt * r[1]) <= (r1 + eps);
+      c2 &= std::fabs(r[1]) <= (r1 + eps);
+      c2 &= std::fabs(r[0]) <= (r1 + eps);
+      break;
+
+    default:
+      return false;
+    }
+    res = c2;
+  }
+
+  return res;
+}
+
+// -----------------------------------------------------------------------------
+bool LaueOps::InsideCubicFZ(const OrientationD& rod, const FZType fzType)
+{
+  bool res = false;
+  bool c1 = false;
+  bool c2 = false;
+
+  constexpr double r1 = 1.0;
+  constexpr double eps = 1.0e-10;
+
+  const std::array<double, 4> x = {rod[0], rod[1], rod[2], rod[3]}; // Make a copy of rod
+  const std::array<double, 3> r = {x[0] * x[3], x[1] * x[3], x[2] * x[3]};
+
+  // primary cube planes (only needed for octahedral case)
+  if(fzType == FZType::Octahedral)
+  {
+    double max = std::max({std::fabs(r[0]), std::fabs(r[1]), std::fabs(r[2])});
+    c1 = (max - LPs::BP[4 - 1]) <= eps;
+  }
+  else
+  {
+    c1 = true;
+  }
+
+  // octahedral truncation planes, both for tetrahedral and octahedral point groups
+  c2 = ((std::fabs(r[0]) + std::fabs(r[1]) + std::fabs(r[2])) - r1) <= eps;
+
+  // if both c1 and c2, then the point is inside
+  if(c1 && c2)
+  {
+    res = true;
+  }
+
+  return res;
+}
+
+// -----------------------------------------------------------------------------
+bool LaueOps::IsInsideFZ(const OrientationD& rod, FZType fzType, AxisOrderingType order)
+{
+  bool insideFZ = false;
+  // dealing with 180 rotations is needed only for
+  // FZtypes 0 and 1; the other FZs are always finite.
+  switch(fzType)
+  {
+  case FZType::Anorthic:
+    insideFZ = true; // all points are inside the FZ
+    break;
+  case FZType::Cyclic:
+    insideFZ = InsideCyclicFZ(rod, fzType, order); // infinity is checked inside this function
+    break;
+  case FZType::Dihedral:
+    if(!std::isinf(rod[3]))
+    {
+      insideFZ = InsideDihedralFZ(rod, order);
+    }
+    break;
+  case FZType::Tetrahedral:
+    if(!std::isinf(rod[3]))
+    {
+      insideFZ = InsideCubicFZ(rod, FZType::Tetrahedral);
+    }
+    break;
+  case FZType::Octahedral:
+    if(!std::isinf(rod[3]))
+    {
+      insideFZ = InsideCubicFZ(rod, FZType::Octahedral);
+    }
+    break;
+  default:
+    insideFZ = false;
+    break;
+  }
+  return insideFZ;
+}
+
+bool LaueOps::IsInsideFZ(const QuatD& quat, FZType fzType, AxisOrderingType order)
+{
+
+  const OrientationD rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(quat_pos::makePositive(quat));
+  return LaueOps::IsInsideFZ(rod, fzType, order);
+}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
   OrientationD axisAngleMin(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
-  QuatD qc;
-  QuatD qr = q1 * (q2.conjugate());
+  const QuatD qr = q1 * (q2.conjugate());
   size_t numsym = quatsym.size();
   // Loop through all the symmetry operators and find the Axis Angle with the smallest angular part.
   for(size_t i = 0; i < numsym; i++)
   {
-    qc = quatsym[i] * qr;
+    QuatD qc = quatsym[i] * qr;
 
     if(qc.w() < -1)
     {
@@ -279,7 +588,6 @@ OrientationType LaueOps::_calcRodNearestOrigin(const std::vector<OrientationD>& 
 // -----------------------------------------------------------------------------
 QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
-  QuatD out;
   double dist = 0.0;
   double smallestdist = 1000000.0f;
   QuatD qmax;
@@ -298,7 +606,7 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
       qmax = qc;
     }
   }
-  out = qmax;
+  QuatD out = qmax;
   if(out.w() < 0)
   {
     out.negate();
@@ -306,37 +614,39 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
   return out;
 }
 
-QuatD LaueOps::_calcQuatNearestOrigin(const std::vector<QuatD>& quatsym, const QuatD& qr) const
+QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order)
 {
-  double dist = 0.0;
-  double smallestdist = 1000000.0f;
-  QuatD qmax;
+  // Ensure the Quaternion is Normalized and the Scalar Part is positive
+  QuatD normalizedQuat = quat_pos::makePositive(qr);
+  OrientationD rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(normalizedQuat);
+
+  if(IsInsideFZ(rod, fzType, order))
+  {
+    return normalizedQuat;
+  }
+
   size_t numsym = quatsym.size();
   for(size_t i = 0; i < numsym; i++)
   {
     QuatD qc = quatsym[i] * qr;
+    normalizedQuat = quat_pos::makePositive(qc);
+    rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(normalizedQuat);
 
-    dist = 1 - (qc.w() * qc.w());
-    if(dist < smallestdist)
+    if(normalizedQuat.w() < 1.0E5 && IsInsideFZ(rod, fzType, order))
     {
-      smallestdist = dist;
-      qmax = qc;
+      return normalizedQuat;
     }
   }
-  QuatD out = qmax;
-
-  if(out.w() < 0)
-  {
-    out.negate();
-  }
-  return out;
+  // This should never happen so I guess returning a Qauaternion with all Infinity values is _a_ way to do it?
+  // Maybe we should throw an exception instead? Or return a std::optional() if we were using C++17
+  return {std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
 }
 
 int LaueOps::_calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& ho) const
 {
-  int miso1bin = int((ho[0] + dim[0]) / step[0]);
-  int miso2bin = int((ho[1] + dim[1]) / step[1]);
-  int miso3bin = int((ho[2] + dim[2]) / step[2]);
+  int miso1bin = static_cast<int>((ho[0] + dim[0]) / step[0]);
+  int miso2bin = static_cast<int>((ho[1] + dim[1]) / step[1]);
+  int miso3bin = static_cast<int>((ho[2] + dim[2]) / step[2]);
   if(miso1bin >= bins[0])
   {
     miso1bin = static_cast<int>(bins[0] - 1);
@@ -376,13 +686,9 @@ void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], d
 // -----------------------------------------------------------------------------
 int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const OrientationType& ho) const
 {
-  int g1euler1bin;
-  int g1euler2bin;
-  int g1euler3bin;
-  int g1odfbin;
-  g1euler1bin = int((ho[0] + dim[0]) / step[0]);
-  g1euler2bin = int((ho[1] + dim[1]) / step[1]);
-  g1euler3bin = int((ho[2] + dim[2]) / step[2]);
+  int g1euler1bin = static_cast<int>((ho[0] + dim[0]) / step[0]);
+  int g1euler2bin = static_cast<int>((ho[1] + dim[1]) / step[1]);
+  int g1euler3bin = static_cast<int>((ho[2] + dim[2]) / step[2]);
   if(g1euler1bin >= bins[0])
   {
     g1euler1bin = static_cast<int>(bins[0] - 1);
@@ -407,7 +713,7 @@ int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const Or
   {
     g1euler3bin = 0;
   }
-  g1odfbin = static_cast<int>((g1euler3bin * bins[0] * bins[1]) + (g1euler2bin * bins[0]) + (g1euler1bin));
+  int g1odfbin = static_cast<int>((g1euler3bin * bins[0] * bins[1]) + (g1euler2bin * bins[0]) + (g1euler1bin));
   return g1odfbin;
 }
 
@@ -440,7 +746,7 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 }
 
 // -----------------------------------------------------------------------------
-LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber)
+LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgNumber)
 {
   std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
   std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
@@ -455,8 +761,7 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber)
     }
   }
 
-  size_t value = pgLaue.at(pgNumber);
-  switch(value)
+  switch(pgLaue.at(pgNumber))
   {
   case 1:
     return TriclinicOps::New();
@@ -505,12 +810,12 @@ std::vector<std::string> LaueOps::GetLaueNames()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-size_t LaueOps::getRandomSymmetryOperatorIndex(int numSymOps) const
+size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps) const
 {
 
   using SizeTDistributionType = std::uniform_int_distribution<size_t>;
 
-  const SizeTDistributionType::result_type rangeMin = 0;
+  constexpr SizeTDistributionType::result_type rangeMin = 0;
   const SizeTDistributionType::result_type rangeMax = static_cast<SizeTDistributionType::result_type>(numSymOps - 1);
 
   std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine

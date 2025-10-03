@@ -250,7 +250,7 @@ public:
     p.w() = 2.0f;
     float length = p.length();
     DREAM3D_REQUIRE_EQUAL(length, 4.0);
-    p = p.unitQuaternion();
+    p = p.normalize();
     DREAM3D_REQUIRE_EQUAL(p.x(), 0.5)
     DREAM3D_REQUIRE_EQUAL(p.y(), 0.5)
     DREAM3D_REQUIRE_EQUAL(p.z(), 0.5)

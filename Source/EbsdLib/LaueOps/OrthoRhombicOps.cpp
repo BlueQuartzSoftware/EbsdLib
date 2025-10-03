@@ -188,6 +188,12 @@ std::string OrthoRhombicOps::getRotationPointGroup() const
   return "222";
 }
 
+// -----------------------------------------------------------------------------
+int OrthoRhombicOps::getPointGroup() const
+{
+  return 8;
+}
+
 OrientationD OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
@@ -296,9 +302,12 @@ QuatF OrthoRhombicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
   return _calcNearestQuat(OrthoRhombic::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
+// -----------------------------------------------------------------------------
 QuatD OrthoRhombicOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(OrthoRhombic::QuatSym, qr);
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(OrthoRhombic::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

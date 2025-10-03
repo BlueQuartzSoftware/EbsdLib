@@ -70,7 +70,7 @@ public:
   {
     if(size != 4)
     {
-      throw std::runtime_error("Quaternion Contructors needs argument of '4' for size.");
+      throw std::runtime_error("Quaternion Constructor needs argument of '4' for size.");
     }
   }
 
@@ -449,7 +449,7 @@ public:
   }
 
   /**
-   * @brief heck if this is a unit quaternion
+   * @brief check if this is a unit quaternion
    * @param tolerance
    * @return
    */
@@ -459,11 +459,11 @@ public:
   }
 
   /**
-   * @brief UnitQuaternion (Normalize) Converts the quaternion into its normalized values (x/L, y/L, z/L, w/L) where "L"
+   * @brief Normalize: Converts the quaternion into its normalized values (x/L, y/L, z/L, w/L) where "L"
    * is the "length" of the quaternion
    * @return qr
    */
-  Quaternion unitQuaternion() const
+  Quaternion normalize() const
   {
     T l = length();
     return {m_X / l, m_Y / l, m_Z / l, m_W / l};
@@ -561,3 +561,16 @@ private:
 
 using QuatD = Quaternion<double>;
 using QuatF = Quaternion<float>;
+
+namespace quat_pos
+{
+template <typename T>
+Quaternion<T> makePositive(const Quaternion<T>& q)
+{
+  if(q.w() < static_cast<T>(0))
+  {
+    return -q;
+  }
+  return q;
+}
+} // namespace quat_pos

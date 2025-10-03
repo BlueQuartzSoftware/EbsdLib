@@ -307,7 +307,7 @@ public:
   void Test_qu_check()
   {
     QuatF quat(1.0, 1.0, 1.0, 0.0);
-    quat = quat.unitQuaternion();
+    quat = quat.normalize();
 
     {
       using TestType = FOrientArrayType;

@@ -177,6 +177,12 @@ std::string MonoclinicOps::getRotationPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+int MonoclinicOps::getPointGroup() const
+{
+  return 5;
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
@@ -284,6 +290,14 @@ QuatD MonoclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 QuatF MonoclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   return _calcNearestQuat(Monoclinic::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+}
+
+// -----------------------------------------------------------------------------
+QuatD MonoclinicOps::getFZQuat(const QuatD& qr) const
+{
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(Monoclinic::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

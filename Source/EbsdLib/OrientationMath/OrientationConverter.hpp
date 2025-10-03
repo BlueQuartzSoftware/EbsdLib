@@ -500,7 +500,7 @@ private:
   size_t outStride = OUTSTRIDE;                                                                                                                                                                        \
   std::vector<size_t> cDims = {outStride};                                                                                                                                                             \
   DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #OUT_ARRAY_NAME, true);                                                                                                     \
-  output->initializeWithZeros(); /* Intialize the array with Zeros */                                                                                                                                  \
+  output->initializeWithZeros(); /* Initialize the array with Zeros */                                                                                                                                 \
   T* outPtr = output->getPointer(0);                                                                                                                                                                   \
   tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), ConvertRepresentation<T, Convertors::FUNCTOR<T>>(inPtr, outPtr, inStride, outStride), tbb::auto_partitioner());                            \
   this->setOutputData(output);
@@ -1820,7 +1820,7 @@ public:
 
   void sanityCheckInputData() override
   {
-    /* Apparently there is no sanity check for Spbochoric, Odd. We place this
+    /* Apparently there is no sanity check for Stereographic, Odd. We place this
      * code here in case we come up with one, the parallel version is ready to
      * go
      */

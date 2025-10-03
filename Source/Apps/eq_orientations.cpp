@@ -22,8 +22,8 @@ bool quaternionsAreClose(const QuatD& q1, const QuatD& q2, double tolerance = 1e
 
 int v1(QuatD q1, QuatD q2)
 {
-  q1 = q1.unitQuaternion();
-  q2 = q2.unitQuaternion();
+  q1 = q1.normalize();
+  q2 = q2.normalize();
   const QuatD q2Negate = -q2;
 
   LaueOps::Pointer cubicOps = LaueOps::GetAllOrientationOps()[1];
@@ -60,8 +60,8 @@ int v1(QuatD q1, QuatD q2)
 int v2(QuatD q1, QuatD q2)
 {
   double tolerance = 1e-6;
-  q1 = q1.unitQuaternion();
-  q2 = q2.unitQuaternion();
+  q1 = q1.normalize();
+  q2 = q2.normalize();
 
   LaueOps::Pointer cubicOps = LaueOps::GetAllOrientationOps()[1];
   double minDiff = 1.0;
@@ -132,9 +132,9 @@ std::vector<double> ReadDoublesFromCSV(const std::string& filePath)
 int main(int argc, char* argv[])
 {
   std::vector<double> q = ReadDoublesFromCSV(argv[1]);
-  for(int i = 0; i < q.size(); i=i+8)
+  for(int i = 0; i < q.size(); i = i + 8)
   {
-    std::cout << (i/8) << ": ";
-    v2({q[i], q[i+1], q[i+2], q[i+3]}, {q[i+4], q[i+5], q[i+6], q[i+7]});
+    std::cout << (i / 8) << ": ";
+    v2({q[i], q[i + 1], q[i + 2], q[i + 3]}, {q[i + 4], q[i + 5], q[i + 6], q[i + 7]});
   }
 }

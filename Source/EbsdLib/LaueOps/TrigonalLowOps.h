@@ -123,7 +123,13 @@ public:
    * @brief Returns the Rotation Point Group for the LaueClass.
    * @return
    */
-  virtual std::string getRotationPointGroup() const override;
+  std::string getRotationPointGroup() const override;
+
+  /**
+   * @brief Returns the Rotation Point Group for the LaueClass.
+   * @return
+   */
+  int getPointGroup() const override;
 
   /**
    * @brief Returns the number of bins in each of the 3 dimensions
@@ -166,6 +172,7 @@ public:
   QuatD getNearestQuat(const QuatD& q1, const QuatD& q2) const override;
   QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const override;
 
+  QuatD getFZQuat(const QuatD& qr) const override;
   int getMisoBin(const OrientationType& rod) const override;
   bool inUnitTriangle(double eta, double chi) const override;
   OrientationType determineEulerAngles(double random[3], int choose) const override;

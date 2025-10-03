@@ -214,6 +214,12 @@ std::string TetragonalOps::getRotationPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+int TetragonalOps::getPointGroup() const
+{
+  return 15;
+}
+
+// -----------------------------------------------------------------------------
 OrientationD TetragonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TetragonalHigh::QuatSym, q1, q2);
@@ -317,6 +323,14 @@ QuatD TetragonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 QuatF TetragonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   return _calcNearestQuat(TetragonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+}
+
+// -----------------------------------------------------------------------------
+QuatD TetragonalOps::getFZQuat(const QuatD& qr) const
+{
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(TetragonalHigh::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

@@ -27,7 +27,7 @@
             },
             "VCPKG_INSTALLED_DIR": {
                 "type": "STRING",
-                "value": "${sourceDir}/../vcpkg-installed"
+                "value": "${sourceDir}/../vcpkg-installed-ebsd-lib"
             },
             "VCPKG_MANIFEST_INSTALL": {
                 "type": "BOOL",

@@ -200,6 +200,12 @@ std::string TrigonalOps::getRotationPointGroup() const
   return "32";
 }
 
+// -----------------------------------------------------------------------------
+int TrigonalOps::getPointGroup() const
+{
+  return 20;
+}
+
 OrientationD TrigonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TrigonalHigh::QuatSym, q1, q2);
@@ -339,6 +345,14 @@ QuatD TrigonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 QuatF TrigonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   return _calcNearestQuat(TrigonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+}
+
+// -----------------------------------------------------------------------------
+QuatD TrigonalOps::getFZQuat(const QuatD& qr) const
+{
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(TrigonalHigh::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

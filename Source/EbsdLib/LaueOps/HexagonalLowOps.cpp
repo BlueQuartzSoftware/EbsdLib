@@ -203,6 +203,12 @@ std::string HexagonalLowOps::getRotationPointGroup() const
   return "6";
 }
 
+// -----------------------------------------------------------------------------
+int HexagonalLowOps::getPointGroup() const
+{
+  return 23;
+}
+
 OrientationD HexagonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(HexagonalLow::QuatSym, q1, q2);
@@ -347,7 +353,9 @@ QuatF HexagonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 // -----------------------------------------------------------------------------
 QuatD HexagonalLowOps::getFZQuat(const QuatD& qr) const
 {
-  return _calcQuatNearestOrigin(HexagonalLow::QuatSym, qr);
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(HexagonalLow::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

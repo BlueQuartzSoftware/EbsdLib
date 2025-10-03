@@ -174,6 +174,12 @@ std::string TriclinicOps::getRotationPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+int TriclinicOps::getPointGroup() const
+{
+  return 2;
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD TriclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
@@ -273,6 +279,14 @@ QuatD TriclinicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 QuatF TriclinicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
   return _calcNearestQuat(Triclinic::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+}
+
+// -----------------------------------------------------------------------------
+QuatD TriclinicOps::getFZQuat(const QuatD& qr) const
+{
+  LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
+  LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
+  return ConvertToFZ(Triclinic::QuatSym, qr, fzType, orderingType);
 }
 
 // -----------------------------------------------------------------------------

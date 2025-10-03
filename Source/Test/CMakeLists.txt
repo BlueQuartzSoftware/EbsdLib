@@ -96,6 +96,7 @@ set(TEST_NAMES
 
   SO3SamplerTest
   TextureTest
+  ConvertToFundamentalZoneTest
 )
 
 
