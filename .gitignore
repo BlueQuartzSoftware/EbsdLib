@@ -36,6 +36,7 @@ __pycache__/
 release
 debug
 Test/ProjectTest/Build
+CMakeUserPresets.json
 
 # Python build-related files
 pyebsd/build/
