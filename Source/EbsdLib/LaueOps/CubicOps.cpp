@@ -322,6 +322,18 @@ int CubicOps::getPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+bool CubicOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool CubicOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD CubicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const

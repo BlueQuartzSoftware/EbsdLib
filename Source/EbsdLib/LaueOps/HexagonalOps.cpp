@@ -250,6 +250,18 @@ int HexagonalOps::getPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+bool HexagonalOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool HexagonalOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
 OrientationD HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);

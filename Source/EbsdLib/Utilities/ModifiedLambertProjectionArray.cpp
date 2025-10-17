@@ -41,9 +41,9 @@
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #ifdef EbsdLib_ENABLE_HDF5
-#include <hdf5.h>
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
+#include <hdf5.h>
 using namespace H5Support;
 #endif
 

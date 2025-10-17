@@ -183,6 +183,18 @@ int MonoclinicOps::getPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+bool MonoclinicOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool MonoclinicOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const

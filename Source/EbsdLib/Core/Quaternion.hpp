@@ -66,6 +66,10 @@ public:
   Quaternion& operator=(const Quaternion&) = default;
   Quaternion& operator=(Quaternion&&) noexcept = default;
 
+  /**
+   * @brief Creates a Quaternion that is an "Identity"
+   * @param size This MUST be 4 (this is for historical reasons)
+   */
   Quaternion(size_type size)
   {
     if(size != 4)
@@ -100,6 +104,9 @@ public:
   //    }
   //  }
 
+  /**
+   * @brief Converts this quaternion to a Quaternion that uses a different primitve type such as float or double.
+   */
   template <class U, class = std::enable_if_t<std::is_floating_point_v<U> && std::numeric_limits<U>::has_infinity>>
   Quaternion<U> to() const
   {
@@ -552,6 +559,35 @@ public:
     return rotatedVector;
   }
 
+  /**
+   * @brief Ensures this quaternion represents an orientation that is located in the northern hemisphere.
+   *
+   * NOTE: This is done IN PLACE!!
+   */
+  void positiveOrientation()
+  {
+    if(m_W < static_cast<T>(0.0))
+    {
+      m_X = -m_X;
+      m_Y = -m_Y;
+      m_Z = -m_Z;
+      m_W = -m_W;
+    }
+  }
+
+  /**
+   * @brief Returns a new quaternion that represents an orientation that is located in the northern hemisphere
+   * @return Copy of Quaternion
+   */
+  Quaternion getPositiveOrientation() const
+  {
+    if(m_W < static_cast<T>(0.0))
+    {
+      return {-m_X, -m_Y, -m_Z, -m_W};
+    }
+    return {m_X, m_Y, m_Z, m_W};
+  }
+
 private:
   T m_X = 0.0;
   T m_Y = 0.0;
@@ -561,16 +597,3 @@ private:
 
 using QuatD = Quaternion<double>;
 using QuatF = Quaternion<float>;
-
-namespace quat_pos
-{
-template <typename T>
-Quaternion<T> makePositive(const Quaternion<T>& q)
-{
-  if(q.w() < static_cast<T>(0))
-  {
-    return -q;
-  }
-  return q;
-}
-} // namespace quat_pos

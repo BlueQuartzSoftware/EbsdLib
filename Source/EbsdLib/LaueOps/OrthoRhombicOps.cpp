@@ -194,6 +194,18 @@ int OrthoRhombicOps::getPointGroup() const
   return 8;
 }
 
+// -----------------------------------------------------------------------------
+bool OrthoRhombicOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool OrthoRhombicOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
 OrientationD OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);

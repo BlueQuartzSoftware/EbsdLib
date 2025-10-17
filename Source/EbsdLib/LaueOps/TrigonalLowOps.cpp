@@ -191,6 +191,18 @@ int TrigonalLowOps::getPointGroup() const
   return 17;
 }
 
+// -----------------------------------------------------------------------------
+bool TrigonalLowOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool TrigonalLowOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
 OrientationD TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);

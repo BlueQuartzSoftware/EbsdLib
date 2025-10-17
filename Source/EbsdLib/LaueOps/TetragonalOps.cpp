@@ -220,6 +220,18 @@ int TetragonalOps::getPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+bool TetragonalOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool TetragonalOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
 OrientationD TetragonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TetragonalHigh::QuatSym, q1, q2);

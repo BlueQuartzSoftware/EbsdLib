@@ -247,6 +247,20 @@ public:
    */
   EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
 
+  /**
+   * @brief Returns if the given Quaternion is within the Rodrigues Fundamental Zone (RFZ)
+   * @param quat Input Quaternion
+   * @return
+   */
+  bool isInsideFZ(const QuatD& quat) const override;
+
+  /**
+   * @brief Returns if the given Rodrigues vector is within the Rodrigues Fundamental Zone (RFZ)
+   * @param rod Input Rodrigues Vector
+   * @return
+   */
+  bool isInsideFZ(const OrientationD& rod) const override;
+
 protected:
 public:
   TetragonalOps(const TetragonalOps&) = delete;            // Copy Constructor Not Implemented

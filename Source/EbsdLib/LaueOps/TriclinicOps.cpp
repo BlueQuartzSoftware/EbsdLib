@@ -180,6 +180,18 @@ int TriclinicOps::getPointGroup() const
 }
 
 // -----------------------------------------------------------------------------
+bool TriclinicOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool TriclinicOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 OrientationD TriclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const

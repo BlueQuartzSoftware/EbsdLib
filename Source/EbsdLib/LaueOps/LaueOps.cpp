@@ -484,12 +484,10 @@ bool LaueOps::IsInsideFZ(const OrientationD& rod, FZType fzType, AxisOrderingTyp
 
 bool LaueOps::IsInsideFZ(const QuatD& quat, FZType fzType, AxisOrderingType order)
 {
-
-  const OrientationD rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(quat_pos::makePositive(quat));
-  return LaueOps::IsInsideFZ(rod, fzType, order);
+  const OrientationD rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(quat.getPositiveOrientation());
+  return IsInsideFZ(rod, fzType, order);
 }
-// -----------------------------------------------------------------------------
-//
+
 // -----------------------------------------------------------------------------
 OrientationD LaueOps::calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
@@ -617,7 +615,7 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
 QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order)
 {
   // Ensure the Quaternion is Normalized and the Scalar Part is positive
-  QuatD normalizedQuat = quat_pos::makePositive(qr);
+  QuatD normalizedQuat = qr.getPositiveOrientation();
   OrientationD rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(normalizedQuat);
 
   if(IsInsideFZ(rod, fzType, order))
@@ -629,7 +627,7 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   for(size_t i = 0; i < numsym; i++)
   {
     QuatD qc = quatsym[i] * qr;
-    normalizedQuat = quat_pos::makePositive(qc);
+    normalizedQuat = qc.getPositiveOrientation();
     rod = OrientationTransformation::qu2ro<QuatD, OrientationD>(normalizedQuat);
 
     if(normalizedQuat.w() < 1.0E5 && IsInsideFZ(rod, fzType, order))
@@ -748,11 +746,19 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 // -----------------------------------------------------------------------------
 LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgNumber)
 {
+  // There are only 230 Space Groups, so if the user asks for something outside of
+  // that range, then return a null pointer. If they are asking for this kind of
+  // value then there is something wrong in the calling code.
+  if(sgNumber > 230)
+  {
+    return LaueOps::NullPointer();
+  }
   std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
   std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
 
   size_t pgNumber = sgpg.size() - 1;
-  for(size_t i = 0; i < sgpg.size(); i++)
+  size_t i = 0;
+  for(i = 0; i < sgpg.size(); i++)
   {
     if(sgpg[i] > sgNumber)
     {
@@ -760,6 +766,8 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgN
       break;
     }
   }
+
+  // std::cout << "Space Group: " << sgNumber << "   sgpg: " << i << "   sgpg[i]: " << sgpg[i] << "   pgNumber: " << pgNumber << "  pgLaue[pgNumber]: " << pgLaue[pgNumber] << std::endl;
 
   switch(pgLaue.at(pgNumber))
   {

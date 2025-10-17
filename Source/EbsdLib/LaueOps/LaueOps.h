@@ -414,6 +414,20 @@ public:
    */
   static bool IsInsideFZ(const QuatD& quat, FZType fzType, AxisOrderingType order);
 
+  /**
+   * @brief Returns if the given Quaternion is within the Rodrigues Fundamental Zone (RFZ)
+   * @param quat Input Quaternion
+   * @return
+   */
+  virtual bool isInsideFZ(const QuatD& quat) const = 0;
+
+  /**
+   * @brief Returns if the given Rodrigues vector is within the Rodrigues Fundamental Zone (RFZ)
+   * @param rod Input Rodrigues Vector
+   * @return
+   */
+  virtual bool isInsideFZ(const OrientationD& rod) const = 0;
+
 protected:
   LaueOps();
 
@@ -531,3 +545,45 @@ constexpr std::array<LaueOps::AxisOrderingType, 32> FZoarray = {LaueOps::AxisOrd
                                                                 LaueOps::AxisOrderingType::None,      LaueOps::AxisOrderingType::None,      LaueOps::AxisOrderingType::None};
 
 } // namespace laue_ops
+
+/*
+ * @brief Master Table of Crystallographic Information
+ * This is formatted as a MarkDown with LaTeX formatting
+
+|  # | Point Group (H–M) | Rotation Point Group | Space Group No(s). | Schoenflies   | Crystal system | Laue class  | Laue Ops |
+| -: | ----------------- | -------------------- | ------------------ | ------------- | -------------- | ----------- | ---------|
+|  1 | 1                 | 1                    | 1                  | C₁            | Triclinic      | (\bar{1})   | TriclinicOps |
+|  2 | (\bar{1})         | 1                    | 2                  | C(_i)         | Triclinic      | (\bar{1})   |
+|  3 | 2                 | 2                    | 3–5                | C₂            | Monoclinic     | 2/m         |
+|  4 | m                 | 1                    | 6–9                | C(_s)         | Monoclinic     | 2/m         |
+|  5 | 2/m               | 2                    | 10–15              | C(_{2h})      | Monoclinic     | 2/m         | MonoclinicOps |
+|  6 | 222               | 222                  | 16–24              | D₂            | Orthorhombic   | mmm         |
+|  7 | mm2               | 2                    | 25–46              | C(_{2v})      | Orthorhombic   | mmm         |
+|  8 | mmm               | 222                  | 47–74              | D(_{2h})      | Orthorhombic   | mmm         | OrthorhombicOps |
+|  9 | 4                 | 4                    | 75–80              | C₄            | Tetragonal     | 4/m         |
+| 10 | (\bar{4})         | 2                    | 81–82              | S₄            | Tetragonal     | 4/m         |
+| 11 | 4/m               | 4                    | 83–88              | C(_{4h})      | Tetragonal     | 4/m         | TetragonalLowOps |
+| 12 | 422               | 422                  | 89–98              | D₄            | Tetragonal     | 4/mmm       |
+| 13 | 4mm               | 4                    | 99–110             | C(_{4v})      | Tetragonal     | 4/mmm       |
+| 14 | (\bar{4}2m)       | 222                  | 111–122            | D(_{2d})      | Tetragonal     | 4/mmm       |
+| 15 | 4/mmm             | 422                  | 123–142            | D(_{4h})      | Tetragonal     | 4/mmm       | TetragonalOps |
+| 16 | 3                 | 3                    | 143–146            | C₃            | Trigonal       | (\bar{3})   |
+| 17 | (\bar{3})         | 3                    | 147–148            | C(_{3i}) (S₆) | Trigonal       | (\bar{3})   | TrigonalLowOps |
+| 18 | 32                | 32                   | 149–155            | D₃            | Trigonal       | (\bar{3}m)  |
+| 19 | 3m                | 3                    | 156–161            | C(_{3v})      | Trigonal       | (\bar{3}m)  |
+| 20 | (\bar{3}m)        | 32                   | 162–167            | D(_{3d})      | Trigonal       | (\bar{3}m)  | TrigonalOps |
+| 21 | 6                 | 6                    | 168–173            | C₆            | Hexagonal      | 6/m         |
+| 22 | (\bar{6})         | 3                    | 174                | C(_{3h})      | Hexagonal      | 6/m         |
+| 23 | 6/m               | 6                    | 175–176            | C(_{6h})      | Hexagonal      | 6/m         | HexagonalLowOps |
+| 24 | 622               | 622                  | 177–182            | D₆            | Hexagonal      | 6/mmm       |
+| 25 | 6mm               | 6                    | 183–186            | C(_{6v})      | Hexagonal      | 6/mmm       |
+| 26 | (\bar{6}m2)       | 32                   | 187–190            | D(_{3h})      | Hexagonal      | 6/mmm       |
+| 27 | 6/mmm             | 622                  | 191–194            | D(_{6h})      | Hexagonal      | 6/mmm       | HexagonalOps |
+| 28 | 23                | 23                   | 195–199            | T             | Cubic          | m(\bar{3})  |
+| 29 | m(\bar{3})        | 23                   | 200–206            | T(_h)         | Cubic          | m(\bar{3})  | CubicLowOps |
+| 30 | 432               | 432                  | 207–214            | O             | Cubic          | m(\bar{3})m |
+| 31 | (\bar{4}3m)       | 23                   | 215–220            | T(_d)         | Cubic          | m(\bar{3})m |
+| 32 | m(\bar{3})m       | 432                  | 221–230            | O(_h)         | Cubic          | m(\bar{3})m | CubicOps |
+
+
+*/

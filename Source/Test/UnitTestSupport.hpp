@@ -367,12 +367,12 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 
 #define DREAM3D_REQUIRE(P)                                                                                                                                                                             \
   {                                                                                                                                                                                                    \
-    bool b = (P);                                                                                                                                                                                      \
-    if((b) == (false))                                                                                                                                                                                 \
+    const bool testValue = (P);                                                                                                                                                                                      \
+    if((testValue) == (false))                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
-      std::string s("Your test required the following\n            '");                                                                                                                                \
-      s = s.append(#P).append("'\n             but this condition was not met.");                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(s)                                                                                                                                                                  \
+      std::string message("Your test required the following\n            '");                                                                                                                                \
+      message = message.append(#P).append("'\n             but this condition was not met.");                                                                                                                      \
+      DREAM3D_TEST_THROW_EXCEPTION(message)                                                                                                                                                                  \
     }                                                                                                                                                                                                  \
   }
 
@@ -420,11 +420,11 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 #define DREAM3D_REQUIRE_EQUAL(L, R)                                                                                                                                                                    \
   if((L) != (R))                                                                                                                                                                                       \
   {                                                                                                                                                                                                    \
-    std::string buf;                                                                                                                                                                                   \
-    std::stringstream ss(buf);                                                                                                                                                                         \
-    ss << "Your test required the following\n            '";                                                                                                                                           \
-    ss << #L << " == " << #R << "'\n             but this condition was not met.\n";                                                                                                                   \
-    ss << "             " << L << "==" << R;                                                                                                                                                           \
+    const std::string buf;                                                                                                                                                                                   \
+    std::stringstream outStream(buf);                                                                                                                                                                         \
+    outStream << "Your test required the following\n            '";                                                                                                                                           \
+    outStream << #L << " == " << #R << "'\n             but this condition was not met.\n";                                                                                                                   \
+    outStream << "             " << L << "==" << R;                                                                                                                                                           \
     DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                  \
   }
 

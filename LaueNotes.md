@@ -6,10 +6,10 @@ There are several LaueOps classes that have incomplete implementations. This doc
 
 ### Texture::CalculateODFData() ###
 
-| | Triclinic | Monoclinic | OrthoRhombic | Tetragonal_Low | Tetragonal_High | Trigonal_Low | Trigonal_High | Hexagonal_Low | Hexagonal_Low | Cubic_Low | Cubic_High |
-|---|-----------|------------|--------------|----------------|-----------------|--------------|---------------|---------------|---------------|-----------|----------|
-| getODFFZRod() | O | O | O | O | O | O | O | O | O | O  | O |
-| getOdfBin()  | O | O | O | O | O | O | O | O | O | O  | O |
+|               | Triclinic | Monoclinic | OrthoRhombic | Tetragonal_Low | Tetragonal_High | Trigonal_Low | Trigonal_High | Hexagonal_Low | Hexagonal_Low | Cubic_Low | Cubic_High |
+|---------------|-----------|------------|--------------|----------------|-----------------|--------------|---------------|---------------|---------------|-----------|------------|
+| getODFFZRod() | O         | O          | O            | O              | O               | O            | O             | O             | O             | O         | O          |
+| getOdfBin()   | O         | O          | O            | O              | O               | O            | O             | O             | O             | O         | O          |
 
 ### StatsGen::GenODFPlotData() ###
 

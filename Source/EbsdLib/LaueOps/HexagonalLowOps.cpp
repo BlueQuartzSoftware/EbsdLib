@@ -209,6 +209,18 @@ int HexagonalLowOps::getPointGroup() const
   return 23;
 }
 
+// -----------------------------------------------------------------------------
+bool HexagonalLowOps::isInsideFZ(const QuatD& quat) const
+{
+  return IsInsideFZ(quat, getFZType(), getAxisOrderingType());
+}
+
+// -----------------------------------------------------------------------------
+bool HexagonalLowOps::isInsideFZ(const OrientationD& rod) const
+{
+  return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
+}
+
 OrientationD HexagonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(HexagonalLow::QuatSym, q1, q2);
