@@ -142,7 +142,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationD calculateMisorientation(const QuatD& q1, const QuatD& q2) const override;
+  AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const override;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -150,7 +150,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationF calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
+  // EbsdLib::AxisAngleDType calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
 
   QuatD getQuatSymOp(int i) const override;
   void getRodSymOp(int i, double* r) const override;
@@ -165,19 +165,19 @@ public:
   EbsdLib::Matrix3X3F getMatSymOpF(int i) const override;
   EbsdLib::Matrix3X3D getMatSymOpD(int i) const override;
 
-  OrientationType getODFFZRod(const OrientationType& rod) const override;
-  OrientationType getMDFFZRod(const OrientationType& rod) const override;
+  RodriguesDType getODFFZRod(const RodriguesDType& rod) const override;
+  RodriguesDType getMDFFZRod(const RodriguesDType& rod) const override;
 
   QuatD getNearestQuat(const QuatD& q1, const QuatD& q2) const override;
   QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const override;
 
   QuatD getFZQuat(const QuatD& qr) const override;
-  int getMisoBin(const OrientationType& rod) const override;
+  int getMisoBin(const RodriguesDType& rod) const override;
   bool inUnitTriangle(double eta, double chi) const override;
-  OrientationType determineEulerAngles(double random[3], int choose) const override;
-  OrientationType randomizeEulerAngles(const OrientationType& euler) const override;
-  OrientationType determineRodriguesVector(double random[3], int choose) const override;
-  int getOdfBin(const OrientationType& rod) const override;
+  EulerDType determineEulerAngles(double random[3], int choose) const override;
+  EulerDType randomizeEulerAngles(const EulerDType& euler) const override;
+  RodriguesDType determineRodriguesVector(double random[3], int choose) const override;
+  int getOdfBin(const RodriguesDType& rod) const override;
   void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
   void getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const override;
   double getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) const override;
@@ -258,7 +258,7 @@ public:
    * @param rod Input Rodrigues Vector
    * @return
    */
-  bool isInsideFZ(const OrientationD& rod) const override;
+  bool isInsideFZ(const RodriguesDType& rod) const override;
 
 protected:
 public:

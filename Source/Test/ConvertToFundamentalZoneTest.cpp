@@ -33,7 +33,6 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "EbsdLib/Core/OrientationRepresentation.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
@@ -88,7 +87,7 @@ public:
 #endif
   }
 
-  static OrientationD convertRodrigues(const std::array<double, 3>& rod)
+  static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
   {
     const float length = sqrt(rod[0] * rod[0] + rod[1] * rod[1] + rod[2] * rod[2]);
     return {rod[0] / length, rod[1] / length, rod[2] / length, length};
@@ -108,7 +107,7 @@ public:
       {
         // OrientationD testRod = OrientationTransformation::qu2ro<QuatD, OrientationD>(Detail::k_InputQuat);
         std::array<double, 3> rod = detail::k_TestRodrigues[testIdx];
-        OrientationD testRod = convertRodrigues(rod);
+        RodriguesDType testRod = convertRodrigues(rod);
         bool isInside = LaueOps::IsInsideFZ(testRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
 
         DREAM3D_REQUIRE_EQUAL(isInside, testValues[testIdx])
@@ -121,9 +120,9 @@ public:
 
         if(!isInside)
         {
-          QuatD quat = OrientationTransformation::ro2qu<OrientationD, QuatD>(testRod);
+          QuatD quat = testRod.toQuat();
           QuatD fzQuat = ops[opsIdx]->getFZQuat(quat);
-          OrientationD fzRod = OrientationTransformation::qu2ro<QuatD, OrientationD>(fzQuat);
+          RodriguesDType fzRod = QuaternionDType(fzQuat).toRodrigues();
           isInside = LaueOps::IsInsideFZ(fzRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
           DREAM3D_REQUIRE_EQUAL(isInside, true);
         }

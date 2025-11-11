@@ -16,8 +16,8 @@ Please have a look at the unit tests for examples on using the various readers.
 
 ## Crystallographic Classes
 
-|  # | Point Group (H–M) | Rotation Point Group | Space Group No(s). | Schoenflies   | Crystal system | Laue class  | Laue Ops         |
-|---:|-------------------|----------------------|--------------------|---------------|----------------|-------------|------------------|
+|  Point Group | (H–M) | Rotation Point Group | Space Group No(s). | Schoenflies   | Crystal system | Laue class  | Laue Ops |
+|----------------------|----------------------|--------------------|---------------|----------------|-------------|------------------|
 |  1 | 1                 | 1                    | 1                  | C₁            | Triclinic      | (\bar{1})   | TriclinicOps     |
 |  2 | (\bar{1})         | 1                    | 2                  | C(_i)         | Triclinic      | (\bar{1})   |                  |
 |  3 | 2                 | 2                    | 3–5                | C₂            | Monoclinic     | 2/m         |                  |

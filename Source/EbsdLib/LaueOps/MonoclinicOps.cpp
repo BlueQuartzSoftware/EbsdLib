@@ -38,7 +38,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -78,7 +78,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.0, 1.0, 0.0, 0.0),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {0.0, 1.0, 0.0, 10000000000000.0},
 };
@@ -189,7 +189,7 @@ bool MonoclinicOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool MonoclinicOps::isInsideFZ(const OrientationD& rod) const
+bool MonoclinicOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
@@ -197,19 +197,9 @@ bool MonoclinicOps::isInsideFZ(const OrientationD& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType MonoclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(Monoclinic::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF MonoclinicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(Monoclinic::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD MonoclinicOps::getQuatSymOp(int32_t i) const
@@ -266,7 +256,7 @@ void MonoclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType MonoclinicOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType MonoclinicOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(Monoclinic::RodSym, rod);
 }
@@ -274,7 +264,7 @@ OrientationType MonoclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType MonoclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   throw EbsdLib::method_not_implemented("MonoclinicOps::getMDFFZRod not implemented");
   //  /// FIXME: Are we missing code for MonoclinicOps MDF FZ Rodrigues calculation?
@@ -283,12 +273,12 @@ OrientationType MonoclinicOps::getMDFFZRod(const OrientationType& inRod) const
   //  double FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
   //
   //  OrientationType rod = LaueOps::_calcRodNearestOrigin(Monoclinic::RodSym, inRod);
-  //  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  //  AxisAngleDType ax = rod.toAxisAngle();
   //  n1 = ax[0];
   //  n2 = ax[1], n3 = ax[2], w = ax[3];
   //
   //
-  //  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
+  //  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -315,13 +305,13 @@ QuatD MonoclinicOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int MonoclinicOps::getMisoBin(const OrientationType& rod) const
+int MonoclinicOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = Monoclinic::OdfDimInitValue[0];
   dim[1] = Monoclinic::OdfDimInitValue[1];
@@ -339,7 +329,7 @@ int MonoclinicOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType MonoclinicOps::determineEulerAngles(double random[3], int choose) const
+EulerDType MonoclinicOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -359,28 +349,26 @@ OrientationType MonoclinicOps::determineEulerAngles(double random[3], int choose
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  auto eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
-  return eu;
+  return ro.toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType MonoclinicOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType MonoclinicOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(Monoclinic::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = Monoclinic::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType MonoclinicOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType MonoclinicOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -398,8 +386,7 @@ OrientationType MonoclinicOps::determineRodriguesVector(double random[3], int ch
   phi[2] = static_cast<int32_t>(choose / (Monoclinic::OdfNumBins[0] * Monoclinic::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -407,13 +394,13 @@ OrientationType MonoclinicOps::determineRodriguesVector(double random[3], int ch
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int MonoclinicOps::getOdfBin(const OrientationType& rod) const
+int MonoclinicOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = Monoclinic::OdfDimInitValue[0];
   dim[1] = Monoclinic::OdfDimInitValue[1];
@@ -531,8 +518,7 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

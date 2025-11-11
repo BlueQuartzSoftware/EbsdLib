@@ -43,7 +43,7 @@
 #include <string>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
@@ -101,8 +101,7 @@ public:
     // Use double precision for the calculations
     for(size_t i = 0; i < numEntries; i++)
     {
-      OrientationF eu(e1s[i], e2s[i], e3s[i]);
-      OrientationD rod = OrientationTransformation::eu2ro<OrientationF, OrientationD>(eu);
+      RodriguesDType rod = EulerDType(e1s[i], e2s[i], e3s[i]).toRodrigues();
 
       rod = ops.getODFFZRod(rod);
       bin = ops.getOdfBin(rod);
@@ -243,8 +242,7 @@ public:
     int aSize = static_cast<int>(numEntries);
     for(int i = 0; i < aSize; i++)
     {
-      OrientationD ax(axes[3 * i], axes[3 * i + 1], axes[3 * i + 2], angles[i]);
-      OrientationD rod = OrientationTransformation::ax2ro<OrientationD, OrientationD>(ax);
+      RodriguesDType rod = AxisAngleDType(axes[3 * i], axes[3 * i + 1], axes[3 * i + 2], angles[i]).toRodrigues();
 
       rod = orientationOps.getMDFFZRod(rod);
       mbin = orientationOps.getMisoBin(rod);
@@ -275,14 +273,13 @@ public:
       }
       // This is used to create a random Homochoric vector
       std::array<double, 3> randx3 = {distribution(generator), distribution(generator), distribution(generator)};
-      OrientationD eu = orientationOps.determineEulerAngles(randx3.data(), choose1);
-      QuatD q1 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
+      EulerDType eu = orientationOps.determineEulerAngles(randx3.data(), choose1);
+      QuatD q1 = eu.toQuat();
 
       randx3 = {distribution(generator), distribution(generator), distribution(generator)};
       eu = orientationOps.determineEulerAngles(randx3.data(), choose2);
-      QuatD q2 = OrientationTransformation::eu2qu<OrientationD, QuatD>(eu);
-      OrientationD ax = orientationOps.calculateMisorientation(q1, q2);
-      OrientationD ro = OrientationTransformation::ax2ro<OrientationD, OrientationD>(ax);
+      QuatD q2 = eu.toQuat();
+      RodriguesDType ro = orientationOps.calculateMisorientation(q1, q2).toRodrigues();
 
       ro = orientationOps.getMDFFZRod(ro); // <==== THIS IS NOT IMPELMENTED FOR ALL LAUE CLASSES
       mbin = orientationOps.getMisoBin(ro);

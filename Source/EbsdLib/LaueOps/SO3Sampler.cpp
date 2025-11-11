@@ -32,29 +32,24 @@
 #include "SO3Sampler.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Math/ArrayHelpers.hpp"
-#include "EbsdLib/Math/EbsdLibMath.h"
-
-using OrientationType = Orientation<double>;
 
 namespace
 {
-const int AnorthicType = 0; // Triclinic
-const int CyclicType = 1;
-const int DihedralType = 2;
-const int TetrahedralType = 3;
-const int OctahedralType = 4;
+constexpr int AnorthicType = 0; // Triclinic
+constexpr int CyclicType = 1;
+constexpr int DihedralType = 2;
+constexpr int TetrahedralType = 3;
+constexpr int OctahedralType = 4;
 } // namespace
 
 namespace
 {
-const int NoAxisOrder = 0;
-const int TwoFoldAxisOrder = 2;
-const int ThreeFoldAxisOrder = 3;
-const int FourFoldAxisOrder = 4;
-const int SixFoldAxisOrder = 6;
+constexpr int NoAxisOrder = 0;
+constexpr int TwoFoldAxisOrder = 2;
+constexpr int ThreeFoldAxisOrder = 3;
+constexpr int FourFoldAxisOrder = 4;
+constexpr int SixFoldAxisOrder = 6;
 } // namespace
 
 // Following numbers are coefficients used to calculate the exponential of a matrix
@@ -177,7 +172,7 @@ SO3Sampler::~SO3Sampler() = default;
 //> @date 01/01/15 MDG 1.0 new routine, needed for dictionary indexing approach
 //> @date 06/04/15 MDG 1.1 corrected infty to inftyd (double precision infinity)
 //--------------------------------------------------------------------------
-bool SO3Sampler::IsinsideFZ(double* rod, int FZtype, int FZorder)
+bool SO3Sampler::IsinsideFZ(const EbsdLib::RodriguesDType& rod, int FZtype, int FZorder)
 {
   bool insideFZ = false;
   // dealing with 180 rotations is needed only for
@@ -230,7 +225,7 @@ bool SO3Sampler::IsinsideFZ(double* rod, int FZtype, int FZorder)
 //> @date 10/02/14 MDG 2.0 rewrite
 //> @date 06/04/15 MDG 2.1 corrected infty to inftyd (double precision infinity)
 //--------------------------------------------------------------------------
-bool SO3Sampler::insideCyclicFZ(double* rod, int order)
+bool SO3Sampler::insideCyclicFZ(const EbsdLib::RodriguesDType& rod, int order)
 {
 
   bool insideFZ = false;
@@ -264,7 +259,7 @@ bool SO3Sampler::insideCyclicFZ(double* rod, int order)
 //> @date 05/12/14  MDG 1.0 original
 //> @date 10/02/14  MDG 2.0 rewrite
 //--------------------------------------------------------------------------
-bool SO3Sampler::insideDihedralFZ(double* rod, int order)
+bool SO3Sampler::insideDihedralFZ(const EbsdLib::RodriguesDType& rod, int order)
 {
 
   bool res = false, c1 = false, c2 = false;
@@ -325,7 +320,7 @@ bool SO3Sampler::insideDihedralFZ(double* rod, int order)
 //> @date 01/03/15 MDG 2.1 correction of boundary error; simplification of octahedral planes
 //> @date 06/04/15 MDG 2.2 simplified handling of components of r
 //--------------------------------------------------------------------------
-bool SO3Sampler::insideCubicFZ(double* rod, int ot)
+bool SO3Sampler::insideCubicFZ(const EbsdLib::RodriguesDType& rod, int ot)
 {
   bool res = false, c1 = false, c2 = false;
   std::vector<double> r(3);
@@ -440,12 +435,11 @@ SO3Sampler::OrientationListArrayType SO3Sampler::SampleRFZ(int nsteps, int pgnum
         z = static_cast<double>(k) * delta;
 
         // convert to Rodrigues representation
-        OrientationType cu(x, y, z);
-        OrientationType rod = OrientationTransformation::cu2ro<OrientationType, OrientationType>(cu);
+        EbsdLib::RodriguesDType rod = EbsdLib::CubochoricDType(x, y, z).toRodrigues();
 
         // If insideFZ=true, then add this point to the linked list FZlist and keep
         // track of how many points there are on this list
-        bool b = IsinsideFZ(rod.data(), FZtype, FZorder);
+        bool b = IsinsideFZ(rod, FZtype, FZorder);
         if(b)
         {
           FZlist.push_back(rod);

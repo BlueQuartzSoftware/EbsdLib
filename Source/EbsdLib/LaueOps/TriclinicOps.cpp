@@ -38,7 +38,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -79,7 +79,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.0, 0.0, 0.0, 1.0),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
 };
 
@@ -186,7 +186,7 @@ bool TriclinicOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool TriclinicOps::isInsideFZ(const OrientationD& rod) const
+bool TriclinicOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
@@ -194,18 +194,9 @@ bool TriclinicOps::isInsideFZ(const OrientationD& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationD TriclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType TriclinicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(Triclinic::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF TriclinicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(Triclinic::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD TriclinicOps::getQuatSymOp(int32_t i) const
@@ -261,7 +252,7 @@ void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType TriclinicOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(Triclinic::RodSym, rod);
 }
@@ -269,16 +260,16 @@ OrientationType TriclinicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TriclinicOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType TriclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   throw EbsdLib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
 
-  OrientationType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, inRod);
+  RodriguesDType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, inRod);
 
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  AxisAngleDType ax = rod.toAxisAngle();
   /// FIXME: Are we missing code for TriclinicOps MDF FZ Rodrigues calculation?
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(ax);
+  return ax.toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -304,13 +295,13 @@ QuatD TriclinicOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getMisoBin(const OrientationType& rod) const
+int TriclinicOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = Triclinic::OdfDimInitValue[0];
   dim[1] = Triclinic::OdfDimInitValue[1];
@@ -328,7 +319,7 @@ int TriclinicOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TriclinicOps::determineEulerAngles(double random[3], int choose) const
+EulerDType TriclinicOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -347,28 +338,27 @@ OrientationType TriclinicOps::determineEulerAngles(double random[3], int choose)
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  EulerDType eu = ro.toEuler();
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TriclinicOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType TriclinicOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(Triclinic::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = Triclinic::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TriclinicOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType TriclinicOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -386,8 +376,7 @@ OrientationType TriclinicOps::determineRodriguesVector(double random[3], int cho
   phi[2] = static_cast<int32_t>(choose / (Triclinic::OdfNumBins[0] * Triclinic::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -395,13 +384,13 @@ OrientationType TriclinicOps::determineRodriguesVector(double random[3], int cho
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TriclinicOps::getOdfBin(const OrientationType& rod) const
+int TriclinicOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = Triclinic::OdfDimInitValue[0];
   dim[1] = Triclinic::OdfDimInitValue[1];
@@ -519,8 +508,7 @@ public:
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

@@ -40,7 +40,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorUtilities.h"
@@ -92,7 +92,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(-sq32, 0.5, 0.0, 0.0),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {0.0, 0.0, 1.0, 0.5773502691896258},
     {0.0, 0.0, 1.0, 1.7320508075688767},
@@ -256,24 +256,15 @@ bool HexagonalOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool HexagonalOps::isInsideFZ(const OrientationD& rod) const
+bool HexagonalOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
 
 // -----------------------------------------------------------------------------
-OrientationD HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF HexagonalOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD HexagonalOps::getQuatSymOp(int32_t i) const
@@ -333,7 +324,7 @@ void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType HexagonalOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(HexagonalHigh::RodSym, rod);
 }
@@ -341,15 +332,15 @@ OrientationType HexagonalOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType HexagonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   double w, n1, n2, n3;
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag;
 
-  OrientationType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, inRod);
 
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  AxisAngleDType ax = rod.toAxisAngle();
 
   n1 = ax[0];
   n2 = ax[1], n3 = ax[2], w = ax[3];
@@ -391,7 +382,7 @@ OrientationType HexagonalOps::getMDFFZRod(const OrientationType& inRod) const
     }
   }
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, w));
+  return AxisAngleDType(FZn1, FZn2, FZn3, w).toRodrigues();
 }
 
 QuatD HexagonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
@@ -417,13 +408,13 @@ QuatD HexagonalOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int HexagonalOps::getMisoBin(const OrientationType& rod) const
+int HexagonalOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = HexagonalHigh::OdfDimInitValue[0];
   dim[1] = HexagonalHigh::OdfDimInitValue[1];
@@ -441,7 +432,7 @@ int HexagonalOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::determineEulerAngles(double random[3], int choose) const
+EulerDType HexagonalOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -460,28 +451,27 @@ OrientationType HexagonalOps::determineEulerAngles(double random[3], int choose)
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  EulerDType eu = ro.toEuler();
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType HexagonalOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = HexagonalHigh::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType HexagonalOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType HexagonalOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -499,8 +489,7 @@ OrientationType HexagonalOps::determineRodriguesVector(double random[3], int cho
   phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::OdfNumBins[0] * HexagonalHigh::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -508,13 +497,13 @@ OrientationType HexagonalOps::determineRodriguesVector(double random[3], int cho
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int HexagonalOps::getOdfBin(const OrientationType& rod) const
+int HexagonalOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = HexagonalHigh::OdfDimInitValue[0];
   dim[1] = HexagonalHigh::OdfDimInitValue[1];
@@ -1172,8 +1161,7 @@ public:
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

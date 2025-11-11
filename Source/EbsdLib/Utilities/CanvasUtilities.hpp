@@ -9,7 +9,7 @@
 namespace EbsdLib
 {
 
-using Point3DType = EbsdLib::Matrix3X1<float>;
+using Point3DType = EbsdLib::Matrix3X1<double>;
 
 /**
  * @brief

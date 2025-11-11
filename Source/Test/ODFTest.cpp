@@ -63,8 +63,6 @@ public:
   ODFTest() = default;
   ~ODFTest() = default;
 
-  EBSD_GET_NAME_OF_CLASS_DECL(ODFTest)
-
   // -----------------------------------------------------------------------------
   template <typename T>
   void Print_Coord(const T* om)
@@ -105,26 +103,30 @@ public:
     float PHI = 180.0f;
     float phi2 = 0.0f;
 
-    float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
+    // float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
 
-    float coordsRotated[3] = {0.0f, 0.0f, 0.0f};
-    float coords[3] = {0.0f, 0.0f, 0.0f};
+    Matrix3X3<float> ga = EulerFType(phi1, PHI, phi2).toOrientationMatrix().toGMatrixObj<>();
+
+    // OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
+
+    Matrix3X1 coordsRotated = {0.0f, 0.0f, 0.0f};
+    Matrix3X1 coords = {0.0f, 0.0f, 0.0f};
     float xc = -0.0;
     float yc = -5.0;
     float zc = 0.0;
     coords[0] = coords[0] - xc;
     coords[1] = coords[1] - yc;
     coords[2] = coords[2] - zc;
-    EbsdMatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
 
-    Print_Coord<float>(coords);
-    Print_Coord<float>(coordsRotated);
+    coordsRotated = ga * coords;
+
+    Print_Coord<float>(coords.data());
+    Print_Coord<float>(coordsRotated.data());
   }
 
   void operator()()
   {
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
+    std::cout << "<===== Start ODF Test" << std::endl;
 
     TestRotation();
     CubicODFTest();

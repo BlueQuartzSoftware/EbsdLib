@@ -31,7 +31,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "EbsdLib/LaueOps/SO3Sampler.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
@@ -42,6 +42,8 @@
 #include "UnitTestSupport.hpp"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
+
+#include <random>
 
 class SO3SamplerTest
 {
@@ -84,15 +86,15 @@ public:
   {
 
     SO3Sampler::Pointer sampler = SO3Sampler::New();
-    OrientationD rod(4);
+    RodriguesDType rod;
 
-    OrientationD cu(-0.3217544095666538, 0.2145029397111025, -0.4290058794222050);
-    rod = OrientationTransformation::cu2ro<OrientationD, OrientationD>(cu);
+    CubochoricDType cu(-0.3217544095666538, 0.2145029397111025, -0.4290058794222050);
+    rod = cu.toRodrigues();
     bool inside = sampler->insideCubicFZ(rod.data(), 4);
     DREAM3D_REQUIRE_EQUAL(inside, false);
 
-    cu = OrientationD(-0.42900587942220514, -0.21450293971110265, 0.42900587942220514);
-    rod = OrientationTransformation::cu2ro<OrientationD, OrientationD>(cu);
+    cu = CubochoricDType(-0.42900587942220514, -0.21450293971110265, 0.42900587942220514);
+    rod = cu.toRodrigues();
     inside = sampler->insideCubicFZ(rod.data(), 4);
     DREAM3D_REQUIRE_EQUAL(inside, true);
   }
@@ -103,29 +105,29 @@ public:
   void TestPyramid()
   {
 
-    OrientationD xyz(0, 0, 1);
+    std::array<double, 3> xyz = {0.0, 0.0, 1.0};
 
-    int pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    int pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 1)
 
-    xyz = OrientationD(0, 0, -1);
-    pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    xyz = {0.0, 0.0, -1.0};
+    pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 2)
 
-    xyz = OrientationD(1, 0, 0);
-    pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    xyz = {1.0, 0.0, 0.0};
+    pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 3)
 
-    xyz = OrientationD(-1, 0, 0);
-    pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    xyz = {-1.0, 0.0, 0.0};
+    pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 4)
 
-    xyz = OrientationD(0, 1, 0);
-    pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    xyz = {0.0, 1.0, 0.0};
+    pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 5)
 
-    xyz = OrientationD(0, -1, 0);
-    pSection = ModifiedLambertProjection3D<OrientationD, double>::GetPyramid(xyz);
+    xyz = {0.0, -1.0, 0.0};
+    pSection = ModifiedLambertProjection3D<std::array<double, 3>, double>::GetPyramid(xyz);
     DREAM3D_REQUIRE_EQUAL(pSection, 6)
   }
 

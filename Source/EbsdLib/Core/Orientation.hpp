@@ -41,6 +41,9 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/Matrix3X3.hpp"
 
+namespace ebsdlib::deprecated
+{
+
 /**
  * @brief The Orientation class encapsulates one of many types of rotation representations
  * Bunge Euler Angles (3x1), Orientation Matrix (3x3), Rodrigues-Frank Vector (1x4),
@@ -800,3 +803,4 @@ private:
 using OrientationType = Orientation<double>;
 using OrientationD = Orientation<double>;
 using OrientationF = Orientation<float>;
+} // namespace ebsdlib::deprecated

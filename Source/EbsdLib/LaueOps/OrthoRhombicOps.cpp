@@ -37,7 +37,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -81,7 +81,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.0, 0.0, 1.0, 0.0),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {1.0, 0.0, 0.0, 10000000000000.0},
     {0.0, 1.0, 0.0, 10000000000000.0},
@@ -201,24 +201,14 @@ bool OrthoRhombicOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool OrthoRhombicOps::isInsideFZ(const OrientationD& rod) const
+bool OrthoRhombicOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
 
-OrientationD OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF OrthoRhombicOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD OrthoRhombicOps::getQuatSymOp(int32_t i) const
@@ -275,7 +265,7 @@ void OrthoRhombicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType OrthoRhombicOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType OrthoRhombicOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(OrthoRhombic::RodSym, rod);
 }
@@ -283,14 +273,14 @@ OrientationType OrthoRhombicOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   throw EbsdLib::method_not_implemented("OrthoRhombicOps::getMDFFZRod not implemented");
 
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
 
-  OrientationType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  RodriguesDType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
+  AxisAngleDType ax = rod.toAxisAngle();
   //  double n1 = ax[0];
   //  double n2 = ax[1];
   //  double n3 = ax[2];
@@ -298,7 +288,7 @@ OrientationType OrthoRhombicOps::getMDFFZRod(const OrientationType& inRod) const
 
   /// FIXME: Are we missing code for OrthoRhombic MDF FZ Rodrigues calculation?
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
+  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -325,12 +315,12 @@ QuatD OrthoRhombicOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int OrthoRhombicOps::getMisoBin(const OrientationType& rod) const
+int OrthoRhombicOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = OrthoRhombic::OdfDimInitValue[0];
   dim[1] = OrthoRhombic::OdfDimInitValue[1];
@@ -348,7 +338,7 @@ int OrthoRhombicOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) const
+EulerDType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -367,28 +357,27 @@ OrientationType OrthoRhombicOps::determineEulerAngles(double random[3], int choo
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  EulerDType eu = ro.toEuler();
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType OrthoRhombicOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType OrthoRhombicOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(OrthoRhombic::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = OrthoRhombic::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType OrthoRhombicOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType OrthoRhombicOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -406,8 +395,7 @@ OrientationType OrthoRhombicOps::determineRodriguesVector(double random[3], int 
   phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::OdfNumBins[0] * OrthoRhombic::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -415,13 +403,13 @@ OrientationType OrthoRhombicOps::determineRodriguesVector(double random[3], int 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int OrthoRhombicOps::getOdfBin(const OrientationType& rod) const
+int OrthoRhombicOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = OrthoRhombic::OdfDimInitValue[0];
   dim[1] = OrthoRhombic::OdfDimInitValue[1];
@@ -538,8 +526,7 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

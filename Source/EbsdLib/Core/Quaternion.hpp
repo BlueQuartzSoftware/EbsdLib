@@ -40,6 +40,8 @@
 #include <cmath>
 #include <stdexcept>
 
+namespace EbsdLib
+{
 template <class T>
 class Quaternion
 {
@@ -594,6 +596,7 @@ private:
   T m_Z = 0.0;
   T m_W = 1.0;
 };
+} // namespace EbsdLib
 
-using QuatD = Quaternion<double>;
-using QuatF = Quaternion<float>;
+using QuatD = EbsdLib::Quaternion<double>;
+using QuatF = EbsdLib::Quaternion<float>;

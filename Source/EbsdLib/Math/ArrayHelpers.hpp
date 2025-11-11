@@ -22,7 +22,7 @@ class ArrayHelpers
 public:
   virtual ~ArrayHelpers() = default;
 
-  static void splat(T& a, const K val)
+  static void splat(T& a, K val)
   {
     size_t size = a.size();
     for(size_t i = 0; i < size; i++)

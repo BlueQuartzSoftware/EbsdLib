@@ -127,6 +127,24 @@ namespace LPs = EbsdLib::LambertParametersType;
 namespace RConst = Rotations::Constants;
 namespace DConst = EbsdLib::Constants;
 
+namespace OrientationRepresentation
+{
+enum class Type : int
+{
+  Euler = 0,
+  OrientationMatrix,
+  Quaternion,
+  AxisAngle,
+  Rodrigues,
+  Homochoric,
+  Cubochoric,
+  Stereographic,
+  Unknown
+};
+}
+
+using namespace EbsdLib;
+
 /**
  * @brief The OrientationTransformation namespace
  * template parameter InputType can be one of std::vector<T>, std::vector<T> or OrientationArray<T>
@@ -151,7 +169,7 @@ struct ResultType
 //  std::cout << func << "::" << msg << std::endl;
 //}
 /* ###################################################################
-Original Fotran codes written by Dr. Marc De Graef.
+Original Fortran codes written by Dr. Marc De Graef.
 
 * MODULE: rotations
 *
@@ -401,13 +419,18 @@ ResultType cu_check(const InputType& cu)
   ValueType maxValue = static_cast<ValueType>(LPs::ap / 2.0);
   bool maxValueHit = false;
 
-  std::for_each(cu.begin(), cu.end(), [&](const ValueType& v) {
-    ValueType value = std::fabs(v);
-    if(value > maxValue)
-    {
-      maxValueHit = true;
-    }
-  });
+  if(std::abs(cu[0]) > maxValue)
+  {
+    maxValueHit = true;
+  }
+  if(std::abs(cu[1]) > maxValue)
+  {
+    maxValueHit = true;
+  }
+  if(std::abs(cu[2]) > maxValue)
+  {
+    maxValueHit = true;
+  }
 
   if(maxValueHit)
   {
@@ -1185,7 +1208,7 @@ OutputType ho2ax(const InputType& h)
     OutputValueType hm = hmag;
     InputType hn = h;
     OutputValueType sqrRtHMag = static_cast<OutputValueType>(1.0 / sqrt(hmag));
-    OMHelperType::scalarMultiply(hn, sqrRtHMag); // In place scalar multiply
+    ArrayHelpers<InputType, typename InputType::value_type>::scalarMultiply(hn, sqrRtHMag); // In place scalar multiply
     OutputValueType s = static_cast<OutputValueType>(LPs::tfit[0] + LPs::tfit[1] * hmag);
     for(int i = 2; i < 16; i++)
     {
@@ -1310,8 +1333,10 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   */
   // om2ax(om, oax);
 
-  InputType eu = om2eu<InputType, InputType>(om);
-  InputType oax = eu2ax<InputType, InputType>(eu);
+  using EulerType = std::vector<double>;
+  using AxisAngleType = std::vector<double>;
+  EulerType eu = om2eu<InputType, EulerType>(om);
+  AxisAngleType oax = eu2ax<EulerType, AxisAngleType>(eu);
 
   if(oax[0] * res[x] < 0.0)
   {
@@ -1586,13 +1611,13 @@ OutputType ro2ho(const InputType& r)
 {
   OutputType res(3);
   using value_type = typename OutputType::value_type;
-  using OMHelperType = ArrayHelpers<OutputType, value_type>;
+  using OMHelperType = ArrayHelpers<InputType, value_type>;
 
   value_type f = 0.0;
   value_type rv = OMHelperType::sumofSquares(r);
   if(rv == 0.0)
   {
-    OMHelperType::splat(res, 0.0);
+    ArrayHelpers<OutputType, value_type>::splat(res, 0.0);
     return res;
   }
   if(r[3] == std::numeric_limits<typename OutputType::value_type>::infinity())
@@ -1788,9 +1813,8 @@ template <typename InputType, typename OutputType>
 OutputType ho2cu(const InputType& q)
 {
   int ierr = -1;
-  OutputType res(3);
-  res = ModifiedLambertProjection3D<InputType, typename InputType::value_type>::LambertBallToCube(q, ierr);
-  return res;
+  InputType res = ModifiedLambertProjection3D<InputType, typename InputType::value_type>::LambertBallToCube(q, ierr);
+  return {res[0], res[1], res[2]};
 }
 
 /**: cu2ho
@@ -1809,9 +1833,8 @@ template <typename InputType, typename OutputType>
 OutputType cu2ho(const InputType& cu)
 {
   int ierr = 0;
-  OutputType res(3);
-  res = ModifiedLambertProjection3D<InputType, typename InputType::value_type>::LambertCubeToBall(cu, ierr);
-  return res;
+  InputType res = ModifiedLambertProjection3D<InputType, typename InputType::value_type>::LambertCubeToBall(cu, ierr);
+  return {res[0], res[1], res[2]};
 }
 
 /**: ro2om
@@ -1883,8 +1906,9 @@ OutputType eu2ho(const InputType& eu)
 template <typename InputType, typename OutputType>
 OutputType om2ro(const InputType& om)
 {
-  OutputType eu = om2eu<InputType, OutputType>(om); // Convert the OM to Euler
-  return eu2ro<OutputType, OutputType>(eu);         // Convert Euler to Rodrigues
+  using EulerType = std::vector<typename OutputType::value_type>;
+  EulerType eu = om2eu<InputType, EulerType>(om); // Convert the OM to Euler
+  return eu2ro<EulerType, OutputType>(eu);        // Convert Euler to Rodrigues
 }
 
 /**: om2ho

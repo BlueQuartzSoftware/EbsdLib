@@ -82,21 +82,26 @@ endif()
 # they will show up in IDEs
 set(TEST_NAMES
     ${TEST_NAMES}
-  OrientationTest
-  OrientationArrayTest
+
   OrientationConverterTest
+
   OrientationTransformsTest
 
   QuaternionTest
 
   AngImportTest
+
   CtfReaderTest
 
   ODFTest
 
   SO3SamplerTest
+
   TextureTest
+
   ConvertToFundamentalZoneTest
+
+  OrientationRepresentationTransformTest
 )
 
 

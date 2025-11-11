@@ -47,6 +47,12 @@ public:
 
   ~Matrix3X1() = default;
 
+  template <typename K>
+  Matrix3X1<K> to() const
+  {
+    return Matrix3X1<K>(m_Data[0], m_Data[1], m_Data[2]);
+  }
+
   /**
    * @brief Returns a reference to the value at index
    * @param index

@@ -37,7 +37,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -79,7 +79,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.0, 0.0, -0.7071067811865476, 0.7071067811865476),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {0.0, 0.0, 1.0, 10000000000000.0},
     {0.0, 0.0, 1.0, 1.0},
@@ -200,23 +200,14 @@ bool TetragonalLowOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool TetragonalLowOps::isInsideFZ(const OrientationD& rod) const
+bool TetragonalLowOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
 
-OrientationD TetragonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType TetragonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TetragonalLow::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF TetragonalLowOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(TetragonalLow::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD TetragonalLowOps::getQuatSymOp(int32_t i) const
@@ -273,26 +264,26 @@ void TetragonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TetragonalLowOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType TetragonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(TetragonalLow::RodSym, rod);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TetragonalLowOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType TetragonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
 
-  OrientationType rod = _calcRodNearestOrigin(TetragonalLow::RodSym, inRod);
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  RodriguesDType rod = _calcRodNearestOrigin(TetragonalLow::RodSym, inRod);
+  AxisAngleDType ax = rod.toAxisAngle();
 
   FZn1 = std::fabs(ax[0]);
   FZn2 = std::fabs(ax[1]);
   FZn3 = std::fabs(ax[2]);
   FZw = ax[3];
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
+  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -318,13 +309,13 @@ QuatD TetragonalLowOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TetragonalLowOps::getMisoBin(const OrientationType& rod) const
+int TetragonalLowOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = TetragonalLow::OdfDimInitValue[0];
   dim[1] = TetragonalLow::OdfDimInitValue[1];
@@ -342,7 +333,7 @@ int TetragonalLowOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TetragonalLowOps::determineEulerAngles(double random[3], int choose) const
+EulerDType TetragonalLowOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -361,28 +352,27 @@ OrientationType TetragonalLowOps::determineEulerAngles(double random[3], int cho
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  EulerDType eu = ro.toEuler();
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TetragonalLowOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType TetragonalLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TetragonalLow::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = TetragonalLow::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TetragonalLowOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType TetragonalLowOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -400,8 +390,7 @@ OrientationType TetragonalLowOps::determineRodriguesVector(double random[3], int
   phi[2] = static_cast<int32_t>(choose / (TetragonalLow::OdfNumBins[0] * TetragonalLow::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -409,13 +398,13 @@ OrientationType TetragonalLowOps::determineRodriguesVector(double random[3], int
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TetragonalLowOps::getOdfBin(const OrientationType& rod) const
+int TetragonalLowOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = TetragonalLow::OdfDimInitValue[0];
   dim[1] = TetragonalLow::OdfDimInitValue[1];
@@ -533,8 +522,7 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

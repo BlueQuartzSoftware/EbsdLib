@@ -41,7 +41,7 @@
 #include <iostream>
 #include <vector>
 
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -170,7 +170,7 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     }
     tokens = EbsdStringUtils::split(buf, (*(getDelimiter().c_str())));
 
-    OrientationF euler(3);
+    EbsdLib::EulerDType euler(3);
     if(m_AngleRepresentation == EulerAngles)
     {
       euler[0] = std::stof(tokens[0]);
@@ -181,24 +181,14 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     }
     else if(m_AngleRepresentation == QuaternionAngles)
     {
-      QuatF quat(4);
-
-      quat.x() = std::stof(tokens[0]);
-      quat.y() = std::stof(tokens[1]);
-      quat.z() = std::stof(tokens[2]);
-      quat.w() = std::stof(tokens[3]);
-
-      euler = OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
+      euler =
+          EbsdLib::QuaternionDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3])).toEuler(); //   OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
       weight = std::stof(tokens[4]);
       sigma = std::stof(tokens[5]);
     }
     else if(m_AngleRepresentation == RodriguezAngles)
     {
-      Orientation<float> rod(4, 0.0);
-      rod[0] = std::stof(tokens[0]);
-      rod[1] = std::stof(tokens[1]);
-      rod[2] = std::stof(tokens[2]);
-      euler = OrientationTransformation::ro2eu<OrientationF, OrientationF>(rod);
+      euler = EbsdLib::RodriguesDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2])).toEuler(); // OrientationTransformation::ro2eu<OrientationF, OrientationF>(rod);
       weight = std::stof(tokens[3]);
       sigma = std::stof(tokens[4]);
     }

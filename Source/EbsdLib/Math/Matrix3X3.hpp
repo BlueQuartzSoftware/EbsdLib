@@ -24,10 +24,10 @@ public:
   Matrix3X3() = default;
 
   /**
-   * @brief Copies the values from the pointer.
+   * @brief Copies the values from the pointer. Assumes row major ordering.
    * @param ptr
    */
-  Matrix3X3(T* ptr)
+  Matrix3X3(const T* ptr)
   : m_Data(std::array<T, 9>{ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8]})
   {
   }

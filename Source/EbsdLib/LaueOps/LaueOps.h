@@ -39,7 +39,7 @@
 #include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
@@ -157,7 +157,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationD calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
+  virtual EbsdLib::AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -165,7 +165,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual OrientationF calculateMisorientation(const QuatF& q1, const QuatF& q2) const = 0;
+  // virtual AxisAngleDType calculateMisorientation(const QuatF& q1, const QuatF& q2) const = 0;
 
   /**
    * @brief getQuatSymOp Returns the symmetry operator at index i
@@ -197,14 +197,14 @@ public:
    * @param rod
    * @return
    */
-  virtual OrientationType getODFFZRod(const OrientationType& rod) const = 0;
+  virtual RodriguesDType getODFFZRod(const RodriguesDType& rod) const = 0;
 
   /**
    * @brief getMDFFZRod
    * @param rod
    * @return
    */
-  virtual OrientationType getMDFFZRod(const OrientationType& rod) const = 0;
+  virtual RodriguesDType getMDFFZRod(const RodriguesDType& rod) const = 0;
 
   virtual QuatD getNearestQuat(const QuatD& q1, const QuatD& q2) const = 0;
   virtual QuatF getNearestQuat(const QuatF& q1f, const QuatF& q2f) const = 0;
@@ -221,19 +221,19 @@ public:
    * @param rod
    * @return
    */
-  virtual int getMisoBin(const OrientationType& rod) const = 0;
+  virtual int getMisoBin(const RodriguesDType& rod) const = 0;
 
   virtual bool inUnitTriangle(double eta, double chi) const = 0;
 
-  virtual OrientationType determineEulerAngles(double random[3], int choose) const = 0;
+  virtual EulerDType determineEulerAngles(double random[3], int choose) const = 0;
 
-  virtual OrientationType randomizeEulerAngles(const OrientationType& euler) const = 0;
+  virtual EulerDType randomizeEulerAngles(const EulerDType& euler) const = 0;
 
   virtual size_t getRandomSymmetryOperatorIndex(int numSymOps) const;
 
-  virtual OrientationType determineRodriguesVector(double random[3], int choose) const = 0;
+  virtual RodriguesDType determineRodriguesVector(double random[3], int choose) const = 0;
 
-  virtual int getOdfBin(const OrientationType& rod) const = 0;
+  virtual int getOdfBin(const RodriguesDType& rod) const = 0;
 
   virtual void getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const = 0;
 
@@ -249,7 +249,7 @@ public:
 
   virtual void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const = 0;
 
-  static void RodriguesComposition(OrientationD sigma, OrientationD& rod);
+  static void RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod);
 
   /**
    * @brief
@@ -375,7 +375,7 @@ public:
    * @param order The Axis Ordering Type
    * @return
    */
-  static bool InsideCyclicFZ(const OrientationD& rod, FZType fzType, AxisOrderingType order);
+  static bool InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingType order);
 
   /**
    * @brief Determines if the given 4 component Rodrigues Vector is inside a dihedral fundamental zone
@@ -383,7 +383,7 @@ public:
    * @param order The Axis Ordering Type
    * @return
    */
-  static bool InsideDihedralFZ(const OrientationD& rod, AxisOrderingType order);
+  static bool InsideDihedralFZ(const RodriguesDType& rod, AxisOrderingType order);
 
   /**
    * @brief Determines if the given 4 component Rodrigues Vector is inside a cubic fundamental zone
@@ -391,7 +391,7 @@ public:
    * @param fzType The Fundamental Zone type
    * @return
    */
-  static bool InsideCubicFZ(const OrientationD& rod, FZType fzType);
+  static bool InsideCubicFZ(const RodriguesDType& rod, FZType fzType);
 
   /**
    * @brief Determines if the given 4 component Rodrigues Vector is inside the fundamental zone
@@ -400,7 +400,7 @@ public:
    * @param order The Axis Ordering Type
    * @return
    */
-  static bool IsInsideFZ(const OrientationD& rod, FZType fzType, AxisOrderingType order);
+  static bool IsInsideFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingType order);
 
   /**
    * @brief Determines if the given Quaternion Vector is inside the fundamental zone.
@@ -426,7 +426,7 @@ public:
    * @param rod Input Rodrigues Vector
    * @return
    */
-  virtual bool isInsideFZ(const OrientationD& rod) const = 0;
+  virtual bool isInsideFZ(const RodriguesDType& rod) const = 0;
 
 protected:
   LaueOps();
@@ -438,7 +438,7 @@ protected:
    * @param q2 Input Quaternion 2
    * @return Returns Axis-Angle <XYZ>W form.
    */
-  virtual OrientationD calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const;
+  virtual AxisAngleDType calculateMisorientationInternal(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const;
 
   /**
    * @brief
@@ -446,7 +446,7 @@ protected:
    * @param rod
    * @return
    */
-  OrientationType _calcRodNearestOrigin(const std::vector<OrientationD>& rodsym, const OrientationType& rod) const;
+  RodriguesDType _calcRodNearestOrigin(const std::vector<RodriguesDType>& rodsym, const RodriguesDType& rod) const;
 
   /**
    * @brief
@@ -465,7 +465,7 @@ protected:
    * @param homochoric
    * @return
    */
-  int _calcMisoBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
+  int _calcMisoBin(double dim[3], double bins[3], double step[3], const HomochoricDType& homochoric) const;
 
   /**
    * @brief
@@ -487,7 +487,7 @@ protected:
    * @param homochoric
    * @return
    */
-  int _calcODFBin(double dim[3], double bins[3], double step[3], const OrientationType& homochoric) const;
+  int _calcODFBin(double dim[3], double bins[3], double step[3], const HomochoricDType& homochoric) const;
 
   /**
    * @brief Generates an IPF Color for a given Euler and Reference Direction. This should be called from the subclass so the

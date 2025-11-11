@@ -38,7 +38,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -83,7 +83,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.0, 0.0, sq32, -0.5),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {0.0, 0.0, 1.0, 1.7320508075688767},
     {0.0, 0.0, sq32, 10000000000000.0},
@@ -198,24 +198,14 @@ bool TrigonalLowOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool TrigonalLowOps::isInsideFZ(const OrientationD& rod) const
+bool TrigonalLowOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
 
-OrientationD TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF TrigonalLowOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD TrigonalLowOps::getQuatSymOp(int32_t i) const
@@ -271,7 +261,7 @@ void TrigonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TrigonalLowOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType TrigonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(TrigonalLow::RodSym, rod);
 }
@@ -279,13 +269,13 @@ OrientationType TrigonalLowOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   float n1n2mag = 0.0f;
 
-  OrientationType rod = _calcRodNearestOrigin(TrigonalLow::RodSym, inRod);
-  OrientationType ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  RodriguesDType rod = _calcRodNearestOrigin(TrigonalLow::RodSym, inRod);
+  AxisAngleDType ax = rod.toAxisAngle();
 
   float denom = static_cast<float>(std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]));
   ax[0] = ax[0] / denom;
@@ -323,7 +313,7 @@ OrientationType TrigonalLowOps::getMDFFZRod(const OrientationType& inRod) const
     }
   }
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
+  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -349,13 +339,13 @@ QuatD TrigonalLowOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TrigonalLowOps::getMisoBin(const OrientationType& rod) const
+int TrigonalLowOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = TrigonalLow::OdfDimInitValue[0];
   dim[1] = TrigonalLow::OdfDimInitValue[1];
@@ -373,7 +363,7 @@ int TrigonalLowOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TrigonalLowOps::determineEulerAngles(double random[3], int choose) const
+EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -392,28 +382,27 @@ OrientationType TrigonalLowOps::determineEulerAngles(double random[3], int choos
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  OrientationType eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
+  EulerDType eu = ro.toEuler();
   return eu;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TrigonalLowOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType TrigonalLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TrigonalLow::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = TrigonalLow::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType TrigonalLowOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType TrigonalLowOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -431,8 +420,7 @@ OrientationType TrigonalLowOps::determineRodriguesVector(double random[3], int c
   phi[2] = static_cast<int32_t>(choose / (TrigonalLow::OdfNumBins[0] * TrigonalLow::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  OrientationType ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -440,13 +428,13 @@ OrientationType TrigonalLowOps::determineRodriguesVector(double random[3], int c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int TrigonalLowOps::getOdfBin(const OrientationType& rod) const
+int TrigonalLowOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  OrientationType ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = TrigonalLow::OdfDimInitValue[0];
   dim[1] = TrigonalLow::OdfDimInitValue[1];
@@ -564,8 +552,7 @@ public:
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 

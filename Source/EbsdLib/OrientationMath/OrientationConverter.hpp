@@ -42,8 +42,7 @@
 #include <string>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
-#include "EbsdLib/Core/OrientationRepresentation.h"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -306,137 +305,6 @@ private:
 };
 
 /**
- * @brief This macro is used to create a functor that wraps a paricular conversion
- * method with a functor class so it can be passed to the parallel algorithms
- */
-
-#define OC_CONVERTOR_FUNCTOR(CLASSNAME, INSTRIDE, OUTSTRIDE, CONVERSION_METHOD)                                                                                                                        \
-  template <typename InputType>                                                                                                                                                                        \
-  class CLASSNAME                                                                                                                                                                                      \
-  {                                                                                                                                                                                                    \
-  public:                                                                                                                                                                                              \
-    CLASSNAME() = default;                                                                                                                                                                             \
-    void operator()(InputType* input, InputType* output)                                                                                                                                               \
-    {                                                                                                                                                                                                  \
-      using OrientationInputType = Orientation<InputType>;                                                                                                                                             \
-      OrientationInputType inputOrientation(input, INSTRIDE);                                                                                                                                          \
-      OrientationInputType outputOrientation(output, OUTSTRIDE);                                                                                                                                       \
-      outputOrientation = OrientationTransformation::CONVERSION_METHOD<OrientationInputType, OrientationInputType>(inputOrientation);                                                                  \
-    }                                                                                                                                                                                                  \
-  };
-
-#define OC_CONVERTOR_FUNCTOR_2QU(CLASSNAME, INSTRIDE, OUTSTRIDE, CONVERSION_METHOD)                                                                                                                    \
-  template <typename NumericType>                                                                                                                                                                      \
-  class CLASSNAME                                                                                                                                                                                      \
-  {                                                                                                                                                                                                    \
-  public:                                                                                                                                                                                              \
-    CLASSNAME() = default;                                                                                                                                                                             \
-    void operator()(NumericType* input, NumericType* output)                                                                                                                                           \
-    {                                                                                                                                                                                                  \
-      using InputType = Orientation<NumericType>;                                                                                                                                                      \
-      using OutputType = Quaternion<NumericType>;                                                                                                                                                      \
-      InputType inputOrientation(input, INSTRIDE);                                                                                                                                                     \
-      OrientationTransformation::CONVERSION_METHOD<InputType, OutputType>(inputOrientation).copyInto(output, Quaternion<NumericType>::Order::VectorScalar);                                            \
-    }                                                                                                                                                                                                  \
-  };
-
-#define OC_QU2_CONVERTOR_FUNCTOR(CLASSNAME, INSTRIDE, OUTSTRIDE, CONVERSION_METHOD)                                                                                                                    \
-  template <typename NumericType>                                                                                                                                                                      \
-  class CLASSNAME                                                                                                                                                                                      \
-  {                                                                                                                                                                                                    \
-  public:                                                                                                                                                                                              \
-    CLASSNAME() = default;                                                                                                                                                                             \
-    void operator()(NumericType* input, NumericType* output)                                                                                                                                           \
-    {                                                                                                                                                                                                  \
-      using QuaternionType = Quaternion<NumericType>;                                                                                                                                                  \
-      using OutputType = Orientation<NumericType>;                                                                                                                                                     \
-      QuaternionType inputQuat(input[0], input[1], input[2], input[3]);                                                                                                                                \
-      OutputType outputOrientation = OrientationTransformation::CONVERSION_METHOD<QuaternionType, OutputType>(inputQuat);                                                                              \
-      outputOrientation.copyInto(output, OUTSTRIDE);                                                                                                                                                   \
-    }                                                                                                                                                                                                  \
-  };
-
-/**
- * @brief This contains all the functors that represent all possible conversion routines
- * between orientation representations
- */
-namespace Convertors
-{
-/* Euler Functors  */
-OC_CONVERTOR_FUNCTOR(Eu2Om, 3, 9, eu2om)
-OC_CONVERTOR_FUNCTOR_2QU(Eu2Qu, 3, 4, eu2qu)
-OC_CONVERTOR_FUNCTOR(Eu2Ax, 3, 4, eu2ax)
-OC_CONVERTOR_FUNCTOR(Eu2Ro, 3, 4, eu2ro)
-OC_CONVERTOR_FUNCTOR(Eu2Ho, 3, 3, eu2ho)
-OC_CONVERTOR_FUNCTOR(Eu2Cu, 3, 3, eu2cu)
-OC_CONVERTOR_FUNCTOR(Eu2St, 3, 3, eu2st)
-
-/* OrientationMatrix Functors */
-OC_CONVERTOR_FUNCTOR(Om2Eu, 9, 3, om2eu)
-OC_CONVERTOR_FUNCTOR_2QU(Om2Qu, 9, 4, om2qu)
-OC_CONVERTOR_FUNCTOR(Om2Ax, 9, 4, om2ax)
-OC_CONVERTOR_FUNCTOR(Om2Ro, 9, 4, om2ro)
-OC_CONVERTOR_FUNCTOR(Om2Ho, 9, 3, om2ho)
-OC_CONVERTOR_FUNCTOR(Om2Cu, 9, 3, om2cu)
-OC_CONVERTOR_FUNCTOR(Om2St, 9, 3, om2st)
-
-/* Quaterion Functors */
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Eu, 4, 3, qu2eu)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Om, 4, 9, qu2om)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Ax, 4, 4, qu2ax)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Ro, 4, 4, qu2ro)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Ho, 4, 3, qu2ho)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2Cu, 4, 3, qu2cu)
-OC_QU2_CONVERTOR_FUNCTOR(Qu2St, 4, 3, qu2st)
-
-/* AxisAngles Functors */
-OC_CONVERTOR_FUNCTOR(Ax2Eu, 4, 3, ax2eu)
-OC_CONVERTOR_FUNCTOR(Ax2Om, 4, 9, ax2om)
-OC_CONVERTOR_FUNCTOR_2QU(Ax2Qu, 4, 4, ax2qu)
-OC_CONVERTOR_FUNCTOR(Ax2Ro, 4, 4, ax2ro)
-OC_CONVERTOR_FUNCTOR(Ax2Ho, 4, 3, ax2ho)
-OC_CONVERTOR_FUNCTOR(Ax2Cu, 4, 3, ax2cu)
-OC_CONVERTOR_FUNCTOR(Ax2St, 4, 3, ax2st)
-
-/* Rodrigues Functors */
-OC_CONVERTOR_FUNCTOR(Ro2Eu, 4, 3, ro2eu)
-OC_CONVERTOR_FUNCTOR(Ro2Om, 4, 9, ro2om)
-OC_CONVERTOR_FUNCTOR_2QU(Ro2Qu, 4, 4, ro2qu)
-OC_CONVERTOR_FUNCTOR(Ro2Ax, 4, 4, ro2ax)
-OC_CONVERTOR_FUNCTOR(Ro2Ho, 4, 3, ro2ho)
-OC_CONVERTOR_FUNCTOR(Ro2Cu, 4, 3, ro2cu)
-OC_CONVERTOR_FUNCTOR(Ro2St, 4, 3, ro2st)
-
-/* Homochoric Functors */
-OC_CONVERTOR_FUNCTOR(Ho2Eu, 3, 3, ho2eu)
-OC_CONVERTOR_FUNCTOR(Ho2Om, 3, 9, ho2om)
-OC_CONVERTOR_FUNCTOR_2QU(Ho2Qu, 3, 4, ho2qu)
-OC_CONVERTOR_FUNCTOR(Ho2Ax, 3, 4, ho2ax)
-OC_CONVERTOR_FUNCTOR(Ho2Ro, 3, 4, ho2ro)
-OC_CONVERTOR_FUNCTOR(Ho2Cu, 3, 3, ho2cu)
-OC_CONVERTOR_FUNCTOR(Ho2St, 3, 3, ho2st)
-
-/* Cubochoric Functors */
-OC_CONVERTOR_FUNCTOR(Cu2Eu, 3, 3, cu2eu)
-OC_CONVERTOR_FUNCTOR(Cu2Om, 3, 9, cu2om)
-OC_CONVERTOR_FUNCTOR_2QU(Cu2Qu, 3, 4, cu2qu)
-OC_CONVERTOR_FUNCTOR(Cu2Ax, 3, 4, cu2ax)
-OC_CONVERTOR_FUNCTOR(Cu2Ro, 3, 4, cu2ro)
-OC_CONVERTOR_FUNCTOR(Cu2Ho, 3, 3, cu2ho)
-OC_CONVERTOR_FUNCTOR(Cu2St, 3, 3, cu2st)
-
-/* Stereographic Functors */
-OC_CONVERTOR_FUNCTOR(St2Eu, 3, 3, st2eu)
-OC_CONVERTOR_FUNCTOR(St2Om, 3, 9, st2om)
-OC_CONVERTOR_FUNCTOR_2QU(St2Qu, 3, 4, st2qu)
-OC_CONVERTOR_FUNCTOR(St2Ax, 3, 4, st2ax)
-OC_CONVERTOR_FUNCTOR(St2Ro, 3, 4, st2ro)
-OC_CONVERTOR_FUNCTOR(St2Ho, 3, 3, st2ho)
-OC_CONVERTOR_FUNCTOR(St2Cu, 3, 3, st2cu)
-
-} // namespace Convertors
-
-/**
  * @brief This templated class is a functor class that is used for
  * the TBB classes to use to parallelize the conversion of orientation
  * representations
@@ -486,43 +354,61 @@ private:
   size_t m_OutStride = 0;
 };
 
-/**
- * @brief OC_CONVERT_BODY Generates the body of method that will perform the conversion
- */
-#ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
+#define OC_TBB_IMPL(TO_REP)                                                                                                                                                                            \
+  template <typename T, class InputType, class OutputType>                                                                                                                                             \
+  class to##TO_REP##Convertor                                                                                                                                                                          \
+  {                                                                                                                                                                                                    \
+  public:                                                                                                                                                                                              \
+    to##TO_REP##Convertor(T* inputPtr, T* outputPtr)                                                                                                                                                   \
+    : m_Input(inputPtr)                                                                                                                                                                                \
+    , m_Output(outputPtr)                                                                                                                                                                              \
+    {                                                                                                                                                                                                  \
+    }                                                                                                                                                                                                  \
+    void operator()(const tbb::blocked_range<size_t>& r) const                                                                                                                                         \
+    {                                                                                                                                                                                                  \
+      InputType inputInstance;                                                                                                                                                                         \
+      OutputType outputInstance;                                                                                                                                                                       \
+      size_t inStride = inputInstance.size();                                                                                                                                                          \
+      size_t outStride = outputInstance.size();                                                                                                                                                        \
+      for(size_t i = r.begin(); i < r.end(); ++i)                                                                                                                                                      \
+      {                                                                                                                                                                                                \
+        size_t inOffset = i * inStride;                                                                                                                                                                \
+        size_t outOffset = i * outStride;                                                                                                                                                              \
+        inputInstance = InputType(m_Input + inOffset);                                                                                                                                                 \
+        outputInstance = inputInstance.to##TO_REP();                                                                                                                                                   \
+        outputInstance.copyTo(m_Output + outOffset);                                                                                                                                                   \
+      }                                                                                                                                                                                                \
+    }                                                                                                                                                                                                  \
+                                                                                                                                                                                                       \
+  private:                                                                                                                                                                                             \
+    T* m_Input = nullptr;                                                                                                                                                                              \
+    T* m_Output = nullptr;                                                                                                                                                                             \
+  };
 
-#define OC_CONVERT_BODY(OUTSTRIDE, OUT_ARRAY_NAME, CONVERSION_METHOD, FUNCTOR)                                                                                                                         \
+OC_TBB_IMPL(Euler)
+OC_TBB_IMPL(OrientationMatrix)
+OC_TBB_IMPL(Quaternion)
+OC_TBB_IMPL(AxisAngle)
+OC_TBB_IMPL(Rodrigues)
+OC_TBB_IMPL(Homochoric)
+OC_TBB_IMPL(Cubochoric)
+OC_TBB_IMPL(Stereographic)
+
+#define OC_CONVERT_BODY_PREAMBLE(FROM_REP, TO_REP)                                                                                                                                                     \
   sanityCheckInputData();                                                                                                                                                                              \
   DataArrayPointerType input = this->getInputData();                                                                                                                                                   \
   T* inPtr = input->getPointer(0);                                                                                                                                                                     \
   size_t nTuples = this->getInputData()->getNumberOfTuples();                                                                                                                                          \
-  int inStride = input->getNumberOfComponents();                                                                                                                                                       \
-  size_t outStride = OUTSTRIDE;                                                                                                                                                                        \
+  Orientation<T, TO_REP##Rep> outputInstance;                                                                                                                                                          \
+  size_t outStride = outputInstance.size();                                                                                                                                                            \
   std::vector<size_t> cDims = {outStride};                                                                                                                                                             \
-  DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #OUT_ARRAY_NAME, true);                                                                                                     \
+  DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #TO_REP, true);                                                                                                             \
   output->initializeWithZeros(); /* Initialize the array with Zeros */                                                                                                                                 \
   T* outPtr = output->getPointer(0);                                                                                                                                                                   \
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), ConvertRepresentation<T, Convertors::FUNCTOR<T>>(inPtr, outPtr, inStride, outStride), tbb::auto_partitioner());                            \
+  using FROM_REP##Type = Orientation<T, FROM_REP##Rep>;                                                                                                                                                \
+  using TO_REP##Type = Orientation<T, TO_REP##Rep>;                                                                                                                                                    \
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), to##TO_REP##Convertor<T, FROM_REP##Type, TO_REP##Type>(inPtr, outPtr), tbb::auto_partitioner());                                           \
   this->setOutputData(output);
-
-#else
-
-#define OC_CONVERT_BODY(OUTSTRIDE, OUT_ARRAY_NAME, CONVERSION_METHOD, FUNCTOR)                                                                                                                         \
-  sanityCheckInputData();                                                                                                                                                                              \
-  DataArrayPointerType input = this->getInputData();                                                                                                                                                   \
-  T* inPtr = input->getPointer(0);                                                                                                                                                                     \
-  size_t nTuples = this->getInputData()->getNumberOfTuples();                                                                                                                                          \
-  int inStride = input->getNumberOfComponents();                                                                                                                                                       \
-  size_t outStride = OUTSTRIDE;                                                                                                                                                                        \
-  std::vector<size_t> cDims = {outStride}; /* Create the n component (nx1) based array.*/                                                                                                              \
-  DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #OUT_ARRAY_NAME, true);                                                                                                     \
-  output->initializeWithZeros(); /* Intialize the array with Zeros */                                                                                                                                  \
-  T* outPtr = output->getPointer(0);                                                                                                                                                                   \
-  ConvertRepresentation<T, Convertors::FUNCTOR<T>> serial(inPtr, outPtr, inStride, outStride);                                                                                                         \
-  serial.convert(0, nTuples);                                                                                                                                                                          \
-  this->setOutputData(output);
-
-#endif
 
 /* =============================================================================
  *
@@ -579,8 +465,6 @@ private:
 };
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 template <class DataArrayType, typename T>
 class EulerConverter : public OrientationConverter<DataArrayType, T>
 {
@@ -603,37 +487,37 @@ public:
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, eu2om, Eu2Om)
+    OC_CONVERT_BODY_PREAMBLE(Euler, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternion, eu2qu, Eu2Qu)
+    OC_CONVERT_BODY_PREAMBLE(Euler, Quaternion);
   }
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, eu2ax, Eu2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Euler, AxisAngle);
   }
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, eu2ro, Eu2Ro)
+    OC_CONVERT_BODY_PREAMBLE(Euler, Rodrigues);
   }
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, eu2ho, Eu2Ho)
+    OC_CONVERT_BODY_PREAMBLE(Euler, Homochoric)
   }
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, eu2cu, Eu2Cu)
+    OC_CONVERT_BODY_PREAMBLE(Euler, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, eu2st, Eu2St)
+    OC_CONVERT_BODY_PREAMBLE(Euler, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -729,10 +613,10 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      using Orientation_Type = Orientation<T>;
+      using Orientation_Type = Orientation<T, OrientationMatrixRep>;
       using ResultType = OrientationTransformation::ResultType;
 
-      Orientation_Type oaType(inPtr, 9);
+      Orientation_Type oaType(inPtr);
 
       ResultType res = OrientationTransformation::om_check(oaType);
       if(res.result <= 0)
@@ -786,8 +670,7 @@ public:
 
   void toEulers() override
   {
-    sanityCheckInputData();
-    OC_CONVERT_BODY(3, Eulers, om2eu, Om2Eu)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Euler);
   }
 
   void toOrientationMatrix() override
@@ -800,36 +683,36 @@ public:
   void toQuaternion() override
   {
     sanityCheckInputData();
-    OC_CONVERT_BODY(4, Quaternion, om2qu, Om2Qu)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Quaternion);
   }
 
   void toAxisAngle() override
   {
     sanityCheckInputData();
-    OC_CONVERT_BODY(4, AxisAngle, om2ax, Om2Ax)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, AxisAngle);
   }
 
   void toRodrigues() override
   {
     sanityCheckInputData();
-    OC_CONVERT_BODY(4, Rodrigues, om2ro, Om2Ro)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Rodrigues);
   }
 
   void toHomochoric() override
   {
     sanityCheckInputData();
-    OC_CONVERT_BODY(3, Homochoric, om2ho, Om2Ho)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Homochoric)
   }
 
   void toCubochoric() override
   {
     sanityCheckInputData();
-    OC_CONVERT_BODY(3, Cubochoric, om2cu, Om2Cu)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, om2st, Om2St)
+    OC_CONVERT_BODY_PREAMBLE(OrientationMatrix, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -957,12 +840,12 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, qu2eu, Qu2Eu)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, qu2om, Qu2Om)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, OrientationMatrix);
   }
 
   void toQuaternion() override
@@ -975,27 +858,27 @@ public:
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, qu2ax, Qu2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, AxisAngle);
   }
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, qu2ro, Qu2Ro)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, Rodrigues);
   }
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, qu2ho, Qu2Ho)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, Homochoric)
   }
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, qu2cu, Qu2Cu)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, qu2st, Qu2St)
+    OC_CONVERT_BODY_PREAMBLE(Quaternion, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -1120,17 +1003,17 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, ax2eu, Ax2Eu)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, ax2om, Ax2Om)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternions, ax2qu, Ax2Qu)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Quaternion);
   }
 
   void toAxisAngle() override
@@ -1143,22 +1026,22 @@ public:
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, ax2ro, Ax2Ro)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Rodrigues);
   }
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, ax2ho, Ax2Ho)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Homochoric)
   }
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, ax2cu, Ax2Cu)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, ax2st, Ax2St)
+    OC_CONVERT_BODY_PREAMBLE(AxisAngle, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -1284,22 +1167,22 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, ro2eu, Ro2Eu)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, ro2om, Ro2Om)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternions, ro2qu, Ro2Qu)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, Quaternion);
   }
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, ro2ax, Ro2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, AxisAngle);
   }
 
   void toRodrigues() override
@@ -1312,17 +1195,17 @@ public:
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, ro2ho, Ro2Ho)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, Homochoric)
   }
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, ro2cu, Ro2Cu)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, ro2st, Ro2St)
+    OC_CONVERT_BODY_PREAMBLE(Rodrigues, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -1448,27 +1331,27 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, ho2eu, Ho2Eu)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, ho2om, Ho2Om)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternions, ho2qu, Ho2Qu)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, Quaternion);
   }
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, ho2ax, Ho2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, AxisAngle);
   }
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, ho2ro, Ho2Ro)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, Rodrigues);
   }
 
   void toHomochoric() override
@@ -1481,12 +1364,12 @@ public:
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, ho2cu, Ho2Cu)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, Cubochoric)
   }
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, ho2st, Ho2St)
+    OC_CONVERT_BODY_PREAMBLE(Homochoric, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -1613,32 +1496,32 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, cu2eu, Cu2Eu)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, cu2om, Cu2Om)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternions, cu2qu, Cu2Qu)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, Quaternion);
   }
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, cu2ax, Cu2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, AxisAngle);
   }
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, cu2ro, Cu2Ro)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, Rodrigues);
   }
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, cu2ho, Cu2Ho)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, Homochoric)
   }
 
   void toCubochoric() override
@@ -1651,7 +1534,7 @@ public:
 
   void toStereographic() override
   {
-    OC_CONVERT_BODY(3, Stereographic, cu2st, Cu2St)
+    OC_CONVERT_BODY_PREAMBLE(Cubochoric, Stereographic)
   }
 
   void sanityCheckInputData() override
@@ -1777,37 +1660,37 @@ public:
 
   void toEulers() override
   {
-    OC_CONVERT_BODY(3, Eulers, st2eu, St2Eu)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, Euler);
   }
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY(9, OrientationMatrix, st2om, St2Om)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, OrientationMatrix);
   }
 
   void toQuaternion() override
   {
-    OC_CONVERT_BODY(4, Quaternions, st2qu, St2Qu)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, Quaternion);
   }
 
   void toAxisAngle() override
   {
-    OC_CONVERT_BODY(4, AxisAngle, st2ax, St2Ax)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, AxisAngle);
   }
 
   void toRodrigues() override
   {
-    OC_CONVERT_BODY(4, Rodrigues, st2ro, St2Ro)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, Rodrigues);
   }
 
   void toHomochoric() override
   {
-    OC_CONVERT_BODY(3, Homochoric, st2ho, St2Ho)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, Homochoric)
   }
 
   void toCubochoric() override
   {
-    OC_CONVERT_BODY(3, Cubochoric, st2cu, St2Cu)
+    OC_CONVERT_BODY_PREAMBLE(Stereographic, Cubochoric)
   }
 
   void toStereographic() override

@@ -38,7 +38,7 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/Orientation.hpp"
+#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
@@ -89,7 +89,7 @@ static const std::vector<QuatD> QuatSym ={
     QuatD(0.5, 0.5, -0.5, 0.5),
 };
 
-static const std::vector<OrientationD> RodSym = {
+static const std::vector<RodriguesDType> RodSym = {
     {0.0, 0.0, 1.0, 0.0},
     {1.0, 0.0, 0.0, 10000000000000.0},
     {0.0, 1.0, 0.0, 10000000000000.0},
@@ -248,25 +248,15 @@ bool CubicLowOps::isInsideFZ(const QuatD& quat) const
 }
 
 // -----------------------------------------------------------------------------
-bool CubicLowOps::isInsideFZ(const OrientationD& rod) const
+bool CubicLowOps::isInsideFZ(const RodriguesDType& rod) const
 {
   return IsInsideFZ(rod, getFZType(), getAxisOrderingType());
 }
 
 // -----------------------------------------------------------------------------
-OrientationD CubicLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
+AxisAngleDType CubicLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
   return calculateMisorientationInternal(CubicLow::QuatSym, q1, q2);
-}
-
-// -----------------------------------------------------------------------------
-OrientationF CubicLowOps::calculateMisorientation(const QuatF& q1f, const QuatF& q2f) const
-
-{
-  QuatD q1 = q1f.to<double>();
-  QuatD q2 = q2f.to<double>();
-  OrientationD axisAngle = calculateMisorientationInternal(CubicLow::QuatSym, q1, q2);
-  return axisAngle;
 }
 
 QuatD CubicLowOps::getQuatSymOp(int32_t i) const
@@ -323,7 +313,7 @@ void CubicLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType CubicLowOps::getODFFZRod(const OrientationType& rod) const
+RodriguesDType CubicLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(CubicLow::RodSym, rod);
 }
@@ -331,10 +321,10 @@ OrientationType CubicLowOps::getODFFZRod(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
+RodriguesDType CubicLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  OrientationType rod = _calcRodNearestOrigin(CubicLow::RodSym, inRod);
-  auto ax = OrientationTransformation::ro2ax<OrientationType, OrientationType>(rod);
+  RodriguesDType rod = _calcRodNearestOrigin(CubicLow::RodSym, inRod);
+  auto ax = rod.toAxisAngle();
 
   double n1 = ax[0];
   double n2 = ax[1], n3 = ax[2], w = ax[3];
@@ -383,7 +373,7 @@ OrientationType CubicLowOps::getMDFFZRod(const OrientationType& inRod) const
     }
   }
 
-  return OrientationTransformation::ax2ro<OrientationType, OrientationType>(OrientationType(FZn1, FZn2, FZn3, FZw));
+  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
 
 QuatD CubicLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
@@ -406,13 +396,13 @@ QuatD CubicLowOps::getFZQuat(const QuatD& qr) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CubicLowOps::getMisoBin(const OrientationType& rod) const
+int CubicLowOps::getMisoBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = CubicLow::OdfDimInitValue[0];
   dim[1] = CubicLow::OdfDimInitValue[1];
@@ -430,7 +420,7 @@ int CubicLowOps::getMisoBin(const OrientationType& rod) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType CubicLowOps::determineEulerAngles(double random[3], int choose) const
+EulerDType CubicLowOps::determineEulerAngles(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -449,28 +439,26 @@ OrientationType CubicLowOps::determineEulerAngles(double random[3], int choose) 
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
-  OrientationType ho(h1, h2, h3);
-  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
-  auto eu = OrientationTransformation::ro2eu<OrientationType, OrientationType>(ro);
-  return eu;
+  return ro.toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType CubicLowOps::randomizeEulerAngles(const OrientationType& synea) const
+EulerDType CubicLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(CubicLow::k_SymOpsCount);
-  QuatD quat = OrientationTransformation::eu2qu<OrientationType, QuatD>(synea);
+  QuatD quat = synea.toQuat();
   QuatD qc = CubicLow::QuatSym[symOp] * quat;
-  return OrientationTransformation::qu2eu<QuatD, OrientationType>(qc);
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-OrientationType CubicLowOps::determineRodriguesVector(double random[3], int choose) const
+RodriguesDType CubicLowOps::determineRodriguesVector(double random[3], int choose) const
 {
   double init[3];
   double step[3];
@@ -488,8 +476,7 @@ OrientationType CubicLowOps::determineRodriguesVector(double random[3], int choo
   phi[2] = static_cast<int32_t>(choose / (CubicLow::OdfNumBins[0] * CubicLow::OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
-  OrientationType ho(h1, h2, h3);
-  auto ro = OrientationTransformation::ho2ro<OrientationType, OrientationType>(ho);
+  RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getMDFFZRod(ro);
   return ro;
 }
@@ -497,13 +484,13 @@ OrientationType CubicLowOps::determineRodriguesVector(double random[3], int choo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int CubicLowOps::getOdfBin(const OrientationType& rod) const
+int CubicLowOps::getOdfBin(const RodriguesDType& rod) const
 {
   double dim[3];
   double bins[3];
   double step[3];
 
-  auto ho = OrientationTransformation::ro2ho<OrientationType, OrientationType>(rod);
+  HomochoricDType ho = rod.toHomochoric();
 
   dim[0] = CubicLow::OdfDimInitValue[0];
   dim[1] = CubicLow::OdfDimInitValue[1];
@@ -622,8 +609,7 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      OrientationType eu(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
-      EbsdLib::Matrix3X3D g(OrientationTransformation::eu2om<OrientationType, OrientationType>(eu).data());
+      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 
