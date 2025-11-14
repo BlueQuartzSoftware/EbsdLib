@@ -35,7 +35,8 @@
 #include <string>
 
 #include "EbsdLib/EbsdLib.h"
-
+namespace ebsdlib
+{
 class EbsdLib_EXPORT LambertUtilities
 {
 public:
@@ -89,3 +90,4 @@ public:
 
 private:
 };
+} // namespace ebsdlib

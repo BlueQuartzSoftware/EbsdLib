@@ -35,10 +35,12 @@
 #include <memory>
 #include <string>
 
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
-
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
+namespace ebsdlib
+{
 /**
  * @brief The SO3Sampler class
  */
@@ -69,7 +71,7 @@ public:
   /**
    * @brief OrientationListArrayType
    */
-  using OrientationListArrayType = std::list<EbsdLib::RodriguesDType>;
+  using OrientationListArrayType = std::list<ebsdlib::RodriguesDType>;
 
   // sampler routine
   OrientationListArrayType SampleRFZ(int nsteps, int pgnum);
@@ -81,7 +83,7 @@ public:
    * @param FZorder
    * @return
    */
-  bool IsinsideFZ(const EbsdLib::RodriguesDType& rod, int FZtype, int FZorder);
+  bool IsinsideFZ(const ebsdlib::RodriguesDType& rod, int FZtype, int FZorder);
 
   /**
    * @brief insideCubicFZ
@@ -89,7 +91,7 @@ public:
    * @param symType
    * @return
    */
-  bool insideCubicFZ(const EbsdLib::RodriguesDType& rod, int symType);
+  bool insideCubicFZ(const ebsdlib::RodriguesDType& rod, int symType);
 
   /**
    * @brief insideCyclicFZ
@@ -97,7 +99,7 @@ public:
    * @param order
    * @return
    */
-  bool insideCyclicFZ(const EbsdLib::RodriguesDType& rod, int order);
+  bool insideCyclicFZ(const ebsdlib::RodriguesDType& rod, int order);
 
   /**
    * @brief insideDihedralFZ
@@ -105,7 +107,7 @@ public:
    * @param order
    * @return
    */
-  bool insideDihedralFZ(const EbsdLib::RodriguesDType& rod, int order);
+  bool insideDihedralFZ(const ebsdlib::RodriguesDType& rod, int order);
 
 protected:
   SO3Sampler();
@@ -116,3 +118,4 @@ public:
   SO3Sampler& operator=(const SO3Sampler&) = delete; // Copy Assignment Not Implemented
   SO3Sampler& operator=(SO3Sampler&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

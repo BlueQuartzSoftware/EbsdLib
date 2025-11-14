@@ -70,6 +70,8 @@ public:                                                                         
     return m_##name.data();                                                                                                                                                                            \
   }
 
+namespace ebsdlib
+{
 class EbsdLib_EXPORT H5OINAReader : public EbsdReader
 {
 
@@ -136,7 +138,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Returns the name of the class for H5OINAReader
@@ -252,3 +254,4 @@ private:
   std::set<std::string> m_ArrayNames;
   bool m_ReadAllArrays = true;
 };
+} // namespace ebsdlib

@@ -50,6 +50,8 @@
 using namespace H5Support;
 #endif
 
+namespace ebsdlib
+{
 /**
  * @class AngHeaderEntry AngHeaderEntry.h EbsdLib/IO/TSL/AngHeaderEntry.h
  * @brief Header entry that holds an integer or decimal type value
@@ -200,3 +202,4 @@ public:
   AngStringHeaderEntry& operator=(const AngStringHeaderEntry&) = delete; // Copy Assignment Not Implemented
   AngStringHeaderEntry& operator=(AngStringHeaderEntry&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

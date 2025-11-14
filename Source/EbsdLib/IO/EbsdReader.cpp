@@ -35,12 +35,14 @@
 
 #include "EbsdReader.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 EbsdReader::EbsdReader()
 : m_ErrorCode(0)
-, m_UserZDir(EbsdLib::RefFrameZDir::LowtoHigh)
+, m_UserZDir(ebsdlib::RefFrameZDir::LowtoHigh)
 , m_SampleTransformationAngle(0.0f)
 , m_EulerTransformationAngle(0.0f)
 , m_NumFeatures(0)

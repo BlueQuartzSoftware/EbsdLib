@@ -56,6 +56,8 @@
     return static_cast<type*>(getPointerByName(#var));                                                                                                                                                 \
   }
 
+namespace ebsdlib
+{
 /**
  * @class CtfReader CtfReader.h EbsdLib/IO/HKL/CtfReader.h
  * @brief This class is a self contained HKL .ctf file reader and will read a
@@ -81,27 +83,27 @@ public:
   static std::string ClassName();
   using CtfIntHeaderType = CtfHeaderEntry<int, Int32HeaderParser>;
   using CtfFloatHeaderType = CtfHeaderEntry<float, FloatHeaderParser>;
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Channel, EbsdLib::Ctf::ChannelTextFile)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Prj, EbsdLib::Ctf::Prj)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Author, EbsdLib::Ctf::Author)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, JobMode, EbsdLib::Ctf::JobMode)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, XCells, EbsdLib::Ctf::XCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, YCells, EbsdLib::Ctf::YCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, ZCells, EbsdLib::Ctf::ZCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, XStep, EbsdLib::Ctf::XStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, YStep, EbsdLib::Ctf::YStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, ZStep, EbsdLib::Ctf::ZStep)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE1, EbsdLib::Ctf::AcqE1)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE2, EbsdLib::Ctf::AcqE2)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE3, EbsdLib::Ctf::AcqE3)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Euler, EbsdLib::Ctf::Euler)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Mag, EbsdLib::Ctf::Mag)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Coverage, EbsdLib::Ctf::Coverage)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Device, EbsdLib::Ctf::Device)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, KV, EbsdLib::Ctf::KV)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, NumPhases, EbsdLib::Ctf::NumPhases)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Channel, ebsdlib::Ctf::ChannelTextFile)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Prj, ebsdlib::Ctf::Prj)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Author, ebsdlib::Ctf::Author)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, JobMode, ebsdlib::Ctf::JobMode)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, XCells, ebsdlib::Ctf::XCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, YCells, ebsdlib::Ctf::YCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, ZCells, ebsdlib::Ctf::ZCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, XStep, ebsdlib::Ctf::XStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, YStep, ebsdlib::Ctf::YStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, ZStep, ebsdlib::Ctf::ZStep)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE1, ebsdlib::Ctf::AcqE1)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE2, ebsdlib::Ctf::AcqE2)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE3, ebsdlib::Ctf::AcqE3)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Euler, ebsdlib::Ctf::Euler)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Mag, ebsdlib::Ctf::Mag)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Coverage, ebsdlib::Ctf::Coverage)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Device, ebsdlib::Ctf::Device)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, KV, ebsdlib::Ctf::KV)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAngle, ebsdlib::Ctf::TiltAngle)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAxis, ebsdlib::Ctf::TiltAxis)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, NumPhases, ebsdlib::Ctf::NumPhases)
   EBSD_INSTANCE_PROPERTY(std::vector<CtfPhase::Pointer>, PhaseVector)
 
   CTF_READER_PTR_PROP(Phase, Phase, int)
@@ -135,7 +137,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
   int getTypeSize(const std::string& featureName);
   DataParser::Pointer getParser(const std::string& featureName, void* ptr, size_t size);
 
@@ -219,3 +221,4 @@ public:
   CtfReader& operator=(const CtfReader&) = delete; // Copy Assignment Not Implemented
   CtfReader& operator=(CtfReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

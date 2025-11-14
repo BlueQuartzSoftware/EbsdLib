@@ -40,7 +40,8 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
-
+namespace ebsdlib
+{
 class EbsdLib_EXPORT EspritPhase
 {
 public:
@@ -126,3 +127,4 @@ public:
   EspritPhase& operator=(const EspritPhase&) = delete; // Copy Assignment Not Implemented
   EspritPhase& operator=(EspritPhase&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

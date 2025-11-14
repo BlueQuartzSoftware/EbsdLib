@@ -6,13 +6,10 @@
 #include <valarray>
 #include <vector>
 
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
-
-#include "Test/TestPrintFunctions.h"
 
 std::map<std::string, int32_t> counts = {{"eu", 3}, {"om", 9}, {"ax", 4}, {"ro", 3}, {"qu", 4}, {"ho", 3}, {"cu", 3}};
 std::vector<std::string> reps = {"eu", "om", "ax", "ro", "qu", "ho", "cu"};

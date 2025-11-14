@@ -48,6 +48,8 @@
 #include "AngPhase.h"
 #include "AngReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5OIMReader H5OIMReader.h EbsdLib/IO/TSL/H5OIMReader.h
  * @brief
@@ -128,9 +130,9 @@ public:
 
   EBSD_INSTANCE_2DVECTOR_PROPERTY(int, PatternDims)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::Ang::PatternWidth)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, ebsdlib::Ang::PatternWidth)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, EbsdLib::Ang::PatternHeight)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, ebsdlib::Ang::PatternHeight)
 
   /**
    * @brief Reads the file
@@ -205,3 +207,4 @@ public:
   H5OIMReader& operator=(const H5OIMReader&) = delete; // Copy Assignment Not Implemented
   H5OIMReader& operator=(H5OIMReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

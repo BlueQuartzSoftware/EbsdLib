@@ -37,7 +37,7 @@
 
 #include "EbsdLib/EbsdLib.h"
 
-namespace EbsdLib
+namespace ebsdlib
 {
 /*
  * @class GeometryMath GeometryMath.h DREAM3DLib/Common/GeometryMath.h
@@ -61,4 +61,4 @@ EbsdLib_EXPORT float CosThetaBetweenVectors(const float a[3], const float b[3]);
 EbsdLib_EXPORT double CosThetaBetweenVectors(const double a[3], const double b[3]);
 
 } // namespace GeometryMath
-} // namespace EbsdLib
+} // namespace ebsdlib

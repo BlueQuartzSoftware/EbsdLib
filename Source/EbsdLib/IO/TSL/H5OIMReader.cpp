@@ -54,31 +54,33 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 H5OIMReader::H5OIMReader()
 {
   // Initialize the map of header key to header value
-  m_HeaderMap[EbsdLib::Ang::TEMPIXPerUM] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::TEMPIXPerUM);
-  m_HeaderMap[EbsdLib::Ang::XStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::XStar);
-  m_HeaderMap[EbsdLib::Ang::YStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::YStar);
-  m_HeaderMap[EbsdLib::Ang::ZStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZStar);
-  m_HeaderMap[EbsdLib::Ang::Working_Distance] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::Working_Distance);
-  m_HeaderMap[EbsdLib::Ang::GridType] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::GridType);
-  m_HeaderMap[EbsdLib::Ang::StepX] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::StepX);
-  m_HeaderMap[EbsdLib::Ang::StepY] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::StepY);
-  //  m_HeaderMap[EbsdLib::Ang::ZStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZStep); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  //  m_HeaderMap[EbsdLib::Ang::ZPos] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZPos); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  //  m_HeaderMap[EbsdLib::Ang::ZMax] = AngHeaderEntry<float>::NewEbsdHeaderEntry(EbsdLib::Ang::ZMax); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
-  m_HeaderMap[EbsdLib::Ang::nColumns] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::nColumns);
-  m_HeaderMap[EbsdLib::Ang::nRows] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::nRows);
-  m_HeaderMap[EbsdLib::Ang::Operator] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::Operator);
-  m_HeaderMap[EbsdLib::Ang::SampleID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::SampleID);
-  m_HeaderMap[EbsdLib::Ang::ScanID] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::Ang::ScanID);
+  m_HeaderMap[ebsdlib::Ang::TEMPIXPerUM] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::TEMPIXPerUM);
+  m_HeaderMap[ebsdlib::Ang::XStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::XStar);
+  m_HeaderMap[ebsdlib::Ang::YStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::YStar);
+  m_HeaderMap[ebsdlib::Ang::ZStar] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::ZStar);
+  m_HeaderMap[ebsdlib::Ang::Working_Distance] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::Working_Distance);
+  m_HeaderMap[ebsdlib::Ang::GridType] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::Ang::GridType);
+  m_HeaderMap[ebsdlib::Ang::StepX] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::StepX);
+  m_HeaderMap[ebsdlib::Ang::StepY] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::StepY);
+  //  m_HeaderMap[ebsdlib::Ang::ZStep] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::ZStep); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  //  m_HeaderMap[ebsdlib::Ang::ZPos] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::ZPos); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  //  m_HeaderMap[ebsdlib::Ang::ZMax] = AngHeaderEntry<float>::NewEbsdHeaderEntry(ebsdlib::Ang::ZMax); // NOT actually in the file>::NewEbsdHeaderEntry(); , but may be needed
+  m_HeaderMap[ebsdlib::Ang::nColumns] = AngHeaderEntry<int>::NewEbsdHeaderEntry(ebsdlib::Ang::nColumns);
+  m_HeaderMap[ebsdlib::Ang::nRows] = AngHeaderEntry<int>::NewEbsdHeaderEntry(ebsdlib::Ang::nRows);
+  m_HeaderMap[ebsdlib::Ang::Operator] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::Ang::Operator);
+  m_HeaderMap[ebsdlib::Ang::SampleID] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::Ang::SampleID);
+  m_HeaderMap[ebsdlib::Ang::ScanID] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::Ang::ScanID);
 
-  m_HeaderMap[EbsdLib::Ang::PatternWidth] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::PatternWidth);
-  m_HeaderMap[EbsdLib::Ang::PatternHeight] = AngHeaderEntry<int>::NewEbsdHeaderEntry(EbsdLib::Ang::PatternHeight);
+  m_HeaderMap[ebsdlib::Ang::PatternWidth] = AngHeaderEntry<int>::NewEbsdHeaderEntry(ebsdlib::Ang::PatternWidth);
+  m_HeaderMap[ebsdlib::Ang::PatternHeight] = AngHeaderEntry<int>::NewEbsdHeaderEntry(ebsdlib::Ang::PatternHeight);
 
   m_PatternDims[0] = 0;
   m_PatternDims[1] = 0;
@@ -132,7 +134,7 @@ int H5OIMReader::readFile()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     std::string str;
@@ -170,7 +172,7 @@ int H5OIMReader::readFile()
 
   std::vector<int64_t> indexMap;
   std::string grid = getGrid();
-  if(grid.find(EbsdLib::Ang::SquareGrid) == 0)
+  if(grid.find(ebsdlib::Ang::SquareGrid) == 0)
   {
     std::pair<int, std::string> result = fixOrderOfData(indexMap);
 
@@ -185,11 +187,11 @@ int H5OIMReader::readFile()
     {
       void* oldArray = getPointerByName(arrayName);
 
-      if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+      if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Float)
       {
         CopyTupleUsingIndexList<float>(oldArray, indexMap);
       }
-      else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+      else if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Int32)
       {
         CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
       }
@@ -249,14 +251,14 @@ int H5OIMReader::readHeaderOnly()
   }
 
   // Read and parse the OIM Analysis version that created the file.
-  if(H5Lite::datasetExists(fileId, EbsdLib::H5OIM::Version7))
+  if(H5Lite::datasetExists(fileId, ebsdlib::H5OIM::Version7))
   {
-    err = H5Lite::readStringDataset(fileId, EbsdLib::H5OIM::Version7, m_OIMVersion);
+    err = H5Lite::readStringDataset(fileId, ebsdlib::H5OIM::Version7, m_OIMVersion);
   }
   // Read and parse the OIM Analysis version that created the file.
-  if(H5Lite::datasetExists(fileId, EbsdLib::H5OIM::Version8))
+  if(H5Lite::datasetExists(fileId, ebsdlib::H5OIM::Version8))
   {
-    err = H5Lite::readStringDataset(fileId, EbsdLib::H5OIM::Version8, m_OIMVersion);
+    err = H5Lite::readStringDataset(fileId, ebsdlib::H5OIM::Version8, m_OIMVersion);
   }
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
@@ -270,7 +272,7 @@ int H5OIMReader::readHeaderOnly()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5OIM::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     setErrorMessage("H5OIMReader Error: Could not open 'EBSD' Group");
@@ -317,7 +319,7 @@ int H5OIMReader::readHeader(hid_t parId)
   using AngHeaderIntType = AngHeaderEntry<int>;
   int err = -1;
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Header.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OIM::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorCode(-90008);
@@ -326,47 +328,47 @@ int H5OIMReader::readHeader(hid_t parId)
   }
   H5ScopedGroupSentinel sentinel(gid, false);
 
-  // std::string path = EbsdLib::H5OIM::PatternCenterCalibration + "/" + EbsdLib::Ang::XStar;
-  hid_t patternCenterCalibrationGid = H5Gopen(gid, EbsdLib::H5OIM::PatternCenterCalibration.c_str(), H5P_DEFAULT);
+  // std::string path = ebsdlib::H5OIM::PatternCenterCalibration + "/" + ebsdlib::Ang::XStar;
+  hid_t patternCenterCalibrationGid = H5Gopen(gid, ebsdlib::H5OIM::PatternCenterCalibration.c_str(), H5P_DEFAULT);
   if(patternCenterCalibrationGid < 0)
   {
     setErrorCode(-90008);
     setErrorMessage("H5OIMReader Error: Could not open 'Pattern Center Calibration' Group");
     return -1;
   }
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::XStar, patternCenterCalibrationGid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::YStar, patternCenterCalibrationGid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::ZStar, patternCenterCalibrationGid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::XStar, patternCenterCalibrationGid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::YStar, patternCenterCalibrationGid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::ZStar, patternCenterCalibrationGid, m_HeaderMap);
   err = H5Gclose(patternCenterCalibrationGid);
   patternCenterCalibrationGid = -1;
 
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::Working_Distance, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::StepX, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, EbsdLib::Ang::StepY, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, EbsdLib::Ang::nColumns, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, EbsdLib::Ang::nRows, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::Working_Distance, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::StepX, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, float, AngHeaderFloatType>(this, ebsdlib::Ang::StepY, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, ebsdlib::Ang::nColumns, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5OIMReader, int, AngHeaderIntType>(this, ebsdlib::Ang::nRows, gid, m_HeaderMap);
 
   {
-    AngHeaderIntType::Pointer intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[EbsdLib::Ang::nColumns]);
+    AngHeaderIntType::Pointer intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[ebsdlib::Ang::nColumns]);
     setNumOddCols(intValuePtr->getValue());
     setNumEvenCols(intValuePtr->getValue());
 
-    intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[EbsdLib::Ang::nRows]);
+    intValuePtr = std::dynamic_pointer_cast<AngHeaderIntType>(m_HeaderMap[ebsdlib::Ang::nRows]);
     setNumRows(intValuePtr->getValue());
 
-    AngHeaderFloatType::Pointer floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[EbsdLib::Ang::StepX]);
+    AngHeaderFloatType::Pointer floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[ebsdlib::Ang::StepX]);
     setXStep(floatValuePtr->getValue());
-    floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[EbsdLib::Ang::StepY]);
+    floatValuePtr = std::dynamic_pointer_cast<AngHeaderFloatType>(m_HeaderMap[ebsdlib::Ang::StepY]);
     setYStep(floatValuePtr->getValue());
   }
 
   HDF_ERROR_HANDLER_OFF
   int value = 0;
-  if(H5Lite::datasetExists(gid, EbsdLib::Ang::PatternWidth))
+  if(H5Lite::datasetExists(gid, ebsdlib::Ang::PatternWidth))
   {
     // Read the Pattern Width - This may not exist
-    err = H5Lite::readScalarDataset(gid, EbsdLib::Ang::PatternWidth, value);
-    EbsdHeaderEntry::Pointer p = m_HeaderMap[EbsdLib::Ang::PatternWidth];
+    err = H5Lite::readScalarDataset(gid, ebsdlib::Ang::PatternWidth, value);
+    EbsdHeaderEntry::Pointer p = m_HeaderMap[ebsdlib::Ang::PatternWidth];
     AngHeaderIntType::Pointer c = std::dynamic_pointer_cast<AngHeaderIntType>(p);
     c->setValue(value);
     m_PatternDims[1] = value;
@@ -374,10 +376,10 @@ int H5OIMReader::readHeader(hid_t parId)
 
   // Read the Pattern Height - This may not exist
   value = 0;
-  if(H5Lite::datasetExists(gid, EbsdLib::Ang::PatternHeight))
+  if(H5Lite::datasetExists(gid, ebsdlib::Ang::PatternHeight))
   {
-    err = H5Lite::readScalarDataset(gid, EbsdLib::Ang::PatternHeight, value);
-    EbsdHeaderEntry::Pointer p = m_HeaderMap[EbsdLib::Ang::PatternHeight];
+    err = H5Lite::readScalarDataset(gid, ebsdlib::Ang::PatternHeight, value);
+    EbsdHeaderEntry::Pointer p = m_HeaderMap[ebsdlib::Ang::PatternHeight];
     AngHeaderIntType::Pointer c = std::dynamic_pointer_cast<AngHeaderIntType>(p);
     c->setValue(value);
     m_PatternDims[0] = value;
@@ -385,21 +387,21 @@ int H5OIMReader::readHeader(hid_t parId)
   HDF_ERROR_HANDLER_ON
 
   // Version 7/8
-  ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::GridType, gid, m_HeaderMap);
+  ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, ebsdlib::Ang::GridType, gid, m_HeaderMap);
   {
-    AngStringHeaderEntry::Pointer strValuePtr = std::dynamic_pointer_cast<AngStringHeaderEntry>(m_HeaderMap[EbsdLib::Ang::GridType]);
+    AngStringHeaderEntry::Pointer strValuePtr = std::dynamic_pointer_cast<AngStringHeaderEntry>(m_HeaderMap[ebsdlib::Ang::GridType]);
     setGrid(strValuePtr->getValue());
   }
 
   // Version 7 Only
-  if(m_OIMVersion.find(EbsdLib::H5OIM::OIMAnalysisVersion7) != std::string::npos)
+  if(m_OIMVersion.find(ebsdlib::H5OIM::OIMAnalysisVersion7) != std::string::npos)
   {
-    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::Operator, gid, m_HeaderMap);
-    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::SampleID, gid, m_HeaderMap);
-    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, EbsdLib::Ang::ScanID, gid, m_HeaderMap);
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, ebsdlib::Ang::Operator, gid, m_HeaderMap);
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, ebsdlib::Ang::SampleID, gid, m_HeaderMap);
+    ReadH5EbsdHeaderStringData<H5OIMReader, std::string, AngStringHeaderEntry>(this, ebsdlib::Ang::ScanID, gid, m_HeaderMap);
   }
 
-  hid_t phasesGid = H5Gopen(gid, EbsdLib::H5OIM::Phase.c_str(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, ebsdlib::H5OIM::Phase.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     setErrorCode(-90007);
@@ -428,24 +430,24 @@ int H5OIMReader::readHeader(hid_t parId)
 
     AngPhase::Pointer currentPhase = AngPhase::New();
     currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
-    READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::MaterialName, MaterialName, currentPhase)
-    READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::Formula, Formula, currentPhase)
-    // READ_PHASE_STRING_DATA("H5OIMReader", pid, EbsdLib::Ang::Info, Info, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, EbsdLib::Ang::Symmetry, Symmetry, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, EbsdLib::Ang::NumberFamilies, NumberFamilies, currentPhase)
+    READ_PHASE_STRING_DATA("H5OIMReader", pid, ebsdlib::Ang::MaterialName, MaterialName, currentPhase)
+    READ_PHASE_STRING_DATA("H5OIMReader", pid, ebsdlib::Ang::Formula, Formula, currentPhase)
+    // READ_PHASE_STRING_DATA("H5OIMReader", pid, ebsdlib::Ang::Info, Info, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, ebsdlib::Ang::Symmetry, Symmetry, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, int32_t, ebsdlib::Ang::NumberFamilies, NumberFamilies, currentPhase)
 
     std::vector<float> fillerValues(6, 0.0);
     currentPhase->setLatticeConstants(fillerValues);
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantA, LatticeConstantA, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantB, LatticeConstantB, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantC, LatticeConstantC, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantAlpha, LatticeConstantAlpha, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantBeta, LatticeConstantBeta, currentPhase)
-    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, EbsdLib::Ang::LatticeConstantGamma, LatticeConstantGamma, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantA, LatticeConstantA, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantB, LatticeConstantB, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantC, LatticeConstantC, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantAlpha, LatticeConstantAlpha, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantBeta, LatticeConstantBeta, currentPhase)
+    READ_PHASE_HEADER_DATA("H5OIMReader", pid, float, ebsdlib::Ang::LatticeConstantGamma, LatticeConstantGamma, currentPhase)
 
     if(currentPhase->getNumberFamilies() > 0)
     {
-      // hid_t hklGid = H5Gopen(pid, EbsdLib::Ang::HKLFamilies.c_str(), H5P_DEFAULT);
+      // hid_t hklGid = H5Gopen(pid, ebsdlib::Ang::HKLFamilies.c_str(), H5P_DEFAULT);
       // Only read the HKL Families if they are there. Trying to open the group will tell us if there
       // are any families to read
 
@@ -457,9 +459,9 @@ int H5OIMReader::readHeader(hid_t parId)
       }
     }
     /* The 'Categories' header may actually be missing from certain types of .ang files */
-    if(H5Lite::datasetExists(pid, EbsdLib::Ang::Categories))
+    if(H5Lite::datasetExists(pid, ebsdlib::Ang::Categories))
     {
-      READ_PHASE_HEADER_ARRAY("H5OIMReader", pid, int, EbsdLib::Ang::Categories, Categories, currentPhase)
+      READ_PHASE_HEADER_ARRAY("H5OIMReader", pid, int, ebsdlib::Ang::Categories, Categories, currentPhase)
     }
     phaseVector.push_back(currentPhase);
     err = H5Gclose(pid);
@@ -494,7 +496,7 @@ int H5OIMReader::readHKLFamilies(hid_t hklGid, const AngPhase::Pointer& phase)
   H5Tinsert(memtype, "Show bands", HOFFSET(HKLFamily_t, s2), H5T_NATIVE_CHAR);
 
   // Create dataspace & dataset
-  hid_t dataset = H5Dopen(hklGid, EbsdLib::Ang::HKL_Families.c_str(), H5P_DEFAULT);
+  hid_t dataset = H5Dopen(hklGid, ebsdlib::Ang::HKL_Families.c_str(), H5P_DEFAULT);
   hid_t dataspace = H5Dget_space(dataset);
   int rank = H5Sget_simple_extent_ndims(dataspace);
   if(rank == 1)
@@ -555,7 +557,7 @@ int H5OIMReader::readData(hid_t parId)
     setErrorCode(err);
     return err;
   }
-  if(grid.find(EbsdLib::Ang::SquareGrid) == 0)
+  if(grid.find(ebsdlib::Ang::SquareGrid) == 0)
   {
     // if (nCols > 0) { numElements = nRows * nCols; }
     if(nColumns > 0)
@@ -567,7 +569,7 @@ int H5OIMReader::readData(hid_t parId)
       totalDataRows = 0;
     }
   }
-  else if(grid.find(EbsdLib::Ang::HexGrid) == 0)
+  else if(grid.find(ebsdlib::Ang::HexGrid) == 0)
   {
     setErrorCode(-90400);
     setErrorMessage("Ang Files with Hex Grids Are NOT currently supported. Please convert them to Square Grid files first");
@@ -587,7 +589,7 @@ int H5OIMReader::readData(hid_t parId)
     return -301;
   }
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Data.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OIM::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorMessage("H5OIMReader Error: Could not open 'Data' Group");
@@ -608,22 +610,22 @@ int H5OIMReader::readData(hid_t parId)
     return err;
   }
 
-  ANG_READER_ALLOCATE_AND_READ(Phi1, EbsdLib::Ang::Phi1, float);
-  ANG_READER_ALLOCATE_AND_READ(Phi, EbsdLib::Ang::Phi, float);
-  ANG_READER_ALLOCATE_AND_READ(Phi2, EbsdLib::Ang::Phi2, float);
-  ANG_READER_ALLOCATE_AND_READ(ImageQuality, EbsdLib::Ang::IQ, float);
-  ANG_READER_ALLOCATE_AND_READ(ConfidenceIndex, EbsdLib::Ang::CI, float);
-  ANG_READER_ALLOCATE_AND_READ(PhaseData, EbsdLib::Ang::Phase, int);
-  ANG_READER_ALLOCATE_AND_READ(XPosition, EbsdLib::Ang::XPosition, float);
-  ANG_READER_ALLOCATE_AND_READ(YPosition, EbsdLib::Ang::YPosition, float);
-  ANG_READER_ALLOCATE_AND_READ(Fit, EbsdLib::Ang::Fit, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi1, ebsdlib::Ang::Phi1, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi, ebsdlib::Ang::Phi, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi2, ebsdlib::Ang::Phi2, float);
+  ANG_READER_ALLOCATE_AND_READ(ImageQuality, ebsdlib::Ang::IQ, float);
+  ANG_READER_ALLOCATE_AND_READ(ConfidenceIndex, ebsdlib::Ang::CI, float);
+  ANG_READER_ALLOCATE_AND_READ(PhaseData, ebsdlib::Ang::Phase, int);
+  ANG_READER_ALLOCATE_AND_READ(XPosition, ebsdlib::Ang::XPosition, float);
+  ANG_READER_ALLOCATE_AND_READ(YPosition, ebsdlib::Ang::YPosition, float);
+  ANG_READER_ALLOCATE_AND_READ(Fit, ebsdlib::Ang::Fit, float);
 
   if(err < 0)
   {
     setNumFeatures(9);
   }
 
-  ANG_READER_ALLOCATE_AND_READ(SEMSignal, EbsdLib::Ang::SEMSignal, float);
+  ANG_READER_ALLOCATE_AND_READ(SEMSignal, ebsdlib::Ang::SEMSignal, float);
   if(err < 0)
   {
     setNumFeatures(8);
@@ -634,7 +636,7 @@ int H5OIMReader::readData(hid_t parId)
     H5T_class_t type_class;
     std::vector<hsize_t> dims;
     size_t type_size = 0;
-    err = H5Lite::getDatasetInfo(gid, EbsdLib::Ang::PatternData, dims, type_class, type_size);
+    err = H5Lite::getDatasetInfo(gid, ebsdlib::Ang::PatternData, dims, type_class, type_size);
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
       totalDataRows = 1; // Calculate the total number of elements to allocate for the pattern data
@@ -647,7 +649,7 @@ int H5OIMReader::readData(hid_t parId)
       m_PatternDims[1] = static_cast<int>(dims[2]);
 
       m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
-      err = H5Lite::readPointerDataset(gid, EbsdLib::Ang::PatternData, m_PatternData);
+      err = H5Lite::readPointerDataset(gid, ebsdlib::Ang::PatternData, m_PatternData);
     }
   }
   err = H5Gclose(gid);

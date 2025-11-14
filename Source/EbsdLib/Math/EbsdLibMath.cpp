@@ -34,13 +34,14 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "EbsdLibMath.h"
+
 #include <limits>
 
 static const float k_MachineEpsilon = 5E-16f;
 // static const float k_MaxRealNumber = 1E300;
 // static const float k_MinRealNumber = 1E-300;
 
-float EbsdLibMath::Gamma(float x)
+float ebsdlib::math::Gamma(float x)
 {
   int i, k, m;
   float ga, gr, r, z;
@@ -118,14 +119,14 @@ float EbsdLibMath::Gamma(float x)
       ga *= r;
       if(x < 0.0f)
       {
-        ga = -1 * EbsdLib::Constants::k_PiF / (x * ga * sinf(EbsdLib::Constants::k_PiF * x));
+        ga = -1 * ebsdlib::constants::k_PiF / (x * ga * sinf(ebsdlib::constants::k_PiF * x));
       }
     }
   }
   return ga;
 }
 
-float EbsdLibMath::gammastirf(float x)
+float ebsdlib::math::gammastirf(float x)
 {
   float result;
   float y;
@@ -153,7 +154,7 @@ float EbsdLibMath::gammastirf(float x)
   result = 2.50662827463100050242f * y * w;
   return result;
 }
-float EbsdLibMath::LnGamma(float x, float& sgngam)
+float ebsdlib::math::LnGamma(float x, float& sgngam)
 {
   float result;
   float a;
@@ -192,7 +193,7 @@ float EbsdLibMath::LnGamma(float x, float& sgngam)
       p = p + 1;
       z = p - q;
     }
-    z = q * sinf(EbsdLib::Constants::k_PiF * z);
+    z = q * sinf(ebsdlib::constants::k_PiF * z);
     result = logpi - log(z) - w;
     return result;
   }
@@ -270,7 +271,7 @@ float EbsdLibMath::LnGamma(float x, float& sgngam)
   return result;
 }
 
-float EbsdLibMath::erf(float x)
+float ebsdlib::math::erf(float x)
 {
   float result;
   float xsq;
@@ -312,7 +313,7 @@ float EbsdLibMath::erf(float x)
   result = s * (1 - erfc(x));
   return result;
 }
-float EbsdLibMath::erfc(float x)
+float ebsdlib::math::erfc(float x)
 {
   float result;
   float p;
@@ -325,7 +326,7 @@ float EbsdLibMath::erfc(float x)
   }
   if(x < 0.5f)
   {
-    result = 1.0f - EbsdLibMath::erf(x);
+    result = 1.0f - ebsdlib::math::erf(x);
     return result;
   }
   if(x >= 10)
@@ -354,7 +355,7 @@ float EbsdLibMath::erfc(float x)
   result = exp(-(x * x)) * p / q;
   return result;
 }
-float EbsdLibMath::incompletebeta(float a, float b, float x)
+float ebsdlib::math::incompletebeta(float a, float b, float x)
 {
   constexpr float maxrealnumber = std::numeric_limits<float>::max();
   constexpr float minrealnumber = std::numeric_limits<float>::min();
@@ -436,7 +437,7 @@ float EbsdLibMath::incompletebeta(float a, float b, float x)
     t = t * powf(x, a);
     t = t / a;
     t = t * w;
-    t = t * (EbsdLibMath::Gamma(a + b) / (EbsdLibMath::Gamma(a) * EbsdLibMath::Gamma(b)));
+    t = t * (ebsdlib::math::Gamma(a + b) / (ebsdlib::math::Gamma(a) * ebsdlib::math::Gamma(b)));
     if(flag == 1)
     {
       if(t <= k_MachineEpsilon)
@@ -478,7 +479,7 @@ float EbsdLibMath::incompletebeta(float a, float b, float x)
   result = t;
   return result;
 }
-float EbsdLibMath::incompletebetafe(float a, float b, float x, float big, float biginv)
+float ebsdlib::math::incompletebetafe(float a, float b, float x, float big, float biginv)
 {
   float result;
   float xk;
@@ -578,7 +579,7 @@ float EbsdLibMath::incompletebetafe(float a, float b, float x, float big, float 
   result = ans;
   return result;
 }
-float EbsdLibMath::incompletebetafe2(float a, float b, float x, float big, float biginv)
+float ebsdlib::math::incompletebetafe2(float a, float b, float x, float big, float biginv)
 {
   float result;
   float xk;
@@ -680,7 +681,7 @@ float EbsdLibMath::incompletebetafe2(float a, float b, float x, float big, float
   result = ans;
   return result;
 }
-float EbsdLibMath::incompletebetaps(float a, float b, float x, float maxgam)
+float ebsdlib::math::incompletebetaps(float a, float b, float x, float maxgam)
 {
   float result;
   float s;
@@ -715,7 +716,7 @@ float EbsdLibMath::incompletebetaps(float a, float b, float x, float maxgam)
   u = a * log(x);
   if((a + b) < maxgam && fabs(u) < log(maxrealnumber))
   {
-    t = EbsdLibMath::Gamma(a + b) / (EbsdLibMath::Gamma(a) * EbsdLibMath::Gamma(b));
+    t = ebsdlib::math::Gamma(a + b) / (ebsdlib::math::Gamma(a) * ebsdlib::math::Gamma(b));
     s = s * t * powf(x, a);
   }
   else
@@ -734,7 +735,7 @@ float EbsdLibMath::incompletebetaps(float a, float b, float x, float maxgam)
   return result;
 }
 
-std::vector<double> EbsdLibMath::linspace(double minVal, double maxVal, int dim)
+std::vector<double> ebsdlib::math::linspace(double minVal, double maxVal, int dim)
 {
   std::vector<double> result;
   if(dim == 1)

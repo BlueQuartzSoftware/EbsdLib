@@ -3,7 +3,7 @@
 #include <cmath>
 #include <memory>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 /**
  * @brief 3x1 Matrix as a row.
@@ -332,4 +332,13 @@ private:
 
 using Matrix3X1F = Matrix3X1<float>;
 using Matrix3X1D = Matrix3X1<double>;
-} // namespace EbsdLib
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const Matrix3X1<T>& obj)
+{
+  os << "<" << obj[0] << ", " << obj[1] << ", " << obj[2] << ">";
+
+  return os;
+}
+
+} // namespace ebsdlib

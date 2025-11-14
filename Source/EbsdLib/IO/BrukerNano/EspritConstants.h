@@ -33,7 +33,7 @@
 
 #include <string>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 namespace Esprit
 {
@@ -143,4 +143,4 @@ const std::string SEM_YResolution("SEM YResolution");
 const std::string SEM_ZOffset("SEM ZOffset");
 
 } // namespace H5Esprit
-} // namespace EbsdLib
+} // namespace ebsdlib

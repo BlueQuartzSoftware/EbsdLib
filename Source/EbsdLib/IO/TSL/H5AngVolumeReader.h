@@ -44,6 +44,8 @@
 #include "EbsdLib/IO/H5EbsdVolumeReader.h"
 #include "EbsdLib/IO/TSL/AngPhase.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5AngVolumeReader H5AngVolumeReader.h Reconstruction/EbsdSupport/H5AngVolumeReader.h
  * @brief This class loads OIM data from an HDF5 based file.
@@ -118,7 +120,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -184,3 +186,4 @@ private:
     }
   }
 };
+} // namespace ebsdlib

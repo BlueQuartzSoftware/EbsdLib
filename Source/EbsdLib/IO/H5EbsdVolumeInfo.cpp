@@ -82,6 +82,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -155,30 +157,30 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   m_FileVersion = 0;
   // Attempt to read the file version number. If it is not there that is OK as early h5ebsd
   // files did not have this information written.
-  err = H5Lite::readScalarAttribute(fileId, "/", EbsdLib::H5Ebsd::FileVersionStr, m_FileVersion);
+  err = H5Lite::readScalarAttribute(fileId, "/", ebsdlib::H5Ebsd::FileVersionStr, m_FileVersion);
 
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::ZStartIndex, m_ZStart);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::ZEndIndex, m_ZEnd);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::ZStartIndex, m_ZStart);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::ZEndIndex, m_ZEnd);
   m_ZDim = m_ZEnd - m_ZStart + 1; // The range is inclusive (zStart, zEnd)
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::XPoints, m_XDim);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::YPoints, m_YDim);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::XResolution, m_XRes);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::YResolution, m_YRes);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::ZResolution, m_ZRes);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::XPoints, m_XDim);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::YPoints, m_YDim);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::XResolution, m_XRes);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::YResolution, m_YRes);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::ZResolution, m_ZRes);
 
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::StackingOrder, m_StackingOrder);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::SampleTransformationAngle, m_SampleTransformationAngle);
-  EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, EbsdLib::H5Ebsd::SampleTransformationAxis, m_SampleTransformationAxis, float);
-  EBSD_VOLREADER_READ_HEADER(fileId, EbsdLib::H5Ebsd::EulerTransformationAngle, m_EulerTransformationAngle);
-  EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, EbsdLib::H5Ebsd::EulerTransformationAxis, m_EulerTransformationAxis, float);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::StackingOrder, m_StackingOrder);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::SampleTransformationAngle, m_SampleTransformationAngle);
+  EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, ebsdlib::H5Ebsd::SampleTransformationAxis, m_SampleTransformationAxis, float);
+  EBSD_VOLREADER_READ_HEADER(fileId, ebsdlib::H5Ebsd::EulerTransformationAngle, m_EulerTransformationAngle);
+  EBSD_VOLREADER_READ_VECTOR3_HEADER(fileId, ebsdlib::H5Ebsd::EulerTransformationAxis, m_EulerTransformationAxis, float);
 
   // Read the manufacturer from the file
   m_Manufacturer = "";
   std::string data;
-  err = H5Lite::readStringDataset(fileId, EbsdLib::H5Ebsd::Manufacturer, data);
+  err = H5Lite::readStringDataset(fileId, ebsdlib::H5Ebsd::Manufacturer, data);
   if(err < 0)
   {
-    std::cout << "H5EbsdVolumeInfo Error: Could not load header value for " << EbsdLib::H5Ebsd::Manufacturer << std::endl;
+    std::cout << "H5EbsdVolumeInfo Error: Could not load header value for " << ebsdlib::H5Ebsd::Manufacturer << std::endl;
     err = H5Utilities::closeFile(fileId);
     return err;
   }
@@ -191,10 +193,10 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   hid_t gid = H5Gopen(fileId, index.c_str(), H5P_DEFAULT);
   if(gid > 0)
   {
-    hid_t headerId = H5Gopen(gid, EbsdLib::H5Ebsd::Header.c_str(), H5P_DEFAULT);
+    hid_t headerId = H5Gopen(gid, ebsdlib::H5Ebsd::Header.c_str(), H5P_DEFAULT);
     if(headerId > 0)
     {
-      hid_t phasesGid = H5Gopen(headerId, EbsdLib::H5Ebsd::Phases.c_str(), H5P_DEFAULT);
+      hid_t phasesGid = H5Gopen(headerId, ebsdlib::H5Ebsd::Phases.c_str(), H5P_DEFAULT);
       if(phasesGid > 0)
       {
         std::list<std::string> names;
@@ -210,7 +212,7 @@ int H5EbsdVolumeInfo::readVolumeInfo()
 
     // Now read out the names of the data arrays in the file
 
-    hid_t dataGid = H5Gopen(gid, EbsdLib::H5Ebsd::Data.c_str(), H5P_DEFAULT);
+    hid_t dataGid = H5Gopen(gid, ebsdlib::H5Ebsd::Data.c_str(), H5P_DEFAULT);
     if(dataGid > 0)
     {
       std::list<std::string> names;
@@ -228,34 +230,34 @@ int H5EbsdVolumeInfo::readVolumeInfo()
   }
 
   // we are going to selectively replace some of the data array names with some common names instead
-  if(m_Manufacturer == EbsdLib::Ang::Manufacturer)
+  if(m_Manufacturer == ebsdlib::Ang::Manufacturer)
   {
-    if(m_DataArrayNames.count(EbsdLib::Ang::Phi1) != 0 && m_DataArrayNames.count(EbsdLib::Ang::Phi) != 0 && m_DataArrayNames.count(EbsdLib::Ang::Phi2) != 0)
+    if(m_DataArrayNames.count(ebsdlib::Ang::Phi1) != 0 && m_DataArrayNames.count(ebsdlib::Ang::Phi) != 0 && m_DataArrayNames.count(ebsdlib::Ang::Phi2) != 0)
     {
-      m_DataArrayNames.erase(EbsdLib::Ang::Phi1);
-      m_DataArrayNames.erase(EbsdLib::Ang::Phi);
-      m_DataArrayNames.erase(EbsdLib::Ang::Phi2);
-      m_DataArrayNames.insert(EbsdLib::CellData::EulerAngles);
+      m_DataArrayNames.erase(ebsdlib::Ang::Phi1);
+      m_DataArrayNames.erase(ebsdlib::Ang::Phi);
+      m_DataArrayNames.erase(ebsdlib::Ang::Phi2);
+      m_DataArrayNames.insert(ebsdlib::CellData::EulerAngles);
     }
-    if(m_DataArrayNames.count(EbsdLib::Ang::PhaseData) != 0)
+    if(m_DataArrayNames.count(ebsdlib::Ang::PhaseData) != 0)
     {
-      m_DataArrayNames.erase(EbsdLib::Ang::PhaseData);
-      m_DataArrayNames.insert(EbsdLib::CellData::Phases);
+      m_DataArrayNames.erase(ebsdlib::Ang::PhaseData);
+      m_DataArrayNames.insert(ebsdlib::CellData::Phases);
     }
   }
-  else if(m_Manufacturer == EbsdLib::Ctf::Manufacturer)
+  else if(m_Manufacturer == ebsdlib::Ctf::Manufacturer)
   {
-    if(m_DataArrayNames.count(EbsdLib::Ctf::Euler1) != 0 && m_DataArrayNames.count(EbsdLib::Ctf::Euler2) != 0 && m_DataArrayNames.count(EbsdLib::Ctf::Euler3) != 0)
+    if(m_DataArrayNames.count(ebsdlib::Ctf::Euler1) != 0 && m_DataArrayNames.count(ebsdlib::Ctf::Euler2) != 0 && m_DataArrayNames.count(ebsdlib::Ctf::Euler3) != 0)
     {
-      m_DataArrayNames.erase(EbsdLib::Ctf::Euler1);
-      m_DataArrayNames.erase(EbsdLib::Ctf::Euler2);
-      m_DataArrayNames.erase(EbsdLib::Ctf::Euler3);
-      m_DataArrayNames.insert(EbsdLib::CellData::EulerAngles);
+      m_DataArrayNames.erase(ebsdlib::Ctf::Euler1);
+      m_DataArrayNames.erase(ebsdlib::Ctf::Euler2);
+      m_DataArrayNames.erase(ebsdlib::Ctf::Euler3);
+      m_DataArrayNames.insert(ebsdlib::CellData::EulerAngles);
     }
-    if(m_DataArrayNames.count(EbsdLib::Ctf::Phase) != 0)
+    if(m_DataArrayNames.count(ebsdlib::Ctf::Phase) != 0)
     {
-      m_DataArrayNames.erase(EbsdLib::Ctf::Phase);
-      m_DataArrayNames.insert(EbsdLib::CellData::Phases);
+      m_DataArrayNames.erase(ebsdlib::Ctf::Phase);
+      m_DataArrayNames.insert(ebsdlib::CellData::Phases);
     }
   }
 
@@ -451,7 +453,7 @@ uint32_t H5EbsdVolumeInfo::getStackingOrder()
     err = readVolumeInfo();
     if(err < 0)
     {
-      return EbsdLib::RefFrameZDir::UnknownRefFrameZDirection;
+      return ebsdlib::RefFrameZDir::UnknownRefFrameZDirection;
     }
   }
   return m_StackingOrder;

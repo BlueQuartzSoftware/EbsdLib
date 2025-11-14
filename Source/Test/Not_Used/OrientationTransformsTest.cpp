@@ -33,28 +33,20 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
+
+#include "GenerateFunctionList.h"
+#include "TestPrintFunctions.h"
+#include "UnitTestSupport.hpp"
+
 #include <iostream>
 #include <limits>
 #include <map>
 #include <string>
 #include <vector>
 
-#include <string>
-#include <vector>
-
-#include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/OrientationMath/OrientationConverter.hpp"
-#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
-
-#include "GenerateFunctionList.h"
-#include "TestPrintFunctions.h"
-#include "UnitTestSupport.hpp"
-
 /*
  *
-
  DREAM.3D Testing
 
  | From/To |  e   |  o   |  a   |  r   |  q   |  h   |  c   |
@@ -66,7 +58,6 @@
  |  q      |  X   |  X   |  X   |  X   |  #   |  X   |      |
  |  h      |  X   |  X   |  X   |  X   |  X   |  #   |      |
  |  c      |      |      |      |      |      |      |  #   |
-
 
  */
 
@@ -97,32 +88,32 @@ public:
   template <typename K>
   void CheckRepresentation(K* data, int repType)
   {
-    OrientationTransformation::ResultType res;
+    ebsdlib::ResultType res;
     switch(repType)
     {
     case 0:
-      res = OrientationTransformation::eu_check<Orientation<K, EulerRep>>({data});
+      res = ebsdlib::Euler<K>(data).isValid();
       break;
     case 1:
-      res = OrientationTransformation::om_check<Orientation<K, OrientationMatrixRep>>({data});
+      res = ebsdlib::OrientationMatrix<K>(data).isValid();
       break;
     case 2:
-      res = OrientationTransformation::qu_check<Orientation<K, QuaternionRep>>({data});
+      res = ebsdlib::Quaternion<K>(data).isValid();
       break;
     case 3:
-      res = OrientationTransformation::ax_check<Orientation<K, AxisAngleRep>>({data});
+      res = ebsdlib::AxisAngle<K>(data).isValid();
       break;
     case 4:
-      res = OrientationTransformation::ro_check<Orientation<K, RodriguesRep>>({data});
+      res = ebsdlib::Rodrigues<K>(data).isValid();
       break;
     case 5:
-      res = OrientationTransformation::ho_check<Orientation<K, HomochoricRep>>({data});
+      res = ebsdlib::Homochoric<K>(data).isValid();
       break;
     case 6:
-      res = OrientationTransformation::cu_check<Orientation<K, CubochoricRep>>({data});
+      res = ebsdlib::Cubochoric<K>(data).isValid();
       break;
     case 7:
-      res = OrientationTransformation::st_check<Orientation<K, StereographicRep>>({data});
+      res = ebsdlib::Stereographic<K>(data).isValid();
       break;
     default:
       break;

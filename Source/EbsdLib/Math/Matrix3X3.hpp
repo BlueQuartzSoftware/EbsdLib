@@ -1,11 +1,14 @@
 #pragma once
 
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "Matrix3X1.hpp"
 
-#include <cmath>
-#include <memory>
+#include <Eigen/Dense>
 
-namespace EbsdLib
+#include <cassert>
+#include <cmath>
+
+namespace ebsdlib
 {
 /**
  * @brief 3X3 Matrix that is row major, i.e., the data is laid out in memory as follows:
@@ -27,7 +30,7 @@ public:
    * @brief Copies the values from the pointer. Assumes row major ordering.
    * @param ptr
    */
-  Matrix3X3(const T* ptr)
+  explicit Matrix3X3(const T* ptr)
   : m_Data(std::array<T, 9>{ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7], ptr[8]})
   {
   }
@@ -49,31 +52,87 @@ public:
   {
   }
 
-  /**
-   * @brief Creates a 3x3 Matrix from the "C" style 2D Matrix. This assumes the data
-   * is properly row major, i.e., the fastest moving dimension is the second. So to
-   * be clear, the each row is rastered before the next row.
-   * @param g
-   */
-  Matrix3X3(const T g[3][3])
-  {
-    m_Data[0] = g[0][0];
-    m_Data[1] = g[0][1];
-    m_Data[2] = g[0][2];
-    m_Data[3] = g[1][0];
-    m_Data[4] = g[1][1];
-    m_Data[5] = g[1][2];
-    m_Data[6] = g[2][0];
-    m_Data[7] = g[2][1];
-    m_Data[8] = g[2][2];
-  }
-
   Matrix3X3(const Matrix3X3&) = default;                // Copy Constructor Default Implemented
   Matrix3X3(Matrix3X3&&) noexcept = default;            // Move Constructor Default Implemented
   Matrix3X3& operator=(const Matrix3X3&) = default;     // Copy Assignment Default Implemented
   Matrix3X3& operator=(Matrix3X3&&) noexcept = default; // Move Assignment Default Implemented
 
   ~Matrix3X3() = default;
+
+  const T& operator()(size_t row, size_t col) const
+  {
+    if(row > 2 || col > 2)
+    {
+      throw std::out_of_range("Matrix3X3::operator() Row or Column out of range");
+    }
+    return m_Data[row * 3 + col];
+  }
+  T& operator()(size_t row, size_t col)
+  {
+    if(row > 2 || col > 2)
+    {
+      throw std::out_of_range("Matrix3X3::operator() Row or Column out of range");
+    }
+    return m_Data[row * 3 + col];
+  }
+  /**
+   *
+   * @param latticeParameters The lattice Parameters in the order, a, b, c, alpha, beta, gamma. Note that alpha, beta, gamma are all stored as degrees.
+   * @return
+   */
+  static Matrix3X3<T> DirectStructureMatrix(std::array<T, 6> latticeParameters)
+  {
+    /* This code is take from EMsoftOO/mod_crystallography.f90 - computeMatrices() function */
+
+    T a = latticeParameters[0];
+    T b = latticeParameters[1];
+    T c = latticeParameters[2];
+    T alpha = latticeParameters[3];
+    T beta = latticeParameters[4];
+    T gamma = latticeParameters[5];
+
+    // auxiliary variables for the various tensors
+    double pirad = ebsdlib::constants::k_PiOver180D;
+    double ca = std::cos(pirad * alpha);
+    double cb = std::cos(pirad * beta);
+    double cg = std::cos(pirad * gamma);
+    double sg = std::sin(pirad * gamma);
+
+    // cell volume via the determinant of dmt
+    T det = (a * b * c) * (a * b * c) * (1.0 - ca * ca - cb * cb - cg * cg + 1.0 * ca * cb * cg);
+    T vol = std::sqrt(det);
+
+    Matrix3X3 dsm;
+    dsm(0, 0) = a;
+    dsm(0, 1) = b * cg;
+    dsm(0, 2) = c * cb;
+    dsm(1, 0) = 0.0;
+    dsm(1, 1) = b * sg;
+    dsm(1, 2) = -c * (cb * cg - ca) / sg;
+    dsm(2, 0) = 0.0;
+    dsm(2, 1) = 0.0;
+    dsm(2, 2) = vol / (a * b * sg);
+    return dsm;
+  }
+
+  /**
+   * @brief Converts to an Eigen Row Major Matrix3x3
+   * @return
+   */
+  Eigen::Matrix<T, 3, 3, Eigen::RowMajor> toEigenMatrix() const
+  {
+    Eigen::Matrix<T, 3, 3, Eigen::RowMajor> g1;
+    g1(0, 0) = (*this)[0];
+    g1(0, 1) = (*this)[1];
+    g1(0, 2) = (*this)[2];
+    g1(1, 0) = (*this)[3];
+    g1(1, 1) = (*this)[4];
+    g1(1, 2) = (*this)[5];
+    g1(2, 0) = (*this)[6];
+    g1(2, 1) = (*this)[7];
+    g1(2, 2) = (*this)[8];
+    return g1;
+  }
 
   /**
    * @brief Returns a reference to the value at index
@@ -204,7 +263,7 @@ public:
    * @param rhs
    * @return a 3x1 Matrix
    */
-  std::array<T, 3> operator*(const std::array<T, 3>& rhs)
+  std::array<T, 3> operator*(const std::array<T, 3>& rhs) const
   {
     std::array<T, 3> outMat;
     outMat[0] = m_Data[0] * rhs[0] + m_Data[1] * rhs[1] + m_Data[2] * rhs[2];
@@ -214,10 +273,30 @@ public:
   }
 
   /**
+   * @brief Returns a colum vector as a Matrix3X1<T>
+   * @param col
+   * @return
+   */
+  Matrix3X1<T> col(size_t col) const
+  {
+    return {m_Data[col], m_Data[col + 3], m_Data[col + 6]};
+  }
+
+  /**
+   *  @breif returns a row as a Matrix3x1<T>
+   * @param row
+   * @return
+   */
+  Matrix3X1<T> row(size_t row) const
+  {
+    return {m_Data[row * 3], m_Data[row * 3 + 1], m_Data[row * 3 + 2]};
+  }
+
+  /**
    * @brief Multiplies each element of a 3x1 matrix by a scalar value and returns the result
    * @param scalar to multiply each element by.
    */
-  SelfType operator*(T scalar)
+  SelfType operator*(T scalar) const
   {
     return {
         m_Data[0] * scalar, m_Data[1] * scalar, m_Data[2] * scalar, m_Data[3] * scalar, m_Data[4] * scalar, m_Data[5] * scalar, m_Data[6] * scalar, m_Data[7] * scalar, m_Data[8] * scalar,
@@ -229,7 +308,6 @@ public:
    * @param g
    * @param outMat
    */
-
   SelfType transpose() const
   {
     SelfType outMat;
@@ -249,7 +327,7 @@ public:
    * @brief Inverts the 3x3 matrix and returns the result
    * @return outMat
    */
-  SelfType invert()
+  SelfType invert() const
   {
     SelfType adjoint = this->adjoint();
     T oneOverDeterminant = 1.0 / this->determinant();
@@ -260,8 +338,7 @@ public:
    * @brief Calculates the Adjoint matrix of the 3x3 matrix returns the result
    * @return outMat
    */
-
-  SelfType adjoint()
+  SelfType adjoint() const
   {
     SelfType temp = this->cofactor();
     return temp.transpose();
@@ -271,7 +348,6 @@ public:
    * @brief Calculates the cofactor matrix and returns the result
    * @return outMat
    */
-
   SelfType cofactor() const
   {
     SelfType temp = this->minors();
@@ -296,7 +372,6 @@ public:
    * @brief Calculates the matrix of minors of the 3x3 matrix and places the result into outMat
    * @return outMat
    */
-
   SelfType minors() const
   {
     SelfType outMat;
@@ -317,8 +392,7 @@ public:
    * @param g 3x3 Vector
    * @return
    */
-
-  float determinant()
+  float determinant() const
   {
     return (m_Data[0] * (m_Data[4] * m_Data[8] - m_Data[5] * m_Data[7])) - (m_Data[1] * (m_Data[3] * m_Data[8] - m_Data[5] * m_Data[6])) +
            (m_Data[2] * (m_Data[3] * m_Data[7] - m_Data[4] * m_Data[6]));
@@ -328,17 +402,15 @@ public:
    * @brief Initializes the 3x3 matrix to the "Identity" matrix
    * @param g
    */
-
-  SelfType identity()
+  static SelfType Identity()
   {
     return {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
   }
 
   /**
-   * @brief Performs an "in place" normalization of the 3x1 vector.
+   * @brief Performs normalization of the 3x3 vector.
    * @param g
    */
-
   SelfType normalize() const
   {
     T denom = m_Data[0] * m_Data[0] + m_Data[3] * m_Data[3] + m_Data[6] * m_Data[6];
@@ -434,4 +506,13 @@ private:
 using Matrix3X3F = Matrix3X3<float>;
 using Matrix3X3D = Matrix3X3<double>;
 
-} // namespace EbsdLib
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const Matrix3X3<T>& obj)
+{
+  os << std::setw(3) << std::setprecision(16) << "| " << obj[0] << ", " << obj[1] << ", " << obj[2] << " |\n";
+  os << std::setw(3) << std::setprecision(16) << "| " << obj[3] << ", " << obj[4] << ", " << obj[5] << " |\n";
+  os << std::setw(3) << std::setprecision(16) << "| " << obj[6] << ", " << obj[7] << ", " << obj[8] << " |";
+  return os;
+}
+
+} // namespace ebsdlib

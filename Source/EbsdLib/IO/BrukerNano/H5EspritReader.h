@@ -43,7 +43,8 @@
 #include "EbsdLib/IO/BrukerNano/EspritPhase.h"
 #include "EbsdLib/IO/EbsdReader.h"
 #include "EbsdLib/IO/TSL/AngHeaderEntry.h"
-
+namespace ebsdlib
+{
 /**
  * @class H5EspritReader H5EspritReader.h EbsdLib/BrukerNano/H5EspritReader.h
  * @brief
@@ -92,19 +93,19 @@ public:
 
   EBSD_INSTANCE_2DVECTOR_PROPERTY(int, PatternDims)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumColumns, EbsdLib::H5Esprit::NCOLS)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumColumns, ebsdlib::H5Esprit::NCOLS)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::H5Esprit::NROWS)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, ebsdlib::H5Esprit::NROWS)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<double>, double, XStep, EbsdLib::H5Esprit::XSTEP)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<double>, double, XStep, ebsdlib::H5Esprit::XSTEP)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<double>, double, YStep, EbsdLib::H5Esprit::YSTEP)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<double>, double, YStep, ebsdlib::H5Esprit::YSTEP)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::H5Esprit::GridType)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, ebsdlib::H5Esprit::GridType)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, EbsdLib::H5Esprit::PatternWidth)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternWidth, ebsdlib::H5Esprit::PatternWidth)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, EbsdLib::H5Esprit::PatternHeight)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, PatternHeight, ebsdlib::H5Esprit::PatternHeight)
 
   /**
    * @brief These methods allow the developer to set/get the raw pointer for a given array, release ownership of the memory
@@ -129,22 +130,22 @@ public:
    * void free[NAME]Pointer();
    *
    */
-  // EBSD_POINTER_PROPERTY(DD, DD, EbsdLib::H5Esprit::DD_t)
-  EBSD_POINTER_PROPERTY(MAD, MAD, EbsdLib::H5Esprit::MAD_t)
-  //  EBSD_POINTER_PROPERTY(MADPhase, MADPhase, EbsdLib::H5Esprit::MADPhase_t)
-  EBSD_POINTER_PROPERTY(NIndexedBands, NIndexedBands, EbsdLib::H5Esprit::NIndexedBands_t)
-  //  EBSD_POINTER_PROPERTY(PCX, PCX, EbsdLib::H5Esprit::PCX_t)
-  //  EBSD_POINTER_PROPERTY(PCY, PCY, EbsdLib::H5Esprit::PCY_t)
-  EBSD_POINTER_PROPERTY(PHI, PHI, EbsdLib::H5Esprit::PHI_t)
-  EBSD_POINTER_PROPERTY(Phase, Phase, EbsdLib::H5Esprit::Phase_t)
-  EBSD_POINTER_PROPERTY(RadonBandCount, RadonBandCount, EbsdLib::H5Esprit::RadonBandCount_t)
-  EBSD_POINTER_PROPERTY(RadonQuality, RadonQuality, EbsdLib::H5Esprit::RadonQuality_t)
-  EBSD_POINTER_PROPERTY(XBEAM, XBEAM, EbsdLib::H5Esprit::XBEAM_t)
-  EBSD_POINTER_PROPERTY(YBEAM, YBEAM, EbsdLib::H5Esprit::YBEAM_t)
-  //  EBSD_POINTER_PROPERTY(XSAMPLE, XSAMPLE, EbsdLib::H5Esprit::XSAMPLE_t)
-  //  EBSD_POINTER_PROPERTY(YSAMPLE, YSAMPLE, EbsdLib::H5Esprit::YSAMPLE_t)
-  EBSD_POINTER_PROPERTY(phi1, phi1, EbsdLib::H5Esprit::phi1_t)
-  EBSD_POINTER_PROPERTY(phi2, phi2, EbsdLib::H5Esprit::phi2_t)
+  // EBSD_POINTER_PROPERTY(DD, DD, ebsdlib::H5Esprit::DD_t)
+  EBSD_POINTER_PROPERTY(MAD, MAD, ebsdlib::H5Esprit::MAD_t)
+  //  EBSD_POINTER_PROPERTY(MADPhase, MADPhase, ebsdlib::H5Esprit::MADPhase_t)
+  EBSD_POINTER_PROPERTY(NIndexedBands, NIndexedBands, ebsdlib::H5Esprit::NIndexedBands_t)
+  //  EBSD_POINTER_PROPERTY(PCX, PCX, ebsdlib::H5Esprit::PCX_t)
+  //  EBSD_POINTER_PROPERTY(PCY, PCY, ebsdlib::H5Esprit::PCY_t)
+  EBSD_POINTER_PROPERTY(PHI, PHI, ebsdlib::H5Esprit::PHI_t)
+  EBSD_POINTER_PROPERTY(Phase, Phase, ebsdlib::H5Esprit::Phase_t)
+  EBSD_POINTER_PROPERTY(RadonBandCount, RadonBandCount, ebsdlib::H5Esprit::RadonBandCount_t)
+  EBSD_POINTER_PROPERTY(RadonQuality, RadonQuality, ebsdlib::H5Esprit::RadonQuality_t)
+  EBSD_POINTER_PROPERTY(XBEAM, XBEAM, ebsdlib::H5Esprit::XBEAM_t)
+  EBSD_POINTER_PROPERTY(YBEAM, YBEAM, ebsdlib::H5Esprit::YBEAM_t)
+  //  EBSD_POINTER_PROPERTY(XSAMPLE, XSAMPLE, ebsdlib::H5Esprit::XSAMPLE_t)
+  //  EBSD_POINTER_PROPERTY(YSAMPLE, YSAMPLE, ebsdlib::H5Esprit::YSAMPLE_t)
+  EBSD_POINTER_PROPERTY(phi1, phi1, ebsdlib::H5Esprit::phi1_t)
+  EBSD_POINTER_PROPERTY(phi2, phi2, ebsdlib::H5Esprit::phi2_t)
 
   /**
    * @brief releaseOwnership
@@ -163,7 +164,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Reads the file
@@ -244,3 +245,4 @@ public:
   H5EspritReader& operator=(const H5EspritReader&) = delete; // Copy Assignment Not Implemented
   H5EspritReader& operator=(H5EspritReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

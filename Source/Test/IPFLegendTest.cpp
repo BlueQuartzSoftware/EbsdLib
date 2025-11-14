@@ -32,117 +32,37 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QImage>
-#include <fstream>
+#include <catch2/catch.hpp>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/Utilities/TiffWriter.h"
+
+#include "EbsdLib/Apps/EbsdLibFileLocations.h"
 #include "UnitTestSupport.hpp"
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/LaueOps/CubicLowOps.h"
-#include "EbsdLib/LaueOps/CubicOps.h"
-#include "EbsdLib/LaueOps/HexagonalLowOps.h"
-#include "EbsdLib/LaueOps/HexagonalOps.h"
-#include "EbsdLib/LaueOps/MonoclinicOps.h"
-#include "EbsdLib/LaueOps/OrthoRhombicOps.h"
-#include "EbsdLib/LaueOps/TetragonalLowOps.h"
-#include "EbsdLib/LaueOps/TetragonalOps.h"
-#include "EbsdLib/LaueOps/TriclinicOps.h"
-#include "EbsdLib/LaueOps/TrigonalLowOps.h"
-#include "EbsdLib/LaueOps/TrigonalOps.h"
-
-#include "OrientationLibTestFileLocations.h"
+#include <fstream>
 
 #define IMAGE_WIDTH 512
 #define IMAGE_HEIGHT 512
 
-class IPFLegendTest
+using namespace ebsdlib;
+
+// TODO: This unit test needs to compare the output to something that has been verified as correct
+
+TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
 {
-public:
-  IPFLegendTest() = default;
-  ~IPFLegendTest() = default;
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
 
-  IPFLegendTest(const IPFLegendTest&) = delete;            // Copy Constructor Not Implemented
-  IPFLegendTest(IPFLegendTest&&) = delete;                 // Move Constructor Not Implemented
-  IPFLegendTest& operator=(const IPFLegendTest&) = delete; // Copy Assignment Not Implemented
-  IPFLegendTest& operator=(IPFLegendTest&&) = delete;      // Move Assignment Not Implemented
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  int getImageSize()
+  for(size_t index = 0; index < 11; index++)
   {
-    return IMAGE_HEIGHT;
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void SaveImage(EbsdLib::UInt8ArrayType::Pointer rgbaImage, const std::string outputFile)
-  {
-    QRgb* rgba = reinterpret_cast<QRgb*>(rgbaImage->getPointer(0));
-
-    QImage image(getImageSize(), getImageSize(), QImage::Format_ARGB32_Premultiplied);
-
-    int32_t xDim = getImageSize();
-    int32_t yDim = getImageSize();
-    size_t idx = 0;
-
-    for(int32_t y = 0; y < yDim; ++y)
+    SECTION(ops[index]->getSymmetryName())
     {
-      for(int32_t x = 0; x < xDim; ++x)
-      {
-        idx = (y * xDim) + x;
-        image.setPixel(x, y, rgba[idx]);
-      }
+      ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false);
+      std::stringstream outputFilePathStream;
+      outputFilePathStream << UnitTest::TestTempDir << "/" << ops[index]->getNameOfClass() << ".tiff";
+      auto result = TiffWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
+      REQUIRE(result.first == 0);
     }
-
-    QFileInfo fi(outputFile);
-    QDir parent(fi.absolutePath());
-    if(parent.exists() == false)
-    {
-      parent.mkpath(fi.absolutePath());
-    }
-
-    bool saved = image.save(outputFile);
-    DREAM3D_REQUIRE(saved == true)
-#if REMOVE_TEST_FILES
-    bool removed = std::fstream::remove(outputFile);
-    DREAM3D_REQUIRE(removed == true)
-#endif
   }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  template <class LaueOpsType>
-  void TestIPFLegend(const std::string& outputFile)
-  {
-    LaueOpsType ops;
-    EbsdLib::UInt8ArrayType::Pointer image = ops.generateIPFTriangleLegend(IMAGE_WIDTH);
-
-    SaveImage(image, outputFile);
-  }
-
-  void operator()()
-  {
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-    int err = EXIT_SUCCESS;
-
-    // DREAM3D_REGISTER_TEST( TestIPFLegend<CubicLowOps>(UnitTest::IPFLegendTest::CubicLowFile ) )
-    DREAM3D_REGISTER_TEST(TestIPFLegend<CubicOps>(UnitTest::IPFLegendTest::CubicHighFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<HexagonalLowOps>(UnitTest::IPFLegendTest::HexagonalLowFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<HexagonalOps>(UnitTest::IPFLegendTest::HexagonalHighFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<MonoclinicOps>(UnitTest::IPFLegendTest::MonoclinicFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<OrthoRhombicOps>(UnitTest::IPFLegendTest::OrthorhombicFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<TetragonalLowOps>(UnitTest::IPFLegendTest::TetragonalLowFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<TetragonalOps>(UnitTest::IPFLegendTest::TetragonalHighFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<TriclinicOps>(UnitTest::IPFLegendTest::TriclinicFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<TrigonalLowOps>(UnitTest::IPFLegendTest::TrignonalLowFile))
-    DREAM3D_REGISTER_TEST(TestIPFLegend<TrigonalOps>(UnitTest::IPFLegendTest::TrignonalHighFile))
-  }
-};
+}

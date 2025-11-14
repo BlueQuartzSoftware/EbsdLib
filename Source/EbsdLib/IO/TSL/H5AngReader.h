@@ -47,6 +47,8 @@
 #include "AngPhase.h"
 #include "AngReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5AngReader H5AngReader.h EbsdLib/IO/TSL/H5AngReader.h
  * @brief
@@ -203,3 +205,4 @@ public:
   H5AngReader& operator=(const H5AngReader&) = delete; // Copy Assignment Not Implemented
   H5AngReader& operator=(H5AngReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

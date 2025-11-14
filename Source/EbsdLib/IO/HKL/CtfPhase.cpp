@@ -38,12 +38,14 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 CtfPhase::CtfPhase()
 : m_PhaseIndex(-1)
-, m_LaueGroup(EbsdLib::Ctf::LaueGroupTable::LG_Cubic_Low)
+, m_LaueGroup(ebsdlib::Ctf::LaueGroupTable::LG_Cubic_Low)
 , m_SpaceGroup(0)
 , m_PhaseName("-1")
 {
@@ -96,7 +98,7 @@ void CtfPhase::parsePhase(const std::string& line)
   m_PhaseName = tokens[2];
 
   // 4th set is the Symmetry group
-  m_LaueGroup = static_cast<EbsdLib::Ctf::LaueGroupTable>(std::stoi(tokens[3]));
+  m_LaueGroup = static_cast<ebsdlib::Ctf::LaueGroupTable>(std::stoi(tokens[3]));
 
   if(tokens.size() == 5)
   {
@@ -116,14 +118,14 @@ void CtfPhase::parsePhase(const std::string& line)
 // -----------------------------------------------------------------------------
 void CtfPhase::printSelf(std::ostream& stream)
 {
-  stream << EbsdLib::Ctf::LatticeConstants << " " << m_LatticeConstants[0] << ", " << m_LatticeConstants[1] << ", " << m_LatticeConstants[2] << " " << m_LatticeConstants[3] << ", "
+  stream << ebsdlib::Ctf::LatticeConstants << " " << m_LatticeConstants[0] << ", " << m_LatticeConstants[1] << ", " << m_LatticeConstants[2] << " " << m_LatticeConstants[3] << ", "
          << m_LatticeConstants[4] << ", " << m_LatticeConstants[5] << std::endl;
-  stream << EbsdLib::Ctf::PhaseName << " " << m_PhaseName << std::endl;
-  stream << EbsdLib::Ctf::LaueGroup << " " << m_LaueGroup << std::endl;
-  stream << EbsdLib::Ctf::SpaceGroup << " " << m_SpaceGroup << "  " << LaueOps::GetOrientationOpsFromSpaceGroupNumber(m_SpaceGroup)->getSymmetryName() << std::endl;
-  stream << EbsdLib::Ctf::Internal1 << " " << m_Internal1 << std::endl;
-  stream << EbsdLib::Ctf::Internal2 << " " << m_Internal2 << std::endl;
-  stream << EbsdLib::Ctf::Comment << " " << m_Comment << std::endl;
+  stream << ebsdlib::Ctf::PhaseName << " " << m_PhaseName << std::endl;
+  stream << ebsdlib::Ctf::LaueGroup << " " << m_LaueGroup << std::endl;
+  stream << ebsdlib::Ctf::SpaceGroup << " " << m_SpaceGroup << "  " << LaueOps::GetOrientationOpsFromSpaceGroupNumber(m_SpaceGroup)->getSymmetryName() << std::endl;
+  stream << ebsdlib::Ctf::Internal1 << " " << m_Internal1 << std::endl;
+  stream << ebsdlib::Ctf::Internal2 << " " << m_Internal2 << std::endl;
+  stream << ebsdlib::Ctf::Comment << " " << m_Comment << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -131,38 +133,38 @@ void CtfPhase::printSelf(std::ostream& stream)
 // -----------------------------------------------------------------------------
 unsigned int CtfPhase::determineOrientationOpsIndex()
 {
-  EbsdLib::Ctf::LaueGroupTable symmetry = getLaueGroup();
+  ebsdlib::Ctf::LaueGroupTable symmetry = getLaueGroup();
 
   switch(symmetry)
   {
-  case EbsdLib::Ctf::LG_Triclinic:
-    return EbsdLib::CrystalStructure::Triclinic;
-  case EbsdLib::Ctf::LG_Monoclinic:
-    return EbsdLib::CrystalStructure::Monoclinic;
-  case EbsdLib::Ctf::LG_Orthorhombic:
-    return EbsdLib::CrystalStructure::OrthoRhombic;
-  case EbsdLib::Ctf::LG_Tetragonal_Low:
-    return EbsdLib::CrystalStructure::Tetragonal_Low;
-  case EbsdLib::Ctf::LG_Tetragonal_High:
-    return EbsdLib::CrystalStructure::Tetragonal_High;
-  case EbsdLib::Ctf::LG_Trigonal_Low:
-    return EbsdLib::CrystalStructure::Trigonal_Low;
-  case EbsdLib::Ctf::LG_Trigonal_High:
-    return EbsdLib::CrystalStructure::Trigonal_High;
-  case EbsdLib::Ctf::LG_Hexagonal_Low:
-    return EbsdLib::CrystalStructure::Hexagonal_Low;
-  case EbsdLib::Ctf::LG_Hexagonal_High:
-    return EbsdLib::CrystalStructure::Hexagonal_High;
-  case EbsdLib::Ctf::LG_Cubic_Low:
-    return EbsdLib::CrystalStructure::Cubic_Low;
-  case EbsdLib::Ctf::LG_Cubic_High:
-    return EbsdLib::CrystalStructure::Cubic_High;
-  case EbsdLib::Ctf::UnknownSymmetry:
-    return EbsdLib::CrystalStructure::UnknownCrystalStructure;
+  case ebsdlib::Ctf::LG_Triclinic:
+    return ebsdlib::CrystalStructure::Triclinic;
+  case ebsdlib::Ctf::LG_Monoclinic:
+    return ebsdlib::CrystalStructure::Monoclinic;
+  case ebsdlib::Ctf::LG_Orthorhombic:
+    return ebsdlib::CrystalStructure::OrthoRhombic;
+  case ebsdlib::Ctf::LG_Tetragonal_Low:
+    return ebsdlib::CrystalStructure::Tetragonal_Low;
+  case ebsdlib::Ctf::LG_Tetragonal_High:
+    return ebsdlib::CrystalStructure::Tetragonal_High;
+  case ebsdlib::Ctf::LG_Trigonal_Low:
+    return ebsdlib::CrystalStructure::Trigonal_Low;
+  case ebsdlib::Ctf::LG_Trigonal_High:
+    return ebsdlib::CrystalStructure::Trigonal_High;
+  case ebsdlib::Ctf::LG_Hexagonal_Low:
+    return ebsdlib::CrystalStructure::Hexagonal_Low;
+  case ebsdlib::Ctf::LG_Hexagonal_High:
+    return ebsdlib::CrystalStructure::Hexagonal_High;
+  case ebsdlib::Ctf::LG_Cubic_Low:
+    return ebsdlib::CrystalStructure::Cubic_Low;
+  case ebsdlib::Ctf::LG_Cubic_High:
+    return ebsdlib::CrystalStructure::Cubic_High;
+  case ebsdlib::Ctf::UnknownSymmetry:
+    return ebsdlib::CrystalStructure::UnknownCrystalStructure;
   default:
     break;
   }
-  return EbsdLib::CrystalStructure::UnknownCrystalStructure;
+  return ebsdlib::CrystalStructure::UnknownCrystalStructure;
 }
 
 // -----------------------------------------------------------------------------

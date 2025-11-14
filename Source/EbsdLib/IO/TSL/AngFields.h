@@ -44,6 +44,8 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngConstants.h"
 
+namespace ebsdlib
+{
 /**
  * @class AngFields AngFields.h EbsdLib/IO/TSL/AngFields.h
  * @brief This class simply holds the names of the columns that are present in the
@@ -65,18 +67,18 @@ public:
   {
     T features;
 
-    features.push_back(EbsdLib::Ang::ImageQuality);
-    features.push_back(EbsdLib::Ang::ConfidenceIndex);
-    features.push_back(EbsdLib::Ang::SEMSignal);
-    features.push_back(EbsdLib::Ang::Fit);
-    features.push_back(EbsdLib::Ang::XPosition);
-    features.push_back(EbsdLib::Ang::YPosition);
+    features.push_back(ebsdlib::Ang::ImageQuality);
+    features.push_back(ebsdlib::Ang::ConfidenceIndex);
+    features.push_back(ebsdlib::Ang::SEMSignal);
+    features.push_back(ebsdlib::Ang::Fit);
+    features.push_back(ebsdlib::Ang::XPosition);
+    features.push_back(ebsdlib::Ang::YPosition);
     return features;
   }
 
-public:
   AngFields(const AngFields&) = delete;            // Copy Constructor Not Implemented
   AngFields(AngFields&&) = delete;                 // Move Constructor Not Implemented
   AngFields& operator=(const AngFields&) = delete; // Copy Assignment Not Implemented
   AngFields& operator=(AngFields&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

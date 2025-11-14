@@ -49,6 +49,8 @@
 #include "EbsdLib/IO/EbsdImporter.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5AngImporter H5AngImporter.h EbsdLib/IO/TSL/H5AngImporter.h
  * @brief This class will read a series of .ang files and store the values into
@@ -148,3 +150,4 @@ public:
   H5AngImporter& operator=(const H5AngImporter&) = delete; // Copy Assignment Not Implemented
   H5AngImporter& operator=(H5AngImporter&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

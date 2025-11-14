@@ -45,6 +45,8 @@
 #include "EbsdLib/IO/H5EbsdVolumeReader.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5CtfVolumeReader H5CtfVolumeReader.h Reconstruction/EbsdSupport/H5CtfVolumeReader.h
  * @brief This class loads EBSD data from an HDF5 based file.
@@ -131,7 +133,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -195,3 +197,4 @@ public:
   H5CtfVolumeReader& operator=(const H5CtfVolumeReader&) = delete; // Copy Assignment Not Implemented
   H5CtfVolumeReader& operator=(H5CtfVolumeReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

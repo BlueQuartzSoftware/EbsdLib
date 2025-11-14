@@ -71,7 +71,7 @@ public:
    * @param eulerTransformation
    * @return
    */
-  static EbsdLib::EbsdToSampleCoordinateMapping IdentifyStandardTransformation(const std::array<float, 4>& sampleTransformation, const std::array<float, 4>& eulerTransformation);
+  static ebsdlib::EbsdToSampleCoordinateMapping IdentifyStandardTransformation(const std::array<float, 4>& sampleTransformation, const std::array<float, 4>& eulerTransformation);
 
 public:
   EbsdTransform(const EbsdTransform&) = delete;            // Copy Constructor Not Implemented

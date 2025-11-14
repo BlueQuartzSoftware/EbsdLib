@@ -40,7 +40,8 @@
 #include <vector>
 
 #include "EbsdLib/EbsdLib.h"
-
+namespace ebsdlib
+{
 /**
  * @class PoleFigureData PoleFigureData.h StatsGenerator/PoleFigureData.h
  * @brief
@@ -78,3 +79,4 @@ public:
 
 private:
 };
+} // namespace ebsdlib

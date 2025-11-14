@@ -32,6 +32,7 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#include <catch2/catch.hpp>
 
 #include <cstring>
 #include <fstream>
@@ -42,7 +43,6 @@
 
 #ifdef EbsdLib_ENABLE_HDF5
 #include "EbsdLib/IO/TSL/H5AngImporter.h"
-#include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 #endif
 
@@ -50,136 +50,84 @@
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-class AngImportTest
+using namespace ebsdlib;
+
+TEST_CASE("ebsdlib::AngImportTest-TestNormalFile", "[EbsdLib][AngImportTest]")
 {
-public:
-  AngImportTest() = default;
-  virtual ~AngImportTest() = default;
+  // This is just a normal Ang file, well formed and should read without error
+  AngReader reader;
+  reader.setFileName(UnitTest::AngImportTest::TestFile1);
+  int err = reader.readFile();
+  std::cout << reader.getErrorMessage();
+  REQUIRE(err == 0);
 
-  EBSD_GET_NAME_OF_CLASS_DECL(AngImportTest)
+  size_t numElements = reader.getNumberOfElements();
+  REQUIRE(numElements == 160);
+  float* ptr = reader.getPhi1Pointer();
+  REQUIRE(ptr[159] == 12.56637f);
+}
 
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
-  {
-#if REMOVE_TEST_FILES
-    fs::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
-#endif
-  }
+TEST_CASE("ebsdlib::AngImportTest-TestMissingHeaders", "[EbsdLib][AngImportTest]")
+{
 
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestMissingHeaders()
-  {
+  AngReader reader;
+  reader.setFileName(UnitTest::AngImportTest::MissingHeader1);
+  int err = reader.readHeaderOnly();
+  // It should read through this header just fine
+  REQUIRE(err > 0);
 
-    AngReader reader;
-    reader.setFileName(UnitTest::AngImportTest::MissingHeader1);
-    int err = reader.readHeaderOnly();
-    // It should read through this header just fine
-    DREAM3D_REQUIRE(err > 0)
+  int value = reader.getNumEvenCols();
+  REQUIRE(value == -1);
 
-    int value = reader.getNumEvenCols();
-    DREAM3D_REQUIRE_EQUAL(value, -1)
+  value = reader.getNumOddCols();
+  REQUIRE(value == -1);
 
-    value = reader.getNumOddCols();
-    DREAM3D_REQUIRE_EQUAL(value, -1)
+  value = reader.getNumRows();
+  REQUIRE(value == -1);
 
-    value = reader.getNumRows();
-    DREAM3D_REQUIRE_EQUAL(value, -1)
+  float step = reader.getXStep();
+  REQUIRE(step == 0.0f);
 
-    float step = reader.getXStep();
-    DREAM3D_REQUIRE_EQUAL(step, 0.0f)
+  step = reader.getYStep();
+  REQUIRE(step == 0.0f);
 
-    step = reader.getYStep();
-    DREAM3D_REQUIRE_EQUAL(step, 0.0f)
+  err = reader.readFile();
+  std::cout << reader.getErrorMessage();
+  REQUIRE(err == -110);
+}
 
-    err = reader.readFile();
-    std::cout << reader.getErrorMessage();
-    DREAM3D_REQUIRED(err, ==, -110)
-  }
+TEST_CASE("ebsdlib::AngImportTest-TestHexGrid", "[EbsdLib][AngImportTest]")
+{
+  AngReader reader;
+  reader.setFileName(UnitTest::AngImportTest::HexHeader);
+  int err = reader.readHeaderOnly();
+  // It should read through this header just fine
+  REQUIRE(err > 0);
 
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestMissingGrid()
-  {
+  err = reader.readFile();
+  std::cout << reader.getErrorMessage();
+  REQUIRE(err == -400);
+}
 
-    AngReader reader;
-    reader.setFileName(UnitTest::AngImportTest::GridMissing);
-    int err = reader.readHeaderOnly();
-    // It should read through this header just fine
-    DREAM3D_REQUIRE(err > 0)
+TEST_CASE("ebsdlib::AngImportTest-TestMissingGrid", "[EbsdLib][AngImportTest]")
+{
+  AngReader reader;
+  reader.setFileName(UnitTest::AngImportTest::GridMissing);
+  int err = reader.readHeaderOnly();
+  // It should read through this header just fine
+  REQUIRE(err > 0);
 
-    err = reader.readFile();
-    std::cout << reader.getErrorMessage();
-    DREAM3D_REQUIRED(err, ==, -300)
-  }
+  err = reader.readFile();
+  std::cout << reader.getErrorMessage();
+  REQUIRE(err == -300);
+}
 
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestHexGrid()
-  {
-
-    AngReader reader;
-    reader.setFileName(UnitTest::AngImportTest::HexHeader);
-    int err = reader.readHeaderOnly();
-    // It should read through this header just fine
-    DREAM3D_REQUIRE(err > 0)
-
-    err = reader.readFile();
-    std::cout << reader.getErrorMessage();
-    DREAM3D_REQUIRED(err, ==, -400)
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestShortFile()
-  {
-    AngReader reader;
-    reader.setFileName(UnitTest::AngImportTest::ShortFile);
-    int err = reader.readFile();
-    // It should read through this header just fine but die when reading the file because there is not enough data being read
-    std::cout << reader.getErrorMessage();
-    DREAM3D_REQUIRED(err, <, 0)
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestNormalFile()
-  {
-    // This is just a normal Ang file, well formed and should read without error
-    AngReader reader;
-    reader.setFileName(UnitTest::AngImportTest::TestFile1);
-    int err = reader.readFile();
-    std::cout << reader.getErrorMessage();
-    DREAM3D_REQUIRED(err, ==, 0)
-
-    size_t numElements = reader.getNumberOfElements();
-    DREAM3D_REQUIRED(numElements, ==, 160)
-    float* ptr = reader.getPhi1Pointer();
-    DREAM3D_REQUIRED(ptr[159], ==, 12.56637f)
-  }
-
-  void operator()()
-  {
-    int err = EXIT_SUCCESS;
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-    DREAM3D_REGISTER_TEST(TestNormalFile())
-    DREAM3D_REGISTER_TEST(TestMissingHeaders())
-    DREAM3D_REGISTER_TEST(TestHexGrid())
-    DREAM3D_REGISTER_TEST(TestMissingGrid())
-    DREAM3D_REGISTER_TEST(TestShortFile())
-
-    DREAM3D_REGISTER_TEST(RemoveTestFiles())
-  }
-
-public:
-  AngImportTest(const AngImportTest&) = delete;            // Copy Constructor Not Implemented
-  AngImportTest(AngImportTest&&) = delete;                 // Move Constructor Not Implemented
-  AngImportTest& operator=(const AngImportTest&) = delete; // Copy Assignment Not Implemented
-  AngImportTest& operator=(AngImportTest&&) = delete;      // Move Assignment Not Implemented
-};
+TEST_CASE("ebsdlib::AngImportTest-TestShortFile", "[EbsdLib][AngImportTest]")
+{
+  AngReader reader;
+  reader.setFileName(UnitTest::AngImportTest::ShortFile);
+  int err = reader.readFile();
+  // It should read through this header just fine but die when reading the file because there is not enough data being read
+  std::cout << reader.getErrorMessage();
+  REQUIRE(err < 0);
+}

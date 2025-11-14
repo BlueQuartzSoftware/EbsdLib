@@ -41,7 +41,7 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 class EbsdLib_EXPORT ColorUtilities
@@ -56,7 +56,7 @@ public:
    * @param v 0-1 Range
    * @return Rgb Conversion
    */
-  static EbsdLib::Rgb ConvertHSVtoRgb(float h, float s, float v);
+  static ebsdlib::Rgb ConvertHSVtoRgb(float h, float s, float v);
 
   /**
    * @brief
@@ -65,7 +65,7 @@ public:
    * @param v a fraction between 0 and 1
    * @return Rgb Conversion
    */
-  static EbsdLib::Rgb Hsv2Rgb(float h, float s, float v);
+  static ebsdlib::Rgb Hsv2Rgb(float h, float s, float v);
 
   /**
    * @brief Generates a vector of colors based on the HSV color wheel. The colors
@@ -75,10 +75,10 @@ public:
    * @param value      Range between 0-255
    * @return
    */
-  static std::vector<EbsdLib::Rgb> GenerateColors(int count, int saturation = 255, int value = 255);
+  static std::vector<ebsdlib::Rgb> GenerateColors(int count, int saturation = 255, int value = 255);
 
 protected:
   ColorUtilities();
 };
 
-} // namespace EbsdLib
+} // namespace ebsdlib

@@ -45,6 +45,8 @@
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 #include "EbsdLib/IO/HKL/CtfReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5CtfReader H5CtfReader EbsdLib/IO/HKL/H5CtfReader.h
  * @brief
@@ -190,3 +192,4 @@ public:
   H5CtfReader& operator=(const H5CtfReader&) = delete; // Copy Assignment Not Implemented
   H5CtfReader& operator=(H5CtfReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

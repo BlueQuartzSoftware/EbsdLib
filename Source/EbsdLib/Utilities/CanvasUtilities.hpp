@@ -6,10 +6,10 @@
 
 #include <canvas_ity.hpp>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
-using Point3DType = EbsdLib::Matrix3X1<double>;
+using Point3DType = ebsdlib::Matrix3X1<double>;
 
 /**
  * @brief
@@ -45,7 +45,7 @@ EbsdLib_EXPORT std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3D
  * @param height
  * @return
  */
-EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8ArrayType::Pointer image, int width, int height);
+EbsdLib_EXPORT ebsdlib::UInt8ArrayType::Pointer DrawStandardCubicProjection(ebsdlib::UInt8ArrayType::Pointer image, int width, int height);
 
 /**
  * @brief
@@ -54,7 +54,7 @@ EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(Ebsd
  * @param pageHeight
  * @return
  */
-EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight);
+EbsdLib_EXPORT ebsdlib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(ebsdlib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight);
 
 /**
  * @brief
@@ -64,7 +64,7 @@ EbsdLib_EXPORT EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(
  * @param halfWidth
  * @param figureOrigin
  */
-EbsdLib_EXPORT void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdLib::Point3DType>& directions, int numPoints, int halfWidth, std::array<float, 2> figureOrigin);
+EbsdLib_EXPORT void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<ebsdlib::Point3DType>& directions, int numPoints, int halfWidth, std::array<float, 2> figureOrigin);
 
 // -----------------------------------------------------------------------------
 template <typename T>
@@ -180,4 +180,4 @@ typename EbsdDataArray<T>::Pointer CropRGBImage(typename EbsdDataArray<T>::Point
   return converted;
 }
 
-} // namespace EbsdLib
+} // namespace ebsdlib

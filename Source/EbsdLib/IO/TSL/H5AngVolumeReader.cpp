@@ -46,6 +46,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -73,7 +75,7 @@ H5AngVolumeReader::~H5AngVolumeReader()
 }
 
 #define H5ANGREADER_ALLOCATE_ARRAY(name, type)                                                                                                                                                         \
-  if(readAllArrays == true || arrayNames.find(EbsdLib::Ang::name) != arrayNames.end())                                                                                                                 \
+  if(readAllArrays == true || arrayNames.find(ebsdlib::Ang::name) != arrayNames.end())                                                                                                                 \
   {                                                                                                                                                                                                    \
     auto _##name = allocateArray<type>(numElements);                                                                                                                                                   \
     if(nullptr != _##name)                                                                                                                                                                             \
@@ -127,43 +129,43 @@ void H5AngVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 void* H5AngVolumeReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName == EbsdLib::Ang::Phi1)
+  if(featureName == ebsdlib::Ang::Phi1)
   {
     return static_cast<void*>(m_Phi1);
   }
-  if(featureName == EbsdLib::Ang::Phi)
+  if(featureName == ebsdlib::Ang::Phi)
   {
     return static_cast<void*>(m_Phi);
   }
-  if(featureName == EbsdLib::Ang::Phi2)
+  if(featureName == ebsdlib::Ang::Phi2)
   {
     return static_cast<void*>(m_Phi2);
   }
-  if(featureName == EbsdLib::Ang::ImageQuality)
+  if(featureName == ebsdlib::Ang::ImageQuality)
   {
     return static_cast<void*>(m_Iq);
   }
-  if(featureName == EbsdLib::Ang::ConfidenceIndex)
+  if(featureName == ebsdlib::Ang::ConfidenceIndex)
   {
     return static_cast<void*>(m_Ci);
   }
-  if(featureName == EbsdLib::Ang::PhaseData)
+  if(featureName == ebsdlib::Ang::PhaseData)
   {
     return static_cast<void*>(m_PhaseData);
   }
-  if(featureName == EbsdLib::Ang::XPosition)
+  if(featureName == ebsdlib::Ang::XPosition)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName == EbsdLib::Ang::YPosition)
+  if(featureName == ebsdlib::Ang::YPosition)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName == EbsdLib::Ang::SEMSignal)
+  if(featureName == ebsdlib::Ang::SEMSignal)
   {
     return static_cast<void*>(m_SEMSignal);
   }
-  if(featureName == EbsdLib::Ang::Fit)
+  if(featureName == ebsdlib::Ang::Fit)
   {
     return static_cast<void*>(m_Fit);
   }
@@ -173,49 +175,49 @@ void* H5AngVolumeReader::getPointerByName(const std::string& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5AngVolumeReader::getPointerType(const std::string& featureName)
+ebsdlib::NumericTypes::Type H5AngVolumeReader::getPointerType(const std::string& featureName)
 {
-  if(featureName == EbsdLib::Ang::Phi1)
+  if(featureName == ebsdlib::Ang::Phi1)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::Phi)
+  if(featureName == ebsdlib::Ang::Phi)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::Phi2)
+  if(featureName == ebsdlib::Ang::Phi2)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::ImageQuality)
+  if(featureName == ebsdlib::Ang::ImageQuality)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::ConfidenceIndex)
+  if(featureName == ebsdlib::Ang::ConfidenceIndex)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::PhaseData)
+  if(featureName == ebsdlib::Ang::PhaseData)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::Ang::XPosition)
+  if(featureName == ebsdlib::Ang::XPosition)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::YPosition)
+  if(featureName == ebsdlib::Ang::YPosition)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::SEMSignal)
+  if(featureName == ebsdlib::Ang::SEMSignal)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ang::Fit)
+  if(featureName == ebsdlib::Ang::Fit)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -361,15 +363,15 @@ int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
     ystop = ypointsslice;
 
     // If no stacking order preference was passed, read it from the file and use that value
-    if(ZDir == EbsdLib::RefFrameZDir::UnknownRefFrameZDirection)
+    if(ZDir == ebsdlib::RefFrameZDir::UnknownRefFrameZDirection)
     {
       ZDir = getStackingOrder();
     }
-    if(ZDir == EbsdLib::RefFrameZDir::LowtoHigh)
+    if(ZDir == ebsdlib::RefFrameZDir::LowtoHigh)
     {
       zval = slice;
     }
-    if(ZDir == EbsdLib::RefFrameZDir::HightoLow)
+    if(ZDir == ebsdlib::RefFrameZDir::HightoLow)
     {
       zval = static_cast<int>((zpoints - 1) - slice);
     }

@@ -43,6 +43,8 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/H5EbsdVolumeInfo.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5EbsdVolumeReader H5EbsdVolumeReader EbsdLib/H5EbsdVolumeReader.h
  * @brief  This class defines the C++ interface that subclasses must implement
@@ -124,7 +126,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  virtual EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName);
+  virtual ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName);
 
   /** @brief Allocates the proper amount of memory (after reading the header portion of the file)
    * and then splats '0' across all the bytes of the memory allocation
@@ -163,3 +165,4 @@ public:
   H5EbsdVolumeReader& operator=(const H5EbsdVolumeReader&) = delete; // Copy Assignment Not Implemented
   H5EbsdVolumeReader& operator=(H5EbsdVolumeReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

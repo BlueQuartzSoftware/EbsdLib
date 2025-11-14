@@ -34,7 +34,7 @@
 
 #include <sstream>
 
-using namespace EbsdLib;
+using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 //

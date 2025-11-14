@@ -31,14 +31,14 @@
 #include <string>
 #include <vector>
 
-using namespace EbsdLib;
+using namespace ebsdlib;
 
 // const std::string k_Output_Dir(UnitTest::DataDir + "/IPF_Legend/");
 const std::string k_Output_Dir(UnitTest::TestTempDir + "/IPF_Legend/");
 
 using EbsdDoubleArrayType = EbsdDataArray<float>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
-using OCType = OrientationConverter<EbsdLib::DoubleArrayType, float>;
+using OCType = OrientationConverter<ebsdlib::DoubleArrayType, float>;
 
 std::map<std::string, int32_t> k_AlgorithmIndexMap = {{"eu", 0}, {"om", 1}, {"qu", 2}, {"aa", 3}, {"ro", 4}, {"ho", 5}, {"cu", 6}, {"st", 7}};
 
@@ -61,7 +61,7 @@ std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int3
   converters[5] = HomochoricConverter<EbsdDataArray<T>, T>::New();
   converters[6] = CubochoricConverter<EbsdDataArray<T>, T>::New();
 
-  std::vector<OrientationRepresentation::Type> ocTypes = OCType1::GetOrientationTypes();
+  std::vector<ebsdlib::orientations::Type> ocTypes = OCType1::GetOrientationTypes();
 
   converters[inputType]->setInputData(inputOrientations);
   converters[inputType]->convertRepresentationTo(ocTypes[outputType]);
@@ -190,7 +190,7 @@ public:
     std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
     double refDir[3] = {m_ReferenceDir[0], m_ReferenceDir[1], m_ReferenceDir[2]};
     double dEuler[3] = {0.0, 0.0, 0.0};
-    EbsdLib::Rgb argb = 0x00000000;
+    ebsdlib::Rgb argb = 0x00000000;
     int32_t phase = 0;
     bool calcIPF = false;
     size_t index = 0;
@@ -223,12 +223,12 @@ public:
         std::cout << "phase > number of phases" << std::endl;
       }
 
-      if(phase < numPhases && calcIPF && phase < EbsdLib::CrystalStructure::LaueGroupEnd)
+      if(phase < numPhases && calcIPF && phase < ebsdlib::CrystalStructure::LaueGroupEnd)
       {
         argb = ops[phase]->generateIPFColor(dEuler, refDir, false);
-        (*m_CellIPFColors)[index] = static_cast<uint8_t>(EbsdLib::RgbColor::dRed(argb));
-        (*m_CellIPFColors)[index + 1] = static_cast<uint8_t>(EbsdLib::RgbColor::dGreen(argb));
-        (*m_CellIPFColors)[index + 2] = static_cast<uint8_t>(EbsdLib::RgbColor::dBlue(argb));
+        (*m_CellIPFColors)[index] = static_cast<uint8_t>(ebsdlib::RgbColor::dRed(argb));
+        (*m_CellIPFColors)[index + 1] = static_cast<uint8_t>(ebsdlib::RgbColor::dGreen(argb));
+        (*m_CellIPFColors)[index + 2] = static_cast<uint8_t>(ebsdlib::RgbColor::dBlue(argb));
       }
     }
   }
@@ -292,7 +292,7 @@ void GeneratePoleFigures(LaueOps& ops, int symType)
   config.order = {0, 1, 2};
   config.phaseName = "Generated Quaternions";
 
-  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures = ops.generatePoleFigure(config);
+  std::vector<ebsdlib::UInt8ArrayType::Pointer> poleFigures = ops.generatePoleFigure(config);
   size_t index = 0;
   for(auto& poleFigure : poleFigures)
   {
@@ -300,16 +300,16 @@ void GeneratePoleFigures(LaueOps& ops, int symType)
     // is in the upper left and the +Y points DOWN. But the algorithm used real XY coordinates
     // without knowledge of which reference frame we are in.
     // So first mirror the image across the X Axis
-    poleFigure = EbsdLib::MirrorImage(poleFigure.get(), config.imageDim);
+    poleFigure = ebsdlib::MirrorImage(poleFigure.get(), config.imageDim);
 
     // Overlay the Standard Projection annotations onto the Image
     if(symType == 1)
     {
-      poleFigure = EbsdLib::DrawStandardCubicProjection(poleFigure, config.imageDim, config.imageDim);
+      poleFigure = ebsdlib::DrawStandardCubicProjection(poleFigure, config.imageDim, config.imageDim);
     }
     else if(symType == 2)
     {
-      poleFigure = EbsdLib::DrawStandardHexagonalProjection(poleFigure, config.imageDim, config.imageDim);
+      poleFigure = ebsdlib::DrawStandardHexagonalProjection(poleFigure, config.imageDim, config.imageDim);
     }
     ss.str("");
 
@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.75F;
     int numRows = imageDim * 0.65F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -412,7 +412,7 @@ int main(int argc, char* argv[])
 
     legend = ops.generateIPFTriangleLegend(imageDim, false);
     int yCropped = imageDim * 0.6F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, 0, 0, imageDim, yCropped);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, 0, 0, imageDim, yCropped);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, yCropped, 3, legend->getPointer(0));
@@ -505,7 +505,7 @@ int main(int argc, char* argv[])
     int numCols = imageDim * 0.78F;
     int numRows = imageDim * 0.6F;
     legend = ops.generateIPFTriangleLegend(imageDim, false);
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
     int numCols = imageDim * 0.78F;
     int numRows = imageDim * 0.6F;
     legend = ops.generateIPFTriangleLegend(imageDim, false);
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -574,7 +574,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.70F;
     int numRows = imageDim * 0.6F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.80F;
     int numRows = imageDim * 0.5F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.70F;
     int numRows = imageDim * 0.5F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));
@@ -676,7 +676,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.90F;
     int numRows = imageDim * 0.65F;
-    legend = EbsdLib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
+    legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".tiff";
     result = TiffWriter::WriteColorImage(ss.str(), numCols, numRows, 3, legend->getPointer(0));

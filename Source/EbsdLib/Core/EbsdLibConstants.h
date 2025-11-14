@@ -59,7 +59,7 @@
  * @file EbsdConstants.h
  * @brief This file contains many constants that are generic to the EBSD library
  */
-namespace EbsdLib
+namespace ebsdlib
 {
 
 using Rgb = uint32_t;
@@ -188,28 +188,28 @@ namespace Utils
 {
 inline std::string getStringForEnum(uint32_t v)
 {
-  if(EbsdLib::RefFrameZDir::LowtoHigh == v)
+  if(ebsdlib::RefFrameZDir::LowtoHigh == v)
   {
-    return EbsdLib::StackingOrder::LowToHigh;
+    return ebsdlib::StackingOrder::LowToHigh;
   }
-  if(EbsdLib::RefFrameZDir::HightoLow == v)
+  if(ebsdlib::RefFrameZDir::HightoLow == v)
   {
-    return EbsdLib::StackingOrder::HighToLow;
+    return ebsdlib::StackingOrder::HighToLow;
   }
-  return EbsdLib::StackingOrder::UnknownStackingOrder;
+  return ebsdlib::StackingOrder::UnknownStackingOrder;
 }
 
 inline int32_t getEnumForString(const std::string& v)
 {
-  if(EbsdLib::StackingOrder::LowToHigh == v)
+  if(ebsdlib::StackingOrder::LowToHigh == v)
   {
-    return EbsdLib::RefFrameZDir::LowtoHigh;
+    return ebsdlib::RefFrameZDir::LowtoHigh;
   }
-  if(EbsdLib::StackingOrder::HighToLow == v)
+  if(ebsdlib::StackingOrder::HighToLow == v)
   {
-    return EbsdLib::RefFrameZDir::HightoLow;
+    return ebsdlib::RefFrameZDir::HightoLow;
   }
-  return EbsdLib::RefFrameZDir::UnknownRefFrameZDirection;
+  return ebsdlib::RefFrameZDir::UnknownRefFrameZDirection;
 }
 } // namespace Utils
 } // namespace StackingOrder
@@ -293,4 +293,4 @@ inline constexpr double BP[12] = {
 // Condense some of the namespaces to same some typing later on.
 namespace LPs = LambertParametersType;
 
-} // namespace EbsdLib
+} // namespace ebsdlib

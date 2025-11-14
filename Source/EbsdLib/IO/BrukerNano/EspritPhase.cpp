@@ -34,6 +34,8 @@
 
 #include <cstring>
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -64,56 +66,56 @@ unsigned int EspritPhase::determineOrientationOpsIndex()
 
   if(sg >= 1 && sg <= 2)
   {
-    return EbsdLib::CrystalStructure::Triclinic;
+    return ebsdlib::CrystalStructure::Triclinic;
   }
 
   if(sg >= 3 && sg <= 15)
   {
-    return EbsdLib::CrystalStructure::Monoclinic;
+    return ebsdlib::CrystalStructure::Monoclinic;
   }
 
   if(sg >= 16 && sg <= 74)
   {
-    return EbsdLib::CrystalStructure::OrthoRhombic;
+    return ebsdlib::CrystalStructure::OrthoRhombic;
   }
 
   if(sg >= 75 && sg <= 89)
   {
-    return EbsdLib::CrystalStructure::Tetragonal_Low;
+    return ebsdlib::CrystalStructure::Tetragonal_Low;
   }
   if(sg >= 90 && sg <= 142)
   {
-    return EbsdLib::CrystalStructure::Tetragonal_High;
+    return ebsdlib::CrystalStructure::Tetragonal_High;
   }
 
   if(sg >= 143 && sg <= 148)
   {
-    return EbsdLib::CrystalStructure::Trigonal_Low;
+    return ebsdlib::CrystalStructure::Trigonal_Low;
   }
   if(sg >= 149 && sg <= 167)
   {
-    return EbsdLib::CrystalStructure::Trigonal_High;
+    return ebsdlib::CrystalStructure::Trigonal_High;
   }
 
   if(sg >= 168 && sg <= 176)
   {
-    return EbsdLib::CrystalStructure::Hexagonal_Low;
+    return ebsdlib::CrystalStructure::Hexagonal_Low;
   }
   if(sg >= 177 && sg <= 194)
   {
-    return EbsdLib::CrystalStructure::Hexagonal_High;
+    return ebsdlib::CrystalStructure::Hexagonal_High;
   }
 
   if(sg >= 195 && sg <= 206)
   {
-    return EbsdLib::CrystalStructure::Cubic_Low;
+    return ebsdlib::CrystalStructure::Cubic_Low;
   }
   if(sg >= 207 && sg <= 230)
   {
-    return EbsdLib::CrystalStructure::Cubic_High;
+    return ebsdlib::CrystalStructure::Cubic_High;
   }
 
-  return EbsdLib::CrystalStructure::UnknownCrystalStructure;
+  return ebsdlib::CrystalStructure::UnknownCrystalStructure;
 }
 
 // -----------------------------------------------------------------------------

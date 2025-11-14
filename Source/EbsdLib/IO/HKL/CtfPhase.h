@@ -46,6 +46,8 @@
 
 #include "CtfConstants.h"
 
+namespace ebsdlib
+{
 /**
  * @class CtfPhase CtfPhase.h EbsdLib/IO/HKL/CtfPhase.h
  * @brief This class holds all the values for a "Phase" header block in an HKL .ctf file
@@ -88,7 +90,7 @@ public:
    */
   std::string getPhaseName() const;
 
-  EBSD_INSTANCE_PROPERTY(EbsdLib::Ctf::LaueGroupTable, LaueGroup) // <== Laue Group
+  EBSD_INSTANCE_PROPERTY(ebsdlib::Ctf::LaueGroupTable, LaueGroup) // <== Laue Group
 
   EBSD_INSTANCE_PROPERTY(int, SpaceGroup)
   /**
@@ -155,3 +157,4 @@ private:
   std::string m_Internal2 = {};
   std::string m_Comment = {};
 };
+} // namespace ebsdlib

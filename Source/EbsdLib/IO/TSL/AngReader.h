@@ -49,6 +49,8 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class AngReader AngReader.h EbsdLib/IO/TSL/AngReader.h
  * @brief This class is a self contained TSL OIM .ang file reader and will read a
@@ -65,39 +67,39 @@ public:
 
   /** @brief Header Values from the TSL ang file */
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, TEMpixPerum, EbsdLib::Ang::TEMPIXPerUM)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, TEMpixPerum, ebsdlib::Ang::TEMPIXPerUM)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStar, EbsdLib::Ang::XStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStar, ebsdlib::Ang::XStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStar, EbsdLib::Ang::YStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStar, ebsdlib::Ang::YStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, ZStar, EbsdLib::Ang::ZStar)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, ZStar, ebsdlib::Ang::ZStar)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, WorkingDistance, EbsdLib::Ang::WorkingDistance)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, WorkingDistance, ebsdlib::Ang::WorkingDistance)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, EbsdLib::Ang::Grid)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, Grid, ebsdlib::Ang::Grid)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::XStep)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, XStep, ebsdlib::Ang::XStep)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::YStep)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<float>, float, YStep, ebsdlib::Ang::YStep)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumOddCols, EbsdLib::Ang::NColsOdd)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumOddCols, ebsdlib::Ang::NColsOdd)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumEvenCols, EbsdLib::Ang::NColsEven)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumEvenCols, ebsdlib::Ang::NColsEven)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::NRows)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, NumRows, ebsdlib::Ang::NRows)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, OIMOperator, EbsdLib::Ang::OPERATOR)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, OIMOperator, ebsdlib::Ang::OPERATOR)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SampleID, EbsdLib::Ang::SAMPLEID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SampleID, ebsdlib::Ang::SAMPLEID)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SCANID, EbsdLib::Ang::SCANID)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, SCANID, ebsdlib::Ang::SCANID)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, VERSION, EbsdLib::Ang::Version)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, VERSION, ebsdlib::Ang::Version)
 
-  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, ColumnCount, EbsdLib::Ang::ColumnCount)
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnHeaders, EbsdLib::Ang::ColumnHeaders)
-  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnUnits, EbsdLib::Ang::ColumnUnits)
+  EBSDHEADER_INSTANCE_PROPERTY(AngHeaderEntry<int>, int, ColumnCount, ebsdlib::Ang::ColumnCount)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnHeaders, ebsdlib::Ang::ColumnHeaders)
+  EBSDHEADER_INSTANCE_PROPERTY(AngStringHeaderEntry, std::string, ColumnUnits, ebsdlib::Ang::ColumnUnits)
 
   EBSD_INSTANCE_PROPERTY(std::vector<AngPhase::Pointer>, PhaseVector)
 
@@ -151,7 +153,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Reads the complete TSL .ang file.
@@ -219,3 +221,4 @@ public:
   AngReader& operator=(const AngReader&) = delete; // Copy Assignment Not Implemented
   AngReader& operator=(AngReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

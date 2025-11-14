@@ -32,19 +32,21 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#include <catch2/catch.hpp>
 
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-#include "TestPrintFunctions.h"
 #include "UnitTestSupport.hpp"
 
 #include <Eigen/Core>
 
 #include <limits>
+
+using namespace ebsdlib;
 
 //clang-format off
 namespace detail
@@ -71,76 +73,45 @@ std::vector<std::array<bool, 22>> k_FZValues = {
 
 } // namespace detail
 
-class ConvertToFundamentalZoneTest
+static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
 {
-public:
-  ConvertToFundamentalZoneTest() = default;
-  virtual ~ConvertToFundamentalZoneTest() = default;
+  const float length = sqrt(rod[0] * rod[0] + rod[1] * rod[1] + rod[2] * rod[2]);
+  return {rod[0] / length, rod[1] / length, rod[2] / length, length};
+}
 
-  EBSD_GET_NAME_OF_CLASS_DECL(ConvertToFundamentalZoneTest)
-
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
+TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest", "[EbsdLib][ConvertToFundamentalZoneTest]")
+{
+  auto ops = LaueOps::GetAllOrientationOps();
+  std::cout << "############################################################\n";
+  for(size_t opsIdx = 0; opsIdx < ops.size() - 1; ++opsIdx) // We ONLY want Cubic 432 rotation group
   {
-#if REMOVE_TEST_FILES
-// fs::remove();
-#endif
-  }
+    std::cout << "OpsIndex: " << opsIdx << "  " << ops[opsIdx]->getRotationPointGroup() << ", " << ops[opsIdx]->getSymmetryName() << ", " << ops[opsIdx]->getPointGroup() << ", "
+              << ops[opsIdx]->FZTypeToString(ops[opsIdx]->getFZType()) << ", " << ops[opsIdx]->AxisOrderingTypeToString(ops[opsIdx]->getAxisOrderingType()) << std::endl;
+    const std::array<bool, 22>& testValues = detail::k_FZValues[opsIdx];
 
-  static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
-  {
-    const float length = sqrt(rod[0] * rod[0] + rod[1] * rod[1] + rod[2] * rod[2]);
-    return {rod[0] / length, rod[1] / length, rod[2] / length, length};
-  }
-
-  void TestRodrigues()
-  {
-    auto ops = LaueOps::GetAllOrientationOps();
-    std::cout << "############################################################\n";
-    for(size_t opsIdx = 0; opsIdx < ops.size() - 1; ++opsIdx) // We ONLY want Cubic 432 rotation group
+    for(size_t testIdx = 0; testIdx < testValues.size(); testIdx++)
     {
-      std::cout << "OpsIndex: " << opsIdx << "  " << ops[opsIdx]->getRotationPointGroup() << ", " << ops[opsIdx]->getSymmetryName() << ", " << ops[opsIdx]->getPointGroup() << ", "
-                << ops[opsIdx]->FZTypeToString(ops[opsIdx]->getFZType()) << ", " << ops[opsIdx]->AxisOrderingTypeToString(ops[opsIdx]->getAxisOrderingType()) << std::endl;
-      const std::array<bool, 22>& testValues = detail::k_FZValues[opsIdx];
+      // OrientationD testRod = OrientationTransformation::qu2ro<QuatD, OrientationD>(Detail::k_InputQuat);
+      std::array<double, 3> rod = detail::k_TestRodrigues[testIdx];
+      RodriguesDType testRod = convertRodrigues(rod);
+      bool isInside = LaueOps::IsInsideFZ(testRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
 
-      for(size_t testIdx = 0; testIdx < testValues.size(); testIdx++)
+      REQUIRE(isInside == testValues[testIdx]);
+      // if(testValues[testIdx] != isInside)
+      // {
+      //   std::stringstream ss;
+      //   ss << testIdx << ": " << "(" << rod[0] << ", " << rod[1] << ", " << rod[2] << "), " << testValues[testIdx] << ", " << isInside;
+      //   std::cout << ss.str() << std::endl;
+      // }
+
+      if(!isInside)
       {
-        // OrientationD testRod = OrientationTransformation::qu2ro<QuatD, OrientationD>(Detail::k_InputQuat);
-        std::array<double, 3> rod = detail::k_TestRodrigues[testIdx];
-        RodriguesDType testRod = convertRodrigues(rod);
-        bool isInside = LaueOps::IsInsideFZ(testRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
-
-        DREAM3D_REQUIRE_EQUAL(isInside, testValues[testIdx])
-        // if(testValues[testIdx] != isInside)
-        // {
-        //   std::stringstream ss;
-        //   ss << testIdx << ": " << "(" << rod[0] << ", " << rod[1] << ", " << rod[2] << "), " << testValues[testIdx] << ", " << isInside;
-        //   std::cout << ss.str() << std::endl;
-        // }
-
-        if(!isInside)
-        {
-          QuatD quat = testRod.toQuat();
-          QuatD fzQuat = ops[opsIdx]->getFZQuat(quat);
-          RodriguesDType fzRod = QuaternionDType(fzQuat).toRodrigues();
-          isInside = LaueOps::IsInsideFZ(fzRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
-          DREAM3D_REQUIRE_EQUAL(isInside, true);
-        }
+        QuatD quat = testRod.toQuaternion();
+        QuatD fzQuat = ops[opsIdx]->getFZQuat(quat);
+        RodriguesDType fzRod = QuaternionDType(fzQuat).toRodrigues();
+        isInside = LaueOps::IsInsideFZ(fzRod, ops[opsIdx]->getFZType(), ops[opsIdx]->getAxisOrderingType());
+        REQUIRE(isInside == true);
       }
     }
   }
-
-  // -----------------------------------------------------------------------------
-  void operator()()
-  {
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-    int err = EXIT_SUCCESS;
-    DREAM3D_REGISTER_TEST(TestRodrigues())
-  }
-
-public:
-  ConvertToFundamentalZoneTest(const ConvertToFundamentalZoneTest&) = delete;            // Copy Constructor Not Implemented
-  ConvertToFundamentalZoneTest(ConvertToFundamentalZoneTest&&) = delete;                 // Move Constructor Not Implemented
-  ConvertToFundamentalZoneTest& operator=(const ConvertToFundamentalZoneTest&) = delete; // Copy Assignment Not Implemented
-  ConvertToFundamentalZoneTest& operator=(ConvertToFundamentalZoneTest&&) = delete;      // Move Assignment Not Implemented
-};
+}

@@ -40,7 +40,8 @@
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/BrukerNano/EspritConstants.h"
-
+namespace ebsdlib
+{
 /**
  * @class EspritFields EspritFields.h EbsdLib/IO/HKL/EspritFields.h
  * @brief This class simply holds the names of the columns that are present in the
@@ -69,23 +70,23 @@ public:
   T getFilterFeatures()
   {
     T features;
-    // features.push_back(EbsdLib::H5Esprit::DD);
-    features.push_back(EbsdLib::H5Esprit::MAD);
-    // features.push_back(EbsdLib::H5Esprit::MADPhase);
-    features.push_back(EbsdLib::H5Esprit::NIndexedBands);
-    //    features.push_back(EbsdLib::H5Esprit::PCX);
-    //    features.push_back(EbsdLib::H5Esprit::PCY);
-    features.push_back(EbsdLib::H5Esprit::PHI);
-    features.push_back(EbsdLib::H5Esprit::Phase);
-    features.push_back(EbsdLib::H5Esprit::RadonBandCount);
-    features.push_back(EbsdLib::H5Esprit::RadonQuality);
-    features.push_back(EbsdLib::H5Esprit::RawPatterns);
-    features.push_back(EbsdLib::H5Esprit::XBEAM);
-    features.push_back(EbsdLib::H5Esprit::YBEAM);
-    //    features.push_back(EbsdLib::H5Esprit::XSAMPLE);
-    //    features.push_back(EbsdLib::H5Esprit::YSAMPLE);
-    features.push_back(EbsdLib::H5Esprit::phi1);
-    features.push_back(EbsdLib::H5Esprit::phi2);
+    // features.push_back(ebsdlib::H5Esprit::DD);
+    features.push_back(ebsdlib::H5Esprit::MAD);
+    // features.push_back(ebsdlib::H5Esprit::MADPhase);
+    features.push_back(ebsdlib::H5Esprit::NIndexedBands);
+    //    features.push_back(ebsdlib::H5Esprit::PCX);
+    //    features.push_back(ebsdlib::H5Esprit::PCY);
+    features.push_back(ebsdlib::H5Esprit::PHI);
+    features.push_back(ebsdlib::H5Esprit::Phase);
+    features.push_back(ebsdlib::H5Esprit::RadonBandCount);
+    features.push_back(ebsdlib::H5Esprit::RadonQuality);
+    features.push_back(ebsdlib::H5Esprit::RawPatterns);
+    features.push_back(ebsdlib::H5Esprit::XBEAM);
+    features.push_back(ebsdlib::H5Esprit::YBEAM);
+    //    features.push_back(ebsdlib::H5Esprit::XSAMPLE);
+    //    features.push_back(ebsdlib::H5Esprit::YSAMPLE);
+    features.push_back(ebsdlib::H5Esprit::phi1);
+    features.push_back(ebsdlib::H5Esprit::phi2);
     return features;
   }
 
@@ -97,3 +98,4 @@ public:
 
 private:
 };
+} // namespace ebsdlib

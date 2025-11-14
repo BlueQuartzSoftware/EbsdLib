@@ -39,6 +39,8 @@
 
 #include "EbsdLib/EbsdLib.h"
 
+namespace ebsdlib
+{
 /**
  * @class OrientationMath OrientationMath.h DREAM3DLib/Common/OrientationMath.h
  * @brief This class performs Crystallographic Misorientation Calculations
@@ -54,70 +56,70 @@ public:
   virtual ~OrientationMath();
 
 #if 0
-    /**
-     * @brief EulertoMatActive This function converts an Euler Angle triplet (Bunge)
-     * into a <b>ACTIVE</b> Orientation Matrix. This is taking a Crystal Coordinate
-     * system and transforming it to the Sample Coordinate System (C->S). Note that to convert
-     * from an ACTIVE to PASSIVE or PASSIVE to ACTIVE is just the transpose of the Orientation Maxtrix
-     * @param ea1
-     * @param ea2
-     * @param ea3
-     * @param g
-     */
-    static void EulertoMatActive(float ea1, float ea2, float ea3, float g[3][3]);
+  /**
+   * @brief EulertoMatActive This function converts an Euler Angle triplet (Bunge)
+   * into a <b>ACTIVE</b> Orientation Matrix. This is taking a Crystal Coordinate
+   * system and transforming it to the Sample Coordinate System (C->S). Note that to convert
+   * from an ACTIVE to PASSIVE or PASSIVE to ACTIVE is just the transpose of the Orientation Maxtrix
+   * @param ea1
+   * @param ea2
+   * @param ea3
+   * @param g
+   */
+  static void EulertoMatActive(float ea1, float ea2, float ea3, float g[3][3]);
 
-    /**
-     * @brief ChangeAxisReferenceFrame
-     * @param q
-     * @param n1
-     * @param n2
-     * @param n3
-     */
-    static void ChangeAxisReferenceFrame(QuatF& q, float& n1, float& n2, float& n3);
+  /**
+   * @brief ChangeAxisReferenceFrame
+   * @param q
+   * @param n1
+   * @param n2
+   * @param n3
+   */
+  static void ChangeAxisReferenceFrame(QuatF& q, float& n1, float& n2, float& n3);
 
-    /**
-     * @brief MatrixMisorientation
-     * @param g1
-     * @param g2
-     * @return
-     */
-    static float MatrixMisorientation(float g1[3][3], float g2[3][3]);
+  /**
+   * @brief MatrixMisorientation
+   * @param g1
+   * @param g2
+   * @return
+   */
+  static float MatrixMisorientation(float g1[3][3], float g2[3][3]);
 
-    /**
-     * @brief MultiplyQuaternionVector Multiplies a Vector by a quaternion putting the result into 'outVec'
-     * @param inQuat Input Quaternion
-     * @param inVec Input Vector (XYZ)
-     * @param outVec Resulting vector
-     */
-    static void MultiplyQuaternionVector(QuatF& inQuat, float inVec[3], float outVec[3]);
+  /**
+   * @brief MultiplyQuaternionVector Multiplies a Vector by a quaternion putting the result into 'outVec'
+   * @param inQuat Input Quaternion
+   * @param inVec Input Vector (XYZ)
+   * @param outVec Resulting vector
+   */
+  static void MultiplyQuaternionVector(QuatF& inQuat, float inVec[3], float outVec[3]);
 
-    /**
-    * @brief Does a passive Rotation of the coordinate system defined by w,n1,n2,n3 of the point xyz using Quaternion
-    * math to perform the rotation
-    * @param angle
-    * @param xAxis
-    * @param yAxis
-    * @param zAxis
-    * @param x
-    * @param y
-    * @param z
-    * @return The returned Quaternion is a "pure" Vector quaterion with a Zero value for the scalar (w) portion
-    */
-    static QuatF PassiveRotation(float angle, float xAxis, float yAxis, float zAxis, float x, float y, float z);
+  /**
+  * @brief Does a passive Rotation of the coordinate system defined by w,n1,n2,n3 of the point xyz using Quaternion
+  * math to perform the rotation
+  * @param angle
+  * @param xAxis
+  * @param yAxis
+  * @param zAxis
+  * @param x
+  * @param y
+  * @param z
+  * @return The returned Quaternion is a "pure" Vector quaterion with a Zero value for the scalar (w) portion
+  */
+  static QuatF PassiveRotation(float angle, float xAxis, float yAxis, float zAxis, float x, float y, float z);
 
-    /**
-    * @brief Does an active Rotation of (xyz) in using the Axis-Angle w,n1,n2,n3 using Quaternion math to perform
-    * the rotation
-    * @param angle
-    * @param xAxis
-    * @param yAxis
-    * @param zAxis
-    * @param x
-    * @param y
-    * @param z
-    * @return The returned Quaternion is a "pure" Vector quaterion with a Zero value for the scalar (w) portion
-    */
-    static QuatF ActiveRotation(float angle, float xAxis, float yAxis, float zAxis, float x, float y, float z);
+  /**
+  * @brief Does an active Rotation of (xyz) in using the Axis-Angle w,n1,n2,n3 using Quaternion math to perform
+  * the rotation
+  * @param angle
+  * @param xAxis
+  * @param yAxis
+  * @param zAxis
+  * @param x
+  * @param y
+  * @param z
+  * @return The returned Quaternion is a "pure" Vector quaterion with a Zero value for the scalar (w) portion
+  */
+  static QuatF ActiveRotation(float angle, float xAxis, float yAxis, float zAxis, float x, float y, float z);
 
 #endif
   /**
@@ -175,3 +177,4 @@ public:
   OrientationMath& operator=(const OrientationMath&) = delete; // Copy Assignment Not Implemented
   OrientationMath& operator=(OrientationMath&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

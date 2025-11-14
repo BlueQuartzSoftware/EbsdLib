@@ -42,6 +42,8 @@
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 
+namespace ebsdlib
+{
 // #pragma pack(push, r1, 1) /* push current alignment to stack. set alignment to 1 byte boundary */
 /*!
  * @struct HKLFamily_t is used to write the HKL Family to an HDF5 file using a
@@ -224,3 +226,4 @@ private:
 };
 
 // #pragma pack(pop, r1)
+} // namespace ebsdlib

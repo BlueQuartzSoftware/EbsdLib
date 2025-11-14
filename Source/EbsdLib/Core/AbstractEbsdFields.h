@@ -35,13 +35,15 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 
+#include <string>
+#include <vector>
+
+namespace ebsdlib
+{
 /**
  * @brief The AbstractEbsdFields class
  */
@@ -67,6 +69,5 @@ public:
   AbstractEbsdFields(AbstractEbsdFields&&) = delete;                 // Move Constructor Not Implemented
   AbstractEbsdFields& operator=(const AbstractEbsdFields&) = delete; // Copy Assignment Not Implemented
   AbstractEbsdFields& operator=(AbstractEbsdFields&&) = delete;      // Move Assignment Not Implemented
-
-private:
 };
+} // namespace ebsdlib

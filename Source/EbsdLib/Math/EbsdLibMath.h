@@ -145,7 +145,7 @@
 #define _MATH_DEFINES_DEFINED
 #endif
 
-namespace EbsdLib::Constants
+namespace ebsdlib::constants
 {
 // In C++ 20, can be replaced with <numbers> header
 
@@ -335,9 +335,9 @@ inline constexpr double k_Cos_ThreeEightPiD = k_Cos_ThreeEightPi<double>;
 inline constexpr float k_Sin_ThreeEightPiF = k_Sin_ThreeEightPi<float>;
 inline constexpr double k_Sin_ThreeEightPiD = k_Sin_ThreeEightPi<double>;
 
-} // namespace EbsdLib::Constants
+} // namespace ebsdlib::constants
 
-namespace EbsdLibMath
+namespace ebsdlib::math
 {
 EbsdLib_EXPORT float Gamma(float);
 
@@ -410,4 +410,4 @@ K transfer_sign(K a, K b)
 
   return -1 * a;
 }
-}; // namespace EbsdLibMath
+}; // namespace ebsdlib::math

@@ -36,6 +36,7 @@
 #include "OrientationMath.h"
 
 #include <cmath>
+using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 //

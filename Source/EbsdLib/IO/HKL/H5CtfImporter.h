@@ -45,6 +45,8 @@
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 #include "EbsdLib/IO/HKL/CtfReader.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5CtfImporter H5CtfImporter.h EbsdLib/IO/HKL/H5CtfImporter.h
  * @brief This class will read a series of .ctf files and store the values into
@@ -134,7 +136,7 @@ private:
   float yRes = 1.0f;
   float zRes = 1.0f;
   int m_NumSlicesImported = 1;
-  int m_FileVersion = EbsdLib::H5Aztec::FileVersion;
+  int m_FileVersion = ebsdlib::H5Aztec::FileVersion;
 
 public:
   H5CtfImporter(const H5CtfImporter&) = delete;            // Copy Constructor Not Implemented
@@ -142,3 +144,4 @@ public:
   H5CtfImporter& operator=(const H5CtfImporter&) = delete; // Copy Assignment Not Implemented
   H5CtfImporter& operator=(H5CtfImporter&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

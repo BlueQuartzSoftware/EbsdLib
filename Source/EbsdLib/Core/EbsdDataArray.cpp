@@ -415,54 +415,54 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::deepCopy(bool forceNoAlloca
  * @return
  */
 template <typename T>
-EbsdLib::NumericTypes::Type EbsdDataArray<T>::getType() const
+ebsdlib::NumericTypes::Type EbsdDataArray<T>::getType() const
 {
   if constexpr(std::is_same_v<T, int8_t>)
   {
-    return EbsdLib::NumericTypes::Type::Int8;
+    return ebsdlib::NumericTypes::Type::Int8;
   }
   else if constexpr(std::is_same_v<T, uint8_t>)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
   else if constexpr(std::is_same_v<T, int16_t>)
   {
-    return EbsdLib::NumericTypes::Type::Int16;
+    return ebsdlib::NumericTypes::Type::Int16;
   }
   else if constexpr(std::is_same_v<T, uint16_t>)
   {
-    return EbsdLib::NumericTypes::Type::UInt16;
+    return ebsdlib::NumericTypes::Type::UInt16;
   }
   else if constexpr(std::is_same_v<T, int32_t>)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
   else if constexpr(std::is_same_v<T, uint32_t>)
   {
-    return EbsdLib::NumericTypes::Type::UInt32;
+    return ebsdlib::NumericTypes::Type::UInt32;
   }
   else if constexpr(std::is_same_v<T, int64_t>)
   {
-    return EbsdLib::NumericTypes::Type::Int64;
+    return ebsdlib::NumericTypes::Type::Int64;
   }
   else if constexpr(std::is_same_v<T, uint64_t>)
   {
-    return EbsdLib::NumericTypes::Type::UInt64;
+    return ebsdlib::NumericTypes::Type::UInt64;
   }
   else if constexpr(std::is_same_v<T, float>)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
   else if constexpr(std::is_same_v<T, double>)
   {
-    return EbsdLib::NumericTypes::Type::Double;
+    return ebsdlib::NumericTypes::Type::Double;
   }
   else if constexpr(std::is_same_v<T, bool>)
   {
-    return EbsdLib::NumericTypes::Type::Bool;
+    return ebsdlib::NumericTypes::Type::Bool;
   }
 
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -1141,11 +1141,11 @@ int EbsdDataArray<T>::writeXdmfAttribute(std::stringstream& out, const int64_t* 
 
 // -----------------------------------------------------------------------------
 template <typename T>
-std::string EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) const
+std::string EbsdDataArray<T>::getInfoString(ebsdlib::InfoStringFormat format) const
 {
   std::string info;
   std::stringstream ss;
-  if(format == EbsdLib::HtmlFormat)
+  if(format == ebsdlib::HtmlFormat)
   {
     ss << "<html><head></head>\n";
     ss << "<body>\n";
@@ -1178,7 +1178,7 @@ std::string EbsdDataArray<T>::getInfoString(EbsdLib::InfoStringFormat format) co
     ss << "</tbody></table>\n";
     ss << "</body></html>";
   }
-  else if(format == EbsdLib::MarkDown)
+  else if(format == ebsdlib::MarkDown)
   {
     ss << "+ Name: " << getName() << "\n";
     ss << "+ Type: " << getTypeAsString() << "\n";

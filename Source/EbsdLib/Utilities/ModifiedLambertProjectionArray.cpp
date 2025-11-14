@@ -47,6 +47,8 @@
 using namespace H5Support;
 #endif
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -623,7 +625,7 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
   {
     return -2;
   }
-  hid_t gid = H5Utilities::createGroup(parentId, EbsdLib::StringConstants::GBCD);
+  hid_t gid = H5Utilities::createGroup(parentId, ebsdlib::StringConstants::GBCD);
   if(gid < 0)
   {
     return -1;
@@ -638,8 +640,8 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
 
   Create2DExpandableDataset(gid, dsetName, static_cast<int>(lambertElements), lambertElements * 2, tmp->getNorthSquare()->getPointer(0), tmp->getSouthSquare()->getPointer(0));
 
-  EbsdLib::DoubleArrayType* north = nullptr;
-  EbsdLib::DoubleArrayType* south = nullptr;
+  ebsdlib::DoubleArrayType* north = nullptr;
+  ebsdlib::DoubleArrayType* south = nullptr;
 
   // We start numbering our phases at 1. Anything in slot 0 is considered "Dummy" or invalid
   for(size_t i = 1; i < m_ModifiedLambertProjectionArray.size(); ++i)
@@ -665,7 +667,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
   // bool ok = false;
   int err = 0;
   std::string statsType;
-  hid_t gid = H5Utilities::openHDF5Object(parentId, EbsdLib::StringConstants::Statistics);
+  hid_t gid = H5Utilities::openHDF5Object(parentId, ebsdlib::StringConstants::Statistics);
   if(gid < 0)
   {
     return err;
@@ -684,7 +686,7 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
     // int index = 0;
     statsType = "";
     // index = std::string( *iter ).toInt(&ok, 10);
-    H5Lite::readStringAttribute(gid, name, EbsdLib::StringConstants::StatsType, statsType);
+    H5Lite::readStringAttribute(gid, name, ebsdlib::StringConstants::StatsType, statsType);
     hid_t statId = H5Utilities::openHDF5Object(gid, name);
     if(statId < 0)
     {
@@ -713,9 +715,9 @@ int ModifiedLambertProjectionArray::writeXdmfAttribute(std::stringstream& out, i
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::string ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFormat format) const
+std::string ModifiedLambertProjectionArray::getInfoString(ebsdlib::InfoStringFormat format) const
 {
-  if(format == EbsdLib::HtmlFormat)
+  if(format == ebsdlib::HtmlFormat)
   {
     return getToolTipGenerator().generateHTML();
   }
@@ -725,9 +727,9 @@ std::string ModifiedLambertProjectionArray::getInfoString(EbsdLib::InfoStringFor
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::ToolTipGenerator ModifiedLambertProjectionArray::getToolTipGenerator() const
+ebsdlib::ToolTipGenerator ModifiedLambertProjectionArray::getToolTipGenerator() const
 {
-  EbsdLib::ToolTipGenerator toolTipGen;
+  ebsdlib::ToolTipGenerator toolTipGen;
 
   toolTipGen.addTitle("Attribute Array Info");
   toolTipGen.addValue("Name", getName());

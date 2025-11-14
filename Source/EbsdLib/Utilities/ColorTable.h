@@ -43,7 +43,7 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
-namespace EbsdLib
+namespace ebsdlib
 {
 
 class EbsdLib_EXPORT RgbColor
@@ -52,47 +52,47 @@ public:
   /**
    * @brief Rgb An ARGB quadruplet on the format #AARRGGBB, equivalent to an unsigned int and The type also holds a value for the alpha-channel.
    */
-  inline static int dRed(EbsdLib::Rgb rgb)
+  inline static int dRed(ebsdlib::Rgb rgb)
   {
     return ((rgb >> 16) & 0xff);
   }
 
-  inline static int dGreen(EbsdLib::Rgb rgb)
+  inline static int dGreen(ebsdlib::Rgb rgb)
   {
     return ((rgb >> 8) & 0xff);
   }
 
-  inline static int dBlue(EbsdLib::Rgb rgb)
+  inline static int dBlue(ebsdlib::Rgb rgb)
   {
     return (rgb & 0xff);
   }
 
-  inline static int dAlpha(EbsdLib::Rgb rgb)
+  inline static int dAlpha(ebsdlib::Rgb rgb)
   {
     return rgb >> 24;
   }
 
-  inline static int dGray(EbsdLib::Rgb rgb)
+  inline static int dGray(ebsdlib::Rgb rgb)
   {
     return (((rgb >> 16) & 0xff) * 11 + ((rgb >> 8) & 0xff) * 16 + (rgb & 0xff) * 5) / 32;
   }
 
-  inline static EbsdLib::Rgb dRgb(int r, int g, int b, int a)
+  inline static ebsdlib::Rgb dRgb(int r, int g, int b, int a)
   {
     return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
   }
 
-  inline static void print(std::ostream& out, const char& sep, const EbsdLib::Rgb& rgb)
+  inline static void print(std::ostream& out, const char& sep, const ebsdlib::Rgb& rgb)
   {
-    out << EbsdLib::RgbColor::dRed(rgb) << sep << EbsdLib::RgbColor::dGreen(rgb) << sep << EbsdLib::RgbColor::dBlue(rgb);
+    out << ebsdlib::RgbColor::dRed(rgb) << sep << ebsdlib::RgbColor::dGreen(rgb) << sep << ebsdlib::RgbColor::dBlue(rgb);
   }
 
-  inline static bool compare(const EbsdLib::Rgb& left, const EbsdLib::Rgb& right)
+  inline static bool compare(const ebsdlib::Rgb& left, const ebsdlib::Rgb& right)
   {
     return left == right;
   }
 
-  inline static std::tuple<float, float, float> fRgb(EbsdLib::Rgb rgb)
+  inline static std::tuple<float, float, float> fRgb(ebsdlib::Rgb rgb)
   {
     return std::make_tuple(static_cast<float>(((rgb >> 16) & 0xff) / 255.0f), static_cast<float>(((rgb >> 8) & 0xff) / 255.0f), static_cast<float>((rgb & 0xff) / 255.0f));
   }
@@ -106,7 +106,7 @@ public:
   RgbColor& operator=(const RgbColor&) = delete; // Copy Assignment Not Implemented
   RgbColor& operator=(RgbColor&&) = delete;      // Move Assignment Not Implemented
 };
-} // namespace EbsdLib
+} // namespace ebsdlib
 class QJsonArray;
 
 /**

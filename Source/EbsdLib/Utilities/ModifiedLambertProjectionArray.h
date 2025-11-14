@@ -48,6 +48,8 @@
 #include "H5Support/H5SupportTypeDefs.h"
 #endif
 
+namespace ebsdlib
+{
 /**
  * @brief The ModifiedLambertProjectionArray class
  */
@@ -372,14 +374,14 @@ public:
    * @return Returns a formatted string that contains general infomation about
    * the instance of the object.
    */
-  std::string getInfoString(EbsdLib::InfoStringFormat format) const;
+  std::string getInfoString(ebsdlib::InfoStringFormat format) const;
 
   /**
    * @brief Returns a ToolTipGenerator for creating HTML tooltip tables
    * with values populated to match the current DataArray.
    * @return
    */
-  EbsdLib::ToolTipGenerator getToolTipGenerator() const;
+  ebsdlib::ToolTipGenerator getToolTipGenerator() const;
 
 protected:
   ModifiedLambertProjectionArray();
@@ -397,3 +399,4 @@ public:
   ModifiedLambertProjectionArray& operator=(const ModifiedLambertProjectionArray&) = delete; // Copy Assignment Not Implemented
   ModifiedLambertProjectionArray& operator=(ModifiedLambertProjectionArray&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

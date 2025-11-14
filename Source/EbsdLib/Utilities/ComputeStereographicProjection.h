@@ -36,31 +36,31 @@
 #include "EbsdLib/Math/Matrix3X1.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
-namespace Stereographic::Utils
+namespace stereographic::utils
 {
 
 template <typename T>
-EbsdLib::Matrix3X1<T> StereoToSpherical(const EbsdLib::Matrix3X1<T>& stereo)
+ebsdlib::Matrix3X1<T> StereoToSpherical(const ebsdlib::Matrix3X1<T>& stereo)
 {
   T sumOfSquares = stereo.dot();
   return {(2.0 * stereo[0]) / (1 + sumOfSquares), (2.0 * stereo[1]) / (1 + sumOfSquares), (1 - sumOfSquares) / (1 + sumOfSquares)};
 }
 
 template <typename T>
-EbsdLib::Matrix3X1<T> StereoToSpherical(T x, T y)
+ebsdlib::Matrix3X1<T> StereoToSpherical(T x, T y)
 {
   T sumOfSquares = x * x + y * y;
   return {(2.0 * x) / (1 + sumOfSquares), (2.0 * y) / (1 + sumOfSquares), (1 - sumOfSquares) / (1 + sumOfSquares)};
 }
 
 template <typename T>
-EbsdLib::Matrix3X1<T> SphericalToStereo(const EbsdLib::Matrix3X1<T>& spherical)
+ebsdlib::Matrix3X1<T> SphericalToStereo(const ebsdlib::Matrix3X1<T>& spherical)
 {
   return {spherical[0] / (1 + spherical[2]), spherical[1] / (1 + spherical[2]), 0.0};
 }
 
 template <typename T>
-EbsdLib::Matrix3X1<T> SphericalToStereo(T x, T y, T z)
+ebsdlib::Matrix3X1<T> SphericalToStereo(T x, T y, T z)
 {
   return {x / (1 + z), y / (1 + z), 0.0};
 }
@@ -71,10 +71,10 @@ EbsdLib::Matrix3X1<T> SphericalToStereo(T x, T y, T z)
  * @return
  */
 template <typename T>
-std::vector<EbsdLib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(const std::vector<EbsdLib::Matrix3X1<T>>& points)
+std::vector<ebsdlib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(const std::vector<ebsdlib::Matrix3X1<T>>& points)
 {
-  using Point3DType = EbsdLib::Matrix3X1<T>;
-  std::vector<EbsdLib::Matrix3X1<T>> stereoPts;
+  using Point3DType = ebsdlib::Matrix3X1<T>;
+  std::vector<ebsdlib::Matrix3X1<T>> stereoPts;
 
   for(const auto& point : points)
   {
@@ -91,8 +91,10 @@ std::vector<EbsdLib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(cons
   return stereoPts;
 }
 
-} // namespace Stereographic::Utils
+} // namespace stereographic::utils
 
+namespace ebsdlib
+{
 class EbsdLib_EXPORT ComputeStereographicProjection
 {
 public:
@@ -102,7 +104,7 @@ public:
    * @param config
    * @param intensity
    */
-  ComputeStereographicProjection(EbsdLib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, EbsdLib::DoubleArrayType* intensity);
+  ComputeStereographicProjection(ebsdlib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, ebsdlib::DoubleArrayType* intensity);
 
   virtual ~ComputeStereographicProjection();
 
@@ -118,9 +120,9 @@ protected:
   ComputeStereographicProjection();
 
 private:
-  EbsdLib::FloatArrayType* m_XYZCoords = nullptr;
+  ebsdlib::FloatArrayType* m_XYZCoords = nullptr;
   PoleFigureConfiguration_t* m_Config = nullptr;
-  EbsdLib::DoubleArrayType* m_Intensity = nullptr;
+  ebsdlib::DoubleArrayType* m_Intensity = nullptr;
 
 public:
   ComputeStereographicProjection(const ComputeStereographicProjection&) = delete; // Copy Constructor Not Implemented
@@ -128,3 +130,4 @@ public:
   ComputeStereographicProjection& operator=(const ComputeStereographicProjection&) = delete; // Copy Assignment Not Implemented
   ComputeStereographicProjection& operator=(ComputeStereographicProjection&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

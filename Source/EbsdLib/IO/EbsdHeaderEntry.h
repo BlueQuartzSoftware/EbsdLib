@@ -58,7 +58,8 @@
     SuperClass##Type sharedPtr(object);                                                                                                                                                                \
     return sharedPtr;                                                                                                                                                                                  \
   }
-
+namespace ebsdlib
+{
 /**
  * @class EbsdHeaderEntry EbsdHeaderEntry.h EbsdLib/EbsdHeaderEntry.h
  * @brief  This class defines the interface that subclasses need to implement in
@@ -121,3 +122,4 @@ public:
   EbsdHeaderEntry& operator=(const EbsdHeaderEntry&) = delete; // Copy Assignment Not Implemented
   EbsdHeaderEntry& operator=(EbsdHeaderEntry&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

@@ -41,13 +41,15 @@
 #include "EbsdLib/IO/TSL/AngConstants.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
+using namespace ebsdlib;
+
 HKLFamily::HKLFamily() = default;
 HKLFamily::~HKLFamily() = default;
 
 // -----------------------------------------------------------------------------
 void HKLFamily::printSelf(std::stringstream& stream) const
 {
-  stream << EbsdLib::Ang::HKLFamilies;
+  stream << ebsdlib::Ang::HKLFamilies;
   stream << " " << h << " " << k << " " << l << " " << diffractionIntensity << " " << (int)(s1) << " " << (int)(s2) << "\n";
 }
 
@@ -232,9 +234,9 @@ void AngPhase::parseCategories(std::vector<std::string>& tokens)
   m_Categories.clear();
   try
   {
-    if(tokens[0].size() != EbsdLib::Ang::Categories.size())
+    if(tokens[0].size() != ebsdlib::Ang::Categories.size())
     {
-      tokens[0] = EbsdStringUtils::replace(tokens[0], EbsdLib::Ang::Categories, "");
+      tokens[0] = EbsdStringUtils::replace(tokens[0], ebsdlib::Ang::Categories, "");
       m_Categories.push_back(std::stoi(tokens.at(0)));
     }
     for(size_t i = 1; i < tokens.size(); ++i)
@@ -256,13 +258,13 @@ void AngPhase::parseCategories(std::vector<std::string>& tokens)
 // -----------------------------------------------------------------------------
 void AngPhase::printSelf(std::stringstream& stream)
 {
-  stream << EbsdLib::Ang::Phase << ": " << m_PhaseIndex << std::string("\n");
-  stream << EbsdLib::Ang::MaterialName << ": " << m_MaterialName << std::string("\n");
-  stream << EbsdLib::Ang::Formula << ": " << m_Formula << std::string("\n");
-  // stream << EbsdLib::Ang::Info << ": " << m_Info << std::string("\n");
-  stream << EbsdLib::Ang::Symmetry << ": " << m_Symmetry << std::string("\n");
+  stream << ebsdlib::Ang::Phase << ": " << m_PhaseIndex << std::string("\n");
+  stream << ebsdlib::Ang::MaterialName << ": " << m_MaterialName << std::string("\n");
+  stream << ebsdlib::Ang::Formula << ": " << m_Formula << std::string("\n");
+  // stream << ebsdlib::Ang::Info << ": " << m_Info << std::string("\n");
+  stream << ebsdlib::Ang::Symmetry << ": " << m_Symmetry << std::string("\n");
 
-  stream << EbsdLib::Ang::LatticeConstants;
+  stream << ebsdlib::Ang::LatticeConstants;
 
   for(const auto& latticeConstant : m_LatticeConstants)
   {
@@ -270,14 +272,14 @@ void AngPhase::printSelf(std::stringstream& stream)
   }
   stream << std::string("\n");
 
-  stream << EbsdLib::Ang::NumberFamilies << ": " << m_NumberFamilies << std::string("\n");
+  stream << ebsdlib::Ang::NumberFamilies << ": " << m_NumberFamilies << std::string("\n");
 
   for(const auto& family : m_HKLFamilies)
   {
     family->printSelf(stream);
   }
 
-  stream << EbsdLib::Ang::Categories;
+  stream << ebsdlib::Ang::Categories;
   for(const auto& category : m_Categories)
   {
     stream << " " << category;
@@ -291,86 +293,86 @@ void AngPhase::printSelf(std::stringstream& stream)
 unsigned int AngPhase::determineOrientationOpsIndex()
 {
   uint32_t symmetry = getSymmetry();
-  unsigned int crystal_structure = EbsdLib::CrystalStructure::UnknownCrystalStructure;
+  unsigned int crystal_structure = ebsdlib::CrystalStructure::UnknownCrystalStructure;
 
   switch(symmetry)
   {
-  case EbsdLib::Ang::PhaseSymmetry::Cubic:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_O:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Td:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Oh:
-    crystal_structure = EbsdLib::CrystalStructure::Cubic_High;
+  case ebsdlib::Ang::PhaseSymmetry::Cubic:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_O:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_Td:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_Oh:
+    crystal_structure = ebsdlib::CrystalStructure::Cubic_High;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Tetrahedral:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_T:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_Th:
-    crystal_structure = EbsdLib::CrystalStructure::Cubic_Low;
+  case ebsdlib::Ang::PhaseSymmetry::Tetrahedral:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_T:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_Th:
+    crystal_structure = ebsdlib::CrystalStructure::Cubic_Low;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::DiTetragonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D4:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4v:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2d:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D4h:
-    crystal_structure = EbsdLib::CrystalStructure::Tetragonal_High;
+  case ebsdlib::Ang::PhaseSymmetry::DiTetragonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D4:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C4v:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D2d:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D4h:
+    crystal_structure = ebsdlib::CrystalStructure::Tetragonal_High;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Tetragonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S4:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C4h:
-    crystal_structure = EbsdLib::CrystalStructure::Tetragonal_Low;
+  case ebsdlib::Ang::PhaseSymmetry::Tetragonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C4:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_S4:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C4h:
+    crystal_structure = ebsdlib::CrystalStructure::Tetragonal_Low;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Orthorhombic:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2v:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D2h:
-    crystal_structure = EbsdLib::CrystalStructure::OrthoRhombic;
+  case ebsdlib::Ang::PhaseSymmetry::Orthorhombic:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D2:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2v:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D2h:
+    crystal_structure = ebsdlib::CrystalStructure::OrthoRhombic;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Monoclinic_c:
-  case EbsdLib::Ang::PhaseSymmetry::Monoclinic_b:
-  case EbsdLib::Ang::PhaseSymmetry::Monoclinic_a:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_c:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_c:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_c:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_b:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_b:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_b:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2_a:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1h_a:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C2h_a:
-    crystal_structure = EbsdLib::CrystalStructure::Monoclinic;
+  case ebsdlib::Ang::PhaseSymmetry::Monoclinic_c:
+  case ebsdlib::Ang::PhaseSymmetry::Monoclinic_b:
+  case ebsdlib::Ang::PhaseSymmetry::Monoclinic_a:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2_c:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C1h_c:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2h_c:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2_b:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C1h_b:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2h_b:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2_a:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C1h_a:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C2h_a:
+    crystal_structure = ebsdlib::CrystalStructure::Monoclinic;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Triclinic:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C1:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S2:
-    crystal_structure = EbsdLib::CrystalStructure::Triclinic;
+  case ebsdlib::Ang::PhaseSymmetry::Triclinic:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C1:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_S2:
+    crystal_structure = ebsdlib::CrystalStructure::Triclinic;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::DiHexagonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D6:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6v:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3h:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D6h:
-    crystal_structure = EbsdLib::CrystalStructure::Hexagonal_High;
+  case ebsdlib::Ang::PhaseSymmetry::DiHexagonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D6:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C6v:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D3h:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D6h:
+    crystal_structure = ebsdlib::CrystalStructure::Hexagonal_High;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Hexagonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3h:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C6h:
-    crystal_structure = EbsdLib::CrystalStructure::Hexagonal_Low;
+  case ebsdlib::Ang::PhaseSymmetry::Hexagonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C6:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C3h:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C6h:
+    crystal_structure = ebsdlib::CrystalStructure::Hexagonal_Low;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::DiTrigonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3v:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_D3d:
-    crystal_structure = EbsdLib::CrystalStructure::Trigonal_High;
+  case ebsdlib::Ang::PhaseSymmetry::DiTrigonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D3:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C3v:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_D3d:
+    crystal_structure = ebsdlib::CrystalStructure::Trigonal_High;
     break;
-  case EbsdLib::Ang::PhaseSymmetry::Trigonal:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_C3:
-  case EbsdLib::Ang::PhaseSymmetry::k_Sym_S6:
-    crystal_structure = EbsdLib::CrystalStructure::Trigonal_Low;
+  case ebsdlib::Ang::PhaseSymmetry::Trigonal:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_C3:
+  case ebsdlib::Ang::PhaseSymmetry::k_Sym_S6:
+    crystal_structure = ebsdlib::CrystalStructure::Trigonal_Low;
     break;
 
   default:
-    crystal_structure = EbsdLib::CrystalStructure::UnknownCrystalStructure;
+    crystal_structure = ebsdlib::CrystalStructure::UnknownCrystalStructure;
   }
   return crystal_structure;
 }

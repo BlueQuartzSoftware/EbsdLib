@@ -1,11 +1,11 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 
-#include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/Matrix3X1.hpp"
 #include "EbsdLib/Math/Matrix3X3.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 
 #include <cmath>
 #include <fstream>
@@ -15,6 +15,8 @@
 #include <map>
 #include <string>
 #include <vector>
+
+using namespace ebsdlib;
 
 const double sq22 = 0.7071067811865475244; // sqrt(2)/2
 static double sq32 = std::sqrt(3.0) / 2.0;

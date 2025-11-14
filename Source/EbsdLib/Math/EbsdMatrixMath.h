@@ -44,6 +44,8 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
+namespace ebsdlib
+{
 /*
  * @class EbsdMatrixMath EbsdMatrixMath.h DREAM3DLib/Common/EbsdMatrixMath.h
  * @brief This class performs Crystallographic Misorientation Calculations
@@ -633,3 +635,4 @@ public:
   EbsdMatrixMath& operator=(const EbsdMatrixMath&) = delete; // Copy Assignment Not Implemented
   EbsdMatrixMath& operator=(EbsdMatrixMath&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

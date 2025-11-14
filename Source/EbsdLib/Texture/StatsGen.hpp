@@ -49,6 +49,8 @@
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/Texture/Texture.hpp"
 
+namespace ebsdlib
+{
 /**
  * @brief This class contains static functions to generate ODF and MDF data as X,Y points. This data can be discretized
  * onto a regular grid which would result in standard ODF Pole Figures and a regular 2D MDF plot.
@@ -714,3 +716,4 @@ public:
   StatsGen& operator=(const StatsGen&) = delete; // Copy Assignment Not Implemented
   StatsGen& operator=(StatsGen&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

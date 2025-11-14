@@ -32,33 +32,24 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#include <stdlib.h>
+#include <catch2/catch.hpp>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <iostream>
 #include <string>
 
-#include <QtCore/QDir>
 #include <fstream>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Utilities/IO/AngleFileLoader.h"
+#include "EbsdLib/IO/AngleFileLoader.h"
 
 #include "UnitTestSupport.hpp"
 
-#include "TestFileLocations.h"
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void RemoveTestFiles()
-{
-#if REMOVE_TEST_FILES
-  std::fstream::remove(UnitTest::AngleFileLoaderTest::OutputFile);
-#endif
-}
+using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 //
@@ -70,22 +61,19 @@ void makeTestFile(const std::string delim, const std::string& outputFile)
 
   FILE* f = fopen(outputFile.c_str(), "wb");
 
-  fprintf(f, "%d\n", count);
+  fprintf(f, "Angle Count:%d\n", count);
 
   for(int i = 0; i < count; ++i)
   {
     e0 = static_cast<float>(i) * 0.1;
     e1 = static_cast<float>(i) * 0.25;
     e2 = static_cast<float>(i) * 0.58;
-    fprintf(f, "%0.6f%s%0.6f%s%0.6f\n", e0, delim.c_str(), e1, delim.c_str(), e2);
+    fprintf(f, "%0.6f%s%0.6f%s%0.6f%s1000%s5000\n", e0, delim.c_str(), e1, delim.c_str(), e2, delim.c_str(), delim.c_str());
   }
   fclose(f);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TestLoadingSpaceDelimited()
+TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSpaceDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
   makeTestFile(" ", UnitTest::AngleFileLoaderTest::OutputFile);
@@ -96,13 +84,9 @@ void TestLoadingSpaceDelimited()
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
   int err = reader->getErrorCode();
-  DREAM3D_REQUIRE_EQUAL(err, 0)
+  REQUIRE(err == 0);
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TestLoadingCommaDelimited()
+TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingCommaDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
   makeTestFile(", ", UnitTest::AngleFileLoaderTest::OutputFile);
@@ -113,13 +97,9 @@ void TestLoadingCommaDelimited()
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
   int err = reader->getErrorCode();
-  DREAM3D_REQUIRE_EQUAL(err, 0)
+  REQUIRE(err == 0);
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TestLoadingSemiColonDelimited()
+TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSemiColonDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
   makeTestFile(";", UnitTest::AngleFileLoaderTest::OutputFile);
@@ -130,13 +110,9 @@ void TestLoadingSemiColonDelimited()
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
   int err = reader->getErrorCode();
-  DREAM3D_REQUIRE_EQUAL(err, 0)
+  REQUIRE(err == 0);
 }
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TestLoadingTabDelimited()
+TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingTabDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
   makeTestFile("\t", UnitTest::AngleFileLoaderTest::OutputFile);
@@ -147,33 +123,5 @@ void TestLoadingTabDelimited()
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
   int err = reader->getErrorCode();
-  DREAM3D_REQUIRE_EQUAL(err, 0)
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int main(int argc, char* argv[])
-{
-  std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-  int err = EXIT_SUCCESS;
-  QDir dir(UnitTest::AngleFileLoaderTest::TestDir);
-  dir.mkpath(".");
-
-#if !REMOVE_TEST_FILES
-  DREAM3D_REGISTER_TEST(RemoveTestFiles())
-#endif
-
-  DREAM3D_REGISTER_TEST(TestLoadingSpaceDelimited())
-  DREAM3D_REGISTER_TEST(TestLoadingCommaDelimited())
-  DREAM3D_REGISTER_TEST(TestLoadingSemiColonDelimited())
-  DREAM3D_REGISTER_TEST(TestLoadingTabDelimited())
-
-#if REMOVE_TEST_FILES
-  DREAM3D_REGISTER_TEST(RemoveTestFiles())
-#endif
-
-  PRINT_TEST_SUMMARY();
-  return err;
+  REQUIRE(err == 0);
 }

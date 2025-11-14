@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace EbsdLib::fonts
+namespace ebsdlib::fonts
 {
 
 EbsdLib_EXPORT std::vector<unsigned char> GetFiraSansRegular();
@@ -45,4 +45,4 @@ inline void Base64Decode(char const* input, std::vector<unsigned char>& output)
     }
   }
 }
-} // namespace EbsdLib::fonts
+} // namespace ebsdlib::fonts

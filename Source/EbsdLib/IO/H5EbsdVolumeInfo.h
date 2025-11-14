@@ -42,6 +42,8 @@
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
 
+namespace ebsdlib
+{
 /**
  * @class H5EbsdVolumeInfo H5EbsdVolumeInfo.h EbsdLib/H5EbsdVolumeInfo.h
  * @brief This is a higher level class that only reads the volume header information
@@ -218,7 +220,7 @@ private:
   float m_ZRes = 0.0f;
   int m_ZStart = 0;
   int m_ZEnd = 0;
-  uint32_t m_StackingOrder = EbsdLib::RefFrameZDir::LowtoHigh;
+  uint32_t m_StackingOrder = ebsdlib::RefFrameZDir::LowtoHigh;
   int m_NumPhases = 0;
   float m_SampleTransformationAngle = 0.0f;
   std::array<float, 3> m_SampleTransformationAxis = {{0.0f, 0.0f, 1.0f}};
@@ -235,3 +237,4 @@ public:
   H5EbsdVolumeInfo& operator=(const H5EbsdVolumeInfo&) = delete; // Copy Assignment Not Implemented
   H5EbsdVolumeInfo& operator=(H5EbsdVolumeInfo&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

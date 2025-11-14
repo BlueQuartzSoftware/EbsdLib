@@ -55,8 +55,13 @@
     return {#CLASS};                                                                                                                                                                                   \
   }
 
-namespace Ebsd
+namespace ebsdlib
 {
+constexpr int s_NumReps = 8;
+
+const std::string k_InputNames[s_NumReps] = {"eu", "om", "qu", "ax", "ro", "ho", "cu", "st"};
+const int k_CompDims[s_NumReps] = {3, 9, 4, 4, 4, 3, 3, 3};
+
 namespace unittest
 {
 static std::string CurrentMethod("");
@@ -70,7 +75,7 @@ static const char Failed[6] = {'F', 'A', 'I', 'L', 'E', 'D'};
 static int SizeOfPassed = 6;
 static int SizeOfFailed = 6;
 } // namespace unittest
-} // namespace Ebsd
+} // namespace ebsdlib
 
 #if 0
 // -----------------------------------------------------------------------------
@@ -198,47 +203,47 @@ private:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TestPassed(const std::string& test)
+inline void TestPassed(const std::string& test)
 {
-  ::memset(Ebsd::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
-  Ebsd::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
+  ::memset(ebsdlib::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
+  ebsdlib::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
 
-  std::string::size_type size = NUM_COLS - Ebsd::unittest::SizeOfPassed;
-  ::strncpy(&(Ebsd::unittest::TestMessage[size]), Ebsd::unittest::Passed, Ebsd::unittest::SizeOfPassed);
+  std::string::size_type size = NUM_COLS - ebsdlib::unittest::SizeOfPassed;
+  ::strncpy(&(ebsdlib::unittest::TestMessage[size]), ebsdlib::unittest::Passed, ebsdlib::unittest::SizeOfPassed);
   if(test.length() < size)
   {
-    ::strncpy(Ebsd::unittest::TestMessage, test.c_str(), test.length());
+    ::strncpy(ebsdlib::unittest::TestMessage, test.c_str(), test.length());
   }
   else
   {
-    ::strncpy(Ebsd::unittest::TestMessage, test.substr(0, size).c_str(), size);
+    ::strncpy(ebsdlib::unittest::TestMessage, test.substr(0, size).c_str(), size);
   }
-  Ebsd::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
-  std::cout << Ebsd::unittest::TestMessage << std::endl;
-  Ebsd::unittest::numTestsPass++;
+  ebsdlib::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
+  std::cout << ebsdlib::unittest::TestMessage << std::endl;
+  ebsdlib::unittest::numTestsPass++;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TestFailed(const std::string& test)
+inline void TestFailed(const std::string& test)
 {
-  ::memset(Ebsd::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
-  Ebsd::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
+  ::memset(ebsdlib::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
+  ebsdlib::unittest::TestMessage[NUM_COLS] = 0;            // Make sure it is null terminated
 
-  std::string::size_type size = NUM_COLS - Ebsd::unittest::SizeOfFailed;
-  ::strncpy(&(Ebsd::unittest::TestMessage[size]), Ebsd::unittest::Failed, Ebsd::unittest::SizeOfFailed);
+  std::string::size_type size = NUM_COLS - ebsdlib::unittest::SizeOfFailed;
+  ::strncpy(&(ebsdlib::unittest::TestMessage[size]), ebsdlib::unittest::Failed, ebsdlib::unittest::SizeOfFailed);
   if(test.length() < size)
   {
-    ::strncpy(Ebsd::unittest::TestMessage, test.c_str(), test.length());
+    ::strncpy(ebsdlib::unittest::TestMessage, test.c_str(), test.length());
   }
   else
   {
-    ::strncpy(Ebsd::unittest::TestMessage, test.substr(0, size).c_str(), size);
+    ::strncpy(ebsdlib::unittest::TestMessage, test.substr(0, size).c_str(), size);
   }
-  Ebsd::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
-  std::cout << Ebsd::unittest::TestMessage << std::endl;
-  Ebsd::unittest::numTestFailed++;
+  ebsdlib::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
+  std::cout << ebsdlib::unittest::TestMessage << std::endl;
+  ebsdlib::unittest::numTestFailed++;
 }
 
 // -----------------------------------------------------------------------------
@@ -287,7 +292,7 @@ inline int Sign(float* A)
 }
 #endif
 
-bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
+inline bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 {
   // There are several optional checks that you can do, depending
   // on what behavior you want from your floating point comparisons.
@@ -376,20 +381,8 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     }                                                                                                                                                                                                  \
   }
 
-#define DREAM3D_REQUIRED(L, Q, R)                                                                                                                                                                      \
-  {                                                                                                                                                                                                    \
-    std::string buf;                                                                                                                                                                                   \
-    std::stringstream ss(buf);                                                                                                                                                                         \
-    bool b = (L Q R);                                                                                                                                                                                  \
-    if((b) == (false))                                                                                                                                                                                 \
-    {                                                                                                                                                                                                  \
-      ss << "Your test required the following\n            '";                                                                                                                                         \
-      ss << #L << " " << #Q << " " << #R << "' but this condition was not met.\n";                                                                                                                     \
-      ss << "            " << #L << " = " << L << "\n";                                                                                                                                                \
-      ss << "            " << #R << " = " << R << "\n";                                                                                                                                                \
-      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-  }
+#define DREAM3D_REQUIRED(L, Q, R) REQUIRE(L Q R);
+#define DREAM3D_REQUIRE_VALID_POINTER(P) REQUIRE(P != nullptr);
 
 #define DREAM3D_REQUIRED_PTR(L, Q, P)                                                                                                                                                                  \
   {                                                                                                                                                                                                    \
@@ -417,16 +410,7 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                  \
   }
 
-#define DREAM3D_REQUIRE_EQUAL(L, R)                                                                                                                                                                    \
-  if((L) != (R))                                                                                                                                                                                       \
-  {                                                                                                                                                                                                    \
-    const std::string buf;                                                                                                                                                                             \
-    std::stringstream outStream(buf);                                                                                                                                                                  \
-    outStream << "Your test required the following\n            '";                                                                                                                                    \
-    outStream << #L << " == " << #R << "'\n             but this condition was not met.\n";                                                                                                            \
-    outStream << "             " << L << "==" << R;                                                                                                                                                    \
-    DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                  \
-  }
+#define DREAM3D_REQUIRE_EQUAL(L, R) REQUIRE(L == R);
 
 #define DREAM3D_COMPARE_FLOATS(L, R, Ulps)                                                                                                                                                             \
   if(false == AlmostEqualUlpsFinal((L), (R), Ulps))                                                                                                                                                    \
@@ -472,31 +456,7 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     }                                                                                                                                                                                                  \
   }
 
-#define DREAM3D_REQUIRE_VALID_POINTER(L)                                                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    std::string buf;                                                                                                                                                                                   \
-    std::stringstream ss(buf);                                                                                                                                                                         \
-    if(L == nullptr)                                                                                                                                                                                   \
-    {                                                                                                                                                                                                  \
-      ss << "Your test requires\n            '";                                                                                                                                                       \
-      ss << #L << "' != nullptr' but this condition was not met.\n";                                                                                                                                   \
-      ss << "\n";                                                                                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-  }
-
-#define DREAM3D_REQUIRE_NULL_POINTER(L)                                                                                                                                                                \
-  {                                                                                                                                                                                                    \
-    std::string buf;                                                                                                                                                                                   \
-    std::stringstream ss(buf);                                                                                                                                                                         \
-    if(L != nullptr)                                                                                                                                                                                   \
-    {                                                                                                                                                                                                  \
-      ss << "Your test requires\n            '";                                                                                                                                                       \
-      ss << #L << " == nullptr' but this condition was not met.\n";                                                                                                                                    \
-      ss << "\n";                                                                                                                                                                                      \
-      DREAM3D_TEST_THROW_EXCEPTION(buf)                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-  }
+#define DREAM3D_REQUIRE_NULL_POINTER(L) REQUIRE(L == nullptr)
 
 // -----------------------------------------------------------------------------
 // Private Macros. The Normal developer should NOT be using these.
@@ -506,12 +466,12 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
 #define DREAM3D_ASSERT(P) assert((P));
 
 #define DREAM3D_ENTER_TEST(test)                                                                                                                                                                       \
-  Ebsd::unittest::CurrentMethod = #test;                                                                                                                                                               \
-  Ebsd::unittest::numTests++;
+  ebsdlib::unittest::CurrentMethod = #test;                                                                                                                                                            \
+  ebsdlib::unittest::numTests++;
 
 #define DREAM3D_LEAVE_TEST(test)                                                                                                                                                                       \
   TestPassed(#test);                                                                                                                                                                                   \
-  Ebsd::unittest::CurrentMethod = "";
+  ebsdlib::unittest::CurrentMethod = "";
 
 #define DREAM3D_REGISTER_TEST(test)                                                                                                                                                                    \
   try                                                                                                                                                                                                  \
@@ -521,17 +481,17 @@ bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
     DREAM3D_LEAVE_TEST(test)                                                                                                                                                                           \
   } catch(TestException & e)                                                                                                                                                                           \
   {                                                                                                                                                                                                    \
-    TestFailed(Ebsd::unittest::CurrentMethod);                                                                                                                                                         \
+    TestFailed(ebsdlib::unittest::CurrentMethod);                                                                                                                                                      \
     std::cout << e.what() << std::endl;                                                                                                                                                                \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }
 
 #define PRINT_TEST_SUMMARY()                                                                                                                                                                           \
   std::cout << "Test Summary:" << std::endl;                                                                                                                                                           \
-  std::cout << "  Tests Passed: " << Ebsd::unittest::numTestsPass << std::endl;                                                                                                                        \
-  std::cout << "  Tests Failed: " << Ebsd::unittest::numTestFailed << std::endl;                                                                                                                       \
-  std::cout << "  Total Tests:  " << Ebsd::unittest::numTests << std::endl;                                                                                                                            \
-  if(Ebsd::unittest::numTestFailed > 0)                                                                                                                                                                \
+  std::cout << "  Tests Passed: " << ebsdlib::unittest::numTestsPass << std::endl;                                                                                                                     \
+  std::cout << "  Tests Failed: " << ebsdlib::unittest::numTestFailed << std::endl;                                                                                                                    \
+  std::cout << "  Total Tests:  " << ebsdlib::unittest::numTests << std::endl;                                                                                                                         \
+  if(ebsdlib::unittest::numTestFailed > 0)                                                                                                                                                             \
   {                                                                                                                                                                                                    \
     err = EXIT_FAILURE;                                                                                                                                                                                \
   }

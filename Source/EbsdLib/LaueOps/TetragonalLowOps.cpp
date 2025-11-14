@@ -37,8 +37,9 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
@@ -51,14 +52,15 @@
 #include <tbb/parallel_for.h>
 #include <tbb/task_group.h>
 #endif
+using namespace ebsdlib;
 
 namespace TetragonalLow
 {
 static const std::array<size_t, 3> OdfNumBins = {72, 72, 18}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((EbsdLib::Constants::k_PiD)-std::sin((EbsdLib::Constants::k_PiD)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiD)-std::sin((EbsdLib::Constants::k_PiD)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((EbsdLib::Constants::k_PiOver4D)-std::sin((EbsdLib::Constants::k_PiOver2D)))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiOver4D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -222,13 +224,13 @@ void TetragonalLowOps::getRodSymOp(int i, double* r) const
   r[2] = TetragonalLow::RodSym[i][2];
 }
 
-EbsdLib::Matrix3X3D TetragonalLowOps::getMatSymOpD(int i) const
+ebsdlib::Matrix3X3D TetragonalLowOps::getMatSymOpD(int i) const
 {
   return {TetragonalLow::MatSym[i][0][0], TetragonalLow::MatSym[i][0][1], TetragonalLow::MatSym[i][0][2], TetragonalLow::MatSym[i][1][0], TetragonalLow::MatSym[i][1][1],
           TetragonalLow::MatSym[i][1][2], TetragonalLow::MatSym[i][2][0], TetragonalLow::MatSym[i][2][1], TetragonalLow::MatSym[i][2][2]};
 }
 
-EbsdLib::Matrix3X3F TetragonalLowOps::getMatSymOpF(int i) const
+ebsdlib::Matrix3X3F TetragonalLowOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(TetragonalLow::MatSym[i][0][0]), static_cast<float>(TetragonalLow::MatSym[i][0][1]), static_cast<float>(TetragonalLow::MatSym[i][0][2]),
           static_cast<float>(TetragonalLow::MatSym[i][1][0]), static_cast<float>(TetragonalLow::MatSym[i][1][1]), static_cast<float>(TetragonalLow::MatSym[i][1][2]),
@@ -364,7 +366,7 @@ EulerDType TetragonalLowOps::determineEulerAngles(double random[3], int choose) 
 EulerDType TetragonalLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TetragonalLow::k_SymOpsCount);
-  QuatD quat = synea.toQuat();
+  QuatD quat = synea.toQuaternion();
   QuatD qc = TetragonalLow::QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
@@ -500,13 +502,13 @@ namespace TetragonalLow
 {
 class GenerateSphereCoordsImpl
 {
-  EbsdLib::FloatArrayType* m_Eulers;
-  EbsdLib::FloatArrayType* m_xyz001;
-  EbsdLib::FloatArrayType* m_xyz011;
-  EbsdLib::FloatArrayType* m_xyz111;
+  ebsdlib::FloatArrayType* m_Eulers;
+  ebsdlib::FloatArrayType* m_xyz001;
+  ebsdlib::FloatArrayType* m_xyz011;
+  ebsdlib::FloatArrayType* m_xyz111;
 
 public:
-  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
+  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz001Coords, ebsdlib::FloatArrayType* xyz011Coords, ebsdlib::FloatArrayType* xyz111Coords)
   : m_Eulers(eulerAngles)
   , m_xyz001(xyz001Coords)
   , m_xyz011(xyz011Coords)
@@ -517,12 +519,12 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    EbsdLib::Matrix3X3D gTranspose;
-    EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
+    ebsdlib::Matrix3X3D gTranspose;
+    ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     for(size_t i = start; i < end; ++i)
     {
-      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
+      ebsdlib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 
@@ -570,7 +572,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TetragonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
+void TetragonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -599,7 +601,7 @@ void TetragonalLowOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* e
 // -----------------------------------------------------------------------------
 std::array<double, 3> TetragonalLowOps::getIpfColorAngleLimits(double eta) const
 {
-  return {TetragonalLow::k_EtaMin * EbsdLib::Constants::k_DegToRadD, TetragonalLow::k_EtaMax * EbsdLib::Constants::k_DegToRadD, TetragonalLow::k_ChiMax * EbsdLib::Constants::k_DegToRadD};
+  return {TetragonalLow::k_EtaMin * ebsdlib::constants::k_DegToRadD, TetragonalLow::k_EtaMax * ebsdlib::constants::k_DegToRadD, TetragonalLow::k_ChiMax * ebsdlib::constants::k_DegToRadD};
 }
 
 // -----------------------------------------------------------------------------
@@ -607,14 +609,14 @@ std::array<double, 3> TetragonalLowOps::getIpfColorAngleLimits(double eta) const
 // -----------------------------------------------------------------------------
 bool TetragonalLowOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < (TetragonalLow::k_EtaMin * EbsdLib::Constants::k_PiOver180D) || eta > (TetragonalLow::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0 ||
-           chi > (TetragonalLow::k_ChiMax * EbsdLib::Constants::k_PiOver180D));
+  return !(eta < (TetragonalLow::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (TetragonalLow::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
+           chi > (TetragonalLow::k_ChiMax * ebsdlib::constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
+ebsdlib::Rgb TetragonalLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
@@ -622,7 +624,7 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double* eulers, double* refDir, 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
+ebsdlib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
@@ -632,7 +634,7 @@ EbsdLib::Rgb TetragonalLowOps::generateIPFColor(double phi1, double phi, double 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, double r3) const
+ebsdlib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
   double range1 = 2.0f * TetragonalLow::OdfDimInitValue[0];
   double range2 = 2.0f * TetragonalLow::OdfDimInitValue[1];
@@ -649,7 +651,7 @@ EbsdLib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
   green = green / max1;
   blue = blue / max2;
 
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
+  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -663,7 +665,7 @@ std::array<std::string, 3> TetragonalLowOps::getDefaultPoleFigureNames() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
+std::vector<ebsdlib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
@@ -688,11 +690,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -701,9 +703,9 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
-  EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
-  EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   bool doParallel = true;
 
@@ -776,11 +778,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
   config.maxScale = max;
 
   dims[0] = 4;
-  EbsdLib::UInt8ArrayType::Pointer image001 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
-  EbsdLib::UInt8ArrayType::Pointer image011 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
-  EbsdLib::UInt8ArrayType::Pointer image111 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
+  ebsdlib::UInt8ArrayType::Pointer image001 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
+  ebsdlib::UInt8ArrayType::Pointer image011 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
+  ebsdlib::UInt8ArrayType::Pointer image111 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
 
-  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures(3);
+  std::vector<ebsdlib::UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
     poleFigures[config.order[0]] = image001;
@@ -820,16 +822,16 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TetragonalLowOps::generatePoleFigu
 
 namespace
 {
-EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalLowOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalLowOps* ops, int imageDim, bool generateEntirePlane)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer image = ebsdlib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
 
   double xInc = 1.0f / static_cast<double>(imageDim);
   double yInc = 1.0f / static_cast<double>(imageDim);
-  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
+  static ebsdlib::Matrix3X1D k_Orientation(0.0, 0.0, 0.0);
 
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
@@ -845,7 +847,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalLowOps* ops, in
       double y = -1.0f + 2.0f * yIndex * yInc;
 
       double sumSquares = (x * x) + (y * y);
-      EbsdLib::Rgb color = 0xFFFFFFFF; // Default to white
+      ebsdlib::Rgb color = 0xFFFFFFFF; // Default to white
 
       if(sumSquares > 1.0) // Outside unit circle
       {
@@ -861,7 +863,7 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TetragonalLowOps* ops, in
       }
       else
       {
-        auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
+        auto sphericalCoords = stereographic::utils::StereoToSpherical(x, y).normalize();
         color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
       }
 
@@ -933,7 +935,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       float penWidth = 1.0f;
       context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
       context.set_line_width(penWidth);
-      EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+      ebsdlib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
     }
     std::string label = labels2[idx];
     std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
@@ -945,7 +947,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
     if(drawAngle[idx] || drawFullCircle)
     {
-      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+      ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
     }
   }
 
@@ -955,7 +957,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     float y = figureCenter[1] + fontPtSize;
 
     std::string label("[001]");
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
   }
 
   // Draw the [0001] in the center of the image
@@ -965,11 +967,11 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     float fontWidth = context.measure_text(label.c_str());
     float x = figureCenter[0] + fontWidth * 0.20F;
     float y = fontPtSize * 3.0F;
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
   }
   if(drawFullCircle)
   {
-    std::vector<EbsdLib::Point3DType> directions = {
+    std::vector<ebsdlib::Point3DType> directions = {
         {1.0, 0.0, 1.0},  // Horizontal Meridian Line
         {0.0, 1.0, 1.0},  // Vertical Meridian Line
         {-1.0, 1.0, 0.0}, // Upper Left to Lower Right
@@ -981,14 +983,14 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     float penWidth = 1.0f;
     context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
     context.set_line_width(penWidth);
-    EbsdLib::DrawStereographicLines(context, directions, numPoints, halfWidth, figureOrigin);
+    ebsdlib::DrawStereographicLines(context, directions, numPoints, halfWidth, figureOrigin);
   }
 }
 
 } // namespace
 
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
+ebsdlib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
 {
   // Figure out the Legend Pixel Size
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
@@ -1022,19 +1024,19 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
   // Create the actual Legend which will come back as ARGB values
-  EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
 
   // Convert from ARGB to RGBA which is what canvas_itk wants
-  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+  image = ebsdlib::ConvertColorOrder(image.get(), legendHeight);
 
   // We need to mirror across the X Axis because the image was drawn with +Y pointing down
-  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  image = ebsdlib::MirrorImage(image.get(), legendHeight);
 
   // Create a 2D Canvas to draw into now that the Legend is in the proper form
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
@@ -1056,18 +1058,18 @@ EbsdLib::UInt8ArrayType::Pointer TetragonalLowOps::generateIPFTriangleLegend(int
 
   // Draw Title of Legend
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
-  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+  ebsdlib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
   context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
   DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
-  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
   // Remove the Alpha channel from the final image
-  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  rgbaCanvasImage = ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
 
   return rgbaCanvasImage;
 }

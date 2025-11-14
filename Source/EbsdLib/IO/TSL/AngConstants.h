@@ -129,7 +129,7 @@ enum ANG_READ_FLAG
   ANG_HEADER_ONLY
 };
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 namespace H5OIM
@@ -374,13 +374,13 @@ const std::string ColumnHeaders(COLUMN_HEADERS);
 const std::string ColumnUnits(COLUMN_UNITS);
 
 } // namespace Ang
-} // namespace EbsdLib
+} // namespace ebsdlib
 
 #if 1
 // -----------------------------------------------------------------------------
 //  These are the lower case versions of the constants for the ANG file
 // -----------------------------------------------------------------------------
-#define ANG_TEM_PIXPERUM_LOWER "teEbsdLib::Constants::k_Pixperum"
+#define ANG_TEM_PIXPERUM_LOWER "teebsdlib::constants::k_Pixperum"
 #define ANG_X_STAR_LOWER "x-star"
 #define ANG_Y_STAR_LOWER "y-star"
 #define ANG_Z_STAR_LOWER "z-star"
@@ -422,7 +422,7 @@ const std::string ColumnUnits(COLUMN_UNITS);
 #define ANG_SEM_SIGNAL_LOWER "sem signal"
 #define ANG_FIT_LOWER "fit"
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 namespace Ang
@@ -483,5 +483,5 @@ const std::string MaterialName("MaterialName");
 const std::string LatticeConstants("LatticeConstants");
 const std::string BravaisLattice("BravaisLattice");
 } // namespace AngFile
-} // namespace EbsdLib
+} // namespace ebsdlib
 #endif

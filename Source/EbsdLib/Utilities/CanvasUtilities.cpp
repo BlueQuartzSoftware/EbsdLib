@@ -12,7 +12,7 @@
 #define CANVAS_ITY_IMPLEMENTATION
 #include <canvas_ity.hpp>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 // -----------------------------------------------------------------------------
@@ -99,8 +99,8 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
 
   // Find another vector (v2) that is perpendicular to both the normal and v1 using the cross product
   Point3DType v2 = dirNormalized.cross(v1).normalize();
-  double angleStart = 0.0 * EbsdLib::Constants::k_PiOver180D;
-  double arc = 360.0 * EbsdLib::Constants::k_PiOver180D;
+  double angleStart = 0.0 * ebsdlib::constants::k_PiOver180D;
+  double arc = 360.0 * ebsdlib::constants::k_PiOver180D;
 
   // Generate points on the unit circle that has been rotated according to the direction
   for(int i = 0; i < num_points + 1; ++i)
@@ -120,10 +120,10 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
 }
 
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
+ebsdlib::UInt8ArrayType::Pointer DrawStandardCubicProjection(ebsdlib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
 {
-  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
-  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
+  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
   // Initialize our fonts
   fonts::Base64Decode(fonts::k_LatoRegularBase64, latoRegular);
   fonts::Base64Decode(fonts::k_LatoBoldBase64, latoBold);
@@ -161,7 +161,7 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8Array
   context.close_path();
 
   int num_points = 50;
-  std::vector<EbsdLib::Point3DType> directions = {
+  std::vector<ebsdlib::Point3DType> directions = {
       {1.0, 0.0, 1.0},  // Horizontal Meridian Line
                         //      {2.0, 0.0, 1.0},
                         //      {1.0, 0.0, 2.0},
@@ -179,12 +179,12 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8Array
   std::array<float, 2> figureOrigin = {0.0F, 0.0F};
   for(const auto& direction : directions)
   {
-    std::vector<EbsdLib::Point3DType> stereoPoints = Stereographic::Utils::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, num_points));
+    std::vector<ebsdlib::Point3DType> stereoPoints = stereographic::utils::TransformUnitSphereToStereographicCoords(ebsdlib::GeneratePointsOnUnitCircle(direction, num_points));
 
     for(size_t i = 1; i < stereoPoints.size(); i++)
     {
-      EbsdLib::Point3DType p0 = stereoPoints[i - 1];
-      EbsdLib::Point3DType p1 = stereoPoints[i];
+      ebsdlib::Point3DType p0 = stereoPoints[i - 1];
+      ebsdlib::Point3DType p1 = stereoPoints[i];
       p0 = (p0 * static_cast<float>(halfWidth)) + halfWidth;
       p1 = (p1 * static_cast<float>(halfWidth)) + halfWidth;
 
@@ -194,33 +194,33 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardCubicProjection(EbsdLib::UInt8Array
       p1[0] = p1[0] + figureOrigin[0];
       p1[1] = p1[1] + figureOrigin[1];
 
-      EbsdLib::DrawLine(context, p0[0], p0[1], p1[0], p1[1]);
+      ebsdlib::DrawLine(context, p0[0], p0[1], p1[0], p1[1]);
     }
   }
 
   // This is PRE ROTATION of the entire image, so +X is to the RIGHT, +Y is UP
   std::string fontWidthString = "[100]";
   float fontWidth = context.measure_text(fontWidthString.c_str());
-  EbsdLib::WriteText(context, fontWidthString, {pageWidth - fontWidth, static_cast<float>(halfHeight)}, fontPtSize);
-  EbsdLib::WriteText(context, "[010]", {pageWidth * 0.5F, static_cast<float>(fontPtSize * 1.2F)}, fontPtSize);
-  EbsdLib::WriteText(context, "[110]", {pageWidth * 0.85F, pageHeight * 0.15F}, fontPtSize);
-  EbsdLib::WriteText(context, "[-110]", {pageWidth * 0.15F, pageHeight * 0.15F}, fontPtSize);
-  EbsdLib::WriteText(context, "[-100]", {pageWidth * 0.0F, pageHeight * 0.5F}, fontPtSize);
-  EbsdLib::WriteText(context, "[-1-10]", {pageWidth * 0.15F, pageHeight * 0.85F}, fontPtSize);
-  EbsdLib::WriteText(context, "[0-10]", {pageWidth * 0.5F, pageHeight - fontPtSize * 1.1F}, fontPtSize);
-  EbsdLib::WriteText(context, "[1-10]", {pageWidth * 0.85F, pageHeight * 0.85F}, fontPtSize);
+  ebsdlib::WriteText(context, fontWidthString, {pageWidth - fontWidth, static_cast<float>(halfHeight)}, fontPtSize);
+  ebsdlib::WriteText(context, "[010]", {pageWidth * 0.5F, static_cast<float>(fontPtSize * 1.2F)}, fontPtSize);
+  ebsdlib::WriteText(context, "[110]", {pageWidth * 0.85F, pageHeight * 0.15F}, fontPtSize);
+  ebsdlib::WriteText(context, "[-110]", {pageWidth * 0.15F, pageHeight * 0.15F}, fontPtSize);
+  ebsdlib::WriteText(context, "[-100]", {pageWidth * 0.0F, pageHeight * 0.5F}, fontPtSize);
+  ebsdlib::WriteText(context, "[-1-10]", {pageWidth * 0.15F, pageHeight * 0.85F}, fontPtSize);
+  ebsdlib::WriteText(context, "[0-10]", {pageWidth * 0.5F, pageHeight - fontPtSize * 1.1F}, fontPtSize);
+  ebsdlib::WriteText(context, "[1-10]", {pageWidth * 0.85F, pageHeight * 0.85F}, fontPtSize);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
-  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  rgbaCanvasImage = ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
   return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
+ebsdlib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(ebsdlib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
 {
   int legendHeight = pageHeight;
   int legendWidth = pageWidth;
@@ -246,8 +246,8 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8A
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
@@ -315,7 +315,7 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8A
 
     context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
     context.set_line_width(penWidth);
-    EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+    ebsdlib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
 
     std::string label = labels2[idx];
     std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
@@ -326,7 +326,7 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8A
 
     context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
 
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
   }
 
   // Draw the [0001] in the center of the image
@@ -335,29 +335,29 @@ EbsdLib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(EbsdLib::UInt8A
     float y = figureCenter[1] - fontPtSize * 0.2F;
 
     std::string label("[0001]");
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
   }
 
   // Fetch the rendered RGBA pixels from the entire canvas.
-  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  rgbaCanvasImage = ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
   return rgbaCanvasImage;
 }
 
 // -----------------------------------------------------------------------------
-void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdLib::Point3DType>& directions, int numPoints, int halfWidth, std::array<float, 2> figureOrigin)
+void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<ebsdlib::Point3DType>& directions, int numPoints, int halfWidth, std::array<float, 2> figureOrigin)
 {
 
   for(const auto& direction : directions)
   {
-    std::vector<EbsdLib::Point3DType> stereoPoints = Stereographic::Utils::TransformUnitSphereToStereographicCoords(EbsdLib::GeneratePointsOnUnitCircle(direction, numPoints));
+    std::vector<ebsdlib::Point3DType> stereoPoints = stereographic::utils::TransformUnitSphereToStereographicCoords(ebsdlib::GeneratePointsOnUnitCircle(direction, numPoints));
     for(size_t i = 1; i < stereoPoints.size(); i++)
     {
-      EbsdLib::Point3DType p0 = stereoPoints[i - 1];
-      EbsdLib::Point3DType p1 = stereoPoints[i];
+      ebsdlib::Point3DType p0 = stereoPoints[i - 1];
+      ebsdlib::Point3DType p1 = stereoPoints[i];
       p0 = (p0 * static_cast<float>(halfWidth)) + halfWidth;
       p1 = (p1 * static_cast<float>(halfWidth)) + halfWidth;
 
@@ -367,9 +367,9 @@ void DrawStereographicLines(canvas_ity::canvas& context, const std::vector<EbsdL
       p1[0] = p1[0] + figureOrigin[0];
       p1[1] = p1[1] + figureOrigin[1];
 
-      EbsdLib::DrawLine(context, p0[0], p0[1], p1[0], p1[1]);
+      ebsdlib::DrawLine(context, p0[0], p0[1], p1[0], p1[1]);
     }
   }
 }
 
-} // namespace EbsdLib
+} // namespace ebsdlib

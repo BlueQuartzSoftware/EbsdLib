@@ -1,13 +1,17 @@
 #pragma once
 
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
-#include "TestPrintFunctions.h"
+#include "UnitTestSupport.hpp"
 
 #include <algorithm>
+#include <map>
 #include <string>
 #include <vector>
+
+using namespace ebsdlib;
 
 class GenerateFunctionList
 {
@@ -130,7 +134,7 @@ std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int3
   // using ArrayType = typename EbsdDataArray<T>::Pointer;
   using OCType = OrientationConverter<EbsdDataArray<T>, T>;
 
-  std::vector<typename OCType::Pointer> converters(s_NumReps);
+  std::vector<typename OCType::Pointer> converters(ebsdlib::s_NumReps);
 
   converters[0] = EulerConverter<EbsdDataArray<T>, T>::New();
   converters[1] = OrientationMatrixConverter<EbsdDataArray<T>, T>::New();
@@ -141,7 +145,7 @@ std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int3
   converters[6] = CubochoricConverter<EbsdDataArray<T>, T>::New();
   converters[7] = StereographicConverter<EbsdDataArray<T>, T>::New();
 
-  std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
+  std::vector<ebsdlib::orientations::Type> ocTypes = OCType::GetOrientationTypes();
 
   converters[inputType]->setInputData(inputOrientations);
   converters[inputType]->convertRepresentationTo(ocTypes[outputType]);
@@ -173,15 +177,15 @@ void GenerateEulers(size_t nSteps, std::map<std::string, typename EbsdDataArray<
   std::vector<size_t> cDims = {3};
 
   T phi1_min = static_cast<T>(0.0);
-  T phi1_max = DConst::k_2PiD;
+  T phi1_max = ebsdlib::constants::k_2PiD;
   T phi1_delta = (phi1_max - phi1_min) / static_cast<T>(nSteps);
 
   T phi_min = static_cast<T>(0.0);
-  T phi_max = DConst::k_PiD;
+  T phi_max = ebsdlib::constants::k_PiD;
   T phi_delta = (phi_max - phi_min) / static_cast<T>(nSteps);
 
   T phi2_min = static_cast<T>(0.0);
-  T phi2_max = DConst::k_2PiD;
+  T phi2_max = ebsdlib::constants::k_2PiD;
   T phi2_delta = (phi2_max - phi2_min) / static_cast<T>(nSteps);
 
   size_t nStepsCubed = (nSteps + 1) * (nSteps + 1) * (nSteps + 1);
@@ -204,14 +208,14 @@ void GenerateEulers(size_t nSteps, std::map<std::string, typename EbsdDataArray<
         eulers->setComponent(counter, 2, phi2_min + k * phi2_delta);
 
         T one80Check = phi1_min + i * phi1_delta + phi2_min + k * phi2_delta;
-        if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
+        if(ebsdlib::math::closeEnough(static_cast<T>(ebsdlib::constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
         {
           eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
           eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);
         }
 
-        one80Check = fmod(one80Check, EbsdLib::Constants::k_2PiD);
-        if(EbsdLibMath::closeEnough(static_cast<T>(EbsdLib::Constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
+        one80Check = fmod(one80Check, ebsdlib::constants::k_2PiD);
+        if(ebsdlib::math::closeEnough(static_cast<T>(ebsdlib::constants::k_PiD), one80Check, static_cast<T>(1.0E-6)))
         {
           eulers->setComponent(counter, 0, phi1_min + i * phi1_delta + .1);
           eulers->setComponent(counter, 2, phi2_min + k * phi2_delta + .1);

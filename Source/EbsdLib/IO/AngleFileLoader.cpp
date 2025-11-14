@@ -41,11 +41,16 @@
 #include <iostream>
 #include <vector>
 
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Euler.hpp"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/OrientationMatrix.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+
+using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 //
@@ -66,9 +71,9 @@ AngleFileLoader::~AngleFileLoader() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
+ebsdlib::FloatArrayType::Pointer AngleFileLoader::loadData()
 {
-  EbsdLib::FloatArrayType::Pointer angles = EbsdLib::FloatArrayType::NullPointer();
+  ebsdlib::FloatArrayType::Pointer angles = ebsdlib::FloatArrayType::NullPointer();
 
   // Make sure the input file variable is not empty
   if(m_InputFile.empty())
@@ -144,7 +149,7 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
 
   // Allocate enough for the angles
   std::vector<size_t> dims(1, 5);
-  angles = EbsdLib::FloatArrayType::CreateArray(numOrients, dims, "EulerAngles_From_File", true);
+  angles = ebsdlib::FloatArrayType::CreateArray(numOrients, dims, "EulerAngles_From_File", true);
 
   for(int i = 0; i < numOrients; i++)
   {
@@ -170,7 +175,7 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     }
     tokens = EbsdStringUtils::split(buf, (*(getDelimiter().c_str())));
 
-    EbsdLib::EulerDType euler(3);
+    ebsdlib::EulerDType euler;
     if(m_AngleRepresentation == EulerAngles)
     {
       euler[0] = std::stof(tokens[0]);
@@ -182,13 +187,14 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     else if(m_AngleRepresentation == QuaternionAngles)
     {
       euler =
-          EbsdLib::QuaternionDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3])).toEuler(); //   OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
+          ebsdlib::QuaternionDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3])).toEuler(); //   OrientationTransformation::qu2eu<QuatF, OrientationF>(quat);
       weight = std::stof(tokens[4]);
       sigma = std::stof(tokens[5]);
     }
     else if(m_AngleRepresentation == RodriguezAngles)
     {
-      euler = EbsdLib::RodriguesDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2])).toEuler(); // OrientationTransformation::ro2eu<OrientationF, OrientationF>(rod);
+      euler = ebsdlib::RodriguesDType(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]))
+                  .toEuler(); // OrientationTransformation::ro2eu<OrientationF, OrientationF>(rod);
       weight = std::stof(tokens[3]);
       sigma = std::stof(tokens[4]);
     }
@@ -196,16 +202,16 @@ EbsdLib::FloatArrayType::Pointer AngleFileLoader::loadData()
     // Values in File are in Radians and the user wants them in Degrees
     if(!m_FileAnglesInDegrees && m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_RadToDegF;
-      euler[1] = euler[1] * EbsdLib::Constants::k_RadToDegF;
-      euler[2] = euler[2] * EbsdLib::Constants::k_RadToDegF;
+      euler[0] = euler[0] * ebsdlib::constants::k_RadToDegF;
+      euler[1] = euler[1] * ebsdlib::constants::k_RadToDegF;
+      euler[2] = euler[2] * ebsdlib::constants::k_RadToDegF;
     }
     // Values are in Degrees but user wants them in Radians
     else if(m_FileAnglesInDegrees && !m_OutputAnglesInDegrees)
     {
-      euler[0] = euler[0] * EbsdLib::Constants::k_DegToRadF;
-      euler[1] = euler[1] * EbsdLib::Constants::k_DegToRadF;
-      euler[2] = euler[2] * EbsdLib::Constants::k_DegToRadF;
+      euler[0] = euler[0] * ebsdlib::constants::k_DegToRadF;
+      euler[1] = euler[1] * ebsdlib::constants::k_DegToRadF;
+      euler[2] = euler[2] * ebsdlib::constants::k_DegToRadF;
     }
 
     // Store the values into our array

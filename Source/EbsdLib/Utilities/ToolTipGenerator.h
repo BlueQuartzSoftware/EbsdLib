@@ -38,7 +38,7 @@
 
 #include "EbsdLib/EbsdLib.h"
 
-namespace EbsdLib
+namespace ebsdlib
 {
 /**
  * @class ToolTipGenerator ToolTipGenerator.h SIMPLib/Utilities/ToolTipGenerator.h
@@ -132,4 +132,4 @@ private:
   std::string m_RowColorStr = "#FFFCEA";
   std::vector<RowItem> m_Rows;
 };
-} // end namespace EbsdLib
+} // end namespace ebsdlib

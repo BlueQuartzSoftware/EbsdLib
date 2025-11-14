@@ -36,6 +36,8 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -54,20 +56,20 @@ TexturePreset::~TexturePreset() = default;
 std::vector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
 {
   std::vector<TexturePreset::Pointer> textures;
-  ADD_NEW_TEXTURE("Brass", EbsdLib::CrystalStructure::Cubic_High, 35.0, 45.0, 0.0)
-  ADD_NEW_TEXTURE("S", EbsdLib::CrystalStructure::Cubic_High, 59.0, 37.0, 63.0)
-  ADD_NEW_TEXTURE("Copper", EbsdLib::CrystalStructure::Cubic_High, 90.0, 35.0, 45.0)
-  ADD_NEW_TEXTURE("S1", EbsdLib::CrystalStructure::Cubic_High, 55.0, 30.0, 65.0)
-  ADD_NEW_TEXTURE("S2", EbsdLib::CrystalStructure::Cubic_High, 45.0, 35.0, 65.0)
-  ADD_NEW_TEXTURE("Goss", EbsdLib::CrystalStructure::Cubic_High, 0.0, 45.0, 0.0)
-  ADD_NEW_TEXTURE("Cube", EbsdLib::CrystalStructure::Cubic_High, 0.0, 0.0, 0.0)
-  ADD_NEW_TEXTURE("RC(rd1)", EbsdLib::CrystalStructure::Cubic_High, 0.0, 20.0, 0.0)
-  ADD_NEW_TEXTURE("RC(rd2)", EbsdLib::CrystalStructure::Cubic_High, 0.0, 35.0, 0.0)
-  ADD_NEW_TEXTURE("RC(nd1)", EbsdLib::CrystalStructure::Cubic_High, 20.0, 0.0, 0.0)
-  ADD_NEW_TEXTURE("RC(nd2)", EbsdLib::CrystalStructure::Cubic_High, 35.0, 0.0, 0.0)
-  ADD_NEW_TEXTURE("P", EbsdLib::CrystalStructure::Cubic_High, 70.0, 45.0, 0.0)
-  ADD_NEW_TEXTURE("Q", EbsdLib::CrystalStructure::Cubic_High, 55.0, 20.0, 0.0)
-  ADD_NEW_TEXTURE("R", EbsdLib::CrystalStructure::Cubic_High, 55.0, 75.0, 25.0)
+  ADD_NEW_TEXTURE("Brass", ebsdlib::CrystalStructure::Cubic_High, 35.0, 45.0, 0.0)
+  ADD_NEW_TEXTURE("S", ebsdlib::CrystalStructure::Cubic_High, 59.0, 37.0, 63.0)
+  ADD_NEW_TEXTURE("Copper", ebsdlib::CrystalStructure::Cubic_High, 90.0, 35.0, 45.0)
+  ADD_NEW_TEXTURE("S1", ebsdlib::CrystalStructure::Cubic_High, 55.0, 30.0, 65.0)
+  ADD_NEW_TEXTURE("S2", ebsdlib::CrystalStructure::Cubic_High, 45.0, 35.0, 65.0)
+  ADD_NEW_TEXTURE("Goss", ebsdlib::CrystalStructure::Cubic_High, 0.0, 45.0, 0.0)
+  ADD_NEW_TEXTURE("Cube", ebsdlib::CrystalStructure::Cubic_High, 0.0, 0.0, 0.0)
+  ADD_NEW_TEXTURE("RC(rd1)", ebsdlib::CrystalStructure::Cubic_High, 0.0, 20.0, 0.0)
+  ADD_NEW_TEXTURE("RC(rd2)", ebsdlib::CrystalStructure::Cubic_High, 0.0, 35.0, 0.0)
+  ADD_NEW_TEXTURE("RC(nd1)", ebsdlib::CrystalStructure::Cubic_High, 20.0, 0.0, 0.0)
+  ADD_NEW_TEXTURE("RC(nd2)", ebsdlib::CrystalStructure::Cubic_High, 35.0, 0.0, 0.0)
+  ADD_NEW_TEXTURE("P", ebsdlib::CrystalStructure::Cubic_High, 70.0, 45.0, 0.0)
+  ADD_NEW_TEXTURE("Q", ebsdlib::CrystalStructure::Cubic_High, 55.0, 20.0, 0.0)
+  ADD_NEW_TEXTURE("R", ebsdlib::CrystalStructure::Cubic_High, 55.0, 75.0, 25.0)
   return textures;
 }
 
@@ -77,7 +79,7 @@ std::vector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
 std::vector<TexturePreset::Pointer> HexTexturePresets::getTextures()
 {
   std::vector<TexturePreset::Pointer> textures;
-  //  ADD_NEW_TEXTURE( "Brass", EbsdLib::CrystalStructure::Hexagonal, 35.0, 45.0, 0.0)
+  //  ADD_NEW_TEXTURE( "Brass", ebsdlib::CrystalStructure::Hexagonal, 35.0, 45.0, 0.0)
 
   return textures;
 }

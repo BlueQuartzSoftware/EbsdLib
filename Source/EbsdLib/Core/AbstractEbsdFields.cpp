@@ -34,6 +34,8 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "AbstractEbsdFields.h"
 
+using namespace ebsdlib;
+
 AbstractEbsdFields::AbstractEbsdFields() = default;
 
 AbstractEbsdFields::~AbstractEbsdFields() = default;

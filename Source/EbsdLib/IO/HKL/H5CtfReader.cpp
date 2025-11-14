@@ -45,6 +45,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -222,32 +224,32 @@ int H5CtfReader::readHeader(hid_t parId)
   std::string sBuf;
   std::stringstream ss(sBuf);
   int err = -1;
-  hid_t gid = H5Gopen(parId, EbsdLib::H5Aztec::Header.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5Aztec::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     std::cout << "H5CtfReader Error: Could not open 'Header' Group";
     return -1;
   }
 
-  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Prj, EbsdLib::Ctf::Prj, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Author, EbsdLib::Ctf::Author, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, JobMode, EbsdLib::Ctf::JobMode, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, XCells, EbsdLib::Ctf::XCells, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, YCells, EbsdLib::Ctf::YCells, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, XStep, EbsdLib::Ctf::XStep, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, YStep, EbsdLib::Ctf::YStep, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE1, EbsdLib::Ctf::AcqE1, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE2, EbsdLib::Ctf::AcqE2, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE3, EbsdLib::Ctf::AcqE3, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Euler, EbsdLib::Ctf::Euler, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Mag, EbsdLib::Ctf::Mag, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Coverage, EbsdLib::Ctf::Coverage, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Device, EbsdLib::Ctf::Device, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, KV, EbsdLib::Ctf::KV, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, TiltAngle, EbsdLib::Ctf::TiltAngle, gid)
-  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, TiltAxis, EbsdLib::Ctf::TiltAxis, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Prj, ebsdlib::Ctf::Prj, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Author, ebsdlib::Ctf::Author, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, JobMode, ebsdlib::Ctf::JobMode, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, XCells, ebsdlib::Ctf::XCells, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, YCells, ebsdlib::Ctf::YCells, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, XStep, ebsdlib::Ctf::XStep, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, YStep, ebsdlib::Ctf::YStep, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE1, ebsdlib::Ctf::AcqE1, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE2, ebsdlib::Ctf::AcqE2, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, AcqE3, ebsdlib::Ctf::AcqE3, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5CtfReader", CtfStringHeaderEntry, std::string, Euler, ebsdlib::Ctf::Euler, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Mag, ebsdlib::Ctf::Mag, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Coverage, ebsdlib::Ctf::Coverage, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, Device, ebsdlib::Ctf::Device, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfIntHeaderType, int, KV, ebsdlib::Ctf::KV, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, TiltAngle, ebsdlib::Ctf::TiltAngle, gid)
+  READ_EBSD_HEADER_DATA("H5CtfReader", CtfFloatHeaderType, float, TiltAxis, ebsdlib::Ctf::TiltAxis, gid)
 
-  hid_t phasesGid = H5Gopen(gid, EbsdLib::H5Aztec::Phases.c_str(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, ebsdlib::H5Aztec::Phases.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     setErrorCode(-90007);
@@ -273,13 +275,13 @@ int H5CtfReader::readHeader(hid_t parId)
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
     CtfPhase::Pointer m_CurrentPhase = CtfPhase::New();
 
-    READ_PHASE_HEADER_ARRAY("H5CtfReader", pid, float, EbsdLib::Ctf::LatticeConstants, LatticeConstants, m_CurrentPhase);
-    READ_PHASE_STRING_DATA("H5CtfReader", pid, EbsdLib::Ctf::PhaseName, PhaseName, m_CurrentPhase)
-    READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, EbsdLib::Ctf::LaueGroupTable, int, EbsdLib::Ctf::LaueGroup, LaueGroup, m_CurrentPhase)
-    READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, int, int, EbsdLib::Ctf::SpaceGroup, SpaceGroup, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5CtfReader", pid, EbsdLib::Ctf::Internal1, Internal1, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5CtfReader", pid, EbsdLib::Ctf::Internal2, Internal2, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5CtfReader", pid, EbsdLib::Ctf::Comment, Comment, m_CurrentPhase)
+    READ_PHASE_HEADER_ARRAY("H5CtfReader", pid, float, ebsdlib::Ctf::LatticeConstants, LatticeConstants, m_CurrentPhase);
+    READ_PHASE_STRING_DATA("H5CtfReader", pid, ebsdlib::Ctf::PhaseName, PhaseName, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, ebsdlib::Ctf::LaueGroupTable, int, ebsdlib::Ctf::LaueGroup, LaueGroup, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, int, int, ebsdlib::Ctf::SpaceGroup, SpaceGroup, m_CurrentPhase)
+    READ_PHASE_STRING_DATA("H5CtfReader", pid, ebsdlib::Ctf::Internal1, Internal1, m_CurrentPhase)
+    READ_PHASE_STRING_DATA("H5CtfReader", pid, ebsdlib::Ctf::Internal2, Internal2, m_CurrentPhase)
+    READ_PHASE_STRING_DATA("H5CtfReader", pid, ebsdlib::Ctf::Comment, Comment, m_CurrentPhase)
 
     // For HKL Imports, the phase index is the HDF5 Group Name for this phase so
     // convert the phaseGroupName string variable into an integer
@@ -290,7 +292,7 @@ int H5CtfReader::readHeader(hid_t parId)
   }
 
   std::string completeHeader;
-  err = H5Lite::readStringDataset(gid, EbsdLib::H5Aztec::OriginalHeader, completeHeader);
+  err = H5Lite::readStringDataset(gid, ebsdlib::H5Aztec::OriginalHeader, completeHeader);
   if(err < 0)
   {
     setErrorCode(-90010);
@@ -319,7 +321,7 @@ int H5CtfReader::readData(hid_t parId)
     return -1;
   }
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5Aztec::Data.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5Aztec::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorMessage("H5CtfReader Error: Could not open 'Data' Group");
@@ -342,23 +344,23 @@ int H5CtfReader::readData(hid_t parId)
   }
 
   // This data _SHOULD_ always be present in the file
-  ANG_READER_ALLOCATE_AND_READ(Phase, EbsdLib::Ctf::Phase, int);
-  ANG_READER_ALLOCATE_AND_READ(X, EbsdLib::Ctf::X, float);
-  ANG_READER_ALLOCATE_AND_READ(Y, EbsdLib::Ctf::Y, float);
-  ANG_READER_ALLOCATE_AND_READ(BandCount, EbsdLib::Ctf::Bands, int);
-  ANG_READER_ALLOCATE_AND_READ(Error, EbsdLib::Ctf::Error, int);
-  ANG_READER_ALLOCATE_AND_READ(Euler1, EbsdLib::Ctf::Euler1, float);
-  ANG_READER_ALLOCATE_AND_READ(Euler2, EbsdLib::Ctf::Euler2, float);
-  ANG_READER_ALLOCATE_AND_READ(Euler3, EbsdLib::Ctf::Euler3, float);
-  ANG_READER_ALLOCATE_AND_READ(MeanAngularDeviation, EbsdLib::Ctf::MAD, float);
-  ANG_READER_ALLOCATE_AND_READ(BandContrast, EbsdLib::Ctf::BC, int);
-  ANG_READER_ALLOCATE_AND_READ(BandSlope, EbsdLib::Ctf::BS, int);
+  ANG_READER_ALLOCATE_AND_READ(Phase, ebsdlib::Ctf::Phase, int);
+  ANG_READER_ALLOCATE_AND_READ(X, ebsdlib::Ctf::X, float);
+  ANG_READER_ALLOCATE_AND_READ(Y, ebsdlib::Ctf::Y, float);
+  ANG_READER_ALLOCATE_AND_READ(BandCount, ebsdlib::Ctf::Bands, int);
+  ANG_READER_ALLOCATE_AND_READ(Error, ebsdlib::Ctf::Error, int);
+  ANG_READER_ALLOCATE_AND_READ(Euler1, ebsdlib::Ctf::Euler1, float);
+  ANG_READER_ALLOCATE_AND_READ(Euler2, ebsdlib::Ctf::Euler2, float);
+  ANG_READER_ALLOCATE_AND_READ(Euler3, ebsdlib::Ctf::Euler3, float);
+  ANG_READER_ALLOCATE_AND_READ(MeanAngularDeviation, ebsdlib::Ctf::MAD, float);
+  ANG_READER_ALLOCATE_AND_READ(BandContrast, ebsdlib::Ctf::BC, int);
+  ANG_READER_ALLOCATE_AND_READ(BandSlope, ebsdlib::Ctf::BS, int);
   // This data is optional in the file.
-  ANG_READER_ALLOCATE_AND_READ(Z, EbsdLib::Ctf::Z, float);
-  ANG_READER_ALLOCATE_AND_READ(GrainIndex, EbsdLib::Ctf::GrainIndex, int);
-  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourR, EbsdLib::Ctf::GrainRandomColourR, int);
-  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourG, EbsdLib::Ctf::GrainRandomColourG, int);
-  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourB, EbsdLib::Ctf::GrainRandomColourB, int);
+  ANG_READER_ALLOCATE_AND_READ(Z, ebsdlib::Ctf::Z, float);
+  ANG_READER_ALLOCATE_AND_READ(GrainIndex, ebsdlib::Ctf::GrainIndex, int);
+  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourR, ebsdlib::Ctf::GrainRandomColourR, int);
+  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourG, ebsdlib::Ctf::GrainRandomColourG, int);
+  ANG_READER_ALLOCATE_AND_READ(GrainRandomColourB, ebsdlib::Ctf::GrainRandomColourB, int);
 
   err = H5Gclose(gid);
 

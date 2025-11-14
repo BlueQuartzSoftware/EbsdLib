@@ -268,7 +268,7 @@ public:
    * @return
    */
 
-  EbsdLib::NumericTypes::Type getType() const;
+  ebsdlib::NumericTypes::Type getType() const;
 
   /**
    * @brief GetTypeName Returns a string representation of the type of data that is stored by this class. This
@@ -524,7 +524,7 @@ public:
    * @return Returns a formatted string that contains general infomation about
    * the instance of the object.
    */
-  std::string getInfoString(EbsdLib::InfoStringFormat format) const;
+  std::string getInfoString(ebsdlib::InfoStringFormat format) const;
 
   /**
    * @brief
@@ -1227,7 +1227,7 @@ extern template class EbsdDataArray<size_t>;
 
 // -----------------------------------------------------------------------------
 // Declare our aliases
-namespace EbsdLib
+namespace ebsdlib
 {
 // using BoolArrayType = EbsdDataArray<bool>;
 
@@ -1250,4 +1250,4 @@ using FloatArrayType = EbsdDataArray<float>;
 using DoubleArrayType = EbsdDataArray<double>;
 
 // using SizeTArrayType = EbsdDataArray<size_t>;
-} // namespace EbsdLib
+} // namespace ebsdlib

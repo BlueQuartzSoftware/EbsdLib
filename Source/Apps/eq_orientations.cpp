@@ -6,14 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
-#include "Test/TestPrintFunctions.h"
+using namespace ebsdlib;
 
 bool quaternionsAreClose(const QuatD& q1, const QuatD& q2, double tolerance = 1e-6)
 {

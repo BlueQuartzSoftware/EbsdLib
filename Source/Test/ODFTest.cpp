@@ -32,23 +32,19 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-/**
- * @brief main.cpp This is mainly a test to make sure that the Texture.h
- * file will compile using strict STL containers
- * @param argc
- * @param argv
- * @return
- */
-#include <iostream>
-#include <vector>
+#include <catch2/catch.hpp>
 
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Texture/StatsGen.hpp"
 #include "EbsdLib/Texture/Texture.hpp"
 
-#include "TestPrintFunctions.h"
+#include <iostream>
+#include <vector>
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+// TODO: THIS TEST SHOULD BE UPDATED TO ACTUALLY COMPARE RESULTS AGAINST A KNOWN GOOD DATA SET
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #define POPULATE_DATA(i, e1, e2, e3, w, s)                                                                                                                                                             \
   e1s[i] = e1;                                                                                                                                                                                         \
@@ -57,90 +53,65 @@
   weights[i] = w;                                                                                                                                                                                      \
   sigmas[i] = s;
 
-class ODFTest
+using namespace ebsdlib;
+// -----------------------------------------------------------------------------
+template <typename T>
+void Print_Coord(const T* om)
 {
-public:
-  ODFTest() = default;
-  ~ODFTest() = default;
+  printf("Coord:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
+}
 
-  // -----------------------------------------------------------------------------
-  template <typename T>
-  void Print_Coord(const T* om)
-  {
-    printf("Coord:% 3.16f % 3.16f % 3.16f\n", om[0], om[1], om[2]);
-  }
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::ODFTest::CubicODFTest", "[EbsdLib][ODFTest]")
+{
+  CubicOps ops;
+  std::vector<float> odf(ops.getODFSize());
+  std::vector<float> e1s(2);
+  std::vector<float> e2s(2);
+  std::vector<float> e3s(2);
+  std::vector<float> weights(2);
+  std::vector<float> sigmas(2);
 
-  void CubicODFTest()
-  { // Resize the ODF vector properly for Cubic
-    CubicOps ops;
-    std::vector<float> odf(ops.getODFSize());
-    std::vector<float> e1s(2);
-    std::vector<float> e2s(2);
-    std::vector<float> e3s(2);
-    std::vector<float> weights(2);
-    std::vector<float> sigmas(2);
+  POPULATE_DATA(0, 35, 45, 0, 1000.0, 2.0)
+  POPULATE_DATA(1, 59, 37, 63, 1000.0, 1.0)
 
-    POPULATE_DATA(0, 35, 45, 0, 1000.0, 2.0)
-    POPULATE_DATA(1, 59, 37, 63, 1000.0, 1.0)
+  // Calculate the ODF Data
 
-    // Calculate the ODF Data
+  size_t numEntries = e1s.size();
+  Texture::CalculateODFData<float, CubicOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
 
-    size_t numEntries = e1s.size();
-    Texture::CalculateODFData<float, CubicOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+  size_t npoints = 1000;
+  std::vector<float> x001(npoints * 3);
+  std::vector<float> y001(npoints * 3);
+  std::vector<float> x011(npoints * 6);
+  std::vector<float> y011(npoints * 6);
+  std::vector<float> x111(npoints * 4);
+  std::vector<float> y111(npoints * 4);
+}
 
-    size_t npoints = 1000;
-    std::vector<float> x001(npoints * 3);
-    std::vector<float> y001(npoints * 3);
-    std::vector<float> x011(npoints * 6);
-    std::vector<float> y011(npoints * 6);
-    std::vector<float> x111(npoints * 4);
-    std::vector<float> y111(npoints * 4);
-  }
+TEST_CASE("ebsdlib::ODFTest::TestRotation", "[EbsdLib][ODFTest]")
+{
+  float phi1 = 0.0f * ebsdlib::constants::k_PiOver180D;
+  float PHI = 180.0f;
+  float phi2 = 0.0f;
 
-  void TestRotation()
-  {
-    float phi1 = 0.0f * EbsdLib::Constants::k_PiOver180D;
-    float PHI = 180.0f;
-    float phi2 = 0.0f;
+  // float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
 
-    // float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  Matrix3X3<float> ga = EulerFType(phi1, PHI, phi2).toOrientationMatrix().toGMatrix();
 
-    Matrix3X3<float> ga = EulerFType(phi1, PHI, phi2).toOrientationMatrix().toGMatrixObj<>();
+  // OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
 
-    // OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
+  Matrix3X1 coordsRotated = {0.0f, 0.0f, 0.0f};
+  Matrix3X1 coords = {0.0f, 0.0f, 0.0f};
+  float xc = -0.0;
+  float yc = -5.0;
+  float zc = 0.0;
+  coords[0] = coords[0] - xc;
+  coords[1] = coords[1] - yc;
+  coords[2] = coords[2] - zc;
 
-    Matrix3X1 coordsRotated = {0.0f, 0.0f, 0.0f};
-    Matrix3X1 coords = {0.0f, 0.0f, 0.0f};
-    float xc = -0.0;
-    float yc = -5.0;
-    float zc = 0.0;
-    coords[0] = coords[0] - xc;
-    coords[1] = coords[1] - yc;
-    coords[2] = coords[2] - zc;
+  coordsRotated = ga * coords;
 
-    coordsRotated = ga * coords;
-
-    Print_Coord<float>(coords.data());
-    Print_Coord<float>(coordsRotated.data());
-  }
-
-  void operator()()
-  {
-    std::cout << "<===== Start ODF Test" << std::endl;
-
-    TestRotation();
-    CubicODFTest();
-
-    int err = 0;
-
-    if(err == 1)
-    {
-      // TODO: Present Error Message
-      return;
-    }
-  }
-
-private:
-  ODFTest(const ODFTest&);        // Copy Constructor Not Implemented
-  void operator=(const ODFTest&); // Move assignment Not Implemented
-};
+  Print_Coord<float>(coords.data());
+  Print_Coord<float>(coordsRotated.data());
+}

@@ -49,30 +49,32 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 H5OINAReader::H5OINAReader()
 {
   m_HeaderMap.clear();
   // Initialize the map of header key to header value
-  m_HeaderMap[EbsdLib::H5OINA::AcquisitionData] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::AcquisitionData);
-  m_HeaderMap[EbsdLib::H5OINA::AcquisitionSpeed] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::AcquisitionSpeed);
-  m_HeaderMap[EbsdLib::H5OINA::AcquisitionTime] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::AcquisitionTime);
-  m_HeaderMap[EbsdLib::H5OINA::BeamVoltage] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::BeamVoltage);
-  m_HeaderMap[EbsdLib::H5OINA::DetectorOrientationEuler] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::DetectorOrientationEuler);
-  m_HeaderMap[EbsdLib::H5OINA::Magnification] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::Magnification);
-  m_HeaderMap[EbsdLib::H5OINA::ProjectFile] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::ProjectFile);
-  m_HeaderMap[EbsdLib::H5OINA::ProjectLabel] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::ProjectLabel);
-  m_HeaderMap[EbsdLib::H5OINA::ProjectNotes] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::ProjectNotes);
-  m_HeaderMap[EbsdLib::H5OINA::ScanningRotationAngle] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::ScanningRotationAngle);
-  m_HeaderMap[EbsdLib::H5OINA::SiteNotes] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::SiteNotes);
-  m_HeaderMap[EbsdLib::H5OINA::SpecimenOrientationEuler] = CtfStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5OINA::SpecimenOrientationEuler);
-  m_HeaderMap[EbsdLib::H5OINA::TiltAxis] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::TiltAxis);
-  m_HeaderMap[EbsdLib::H5OINA::TiltAngle] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::H5OINA::TiltAngle);
+  m_HeaderMap[ebsdlib::H5OINA::AcquisitionData] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::AcquisitionData);
+  m_HeaderMap[ebsdlib::H5OINA::AcquisitionSpeed] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::AcquisitionSpeed);
+  m_HeaderMap[ebsdlib::H5OINA::AcquisitionTime] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::AcquisitionTime);
+  m_HeaderMap[ebsdlib::H5OINA::BeamVoltage] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::BeamVoltage);
+  m_HeaderMap[ebsdlib::H5OINA::DetectorOrientationEuler] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::DetectorOrientationEuler);
+  m_HeaderMap[ebsdlib::H5OINA::Magnification] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::Magnification);
+  m_HeaderMap[ebsdlib::H5OINA::ProjectFile] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::ProjectFile);
+  m_HeaderMap[ebsdlib::H5OINA::ProjectLabel] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::ProjectLabel);
+  m_HeaderMap[ebsdlib::H5OINA::ProjectNotes] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::ProjectNotes);
+  m_HeaderMap[ebsdlib::H5OINA::ScanningRotationAngle] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::ScanningRotationAngle);
+  m_HeaderMap[ebsdlib::H5OINA::SiteNotes] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::SiteNotes);
+  m_HeaderMap[ebsdlib::H5OINA::SpecimenOrientationEuler] = CtfStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5OINA::SpecimenOrientationEuler);
+  m_HeaderMap[ebsdlib::H5OINA::TiltAxis] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::TiltAxis);
+  m_HeaderMap[ebsdlib::H5OINA::TiltAngle] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::H5OINA::TiltAngle);
 
-  m_HeaderMap[EbsdLib::Ctf::XCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::XCells);
-  m_HeaderMap[EbsdLib::Ctf::XStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::XStep);
-  m_HeaderMap[EbsdLib::Ctf::YCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::YCells);
-  m_HeaderMap[EbsdLib::Ctf::YStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(EbsdLib::Ctf::YStep);
+  m_HeaderMap[ebsdlib::Ctf::XCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(ebsdlib::Ctf::XCells);
+  m_HeaderMap[ebsdlib::Ctf::XStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::Ctf::XStep);
+  m_HeaderMap[ebsdlib::Ctf::YCells] = CtfHeaderEntry<int, Int32HeaderParser>::NewEbsdHeaderEntry(ebsdlib::Ctf::YCells);
+  m_HeaderMap[ebsdlib::Ctf::YStep] = CtfHeaderEntry<float, FloatHeaderParser>::NewEbsdHeaderEntry(ebsdlib::Ctf::YStep);
 }
 
 // -----------------------------------------------------------------------------
@@ -115,39 +117,39 @@ void H5OINAReader::setYDimension(int ydim)
 void* H5OINAReader::getPointerByName(const std::string& featureName)
 {
   void* ptr = nullptr;
-  if(featureName == EbsdLib::H5OINA::BandContrast)
+  if(featureName == ebsdlib::H5OINA::BandContrast)
   {
     return m_BandContrast.data();
   }
-  if(featureName == EbsdLib::H5OINA::BandSlope)
+  if(featureName == ebsdlib::H5OINA::BandSlope)
   {
     return m_BandSlope.data();
   }
-  if(featureName == EbsdLib::H5OINA::Bands)
+  if(featureName == ebsdlib::H5OINA::Bands)
   {
     return m_Bands.data();
   }
-  if(featureName == EbsdLib::H5OINA::Error)
+  if(featureName == ebsdlib::H5OINA::Error)
   {
     return m_Error.data();
   }
-  if(featureName == EbsdLib::H5OINA::Euler)
+  if(featureName == ebsdlib::H5OINA::Euler)
   {
     return m_Euler.data();
   }
-  if(featureName == EbsdLib::H5OINA::MeanAngularDeviation)
+  if(featureName == ebsdlib::H5OINA::MeanAngularDeviation)
   {
     return m_MeanAngularDeviation.data();
   }
-  if(featureName == EbsdLib::H5OINA::Phase)
+  if(featureName == ebsdlib::H5OINA::Phase)
   {
     return m_Phase.data();
   }
-  if(featureName == EbsdLib::H5OINA::X)
+  if(featureName == ebsdlib::H5OINA::X)
   {
     return m_X.data();
   }
-  if(featureName == EbsdLib::H5OINA::Y)
+  if(featureName == ebsdlib::H5OINA::Y)
   {
     return m_Y.data();
   }
@@ -158,48 +160,48 @@ void* H5OINAReader::getPointerByName(const std::string& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5OINAReader::getPointerType(const std::string& featureName)
+ebsdlib::NumericTypes::Type H5OINAReader::getPointerType(const std::string& featureName)
 {
   // std::cout << "featureName: " << featureName << std::endl;
-  if(featureName == EbsdLib::H5OINA::BandContrast)
+  if(featureName == ebsdlib::H5OINA::BandContrast)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
-  if(featureName == EbsdLib::H5OINA::BandSlope)
+  if(featureName == ebsdlib::H5OINA::BandSlope)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
-  if(featureName == EbsdLib::H5OINA::Bands)
+  if(featureName == ebsdlib::H5OINA::Bands)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
-  if(featureName == EbsdLib::H5OINA::Error)
+  if(featureName == ebsdlib::H5OINA::Error)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
-  if(featureName == EbsdLib::H5OINA::Euler)
+  if(featureName == ebsdlib::H5OINA::Euler)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5OINA::MeanAngularDeviation)
+  if(featureName == ebsdlib::H5OINA::MeanAngularDeviation)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5OINA::Phase)
+  if(featureName == ebsdlib::H5OINA::Phase)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
-  if(featureName == EbsdLib::H5OINA::X)
+  if(featureName == ebsdlib::H5OINA::X)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5OINA::Y)
+  if(featureName == ebsdlib::H5OINA::Y)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
 
   // std::cout << "THIS IS NOT GOOD. Featurename: " << featureName << " was not found in the list" << std::endl;
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 void H5OINAReader::setReadPatternData(bool value)
@@ -243,7 +245,7 @@ int H5OINAReader::readFile()
     return err;
   }
 
-  err = H5Support::H5Lite::readStringDataset(fileId, EbsdLib::H5OINA::FormatVersion, m_OINAVersion);
+  err = H5Support::H5Lite::readStringDataset(fileId, ebsdlib::H5OINA::FormatVersion, m_OINAVersion);
   if(err < 0)
   {
   }
@@ -261,7 +263,7 @@ int H5OINAReader::readFile()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OINA::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5OINA::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     std::string str;
@@ -311,11 +313,11 @@ int H5OINAReader::readFile()
   //  {
   //    void* oldArray = getPointerByName(arrayName);
   //
-  //    if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Float)
+  //    if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Float)
   //    {
   //      CopyTupleUsingIndexList<float>(oldArray, indexMap);
   //    }
-  //    else if(getPointerType(arrayName) == EbsdLib::NumericTypes::Type::Int32)
+  //    else if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Int32)
   //    {
   //      CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
   //    }
@@ -375,9 +377,9 @@ int H5OINAReader::readHeaderOnly()
   }
 
   // Read and parse the OINA Format Version.
-  if(H5Lite::datasetExists(fileId, EbsdLib::H5OINA::FormatVersion))
+  if(H5Lite::datasetExists(fileId, ebsdlib::H5OINA::FormatVersion))
   {
-    err = H5Lite::readStringDataset(fileId, EbsdLib::H5OINA::FormatVersion, m_OINAVersion);
+    err = H5Lite::readStringDataset(fileId, ebsdlib::H5OINA::FormatVersion, m_OINAVersion);
   }
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
@@ -392,7 +394,7 @@ int H5OINAReader::readHeaderOnly()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5OINA::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5OINA::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     setErrorMessage("H5OINAReader Error: Could not open 'EBSD' Group");
@@ -483,7 +485,7 @@ int H5OINAReader::readHeader(hid_t parId)
   using CtfHeaderIntType = CtfHeaderEntry<int, Int32HeaderParser>;
   int err = -1;
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OINA::Header.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OINA::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorCode(-90008);
@@ -492,28 +494,28 @@ int H5OINAReader::readHeader(hid_t parId)
   }
   H5ScopedGroupSentinel sentinel(gid, false);
 
-  ReadH5OINAHeaderScalarValue(this, EbsdLib::H5OINA::XCells, gid, m_XCells);
-  ReadH5OINAHeaderScalarValue(this, EbsdLib::H5OINA::XStep, gid, m_XStep);
-  ReadH5OINAHeaderScalarValue(this, EbsdLib::H5OINA::YCells, gid, m_YCells);
-  ReadH5OINAHeaderScalarValue(this, EbsdLib::H5OINA::YStep, gid, m_YStep);
+  ReadH5OINAHeaderScalarValue(this, ebsdlib::H5OINA::XCells, gid, m_XCells);
+  ReadH5OINAHeaderScalarValue(this, ebsdlib::H5OINA::XStep, gid, m_XStep);
+  ReadH5OINAHeaderScalarValue(this, ebsdlib::H5OINA::YCells, gid, m_YCells);
+  ReadH5OINAHeaderScalarValue(this, ebsdlib::H5OINA::YStep, gid, m_YStep);
 
   setNumberOfElements(getXCells() * getYCells());
 
   // Figure out the Format version
-  if(m_OINAVersion.find(EbsdLib::H5OINA::FormatVersion_2) != std::string::npos)
+  if(m_OINAVersion.find(ebsdlib::H5OINA::FormatVersion_2) != std::string::npos)
   {
   }
-  if(m_OINAVersion.find(EbsdLib::H5OINA::FormatVersion_3) != std::string::npos)
+  if(m_OINAVersion.find(ebsdlib::H5OINA::FormatVersion_3) != std::string::npos)
   {
   }
-  if(m_OINAVersion.find(EbsdLib::H5OINA::FormatVersion_4) != std::string::npos)
+  if(m_OINAVersion.find(ebsdlib::H5OINA::FormatVersion_4) != std::string::npos)
   {
   }
-  if(m_OINAVersion.find(EbsdLib::H5OINA::FormatVersion_5) != std::string::npos)
+  if(m_OINAVersion.find(ebsdlib::H5OINA::FormatVersion_5) != std::string::npos)
   {
   }
 
-  hid_t phasesGid = H5Gopen(gid, EbsdLib::H5OINA::Phases.c_str(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, ebsdlib::H5OINA::Phases.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     setErrorCode(-90007);
@@ -543,22 +545,22 @@ int H5OINAReader::readHeader(hid_t parId)
     CtfPhase::Pointer currentPhase = CtfPhase::New();
     currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
 
-    READ_PHASE_STRING_DATA("H5OINAReader", pid, EbsdLib::H5OINA::PhaseName, PhaseName, currentPhase)
+    READ_PHASE_STRING_DATA("H5OINAReader", pid, ebsdlib::H5OINA::PhaseName, PhaseName, currentPhase)
 
     std::vector<float> latticeConstants;
-    err = H5Support::H5Lite::readVectorDataset(pid, EbsdLib::H5OINA::LatticeDimensions, latticeConstants);
+    err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeDimensions, latticeConstants);
 
     std::vector<float> latticeAngles;
-    err = H5Support::H5Lite::readVectorDataset(pid, EbsdLib::H5OINA::LatticeAngles, latticeAngles);
+    err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeAngles, latticeAngles);
 
     currentPhase->setLatticeConstants({latticeConstants[0], latticeConstants[1], latticeConstants[2], latticeAngles[0], latticeAngles[1], latticeAngles[1]});
 
     int laueGroup = 0;
-    err = H5Support::H5Lite::readScalarDataset(pid, EbsdLib::H5OINA::LaueGroup, laueGroup);
-    currentPhase->setLaueGroup(static_cast<EbsdLib::Ctf::LaueGroupTable>(laueGroup));
+    err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::LaueGroup, laueGroup);
+    currentPhase->setLaueGroup(static_cast<ebsdlib::Ctf::LaueGroupTable>(laueGroup));
 
     int spaceGroup = 0;
-    err = H5Support::H5Lite::readScalarDataset(pid, EbsdLib::H5OINA::SpaceGroup, spaceGroup);
+    err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::SpaceGroup, spaceGroup);
     currentPhase->setSpaceGroup(spaceGroup);
 
     phaseVector.push_back(currentPhase);
@@ -619,7 +621,7 @@ int H5OINAReader::readData(hid_t parId)
     return -301;
   }
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OINA::Data.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OINA::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorMessage("H5OINAReader Error: Could not open 'Data' Group");
@@ -640,47 +642,47 @@ int H5OINAReader::readData(hid_t parId)
     return err;
   }
 
-  err = AllocateAndReadData<uint8_t>(this, gid, EbsdLib::H5OINA::BandContrast, m_BandContrast);
+  err = AllocateAndReadData<uint8_t>(this, gid, ebsdlib::H5OINA::BandContrast, m_BandContrast);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<uint8_t>(this, gid, EbsdLib::H5OINA::BandSlope, m_BandSlope);
+  err = AllocateAndReadData<uint8_t>(this, gid, ebsdlib::H5OINA::BandSlope, m_BandSlope);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<uint8_t>(this, gid, EbsdLib::H5OINA::Bands, m_Bands);
+  err = AllocateAndReadData<uint8_t>(this, gid, ebsdlib::H5OINA::Bands, m_Bands);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<uint8_t>(this, gid, EbsdLib::H5OINA::Error, m_Error);
+  err = AllocateAndReadData<uint8_t>(this, gid, ebsdlib::H5OINA::Error, m_Error);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<float>(this, gid, EbsdLib::H5OINA::Euler, m_Euler);
+  err = AllocateAndReadData<float>(this, gid, ebsdlib::H5OINA::Euler, m_Euler);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<float>(this, gid, EbsdLib::H5OINA::MeanAngularDeviation, m_MeanAngularDeviation);
+  err = AllocateAndReadData<float>(this, gid, ebsdlib::H5OINA::MeanAngularDeviation, m_MeanAngularDeviation);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<uint8_t>(this, gid, EbsdLib::H5OINA::Phase, m_Phase);
+  err = AllocateAndReadData<uint8_t>(this, gid, ebsdlib::H5OINA::Phase, m_Phase);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<float>(this, gid, EbsdLib::H5OINA::X, m_X);
+  err = AllocateAndReadData<float>(this, gid, ebsdlib::H5OINA::X, m_X);
   if(err < 0)
   {
     return err;
   }
-  err = AllocateAndReadData<float>(this, gid, EbsdLib::H5OINA::Y, m_Y);
+  err = AllocateAndReadData<float>(this, gid, ebsdlib::H5OINA::Y, m_Y);
   if(err < 0)
   {
     return err;
@@ -690,7 +692,7 @@ int H5OINAReader::readData(hid_t parId)
   //    H5T_class_t type_class;
   //    std::vector<hsize_t> dims;
   //    size_t type_size = 0;
-  //    err = H5Lite::getDatasetInfo(gid, EbsdLib::Ctf::PatternData, dims, type_class, type_size);
+  //    err = H5Lite::getDatasetInfo(gid, ebsdlib::Ctf::PatternData, dims, type_class, type_size);
   //    if(err >= 0) // Only read the pattern data if the pattern data is available.
   //    {
   //      totalDataRows = 1; // Calculate the total number of elements to allocate for the pattern data
@@ -703,7 +705,7 @@ int H5OINAReader::readData(hid_t parId)
   //      m_PatternDims[1] = static_cast<int>(dims[2]);
   //
   //      m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
-  //      err = H5Lite::readPointerDataset(gid, EbsdLib::Ctf::PatternData, m_PatternData);
+  //      err = H5Lite::readPointerDataset(gid, ebsdlib::Ctf::PatternData, m_PatternData);
   //    }
   //  }
   err = H5Gclose(gid);

@@ -37,7 +37,7 @@
 
 #include "EbsdLib/Math/EbsdLibMath.h"
 
-using namespace EbsdLib;
+using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 //
@@ -52,7 +52,7 @@ ColorUtilities::~ColorUtilities() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
+ebsdlib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
 {
   // hsv to rgb (from wikipedia hsv/hsl page)
   float c = v * s;
@@ -126,13 +126,13 @@ EbsdLib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
     b = 0.0f;
   }
 
-  return EbsdLib::RgbColor::dRgb(static_cast<int>(r * 255), static_cast<int>(g * 255), static_cast<int>(b * 255), 0);
+  return ebsdlib::RgbColor::dRgb(static_cast<int>(r * 255), static_cast<int>(g * 255), static_cast<int>(b * 255), 0);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
+ebsdlib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
 {
   double hh, p, q, t, ff;
   long i;
@@ -158,7 +158,7 @@ EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
     out.r = in.v;
     out.g = in.v;
     out.b = in.v;
-    return EbsdLib::RgbColor::dRgb(static_cast<int>(out.r * 255), static_cast<int>(out.g * 255), static_cast<int>(out.b * 255), 255);
+    return ebsdlib::RgbColor::dRgb(static_cast<int>(out.r * 255), static_cast<int>(out.g * 255), static_cast<int>(out.b * 255), 255);
   }
   hh = in.h;
   if(hh >= 360.0)
@@ -207,21 +207,21 @@ EbsdLib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
     out.b = q;
     break;
   }
-  return EbsdLib::RgbColor::dRgb(static_cast<int>(out.r * 255), static_cast<int>(out.g * 255), static_cast<int>(out.b * 255), 255);
+  return ebsdlib::RgbColor::dRgb(static_cast<int>(out.r * 255), static_cast<int>(out.g * 255), static_cast<int>(out.b * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<EbsdLib::Rgb> ColorUtilities::GenerateColors(int count, int saturation, int value)
+std::vector<ebsdlib::Rgb> ColorUtilities::GenerateColors(int count, int saturation, int value)
 {
-  std::vector<EbsdLib::Rgb> colors(count);
+  std::vector<ebsdlib::Rgb> colors(count);
   float s = static_cast<float>(saturation) / 255.0f;
   float v = static_cast<float>(value) / 255.0f;
   float increment = 360.0f / count;
   for(float i = 0; i < static_cast<float>(count); i = i + 1.0f)
   {
-    EbsdLib::Rgb c = ColorUtilities::Hsv2Rgb(i * increment, s, v);
+    ebsdlib::Rgb c = ColorUtilities::Hsv2Rgb(i * increment, s, v);
     colors[static_cast<size_t>(i)] = c;
   }
   return colors;

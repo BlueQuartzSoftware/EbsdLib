@@ -7,7 +7,7 @@
 // #include <fmt/core.h>
 // #include <fmt/xchar.h>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 /**
@@ -213,7 +213,7 @@ using EbsdStringLiteral = BasicEbsdStringLiteral<char>;
 using WEbsdStringLiteral = BasicEbsdStringLiteral<wchar_t>;
 using String16Literal = BasicEbsdStringLiteral<char16_t>;
 using String32Literal = BasicEbsdStringLiteral<char32_t>;
-} // namespace EbsdLib
+} // namespace ebsdlib
 
 #if 0
 template <class CharT>

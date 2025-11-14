@@ -46,6 +46,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -59,7 +61,7 @@ H5CtfVolumeReader::~H5CtfVolumeReader()
 }
 
 #define H5CTFREADER_ALLOCATE_ARRAY(name, type)                                                                                                                                                         \
-  if(readAllArrays == true || arrayNames.find(EbsdLib::Ctf::name) != arrayNames.end())                                                                                                                 \
+  if(readAllArrays == true || arrayNames.find(ebsdlib::Ctf::name) != arrayNames.end())                                                                                                                 \
   {                                                                                                                                                                                                    \
     auto _##name = allocateArray<type>(numElements);                                                                                                                                                   \
     if(nullptr != _##name)                                                                                                                                                                             \
@@ -116,47 +118,47 @@ void H5CtfVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 void* H5CtfVolumeReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName == EbsdLib::Ctf::Phase)
+  if(featureName == ebsdlib::Ctf::Phase)
   {
     return static_cast<void*>(m_Phase);
   }
-  if(featureName == EbsdLib::Ctf::X)
+  if(featureName == ebsdlib::Ctf::X)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName == EbsdLib::Ctf::Y)
+  if(featureName == ebsdlib::Ctf::Y)
   {
     return static_cast<void*>(m_Y);
   }
-  if(featureName == EbsdLib::Ctf::Bands)
+  if(featureName == ebsdlib::Ctf::Bands)
   {
     return static_cast<void*>(m_Bands);
   }
-  if(featureName == EbsdLib::Ctf::Error)
+  if(featureName == ebsdlib::Ctf::Error)
   {
     return static_cast<void*>(m_Error);
   }
-  if(featureName == EbsdLib::Ctf::Euler1)
+  if(featureName == ebsdlib::Ctf::Euler1)
   {
     return static_cast<void*>(m_Euler1);
   }
-  if(featureName == EbsdLib::Ctf::Euler2)
+  if(featureName == ebsdlib::Ctf::Euler2)
   {
     return static_cast<void*>(m_Euler2);
   }
-  if(featureName == EbsdLib::Ctf::Euler3)
+  if(featureName == ebsdlib::Ctf::Euler3)
   {
     return static_cast<void*>(m_Euler3);
   }
-  if(featureName == EbsdLib::Ctf::MAD)
+  if(featureName == ebsdlib::Ctf::MAD)
   {
     return static_cast<void*>(m_MAD);
   }
-  if(featureName == EbsdLib::Ctf::BC)
+  if(featureName == ebsdlib::Ctf::BC)
   {
     return static_cast<void*>(m_BC);
   }
-  if(featureName == EbsdLib::Ctf::BS)
+  if(featureName == ebsdlib::Ctf::BS)
   {
     return static_cast<void*>(m_BS);
   }
@@ -166,53 +168,53 @@ void* H5CtfVolumeReader::getPointerByName(const std::string& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const std::string& featureName)
+ebsdlib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const std::string& featureName)
 {
-  if(featureName == EbsdLib::Ctf::Phase)
+  if(featureName == ebsdlib::Ctf::Phase)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::Ctf::X)
+  if(featureName == ebsdlib::Ctf::X)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::Y)
+  if(featureName == ebsdlib::Ctf::Y)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::Bands)
+  if(featureName == ebsdlib::Ctf::Bands)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::Ctf::Error)
+  if(featureName == ebsdlib::Ctf::Error)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::Ctf::Euler1)
+  if(featureName == ebsdlib::Ctf::Euler1)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::Euler2)
+  if(featureName == ebsdlib::Ctf::Euler2)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::Euler3)
+  if(featureName == ebsdlib::Ctf::Euler3)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::MAD)
+  if(featureName == ebsdlib::Ctf::MAD)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::Ctf::BC)
+  if(featureName == ebsdlib::Ctf::BC)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::Ctf::BS)
+  if(featureName == ebsdlib::Ctf::BS)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------
@@ -355,7 +357,7 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
     ystartspot = static_cast<int>((ypointstemp - ypointsslice) / 2);
 
     // If no stacking order preference was passed, read it from the file and use that value
-    if(ZDir == EbsdLib::RefFrameZDir::UnknownRefFrameZDirection)
+    if(ZDir == ebsdlib::RefFrameZDir::UnknownRefFrameZDirection)
     {
       ZDir = getStackingOrder();
     }

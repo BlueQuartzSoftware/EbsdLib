@@ -6,18 +6,18 @@
 #include <sstream>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 
 static const std::string DCName("Orientation Transforms Test");
 static const std::string AMName("Angles");
 
 #define s_NumReps 8
 
-std::string k_InputNames[s_NumReps] = {"eu", "om", "qu", "ax", "ro", "ho", "cu", "st"};
-int k_CompDims[s_NumReps] = {3, 9, 4, 4, 4, 3, 3, 3};
-
-namespace OrientationPrinters
+namespace ebsdlib
 {
+
+const std::string k_InputNames[s_NumReps] = {"eu", "om", "qu", "ax", "ro", "ho", "cu", "st"};
+const int k_CompDims[s_NumReps] = {3, 9, 4, 4, 4, 3, 3, 3};
 
 // -----------------------------------------------------------------------------
 //
@@ -97,8 +97,8 @@ void Print_QU(const T& om, typename T::Order layout)
 }
 
 // -----------------------------------------------------------------------------
-template <typename QuaternionType>
-void Print_QU(const QuaternionType& q)
+template <typename T>
+void Print_QU(const Quaternion<T>& q)
 {
   printf("QU:<% 3.16f % 3.6f % 3.16f> % 3.16f\n", q.x(), q.y(), q.z(), q.w());
 }
@@ -143,4 +143,4 @@ void PrintTuple(typename DataArrayClass::Pointer data, size_t t)
   }
   printf("\n");
 }
-} // namespace OrientationPrinters
+} // namespace ebsdlib

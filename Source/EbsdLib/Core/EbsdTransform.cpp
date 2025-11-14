@@ -42,7 +42,7 @@ EbsdTransform::EbsdTransform()
 
     = default;
 
-EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransformation(const std::array<float, 4>& sampleTransformation, const std::array<float, 4>& eulerTransformation)
+ebsdlib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransformation(const std::array<float, 4>& sampleTransformation, const std::array<float, 4>& eulerTransformation)
 {
 
   // TSL/EDAX
@@ -51,7 +51,7 @@ EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
      && eulerTransformation[0] == 90.0f && eulerTransformation[1] == 0.0f && eulerTransformation[2] == 0.0f && eulerTransformation[3] == 1.0f)
 
   {
-    return EbsdLib::TSLdefault;
+    return ebsdlib::TSLdefault;
   }
 
   if(sampleTransformation[0] == 180.0f // HKL
@@ -60,7 +60,7 @@ EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
      && eulerTransformation[0] == 0.0f && eulerTransformation[1] == 0.0f && eulerTransformation[2] == 0.0f && eulerTransformation[3] == 1.0f)
 
   {
-    return EbsdLib::HKLdefault;
+    return ebsdlib::HKLdefault;
   }
 
   if(sampleTransformation[0] == 0.0f // HEDM
@@ -69,10 +69,10 @@ EbsdLib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
      && eulerTransformation[0] == 0.0f && eulerTransformation[1] == 0.0f && eulerTransformation[2] == 0.0f && eulerTransformation[3] == 1.0f)
 
   {
-    return EbsdLib::HEDMdefault;
+    return ebsdlib::HEDMdefault;
   }
 
-  return EbsdLib::UnknownCoordinateMapping;
+  return ebsdlib::UnknownCoordinateMapping;
 }
 
 // -----------------------------------------------------------------------------

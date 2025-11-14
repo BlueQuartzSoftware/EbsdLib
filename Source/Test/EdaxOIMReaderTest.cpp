@@ -32,11 +32,7 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#include <cstring>
-
-#include <fstream>
-#include <iostream>
+#include <catch2/catch.hpp>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
@@ -45,92 +41,63 @@
 
 #include "UnitTestSupport.hpp"
 
-class EdaxOIMReaderTest
+#include <cstring>
+#include <fstream>
+#include <iostream>
+
+using namespace ebsdlib;
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::EdaxOIMReaderTest::TestH5OIMReader", "[EbsdLib][EdaxOIMReaderTest]")
 {
-public:
-  EdaxOIMReaderTest() = default;
-  virtual ~EdaxOIMReaderTest() = default;
+  int err = 0;
+  int err1 = 0;
+  H5OIMReader::Pointer reader = H5OIMReader::New();
+  reader->setFileName(UnitTest::AngImportTest::EdaxOIMH5File);
+  std::list<std::string> names;
+  err = reader->readScanNames(names);
+  DREAM3D_REQUIRED(err, >=, 0)
+  int count = static_cast<int>(names.size());
+  DREAM3D_REQUIRED(count, ==, 1)
 
-  EBSD_GET_NAME_OF_CLASS_DECL(EdaxOIMReaderTest)
+  reader->setHDF5Path("Scan_1");
+  err1 = reader->readHeaderOnly();
 
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
+  err = reader->getErrorCode();
+  DREAM3D_REQUIRED(err, >=, 0)
+  DREAM3D_REQUIRED(err1, >=, 0)
+
+  int x = reader->getXDimension();
+  DREAM3D_REQUIRED(x, ==, 186)
+  int y = reader->getYDimension();
+  DREAM3D_REQUIRED(y, ==, 151)
+
+  reader->setReadPatternData(false);
+  err = reader->readFile();
+  float* f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::Phi1));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::Phi));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::Phi2));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::ImageQuality));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::ConfidenceIndex));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::SEMSignal));
+  DREAM3D_REQUIRE_VALID_POINTER(f1)
+  f1 = reinterpret_cast<float*>(reader->getPointerByName(ebsdlib::Ang::Fit));
+
+  int* phasePtr = reinterpret_cast<int*>(reader->getPointerByName(ebsdlib::Ang::PhaseData));
+  DREAM3D_REQUIRE_VALID_POINTER(phasePtr)
+
+  if(reader->getReadPatternData())
   {
-#if REMOVE_TEST_FILES
-// fs::remove(UnitTest::AngImportTest::H5EbsdOutputFile);
-#endif
+    uint8_t* patterns = reader->getPatternData();
+    DREAM3D_REQUIRE_VALID_POINTER(patterns)
+    std::array<int, 2> patternDims = {{0, 0}};
+    reader->getPatternDims(patternDims);
+    DREAM3D_REQUIRED(patternDims[0], ==, 60)
+    DREAM3D_REQUIRED(patternDims[1], ==, 60)
   }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void TestH5OIMReader()
-  {
-    int err = 0;
-    int err1 = 0;
-    H5OIMReader::Pointer reader = H5OIMReader::New();
-    reader->setFileName(UnitTest::AngImportTest::EdaxOIMH5File);
-    std::list<std::string> names;
-    err = reader->readScanNames(names);
-    DREAM3D_REQUIRED(err, >=, 0)
-    int count = static_cast<int>(names.size());
-    DREAM3D_REQUIRED(count, ==, 1)
-
-    reader->setHDF5Path("Scan_1");
-    err1 = reader->readHeaderOnly();
-
-    err = reader->getErrorCode();
-    DREAM3D_REQUIRED(err, >=, 0)
-    DREAM3D_REQUIRED(err1, >=, 0)
-
-    int x = reader->getXDimension();
-    DREAM3D_REQUIRED(x, ==, 186)
-    int y = reader->getYDimension();
-    DREAM3D_REQUIRED(y, ==, 151)
-
-    reader->setReadPatternData(false);
-    err = reader->readFile();
-    float* f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi1));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Phi2));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::ImageQuality));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::ConfidenceIndex));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::SEMSignal));
-    DREAM3D_REQUIRE_VALID_POINTER(f1)
-    f1 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ang::Fit));
-
-    int* phasePtr = reinterpret_cast<int*>(reader->getPointerByName(EbsdLib::Ang::PhaseData));
-    DREAM3D_REQUIRE_VALID_POINTER(phasePtr)
-
-    if(reader->getReadPatternData())
-    {
-      uint8_t* patterns = reader->getPatternData();
-      DREAM3D_REQUIRE_VALID_POINTER(patterns)
-      std::array<int, 2> patternDims = {{0, 0}};
-      reader->getPatternDims(patternDims);
-      DREAM3D_REQUIRED(patternDims[0], ==, 60)
-      DREAM3D_REQUIRED(patternDims[1], ==, 60)
-    }
-  }
-
-  void operator()()
-  {
-    int err = EXIT_SUCCESS;
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-    DREAM3D_REGISTER_TEST(TestH5OIMReader())
-
-    DREAM3D_REGISTER_TEST(RemoveTestFiles())
-  }
-
-public:
-  EdaxOIMReaderTest(const EdaxOIMReaderTest&) = delete;            // Copy Constructor Not Implemented
-  EdaxOIMReaderTest(EdaxOIMReaderTest&&) = delete;                 // Move Constructor Not Implemented
-  EdaxOIMReaderTest& operator=(const EdaxOIMReaderTest&) = delete; // Copy Assignment Not Implemented
-  EdaxOIMReaderTest& operator=(EdaxOIMReaderTest&&) = delete;      // Move Assignment Not Implemented
-};
+}

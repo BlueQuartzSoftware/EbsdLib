@@ -35,6 +35,8 @@
 #include "AngFields.h"
 #include "AngConstants.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -51,16 +53,16 @@ AngFields::~AngFields() = default;
 std::vector<std::string> AngFields::getFieldNames()
 {
   std::vector<std::string> features;
-  features.push_back(EbsdLib::Ang::Phi1);
-  features.push_back(EbsdLib::Ang::Phi);
-  features.push_back(EbsdLib::Ang::Phi2);
-  features.push_back(EbsdLib::Ang::XPosition);
-  features.push_back(EbsdLib::Ang::YPosition);
-  features.push_back(EbsdLib::Ang::ImageQuality);
-  features.push_back(EbsdLib::Ang::ConfidenceIndex);
-  features.push_back(EbsdLib::Ang::PhaseData);
-  features.push_back(EbsdLib::Ang::SEMSignal);
-  features.push_back(EbsdLib::Ang::Fit);
+  features.push_back(ebsdlib::Ang::Phi1);
+  features.push_back(ebsdlib::Ang::Phi);
+  features.push_back(ebsdlib::Ang::Phi2);
+  features.push_back(ebsdlib::Ang::XPosition);
+  features.push_back(ebsdlib::Ang::YPosition);
+  features.push_back(ebsdlib::Ang::ImageQuality);
+  features.push_back(ebsdlib::Ang::ConfidenceIndex);
+  features.push_back(ebsdlib::Ang::PhaseData);
+  features.push_back(ebsdlib::Ang::SEMSignal);
+  features.push_back(ebsdlib::Ang::Fit);
 
   return features;
 }

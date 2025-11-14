@@ -45,6 +45,8 @@
 #include "H5Support/H5SupportTypeDefs.h"
 #endif
 
+namespace ebsdlib
+{
 /**
  * @class ModifiedLambertProjection ModifiedLambertProjection.h DREAM3DLib/Common/ModifiedLambertProjection.h
  * @brief  This class holds a pair of Modified Lambert Projection images. Based off the paper
@@ -91,7 +93,7 @@ public:
    * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
    * @return
    */
-  static Pointer LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius);
+  static Pointer LambertBallToSquare(ebsdlib::FloatArrayType* coords, int dimension, float sphereRadius);
 
   /**
    * @brief Getter property for Dimension
@@ -115,13 +117,13 @@ public:
    * @brief Getter property for NorthSquare
    * @return Value of NorthSquare
    */
-  EbsdLib::DoubleArrayType::Pointer getNorthSquare() const;
+  ebsdlib::DoubleArrayType::Pointer getNorthSquare() const;
 
   /**
    * @brief Getter property for SouthSquare
    * @return Value of SouthSquare
    */
-  EbsdLib::DoubleArrayType::Pointer getSouthSquare() const;
+  ebsdlib::DoubleArrayType::Pointer getSouthSquare() const;
 
   /**
    * @brief initializeSquares
@@ -206,9 +208,9 @@ public:
    * @brief createStereographicProjection
    * @param stereoGraphicProjectionDims
    */
-  EbsdLib::DoubleArrayType::Pointer createStereographicProjection(int dim);
+  ebsdlib::DoubleArrayType::Pointer createStereographicProjection(int dim);
 
-  void createStereographicProjection(int dim, EbsdLib::DoubleArrayType& stereoIntensity);
+  void createStereographicProjection(int dim, ebsdlib::DoubleArrayType& stereoIntensity);
 
   /**
    * @brief Creates a circular Projection
@@ -231,8 +233,8 @@ private:
   float m_MaxCoord;
   float m_MinCoord;
 
-  EbsdLib::DoubleArrayType::Pointer m_NorthSquare;
-  EbsdLib::DoubleArrayType::Pointer m_SouthSquare;
+  ebsdlib::DoubleArrayType::Pointer m_NorthSquare;
+  ebsdlib::DoubleArrayType::Pointer m_SouthSquare;
 
 public:
   ModifiedLambertProjection(const ModifiedLambertProjection&) = delete;            // Copy Constructor Not Implemented
@@ -240,3 +242,4 @@ public:
   ModifiedLambertProjection& operator=(const ModifiedLambertProjection&) = delete; // Copy Assignment Not Implemented
   ModifiedLambertProjection& operator=(ModifiedLambertProjection&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

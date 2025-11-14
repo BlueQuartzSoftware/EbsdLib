@@ -42,6 +42,9 @@
 #ifdef EbsdLib_ENABLE_HDF5
 #include <hdf5.h>
 #endif
+
+namespace ebsdlib
+{
 /**
  * @class EbsdImporter EbsdImporter.h EbsdLib/EbsdImporter.h
  * @brief  This class is a pure virtual class that defines the interface that
@@ -184,3 +187,4 @@ private:
   int m_ErrorCode = 0;
   bool m_Cancel = false;
 };
+} // namespace ebsdlib

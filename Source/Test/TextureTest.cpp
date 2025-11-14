@@ -32,6 +32,7 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#include <catch2/catch.hpp>
 
 #include <iostream>
 #include <string>
@@ -57,170 +58,160 @@
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-/**
- * @brief These tests are just here to make sure the code compiles. The tests will
- * not actually work or would probably produced undefined results.
- * @param argc
- * @param argv
- * @return
- */
-class TextureTest
+using namespace ebsdlib;
+
+template <class LaueOps>
+void TestTextureMdf()
 {
-public:
-  TextureTest() = default;
-  ~TextureTest() = default;
+  LaueOps ops;
+  std::cout << "======================================================" << std::endl;
+  std::cout << ops.getNameOfClass() << " MDF Plot Values" << std::endl;
 
-  EBSD_GET_NAME_OF_CLASS_DECL(TextureTest)
+  std::vector<float> odf;
 
-  template <class LaueOps>
-  void TestTextureMdf()
+  int size = 10000;
+  std::vector<float> e1s;
+  std::vector<float> e2s;
+  std::vector<float> e3s;
+  std::vector<float> sigmas;
+  std::vector<float> angles;
+  std::vector<float> axes;
+  std::vector<float> weights;
+  size_t numEntries = static_cast<size_t>(e1s.size());
+  std::cout << "   Generating ODF....." << std::endl;
+  Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+
+  // Allocate a new vector to hold the mdf data
+  std::vector<float> mdf;
+  int32_t err = 0;
+  std::cout << "   Generating MDF....." << std::endl;
+  try
   {
-    LaueOps ops;
-    std::cout << "======================================================" << std::endl;
-    std::cout << ops.getNameOfClass() << " MDF Plot Values" << std::endl;
+    // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
+    Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
+    // Now generate the actual XY point data that gets plotted.
+    // These are the output vectors
 
-    std::vector<float> odf;
+    int npoints = 36;
+    std::vector<float> x(npoints);
+    std::vector<float> y(npoints);
+    std::cout << "   Generating MDF Plot Data....." << std::endl;
 
-    int size = 10000;
-    std::vector<float> e1s;
-    std::vector<float> e2s;
-    std::vector<float> e3s;
-    std::vector<float> sigmas;
-    std::vector<float> angles;
-    std::vector<float> axes;
-    std::vector<float> weights;
-    size_t numEntries = static_cast<size_t>(e1s.size());
-    std::cout << "   Generating ODF....." << std::endl;
-    Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
-
-    // Allocate a new vector to hold the mdf data
-    std::vector<float> mdf;
-    int32_t err = 0;
-    std::cout << "   Generating MDF....." << std::endl;
-    try
+    err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
+    if(err < 0)
     {
-      // Calculate the MDF Data using the ODF data and the rows from the MDF Table model
-      Texture::CalculateMDFData<float, LaueOps, std::vector<float>>(angles, axes, weights, odf, mdf, static_cast<size_t>(angles.size()));
-      // Now generate the actual XY point data that gets plotted.
-      // These are the output vectors
-
-      int npoints = 36;
-      std::vector<float> x(npoints);
-      std::vector<float> y(npoints);
-      std::cout << "   Generating MDF Plot Data....." << std::endl;
-
-      err = StatsGen::GenMDFPlotData<float, LaueOps, std::vector<float>>(mdf, x, y, size);
-      if(err < 0)
-      {
-        std::cout << "Error Generating MDF Plot Values" << std::endl;
-        return;
-      }
-      std::cout << "    npoints: " << x.size() << std::endl;
-      for(size_t i = 0; i < x.size(); i++)
-      {
-        std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
-      }
-    } catch([[maybe_unused]] const EbsdLib::method_not_implemented& exception)
-    {
-      std::cout << "   MDF Plot Values NOT implemented" << std::endl;
+      std::cout << "Error Generating MDF Plot Values" << std::endl;
+      return;
     }
-  }
-
-  void TestMdfGeneration()
-  {
-    TestTextureMdf<CubicLowOps>();
-    TestTextureMdf<CubicOps>();
-    TestTextureMdf<HexagonalLowOps>();
-    TestTextureMdf<HexagonalOps>();
-    TestTextureMdf<TetragonalLowOps>();
-    TestTextureMdf<TetragonalOps>();
-    TestTextureMdf<TrigonalLowOps>();
-    TestTextureMdf<TrigonalOps>();
-
-    try
+    std::cout << "    npoints: " << x.size() << std::endl;
+    for(size_t i = 0; i < x.size(); i++)
     {
-      TestTextureMdf<TriclinicOps>();
-    } catch(std::runtime_error e)
-    {
+      std::cout << i << ": " << x[i] << ", " << y[i] << std::endl;
     }
-    try
-    {
-      TestTextureMdf<MonoclinicOps>();
-    } catch(std::runtime_error e)
-    {
-    }
-    try
-    {
-      TestTextureMdf<OrthoRhombicOps>();
-    } catch(std::runtime_error e)
-    {
-    }
-  }
-
-  template <class LaueOps>
-  void TestTextureOdf()
+  } catch([[maybe_unused]] const ebsdlib::method_not_implemented& exception)
   {
-    std::vector<float> e1s;
-    std::vector<float> e2s;
-    std::vector<float> e3s;
-    std::vector<float> weights;
-    std::vector<float> sigmas;
-    std::vector<float> odf;
-
-    LaueOps ops;
-    size_t numEntries = e1s.size();
-    Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+    std::cout << "   MDF Plot Values NOT implemented" << std::endl;
   }
+}
 
-  void TestOdfGeneration()
+TEST_CASE("ebsdlib::TextureTest::TestMdfGeneration", "[EbsdLib][TextureTest]")
+{
+  TestTextureMdf<CubicLowOps>();
+  TestTextureMdf<CubicOps>();
+  TestTextureMdf<HexagonalLowOps>();
+  TestTextureMdf<HexagonalOps>();
+  TestTextureMdf<TetragonalLowOps>();
+  TestTextureMdf<TetragonalOps>();
+  TestTextureMdf<TrigonalLowOps>();
+  TestTextureMdf<TrigonalOps>();
+
+  try
   {
-    TestTextureOdf<CubicLowOps>();
-    TestTextureOdf<CubicOps>();
-    TestTextureOdf<HexagonalLowOps>();
-    TestTextureOdf<HexagonalOps>();
-    TestTextureOdf<MonoclinicOps>();
-    TestTextureOdf<OrthoRhombicOps>();
-    TestTextureOdf<TetragonalLowOps>();
-    TestTextureOdf<TetragonalOps>();
-    TestTextureOdf<TriclinicOps>();
-    TestTextureOdf<TrigonalLowOps>();
-    TestTextureOdf<TrigonalOps>();
-  }
-
-  void TestMatrix3X3()
+    TestTextureMdf<TriclinicOps>();
+  } catch(std::runtime_error e)
   {
-    EbsdLib::Matrix3X3F matrix(1.0f, 2.0f, 3.0, 4.0f, 5.0f, 6.0f, 7.0, 8.0f, 9.0f);
-    matrix[0] = 10.0f;
-    matrix.data()[0] = 12.0f;
-    matrix = matrix * matrix;
-    matrix = matrix.multiplyInPlace(matrix);
-    matrix = matrix + matrix;
-    matrix = matrix - matrix;
-    matrix = matrix * 22.0f;
-
-    matrix = matrix.transpose();
-    matrix = matrix.invert();
-    matrix = matrix.adjoint();
-    matrix = matrix.cofactor();
-    matrix = matrix.minors();
-    float det = matrix.determinant();
-    matrix = matrix.normalize();
-    matrix = matrix.identity();
   }
-
-  void operator()()
+  try
   {
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-    int err = EXIT_SUCCESS;
-    DREAM3D_REGISTER_TEST(TestOdfGeneration())
-    DREAM3D_REGISTER_TEST(TestMdfGeneration())
-    DREAM3D_REGISTER_TEST(TestMatrix3X3())
+    TestTextureMdf<MonoclinicOps>();
+  } catch(std::runtime_error e)
+  {
   }
+  try
+  {
+    TestTextureMdf<OrthoRhombicOps>();
+  } catch(std::runtime_error e)
+  {
+  }
+}
 
-public:
-  TextureTest(const TextureTest&) = delete;            // Copy Constructor Not Implemented
-  TextureTest(TextureTest&&) = delete;                 // Move Constructor Not Implemented
-  TextureTest& operator=(const TextureTest&) = delete; // Copy Assignment Not Implemented
-  TextureTest& operator=(TextureTest&&) = delete;      // Move Assignment Not Implemented
-};
+template <class LaueOps>
+void TestTextureOdf()
+{
+  std::vector<float> e1s;
+  std::vector<float> e2s;
+  std::vector<float> e3s;
+  std::vector<float> weights;
+  std::vector<float> sigmas;
+  std::vector<float> odf;
+
+  LaueOps ops;
+  size_t numEntries = e1s.size();
+  Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+}
+
+TEST_CASE("ebsdlib::TextureTest::TestOdfGeneration", "[EbsdLib][TextureTest]")
+{
+  TestTextureOdf<CubicLowOps>();
+  TestTextureOdf<CubicOps>();
+  TestTextureOdf<HexagonalLowOps>();
+  TestTextureOdf<HexagonalOps>();
+  TestTextureOdf<MonoclinicOps>();
+  TestTextureOdf<OrthoRhombicOps>();
+  TestTextureOdf<TetragonalLowOps>();
+  TestTextureOdf<TetragonalOps>();
+  TestTextureOdf<TriclinicOps>();
+  TestTextureOdf<TrigonalLowOps>();
+  TestTextureOdf<TrigonalOps>();
+}
+
+TEST_CASE("ebsdlib::TextureTest::TestMatrix3X3", "[EbsdLib][TextureTest]")
+{
+  ebsdlib::Matrix3X3F matrix(1.0f, 2.0f, 3.0, 4.0f, 5.0f, 6.0f, 7.0, 8.0f, 9.0f);
+  matrix[0] = 10.0f;
+  matrix.data()[0] = 12.0f;
+  matrix = matrix * matrix;
+  matrix = matrix.multiplyInPlace(matrix);
+  matrix = matrix + matrix;
+  matrix = matrix - matrix;
+  matrix = matrix * 22.0f;
+
+  matrix = matrix.transpose();
+  matrix = matrix.invert();
+  matrix = matrix.adjoint();
+  matrix = matrix.cofactor();
+  matrix = matrix.minors();
+  float det = matrix.determinant();
+  matrix = matrix.normalize();
+  matrix = ebsdlib::Matrix3X3F::Identity();
+}
+
+TEST_CASE("ebsdlib::TextureTest::DirectStructureMatrix", "[EbsdLib][DirectStructureMatrix]")
+{
+  std::array<double, 6> latticeParameters = {0.5, 0.5, 1.0, 90.0, 90.0, 90.0};
+
+  Matrix3X3<double> dsm = Matrix3X3<double>::DirectStructureMatrix(latticeParameters);
+
+  Matrix3X1<double> latticePoint(0.0, 0.0, 1.0);
+  auto cartesian = dsm * latticePoint;
+  std::cout << cartesian << std::endl;
+
+  latticePoint = Matrix3X1<double>(1.0, 0.0, 0.0);
+  std::cout << dsm * latticePoint << std::endl;
+
+  latticePoint = Matrix3X1<double>(0.0, 1.0, 0.0);
+  std::cout << dsm * latticePoint << std::endl;
+
+  latticePoint = Matrix3X1<double>(0.0, 0.0, 1.0);
+  std::cout << dsm * latticePoint << std::endl;
+}

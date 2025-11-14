@@ -39,9 +39,9 @@
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/Math/Matrix3X1.hpp"
 #include "EbsdLib/Math/Matrix3X3.hpp"
-
+namespace ebsdlib
+{
 /**
  * @class CubicOps CubicOps.h DREAM3DLib/Common/LaueOps/CubicOps.h
  * @brief
@@ -149,7 +149,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  // EbsdLib::AxisAngleDType calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
+  // ebsdlib::AxisAngleDType calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
 
   QuatD getQuatSymOp(int i) const override;
   void getRodSymOp(int i, double* r) const override;
@@ -161,8 +161,8 @@ public:
    */
   void getMatSymOp(int i, double g[3][3]) const override;
   void getMatSymOp(int i, float g[3][3]) const override;
-  EbsdLib::Matrix3X3F getMatSymOpF(int i) const override;
-  EbsdLib::Matrix3X3D getMatSymOpD(int i) const override;
+  ebsdlib::Matrix3X3F getMatSymOpF(int i) const override;
+  ebsdlib::Matrix3X3D getMatSymOpD(int i) const override;
 
   RodriguesDType getODFFZRod(const RodriguesDType& rod) const override;
   RodriguesDType getMDFFZRod(const RodriguesDType& rod) const override;
@@ -231,7 +231,7 @@ public:
    */
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
-  void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const override;
+  void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const override;
   /**
    * @brief
    * @param eta Optional input value only needed for the "Cubic" Laue classes
@@ -243,9 +243,9 @@ public:
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
    * @param convertDegrees Are the input angles in Degrees
-   * @return Returns the ARGB Quadruplet EbsdLib::Rgb
+   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const override;
+  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const override;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
@@ -256,18 +256,18 @@ public:
    * @param dir1 Second component of the Reference Direction
    * @param dir2 Third component of the Reference Direction
    * @param convertDegrees Are the input angles in Degrees
-   * @return Returns the ARGB Quadruplet EbsdLib::Rgb
+   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  EbsdLib::Rgb generateIPFColor(double phi1, double phi, double phi2, double dir0, double dir1, double dir2, bool degToRad) const override;
+  ebsdlib::Rgb generateIPFColor(double phi1, double phi, double phi2, double dir0, double dir1, double dir2, bool degToRad) const override;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
    * @param r1 First component of the Rodrigues Vector
    * @param r2 Second component of the Rodrigues Vector
    * @param r3 Third component of the Rodrigues Vector
-   * @return Returns the ARGB Quadruplet EbsdLib::Rgb
+   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
+  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -275,10 +275,10 @@ public:
    * @param eulers The Euler Angles to generate the pole figure from.
    * @param imageSize The size in Pixels of the final RGB Image.
    * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-   * @return A std::vector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+   * @return A std::vector of ebsdlib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
    * an image object from other libraries and written out to disk.
    */
-  std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
+  std::vector<ebsdlib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
   /**
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
@@ -290,7 +290,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
+  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
 
   /**
    * @brief Returns if the given Quaternion is within the Rodrigues Fundamental Zone (RFZ)
@@ -314,7 +314,7 @@ public:
    * @param width of produced image (in pixels)
    * @return
    */
-  EbsdLib::UInt8ArrayType::Pointer generateMisorientationTriangleLegend(double, int, int, int) const;
+  ebsdlib::UInt8ArrayType::Pointer generateMisorientationTriangleLegend(double, int, int, int) const;
 
 protected:
   /**
@@ -342,3 +342,4 @@ public:
   CubicOps& operator=(const CubicOps&) = delete; // Copy Assignment Not Implemented
   CubicOps& operator=(CubicOps&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

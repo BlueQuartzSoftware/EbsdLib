@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "dependencies": [
     {
+      "name": "fmt"
+    },
+    {
       "name": "eigen3"
     },
     {
@@ -23,6 +26,14 @@
       "dependencies": [
         {
           "name": "tbb"
+        }
+      ]
+    },
+    "tests": {
+      "description": "Tests",
+      "dependencies": [
+        {
+          "name": "catch2"
         }
       ]
     }

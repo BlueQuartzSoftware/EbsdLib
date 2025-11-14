@@ -35,6 +35,8 @@
 #include "H5EbsdVolumeReader.h"
 #include <utility>
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -78,9 +80,9 @@ void* H5EbsdVolumeReader::getPointerByName(const std::string& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5EbsdVolumeReader::getPointerType(const std::string& featureName)
+ebsdlib::NumericTypes::Type H5EbsdVolumeReader::getPointerType(const std::string& featureName)
 {
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------

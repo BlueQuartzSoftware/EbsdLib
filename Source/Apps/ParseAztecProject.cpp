@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+using namespace ebsdlib;
+
 namespace detail
 {
 // const std::string k_CprPath = "/Volumes/OWC_Express_1M2/DREAM3D_Troubleshoot_Data/Benjamin_Layer1/Layer1.cpr";

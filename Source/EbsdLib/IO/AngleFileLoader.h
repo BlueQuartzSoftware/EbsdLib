@@ -41,7 +41,8 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
-
+namespace ebsdlib
+{
 /**
  * @brief The AngleFileLoader class
  * @class
@@ -166,7 +167,7 @@ public:
    */
   bool getIgnoreMultipleDelimiters() const;
 
-  EbsdLib::FloatArrayType::Pointer loadData();
+  ebsdlib::FloatArrayType::Pointer loadData();
 
 protected:
   AngleFileLoader();
@@ -187,3 +188,4 @@ private:
   std::string m_Delimiter = {};
   bool m_IgnoreMultipleDelimiters = {};
 };
+} // namespace ebsdlib

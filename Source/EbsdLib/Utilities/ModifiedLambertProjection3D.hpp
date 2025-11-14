@@ -38,8 +38,10 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/ArrayHelpers.hpp"
 
-namespace LPs = EbsdLib::LambertParametersType;
+namespace LPs = ebsdlib::LambertParametersType;
 
+namespace ebsdlib
+{
 /**
  * @brief The ModifiedLambertProjection3D class provides methods to convert between
  * a 3D Lambert Cube and a Sphere (XYZ) coordinates.
@@ -399,3 +401,4 @@ private:
   ModifiedLambertProjection3D(const ModifiedLambertProjection3D&); // Copy Constructor Not Implemented
   void operator=(const ModifiedLambertProjection3D&);              // Move assignment Not Implemented
 };
+} // namespace ebsdlib

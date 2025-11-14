@@ -43,7 +43,7 @@
             },
             "VCPKG_MANIFEST_FEATURES": {
                 "type": "STRING",
-                "value": "parallel"
+                "value": "parallel;tests"
             },
             "EbsdLib_ENABLE_HDF5": {
                 "type": "BOOL",
@@ -52,6 +52,14 @@
             "EbsdLib_BUILD_H5SUPPORT": {
                 "type": "BOOL",
                 "value": "OFF"
+            },
+            "EbsdLib_BUILD_TESTS": {
+              "type": "BOOL",
+              "value": "ON"
+            },
+            "EbsdLib_ENABLE_MULTICORE": {
+              "type": "BOOL",
+              "value": "ON"
             },
             "BUILDNAME": {
               "type": "STRING",

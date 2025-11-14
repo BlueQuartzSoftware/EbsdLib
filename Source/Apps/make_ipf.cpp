@@ -16,6 +16,9 @@
 class Ang2IPF;
 
 using FloatVec3Type = std::array<float, 3>;
+
+using namespace ebsdlib;
+
 /**
  * @brief The GenerateIPFColorsImpl class implements a threaded algorithm that computes the IPF
  * colors for each element in a geometry
@@ -40,7 +43,7 @@ public:
     std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
     double refDir[3] = {m_ReferenceDir[0], m_ReferenceDir[1], m_ReferenceDir[2]};
     double dEuler[3] = {0.0, 0.0, 0.0};
-    EbsdLib::Rgb argb = 0x00000000;
+    ebsdlib::Rgb argb = 0x00000000;
     int32_t phase = 0;
     bool calcIPF = false;
     size_t index = 0;
@@ -79,12 +82,12 @@ public:
 
       size_t currentLaueOpsIndex = laueOpsIndex[phase];
 
-      if(phase < numPhases && calcIPF && currentLaueOpsIndex < EbsdLib::CrystalStructure::LaueGroupEnd)
+      if(phase < numPhases && calcIPF && currentLaueOpsIndex < ebsdlib::CrystalStructure::LaueGroupEnd)
       {
         argb = ops[currentLaueOpsIndex]->generateIPFColor(dEuler, refDir, false);
-        m_CellIPFColors[index] = static_cast<uint8_t>(EbsdLib::RgbColor::dRed(argb));
-        m_CellIPFColors[index + 1] = static_cast<uint8_t>(EbsdLib::RgbColor::dGreen(argb));
-        m_CellIPFColors[index + 2] = static_cast<uint8_t>(EbsdLib::RgbColor::dBlue(argb));
+        m_CellIPFColors[index] = static_cast<uint8_t>(ebsdlib::RgbColor::dRed(argb));
+        m_CellIPFColors[index + 1] = static_cast<uint8_t>(ebsdlib::RgbColor::dGreen(argb));
+        m_CellIPFColors[index + 2] = static_cast<uint8_t>(ebsdlib::RgbColor::dBlue(argb));
 
         //  std::cout << (int32_t)(m_CellIPFColors[index]) << "\t" << (int32_t)(m_CellIPFColors[index + 1]) << (int32_t)(m_CellIPFColors[index + 2]) << m_CellEulerAngles[index] << "\t"
         //            << m_CellEulerAngles[index + 1] << "\t" << m_CellEulerAngles[index + 2] << std::endl;
@@ -150,7 +153,7 @@ public:
 
     // Make sure we are dealing with a unit 1 vector.
     std::array<float, 3> normRefDir = m_ReferenceDir; // Make a copy of the reference Direction
-    EbsdMatrixMath::Normalize3x1(normRefDir[0], normRefDir[1], normRefDir[2]);
+    ebsdlib::EbsdMatrixMath::Normalize3x1(normRefDir[0], normRefDir[1], normRefDir[2]);
 
     float* phi1Ptr = reader.getPhi1Pointer(false);
     float* phiPtr = reader.getPhiPointer(false);

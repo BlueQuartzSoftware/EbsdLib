@@ -35,9 +35,10 @@
 
 #pragma once
 
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdMatrixMath.h"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
 #if __APPLE__
@@ -88,62 +89,13 @@
 |  c      |  -   |  -   |  -   |  -   |  -   |  X   |  #   |
 */
 
-/**
- * The Orientation codes are written in such a way that the value of -1 indicates
- * an Active Rotation and +1 indicates a passive rotation.
- *
- * DO NOT UNDER ANY CIRCUMSTANCE CHANGE THESE VARIABLES. THERE WILL BE BAD
- * CONSEQUENCES IF THESE ARE CHANGED. EVERY PIECE OF CODE THAT RELIES ON THESE
- * FUNCTIONS WILL BREAK. IN ADDITION, THE QUATERNION ARITHMETIC WILL NO LONGER
- * BE CONSISTENT WITH ROTATION ARITHMETIC.
- *
- * YOU HAVE BEEN WARNED.
- *
- * Adam  Morawiec's book uses Passive rotations.
- **/
-#ifndef DREAM3D_PASSIVE_ROTATION
-// #define DREAM3D_ACTIVE_ROTATION               -1.0
-#define DREAM3D_PASSIVE_ROTATION 1
-#endif
-
-#ifndef ROTATIONS_CONSTANTS
-#define ROTATIONS_CONSTANTS
-namespace Rotations::Constants
-{
-#if DREAM3D_PASSIVE_ROTATION
-static const float epsijk = 1.0f;
-static const double epsijkd = 1.0;
-#elif DREAM3D_ACTIVE_ROTATION
-static const float epsijk = -1.0f;
-static const double epsijkd = -1.0;
-#endif
-} // namespace Rotations::Constants
-
-#endif
-
 // Add some shortened namespace alias
 // Condense some of the namespaces to same some typing later on.
-namespace LPs = EbsdLib::LambertParametersType;
+namespace LPs = ebsdlib::LambertParametersType;
 namespace RConst = Rotations::Constants;
-namespace DConst = EbsdLib::Constants;
+namespace DConst = ebsdlib::constants;
 
-namespace OrientationRepresentation
-{
-enum class Type : int
-{
-  Euler = 0,
-  OrientationMatrix,
-  Quaternion,
-  AxisAngle,
-  Rodrigues,
-  Homochoric,
-  Cubochoric,
-  Stereographic,
-  Unknown
-};
-}
-
-using namespace EbsdLib;
+using namespace ebsdlib;
 
 /**
  * @brief The OrientationTransformation namespace
@@ -319,17 +271,17 @@ ResultType eu_check(const T& eu)
   ResultType res;
   res.result = 1;
 
-  if((eu[0] < 0.0) || (eu[0] > (EbsdLib::Constants::k_2PiD)))
+  if((eu[0] < 0.0) || (eu[0] > (ebsdlib::constants::k_2PiD)))
   {
     res.msg = "rotations:eu_check:: phi1 Euler angle outside of valid range [0,2pi]";
     res.result = -1;
   }
-  if((eu[1] < 0.0) || (eu[1] > EbsdLib::Constants::k_PiD))
+  if((eu[1] < 0.0) || (eu[1] > ebsdlib::constants::k_PiD))
   {
     res.msg = "rotations:eu_check:: Phi Euler angle outside of valid range [0,pi]";
     res.result = -2;
   }
-  if((eu[2] < 0.0) || (eu[2] > (EbsdLib::Constants::k_2PiD)))
+  if((eu[2] < 0.0) || (eu[2] > (ebsdlib::constants::k_2PiD)))
   {
     res.msg = "rotations:eu_check:: phi2 Euler angle outside of valid range [0,2pi]";
     res.result = -3;
@@ -452,14 +404,14 @@ ResultType cu_check(const InputType& cu)
  * @date 9/30/14   MDG 1.0 original
  */
 template <typename InputType>
-ResultType qu_check(const InputType& qu, typename Quaternion<typename InputType::value_type>::Order layout = Quaternion<typename InputType::value_type>::Order::VectorScalar)
+ResultType qu_check(const InputType& qu, typename Quat<typename InputType::value_type>::Order layout = Quat<typename InputType::value_type>::Order::VectorScalar)
 {
   using SizeType = typename InputType::size_type;
   SizeType w = 0;
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename InputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename InputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -503,7 +455,7 @@ ResultType ax_check(const InputType& ax)
   using value_type = typename InputType::value_type;
   ResultType res;
   res.result = 1;
-  if((ax[3] < 0.0) || (ax[3] > EbsdLib::Constants::k_PiD))
+  if((ax[3] < 0.0) || (ax[3] > ebsdlib::constants::k_PiD))
   {
     res.msg = "rotations:ax_check: angle must be in range [0,pi]";
     res.result = -1;
@@ -586,7 +538,7 @@ ResultType om_check(const InputType& om)
   }
 
   ValueType r = fabs(det - static_cast<ValueType>(1.0L));
-  if(!EbsdLibMath::closeEnough<ValueType>(r, static_cast<ValueType>(0.0L), threshold))
+  if(!ebsdlib::math::closeEnough<ValueType>(r, static_cast<ValueType>(0.0L), threshold))
   {
     ss << "rotations:om_check: Determinant (" << det << ") of rotation matrix must be unity (1.0)";
     res.msg = ss.str();
@@ -650,9 +602,9 @@ ResultType om_check(const InputType& om)
       assert(false);
     }
 
-    axang[0] = -RConst::epsijk * av[0];
-    axang[1] = -RConst::epsijk * av[1];
-    axang[2] = -RConst::epsijk * av[2];
+    axang[0] = -ebsdlib::orientations::epsijk * av[0];
+    axang[1] = -ebsdlib::orientations::epsijk * av[1];
+    axang[2] = -ebsdlib::orientations::epsijk * av[2];
     axang[3] = omega;
     s = sqrt(sumofSquares(av));
 
@@ -793,9 +745,9 @@ OutputType eu2ax(const InputType& e)
   value_type sig = static_cast<value_type>(0.5 * (e[0] + e[2]));
   value_type del = static_cast<value_type>(0.5 * (e[0] - e[2]));
   value_type tau = static_cast<value_type>(std::sqrt(t * t + sin(sig) * sin(sig)));
-  if(EbsdLibMath::closeEnough<value_type>(sig, static_cast<typename OutputType::value_type>(EbsdLib::Constants::k_PiOver2D), static_cast<typename OutputType::value_type>(1.0E-6L)))
+  if(ebsdlib::math::closeEnough<value_type>(sig, static_cast<typename OutputType::value_type>(ebsdlib::constants::k_PiOver2D), static_cast<typename OutputType::value_type>(1.0E-6L)))
   {
-    alpha = static_cast<value_type>(EbsdLib::Constants::k_PiD);
+    alpha = static_cast<value_type>(ebsdlib::constants::k_PiD);
   }
   else
   {
@@ -812,9 +764,9 @@ OutputType eu2ax(const InputType& e)
   else
   {
     //! passive axis-angle pair so a minus sign in front
-    res[0] = static_cast<value_type>(-RConst::epsijkd * t * cos(del) / tau);
-    res[1] = static_cast<value_type>(-RConst::epsijkd * t * sin(del) / tau);
-    res[2] = static_cast<value_type>(-RConst::epsijkd * sin(sig) / tau);
+    res[0] = static_cast<value_type>(-ebsdlib::orientations::epsijkd * t * cos(del) / tau);
+    res[1] = static_cast<value_type>(-ebsdlib::orientations::epsijkd * t * sin(del) / tau);
+    res[2] = static_cast<value_type>(-ebsdlib::orientations::epsijkd * sin(sig) / tau);
     res[3] = alpha;
 
     if(alpha < 0.0)
@@ -849,15 +801,15 @@ OutputType eu2ro(const InputType& e)
   using OutputValueType = typename OutputType::value_type;
   typename OutputType::value_type t = res[3];
 
-  if(std::fabs(t - EbsdLib::Constants::k_PiD) < thr)
+  if(std::fabs(t - ebsdlib::constants::k_PiD) < thr)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
 
-  if(EbsdLibMath::closeEnough<OutputValueType>(t, static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(ebsdlib::math::closeEnough<OutputValueType>(t, static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
-    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
+    res = {0.0, 0.0, ebsdlib::orientations::epsijk, 0.0};
   }
   else
   {
@@ -875,7 +827,7 @@ OutputType eu2ro(const InputType& e)
  * @note verified 8/5/13
  *
  * @param e 3 Euler angles in radians
- * @param Quaternion can be of form Scalar<Vector> or <Vector>Scalar in memory. The
+ * @param Quat can be of form Scalar<Vector> or <Vector>Scalar in memory. The
  * default is (Scalar, <Vector>)
  *
  * @date 8/04/13   MDG 1.0 original
@@ -883,7 +835,7 @@ OutputType eu2ro(const InputType& e)
  */
 
 template <typename InputType, typename OutputType>
-OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType eu2qu(const InputType& e, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
   using SizeType = typename OutputType::size_type;
@@ -891,7 +843,7 @@ OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -918,9 +870,9 @@ OutputType eu2qu(const InputType& e, typename Quaternion<typename OutputType::va
   cp = cos(ee[0] + ee[2]);
   sp = sin(ee[0] + ee[2]);
   res[w] = cPhi * cp;
-  res[x] = -RConst::epsijk * sPhi * cm;
-  res[y] = -RConst::epsijk * sPhi * sm;
-  res[z] = -RConst::epsijk * cPhi * sp;
+  res[x] = -ebsdlib::orientations::epsijk * sPhi * cm;
+  res[y] = -ebsdlib::orientations::epsijk * sPhi * sm;
+  res[z] = -ebsdlib::orientations::epsijk * cPhi * sp;
 
   if(res[w] < 0.0)
   {
@@ -952,7 +904,7 @@ OutputType om2eu(const InputType& o)
   using OutputValueType = typename OutputType::value_type;
   OutputType res(3);
   typename OutputType::value_type zeta = 0.0;
-  bool close = EbsdLibMath::closeEnough<OutputValueType>(std::fabs(o[8]), static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
+  bool close = ebsdlib::math::closeEnough<OutputValueType>(std::fabs(o[8]), static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
   if(!close)
   {
     res[1] = acos(o[8]);
@@ -962,7 +914,7 @@ OutputType om2eu(const InputType& o)
   }
   else
   {
-    close = EbsdLibMath::closeEnough<OutputValueType>(o[8], static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
+    close = ebsdlib::math::closeEnough<OutputValueType>(o[8], static_cast<typename OutputType::value_type>(1.0), static_cast<typename OutputType::value_type>(1.0E-6));
     if(close)
     {
       res[0] = atan2(o[1], o[0]);
@@ -972,7 +924,7 @@ OutputType om2eu(const InputType& o)
     else
     {
       res[0] = static_cast<OutputValueType>(-atan2(-o[1], o[0]));
-      res[1] = static_cast<OutputValueType>(EbsdLib::Constants::k_PiD);
+      res[1] = static_cast<OutputValueType>(ebsdlib::constants::k_PiD);
       res[2] = 0.0;
     }
   }
@@ -1030,7 +982,7 @@ OutputType ax2om(const InputType& a)
   int _02 = 2;
   int _20 = 6;
   // Check to see if we need to transpose
-  if(Rotations::Constants::epsijk == 1.0L)
+  if(ebsdlib::orientations::epsijk == 1.0L)
   {
     _01 = 3;
     _10 = 1;
@@ -1057,7 +1009,7 @@ OutputType ax2om(const InputType& a)
  *
  * @author Marc De Graef, Carnegie Mellon University
  *
- * @brief Quaternion to Euler angles  [Morawiec page 40, with errata !!!! ]
+ * @brief Quat to Euler angles  [Morawiec page 40, with errata !!!! ]
  *
  * @param q quaternion
  *
@@ -1065,7 +1017,7 @@ OutputType ax2om(const InputType& a)
  * @date 8/04/13   MDG 1.0 original
  */
 template <typename InputType, typename OutputType>
-OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2eu(const InputType& q, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(3);
 
@@ -1087,7 +1039,7 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
   {
     if(q12 == 0.0)
     {
-      if(RConst::epsijk == 1.0)
+      if(ebsdlib::orientations::epsijk == 1.0)
       {
         Phi = 0.0;
         phi2 = 0.0; // arbitrarily due to degeneracy
@@ -1102,14 +1054,14 @@ OutputType qu2eu(const InputType& q, typename Quaternion<typename OutputType::va
     }
     else
     {
-      Phi = static_cast<OutputValueType>(EbsdLib::Constants::k_PiD);
+      Phi = static_cast<OutputValueType>(ebsdlib::constants::k_PiD);
       phi2 = 0.0; // arbitrarily due to degeneracy
       phi1 = static_cast<OutputValueType>(atan2(2.0 * qq.x() * qq.y(), qq.x() * qq.x() - qq.y() * qq.y()));
     }
   }
   else
   {
-    if(RConst::epsijk == 1.0)
+    if(ebsdlib::orientations::epsijk == 1.0)
     {
       Phi = static_cast<OutputValueType>(atan2(2.0 * chi, q03 - q12));
       chi = static_cast<OutputValueType>(1.0 / chi);
@@ -1219,10 +1171,10 @@ OutputType ho2ax(const InputType& h)
     res[0] = hn[0];
     res[1] = hn[1];
     res[2] = hn[2];
-    OutputValueType delta = static_cast<OutputValueType>(std::fabs(s - EbsdLib::Constants::k_PiD));
+    OutputValueType delta = static_cast<OutputValueType>(std::fabs(s - ebsdlib::constants::k_PiD));
     if(delta < thr)
     {
-      res[3] = static_cast<value_type>(EbsdLib::Constants::k_PiD);
+      res[3] = static_cast<value_type>(ebsdlib::constants::k_PiD);
     }
     else
     {
@@ -1245,7 +1197,7 @@ OutputType ho2ax(const InputType& h)
  * @date 8/18/14   MDG 2.0 new version
  */
 template <typename InputType, typename OutputType>
-OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType om2qu(const InputType& om, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(4);
   using SizeType = typename OutputType::size_type;
@@ -1253,7 +1205,7 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1272,25 +1224,25 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   OutputValueType s3 = 0.0;
 
   s = static_cast<OutputValueType>(om[0] + om[4] + om[8] + 1.0);
-  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(ebsdlib::math::closeEnough<OutputValueType>(std::fabs(s), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s = 0.0;
   }
   s = sqrt(s);
   s1 = static_cast<OutputValueType>(om[0] - om[4] - om[8] + 1.0);
-  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s1), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(ebsdlib::math::closeEnough<OutputValueType>(std::fabs(s1), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s1 = 0.0;
   }
   s1 = sqrt(s1);
   s2 = static_cast<OutputValueType>(-om[0] + om[4] - om[8] + 1.0);
-  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s2), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(ebsdlib::math::closeEnough<OutputValueType>(std::fabs(s2), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s2 = 0.0;
   }
   s2 = sqrt(s2);
   s3 = static_cast<OutputValueType>(-om[0] - om[4] + om[8] + 1.0);
-  if(EbsdLibMath::closeEnough<OutputValueType>(std::fabs(s3), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
+  if(ebsdlib::math::closeEnough<OutputValueType>(std::fabs(s3), static_cast<typename OutputType::value_type>(0.0), thr)) // Are we close to Zero
   {
     s3 = 0.0;
   }
@@ -1304,23 +1256,23 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
   // verify the signs (q0 always positive)
   if(om[7] < om[5])
   {
-    res[x] = -Rotations::Constants::epsijk * res[x];
+    res[x] = -ebsdlib::orientations::epsijk * res[x];
   }
   if(om[2] < om[6])
   {
-    res[y] = -Rotations::Constants::epsijk * res[y];
+    res[y] = -ebsdlib::orientations::epsijk * res[y];
   }
   if(om[3] < om[1])
   {
-    res[z] = -Rotations::Constants::epsijk * res[z];
+    res[z] = -ebsdlib::orientations::epsijk * res[z];
   }
   // printf("res[z]: % 3.16f \n", res[z]);
 
-  s = EbsdMatrixMath::Magnitude4x1(&(res[0]));
+  s = ebsdlib::EbsdMatrixMath::Magnitude4x1(&(res[0]));
 
   if(s != 0.0)
   {
-    EbsdMatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
+    ebsdlib::EbsdMatrixMath::Divide4x1withConstant<typename OutputType::value_type>(&(res[0]), s);
   }
 
   /* we need to do a quick test here to make sure that the
@@ -1364,7 +1316,7 @@ OutputType om2qu(const InputType& om, typename Quaternion<typename OutputType::v
  * @param layout The ordering of the data: Vector-Scalar or Scalar-Vector
  */
 template <typename InputType, typename OutputType>
-OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2ax(const InputType& q, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
@@ -1373,7 +1325,7 @@ OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1381,7 +1333,7 @@ OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::va
     z = 2;
   }
 
-  OutputValueType epsijk = RConst::epsijkd;
+  OutputValueType epsijk = ebsdlib::orientations::epsijkd;
   InputType qo(q);
   // make sure q[0] is >= 0.0
   typename OutputType::value_type sign = 1.0;
@@ -1430,7 +1382,7 @@ OutputType qu2ax(const InputType& q, typename Quaternion<typename OutputType::va
     res[0] = q[x];
     res[1] = q[y];
     res[2] = q[z];
-    res[3] = EbsdLib::Constants::k_PiD;
+    res[3] = ebsdlib::constants::k_PiD;
   }
 
   return res;
@@ -1479,9 +1431,9 @@ OutputType ro2ax(const InputType& r)
   typename OutputType::value_type threshold = 1.0E-6f;
 
   ta = r[3];
-  if(EbsdLibMath::closeEnough<OutputValueType>(ta, static_cast<OutputValueType>(0.0L), threshold))
+  if(ebsdlib::math::closeEnough<OutputValueType>(ta, static_cast<OutputValueType>(0.0L), threshold))
   {
-    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
+    res = {0.0, 0.0, ebsdlib::orientations::epsijk, 0.0};
     return res;
   }
 
@@ -1526,15 +1478,15 @@ OutputType ax2ro(const InputType& ax)
   using OutputValueType = typename OutputType::value_type;
 
   OutputValueType threshold = 1.0E-7f;
-  if(EbsdLibMath::closeEnough<OutputValueType>(ax[3], static_cast<OutputValueType>(0.0L), threshold))
+  if(ebsdlib::math::closeEnough<OutputValueType>(ax[3], static_cast<OutputValueType>(0.0L), threshold))
   {
-    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
+    res = {0.0, 0.0, ebsdlib::orientations::epsijk, 0.0};
     return res;
   }
   res[0] = ax[0];
   res[1] = ax[1];
   res[2] = ax[2];
-  if(fabs(ax[3] - EbsdLib::Constants::k_PiD) < threshold)
+  if(fabs(ax[3] - ebsdlib::constants::k_PiD) < threshold)
   {
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
   }
@@ -1558,7 +1510,7 @@ OutputType ax2ro(const InputType& ax)
  * @date 7/23/14   MDG 1.1 explicit transformation
  */
 template <typename InputType, typename OutputType>
-OutputType ax2qu(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType ax2qu(const InputType& r, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   using OutputValueType = typename OutputType::value_type;
   OutputType res(4);
@@ -1567,7 +1519,7 @@ OutputType ax2qu(const InputType& r, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1622,7 +1574,7 @@ OutputType ro2ho(const InputType& r)
   }
   if(r[3] == std::numeric_limits<typename OutputType::value_type>::infinity())
   {
-    f = static_cast<value_type>(0.75 * EbsdLib::Constants::k_PiD);
+    f = static_cast<value_type>(0.75 * ebsdlib::constants::k_PiD);
   }
   else
   {
@@ -1650,7 +1602,7 @@ OutputType ro2ho(const InputType& r)
  * @date 6/03/13   MDG 1.0 original
  */
 template <typename InputType, typename OutputType>
-OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2om(const InputType& r, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   using OutputValueType = typename OutputType::value_type;
   OutputType res(9);
@@ -1659,7 +1611,7 @@ OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1676,7 +1628,7 @@ OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::va
   res[3] = static_cast<OutputValueType>(2.0 * (r[y] * r[x] + r[w] * r[z]));
   res[7] = static_cast<OutputValueType>(2.0 * (r[z] * r[y] + r[w] * r[x]));
   res[2] = static_cast<OutputValueType>(2.0 * (r[x] * r[z] + r[w] * r[y]));
-  if(Rotations::Constants::epsijk != 1.0)
+  if(ebsdlib::orientations::epsijk != 1.0)
   {
     using value_type = typename OutputType::value_type;
     using RotationMatrixType = Eigen::Matrix<value_type, 3, 3, Eigen::RowMajor>;
@@ -1701,7 +1653,7 @@ OutputType qu2om(const InputType& r, typename Quaternion<typename OutputType::va
  * @date 8/11/14   MDG 2.1 added infty handling
  */
 template <typename InputType, typename OutputType>
-OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2ro(const InputType& q, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   using ValueType = typename OutputType::value_type;
   OutputType res(4);
@@ -1710,7 +1662,7 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<ValueType>::Order::VectorScalar)
+  if(layout == Quat<ValueType>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1728,12 +1680,12 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
     res[3] = std::numeric_limits<typename OutputType::value_type>::infinity();
     return res;
   }
-  // ValueType s = EbsdMatrixMath::Magnitude3x1(&(res[0]));
+  // ValueType s = ebsdlib::EbsdMatrixMath::Magnitude3x1(&(res[0]));
   ValueType s = ArrayHelpers<OutputType, ValueType>::sqrtSumOfSquares(res);
 
   if(s < thr)
   {
-    res = {0.0, 0.0, Rotations::Constants::epsijk, 0.0};
+    res = {0.0, 0.0, ebsdlib::orientations::epsijk, 0.0};
     return res;
   }
 
@@ -1757,7 +1709,7 @@ OutputType qu2ro(const InputType& q, typename Quaternion<typename OutputType::va
  * @date 7/23/14   MDG 2.0 explicit transformation
  */
 template <typename InputType, typename OutputType>
-OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2ho(const InputType& q, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType res(3);
   using value_type = typename OutputType::value_type;
@@ -1768,7 +1720,7 @@ OutputType qu2ho(const InputType& q, typename Quaternion<typename OutputType::va
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -1961,7 +1913,7 @@ OutputType ax2eu(const InputType& ax)
  * @date 8/12/13   MDG 1.0 original
  */
 template <typename InputType, typename OutputType>
-OutputType ro2qu(const InputType& ro, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType ro2qu(const InputType& ro, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType ax = ro2ax<InputType, OutputType>(ro);
   return ax2qu<OutputType, OutputType>(ax, layout);
@@ -2033,7 +1985,7 @@ OutputType ho2ro(const InputType& ho)
  * @date 8/12/13   MDG 1.0 original
  */
 template <typename InputType, typename OutputType>
-OutputType ho2qu(const InputType& ho, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType ho2qu(const InputType& ho, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   InputType ax = ho2ax<InputType, InputType>(ho);
   return ax2qu<InputType, OutputType>(ax, layout);
@@ -2129,7 +2081,7 @@ OutputType ro2cu(const InputType& ro)
  * @date 8/12/13   MDG 1.0 original
  */
 template <typename InputType, typename OutputType>
-OutputType qu2cu(const InputType& qu, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2cu(const InputType& qu, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   OutputType ho = qu2ho<InputType, OutputType>(qu, layout);
   return ho2cu<OutputType, OutputType>(ho);
@@ -2229,17 +2181,17 @@ OutputType cu2ro(const InputType& cu)
  */
 
 template <typename InputType, typename OutputType>
-OutputType cu2qu(const InputType& cu, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType cu2qu(const InputType& cu, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   InputType ho = cu2ho<InputType, InputType>(cu); // Convert the Cuborchoric to Homochoric
-  return ho2qu<InputType, OutputType>(ho);        // Convert Homochoric to Quaternion
+  return ho2qu<InputType, OutputType>(ho);        // Convert Homochoric to Quat
 }
 
 /***********************************************************************************************************************
  * Stereographic Coordinates Section
  **********************************************************************************************************************/
 template <typename InputType, typename OutputType>
-OutputType qu2st(const InputType& qu, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType qu2st(const InputType& qu, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
 
   using SizeType = typename OutputType::size_type;
@@ -2247,7 +2199,7 @@ OutputType qu2st(const InputType& qu, typename Quaternion<typename OutputType::v
   SizeType x = 1;
   SizeType y = 2;
   SizeType z = 3;
-  if(layout == Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+  if(layout == Quat<typename OutputType::value_type>::Order::VectorScalar)
   {
     w = 3;
     x = 0;
@@ -2269,7 +2221,7 @@ OutputType qu2st(const InputType& qu, typename Quaternion<typename OutputType::v
 template <typename InputType, typename OutputType>
 OutputType eu2st(const InputType& eu)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = eu2qu<InputType, QuatType>(eu);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2277,7 +2229,7 @@ OutputType eu2st(const InputType& eu)
 template <typename InputType, typename OutputType>
 OutputType om2st(const InputType& om)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = om2qu<InputType, QuatType>(om);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2285,7 +2237,7 @@ OutputType om2st(const InputType& om)
 template <typename InputType, typename OutputType>
 OutputType ax2st(const InputType& aa)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = ax2qu<InputType, QuatType>(aa);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2293,7 +2245,7 @@ OutputType ax2st(const InputType& aa)
 template <typename InputType, typename OutputType>
 OutputType ro2st(const InputType& ro)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = ro2qu<InputType, QuatType>(ro);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2301,7 +2253,7 @@ OutputType ro2st(const InputType& ro)
 template <typename InputType, typename OutputType>
 OutputType ho2st(const InputType& ho)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = ho2qu<InputType, QuatType>(ho);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2309,7 +2261,7 @@ OutputType ho2st(const InputType& ho)
 template <typename InputType, typename OutputType>
 OutputType cu2st(const InputType& cu)
 {
-  using QuatType = Quaternion<typename OutputType::value_type>;
+  using QuatType = Quat<typename OutputType::value_type>;
   QuatType qu = cu2qu<InputType, QuatType>(cu);
   return qu2st<QuatType, OutputType>(qu);
 }
@@ -2326,10 +2278,9 @@ OutputType st2ax(const InputType& st)
   {
     InputType tmp = st;
     ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
-    OutputType ax(4);
-    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    if(ebsdlib::math::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
     {
-      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(EbsdLib::Constants::k_PiD)};
+      res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(ebsdlib::constants::k_PiD)};
     }
     else
     {
@@ -2347,10 +2298,10 @@ OutputType st2eu(const InputType& st)
 }
 
 template <typename InputType, typename OutputType>
-OutputType st2qu(const InputType& st, typename Quaternion<typename OutputType::value_type>::Order layout = Quaternion<typename OutputType::value_type>::Order::VectorScalar)
+OutputType st2qu(const InputType& st, typename Quat<typename OutputType::value_type>::Order layout = Quat<typename OutputType::value_type>::Order::VectorScalar)
 {
   InputType ax = st2ax<InputType, InputType>(st);  // Convert to Axis-Angle
-  return ax2qu<InputType, OutputType>(ax, layout); // Convert to Quaternion
+  return ax2qu<InputType, OutputType>(ax, layout); // Convert to Quat
 }
 
 template <typename InputType, typename OutputType>
@@ -2366,9 +2317,9 @@ OutputType st2om(const InputType& st)
     InputType tmp = st;
     ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
     InputType ax(4);
-    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    if(ebsdlib::math::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
     {
-      ax = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(EbsdLib::Constants::k_PiD)};
+      ax = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(ebsdlib::constants::k_PiD)};
     }
     else
     {
@@ -2392,7 +2343,7 @@ OutputType st2ro(const InputType& st)
     InputType tmp = st;
     ArrayHelpers<InputType, ValueType>::scalarDivide(tmp, l);
 
-    if(EbsdLibMath::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
+    if(ebsdlib::math::closeEnough(l, static_cast<ValueType>(1.0L), threshold))
     {
       res = {tmp[0], tmp[1], tmp[2], static_cast<ValueType>(std::numeric_limits<ValueType>::infinity())};
     }

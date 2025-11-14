@@ -31,12 +31,11 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "EbsdLib/LaueOps/SO3Sampler.h"
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
 #include "UnitTestSupport.hpp"
@@ -90,12 +89,12 @@ public:
 
     CubochoricDType cu(-0.3217544095666538, 0.2145029397111025, -0.4290058794222050);
     rod = cu.toRodrigues();
-    bool inside = sampler->insideCubicFZ(rod.data(), 4);
+    bool inside = sampler->insideCubicFZ(rod, 4);
     DREAM3D_REQUIRE_EQUAL(inside, false);
 
     cu = CubochoricDType(-0.42900587942220514, -0.21450293971110265, 0.42900587942220514);
     rod = cu.toRodrigues();
-    inside = sampler->insideCubicFZ(rod.data(), 4);
+    inside = sampler->insideCubicFZ(rod, 4);
     DREAM3D_REQUIRE_EQUAL(inside, true);
   }
 

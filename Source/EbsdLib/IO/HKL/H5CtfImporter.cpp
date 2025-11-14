@@ -46,6 +46,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 #define AIM_STRING std::string
 
 #define CHECK_FOR_CANCELED(AClass)                                                                                                                                                                     \
@@ -192,22 +194,22 @@ int H5CtfImporter::importFile(hid_t fileId, int64_t z, const std::string& ctfFil
     H5T_class_t type_class;
     size_t type_size = 0;
     hid_t attr_type = -1;
-    err = H5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5Aztec::FileVersionStr, dims, type_class, type_size, attr_type);
+    err = H5Lite::getAttributeInfo(fileId, "/", ebsdlib::H5Aztec::FileVersionStr, dims, type_class, type_size, attr_type);
     if(attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = H5Lite::writeScalarAttribute(fileId, std::string("/"), EbsdLib::H5Aztec::FileVersionStr, m_FileVersion);
+      err = H5Lite::writeScalarAttribute(fileId, std::string("/"), ebsdlib::H5Aztec::FileVersionStr, m_FileVersion);
     }
     else
     {
       H5Aclose(attr_type);
     }
 
-    err = H5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5Aztec::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
+    err = H5Lite::getAttributeInfo(fileId, "/", ebsdlib::H5Aztec::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
     if(attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = H5Lite::writeStringAttribute(fileId, std::string("/"), EbsdLib::H5Aztec::EbsdLibVersionStr, EbsdLib::Version::Complete());
+      err = H5Lite::writeStringAttribute(fileId, std::string("/"), ebsdlib::H5Aztec::EbsdLibVersionStr, ebsdlib::Version::Complete());
     }
     else
     {
@@ -247,7 +249,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
     return -1;
   }
 
-  hid_t gid = H5Utilities::createGroup(ctfGroup, EbsdLib::H5Aztec::Header);
+  hid_t gid = H5Utilities::createGroup(ctfGroup, ebsdlib::H5Aztec::Header);
   if(gid < 0)
   {
     std::stringstream ss;
@@ -259,39 +261,39 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
     return -1;
   }
 
-  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Prj, EbsdLib::Ctf::Prj);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Author, EbsdLib::Ctf::Author);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, JobMode, EbsdLib::Ctf::JobMode);
-  WRITE_EBSD_HEADER_DATA(reader, int, XCells, EbsdLib::Ctf::XCells)
+  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Prj, ebsdlib::Ctf::Prj);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Author, ebsdlib::Ctf::Author);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, JobMode, ebsdlib::Ctf::JobMode);
+  WRITE_EBSD_HEADER_DATA(reader, int, XCells, ebsdlib::Ctf::XCells)
   xDim = reader.getXCells();
-  WRITE_EBSD_HEADER_DATA(reader, int, YCells, EbsdLib::Ctf::YCells)
+  WRITE_EBSD_HEADER_DATA(reader, int, YCells, ebsdlib::Ctf::YCells)
   yDim = reader.getYCells();
-  WRITE_EBSD_HEADER_DATA(reader, float, XStep, EbsdLib::Ctf::XStep)
+  WRITE_EBSD_HEADER_DATA(reader, float, XStep, ebsdlib::Ctf::XStep)
   xRes = reader.getXStep();
-  WRITE_EBSD_HEADER_DATA(reader, float, YStep, EbsdLib::Ctf::YStep)
+  WRITE_EBSD_HEADER_DATA(reader, float, YStep, ebsdlib::Ctf::YStep)
   yRes = reader.getYStep();
 
   float* zPtr = reader.getZPointer();
   if(nullptr != zPtr)
   {
-    WRITE_EBSD_HEADER_DATA(reader, int, ZCells, EbsdLib::Ctf::ZCells)
+    WRITE_EBSD_HEADER_DATA(reader, int, ZCells, ebsdlib::Ctf::ZCells)
     zDim = reader.getZCells();
-    WRITE_EBSD_HEADER_DATA(reader, float, ZStep, EbsdLib::Ctf::ZStep)
+    WRITE_EBSD_HEADER_DATA(reader, float, ZStep, ebsdlib::Ctf::ZStep)
     zRes = reader.getZStep();
   }
 
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE1, EbsdLib::Ctf::AcqE1);
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE2, EbsdLib::Ctf::AcqE2);
-  WRITE_EBSD_HEADER_DATA(reader, float, AcqE3, EbsdLib::Ctf::AcqE3);
-  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Euler, EbsdLib::Ctf::Euler);
-  WRITE_EBSD_HEADER_DATA(reader, int, Mag, EbsdLib::Ctf::Mag);
-  WRITE_EBSD_HEADER_DATA(reader, int, Coverage, EbsdLib::Ctf::Coverage);
-  WRITE_EBSD_HEADER_DATA(reader, int, Device, EbsdLib::Ctf::Device);
-  WRITE_EBSD_HEADER_DATA(reader, int, KV, EbsdLib::Ctf::KV);
-  WRITE_EBSD_HEADER_DATA(reader, float, TiltAngle, EbsdLib::Ctf::TiltAngle);
-  WRITE_EBSD_HEADER_DATA(reader, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE1, ebsdlib::Ctf::AcqE1);
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE2, ebsdlib::Ctf::AcqE2);
+  WRITE_EBSD_HEADER_DATA(reader, float, AcqE3, ebsdlib::Ctf::AcqE3);
+  WRITE_EBSD_HEADER_STRING_DATA(reader, std::string, Euler, ebsdlib::Ctf::Euler);
+  WRITE_EBSD_HEADER_DATA(reader, int, Mag, ebsdlib::Ctf::Mag);
+  WRITE_EBSD_HEADER_DATA(reader, int, Coverage, ebsdlib::Ctf::Coverage);
+  WRITE_EBSD_HEADER_DATA(reader, int, Device, ebsdlib::Ctf::Device);
+  WRITE_EBSD_HEADER_DATA(reader, int, KV, ebsdlib::Ctf::KV);
+  WRITE_EBSD_HEADER_DATA(reader, float, TiltAngle, ebsdlib::Ctf::TiltAngle);
+  WRITE_EBSD_HEADER_DATA(reader, float, TiltAxis, ebsdlib::Ctf::TiltAxis)
 
-  hid_t phasesGid = H5Utilities::createGroup(gid, EbsdLib::H5Aztec::Phases);
+  hid_t phasesGid = H5Utilities::createGroup(gid, ebsdlib::H5Aztec::Phases);
   if(phasesGid < 0)
   {
     std::stringstream ss;
@@ -308,14 +310,14 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
   err = H5Gclose(phasesGid);
 
   std::string ctfCompleteHeader = reader.getOriginalHeader();
-  err = H5Lite::writeStringDataset(gid, EbsdLib::H5Aztec::OriginalHeader, ctfCompleteHeader);
-  err = H5Lite::writeStringDataset(gid, EbsdLib::H5Aztec::OriginalFile, reader.getFileName());
+  err = H5Lite::writeStringDataset(gid, ebsdlib::H5Aztec::OriginalHeader, ctfCompleteHeader);
+  err = H5Lite::writeStringDataset(gid, ebsdlib::H5Aztec::OriginalFile, reader.getFileName());
 
   // Close the "Header" group
   err = H5Gclose(gid);
 
   // Create the "Data" group
-  gid = H5Utilities::createGroup(ctfGroup, EbsdLib::H5Aztec::Data);
+  gid = H5Utilities::createGroup(ctfGroup, ebsdlib::H5Aztec::Data);
   if(gid < 0)
   {
     std::stringstream ss;
@@ -332,13 +334,13 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
   int32_t rank = 1;
   hsize_t dims[1] = {static_cast<hsize_t>(reader.getXCells() * reader.getYCells())};
 
-  EbsdLib::NumericTypes::Type numType = EbsdLib::NumericTypes::Type::UnknownNumType;
+  ebsdlib::NumericTypes::Type numType = ebsdlib::NumericTypes::Type::UnknownNumType;
   std::vector<std::string> columnNames = reader.getColumnNames();
   for(const std::string& name : columnNames)
   // for (int32_t i = 0; i < columnNames.size(); ++i)
   {
     numType = reader.getPointerType(name);
-    if(numType == EbsdLib::NumericTypes::Type::Int32)
+    if(numType == ebsdlib::NumericTypes::Type::Int32)
     {
       int32_t* dataPtr = static_cast<int32_t*>(reader.getPointerByName(name));
       if(nullptr == dataPtr)
@@ -348,7 +350,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
       dataPtr = dataPtr + (actualSlice * dims[0]); // Put the pointer at the proper offset into the larger array
       WRITE_EBSD_DATA_ARRAY(reader, int, gid, name);
     }
-    else if(numType == EbsdLib::NumericTypes::Type::Float)
+    else if(numType == ebsdlib::NumericTypes::Type::Float)
     {
       float* dataPtr = static_cast<float*>(reader.getPointerByName(name));
       if(nullptr == dataPtr)
@@ -433,31 +435,31 @@ int H5CtfImporter::writePhaseData(CtfReader& reader, hid_t phasesGid)
   int32_t rank = 1;
   hsize_t dims[1] = {0};
   std::vector<CtfPhase::Pointer> phases = reader.getPhaseVector();
-  EbsdLib::Ctf::LaueGroupStrings laueGroupStrings;
+  ebsdlib::Ctf::LaueGroupStrings laueGroupStrings;
   for(const CtfPhase::Pointer& phase : phases)
   // for (std::vector<CtfPhase::Pointer>::iterator phase = phases.begin(); phase != phases.end(); ++phase )
   {
     CtfPhase* p = phase.get();
     hid_t pid = H5Utilities::createGroup(phasesGid, EbsdStringUtils::number(phase->getPhaseIndex()));
 
-    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, EbsdLib::Ctf::LatticeConstants);
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, PhaseName, EbsdLib::Ctf::PhaseName)
-    WRITE_PHASE_HEADER_DATA(phase, int, LaueGroup, EbsdLib::Ctf::LaueGroup)
+    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, ebsdlib::Ctf::LatticeConstants);
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, PhaseName, ebsdlib::Ctf::PhaseName)
+    WRITE_PHASE_HEADER_DATA(phase, int, LaueGroup, ebsdlib::Ctf::LaueGroup)
 
-    err = H5Lite::writeStringAttribute(pid, EbsdLib::Ctf::LaueGroup, "Name", laueGroupStrings.getString(p->getLaueGroup()));
+    err = H5Lite::writeStringAttribute(pid, ebsdlib::Ctf::LaueGroup, "Name", laueGroupStrings.getString(p->getLaueGroup()));
     if(err < 0)
     {
       std::stringstream ss;
-      ss << "H5CtfImporter Error: Could not write Ctf Attribute 'Name' to Dataset '" << EbsdLib::Ctf::LaueGroup << "'";
+      ss << "H5CtfImporter Error: Could not write Ctf Attribute 'Name' to Dataset '" << ebsdlib::Ctf::LaueGroup << "'";
       progressMessage(ss.str(), 100);
       err = H5Gclose(pid);
       return -1;
     }
 
-    WRITE_PHASE_HEADER_DATA(phase, int, SpaceGroup, EbsdLib::Ctf::SpaceGroup)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Internal1, EbsdLib::Ctf::Internal1)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Internal2, EbsdLib::Ctf::Internal2)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Comment, EbsdLib::Ctf::Comment)
+    WRITE_PHASE_HEADER_DATA(phase, int, SpaceGroup, ebsdlib::Ctf::SpaceGroup)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Internal1, ebsdlib::Ctf::Internal1)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Internal2, ebsdlib::Ctf::Internal2)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Comment, ebsdlib::Ctf::Comment)
     err = H5Gclose(pid);
   }
   return err;

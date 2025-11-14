@@ -44,6 +44,8 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/HKL/CtfConstants.h"
 
+namespace ebsdlib
+{
 /**
  * @class CtfFields CtfFields.h EbsdLib/IO/HKL/CtfFields.h
  * @brief This class simply holds the names of the columns that are present in the
@@ -72,22 +74,20 @@ public:
   T getFilterFeatures()
   {
     T features;
-    features.push_back(EbsdLib::Ctf::Bands);
-    features.push_back(EbsdLib::Ctf::Error);
+    features.push_back(ebsdlib::Ctf::Bands);
+    features.push_back(ebsdlib::Ctf::Error);
 
-    features.push_back(EbsdLib::Ctf::MAD);
-    features.push_back(EbsdLib::Ctf::BC);
-    features.push_back(EbsdLib::Ctf::BS);
-    features.push_back(EbsdLib::Ctf::X);
-    features.push_back(EbsdLib::Ctf::Y);
+    features.push_back(ebsdlib::Ctf::MAD);
+    features.push_back(ebsdlib::Ctf::BC);
+    features.push_back(ebsdlib::Ctf::BS);
+    features.push_back(ebsdlib::Ctf::X);
+    features.push_back(ebsdlib::Ctf::Y);
     return features;
   }
 
-public:
   CtfFields(const CtfFields&) = delete;            // Copy Constructor Not Implemented
   CtfFields(CtfFields&&) = delete;                 // Move Constructor Not Implemented
   CtfFields& operator=(const CtfFields&) = delete; // Copy Assignment Not Implemented
   CtfFields& operator=(CtfFields&&) = delete;      // Move Assignment Not Implemented
-
-private:
 };
+} // namespace ebsdlib

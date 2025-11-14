@@ -39,13 +39,17 @@
 #include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/Matrix3X3.hpp"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Euler.hpp"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
+namespace ebsdlib
+{
 /*
  * @class LaueOps LaueOps.h OrientationLib/LaueOps/LaueOps.h
  * @brief
@@ -73,7 +77,7 @@ public:
 
   /**
    * @brief GetAllOrientationOps This method returns a vector of each type of LaueOps placed such that the
-   * index into the vector is the value of the constant at EbsdLib::CrystalStructure::***
+   * index into the vector is the value of the constant at ebsdlib::CrystalStructure::***
    * @return Vector of LaueOps subclasses.
    */
   static std::vector<LaueOps::Pointer> GetAllOrientationOps();
@@ -157,7 +161,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual EbsdLib::AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
+  virtual ebsdlib::AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -189,8 +193,8 @@ public:
    */
   virtual void getMatSymOp(int i, double g[3][3]) const = 0;
   virtual void getMatSymOp(int i, float g[3][3]) const = 0;
-  virtual EbsdLib::Matrix3X3F getMatSymOpF(int i) const = 0;
-  virtual EbsdLib::Matrix3X3D getMatSymOpD(int i) const = 0;
+  virtual ebsdlib::Matrix3X3F getMatSymOpF(int i) const = 0;
+  virtual ebsdlib::Matrix3X3D getMatSymOpD(int i) const = 0;
 
   /**
    * @brief getODFFZRod
@@ -247,7 +251,7 @@ public:
 
   virtual double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
-  virtual void generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* c1, EbsdLib::FloatArrayType* c2, EbsdLib::FloatArrayType* c3) const = 0;
+  virtual void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3) const = 0;
 
   static void RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod);
 
@@ -265,7 +269,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual EbsdLib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
+  virtual ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction
@@ -278,7 +282,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual EbsdLib::Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
+  virtual ebsdlib::Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -287,24 +291,24 @@ public:
    * @param r3 Third component of the Rodrigues Vector
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual EbsdLib::Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
+  virtual ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
 
   /**
    * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
    * @param q A Quaternion representing the crystal direction
    * @param refFrame A Quaternion representing the sample reference direction
-   * @return A EbsdLib::Rgb value
+   * @return A ebsdlib::Rgb value
    */
-  virtual EbsdLib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const;
+  virtual ebsdlib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
    * angles that are passed in.
    * @param config The Pole Figure configuration struct
-   * @return A std::vector of EbsdLib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+   * @return A std::vector of ebsdlib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
    * an image object from other libraries and written out to disk.
    */
-  virtual std::vector<EbsdLib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
+  virtual std::vector<ebsdlib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
   /**
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
@@ -316,7 +320,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  virtual EbsdLib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
+  virtual ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
 
   enum class FZType : int32_t
   {
@@ -497,7 +501,7 @@ protected:
    * @param deg2Rad
    * @return
    */
-  EbsdLib::Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
+  ebsdlib::Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
 
   /**
    * @brief Converts in input Quaternion into a version that is inside the fundamental zone.
@@ -545,7 +549,7 @@ constexpr std::array<LaueOps::AxisOrderingType, 32> FZoarray = {LaueOps::AxisOrd
                                                                 LaueOps::AxisOrderingType::None,      LaueOps::AxisOrderingType::None,      LaueOps::AxisOrderingType::None};
 
 } // namespace laue_ops
-
+} // namespace ebsdlib
 /*
  * @brief Master Table of Crystallographic Information
  * This is formatted as a MarkDown with LaTeX formatting

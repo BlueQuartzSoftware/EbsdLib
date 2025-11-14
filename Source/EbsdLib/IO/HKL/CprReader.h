@@ -23,14 +23,14 @@
   {                                                                                                                                                                                                    \
     return static_cast<type*>(getPointerByName(#var));                                                                                                                                                 \
   }
-namespace EbsdLib
+namespace ebsdlib
 {
 
 struct CrcFieldDefinition
 {
   size_t ByteSize = 0;
   std::string FieldName;
-  EbsdLib::NumericTypes::Type numericType = EbsdLib::NumericTypes::Type::UnknownNumType;
+  ebsdlib::NumericTypes::Type numericType = ebsdlib::NumericTypes::Type::UnknownNumType;
 };
 
 struct CrcDataParser
@@ -48,7 +48,6 @@ struct CrcDataParser
   }
 };
 
-} // namespace EbsdLib
 /**
  * @brief This class can parse an Oxford Instruments .cpr/.crc file combination.
  *
@@ -72,28 +71,28 @@ public:
 
   using CtfIntHeaderType = CtfHeaderEntry<int, Int32HeaderParser>;
   using CtfFloatHeaderType = CtfHeaderEntry<float, FloatHeaderParser>;
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Channel, EbsdLib::Ctf::ChannelTextFile)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Prj, EbsdLib::Ctf::Prj)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Author, EbsdLib::Ctf::Author)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, JobMode, EbsdLib::Ctf::JobMode)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Channel, ebsdlib::Ctf::ChannelTextFile)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Prj, ebsdlib::Ctf::Prj)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Author, ebsdlib::Ctf::Author)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, JobMode, ebsdlib::Ctf::JobMode)
 
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, XCells, EbsdLib::Ctf::xCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, YCells, EbsdLib::Ctf::yCells)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, ZCells, EbsdLib::Ctf::ZCells)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, XStep, EbsdLib::Ctf::GridDistX)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, YStep, EbsdLib::Ctf::GridDistY)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, ZStep, EbsdLib::Ctf::ZStep)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE1, EbsdLib::Ctf::AcqE1)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE2, EbsdLib::Ctf::AcqE2)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE3, EbsdLib::Ctf::AcqE3)
-  //  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Euler, EbsdLib::Ctf::Euler)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Mag, EbsdLib::Ctf::Magnification)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Coverage, EbsdLib::Ctf::Coverage)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Device, EbsdLib::Ctf::Device)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, KV, EbsdLib::Ctf::kV)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAngle, EbsdLib::Ctf::TiltAngle)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAxis, EbsdLib::Ctf::TiltAxis)
-  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, NumPhases, EbsdLib::Ctf::NumPhases)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, XCells, ebsdlib::Ctf::xCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, YCells, ebsdlib::Ctf::yCells)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, ZCells, ebsdlib::Ctf::ZCells)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, XStep, ebsdlib::Ctf::GridDistX)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, YStep, ebsdlib::Ctf::GridDistY)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, ZStep, ebsdlib::Ctf::ZStep)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE1, ebsdlib::Ctf::AcqE1)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE2, ebsdlib::Ctf::AcqE2)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, AcqE3, ebsdlib::Ctf::AcqE3)
+  //  EBSDHEADER_INSTANCE_PROPERTY(CtfStringHeaderEntry, std::string, Euler, ebsdlib::Ctf::Euler)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Mag, ebsdlib::Ctf::Magnification)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Coverage, ebsdlib::Ctf::Coverage)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, Device, ebsdlib::Ctf::Device)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, KV, ebsdlib::Ctf::kV)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAngle, ebsdlib::Ctf::TiltAngle)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfFloatHeaderType, float, TiltAxis, ebsdlib::Ctf::TiltAxis)
+  EBSDHEADER_INSTANCE_PROPERTY(CtfIntHeaderType, int, NumPhases, ebsdlib::Ctf::NumPhases)
   EBSD_INSTANCE_PROPERTY(std::vector<CtfPhase::Pointer>, PhaseVector)
 
   CPR_READER_PTR_PROP(Phase, Phase, uint8_t)
@@ -126,14 +125,14 @@ public:
    * @brief Returns the types of data that each array holds.
    * @return
    */
-  std::map<std::string, EbsdLib::NumericTypes::Type> getPointerTypes() const;
+  std::map<std::string, ebsdlib::NumericTypes::Type> getPointerTypes() const;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
+  ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   int getTypeSize(const std::string& featureName);
 
@@ -162,7 +161,7 @@ public:
 
   void printHeader(std::ostream& out);
 
-  std::vector<EbsdLib::CrcDataParser> createFieldParsers(const std::string& filename);
+  std::vector<ebsdlib::CrcDataParser> createFieldParsers(const std::string& filename);
 
 private:
   int m_SingleSliceRead = -1;
@@ -175,3 +174,4 @@ public:
   CprReader& operator=(const CprReader&) = delete; // Copy Assignment Not Implemented
   CprReader& operator=(CprReader&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

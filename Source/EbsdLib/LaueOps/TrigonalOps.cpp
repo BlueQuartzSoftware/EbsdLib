@@ -38,8 +38,9 @@
 // Include this FIRST because there is a needed define for some compiles
 // to expose some of the constants needed below
 #include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
@@ -52,14 +53,15 @@
 #include <tbb/parallel_for.h>
 #include <tbb/task_group.h>
 #endif
+using namespace ebsdlib;
 
 namespace TrigonalHigh
 {
 static const std::array<size_t, 3> OdfNumBins = {36, 36, 24}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver2D - std::sin(EbsdLib::Constants::k_PiOver2D))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (EbsdLib::Constants::k_PiOver3D - std::sin(EbsdLib::Constants::k_PiOver3D))), (1.0 / 3.0))};
+static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
+                                                      std::pow((0.75 * (ebsdlib::constants::k_PiOver3D - std::sin(ebsdlib::constants::k_PiOver3D))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
@@ -236,13 +238,13 @@ void TrigonalOps::getRodSymOp(int i, double* r) const
   r[2] = TrigonalHigh::RodSym[i][2];
 }
 
-EbsdLib::Matrix3X3D TrigonalOps::getMatSymOpD(int i) const
+ebsdlib::Matrix3X3D TrigonalOps::getMatSymOpD(int i) const
 {
   return {TrigonalHigh::MatSym[i][0][0], TrigonalHigh::MatSym[i][0][1], TrigonalHigh::MatSym[i][0][2], TrigonalHigh::MatSym[i][1][0], TrigonalHigh::MatSym[i][1][1],
           TrigonalHigh::MatSym[i][1][2], TrigonalHigh::MatSym[i][2][0], TrigonalHigh::MatSym[i][2][1], TrigonalHigh::MatSym[i][2][2]};
 }
 
-EbsdLib::Matrix3X3F TrigonalOps::getMatSymOpF(int i) const
+ebsdlib::Matrix3X3F TrigonalOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(TrigonalHigh::MatSym[i][0][0]), static_cast<float>(TrigonalHigh::MatSym[i][0][1]), static_cast<float>(TrigonalHigh::MatSym[i][0][2]),
           static_cast<float>(TrigonalHigh::MatSym[i][1][0]), static_cast<float>(TrigonalHigh::MatSym[i][1][1]), static_cast<float>(TrigonalHigh::MatSym[i][1][2]),
@@ -306,7 +308,7 @@ RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
   {
     n1 = -n1, n2 = -n2, n3 = -n3;
   }
-  float angle = static_cast<float>(180.0 * std::atan2(n2, n1) * EbsdLib::Constants::k_1OverPiD);
+  float angle = static_cast<float>(180.0 * std::atan2(n2, n1) * ebsdlib::constants::k_1OverPiD);
   if(angle < 0)
   {
     angle = angle + 360.0f;
@@ -320,7 +322,7 @@ RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
     if(int(angle / 60) % 2 == 0)
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
+      FZw = FZw * ebsdlib::constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -328,7 +330,7 @@ RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
     {
       FZw = angle - (60.0f * int(angle / 60.0f));
       FZw = 60.0f - FZw;
-      FZw = FZw * EbsdLib::Constants::k_PiOver180D;
+      FZw = FZw * ebsdlib::constants::k_PiOver180D;
       FZn1 = n1n2mag * std::cos(FZw);
       FZn2 = n1n2mag * std::sin(FZw);
     }
@@ -415,7 +417,7 @@ EulerDType TrigonalOps::determineEulerAngles(double random[3], int choose) const
 EulerDType TrigonalOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TrigonalHigh::k_SymOpsCount);
-  QuatD quat = synea.toQuat();
+  QuatD quat = synea.toQuaternion();
   QuatD qc = TrigonalHigh::QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
@@ -547,13 +549,13 @@ namespace TrigonalHigh
 {
 class GenerateSphereCoordsImpl
 {
-  EbsdLib::FloatArrayType* m_Eulers;
-  EbsdLib::FloatArrayType* m_xyz001;
-  EbsdLib::FloatArrayType* m_xyz011;
-  EbsdLib::FloatArrayType* m_xyz111;
+  ebsdlib::FloatArrayType* m_Eulers;
+  ebsdlib::FloatArrayType* m_xyz001;
+  ebsdlib::FloatArrayType* m_xyz011;
+  ebsdlib::FloatArrayType* m_xyz111;
 
 public:
-  GenerateSphereCoordsImpl(EbsdLib::FloatArrayType* eulerAngles, EbsdLib::FloatArrayType* xyz001Coords, EbsdLib::FloatArrayType* xyz011Coords, EbsdLib::FloatArrayType* xyz111Coords)
+  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz001Coords, ebsdlib::FloatArrayType* xyz011Coords, ebsdlib::FloatArrayType* xyz111Coords)
   : m_Eulers(eulerAngles)
   , m_xyz001(xyz001Coords)
   , m_xyz011(xyz011Coords)
@@ -564,13 +566,13 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    EbsdLib::Matrix3X3D gTranspose;
-    EbsdLib::Matrix3X1D direction(0.0, 0.0, 0.0);
+    ebsdlib::Matrix3X3D gTranspose;
+    ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
-      EbsdLib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
+      ebsdlib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
 
       gTranspose = g.transpose();
 
@@ -596,7 +598,7 @@ public:
 
       // -----------------------------------------------------------------------------
       // [1-100]
-      direction[0] = EbsdLib::Constants::k_Root3Over2D;
+      direction[0] = ebsdlib::constants::k_Root3Over2D;
       direction[1] = -0.5;
       direction[2] = 0;
       (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
@@ -618,7 +620,7 @@ public:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TrigonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers, EbsdLib::FloatArrayType* xyz001, EbsdLib::FloatArrayType* xyz011, EbsdLib::FloatArrayType* xyz111) const
+void TrigonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -653,7 +655,7 @@ void TrigonalOps::generateSphereCoordsFromEulers(EbsdLib::FloatArrayType* eulers
 // -----------------------------------------------------------------------------
 std::array<double, 3> TrigonalOps::getIpfColorAngleLimits(double eta) const
 {
-  return {TrigonalHigh::k_EtaMin * EbsdLib::Constants::k_DegToRadD, TrigonalHigh::k_EtaMax * EbsdLib::Constants::k_DegToRadD, TrigonalHigh::k_ChiMax * EbsdLib::Constants::k_DegToRadD};
+  return {TrigonalHigh::k_EtaMin * ebsdlib::constants::k_DegToRadD, TrigonalHigh::k_EtaMax * ebsdlib::constants::k_DegToRadD, TrigonalHigh::k_ChiMax * ebsdlib::constants::k_DegToRadD};
 }
 
 // -----------------------------------------------------------------------------
@@ -661,14 +663,14 @@ std::array<double, 3> TrigonalOps::getIpfColorAngleLimits(double eta) const
 // -----------------------------------------------------------------------------
 bool TrigonalOps::inUnitTriangle(double eta, double chi) const
 {
-  return !(eta < (TrigonalHigh::k_EtaMin * EbsdLib::Constants::k_PiOver180D) || eta > (TrigonalHigh::k_EtaMax * EbsdLib::Constants::k_PiOver180D) || chi < 0 ||
-           chi > (TrigonalHigh::k_ChiMax * EbsdLib::Constants::k_PiOver180D));
+  return !(eta < (TrigonalHigh::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (TrigonalHigh::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
+           chi > (TrigonalHigh::k_ChiMax * ebsdlib::constants::k_PiOver180D));
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
+ebsdlib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
@@ -676,7 +678,7 @@ EbsdLib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
+ebsdlib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
@@ -686,7 +688,7 @@ EbsdLib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb TrigonalOps::generateRodriguesColor(double r1, double r2, double r3) const
+ebsdlib::Rgb TrigonalOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
   double range1 = 2.0f * TrigonalHigh::OdfDimInitValue[0];
   double range2 = 2.0f * TrigonalHigh::OdfDimInitValue[1];
@@ -698,7 +700,7 @@ EbsdLib::Rgb TrigonalOps::generateRodriguesColor(double r1, double r2, double r3
   double green = (r2 + max2) / range2;
   double blue = (r3 + max3) / range3;
 
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
+  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(red * 255), static_cast<int32_t>(green * 255), static_cast<int32_t>(blue * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -712,7 +714,7 @@ std::array<std::string, 3> TrigonalOps::getDefaultPoleFigureNames() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
+std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
   std::array<std::string, 3> labels = getDefaultPoleFigureNames();
   std::string label0 = labels[0];
@@ -737,11 +739,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  EbsdLib::FloatArrayType::Pointer xyz001 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  EbsdLib::FloatArrayType::Pointer xyz011 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  EbsdLib::FloatArrayType::Pointer xyz111 = EbsdLib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalHigh::symSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -750,9 +752,9 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
-  EbsdLib::DoubleArrayType::Pointer intensity001 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
-  EbsdLib::DoubleArrayType::Pointer intensity011 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
-  EbsdLib::DoubleArrayType::Pointer intensity111 = EbsdLib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
+  ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   bool doParallel = true;
 
@@ -825,11 +827,11 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
   config.maxScale = max;
 
   dims[0] = 4;
-  EbsdLib::UInt8ArrayType::Pointer image001 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
-  EbsdLib::UInt8ArrayType::Pointer image011 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
-  EbsdLib::UInt8ArrayType::Pointer image111 = EbsdLib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
+  ebsdlib::UInt8ArrayType::Pointer image001 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label0, true);
+  ebsdlib::UInt8ArrayType::Pointer image011 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label1, true);
+  ebsdlib::UInt8ArrayType::Pointer image111 = ebsdlib::UInt8ArrayType::CreateArray(config.imageDim * config.imageDim, dims, label2, true);
 
-  std::vector<EbsdLib::UInt8ArrayType::Pointer> poleFigures(3);
+  std::vector<ebsdlib::UInt8ArrayType::Pointer> poleFigures(3);
   if(config.order.size() == 3)
   {
     poleFigures[config.order[0]] = image001;
@@ -869,19 +871,19 @@ std::vector<EbsdLib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
 namespace
 {
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
-  EbsdLib::UInt8ArrayType::Pointer image = EbsdLib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer image = ebsdlib::UInt8ArrayType::CreateArray(imageDim * imageDim, dims, arrayName + " Triangle Legend", true);
   uint32_t* pixelPtr = reinterpret_cast<uint32_t*>(image->getPointer(0));
-  static EbsdLib::Matrix3X1D k_Orientation(0.0, 0.0, 00.0 * EbsdLib::Constants::k_PiOver180D);
+  static ebsdlib::Matrix3X1D k_Orientation(0.0, 0.0, 00.0 * ebsdlib::constants::k_PiOver180D);
 
   double xInc = 1.0f / static_cast<double>(imageDim);
   double yInc = 1.0f / static_cast<double>(imageDim);
 
   // Find the slope of the bounding line.
-  static const double m = std::sin(30.0 * EbsdLib::Constants::k_PiOver180D) / std::cos(30.0 * EbsdLib::Constants::k_PiOver180D);
+  static const double m = std::sin(30.0 * ebsdlib::constants::k_PiOver180D) / std::cos(30.0 * ebsdlib::constants::k_PiOver180D);
 
   size_t yScanLineIndex = 0; // We use this to control where the data is drawn. Otherwise, the image will come out flipped vertically
   // Loop over every pixel in the image and project up to the sphere to get the angle and then figure out the RGB from
@@ -899,8 +901,8 @@ EbsdLib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
         x = -1.0f + 2.0f * xIndex * xInc;
         y = -1.0f + 2.0f * yIndex * yInc;
       }
-      auto sphericalCoords = Stereographic::Utils::StereoToSpherical(x, y).normalize();
-      EbsdLib::Rgb color = 0xFFFFFFFF;
+      auto sphericalCoords = stereographic::utils::StereoToSpherical(x, y).normalize();
+      ebsdlib::Rgb color = 0xFFFFFFFF;
       double sumSquares = (x * x) + (y * y);
 
       if(sumSquares > 1.0f) // Outside unit circle
@@ -988,7 +990,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       float penWidth = 1.0f;
       context.set_color(canvas_ity::stroke_style, 0.25f, 0.25f, 0.25f, 1.0f);
       context.set_line_width(penWidth);
-      EbsdLib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
+      ebsdlib::DrawLine(context, figureCenter[0], figureCenter[1], x, y);
     }
     std::string label = labels2[idx];
     std::string fontWidthString = EbsdStringUtils::replace(label, "-", "");
@@ -1000,7 +1002,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
     if(drawAngle[idx] || drawFullCircle)
     {
-      EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+      ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
     }
   }
 
@@ -1011,13 +1013,13 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
     float fontWidth = context.measure_text(fontWidthString.c_str());
     float x = figureCenter[0] - fontWidth * 0.5;
     float y = figureCenter[1] - fontPtSize * 0.25;
-    EbsdLib::WriteText(context, label, {x, y}, fontPtSize);
+    ebsdlib::WriteText(context, label, {x, y}, fontPtSize);
   }
 }
 
 } // namespace
 // -----------------------------------------------------------------------------
-EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
+ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
 {
   // Figure out the Legend Pixel Size
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
@@ -1050,13 +1052,13 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   }
   std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
 
-  EbsdLib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
 
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  std::vector<unsigned char> latoBold = EbsdLib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = EbsdLib::fonts::GetLatoRegular();
+  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
+  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
@@ -1073,27 +1075,27 @@ EbsdLib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   context.fill();
 
   // Convert from ARGB to RGBA which is what canvas_itk wants
-  image = EbsdLib::ConvertColorOrder(image.get(), legendHeight);
+  image = ebsdlib::ConvertColorOrder(image.get(), legendHeight);
 
   // We need to mirror across the X Axis because the image was drawn with +Y pointing down
-  image = EbsdLib::MirrorImage(image.get(), legendHeight);
+  image = ebsdlib::MirrorImage(image.get(), legendHeight);
 
   context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
 
   // Draw Title of Legend
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
-  EbsdLib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+  ebsdlib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
   context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
   DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Fetch the rendered RGBA pixels from the entire canvas.
-  EbsdLib::UInt8ArrayType::Pointer rgbaCanvasImage = EbsdLib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
+  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
   // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
   context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
 
-  rgbaCanvasImage = EbsdLib::RemoveAlphaChannel(rgbaCanvasImage.get());
+  rgbaCanvasImage = ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
   return rgbaCanvasImage;
 }
 

@@ -42,6 +42,8 @@
 
 #define WRITE_LAMBERT_SQUARE_COORD_VTK 0
 
+using namespace ebsdlib;
+
 namespace
 {
 double calcInterpolatedValue(const ModifiedLambertProjection& self, const std::array<float, 3>& xyz)
@@ -80,7 +82,7 @@ ModifiedLambertProjection::~ModifiedLambertProjection() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(EbsdLib::FloatArrayType* coords, int dimension, float sphereRadius)
+ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(ebsdlib::FloatArrayType* coords, int dimension, float sphereRadius)
 {
 
   size_t npoints = coords->getNumberOfTuples();
@@ -152,7 +154,7 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
   m_Dimension = dims;
   m_SphereRadius = sphereRadius;
   // We want half the sphere area for each square because each square represents a hemisphere.
-  float halfSphereArea = 4.0f * EbsdLib::Constants::k_PiF * sphereRadius * sphereRadius / 2.0f;
+  float halfSphereArea = 4.0f * ebsdlib::constants::k_PiF * sphereRadius * sphereRadius / 2.0f;
   // The length of a side of the square is the square root of the area
   float squareEdge = sqrt(halfSphereArea);
 
@@ -165,9 +167,9 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 
   std::vector<size_t> tDims(2, m_Dimension);
   std::vector<size_t> cDims(1, 1);
-  m_NorthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
+  m_NorthSquare = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
   m_NorthSquare->initializeWithZeros();
-  m_SouthSquare = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
+  m_SouthSquare = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_SouthSquare", true);
   m_SouthSquare->initializeWithZeros();
 }
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
@@ -438,15 +440,15 @@ bool ModifiedLambertProjection::getSquareCoord(const float* xyz, float* sqCoord)
   }
   if(std::fabs(xyz[0]) >= std::fabs(xyz[1]))
   {
-    sqCoord[0] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * EbsdLib::Constants::k_HalfOfSqrtPiD);
+    sqCoord[0] = static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ebsdlib::constants::k_HalfOfSqrtPiD);
     sqCoord[1] =
-        static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[1] / xyz[0])));
+        static_cast<float>((xyz[0] / std::fabs(xyz[0])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((ebsdlib::constants::k_2OverSqrtPiD)*std::atan(xyz[1] / xyz[0])));
   }
   else
   {
     sqCoord[0] =
-        static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((EbsdLib::Constants::k_2OverSqrtPiD)*std::atan(xyz[0] / xyz[1])));
-    sqCoord[1] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (EbsdLib::Constants::k_HalfOfSqrtPiD));
+        static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * ((ebsdlib::constants::k_2OverSqrtPiD)*std::atan(xyz[0] / xyz[1])));
+    sqCoord[1] = static_cast<float>((xyz[1] / std::fabs(xyz[1])) * std::sqrt(2.0 * m_SphereRadius * (m_SphereRadius + (xyz[2] * adjust))) * (ebsdlib::constants::k_HalfOfSqrtPiD));
   }
 
   if(sqCoord[0] >= m_MaxCoord)
@@ -541,7 +543,7 @@ void ModifiedLambertProjection::normalizeSquaresToMRD()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::DoubleArrayType& stereoIntensity)
+void ModifiedLambertProjection::createStereographicProjection(int dim, ebsdlib::DoubleArrayType& stereoIntensity)
 {
   int xpoints = dim;
   int ypoints = dim;
@@ -588,11 +590,11 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, EbsdLib::
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
+ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
 {
   std::vector<size_t> tDims(2, dim);
   std::vector<size_t> cDims(1, 1);
-  EbsdLib::DoubleArrayType::Pointer stereoIntensity = EbsdLib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
+  ebsdlib::DoubleArrayType::Pointer stereoIntensity = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
   createStereographicProjection(dim, *stereoIntensity);
   return stereoIntensity;
 }
@@ -689,13 +691,13 @@ float ModifiedLambertProjection::getSphereRadius() const
 }
 
 // -----------------------------------------------------------------------------
-EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
+ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::getNorthSquare() const
 {
   return m_NorthSquare;
 }
 
 // -----------------------------------------------------------------------------
-EbsdLib::DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
+ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::getSouthSquare() const
 {
   return m_SouthSquare;
 }

@@ -40,6 +40,8 @@
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 
+namespace ebsdlib
+{
 class DataParser
 {
 public:
@@ -101,7 +103,7 @@ public:
   {
   }
 
-  virtual EbsdLib::NumericTypes::Type getNumericType() const = 0;
+  virtual ebsdlib::NumericTypes::Type getNumericType() const = 0;
 
 protected:
   DataParser()
@@ -149,9 +151,9 @@ public:
     return std::string("UInt8Parser");
   }
 
-  EbsdLib::NumericTypes::Type getNumericType() const override
+  ebsdlib::NumericTypes::Type getNumericType() const override
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
 
   int32_t IsA() const override
@@ -260,9 +262,9 @@ public:
     return std::string("Int32Parser");
   }
 
-  EbsdLib::NumericTypes::Type getNumericType() const override
+  ebsdlib::NumericTypes::Type getNumericType() const override
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
 
   int32_t IsA() const override
@@ -369,9 +371,9 @@ public:
     return std::string("FloatParser");
   }
 
-  EbsdLib::NumericTypes::Type getNumericType() const override
+  ebsdlib::NumericTypes::Type getNumericType() const override
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
 
   int32_t IsA() const override
@@ -550,3 +552,4 @@ public:
   NumericParser& operator=(const NumericParser&) = delete; // Copy Assignment Not Implemented
   NumericParser& operator=(NumericParser&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

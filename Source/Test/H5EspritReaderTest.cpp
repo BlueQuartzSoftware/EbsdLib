@@ -1,6 +1,4 @@
-
-#include <fstream>
-#include <string>
+#include <catch2/catch.hpp>
 
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5ScopedSentinel.h"
@@ -13,192 +11,181 @@
 
 #include "UnitTestSupport.hpp"
 
-std::stringstream& operator<<(std::stringstream& out, EbsdLib::NumericTypes::Type value)
+#include <fstream>
+#include <string>
+
+using namespace ebsdlib;
+
+std::stringstream& operator<<(std::stringstream& out, ebsdlib::NumericTypes::Type value)
 {
   out << static_cast<int32_t>(value);
   return out;
 }
 
-class H5EspritReaderTest
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::H5EspritReaderTest::TestH5EspritReader", "[EbsdLib][H5EspritReaderTest]")
 {
   const std::string k_HDF5Path = std::string("Section_435");
 
-public:
-  H5EspritReaderTest() = default;
-  ~H5EspritReaderTest() = default;
+  H5EspritReader::Pointer reader = H5EspritReader::New();
 
-  EBSD_GET_NAME_OF_CLASS_DECL(H5EspritReaderTest)
+  reader->readHeaderOnly();
+  int32_t err = reader->getErrorCode();
+  DREAM3D_REQUIRED(err, ==, -1)
 
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
+  reader->setHDF5Path(k_HDF5Path);
+  reader->readHeaderOnly();
+  err = reader->getErrorCode();
+  DREAM3D_REQUIRED(err, ==, -387)
+
+  reader->setFileName("Some Random Path");
+  reader->readHeaderOnly();
+  err = reader->getErrorCode();
+  DREAM3D_REQUIRED(err, ==, -2)
+
+  reader->setFileName(UnitTest::H5EspritReaderTest::InputFile);
+  reader->readHeaderOnly();
+  err = reader->getErrorCode();
+  if(err < 0)
   {
-#if REMOVE_TEST_FILES
-    fs::remove(UnitTest::H5EspritReaderTest::OutputFile);
-#endif
+    std::cout << reader->getErrorMessage();
   }
 
-  // -----------------------------------------------------------------------------
-  void TestH5EspritReader()
-  {
-    H5EspritReader::Pointer reader = H5EspritReader::New();
+  int32_t ncols = reader->getNumColumns();
+  DREAM3D_REQUIRED(ncols, ==, 600)
 
-    reader->readHeaderOnly();
-    int32_t err = reader->getErrorCode();
-    DREAM3D_REQUIRED(err, ==, -1)
+  int32_t nrows = reader->getNumRows();
+  DREAM3D_REQUIRED(nrows, ==, 600)
 
-    reader->setHDF5Path(k_HDF5Path);
-    reader->readHeaderOnly();
-    err = reader->getErrorCode();
-    DREAM3D_REQUIRED(err, ==, -387)
+  float xstep = static_cast<float>(reader->getXStep());
+  DREAM3D_REQUIRED(xstep, ==, 0.0)
+  float ystep = static_cast<float>(reader->getYStep());
+  DREAM3D_REQUIRED(ystep, ==, 0.0)
 
-    reader->setFileName("Some Random Path");
-    reader->readHeaderOnly();
-    err = reader->getErrorCode();
-    DREAM3D_REQUIRED(err, ==, -2)
+  std::string grid = reader->getGrid();
+  DREAM3D_REQUIRED(grid, ==, ebsdlib::H5Esprit::Isometric);
+  DREAM3D_REQUIRED(err, >=, 0)
+  int32_t patWidth = reader->getPatternWidth();
+  DREAM3D_REQUIRED(patWidth, ==, 80)
+  int32_t patHeight = reader->getPatternHeight();
+  DREAM3D_REQUIRED(patHeight, ==, 60)
 
-    reader->setFileName(UnitTest::H5EspritReaderTest::InputFile);
-    reader->readHeaderOnly();
-    err = reader->getErrorCode();
-    if(err < 0)
-    {
-      std::cout << reader->getErrorMessage();
-    }
+  int32_t xDim = reader->getXDimension();
+  DREAM3D_REQUIRED(xDim, ==, 600)
 
-    int32_t ncols = reader->getNumColumns();
-    DREAM3D_REQUIRED(ncols, ==, 600)
+  int32_t yDim = reader->getYDimension();
+  DREAM3D_REQUIRED(yDim, ==, 600)
 
-    int32_t nrows = reader->getNumRows();
-    DREAM3D_REQUIRED(nrows, ==, 600)
+  std::list<std::string> scanNames;
+  err = reader->readScanNames(scanNames);
+  DREAM3D_REQUIRED(scanNames.size(), ==, 1)
+  DREAM3D_REQUIRED(scanNames.front(), ==, k_HDF5Path)
 
-    float xstep = static_cast<float>(reader->getXStep());
-    DREAM3D_REQUIRED(xstep, ==, 0.0)
-    float ystep = static_cast<float>(reader->getYStep());
-    DREAM3D_REQUIRED(ystep, ==, 0.0)
+  err = reader->readFile();
 
-    std::string grid = reader->getGrid();
-    DREAM3D_REQUIRED(grid, ==, EbsdLib::H5Esprit::Isometric);
-    DREAM3D_REQUIRED(err, >=, 0)
-    int32_t patWidth = reader->getPatternWidth();
-    DREAM3D_REQUIRED(patWidth, ==, 80)
-    int32_t patHeight = reader->getPatternHeight();
-    DREAM3D_REQUIRED(patHeight, ==, 60)
+  //    void* ptr = reader->getPointerByName(ebsdlib::H5Esprit::DD);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  void* ptr = reader->getPointerByName(ebsdlib::H5Esprit::MAD);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::MADPhase);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::NIndexedBands);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::PCX);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::PCY);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::PHI);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::Phase);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::RadonBandCount);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::RadonQuality);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::XBEAM);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::YBEAM);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::XSAMPLE);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::YSAMPLE);
+  //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::phi1);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::phi2);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::RawPatterns);
+  DREAM3D_REQUIRE_NULL_POINTER(ptr);
 
-    int32_t xDim = reader->getXDimension();
-    DREAM3D_REQUIRED(xDim, ==, 600)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::DD);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Float)
+  ebsdlib::NumericTypes::Type numType = reader->getPointerType(ebsdlib::H5Esprit::MAD);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Float)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::MADPhase);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Int32)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::NIndexedBands);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Int32)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::PCX);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Float)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::PCY);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::PHI);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::Phase);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Int32)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::RadonBandCount);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Int32)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::RadonQuality);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::XBEAM);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Int32)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::YBEAM);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Int32)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::XSAMPLE);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Float)
+  //    numType = reader->getPointerType(ebsdlib::H5Esprit::YSAMPLE);
+  //    DREAM3D_REQUIRED(numType ==  ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::phi1);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::phi2);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::Float)
+  numType = reader->getPointerType(ebsdlib::H5Esprit::RawPatterns);
+  DREAM3D_REQUIRE(numType == ebsdlib::NumericTypes::Type::UInt8);
 
-    int32_t yDim = reader->getYDimension();
-    DREAM3D_REQUIRED(yDim, ==, 600)
+  //    float* xsamplePtr = reader->getXSAMPLEPointer();
+  //    DREAM3D_REQUIRE_VALID_POINTER(xsamplePtr);
+  //    reader->releaseXSAMPLEOwnership();
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::XSAMPLE);
+  //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
+  //    reader->deallocateArrayData<float>(xsamplePtr);
 
-    std::list<std::string> scanNames;
-    err = reader->readScanNames(scanNames);
-    DREAM3D_REQUIRED(scanNames.size(), ==, 1)
-    DREAM3D_REQUIRED(scanNames.front(), ==, k_HDF5Path)
+  //    float* ysamplePtr = reader->getYSAMPLEPointer();
+  //    DREAM3D_REQUIRE_VALID_POINTER(ysamplePtr);
+  //    reader->releaseYSAMPLEOwnership();
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::YSAMPLE);
+  //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
+  //    reader->deallocateArrayData<float>(ysamplePtr);
 
-    err = reader->readFile();
+  // std::cout << "=============================================================" << std::endl;
+  std::set<std::string> arraysToRead;
+  arraysToRead.insert(ebsdlib::H5Esprit::phi1);
+  arraysToRead.insert(ebsdlib::H5Esprit::PHI);
+  arraysToRead.insert(ebsdlib::H5Esprit::phi2);
+  reader->setArraysToRead(arraysToRead);
+  err = reader->readFile();
 
-    //    void* ptr = reader->getPointerByName(EbsdLib::H5Esprit::DD);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    void* ptr = reader->getPointerByName(EbsdLib::H5Esprit::MAD);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::MADPhase);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::NIndexedBands);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::PCX);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::PCY);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::PHI);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::Phase);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::RadonBandCount);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::RadonQuality);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::XBEAM);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::YBEAM);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::XSAMPLE);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::YSAMPLE);
-    //    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::phi1);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::phi2);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::RawPatterns);
-    DREAM3D_REQUIRE_NULL_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::phi1);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::phi2);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
+  ptr = reader->getPointerByName(ebsdlib::H5Esprit::PHI);
+  DREAM3D_REQUIRE_VALID_POINTER(ptr);
 
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::DD);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
-    EbsdLib::NumericTypes::Type numType = reader->getPointerType(EbsdLib::H5Esprit::MAD);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::MADPhase);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Int32)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::NIndexedBands);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::PCX);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::PCY);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::PHI);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::Phase);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::RadonBandCount);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::RadonQuality);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::XBEAM);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::YBEAM);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Int32)
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::XSAMPLE);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
-    //    numType = reader->getPointerType(EbsdLib::H5Esprit::YSAMPLE);
-    //    DREAM3D_REQUIRED(numType ==  EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::phi1);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::phi2);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::Float)
-    numType = reader->getPointerType(EbsdLib::H5Esprit::RawPatterns);
-    DREAM3D_REQUIRE(numType == EbsdLib::NumericTypes::Type::UInt8);
-
-    //    float* xsamplePtr = reader->getXSAMPLEPointer();
-    //    DREAM3D_REQUIRE_VALID_POINTER(xsamplePtr);
-    //    reader->releaseXSAMPLEOwnership();
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::XSAMPLE);
-    //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
-    //    reader->deallocateArrayData<float>(xsamplePtr);
-
-    //    float* ysamplePtr = reader->getYSAMPLEPointer();
-    //    DREAM3D_REQUIRE_VALID_POINTER(ysamplePtr);
-    //    reader->releaseYSAMPLEOwnership();
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::YSAMPLE);
-    //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
-    //    reader->deallocateArrayData<float>(ysamplePtr);
-
-    // std::cout << "=============================================================" << std::endl;
-    std::set<std::string> arraysToRead;
-    arraysToRead.insert(EbsdLib::H5Esprit::phi1);
-    arraysToRead.insert(EbsdLib::H5Esprit::PHI);
-    arraysToRead.insert(EbsdLib::H5Esprit::phi2);
-    reader->setArraysToRead(arraysToRead);
-    err = reader->readFile();
-
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::phi1);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::phi2);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-    ptr = reader->getPointerByName(EbsdLib::H5Esprit::PHI);
-    DREAM3D_REQUIRE_VALID_POINTER(ptr);
-
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::XSAMPLE);
-    //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
-    //    ptr = reader->getPointerByName(EbsdLib::H5Esprit::YSAMPLE);
-    //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::XSAMPLE);
+  //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
+  //    ptr = reader->getPointerByName(ebsdlib::H5Esprit::YSAMPLE);
+  //    DREAM3D_REQUIRE_NULL_POINTER(ptr);
 
 #if 0
       reader->setReadPatternData(true);
@@ -210,23 +197,4 @@ public:
       }
       DREAM3D_REQUIRED(err, >=, 0)
 #endif
-  }
-
-  // -----------------------------------------------------------------------------
-  void operator()()
-  {
-    int err = EXIT_SUCCESS;
-
-    std::cout << "<===== Start " << getNameOfClass() << std::endl;
-
-    DREAM3D_REGISTER_TEST(TestH5EspritReader())
-
-    DREAM3D_REGISTER_TEST(RemoveTestFiles())
-  }
-
-public:
-  H5EspritReaderTest(const H5EspritReaderTest&) = delete;            // Copy Constructor Not Implemented
-  H5EspritReaderTest(H5EspritReaderTest&&) = delete;                 // Move Constructor Not Implemented
-  H5EspritReaderTest& operator=(const H5EspritReaderTest&) = delete; // Copy Assignment Not Implemented
-  H5EspritReaderTest& operator=(H5EspritReaderTest&&) = delete;      // Move Assignment Not Implemented
-};
+}

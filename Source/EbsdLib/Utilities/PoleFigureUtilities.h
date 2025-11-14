@@ -43,6 +43,8 @@
 #include <string>
 #include <vector>
 
+namespace ebsdlib
+{
 /**
  * @struct PoleFigureConfiguration_t
  * @brief This structure controls how Pole Figures are generated. The Order member
@@ -60,7 +62,7 @@
  */
 struct PoleFigureConfiguration_t
 {
-  EbsdLib::FloatArrayType* eulers; ///<* The Euler Angles (in Radians) to use for the pole figure
+  ebsdlib::FloatArrayType* eulers; ///<* The Euler Angles (in Radians) to use for the pole figure
   int imageDim;                    ///<* The height/width of the generated pole figure
   int lambertDim;                  ///<* The dimensions in voxels of the Lambert Square used for interpolation
   int numColors;                   ///<* The number of colors to use in the Pole figure
@@ -100,7 +102,7 @@ public:
    * @param max
    * @return
    */
-  static EbsdLib::UInt8ArrayType::Pointer CreateColorImage(EbsdLib::DoubleArrayType* data, int width, int height, int nColors, const std::string& name, double min, double max);
+  static ebsdlib::UInt8ArrayType::Pointer CreateColorImage(ebsdlib::DoubleArrayType* data, int width, int height, int nColors, const std::string& name, double min, double max);
 
   /**
    * @brief CreateColorImage
@@ -108,7 +110,7 @@ public:
    * @param config
    * @param image
    */
-  static void CreateColorImage(EbsdLib::DoubleArrayType* data, PoleFigureConfiguration_t& config, EbsdLib::UInt8ArrayType* image);
+  static void CreateColorImage(ebsdlib::DoubleArrayType* data, PoleFigureConfiguration_t& config, ebsdlib::UInt8ArrayType* image);
 
 private:
   /**
@@ -120,8 +122,8 @@ private:
    * @param intensity1010 [output]
    * @param intensity1120 [output]
    */
-  void GenerateHexPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity0001,
-                              EbsdLib::DoubleArrayType::Pointer& intensity1010, EbsdLib::DoubleArrayType::Pointer& intensity1120);
+  void GenerateHexPoleFigures(ebsdlib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, ebsdlib::DoubleArrayType::Pointer& intensity0001,
+                              ebsdlib::DoubleArrayType::Pointer& intensity1010, ebsdlib::DoubleArrayType::Pointer& intensity1120);
 
   /**
    * @brief GenerateHexPoleFigures
@@ -132,8 +134,8 @@ private:
    * @param intensity010 [output]
    * @param intensity001 [output]
    */
-  void GenerateOrthoPoleFigures(EbsdLib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, EbsdLib::DoubleArrayType::Pointer& intensity100,
-                                EbsdLib::DoubleArrayType::Pointer& intensity010, EbsdLib::DoubleArrayType::Pointer& intensity001);
+  void GenerateOrthoPoleFigures(ebsdlib::FloatArrayType* eulers, int lambertDimension, int poleFigureDim, ebsdlib::DoubleArrayType::Pointer& intensity100,
+                                ebsdlib::DoubleArrayType::Pointer& intensity010, ebsdlib::DoubleArrayType::Pointer& intensity001);
 
 public:
   PoleFigureUtilities(const PoleFigureUtilities&) = delete;            // Copy Constructor Not Implemented
@@ -149,7 +151,7 @@ public:
 class GeneratePoleFigureRgbaImageImpl
 {
 public:
-  GeneratePoleFigureRgbaImageImpl(EbsdLib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, EbsdLib::UInt8ArrayType* rgba);
+  GeneratePoleFigureRgbaImageImpl(ebsdlib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, ebsdlib::UInt8ArrayType* rgba);
   virtual ~GeneratePoleFigureRgbaImageImpl();
 
   void operator()() const;
@@ -158,7 +160,8 @@ protected:
   GeneratePoleFigureRgbaImageImpl();
 
 private:
-  EbsdLib::DoubleArrayType* m_Intensity = nullptr;
+  ebsdlib::DoubleArrayType* m_Intensity = nullptr;
   PoleFigureConfiguration_t* m_Config = nullptr;
-  EbsdLib::UInt8ArrayType* m_Rgba = nullptr;
+  ebsdlib::UInt8ArrayType* m_Rgba = nullptr;
 };
+} // namespace ebsdlib

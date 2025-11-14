@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-namespace EbsdLib::fonts
+namespace ebsdlib::fonts
 {
 // clang-format off
   char const k_LatoBoldBase64 [] = 
@@ -2262,4 +2262,4 @@ namespace EbsdLib::fonts
     "AAEAFAAWAAAAAAAAAAEAAAAA";
 
 // clang-format on
-} // namespace EbsdLib::fonts
+} // namespace ebsdlib::fonts

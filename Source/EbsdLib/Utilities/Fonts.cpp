@@ -4,7 +4,7 @@
 #include "LatoBold.hpp"
 #include "LatoRegular.hpp"
 
-namespace EbsdLib::fonts
+namespace ebsdlib::fonts
 {
 
 std::vector<unsigned char> GetFiraSansRegular()
@@ -28,4 +28,4 @@ std::vector<unsigned char> GetLatoBold()
   return fontData;
 }
 
-} // namespace EbsdLib::fonts
+} // namespace ebsdlib::fonts

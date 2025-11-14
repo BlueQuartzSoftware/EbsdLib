@@ -48,7 +48,9 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
+#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 
 #include <algorithm> // for std::max
 #include <chrono>
@@ -71,6 +73,7 @@
 |   X    |   X     | CubicLow        | 23    | 12          |
 |   X    |   X     | CubicOps        | 432   | 24          |
 */
+using namespace ebsdlib;
 
 namespace
 {
@@ -157,10 +160,10 @@ LaueOps::AxisOrderingType LaueOps::getAxisOrderingType() const
 }
 
 // -----------------------------------------------------------------------------
-EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad) const
+ebsdlib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
 
-  const EbsdLib::Matrix3X1D refDirection(refDir);
+  const ebsdlib::Matrix3X1D refDirection(refDir);
   double chi = 0.0f;
   double eta = 0.0f;
   double _rgb[3] = {0.0, 0.0, 0.0};
@@ -168,20 +171,20 @@ EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
   EulerDType eu(eulers[0], eulers[1], eulers[2]);
   if(degToRad)
   {
-    eu[0] = eu[0] * EbsdLib::Constants::k_DegToRadD;
-    eu[1] = eu[1] * EbsdLib::Constants::k_DegToRadD;
-    eu[2] = eu[2] * EbsdLib::Constants::k_DegToRadD;
+    eu[0] = eu[0] * ebsdlib::constants::k_DegToRadD;
+    eu[1] = eu[1] * ebsdlib::constants::k_DegToRadD;
+    eu[2] = eu[2] * ebsdlib::constants::k_DegToRadD;
   }
   OrientationMatrixDType om; // Reusable for the loop
-  QuatD q1 = eu.toQuat();
+  QuatD q1 = eu.toQuaternion();
 
   for(int j = 0; j < getNumSymOps(); j++)
   {
     // QuatD qu = getQuatSymOp(j) * q1;
     QuaternionDType qu(getQuatSymOp(j) * q1);
     om = qu.toOrientationMatrix();
-    EbsdLib::Matrix3X3D g(om.data());
-    EbsdLib::Matrix3X1D p = (g * refDirection).normalize();
+    ebsdlib::Matrix3X3D g(om.data());
+    ebsdlib::Matrix3X1D p = (g * refDirection).normalize();
 
     if(!getHasInversion() && p[2] < 0)
     {
@@ -225,7 +228,7 @@ EbsdLib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
   _rgb[1] = _rgb[1] / max;
   _rgb[2] = _rgb[2] / max;
 
-  return EbsdLib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
 }
 
 // -----------------------------------------------------------------------------
@@ -512,9 +515,9 @@ AxisAngleDType LaueOps::calculateMisorientationInternal(const std::vector<QuatD>
     }
 
     AxisAngleDType axisAngle = QuaternionDType(qc).toAxisAngle();
-    if(axisAngle[3] > EbsdLib::Constants::k_PiD)
+    if(axisAngle[3] > ebsdlib::constants::k_PiD)
     {
-      axisAngle[3] = EbsdLib::Constants::k_2PiD - axisAngle[3];
+      axisAngle[3] = ebsdlib::constants::k_2PiD - axisAngle[3];
     }
     if(axisAngle[3] < axisAngleMin[3])
     {
@@ -858,7 +861,7 @@ std::string LaueOps::ClassName()
 }
 
 //-----------------------------------------------------------------------------
-EbsdLib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
+ebsdlib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   throw std::runtime_error("LaueOps::generateMisorientationColor is not implemented.");
 }

@@ -43,6 +43,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 #define AIM_STRING std::string
 
 #define CHECK_FOR_CANCELED(AClass)                                                                                                                                                                     \
@@ -59,7 +61,7 @@ H5AngImporter::H5AngImporter()
 , yDim(0)
 , xRes(0)
 , yRes(0)
-, m_FileVersion(EbsdLib::H5OIM::FileVersion)
+, m_FileVersion(ebsdlib::H5OIM::FileVersion)
 {
 }
 
@@ -205,22 +207,22 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
     H5T_class_t type_class;
     size_t type_size = 0;
     hid_t attr_type = -1;
-    err = H5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5OIM::FileVersionStr, dims, type_class, type_size, attr_type);
+    err = H5Lite::getAttributeInfo(fileId, "/", ebsdlib::H5OIM::FileVersionStr, dims, type_class, type_size, attr_type);
     if(attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = H5Lite::writeScalarAttribute(fileId, std::string("/"), EbsdLib::H5OIM::FileVersionStr, m_FileVersion);
+      err = H5Lite::writeScalarAttribute(fileId, std::string("/"), ebsdlib::H5OIM::FileVersionStr, m_FileVersion);
     }
     else
     {
       H5Aclose(attr_type);
     }
 
-    err = H5Lite::getAttributeInfo(fileId, "/", EbsdLib::H5OIM::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
+    err = H5Lite::getAttributeInfo(fileId, "/", ebsdlib::H5OIM::EbsdLibVersionStr, dims, type_class, type_size, attr_type);
     if(attr_type < 0) // The attr_type variable was never set which means the attribute was NOT there
     {
       // The file version does not exist so write it to the file
-      err = H5Lite::writeStringAttribute(fileId, std::string("/"), EbsdLib::H5OIM::EbsdLibVersionStr, EbsdLib::Version::Complete());
+      err = H5Lite::writeStringAttribute(fileId, std::string("/"), ebsdlib::H5OIM::EbsdLibVersionStr, ebsdlib::Version::Complete());
     }
     else
     {
@@ -240,7 +242,7 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
     return -1;
   }
 
-  hid_t gid = H5Utilities::createGroup(angGroup, EbsdLib::H5OIM::Header);
+  hid_t gid = H5Utilities::createGroup(angGroup, ebsdlib::H5OIM::Header);
   if(gid < 0)
   {
     ss.str("");
@@ -252,40 +254,40 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
     setErrorCode(-600);
     return -1;
   }
-  WRITE_ANG_HEADER_DATA(reader, float, TEMpixPerum, EbsdLib::Ang::TEMPIXPerUM)
-  WRITE_ANG_HEADER_DATA(reader, float, XStar, EbsdLib::Ang::XStar)
-  WRITE_ANG_HEADER_DATA(reader, float, YStar, EbsdLib::Ang::YStar)
-  WRITE_ANG_HEADER_DATA(reader, float, ZStar, EbsdLib::Ang::ZStar)
-  WRITE_ANG_HEADER_DATA(reader, float, WorkingDistance, EbsdLib::Ang::WorkingDistance)
+  WRITE_ANG_HEADER_DATA(reader, float, TEMpixPerum, ebsdlib::Ang::TEMPIXPerUM)
+  WRITE_ANG_HEADER_DATA(reader, float, XStar, ebsdlib::Ang::XStar)
+  WRITE_ANG_HEADER_DATA(reader, float, YStar, ebsdlib::Ang::YStar)
+  WRITE_ANG_HEADER_DATA(reader, float, ZStar, ebsdlib::Ang::ZStar)
+  WRITE_ANG_HEADER_DATA(reader, float, WorkingDistance, ebsdlib::Ang::WorkingDistance)
 
-  hid_t phasesGid = H5Utilities::createGroup(gid, EbsdLib::H5OIM::Phases);
+  hid_t phasesGid = H5Utilities::createGroup(gid, ebsdlib::H5OIM::Phases);
   err = writePhaseData(reader, phasesGid);
   // Close this group
   err = H5Gclose(phasesGid);
 
-  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, Grid, EbsdLib::Ang::Grid)
-  WRITE_ANG_HEADER_DATA(reader, float, XStep, EbsdLib::Ang::XStep)
+  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, Grid, ebsdlib::Ang::Grid)
+  WRITE_ANG_HEADER_DATA(reader, float, XStep, ebsdlib::Ang::XStep)
   xRes = reader.getXStep();
-  WRITE_ANG_HEADER_DATA(reader, float, YStep, EbsdLib::Ang::YStep)
+  WRITE_ANG_HEADER_DATA(reader, float, YStep, ebsdlib::Ang::YStep)
   yRes = reader.getYStep();
-  WRITE_ANG_HEADER_DATA(reader, int, NumOddCols, EbsdLib::Ang::NColsOdd)
-  WRITE_ANG_HEADER_DATA(reader, int, NumEvenCols, EbsdLib::Ang::NColsEven)
+  WRITE_ANG_HEADER_DATA(reader, int, NumOddCols, ebsdlib::Ang::NColsOdd)
+  WRITE_ANG_HEADER_DATA(reader, int, NumEvenCols, ebsdlib::Ang::NColsEven)
   xDim = reader.getNumEvenCols();
-  WRITE_ANG_HEADER_DATA(reader, int, NumRows, EbsdLib::Ang::NRows)
+  WRITE_ANG_HEADER_DATA(reader, int, NumRows, ebsdlib::Ang::NRows)
   yDim = reader.getNumRows();
-  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, OIMOperator, EbsdLib::Ang::OPERATOR)
-  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, SampleID, EbsdLib::Ang::SAMPLEID)
-  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, SCANID, EbsdLib::Ang::SCANID)
+  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, OIMOperator, ebsdlib::Ang::OPERATOR)
+  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, SampleID, ebsdlib::Ang::SAMPLEID)
+  WRITE_ANG_HEADER_STRING_DATA(reader, std::string, SCANID, ebsdlib::Ang::SCANID)
 
   std::string angCompleteHeader = reader.getOriginalHeader();
-  err = H5Lite::writeStringDataset(gid, EbsdLib::H5OIM::OriginalHeader, angCompleteHeader);
-  err = H5Lite::writeStringDataset(gid, EbsdLib::H5OIM::OriginalFile, angFile);
+  err = H5Lite::writeStringDataset(gid, ebsdlib::H5OIM::OriginalHeader, angCompleteHeader);
+  err = H5Lite::writeStringDataset(gid, ebsdlib::H5OIM::OriginalFile, angFile);
 
   // Close the "Header" group
   err = H5Gclose(gid);
 
   // Create the "Data" group
-  gid = H5Utilities::createGroup(angGroup, EbsdLib::H5OIM::Data);
+  gid = H5Utilities::createGroup(angGroup, ebsdlib::H5OIM::Data);
   if(gid < 0)
   {
     ss.str("");
@@ -301,16 +303,16 @@ int H5AngImporter::importFile(hid_t fileId, int64_t z, const std::string& angFil
   int32_t rank = 1;
   hsize_t dims[1] = {static_cast<hsize_t>(reader.getNumEvenCols() * reader.getNumRows())};
 
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi1, EbsdLib::Ang::Phi1);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi, EbsdLib::Ang::Phi);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi2, EbsdLib::Ang::Phi2);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, XPosition, EbsdLib::Ang::XPosition);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, YPosition, EbsdLib::Ang::YPosition);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, ImageQuality, EbsdLib::Ang::ImageQuality);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, ConfidenceIndex, EbsdLib::Ang::ConfidenceIndex);
-  WRITE_ANG_DATA_ARRAY(reader, int, gid, PhaseData, EbsdLib::Ang::PhaseData);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, SEMSignal, EbsdLib::Ang::SEMSignal);
-  WRITE_ANG_DATA_ARRAY(reader, float, gid, Fit, EbsdLib::Ang::Fit);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi1, ebsdlib::Ang::Phi1);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi, ebsdlib::Ang::Phi);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, Phi2, ebsdlib::Ang::Phi2);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, XPosition, ebsdlib::Ang::XPosition);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, YPosition, ebsdlib::Ang::YPosition);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, ImageQuality, ebsdlib::Ang::ImageQuality);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, ConfidenceIndex, ebsdlib::Ang::ConfidenceIndex);
+  WRITE_ANG_DATA_ARRAY(reader, int, gid, PhaseData, ebsdlib::Ang::PhaseData);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, SEMSignal, ebsdlib::Ang::SEMSignal);
+  WRITE_ANG_DATA_ARRAY(reader, float, gid, Fit, ebsdlib::Ang::Fit);
   // Close the "Data" group
   err = H5Gclose(gid);
 
@@ -382,30 +384,30 @@ int H5AngImporter::writePhaseData(AngReader& reader, hid_t phasesGid)
   for(AngPhase::Pointer& phase : phases)
   {
     hid_t pid = H5Utilities::createGroup(phasesGid, EbsdStringUtils::number(phase->getPhaseIndex()));
-    WRITE_PHASE_HEADER_DATA(phase, int, PhaseIndex, EbsdLib::Ang::Phase)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, MaterialName, EbsdLib::Ang::MaterialName)
-    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Formula, EbsdLib::Ang::Formula)
-    // WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Info, EbsdLib::Ang::Info)
-    WRITE_PHASE_HEADER_DATA(phase, int, Symmetry, EbsdLib::Ang::Symmetry)
-    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, EbsdLib::Ang::LatticeConstants)
-    WRITE_PHASE_HEADER_DATA(phase, int, NumberFamilies, EbsdLib::Ang::NumberFamilies)
+    WRITE_PHASE_HEADER_DATA(phase, int, PhaseIndex, ebsdlib::Ang::Phase)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, MaterialName, ebsdlib::Ang::MaterialName)
+    WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Formula, ebsdlib::Ang::Formula)
+    // WRITE_PHASE_HEADER_STRING_DATA(phase, std::string, Info, ebsdlib::Ang::Info)
+    WRITE_PHASE_HEADER_DATA(phase, int, Symmetry, ebsdlib::Ang::Symmetry)
+    WRITE_PHASE_DATA_ARRAY(phase, float, pid, LatticeConstants, ebsdlib::Ang::LatticeConstants)
+    WRITE_PHASE_HEADER_DATA(phase, int, NumberFamilies, ebsdlib::Ang::NumberFamilies)
 
     // Create a Group for the HKLFamilies
     if(phase->getNumberFamilies() > 0)
     {
-      hid_t hklGid = H5Utilities::createGroup(pid, EbsdLib::Ang::HKLFamilies);
+      hid_t hklGid = H5Utilities::createGroup(pid, ebsdlib::Ang::HKLFamilies);
       err = writeHKLFamilies(phase.get(), hklGid);
       if(err < 0)
       {
         ss.str("");
-        ss << "H5AngImporter Error: Could not write Ang HKL Families to the HDF5 file with data set name '" << EbsdLib::Ang::HKLFamilies << "'";
+        ss << "H5AngImporter Error: Could not write Ang HKL Families to the HDF5 file with data set name '" << ebsdlib::Ang::HKLFamilies << "'";
         progressMessage(ss.str(), 100);
         err = H5Gclose(hklGid);
         return -1;
       }
       err = H5Gclose(hklGid);
     }
-    WRITE_PHASE_DATA_ARRAY(phase, int, pid, Categories, EbsdLib::Ang::Categories)
+    WRITE_PHASE_DATA_ARRAY(phase, int, pid, Categories, ebsdlib::Ang::Categories)
     err = H5Gclose(pid);
   }
   return err;

@@ -48,6 +48,8 @@
 using namespace H5Support;
 #endif
 
+namespace ebsdlib
+{
 /**
  * @class EbsdReader EbsdReader.h EbsdLib/EbsdReader.h
  * @brief This class is the super class to read an Ebsd data file. This class is
@@ -176,7 +178,7 @@ public:
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  virtual EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) = 0;
+  virtual ebsdlib::NumericTypes::Type getPointerType(const std::string& featureName) = 0;
 
   /**
    * @brief freePointerByName
@@ -297,3 +299,4 @@ private:
   std::string m_FileName = {};
   std::string m_OriginalHeader = {};
 };
+} // namespace ebsdlib

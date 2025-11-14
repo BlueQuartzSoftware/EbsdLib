@@ -9,9 +9,11 @@
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
+using namespace ebsdlib;
+
 using EbsdDoubleArrayType = EbsdDataArray<double>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
-using OCType = OrientationConverter<EbsdLib::DoubleArrayType, float>;
+using OCType = OrientationConverter<ebsdlib::DoubleArrayType, float>;
 
 // -----------------------------------------------------------------------------
 template <typename T>
@@ -30,7 +32,7 @@ std::shared_ptr<EbsdDataArray<T>> generateRepresentation(int32_t inputType, int3
   converters[5] = HomochoricConverter<EbsdDataArray<T>, T>::New();
   converters[6] = CubochoricConverter<EbsdDataArray<T>, T>::New();
 
-  std::vector<OrientationRepresentation::Type> ocTypes = OCType::GetOrientationTypes();
+  std::vector<ebsdlib::orientations::Type> ocTypes = OCType::GetOrientationTypes();
 
   converters[inputType]->setInputData(inputOrientations);
   converters[inputType]->convertRepresentationTo(ocTypes[outputType]);

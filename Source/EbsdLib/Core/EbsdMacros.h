@@ -40,7 +40,7 @@
 #include <sstream>
 #include <string>
 
-namespace EbsdLib
+namespace ebsdlib
 {
 class method_not_implemented : public std::exception
 {
@@ -96,7 +96,7 @@ private:
   void operator=(const method_not_implemented&) = delete; // Move assignment Not Implemented
 };
 
-} // namespace EbsdLib
+} // namespace ebsdlib
 
 /** @brief This macro is used to shorten the code needed to go from std::string to QString. Helpful in other codes that use
  * QString instead of std::string
@@ -110,7 +110,7 @@ private:
   {                                                                                                                                                                                                    \
     std::stringstream assert_message;                                                                                                                                                                  \
     assert_message << __FILE__ << "(" << __LINE__ << ")" << getNameOfClass() << ": Method is not implemented.";                                                                                        \
-    throw EbsdLib::method_not_implemented(assert_message.str());                                                                                                                                       \
+    throw ebsdlib::method_not_implemented(assert_message.str());                                                                                                                                       \
   }
 
 /**

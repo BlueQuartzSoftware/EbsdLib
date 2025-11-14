@@ -10,22 +10,18 @@
       "repository": "https://github.com/bluequartzsoftware/simplnx-registry",
       "packages": [
         "eigen3",
-        "expected-lite",
         "fmt",
         "h5support",
         "hdf5",
-        "lz4",
-        "nlohmann-json",
-        "nod",
-        "span-lite",
         "tbb",
         "ninja",
         "vcpkg-cmake",
         "vcpkg-cmake-config",
         "zlib",
-        "zstd"
+        "zstd",
+        "catch2"
       ],
-      "baseline": "c9415182598df306f0d3f2f2b354d9d79cf1bf8b"
+      "baseline": "9ff0ea7373196b1c26c9cac15919b23045405994"
     }
   ]
 }

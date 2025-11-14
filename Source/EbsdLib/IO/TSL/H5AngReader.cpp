@@ -52,6 +52,8 @@
 
 using namespace H5Support;
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -170,7 +172,7 @@ int H5AngReader::readHeaderOnly()
 int H5AngReader::readHeader(hid_t parId)
 {
   int err = -1;
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Header.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OIM::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorCode(-90008);
@@ -178,22 +180,22 @@ int H5AngReader::readHeader(hid_t parId)
     return -1;
   }
 
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, TEMPIXPerUM, EbsdLib::Ang::TEMPIXPerUM, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, XStar, EbsdLib::Ang::XStar, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, YStar, EbsdLib::Ang::YStar, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, ZStar, EbsdLib::Ang::ZStar, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, WorkingDistance, EbsdLib::Ang::WorkingDistance, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, Grid, EbsdLib::Ang::Grid, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, XStep, EbsdLib::Ang::XStep, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, YStep, EbsdLib::Ang::YStep, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumOddCols, EbsdLib::Ang::NColsOdd, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumEvenCols, EbsdLib::Ang::NColsEven, gid)
-  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumRows, EbsdLib::Ang::NRows, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, OIMOperator, EbsdLib::Ang::OPERATOR, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, SampleID, EbsdLib::Ang::SAMPLEID, gid)
-  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, SCANID, EbsdLib::Ang::SCANID, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, TEMPIXPerUM, ebsdlib::Ang::TEMPIXPerUM, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, XStar, ebsdlib::Ang::XStar, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, YStar, ebsdlib::Ang::YStar, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, ZStar, ebsdlib::Ang::ZStar, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, WorkingDistance, ebsdlib::Ang::WorkingDistance, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, Grid, ebsdlib::Ang::Grid, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, XStep, ebsdlib::Ang::XStep, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<float>, float, YStep, ebsdlib::Ang::YStep, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumOddCols, ebsdlib::Ang::NColsOdd, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumEvenCols, ebsdlib::Ang::NColsEven, gid)
+  READ_EBSD_HEADER_DATA("H5AngReader", AngHeaderEntry<int>, int, NumRows, ebsdlib::Ang::NRows, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, OIMOperator, ebsdlib::Ang::OPERATOR, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, SampleID, ebsdlib::Ang::SAMPLEID, gid)
+  READ_EBSD_HEADER_STRING_DATA("H5AngReader", AngStringHeaderEntry, std::string, SCANID, ebsdlib::Ang::SCANID, gid)
 
-  hid_t phasesGid = H5Gopen(gid, EbsdLib::H5OIM::Phases.c_str(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, ebsdlib::H5OIM::Phases.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     setErrorCode(-90007);
@@ -219,17 +221,17 @@ int H5AngReader::readHeader(hid_t parId)
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
     AngPhase::Pointer currentPhase = AngPhase::New();
 
-    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::Phase, PhaseIndex, currentPhase)
-    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::MaterialName, MaterialName, currentPhase)
-    READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::Formula, Formula, currentPhase)
-    // READ_PHASE_STRING_DATA("H5AngReader", pid, EbsdLib::Ang::Info, Info, m_CurrentPhase)
-    READ_PHASE_HEADER_DATA_CAST("H5AngReader", pid, uint32_t, int, EbsdLib::Ang::Symmetry, Symmetry, currentPhase)
-    READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, EbsdLib::Ang::LatticeConstants, LatticeConstants, currentPhase)
-    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, EbsdLib::Ang::NumberFamilies, NumberFamilies, currentPhase)
+    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, ebsdlib::Ang::Phase, PhaseIndex, currentPhase)
+    READ_PHASE_STRING_DATA("H5AngReader", pid, ebsdlib::Ang::MaterialName, MaterialName, currentPhase)
+    READ_PHASE_STRING_DATA("H5AngReader", pid, ebsdlib::Ang::Formula, Formula, currentPhase)
+    // READ_PHASE_STRING_DATA("H5AngReader", pid, ebsdlib::Ang::Info, Info, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA_CAST("H5AngReader", pid, uint32_t, int, ebsdlib::Ang::Symmetry, Symmetry, currentPhase)
+    READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, ebsdlib::Ang::LatticeConstants, LatticeConstants, currentPhase)
+    READ_PHASE_HEADER_DATA("H5AngReader", pid, int, ebsdlib::Ang::NumberFamilies, NumberFamilies, currentPhase)
 
     if(currentPhase->getNumberFamilies() > 0)
     {
-      hid_t hklGid = H5Gopen(pid, EbsdLib::Ang::HKLFamilies.c_str(), H5P_DEFAULT);
+      hid_t hklGid = H5Gopen(pid, ebsdlib::Ang::HKLFamilies.c_str(), H5P_DEFAULT);
       // Only read the HKL Families if they are there. Trying to open the group will tell us if there
       // are any families to read
 
@@ -244,16 +246,16 @@ int H5AngReader::readHeader(hid_t parId)
       }
     }
     /* The 'Categories' header may actually be missing from certain types of .ang files */
-    if(H5Lite::datasetExists(pid, EbsdLib::Ang::Categories))
+    if(H5Lite::datasetExists(pid, ebsdlib::Ang::Categories))
     {
-      READ_PHASE_HEADER_ARRAY("H5AngReader", pid, int, EbsdLib::Ang::Categories, Categories, currentPhase)
+      READ_PHASE_HEADER_ARRAY("H5AngReader", pid, int, ebsdlib::Ang::Categories, Categories, currentPhase)
     }
     m_Phases.push_back(currentPhase);
     err = H5Gclose(pid);
   }
 
   std::string completeHeader;
-  err = H5Lite::readStringDataset(gid, EbsdLib::H5OIM::OriginalHeader, completeHeader);
+  err = H5Lite::readStringDataset(gid, ebsdlib::H5OIM::OriginalHeader, completeHeader);
   if(err < 0)
   {
     setErrorCode(-90010);
@@ -331,7 +333,7 @@ int H5AngReader::readData(hid_t parId)
     setErrorCode(err);
     return err;
   }
-  if(grid.find(EbsdLib::Ang::SquareGrid) == 0)
+  if(grid.find(ebsdlib::Ang::SquareGrid) == 0)
   {
     // if (nCols > 0) { numElements = nRows * nCols; }
     if(nOddCols > 0)
@@ -347,7 +349,7 @@ int H5AngReader::readData(hid_t parId)
       totalDataRows = 0;
     }
   }
-  else if(grid.find(EbsdLib::Ang::HexGrid) == 0)
+  else if(grid.find(ebsdlib::Ang::HexGrid) == 0)
   {
     setErrorCode(-90400);
     setErrorMessage("Ang Files with Hex Grids Are NOT currently supported. Please convert them to Square Grid files first");
@@ -360,7 +362,7 @@ int H5AngReader::readData(hid_t parId)
     return -300;
   }
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5OIM::Data.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5OIM::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorMessage("H5AngReader Error: Could not open 'Data' Group");
@@ -382,21 +384,21 @@ int H5AngReader::readData(hid_t parId)
   }
 
   // Initialize new pointers
-  ANG_READER_ALLOCATE_AND_READ(Phi1, EbsdLib::Ang::Phi1, float);
-  ANG_READER_ALLOCATE_AND_READ(Phi, EbsdLib::Ang::Phi, float);
-  ANG_READER_ALLOCATE_AND_READ(Phi2, EbsdLib::Ang::Phi2, float);
-  ANG_READER_ALLOCATE_AND_READ(ImageQuality, EbsdLib::Ang::ImageQuality, float);
-  ANG_READER_ALLOCATE_AND_READ(ConfidenceIndex, EbsdLib::Ang::ConfidenceIndex, float);
-  ANG_READER_ALLOCATE_AND_READ(PhaseData, EbsdLib::Ang::PhaseData, int);
-  ANG_READER_ALLOCATE_AND_READ(XPosition, EbsdLib::Ang::XPosition, float);
-  ANG_READER_ALLOCATE_AND_READ(YPosition, EbsdLib::Ang::YPosition, float);
-  ANG_READER_ALLOCATE_AND_READ(Fit, EbsdLib::Ang::Fit, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi1, ebsdlib::Ang::Phi1, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi, ebsdlib::Ang::Phi, float);
+  ANG_READER_ALLOCATE_AND_READ(Phi2, ebsdlib::Ang::Phi2, float);
+  ANG_READER_ALLOCATE_AND_READ(ImageQuality, ebsdlib::Ang::ImageQuality, float);
+  ANG_READER_ALLOCATE_AND_READ(ConfidenceIndex, ebsdlib::Ang::ConfidenceIndex, float);
+  ANG_READER_ALLOCATE_AND_READ(PhaseData, ebsdlib::Ang::PhaseData, int);
+  ANG_READER_ALLOCATE_AND_READ(XPosition, ebsdlib::Ang::XPosition, float);
+  ANG_READER_ALLOCATE_AND_READ(YPosition, ebsdlib::Ang::YPosition, float);
+  ANG_READER_ALLOCATE_AND_READ(Fit, ebsdlib::Ang::Fit, float);
   if(err < 0)
   {
     setNumFeatures(9);
   }
 
-  ANG_READER_ALLOCATE_AND_READ(SEMSignal, EbsdLib::Ang::SEMSignal, float);
+  ANG_READER_ALLOCATE_AND_READ(SEMSignal, ebsdlib::Ang::SEMSignal, float);
   if(err < 0)
   {
     setNumFeatures(8);

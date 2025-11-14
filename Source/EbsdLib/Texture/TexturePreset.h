@@ -43,6 +43,8 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 
+namespace ebsdlib
+{
 /**
  * @brief The TexturePreset class
  */
@@ -186,3 +188,4 @@ public:
   HexTexturePresets& operator=(const HexTexturePresets&) = delete; // Copy Assignment Not Implemented
   HexTexturePresets& operator=(HexTexturePresets&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

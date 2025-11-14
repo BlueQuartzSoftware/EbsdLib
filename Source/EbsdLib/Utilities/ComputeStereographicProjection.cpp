@@ -38,10 +38,12 @@
 #endif
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ComputeStereographicProjection::ComputeStereographicProjection(EbsdLib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, EbsdLib::DoubleArrayType* intensity)
+ComputeStereographicProjection::ComputeStereographicProjection(ebsdlib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, ebsdlib::DoubleArrayType* intensity)
 : m_XYZCoords(xyzCoords)
 , m_Config(config)
 , m_Intensity(intensity)

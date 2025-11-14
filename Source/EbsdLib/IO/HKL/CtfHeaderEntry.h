@@ -51,6 +51,8 @@
 using namespace H5Support;
 #endif
 
+namespace ebsdlib
+{
 class Int32HeaderParser
 {
 public:
@@ -271,3 +273,4 @@ public:
   CtfStringHeaderEntry& operator=(const CtfStringHeaderEntry&) = delete; // Copy Assignment Not Implemented
   CtfStringHeaderEntry& operator=(CtfStringHeaderEntry&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

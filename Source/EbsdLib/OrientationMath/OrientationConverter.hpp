@@ -42,8 +42,16 @@
 #include <string>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
-#include "EbsdLib/Core/OrientationRepresentation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Cubochoric.hpp"
+#include "EbsdLib/Orientation/Euler.hpp"
+#include "EbsdLib/Orientation/Homochoric.hpp"
+#include "EbsdLib/Orientation/OrientationFwd.hpp"
+#include "EbsdLib/Orientation/OrientationMatrix.hpp"
+#include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
+#include "EbsdLib/Orientation/Stereographic.hpp"
+
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
@@ -67,6 +75,8 @@
     return std::string(#name);                                                                                                                                                                         \
   }
 
+namespace ebsdlib
+{
 /**
  * @brief This is the top level superclass for doing the conversions between orientation
  * representations
@@ -90,9 +100,9 @@ public:
    * @brief getOrientationRepresentation
    * @return
    */
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Unknown;
+    return ebsdlib::orientations::Type::Unknown;
   }
 
   /**
@@ -100,37 +110,37 @@ public:
    * @param repType The type of representation to convert to.
    * @return
    */
-  void convertRepresentationTo(OrientationRepresentation::Type repType)
+  void convertRepresentationTo(ebsdlib::orientations::Type repType)
   {
-    if(repType == OrientationRepresentation::Type::Euler)
+    if(repType == ebsdlib::orientations::Type::Euler)
     {
       toEulers();
     }
-    else if(repType == OrientationRepresentation::Type::OrientationMatrix)
+    else if(repType == ebsdlib::orientations::Type::OrientationMatrix)
     {
       toOrientationMatrix();
     }
-    else if(repType == OrientationRepresentation::Type::Quaternion)
+    else if(repType == ebsdlib::orientations::Type::Quaternion)
     {
       toQuaternion();
     }
-    else if(repType == OrientationRepresentation::Type::AxisAngle)
+    else if(repType == ebsdlib::orientations::Type::AxisAngle)
     {
       toAxisAngle();
     }
-    else if(repType == OrientationRepresentation::Type::Rodrigues)
+    else if(repType == ebsdlib::orientations::Type::Rodrigues)
     {
       toRodrigues();
     }
-    else if(repType == OrientationRepresentation::Type::Homochoric)
+    else if(repType == ebsdlib::orientations::Type::Homochoric)
     {
       toHomochoric();
     }
-    else if(repType == OrientationRepresentation::Type::Cubochoric)
+    else if(repType == ebsdlib::orientations::Type::Cubochoric)
     {
       toCubochoric();
     }
-    else if(repType == OrientationRepresentation::Type::Stereographic)
+    else if(repType == ebsdlib::orientations::Type::Stereographic)
     {
       toStereographic();
     }
@@ -258,17 +268,17 @@ public:
    * @brief GetOrientationTypes
    * @return
    */
-  static std::vector<OrientationRepresentation::Type> GetOrientationTypes()
+  static std::vector<ebsdlib::orientations::Type> GetOrientationTypes()
   {
-    std::vector<OrientationRepresentation::Type> ocTypes(8);
-    ocTypes[0] = OrientationRepresentation::Type::Euler;
-    ocTypes[1] = OrientationRepresentation::Type::OrientationMatrix;
-    ocTypes[2] = OrientationRepresentation::Type::Quaternion;
-    ocTypes[3] = OrientationRepresentation::Type::AxisAngle;
-    ocTypes[4] = OrientationRepresentation::Type::Rodrigues;
-    ocTypes[5] = OrientationRepresentation::Type::Homochoric;
-    ocTypes[6] = OrientationRepresentation::Type::Cubochoric;
-    ocTypes[7] = OrientationRepresentation::Type::Stereographic;
+    std::vector<ebsdlib::orientations::Type> ocTypes(8);
+    ocTypes[0] = ebsdlib::orientations::Type::Euler;
+    ocTypes[1] = ebsdlib::orientations::Type::OrientationMatrix;
+    ocTypes[2] = ebsdlib::orientations::Type::Quaternion;
+    ocTypes[3] = ebsdlib::orientations::Type::AxisAngle;
+    ocTypes[4] = ebsdlib::orientations::Type::Rodrigues;
+    ocTypes[5] = ebsdlib::orientations::Type::Homochoric;
+    ocTypes[6] = ebsdlib::orientations::Type::Cubochoric;
+    ocTypes[7] = ebsdlib::orientations::Type::Stereographic;
     return ocTypes;
   }
 
@@ -287,7 +297,7 @@ public:
    */
   static int GetMaxIndex()
   {
-    return static_cast<int>(static_cast<int>(OrientationRepresentation::Type::Unknown) - 1);
+    return static_cast<int>(static_cast<int>(ebsdlib::orientations::Type::Unknown) - 1);
   }
 
 protected:
@@ -386,7 +396,38 @@ private:
   };
 
 OC_TBB_IMPL(Euler)
-OC_TBB_IMPL(OrientationMatrix)
+// OC_TBB_IMPL(OrientationMatrix)
+template <typename T, class InputType, class OutputType>
+class toOrientationMatrixConvertor
+{
+public:
+  toOrientationMatrixConvertor(T* inputPtr, T* outputPtr)
+  : m_Input(inputPtr)
+  , m_Output(outputPtr)
+  {
+  }
+
+  void operator()(const tbb::blocked_range<size_t>& r) const
+  {
+    InputType inputInstance;
+    OutputType outputInstance;
+    size_t inStride = inputInstance.size();
+    size_t outStride = outputInstance.size();
+    for(size_t i = r.begin(); i < r.end(); ++i)
+    {
+      size_t inOffset = i * inStride;
+      size_t outOffset = i * outStride;
+      InputType inputInstance2(m_Input + inOffset);
+      outputInstance = inputInstance2.toOrientationMatrix();
+      outputInstance.copyTo(m_Output + outOffset);
+    }
+  }
+
+private:
+  T* m_Input = nullptr;
+  T* m_Output = nullptr;
+};
+
 OC_TBB_IMPL(Quaternion)
 OC_TBB_IMPL(AxisAngle)
 OC_TBB_IMPL(Rodrigues)
@@ -399,14 +440,14 @@ OC_TBB_IMPL(Stereographic)
   DataArrayPointerType input = this->getInputData();                                                                                                                                                   \
   T* inPtr = input->getPointer(0);                                                                                                                                                                     \
   size_t nTuples = this->getInputData()->getNumberOfTuples();                                                                                                                                          \
-  Orientation<T, TO_REP##Rep> outputInstance;                                                                                                                                                          \
+  ebsdlib::TO_REP<T> outputInstance;                                                                                                                                                                   \
   size_t outStride = outputInstance.size();                                                                                                                                                            \
   std::vector<size_t> cDims = {outStride};                                                                                                                                                             \
   DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, #TO_REP, true);                                                                                                             \
   output->initializeWithZeros(); /* Initialize the array with Zeros */                                                                                                                                 \
   T* outPtr = output->getPointer(0);                                                                                                                                                                   \
-  using FROM_REP##Type = Orientation<T, FROM_REP##Rep>;                                                                                                                                                \
-  using TO_REP##Type = Orientation<T, TO_REP##Rep>;                                                                                                                                                    \
+  using FROM_REP##Type = ebsdlib::FROM_REP<T>;                                                                                                                                                         \
+  using TO_REP##Type = ebsdlib::TO_REP<T>;                                                                                                                                                             \
   tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), to##TO_REP##Convertor<T, FROM_REP##Type, TO_REP##Type>(inPtr, outPtr), tbb::auto_partitioner());                                           \
   this->setOutputData(output);
 
@@ -431,9 +472,9 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      inPtr[0] = static_cast<T>(std::fmod(inPtr[0], EbsdLib::Constants::k_2PiD));
-      inPtr[1] = static_cast<T>(std::fmod(inPtr[1], EbsdLib::Constants::k_PiD));
-      inPtr[2] = static_cast<T>(std::fmod(inPtr[2], EbsdLib::Constants::k_2PiD));
+      inPtr[0] = static_cast<T>(std::fmod(inPtr[0], ebsdlib::constants::k_2PiD));
+      inPtr[1] = static_cast<T>(std::fmod(inPtr[1], ebsdlib::constants::k_PiD));
+      inPtr[2] = static_cast<T>(std::fmod(inPtr[2], ebsdlib::constants::k_2PiD));
 
       if(inPtr[0] < 0.0)
       {
@@ -473,9 +514,9 @@ public:
 
   ~EulerConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Euler;
+    return ebsdlib::orientations::Type::Euler;
   }
 
   void toEulers() override
@@ -487,7 +528,22 @@ public:
 
   void toOrientationMatrix() override
   {
-    OC_CONVERT_BODY_PREAMBLE(Euler, OrientationMatrix);
+    // OC_CONVERT_BODY_PREAMBLE(Euler, OrientationMatrix);
+    sanityCheckInputData();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0); /* Get a Raw pointer to the chunk of memory */
+    size_t nTuples = this->getInputData()->getNumberOfTuples();
+    ebsdlib::OrientationMatrix<T> outputInstance;
+    size_t outStride = outputInstance.size();
+    std::vector<size_t> cDims = {outStride};
+    DataArrayPointerType output = DataArrayType::CreateArray(nTuples, cDims, "OrientationMatrix", true);
+    output->initializeWithZeros();
+    T* outPtr = output->getPointer(0);
+    using EulerType = ebsdlib::Euler<T>;
+    using OrientationMatrixType = ebsdlib::OrientationMatrix<T>;
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), toOrientationMatrixConvertor<T, Euler<T>, OrientationMatrix<T>>(inPtr, outPtr), tbb::auto_partitioner());
+    this->setOutputData(output);
+    ;
   }
 
   void toQuaternion() override
@@ -613,12 +669,11 @@ public:
 
     for(size_t i = start; i < end; ++i)
     {
-      using Orientation_Type = Orientation<T, OrientationMatrixRep>;
-      using ResultType = OrientationTransformation::ResultType;
+      using Orientation_Type = ebsdlib::OrientationMatrix<T>;
 
       Orientation_Type oaType(inPtr);
 
-      ResultType res = OrientationTransformation::om_check(oaType);
+      auto res = oaType.isValid();
       if(res.result <= 0)
       {
         std::cout << res.msg << std::endl;
@@ -663,9 +718,9 @@ public:
 
   ~OrientationMatrixConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::OrientationMatrix;
+    return ebsdlib::orientations::Type::OrientationMatrix;
   }
 
   void toEulers() override
@@ -833,9 +888,9 @@ public:
 
   ~QuaternionConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Quaternion;
+    return ebsdlib::orientations::Type::Quaternion;
   }
 
   void toEulers() override
@@ -888,16 +943,16 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), QuaternionSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), QuaternionSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
 #else
-        QuaternionSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
+    QuaternionSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -996,9 +1051,9 @@ public:
 
   ~AxisAngleConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::AxisAngle;
+    return ebsdlib::orientations::Type::AxisAngle;
   }
 
   void toEulers() override
@@ -1051,15 +1106,15 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), AxisAngleSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), AxisAngleSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
 #else
-        AxisAngleSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
+    AxisAngleSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -1160,9 +1215,9 @@ public:
 
   ~RodriguesConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Rodrigues;
+    return ebsdlib::orientations::Type::Rodrigues;
   }
 
   void toEulers() override
@@ -1215,15 +1270,15 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), RodriguesSanityCheck<DataArrayType>(inPtr, inStride), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), RodriguesSanityCheck<DataArrayType>(inPtr, inStride), tbb::auto_partitioner());
 #else
-      RodriguesSanityCheck<T> serial(inPtr, inStride);
-      serial.sanityCheck(0, nTuples);
+    RodriguesSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -1324,9 +1379,9 @@ public:
 
   ~HomochoricConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Homochoric;
+    return ebsdlib::orientations::Type::Homochoric;
   }
 
   void toEulers() override
@@ -1379,16 +1434,16 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), HomochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
-      }
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), HomochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+  }
 #else
-        HomochoricSanityCheck<T> serial(inPtr, inStride);
-        serial.sanityCheck(0, nTuples);
+    HomochoricSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -1489,9 +1544,9 @@ public:
 
   ~CubochoricConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Cubochoric;
+    return ebsdlib::orientations::Type::Cubochoric;
   }
 
   void toEulers() override
@@ -1544,15 +1599,15 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), CubochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), CubochoricSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
 #else
-      CubochoricSanityCheck<T> serial(inPtr, inStride);
-      serial.sanityCheck(0, nTuples);
+    CubochoricSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -1653,9 +1708,9 @@ public:
 
   ~StereographicConverter() override = default;
 
-  OrientationRepresentation::Type getOrientationRepresentation()
+  ebsdlib::orientations::Type getOrientationRepresentation()
   {
-    return OrientationRepresentation::Type::Stereographic;
+    return ebsdlib::orientations::Type::Stereographic;
   }
 
   void toEulers() override
@@ -1708,15 +1763,15 @@ public:
      * go
      */
 #if 0
-      DataArrayPointerType input = this->getInputData();
-      T* inPtr = input->getPointer(0);
-      size_t nTuples = input->getNumberOfTuples();
-      int inStride = input->getNumberOfComponents();
+    DataArrayPointerType input = this->getInputData();
+    T* inPtr = input->getPointer(0);
+    size_t nTuples = input->getNumberOfTuples();
+    int inStride = input->getNumberOfComponents();
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), StereographicSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nTuples), StereographicSanityCheck<T>(inPtr, inStride), tbb::auto_partitioner());
 #else
-      StereographicSanityCheck<T> serial(inPtr, inStride);
-      serial.sanityCheck(0, nTuples);
+    StereographicSanityCheck<T> serial(inPtr, inStride);
+    serial.sanityCheck(0, nTuples);
 #endif
 #endif
   }
@@ -1772,3 +1827,4 @@ public:
   StereographicConverter& operator=(const StereographicConverter&) = delete; // Copy Assignment Not Implemented
   StereographicConverter& operator=(StereographicConverter&&) = delete;      // Move Assignment Not Implemented
 };
+} // namespace ebsdlib

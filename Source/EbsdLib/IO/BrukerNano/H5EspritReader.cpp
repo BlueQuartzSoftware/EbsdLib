@@ -42,6 +42,8 @@
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/BrukerNano/EspritPhase.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 H5EspritReader::H5EspritReader()
 : m_ReadPatternData(false)
@@ -49,31 +51,31 @@ H5EspritReader::H5EspritReader()
 {
   m_HeaderMap.clear();
   // Initialize the map of header key to header value
-  m_HeaderMap[EbsdLib::H5Esprit::CameraTilt] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::CameraTilt);
-  m_HeaderMap[EbsdLib::H5Esprit::KV] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::KV);
-  m_HeaderMap[EbsdLib::H5Esprit::MADMax] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::MADMax);
-  m_HeaderMap[EbsdLib::H5Esprit::Magnification] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::Magnification);
-  m_HeaderMap[EbsdLib::H5Esprit::MapStepFactor] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::MapStepFactor);
-  m_HeaderMap[EbsdLib::H5Esprit::MaxRadonBandCount] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::MaxRadonBandCount);
-  m_HeaderMap[EbsdLib::H5Esprit::MinIndexedBands] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::MinIndexedBands);
-  m_HeaderMap[EbsdLib::H5Esprit::NCOLS] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::NCOLS);
-  m_HeaderMap[EbsdLib::H5Esprit::NPoints] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::NPoints);
-  m_HeaderMap[EbsdLib::H5Esprit::NROWS] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::NROWS);
-  m_HeaderMap[EbsdLib::H5Esprit::PatternHeight] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::PatternHeight);
-  m_HeaderMap[EbsdLib::H5Esprit::PatternWidth] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::PatternWidth);
-  m_HeaderMap[EbsdLib::H5Esprit::PixelByteCount] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::PixelByteCount);
-  m_HeaderMap[EbsdLib::H5Esprit::SEPixelSizeX] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::SEPixelSizeX);
-  m_HeaderMap[EbsdLib::H5Esprit::SEPixelSizeY] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::SEPixelSizeY);
-  m_HeaderMap[EbsdLib::H5Esprit::SampleTilt] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::SampleTilt);
-  m_HeaderMap[EbsdLib::H5Esprit::TopClip] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::TopClip);
-  m_HeaderMap[EbsdLib::H5Esprit::UnClippedPatternHeight] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::UnClippedPatternHeight);
-  m_HeaderMap[EbsdLib::H5Esprit::WD] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::WD);
-  m_HeaderMap[EbsdLib::H5Esprit::XSTEP] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::XSTEP);
-  m_HeaderMap[EbsdLib::H5Esprit::YSTEP] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::YSTEP);
-  m_HeaderMap[EbsdLib::H5Esprit::ZOffset] = AngHeaderEntry<double>::NewEbsdHeaderEntry(EbsdLib::H5Esprit::ZOffset);
+  m_HeaderMap[ebsdlib::H5Esprit::CameraTilt] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::CameraTilt);
+  m_HeaderMap[ebsdlib::H5Esprit::KV] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::KV);
+  m_HeaderMap[ebsdlib::H5Esprit::MADMax] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::MADMax);
+  m_HeaderMap[ebsdlib::H5Esprit::Magnification] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::Magnification);
+  m_HeaderMap[ebsdlib::H5Esprit::MapStepFactor] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::MapStepFactor);
+  m_HeaderMap[ebsdlib::H5Esprit::MaxRadonBandCount] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::MaxRadonBandCount);
+  m_HeaderMap[ebsdlib::H5Esprit::MinIndexedBands] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::MinIndexedBands);
+  m_HeaderMap[ebsdlib::H5Esprit::NCOLS] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::NCOLS);
+  m_HeaderMap[ebsdlib::H5Esprit::NPoints] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::NPoints);
+  m_HeaderMap[ebsdlib::H5Esprit::NROWS] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::NROWS);
+  m_HeaderMap[ebsdlib::H5Esprit::PatternHeight] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::PatternHeight);
+  m_HeaderMap[ebsdlib::H5Esprit::PatternWidth] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::PatternWidth);
+  m_HeaderMap[ebsdlib::H5Esprit::PixelByteCount] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::PixelByteCount);
+  m_HeaderMap[ebsdlib::H5Esprit::SEPixelSizeX] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::SEPixelSizeX);
+  m_HeaderMap[ebsdlib::H5Esprit::SEPixelSizeY] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::SEPixelSizeY);
+  m_HeaderMap[ebsdlib::H5Esprit::SampleTilt] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::SampleTilt);
+  m_HeaderMap[ebsdlib::H5Esprit::TopClip] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::TopClip);
+  m_HeaderMap[ebsdlib::H5Esprit::UnClippedPatternHeight] = AngHeaderEntry<int32_t>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::UnClippedPatternHeight);
+  m_HeaderMap[ebsdlib::H5Esprit::WD] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::WD);
+  m_HeaderMap[ebsdlib::H5Esprit::XSTEP] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::XSTEP);
+  m_HeaderMap[ebsdlib::H5Esprit::YSTEP] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::YSTEP);
+  m_HeaderMap[ebsdlib::H5Esprit::ZOffset] = AngHeaderEntry<double>::NewEbsdHeaderEntry(ebsdlib::H5Esprit::ZOffset);
 
-  m_HeaderMap[EbsdLib::H5Esprit::GridType] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5Esprit::GridType);
-  m_HeaderMap[EbsdLib::H5Esprit::OriginalFile] = AngStringHeaderEntry::NewEbsdHeaderEntry(EbsdLib::H5Esprit::OriginalFile);
+  m_HeaderMap[ebsdlib::H5Esprit::GridType] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5Esprit::GridType);
+  m_HeaderMap[ebsdlib::H5Esprit::OriginalFile] = AngStringHeaderEntry::NewEbsdHeaderEntry(ebsdlib::H5Esprit::OriginalFile);
 
   m_PatternDims[0] = -1;
   m_PatternDims[1] = -1;
@@ -84,88 +86,88 @@ H5EspritReader::~H5EspritReader()
 {
   //  if(m_DDCleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::DD_t>(m_DD);
+  //    deallocateArrayData<ebsdlib::H5Esprit::DD_t>(m_DD);
   //    m_DD = nullptr;
   //  }
   if(m_MADCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::MAD_t>(m_MAD);
+    deallocateArrayData<ebsdlib::H5Esprit::MAD_t>(m_MAD);
     m_MAD = nullptr;
   }
   //  if(m_MADPhaseCleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::MADPhase_t>(m_MADPhase);
+  //    deallocateArrayData<ebsdlib::H5Esprit::MADPhase_t>(m_MADPhase);
   //    m_MADPhase = nullptr;
   //  }
   if(m_NIndexedBandsCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::NIndexedBands_t>(m_NIndexedBands);
+    deallocateArrayData<ebsdlib::H5Esprit::NIndexedBands_t>(m_NIndexedBands);
     m_NIndexedBands = nullptr;
   }
   //  if(m_PCXCleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::PCX_t>(m_PCX);
+  //    deallocateArrayData<ebsdlib::H5Esprit::PCX_t>(m_PCX);
   //    m_PCX = nullptr;
   //  }
   //  if(m_PCYCleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::PCY_t>(m_PCY);
+  //    deallocateArrayData<ebsdlib::H5Esprit::PCY_t>(m_PCY);
   //    m_PCY = nullptr;
   //  }
   if(m_PHICleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::PHI_t>(m_PHI);
+    deallocateArrayData<ebsdlib::H5Esprit::PHI_t>(m_PHI);
     m_PHI = nullptr;
   }
   if(m_PhaseCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::Phase_t>(m_Phase);
+    deallocateArrayData<ebsdlib::H5Esprit::Phase_t>(m_Phase);
     m_Phase = nullptr;
   }
   if(m_RadonBandCountCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::RadonBandCount_t>(m_RadonBandCount);
+    deallocateArrayData<ebsdlib::H5Esprit::RadonBandCount_t>(m_RadonBandCount);
     m_RadonBandCount = nullptr;
   }
   if(m_RadonQualityCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::RadonQuality_t>(m_RadonQuality);
+    deallocateArrayData<ebsdlib::H5Esprit::RadonQuality_t>(m_RadonQuality);
     m_RadonQuality = nullptr;
   }
   if(m_XBEAMCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::XBEAM_t>(m_XBEAM);
+    deallocateArrayData<ebsdlib::H5Esprit::XBEAM_t>(m_XBEAM);
     m_XBEAM = nullptr;
   }
   if(m_YBEAMCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::YBEAM_t>(m_YBEAM);
+    deallocateArrayData<ebsdlib::H5Esprit::YBEAM_t>(m_YBEAM);
     m_YBEAM = nullptr;
   }
   //  if(m_XSAMPLECleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::XSAMPLE_t>(m_XSAMPLE);
+  //    deallocateArrayData<ebsdlib::H5Esprit::XSAMPLE_t>(m_XSAMPLE);
   //    m_XSAMPLE = nullptr;
   //  }
   //  if(m_YSAMPLECleanup)
   //  {
-  //    deallocateArrayData<EbsdLib::H5Esprit::YSAMPLE_t>(m_YSAMPLE);
+  //    deallocateArrayData<ebsdlib::H5Esprit::YSAMPLE_t>(m_YSAMPLE);
   //    m_YSAMPLE = nullptr;
   //  }
   if(m_phi1Cleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::phi1_t>(m_phi1);
+    deallocateArrayData<ebsdlib::H5Esprit::phi1_t>(m_phi1);
     m_phi1 = nullptr;
   }
   if(m_phi2Cleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::phi2_t>(m_phi2);
+    deallocateArrayData<ebsdlib::H5Esprit::phi2_t>(m_phi2);
     m_phi2 = nullptr;
   }
 
   if(m_PatternDataCleanup)
   {
-    deallocateArrayData<EbsdLib::H5Esprit::RawPatterns_t>(m_PatternData);
+    deallocateArrayData<ebsdlib::H5Esprit::RawPatterns_t>(m_PatternData);
     m_PatternData = nullptr;
   }
 }
@@ -238,7 +240,7 @@ int H5EspritReader::readFile()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     std::string str;
@@ -308,7 +310,7 @@ int H5EspritReader::readHeaderOnly()
   }
   sentinel.addGroupId(gid);
 
-  hid_t ebsdGid = H5Gopen(gid, EbsdLib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
+  hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
     std::string str;
@@ -379,7 +381,7 @@ int H5EspritReader::readHeader(hid_t parId)
 
   int err = -1;
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5Esprit::Header.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5Esprit::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorCode(-90008);
@@ -388,35 +390,35 @@ int H5EspritReader::readHeader(hid_t parId)
   }
   H5ScopedGroupSentinel sentinel(gid, false);
 
-  // ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::CameraTilt, gid, m_HeaderMap);
-  ReadH5EbsdHeaderStringData<H5EspritReader, std::string, AngStringHeaderEntry>(this, EbsdLib::H5Esprit::GridType, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::KV, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::MADMax, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::Magnification, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::MapStepFactor, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::MaxRadonBandCount, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::MinIndexedBands, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::NCOLS, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::NPoints, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::NROWS, gid, m_HeaderMap);
-  ReadH5EbsdHeaderStringData<H5EspritReader, std::string, AngStringHeaderEntry>(this, EbsdLib::H5Esprit::OriginalFile, gid, m_HeaderMap);
-  // ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::PixelByteCount, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::SEPixelSizeX, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::SEPixelSizeY, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::SampleTilt, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::TopClip, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::UnClippedPatternHeight, gid, m_HeaderMap);
-  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::WD, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::XSTEP, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::YSTEP, gid, m_HeaderMap);
-  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, EbsdLib::H5Esprit::ZOffset, gid, m_HeaderMap);
+  // ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::CameraTilt, gid, m_HeaderMap);
+  ReadH5EbsdHeaderStringData<H5EspritReader, std::string, AngStringHeaderEntry>(this, ebsdlib::H5Esprit::GridType, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::KV, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::MADMax, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::Magnification, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::MapStepFactor, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::MaxRadonBandCount, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::MinIndexedBands, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::NCOLS, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::NPoints, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::NROWS, gid, m_HeaderMap);
+  ReadH5EbsdHeaderStringData<H5EspritReader, std::string, AngStringHeaderEntry>(this, ebsdlib::H5Esprit::OriginalFile, gid, m_HeaderMap);
+  // ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::PixelByteCount, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::SEPixelSizeX, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::SEPixelSizeY, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::SampleTilt, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::TopClip, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::UnClippedPatternHeight, gid, m_HeaderMap);
+  //  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::WD, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::XSTEP, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::YSTEP, gid, m_HeaderMap);
+  ReadH5EbsdHeaderData<H5EspritReader, double, AngHeaderDoubleType>(this, ebsdlib::H5Esprit::ZOffset, gid, m_HeaderMap);
 
   HDF_ERROR_HANDLER_OFF
   // Read the Pattern Width - This may not exist
-  bool patWidthExists = H5Lite::datasetExists(gid, EbsdLib::H5Esprit::PatternWidth);
+  bool patWidthExists = H5Lite::datasetExists(gid, ebsdlib::H5Esprit::PatternWidth);
   if(patWidthExists)
   {
-    ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::PatternWidth, gid, m_HeaderMap);
+    ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::PatternWidth, gid, m_HeaderMap);
     m_PatternDims[1] = getPatternWidth();
   }
   else if(getReadPatternData() && !patWidthExists)
@@ -428,10 +430,10 @@ int H5EspritReader::readHeader(hid_t parId)
   }
 
   // Read the Pattern Height - This may not exist
-  bool patHeightExists = H5Lite::datasetExists(gid, EbsdLib::H5Esprit::PatternHeight);
+  bool patHeightExists = H5Lite::datasetExists(gid, ebsdlib::H5Esprit::PatternHeight);
   if(patHeightExists)
   {
-    ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, EbsdLib::H5Esprit::PatternHeight, gid, m_HeaderMap);
+    ReadH5EbsdHeaderData<H5EspritReader, int32_t, AngHeaderIntType>(this, ebsdlib::H5Esprit::PatternHeight, gid, m_HeaderMap);
     m_PatternDims[0] = getPatternHeight();
   }
   else if(getReadPatternData() && !patHeightExists)
@@ -442,7 +444,7 @@ int H5EspritReader::readHeader(hid_t parId)
     return getErrorCode();
   }
 
-  bool patternDataExists = H5Lite::datasetExists(parId, EbsdLib::H5Esprit::Data + "/" + EbsdLib::H5Esprit::RawPatterns);
+  bool patternDataExists = H5Lite::datasetExists(parId, ebsdlib::H5Esprit::Data + "/" + ebsdlib::H5Esprit::RawPatterns);
   if(getReadPatternData() && !patternDataExists)
   {
     setErrorCode(-90018);
@@ -452,7 +454,7 @@ int H5EspritReader::readHeader(hid_t parId)
   }
   HDF_ERROR_HANDLER_ON
 
-  hid_t phasesGid = H5Gopen(gid, EbsdLib::H5Esprit::Phases.c_str(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, ebsdlib::H5Esprit::Phases.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     setErrorCode(-90007);
@@ -481,17 +483,17 @@ int H5EspritReader::readHeader(hid_t parId)
 
     EspritPhase::Pointer currentPhase = EspritPhase::New();
     currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
-    READ_PHASE_STRING_DATA("H5EspritReader", pid, EbsdLib::H5Esprit::Formula, Formula, currentPhase)
+    READ_PHASE_STRING_DATA("H5EspritReader", pid, ebsdlib::H5Esprit::Formula, Formula, currentPhase)
 
-    READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, EbsdLib::H5Esprit::IT, IT, currentPhase)
+    READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, ebsdlib::H5Esprit::IT, IT, currentPhase)
 
-    READ_PHASE_HEADER_ARRAY("H5EspritReader", pid, float, EbsdLib::H5Esprit::LatticeConstants, LatticeConstants, currentPhase);
+    READ_PHASE_HEADER_ARRAY("H5EspritReader", pid, float, ebsdlib::H5Esprit::LatticeConstants, LatticeConstants, currentPhase);
 
-    READ_PHASE_STRING_DATA("H5EspritReader", pid, EbsdLib::H5Esprit::Name, Name, currentPhase)
+    READ_PHASE_STRING_DATA("H5EspritReader", pid, ebsdlib::H5Esprit::Name, Name, currentPhase)
 
-    READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, EbsdLib::H5Esprit::Setting, Setting, currentPhase)
+    READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, ebsdlib::H5Esprit::Setting, Setting, currentPhase)
 
-    READ_PHASE_STRING_DATA("H5EspritReader", pid, EbsdLib::H5Esprit::SpaceGroup, SpaceGroup, currentPhase)
+    READ_PHASE_STRING_DATA("H5EspritReader", pid, ebsdlib::H5Esprit::SpaceGroup, SpaceGroup, currentPhase)
 
     phaseVector.push_back(currentPhase);
     err = H5Gclose(pid);
@@ -527,7 +529,7 @@ int H5EspritReader::readData(hid_t parId)
     setErrorCode(err);
     return err;
   }
-  if(grid.find(EbsdLib::H5Esprit::Isometric) != std::string::npos)
+  if(grid.find(ebsdlib::H5Esprit::Isometric) != std::string::npos)
   {
     // if (nCols > 0) { numElements = nRows * nCols; }
     if(nColumns > 0)
@@ -553,7 +555,7 @@ int H5EspritReader::readData(hid_t parId)
     return -301;
   }
 
-  hid_t gid = H5Gopen(parId, EbsdLib::H5Esprit::Data.c_str(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, ebsdlib::H5Esprit::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     setErrorMessage("H5OIMReader Error: Could not open 'Data' Group");
@@ -574,29 +576,29 @@ int H5EspritReader::readData(hid_t parId)
     return err;
   }
 
-  //  ANG_READER_ALLOCATE_AND_READ(DD, EbsdLib::H5Esprit::DD, EbsdLib::H5Esprit::DD_t);
-  ANG_READER_ALLOCATE_AND_READ(MAD, EbsdLib::H5Esprit::MAD, EbsdLib::H5Esprit::MAD_t);
-  // ANG_READER_ALLOCATE_AND_READ(MADPhase, EbsdLib::H5Esprit::MADPhase, EbsdLib::H5Esprit::MADPhase_t);
-  ANG_READER_ALLOCATE_AND_READ(NIndexedBands, EbsdLib::H5Esprit::NIndexedBands, EbsdLib::H5Esprit::NIndexedBands_t);
-  // ANG_READER_ALLOCATE_AND_READ(PCX, EbsdLib::H5Esprit::PCX, EbsdLib::H5Esprit::PCX_t);
-  // ANG_READER_ALLOCATE_AND_READ(PCY, EbsdLib::H5Esprit::PCY, EbsdLib::H5Esprit::PCY_t);
-  ANG_READER_ALLOCATE_AND_READ(PHI, EbsdLib::H5Esprit::PHI, EbsdLib::H5Esprit::PHI_t);
-  ANG_READER_ALLOCATE_AND_READ(Phase, EbsdLib::H5Esprit::Phase, EbsdLib::H5Esprit::Phase_t);
-  ANG_READER_ALLOCATE_AND_READ(RadonBandCount, EbsdLib::H5Esprit::RadonBandCount, EbsdLib::H5Esprit::RadonBandCount_t);
-  ANG_READER_ALLOCATE_AND_READ(RadonQuality, EbsdLib::H5Esprit::RadonQuality, EbsdLib::H5Esprit::RadonQuality_t);
-  ANG_READER_ALLOCATE_AND_READ(XBEAM, EbsdLib::H5Esprit::XBEAM, EbsdLib::H5Esprit::XBEAM_t);
-  ANG_READER_ALLOCATE_AND_READ(YBEAM, EbsdLib::H5Esprit::YBEAM, EbsdLib::H5Esprit::YBEAM_t);
-  // ANG_READER_ALLOCATE_AND_READ(XSAMPLE, EbsdLib::H5Esprit::XSAMPLE, EbsdLib::H5Esprit::XSAMPLE_t);
-  // ANG_READER_ALLOCATE_AND_READ(YSAMPLE, EbsdLib::H5Esprit::YSAMPLE, EbsdLib::H5Esprit::YSAMPLE_t);
-  ANG_READER_ALLOCATE_AND_READ(phi1, EbsdLib::H5Esprit::phi1, EbsdLib::H5Esprit::phi1_t);
-  ANG_READER_ALLOCATE_AND_READ(phi2, EbsdLib::H5Esprit::phi2, EbsdLib::H5Esprit::phi2_t);
+  //  ANG_READER_ALLOCATE_AND_READ(DD, ebsdlib::H5Esprit::DD, ebsdlib::H5Esprit::DD_t);
+  ANG_READER_ALLOCATE_AND_READ(MAD, ebsdlib::H5Esprit::MAD, ebsdlib::H5Esprit::MAD_t);
+  // ANG_READER_ALLOCATE_AND_READ(MADPhase, ebsdlib::H5Esprit::MADPhase, ebsdlib::H5Esprit::MADPhase_t);
+  ANG_READER_ALLOCATE_AND_READ(NIndexedBands, ebsdlib::H5Esprit::NIndexedBands, ebsdlib::H5Esprit::NIndexedBands_t);
+  // ANG_READER_ALLOCATE_AND_READ(PCX, ebsdlib::H5Esprit::PCX, ebsdlib::H5Esprit::PCX_t);
+  // ANG_READER_ALLOCATE_AND_READ(PCY, ebsdlib::H5Esprit::PCY, ebsdlib::H5Esprit::PCY_t);
+  ANG_READER_ALLOCATE_AND_READ(PHI, ebsdlib::H5Esprit::PHI, ebsdlib::H5Esprit::PHI_t);
+  ANG_READER_ALLOCATE_AND_READ(Phase, ebsdlib::H5Esprit::Phase, ebsdlib::H5Esprit::Phase_t);
+  ANG_READER_ALLOCATE_AND_READ(RadonBandCount, ebsdlib::H5Esprit::RadonBandCount, ebsdlib::H5Esprit::RadonBandCount_t);
+  ANG_READER_ALLOCATE_AND_READ(RadonQuality, ebsdlib::H5Esprit::RadonQuality, ebsdlib::H5Esprit::RadonQuality_t);
+  ANG_READER_ALLOCATE_AND_READ(XBEAM, ebsdlib::H5Esprit::XBEAM, ebsdlib::H5Esprit::XBEAM_t);
+  ANG_READER_ALLOCATE_AND_READ(YBEAM, ebsdlib::H5Esprit::YBEAM, ebsdlib::H5Esprit::YBEAM_t);
+  // ANG_READER_ALLOCATE_AND_READ(XSAMPLE, ebsdlib::H5Esprit::XSAMPLE, ebsdlib::H5Esprit::XSAMPLE_t);
+  // ANG_READER_ALLOCATE_AND_READ(YSAMPLE, ebsdlib::H5Esprit::YSAMPLE, ebsdlib::H5Esprit::YSAMPLE_t);
+  ANG_READER_ALLOCATE_AND_READ(phi1, ebsdlib::H5Esprit::phi1, ebsdlib::H5Esprit::phi1_t);
+  ANG_READER_ALLOCATE_AND_READ(phi2, ebsdlib::H5Esprit::phi2, ebsdlib::H5Esprit::phi2_t);
 
   if(m_ReadPatternData)
   {
     H5T_class_t type_class;
     std::vector<hsize_t> dims;
     size_t type_size = 0;
-    err = H5Lite::getDatasetInfo(gid, EbsdLib::H5Esprit::RawPatterns, dims, type_class, type_size);
+    err = H5Lite::getDatasetInfo(gid, ebsdlib::H5Esprit::RawPatterns, dims, type_class, type_size);
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
       totalDataRows = std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>());
@@ -606,7 +608,7 @@ int H5EspritReader::readData(hid_t parId)
       m_PatternDims[1] = static_cast<int>(dims[2]);
 
       m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
-      err = H5Lite::readPointerDataset(gid, EbsdLib::H5Esprit::RawPatterns, m_PatternData);
+      err = H5Lite::readPointerDataset(gid, ebsdlib::H5Esprit::RawPatterns, m_PatternData);
     }
   }
   err = H5Gclose(gid);
@@ -666,87 +668,87 @@ void H5EspritReader::setYDimension(int ydim)
 // -----------------------------------------------------------------------------
 void H5EspritReader::releaseOwnership(const std::string& name)
 {
-  //  if(name == EbsdLib::H5Esprit::DD)
+  //  if(name == ebsdlib::H5Esprit::DD)
   //  {
   //    m_DD = nullptr;
   //    m_DDCleanup = false;
   //  }
-  if(name == EbsdLib::H5Esprit::MAD)
+  if(name == ebsdlib::H5Esprit::MAD)
   {
     m_MAD = nullptr;
     m_MADCleanup = false;
   }
-  //  if(name == EbsdLib::H5Esprit::MADPhase)
+  //  if(name == ebsdlib::H5Esprit::MADPhase)
   //  {
   //    m_MADPhase = nullptr;
   //    m_MADPhaseCleanup = false;
   //  }
-  if(name == EbsdLib::H5Esprit::NIndexedBands)
+  if(name == ebsdlib::H5Esprit::NIndexedBands)
   {
     m_NIndexedBands = nullptr;
     m_NIndexedBandsCleanup = false;
   }
-  //  if(name == EbsdLib::H5Esprit::PCX)
+  //  if(name == ebsdlib::H5Esprit::PCX)
   //  {
   //    m_PCX = nullptr;
   //    m_PCXCleanup = false;
   //  }
-  //  if(name == EbsdLib::H5Esprit::PCY)
+  //  if(name == ebsdlib::H5Esprit::PCY)
   //  {
   //    m_PCY = nullptr;
   //    m_PCYCleanup = false;
   //  }
-  if(name == EbsdLib::H5Esprit::PHI)
+  if(name == ebsdlib::H5Esprit::PHI)
   {
     m_PHI = nullptr;
     m_PHICleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::Phase)
+  if(name == ebsdlib::H5Esprit::Phase)
   {
     m_Phase = nullptr;
     m_PhaseCleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::RadonBandCount)
+  if(name == ebsdlib::H5Esprit::RadonBandCount)
   {
     m_RadonBandCount = nullptr;
     m_RadonBandCountCleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::RadonQuality)
+  if(name == ebsdlib::H5Esprit::RadonQuality)
   {
     m_RadonQuality = nullptr;
     m_RadonQualityCleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::RawPatterns)
+  if(name == ebsdlib::H5Esprit::RawPatterns)
   {
     m_PatternData = nullptr;
     m_PatternDataCleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::XBEAM)
+  if(name == ebsdlib::H5Esprit::XBEAM)
   {
     m_XBEAM = nullptr;
     m_XBEAMCleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::YBEAM)
+  if(name == ebsdlib::H5Esprit::YBEAM)
   {
     m_YBEAM = nullptr;
     m_YBEAMCleanup = false;
   }
-  //  if(name == EbsdLib::H5Esprit::XSAMPLE)
+  //  if(name == ebsdlib::H5Esprit::XSAMPLE)
   //  {
   //    m_XSAMPLE = nullptr;
   //    m_XSAMPLECleanup = false;
   //  }
-  //  if(name == EbsdLib::H5Esprit::YSAMPLE)
+  //  if(name == ebsdlib::H5Esprit::YSAMPLE)
   //  {
   //    m_YSAMPLE = nullptr;
   //    m_YSAMPLECleanup = false;
   //  }
-  if(name == EbsdLib::H5Esprit::phi1)
+  if(name == ebsdlib::H5Esprit::phi1)
   {
     m_phi1 = nullptr;
     m_phi1Cleanup = false;
   }
-  if(name == EbsdLib::H5Esprit::phi2)
+  if(name == ebsdlib::H5Esprit::phi2)
   {
     m_phi2 = nullptr;
     m_phi2Cleanup = false;
@@ -758,71 +760,71 @@ void H5EspritReader::releaseOwnership(const std::string& name)
 // -----------------------------------------------------------------------------
 void* H5EspritReader::getPointerByName(const std::string& featureName)
 {
-  //  if(featureName == EbsdLib::H5Esprit::DD)
+  //  if(featureName == ebsdlib::H5Esprit::DD)
   //  {
   //    return static_cast<void*>(m_DD);
   //  }
-  if(featureName == EbsdLib::H5Esprit::MAD)
+  if(featureName == ebsdlib::H5Esprit::MAD)
   {
     return static_cast<void*>(m_MAD);
   }
-  //  if(featureName == EbsdLib::H5Esprit::MADPhase)
+  //  if(featureName == ebsdlib::H5Esprit::MADPhase)
   //  {
   //    return static_cast<void*>(m_MADPhase);
   //  }
-  if(featureName == EbsdLib::H5Esprit::NIndexedBands)
+  if(featureName == ebsdlib::H5Esprit::NIndexedBands)
   {
     return static_cast<void*>(m_NIndexedBands);
   }
-  //  if(featureName == EbsdLib::H5Esprit::PCX)
+  //  if(featureName == ebsdlib::H5Esprit::PCX)
   //  {
   //    return static_cast<void*>(m_PCX);
   //  }
-  //  if(featureName == EbsdLib::H5Esprit::PCY)
+  //  if(featureName == ebsdlib::H5Esprit::PCY)
   //  {
   //    return static_cast<void*>(m_PCY);
   //  }
-  if(featureName == EbsdLib::H5Esprit::PHI)
+  if(featureName == ebsdlib::H5Esprit::PHI)
   {
     return static_cast<void*>(m_PHI);
   }
-  if(featureName == EbsdLib::H5Esprit::Phase)
+  if(featureName == ebsdlib::H5Esprit::Phase)
   {
     return static_cast<void*>(m_Phase);
   }
-  if(featureName == EbsdLib::H5Esprit::RadonBandCount)
+  if(featureName == ebsdlib::H5Esprit::RadonBandCount)
   {
     return static_cast<void*>(m_RadonBandCount);
   }
-  if(featureName == EbsdLib::H5Esprit::RadonQuality)
+  if(featureName == ebsdlib::H5Esprit::RadonQuality)
   {
     return static_cast<void*>(m_RadonQuality);
   }
-  if(featureName == EbsdLib::H5Esprit::RawPatterns)
+  if(featureName == ebsdlib::H5Esprit::RawPatterns)
   {
     return static_cast<void*>(m_PatternData);
   }
-  if(featureName == EbsdLib::H5Esprit::XBEAM)
+  if(featureName == ebsdlib::H5Esprit::XBEAM)
   {
     return static_cast<void*>(m_XBEAM);
   }
-  if(featureName == EbsdLib::H5Esprit::YBEAM)
+  if(featureName == ebsdlib::H5Esprit::YBEAM)
   {
     return static_cast<void*>(m_YBEAM);
   }
-  //  if(featureName == EbsdLib::H5Esprit::XSAMPLE)
+  //  if(featureName == ebsdlib::H5Esprit::XSAMPLE)
   //  {
   //    return static_cast<void*>(m_XSAMPLE);
   //  }
-  //  if(featureName == EbsdLib::H5Esprit::YSAMPLE)
+  //  if(featureName == ebsdlib::H5Esprit::YSAMPLE)
   //  {
   //    return static_cast<void*>(m_YSAMPLE);
   //  }
-  if(featureName == EbsdLib::H5Esprit::phi1)
+  if(featureName == ebsdlib::H5Esprit::phi1)
   {
     return static_cast<void*>(m_phi1);
   }
-  if(featureName == EbsdLib::H5Esprit::phi2)
+  if(featureName == ebsdlib::H5Esprit::phi2)
   {
     return static_cast<void*>(m_phi2);
   }
@@ -833,80 +835,80 @@ void* H5EspritReader::getPointerByName(const std::string& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5EspritReader::getPointerType(const std::string& featureName)
+ebsdlib::NumericTypes::Type H5EspritReader::getPointerType(const std::string& featureName)
 {
 
-  //  if(featureName == EbsdLib::H5Esprit::DD)
+  //  if(featureName == ebsdlib::H5Esprit::DD)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Float;
+  //    return ebsdlib::NumericTypes::Type::Float;
   //  }
-  if(featureName == EbsdLib::H5Esprit::MAD)
+  if(featureName == ebsdlib::H5Esprit::MAD)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  //  if(featureName == EbsdLib::H5Esprit::MADPhase)
+  //  if(featureName == ebsdlib::H5Esprit::MADPhase)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Int32;
+  //    return ebsdlib::NumericTypes::Type::Int32;
   //  }
-  if(featureName == EbsdLib::H5Esprit::NIndexedBands)
+  if(featureName == ebsdlib::H5Esprit::NIndexedBands)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  //  if(featureName == EbsdLib::H5Esprit::PCX)
+  //  if(featureName == ebsdlib::H5Esprit::PCX)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Float;
+  //    return ebsdlib::NumericTypes::Type::Float;
   //  }
-  //  if(featureName == EbsdLib::H5Esprit::PCY)
+  //  if(featureName == ebsdlib::H5Esprit::PCY)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Float;
+  //    return ebsdlib::NumericTypes::Type::Float;
   //  }
-  if(featureName == EbsdLib::H5Esprit::PHI)
+  if(featureName == ebsdlib::H5Esprit::PHI)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5Esprit::Phase)
+  if(featureName == ebsdlib::H5Esprit::Phase)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::H5Esprit::RadonBandCount)
+  if(featureName == ebsdlib::H5Esprit::RadonBandCount)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::H5Esprit::RadonQuality)
+  if(featureName == ebsdlib::H5Esprit::RadonQuality)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5Esprit::XBEAM)
+  if(featureName == ebsdlib::H5Esprit::XBEAM)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  if(featureName == EbsdLib::H5Esprit::YBEAM)
+  if(featureName == ebsdlib::H5Esprit::YBEAM)
   {
-    return EbsdLib::NumericTypes::Type::Int32;
+    return ebsdlib::NumericTypes::Type::Int32;
   }
-  //  if(featureName == EbsdLib::H5Esprit::XSAMPLE)
+  //  if(featureName == ebsdlib::H5Esprit::XSAMPLE)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Float;
+  //    return ebsdlib::NumericTypes::Type::Float;
   //  }
-  //  if(featureName == EbsdLib::H5Esprit::YSAMPLE)
+  //  if(featureName == ebsdlib::H5Esprit::YSAMPLE)
   //  {
-  //    return EbsdLib::NumericTypes::Type::Float;
+  //    return ebsdlib::NumericTypes::Type::Float;
   //  }
-  if(featureName == EbsdLib::H5Esprit::phi1)
+  if(featureName == ebsdlib::H5Esprit::phi1)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
-  if(featureName == EbsdLib::H5Esprit::phi2)
+  if(featureName == ebsdlib::H5Esprit::phi2)
   {
-    return EbsdLib::NumericTypes::Type::Float;
+    return ebsdlib::NumericTypes::Type::Float;
   }
 
-  if(featureName == EbsdLib::H5Esprit::RawPatterns)
+  if(featureName == ebsdlib::H5Esprit::RawPatterns)
   {
-    return EbsdLib::NumericTypes::Type::UInt8;
+    return ebsdlib::NumericTypes::Type::UInt8;
   }
 
-  return EbsdLib::NumericTypes::Type::UnknownNumType;
+  return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
 // -----------------------------------------------------------------------------

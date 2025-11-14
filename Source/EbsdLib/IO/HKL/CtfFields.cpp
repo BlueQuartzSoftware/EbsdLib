@@ -34,6 +34,8 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "CtfFields.h"
 
+using namespace ebsdlib;
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -50,22 +52,22 @@ CtfFields::~CtfFields() = default;
 std::vector<std::string> CtfFields::getFieldNames()
 {
   std::vector<std::string> features;
-  features.push_back(EbsdLib::Ctf::Phase);
-  features.push_back(EbsdLib::Ctf::X);
-  features.push_back(EbsdLib::Ctf::Y);
-  features.push_back(EbsdLib::Ctf::Z);
-  features.push_back(EbsdLib::Ctf::Bands);
-  features.push_back(EbsdLib::Ctf::Error);
-  features.push_back(EbsdLib::Ctf::Euler1);
-  features.push_back(EbsdLib::Ctf::Euler2);
-  features.push_back(EbsdLib::Ctf::Euler3);
-  features.push_back(EbsdLib::Ctf::MAD);
-  features.push_back(EbsdLib::Ctf::BC);
-  features.push_back(EbsdLib::Ctf::BS);
-  features.push_back(EbsdLib::Ctf::GrainIndex);
-  features.push_back(EbsdLib::Ctf::GrainRandomColourR);
-  features.push_back(EbsdLib::Ctf::GrainRandomColourG);
-  features.push_back(EbsdLib::Ctf::GrainRandomColourB);
+  features.push_back(ebsdlib::Ctf::Phase);
+  features.push_back(ebsdlib::Ctf::X);
+  features.push_back(ebsdlib::Ctf::Y);
+  features.push_back(ebsdlib::Ctf::Z);
+  features.push_back(ebsdlib::Ctf::Bands);
+  features.push_back(ebsdlib::Ctf::Error);
+  features.push_back(ebsdlib::Ctf::Euler1);
+  features.push_back(ebsdlib::Ctf::Euler2);
+  features.push_back(ebsdlib::Ctf::Euler3);
+  features.push_back(ebsdlib::Ctf::MAD);
+  features.push_back(ebsdlib::Ctf::BC);
+  features.push_back(ebsdlib::Ctf::BS);
+  features.push_back(ebsdlib::Ctf::GrainIndex);
+  features.push_back(ebsdlib::Ctf::GrainRandomColourR);
+  features.push_back(ebsdlib::Ctf::GrainRandomColourG);
+  features.push_back(ebsdlib::Ctf::GrainRandomColourB);
 
   return features;
 }

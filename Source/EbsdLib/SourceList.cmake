@@ -59,11 +59,17 @@ include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Texture/SourceList.cmake)
 #-------------------------------------------------------------------------------
 include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Utilities/SourceList.cmake)
 
+#-------------------------------------------------------------------------------
+# Orientation
+#-------------------------------------------------------------------------------
+include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/Orientation/SourceList.cmake)
+
+
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/EbsdLibConfiguration.h.in
   ${EbsdLibProj_BINARY_DIR}/EbsdLib/EbsdLib.h
 )
 
-set(VERSION_GEN_NAMESPACE "EbsdLib")
+set(VERSION_GEN_NAMESPACE "ebsdlib")
 set(VERSION_GEN_NAME "EBSDLIB")
 set(VERSION_GEN_HEADER_FILE_NAME "EbsdLibVersion.h")
 set(VERSION_GEN_VER_MAJOR ${EbsdLibProj_VERSION_MAJOR})

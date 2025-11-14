@@ -40,7 +40,7 @@
 
 #define DECLARE_STRING_CONST(var) const std::string var(#var);
 
-namespace EbsdLib
+namespace ebsdlib
 {
 
 namespace H5Aztec
@@ -278,4 +278,4 @@ const std::string ProcessedPatterns("Processed Patterns");
 
 } // namespace H5OINA
 
-} // namespace EbsdLib
+} // namespace ebsdlib
