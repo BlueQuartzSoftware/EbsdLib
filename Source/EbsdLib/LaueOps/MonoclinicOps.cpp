@@ -57,7 +57,7 @@ using namespace ebsdlib;
 namespace Monoclinic
 {
 
-static const std::array<size_t, 3> OdfNumBins = {72, 36, 72}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> OdfNumBins = {72, 36, 72}; // Represents a 5Deg bin
 
 static const std::array<double, 3> OdfDimInitValue = {std::pow((0.7f * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
                                                       std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
@@ -65,14 +65,14 @@ static const std::array<double, 3> OdfDimInitValue = {std::pow((0.7f * ((ebsdlib
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0]) / 2.0, OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1]) / 2.0,
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2]) / 2.0};
 
-static const int symSize0 = 2;
-static const int symSize1 = 2;
-static const int symSize2 = 2;
+constexpr int symSize0 = 2;
+constexpr int symSize1 = 2;
+constexpr int symSize2 = 2;
 
-static const int k_OdfSize = 186624;
-static const int k_MdfSize = 186624;
-static const int k_SymOpsCount = 2;
-static const int k_NumMdfBins = 36;
+constexpr int k_OdfSize = 186624;
+constexpr int k_MdfSize = 186624;
+constexpr int k_SymOpsCount = 2;
+constexpr int k_NumMdfBins = 36;
 // Rotation Point Group: 2
 /* clang-format off */
 static const std::vector<QuatD> QuatSym ={
@@ -97,9 +97,9 @@ static const double MatSym[k_SymOpsCount][3][3] = {
 };
 /* clang-format on */
 
-static const double k_EtaMin = 0.0;
-static const double k_EtaMax = 180.0;
-static const double k_ChiMax = 90.0;
+constexpr double k_EtaMin = 0.0;
+constexpr double k_EtaMax = 180.0;
+constexpr double k_ChiMax = 90.0;
 } // namespace Monoclinic
 
 // -----------------------------------------------------------------------------
@@ -901,7 +901,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   {
     radius = 1.0F;
     float angle = angles[idx];
-    float rads = angle * M_PI / 180.0f;
+    float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
     float y = radius * (sin(rads));
 

@@ -291,7 +291,7 @@ ebsdlib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(ebsdlib::UInt8A
   {
     radius = 1.0F;
     float angle = angles[idx];
-    float rads = angle * M_PI / 180.0f;
+    float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
     float y = radius * (sin(rads));
 

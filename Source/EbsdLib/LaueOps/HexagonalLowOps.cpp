@@ -57,7 +57,7 @@ using namespace ebsdlib;
 
 namespace HexagonalLow
 {
-static const std::array<size_t, 3> OdfNumBins = {72, 72, 12}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> OdfNumBins = {72, 72, 12}; // Represents a 5Deg bin
 static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
                                                       std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
@@ -65,14 +65,14 @@ static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib:
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
-static const int symSize0 = 2;
-static const int symSize1 = 2;
-static const int symSize2 = 2;
+constexpr int symSize0 = 2;
+constexpr int symSize1 = 2;
+constexpr int symSize2 = 2;
 
-static const int k_OdfSize = 62208;
-static const int k_MdfSize = 62208;
-static const int k_SymOpsCount = 6;
-static const int k_NumMdfBins = 36;
+constexpr int k_OdfSize = 62208;
+constexpr int k_MdfSize = 62208;
+constexpr int k_SymOpsCount = 6;
+constexpr int k_NumMdfBins = 36;
 
 static double sq32 = std::sqrt(3.0) / 2.0;
 
@@ -124,9 +124,9 @@ static const double MatSym[k_SymOpsCount][3][3] = {
 };
 /* clang-format on */
 
-static const double k_EtaMin = 0.0;
-static const double k_EtaMax = 60.0;
-static const double k_ChiMax = 90.0;
+constexpr double k_EtaMin = 0.0;
+constexpr double k_EtaMax = 60.0;
+constexpr double k_ChiMax = 90.0;
 } // namespace HexagonalLow
 
 // -----------------------------------------------------------------------------
@@ -1539,7 +1539,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   {
     radius = 1.0F;
     float angle = angles[idx];
-    float rads = angle * M_PI / 180.0f;
+    float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
     float y = radius * (sin(rads));
 

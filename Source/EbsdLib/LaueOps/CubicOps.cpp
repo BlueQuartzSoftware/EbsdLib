@@ -62,7 +62,7 @@ using namespace ebsdlib;
 namespace CubicHigh
 {
 
-static const std::array<size_t, 3> OdfNumBins = {18, 18, 18}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> OdfNumBins = {18, 18, 18}; // Represents a 5Deg bin
 static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0))};
@@ -70,14 +70,14 @@ static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib:
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
 
-static const int symSize0 = 6;
-static const int symSize1 = 12;
-static const int symSize2 = 8;
+constexpr int symSize0 = 6;
+constexpr int symSize1 = 12;
+constexpr int symSize2 = 8;
 
-static const int k_OdfSize = 5832;
-static const int k_MdfSize = 5832;
-static const int k_SymOpsCount = 24;
-static const int k_NumMdfBins = 13;
+constexpr int k_OdfSize = 5832;
+constexpr int k_MdfSize = 5832;
+constexpr int k_SymOpsCount = 24;
+constexpr int k_NumMdfBins = 13;
 
 static const double SlipDirections[12][3] = {{0.0, 1.0, -1.0}, {1.0, 0.0, -1.0}, {1.0, -1.0, 0.0}, {1.0, -1.0, 0.0}, {1.0, 0.0, 1.0}, {0.0, 1.0, 1.0},
                                              {1.0, 1.0, 0.0},  {0.0, 1.0, 1.0},  {1.0, 0.0, -1.0}, {1.0, 1.0, 0.0},  {1.0, 0.0, 1.0}, {0.0, 1.0, -1.0}};
@@ -240,8 +240,8 @@ static const double MatSym[k_SymOpsCount][3][3] = {
     
 };
 /* clang-format on */
-static const double k_EtaMin = 0.0;
-static const double k_EtaMax = 45.0;
+constexpr double k_EtaMin = 0.0;
+constexpr double k_EtaMax = 45.0;
 
 } // namespace CubicHigh
 
@@ -2057,7 +2057,7 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   {
     radius = 1.0F;
     float angle = angles[idx];
-    float rads = angle * M_PI / 180.0f;
+    float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
     float y = radius * (sin(rads));
 

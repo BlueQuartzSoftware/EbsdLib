@@ -58,21 +58,21 @@ using namespace ebsdlib;
 namespace CubicLow
 {
 
-static const std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
 static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
                                                       std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0))};
 static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0]) / 2.0, OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1]) / 2.0,
                                                       OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2]) / 2.0};
 
-static const int symSize0 = 6;
-static const int symSize1 = 12;
-static const int symSize2 = 8;
+constexpr int symSize0 = 6;
+constexpr int symSize1 = 12;
+constexpr int symSize2 = 8;
 
-static const int k_OdfSize = 46656;
-static const int k_MdfSize = 46656;
-static const int k_SymOpsCount = 12;
-static const int k_NumMdfBins = 18;
+constexpr int k_OdfSize = 46656;
+constexpr int k_MdfSize = 46656;
+constexpr int k_SymOpsCount = 12;
+constexpr int k_NumMdfBins = 18;
 
 // Rotation Point Group: 23
 /* clang-format off */
@@ -157,8 +157,8 @@ static const double MatSym[k_SymOpsCount][3][3] = {
     
 };
 /* clang-format on */
-static const double k_EtaMin = 0.0;
-static const double k_EtaMax = 90.0;
+constexpr double k_EtaMin = 0.0;
+constexpr double k_EtaMax = 90.0;
 } // namespace CubicLow
 
 // -----------------------------------------------------------------------------
