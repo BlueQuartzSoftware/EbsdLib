@@ -243,43 +243,17 @@ RodriguesDType HexagonalLowOps::getRodSymOp(size_t i) const
   return HexagonalLow::RodSym[i];
 }
 
-ebsdlib::Matrix3X3D HexagonalLowOps::getMatSymOpD(int i) const
+Matrix3X3D HexagonalLowOps::getMatSymOpD(int i) const
 {
   return {HexagonalLow::MatSym[i][0][0], HexagonalLow::MatSym[i][0][1], HexagonalLow::MatSym[i][0][2], HexagonalLow::MatSym[i][1][0], HexagonalLow::MatSym[i][1][1],
           HexagonalLow::MatSym[i][1][2], HexagonalLow::MatSym[i][2][0], HexagonalLow::MatSym[i][2][1], HexagonalLow::MatSym[i][2][2]};
 }
 
-ebsdlib::Matrix3X3F HexagonalLowOps::getMatSymOpF(int i) const
+Matrix3X3F HexagonalLowOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(HexagonalLow::MatSym[i][0][0]), static_cast<float>(HexagonalLow::MatSym[i][0][1]), static_cast<float>(HexagonalLow::MatSym[i][0][2]),
           static_cast<float>(HexagonalLow::MatSym[i][1][0]), static_cast<float>(HexagonalLow::MatSym[i][1][1]), static_cast<float>(HexagonalLow::MatSym[i][1][2]),
           static_cast<float>(HexagonalLow::MatSym[i][2][0]), static_cast<float>(HexagonalLow::MatSym[i][2][1]), static_cast<float>(HexagonalLow::MatSym[i][2][2])};
-}
-
-void HexagonalLowOps::getMatSymOp(int i, double g[3][3]) const
-{
-  g[0][0] = HexagonalLow::MatSym[i][0][0];
-  g[0][1] = HexagonalLow::MatSym[i][0][1];
-  g[0][2] = HexagonalLow::MatSym[i][0][2];
-  g[1][0] = HexagonalLow::MatSym[i][1][0];
-  g[1][1] = HexagonalLow::MatSym[i][1][1];
-  g[1][2] = HexagonalLow::MatSym[i][1][2];
-  g[2][0] = HexagonalLow::MatSym[i][2][0];
-  g[2][1] = HexagonalLow::MatSym[i][2][1];
-  g[2][2] = HexagonalLow::MatSym[i][2][2];
-}
-
-void HexagonalLowOps::getMatSymOp(int i, float g[3][3]) const
-{
-  g[0][0] = static_cast<float>(HexagonalLow::MatSym[i][0][0]);
-  g[0][1] = static_cast<float>(HexagonalLow::MatSym[i][0][1]);
-  g[0][2] = static_cast<float>(HexagonalLow::MatSym[i][0][2]);
-  g[1][0] = static_cast<float>(HexagonalLow::MatSym[i][1][0]);
-  g[1][1] = static_cast<float>(HexagonalLow::MatSym[i][1][1]);
-  g[1][2] = static_cast<float>(HexagonalLow::MatSym[i][1][2]);
-  g[2][0] = static_cast<float>(HexagonalLow::MatSym[i][2][0]);
-  g[2][1] = static_cast<float>(HexagonalLow::MatSym[i][2][1]);
-  g[2][2] = static_cast<float>(HexagonalLow::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -837,7 +811,7 @@ double HexagonalLowOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
-   * they could unknowningly get really bad results
+   * they could unknowingly get really bad results
    */
   double g1[3][3];
   double g2[3][3];
@@ -877,7 +851,7 @@ double HexagonalLowOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bo
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
-   * they could unknowningly get really bad results
+   * they could unknowingly get really bad results
    */
   double g1[3][3];
   double g2[3][3];

@@ -167,7 +167,7 @@ public:
    * @param q2 Input Quaternion
    * @return Axis Angle Representation
    */
-  virtual ebsdlib::AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
+  virtual AxisAngleDType calculateMisorientation(const QuatD& q1, const QuatD& q2) const = 0;
 
   /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
@@ -197,10 +197,8 @@ public:
    * @param g The g matrix
    * @return void or a Matrix3X3 object.
    */
-  virtual void getMatSymOp(int i, double g[3][3]) const = 0;
-  virtual void getMatSymOp(int i, float g[3][3]) const = 0;
-  virtual ebsdlib::Matrix3X3F getMatSymOpF(int i) const = 0;
-  virtual ebsdlib::Matrix3X3D getMatSymOpD(int i) const = 0;
+  virtual Matrix3X3F getMatSymOpF(int i) const = 0;
+  virtual Matrix3X3D getMatSymOpD(int i) const = 0;
 
   /**
    * @brief getODFFZRod

@@ -288,44 +288,19 @@ RodriguesDType HexagonalOps::getRodSymOp(size_t i) const
   return HexagonalHigh::RodSym[i];
 }
 
-ebsdlib::Matrix3X3D HexagonalOps::getMatSymOpD(int i) const
+Matrix3X3D HexagonalOps::getMatSymOpD(int i) const
 {
   return {HexagonalHigh::MatSym[i][0][0], HexagonalHigh::MatSym[i][0][1], HexagonalHigh::MatSym[i][0][2], HexagonalHigh::MatSym[i][1][0], HexagonalHigh::MatSym[i][1][1],
           HexagonalHigh::MatSym[i][1][2], HexagonalHigh::MatSym[i][2][0], HexagonalHigh::MatSym[i][2][1], HexagonalHigh::MatSym[i][2][2]};
 }
 
-ebsdlib::Matrix3X3F HexagonalOps::getMatSymOpF(int i) const
+Matrix3X3F HexagonalOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(HexagonalHigh::MatSym[i][0][0]), static_cast<float>(HexagonalHigh::MatSym[i][0][1]), static_cast<float>(HexagonalHigh::MatSym[i][0][2]),
           static_cast<float>(HexagonalHigh::MatSym[i][1][0]), static_cast<float>(HexagonalHigh::MatSym[i][1][1]), static_cast<float>(HexagonalHigh::MatSym[i][1][2]),
           static_cast<float>(HexagonalHigh::MatSym[i][2][0]), static_cast<float>(HexagonalHigh::MatSym[i][2][1]), static_cast<float>(HexagonalHigh::MatSym[i][2][2])};
 }
 
-void HexagonalOps::getMatSymOp(int i, double g[3][3]) const
-{
-  g[0][0] = HexagonalHigh::MatSym[i][0][0];
-  g[0][1] = HexagonalHigh::MatSym[i][0][1];
-  g[0][2] = HexagonalHigh::MatSym[i][0][2];
-  g[1][0] = HexagonalHigh::MatSym[i][1][0];
-  g[1][1] = HexagonalHigh::MatSym[i][1][1];
-  g[1][2] = HexagonalHigh::MatSym[i][1][2];
-  g[2][0] = HexagonalHigh::MatSym[i][2][0];
-  g[2][1] = HexagonalHigh::MatSym[i][2][1];
-  g[2][2] = HexagonalHigh::MatSym[i][2][2];
-}
-
-void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
-{
-  g[0][0] = static_cast<float>(HexagonalHigh::MatSym[i][0][0]);
-  g[0][1] = static_cast<float>(HexagonalHigh::MatSym[i][0][1]);
-  g[0][2] = static_cast<float>(HexagonalHigh::MatSym[i][0][2]);
-  g[1][0] = static_cast<float>(HexagonalHigh::MatSym[i][1][0]);
-  g[1][1] = static_cast<float>(HexagonalHigh::MatSym[i][1][1]);
-  g[1][2] = static_cast<float>(HexagonalHigh::MatSym[i][1][2]);
-  g[2][0] = static_cast<float>(HexagonalHigh::MatSym[i][2][0]);
-  g[2][1] = static_cast<float>(HexagonalHigh::MatSym[i][2][1]);
-  g[2][2] = static_cast<float>(HexagonalHigh::MatSym[i][2][2]);
-}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -883,7 +858,7 @@ double HexagonalOps::getmPrime(const QuatD& q1, const QuatD& q2, double LD[3]) c
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
-   * they could unknowningly get really bad results
+   * they could unknowingly get really bad results
    */
   double g1[3][3];
   double g2[3][3];
@@ -922,7 +897,7 @@ double HexagonalOps::getF1(const QuatD& q1, const QuatD& q2, double LD[3], bool 
   return 0.0;
 #if 0
   /* I am asserting here because this code will simply give junk results and if someone uses it
-   * they could unknowningly get really bad results
+   * they could unknowingly get really bad results
    */
   double g1[3][3];
   double g2[3][3];
@@ -1378,7 +1353,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
-  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
+  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
   ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);

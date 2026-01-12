@@ -276,43 +276,17 @@ RodriguesDType CubicLowOps::getRodSymOp(size_t i) const
   return CubicLow::RodSym[i];
 }
 
-ebsdlib::Matrix3X3D CubicLowOps::getMatSymOpD(int i) const
+Matrix3X3D CubicLowOps::getMatSymOpD(int i) const
 {
   return {CubicLow::MatSym[i][0][0], CubicLow::MatSym[i][0][1], CubicLow::MatSym[i][0][2], CubicLow::MatSym[i][1][0], CubicLow::MatSym[i][1][1],
           CubicLow::MatSym[i][1][2], CubicLow::MatSym[i][2][0], CubicLow::MatSym[i][2][1], CubicLow::MatSym[i][2][2]};
 }
 
-ebsdlib::Matrix3X3F CubicLowOps::getMatSymOpF(int i) const
+Matrix3X3F CubicLowOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(CubicLow::MatSym[i][0][0]), static_cast<float>(CubicLow::MatSym[i][0][1]), static_cast<float>(CubicLow::MatSym[i][0][2]),
           static_cast<float>(CubicLow::MatSym[i][1][0]), static_cast<float>(CubicLow::MatSym[i][1][1]), static_cast<float>(CubicLow::MatSym[i][1][2]),
           static_cast<float>(CubicLow::MatSym[i][2][0]), static_cast<float>(CubicLow::MatSym[i][2][1]), static_cast<float>(CubicLow::MatSym[i][2][2])};
-}
-
-void CubicLowOps::getMatSymOp(int i, double g[3][3]) const
-{
-  g[0][0] = CubicLow::MatSym[i][0][0];
-  g[0][1] = CubicLow::MatSym[i][0][1];
-  g[0][2] = CubicLow::MatSym[i][0][2];
-  g[1][0] = CubicLow::MatSym[i][1][0];
-  g[1][1] = CubicLow::MatSym[i][1][1];
-  g[1][2] = CubicLow::MatSym[i][1][2];
-  g[2][0] = CubicLow::MatSym[i][2][0];
-  g[2][1] = CubicLow::MatSym[i][2][1];
-  g[2][2] = CubicLow::MatSym[i][2][2];
-}
-
-void CubicLowOps::getMatSymOp(int i, float g[3][3]) const
-{
-  g[0][0] = static_cast<float>(CubicLow::MatSym[i][0][0]);
-  g[0][1] = static_cast<float>(CubicLow::MatSym[i][0][1]);
-  g[0][2] = static_cast<float>(CubicLow::MatSym[i][0][2]);
-  g[1][0] = static_cast<float>(CubicLow::MatSym[i][1][0]);
-  g[1][1] = static_cast<float>(CubicLow::MatSym[i][1][1]);
-  g[1][2] = static_cast<float>(CubicLow::MatSym[i][1][2]);
-  g[2][0] = static_cast<float>(CubicLow::MatSym[i][2][0]);
-  g[2][1] = static_cast<float>(CubicLow::MatSym[i][2][1]);
-  g[2][2] = static_cast<float>(CubicLow::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------

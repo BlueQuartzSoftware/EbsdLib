@@ -228,43 +228,17 @@ RodriguesDType OrthoRhombicOps::getRodSymOp(size_t i) const
   return OrthoRhombic::RodSym[i];
 }
 
-ebsdlib::Matrix3X3D OrthoRhombicOps::getMatSymOpD(int i) const
+Matrix3X3D OrthoRhombicOps::getMatSymOpD(int i) const
 {
   return {OrthoRhombic::MatSym[i][0][0], OrthoRhombic::MatSym[i][0][1], OrthoRhombic::MatSym[i][0][2], OrthoRhombic::MatSym[i][1][0], OrthoRhombic::MatSym[i][1][1],
           OrthoRhombic::MatSym[i][1][2], OrthoRhombic::MatSym[i][2][0], OrthoRhombic::MatSym[i][2][1], OrthoRhombic::MatSym[i][2][2]};
 }
 
-ebsdlib::Matrix3X3F OrthoRhombicOps::getMatSymOpF(int i) const
+Matrix3X3F OrthoRhombicOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(OrthoRhombic::MatSym[i][0][0]), static_cast<float>(OrthoRhombic::MatSym[i][0][1]), static_cast<float>(OrthoRhombic::MatSym[i][0][2]),
           static_cast<float>(OrthoRhombic::MatSym[i][1][0]), static_cast<float>(OrthoRhombic::MatSym[i][1][1]), static_cast<float>(OrthoRhombic::MatSym[i][1][2]),
           static_cast<float>(OrthoRhombic::MatSym[i][2][0]), static_cast<float>(OrthoRhombic::MatSym[i][2][1]), static_cast<float>(OrthoRhombic::MatSym[i][2][2])};
-}
-
-void OrthoRhombicOps::getMatSymOp(int i, double g[3][3]) const
-{
-  g[0][0] = OrthoRhombic::MatSym[i][0][0];
-  g[0][1] = OrthoRhombic::MatSym[i][0][1];
-  g[0][2] = OrthoRhombic::MatSym[i][0][2];
-  g[1][0] = OrthoRhombic::MatSym[i][1][0];
-  g[1][1] = OrthoRhombic::MatSym[i][1][1];
-  g[1][2] = OrthoRhombic::MatSym[i][1][2];
-  g[2][0] = OrthoRhombic::MatSym[i][2][0];
-  g[2][1] = OrthoRhombic::MatSym[i][2][1];
-  g[2][2] = OrthoRhombic::MatSym[i][2][2];
-}
-
-void OrthoRhombicOps::getMatSymOp(int i, float g[3][3]) const
-{
-  g[0][0] = static_cast<float>(OrthoRhombic::MatSym[i][0][0]);
-  g[0][1] = static_cast<float>(OrthoRhombic::MatSym[i][0][1]);
-  g[0][2] = static_cast<float>(OrthoRhombic::MatSym[i][0][2]);
-  g[1][0] = static_cast<float>(OrthoRhombic::MatSym[i][1][0]);
-  g[1][1] = static_cast<float>(OrthoRhombic::MatSym[i][1][1]);
-  g[1][2] = static_cast<float>(OrthoRhombic::MatSym[i][1][2]);
-  g[2][0] = static_cast<float>(OrthoRhombic::MatSym[i][2][0]);
-  g[2][1] = static_cast<float>(OrthoRhombic::MatSym[i][2][1]);
-  g[2][2] = static_cast<float>(OrthoRhombic::MatSym[i][2][2]);
 }
 
 // -----------------------------------------------------------------------------

@@ -178,10 +178,8 @@ public:
    * @param i The index from the Symmetry Operator Array to retrieve
    * @return void or a Matrix3X3 object.
    */
-  void getMatSymOp(int i, double g[3][3]) const override;
-  void getMatSymOp(int i, float g[3][3]) const override;
-  ebsdlib::Matrix3X3F getMatSymOpF(int i) const override;
-  ebsdlib::Matrix3X3D getMatSymOpD(int i) const override;
+  Matrix3X3F getMatSymOpF(int i) const override;
+  Matrix3X3D getMatSymOpD(int i) const override;
 
   RodriguesDType getODFFZRod(const RodriguesDType& rod) const override;
   RodriguesDType getMDFFZRod(const RodriguesDType& rod) const override;

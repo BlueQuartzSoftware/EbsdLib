@@ -225,44 +225,19 @@ RodriguesDType TrigonalLowOps::getRodSymOp(size_t i) const
   return TrigonalLow::RodSym[i];
 }
 
-ebsdlib::Matrix3X3D TrigonalLowOps::getMatSymOpD(int i) const
+Matrix3X3D TrigonalLowOps::getMatSymOpD(int i) const
 {
   return {TrigonalLow::MatSym[i][0][0], TrigonalLow::MatSym[i][0][1], TrigonalLow::MatSym[i][0][2], TrigonalLow::MatSym[i][1][0], TrigonalLow::MatSym[i][1][1],
           TrigonalLow::MatSym[i][1][2], TrigonalLow::MatSym[i][2][0], TrigonalLow::MatSym[i][2][1], TrigonalLow::MatSym[i][2][2]};
 }
 
-ebsdlib::Matrix3X3F TrigonalLowOps::getMatSymOpF(int i) const
+Matrix3X3F TrigonalLowOps::getMatSymOpF(int i) const
 {
   return {static_cast<float>(TrigonalLow::MatSym[i][0][0]), static_cast<float>(TrigonalLow::MatSym[i][0][1]), static_cast<float>(TrigonalLow::MatSym[i][0][2]),
           static_cast<float>(TrigonalLow::MatSym[i][1][0]), static_cast<float>(TrigonalLow::MatSym[i][1][1]), static_cast<float>(TrigonalLow::MatSym[i][1][2]),
           static_cast<float>(TrigonalLow::MatSym[i][2][0]), static_cast<float>(TrigonalLow::MatSym[i][2][1]), static_cast<float>(TrigonalLow::MatSym[i][2][2])};
 }
 
-void TrigonalLowOps::getMatSymOp(int i, double g[3][3]) const
-{
-  g[0][0] = TrigonalLow::MatSym[i][0][0];
-  g[0][1] = TrigonalLow::MatSym[i][0][1];
-  g[0][2] = TrigonalLow::MatSym[i][0][2];
-  g[1][0] = TrigonalLow::MatSym[i][1][0];
-  g[1][1] = TrigonalLow::MatSym[i][1][1];
-  g[1][2] = TrigonalLow::MatSym[i][1][2];
-  g[2][0] = TrigonalLow::MatSym[i][2][0];
-  g[2][1] = TrigonalLow::MatSym[i][2][1];
-  g[2][2] = TrigonalLow::MatSym[i][2][2];
-}
-
-void TrigonalLowOps::getMatSymOp(int i, float g[3][3]) const
-{
-  g[0][0] = static_cast<float>(TrigonalLow::MatSym[i][0][0]);
-  g[0][1] = static_cast<float>(TrigonalLow::MatSym[i][0][1]);
-  g[0][2] = static_cast<float>(TrigonalLow::MatSym[i][0][2]);
-  g[1][0] = static_cast<float>(TrigonalLow::MatSym[i][1][0]);
-  g[1][1] = static_cast<float>(TrigonalLow::MatSym[i][1][1]);
-  g[1][2] = static_cast<float>(TrigonalLow::MatSym[i][1][2]);
-  g[2][0] = static_cast<float>(TrigonalLow::MatSym[i][2][0]);
-  g[2][1] = static_cast<float>(TrigonalLow::MatSym[i][2][1]);
-  g[2][2] = static_cast<float>(TrigonalLow::MatSym[i][2][2]);
-}
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
