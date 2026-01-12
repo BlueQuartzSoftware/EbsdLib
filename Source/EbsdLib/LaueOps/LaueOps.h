@@ -132,6 +132,12 @@ public:
   virtual int getNumSymOps() const = 0;
 
   /**
+   * @brief getNumRodriguesSymOps Returns the number of Rodrigues symmetry operators
+   * @return
+   */
+  virtual int getNumRodriguesSymOps() const = 0;
+
+  /**
    * @brief getSymmetryName Returns the name of the symmetry
    * @return
    */
@@ -183,7 +189,7 @@ public:
    * @param i Index of the symmetry operator
    * @param r Pointer to store the Rodrigues vector into.
    */
-  virtual void getRodSymOp(int i, double* r) const = 0;
+  virtual RodriguesDType getRodSymOp(size_t i) const = 0;
 
   /**
    * @brief Retrieves a specific Symmetry Operator for a giving index
@@ -450,7 +456,7 @@ protected:
    * @param rod
    * @return
    */
-  RodriguesDType _calcRodNearestOrigin(const std::vector<RodriguesDType>& rodsym, const RodriguesDType& rod) const;
+  RodriguesDType _calcRodNearestOrigin(const RodriguesDType& rod) const;
 
   /**
    * @brief

@@ -278,11 +278,14 @@ QuatD HexagonalOps::getQuatSymOp(int32_t i) const
   //  q.w = HexagonalHigh::QuatSym[i][3];
 }
 
-void HexagonalOps::getRodSymOp(int i, double* r) const
+int32_t HexagonalOps::getNumRodriguesSymOps() const
 {
-  r[0] = HexagonalHigh::RodSym[i][0];
-  r[1] = HexagonalHigh::RodSym[i][1];
-  r[2] = HexagonalHigh::RodSym[i][2];
+  return HexagonalHigh::RodSym.size();
+}
+
+RodriguesDType HexagonalOps::getRodSymOp(size_t i) const
+{
+  return HexagonalHigh::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D HexagonalOps::getMatSymOpD(int i) const
@@ -328,7 +331,7 @@ void HexagonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(HexagonalHigh::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -340,7 +343,7 @@ RodriguesDType HexagonalOps::getMDFFZRod(const RodriguesDType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   double n1n2mag;
 
-  RodriguesDType rod = _calcRodNearestOrigin(HexagonalHigh::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(inRod);
 
   AxisAngleDType ax = rod.toAxisAngle();
 

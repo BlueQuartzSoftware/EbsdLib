@@ -266,11 +266,14 @@ QuatD CubicLowOps::getQuatSymOp(int32_t i) const
   return CubicLow::QuatSym[i];
 }
 
-void CubicLowOps::getRodSymOp(int i, double* r) const
+int32_t CubicLowOps::getNumRodriguesSymOps() const
 {
-  r[0] = CubicLow::RodSym[i][0];
-  r[1] = CubicLow::RodSym[i][1];
-  r[2] = CubicLow::RodSym[i][2];
+  return CubicLow::RodSym.size();
+}
+
+RodriguesDType CubicLowOps::getRodSymOp(size_t i) const
+{
+  return CubicLow::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D CubicLowOps::getMatSymOpD(int i) const
@@ -317,7 +320,7 @@ void CubicLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType CubicLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(CubicLow::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -325,7 +328,7 @@ RodriguesDType CubicLowOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType CubicLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  RodriguesDType rod = _calcRodNearestOrigin(CubicLow::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(inRod);
   auto ax = rod.toAxisAngle();
 
   double n1 = ax[0];

@@ -218,11 +218,14 @@ QuatD OrthoRhombicOps::getQuatSymOp(int32_t i) const
   return OrthoRhombic::QuatSym[i];
 }
 
-void OrthoRhombicOps::getRodSymOp(int i, double* r) const
+int32_t OrthoRhombicOps::getNumRodriguesSymOps() const
 {
-  r[0] = OrthoRhombic::RodSym[i][0];
-  r[1] = OrthoRhombic::RodSym[i][1];
-  r[2] = OrthoRhombic::RodSym[i][2];
+  return OrthoRhombic::RodSym.size();
+}
+
+RodriguesDType OrthoRhombicOps::getRodSymOp(size_t i) const
+{
+  return OrthoRhombic::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D OrthoRhombicOps::getMatSymOpD(int i) const
@@ -269,7 +272,7 @@ void OrthoRhombicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(OrthoRhombic::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -281,7 +284,7 @@ RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 
   double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
 
-  RodriguesDType rod = _calcRodNearestOrigin(OrthoRhombic::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
   //  double n1 = ax[0];
   //  double n2 = ax[1];

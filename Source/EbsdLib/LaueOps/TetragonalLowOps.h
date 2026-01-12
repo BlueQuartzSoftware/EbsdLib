@@ -152,9 +152,25 @@ public:
    * @return Axis Angle Representation
    */
   // ebsdlib::AxisAngleDType calculateMisorientation(const QuatF& q1, const QuatF& q2) const override;
-
+  /**
+   * @brief getQuatSymOp Returns the symmetry operator at index i
+   * @param i The index into the Symmetry operators array
+   * @return The quaternion symmetry operator
+   */
   QuatD getQuatSymOp(int i) const override;
-  void getRodSymOp(int i, double* r) const override;
+
+  /**
+   * @brief getRodSymOp Returns a Rodrigues vector based on the symmetry operator at index i
+   * @param i Index of the symmetry operator
+   * @param r Pointer to store the Rodrigues vector into.
+   */
+  RodriguesDType getRodSymOp(size_t i) const override;
+
+  /**
+   * @brief getNumRodriguesSymOps Returns the number of Rodrigues symmetry operators
+   * @return
+   */
+  int32_t getNumRodriguesSymOps() const override;
 
   /**
    * @brief Retrieves a specific Symmetry Operator for a giving index

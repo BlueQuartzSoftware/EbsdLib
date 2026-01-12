@@ -209,11 +209,14 @@ QuatD MonoclinicOps::getQuatSymOp(int32_t i) const
   return Monoclinic::QuatSym[i];
 }
 
-void MonoclinicOps::getRodSymOp(int i, double* r) const
+int32_t MonoclinicOps::getNumRodriguesSymOps() const
 {
-  r[0] = Monoclinic::RodSym[i][0];
-  r[1] = Monoclinic::RodSym[i][1];
-  r[2] = Monoclinic::RodSym[i][2];
+  return Monoclinic::RodSym.size();
+}
+
+RodriguesDType MonoclinicOps::getRodSymOp(size_t i) const
+{
+  return Monoclinic::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D MonoclinicOps::getMatSymOpD(int i) const
@@ -260,7 +263,7 @@ void MonoclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType MonoclinicOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(Monoclinic::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -274,7 +277,7 @@ RodriguesDType MonoclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
   //  double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
   //  double FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
   //
-  //  OrientationType rod = LaueOps::_calcRodNearestOrigin(Monoclinic::RodSym, inRod);
+  //  OrientationType rod = LaueOps::_calcRodNearestOrigin(inRod);
   //  AxisAngleDType ax = rod.toAxisAngle();
   //  n1 = ax[0];
   //  n2 = ax[1], n3 = ax[2], w = ax[3];

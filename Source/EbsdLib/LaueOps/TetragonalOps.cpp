@@ -244,11 +244,14 @@ QuatD TetragonalOps::getQuatSymOp(int32_t i) const
   return TetragonalHigh::QuatSym[i];
 }
 
-void TetragonalOps::getRodSymOp(int i, double* r) const
+int32_t TetragonalOps::getNumRodriguesSymOps() const
 {
-  r[0] = TetragonalHigh::RodSym[i][0];
-  r[1] = TetragonalHigh::RodSym[i][1];
-  r[2] = TetragonalHigh::RodSym[i][2];
+  return TetragonalHigh::RodSym.size();
+}
+
+RodriguesDType TetragonalOps::getRodSymOp(size_t i) const
+{
+  return TetragonalHigh::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D TetragonalOps::getMatSymOpD(int i) const
@@ -295,7 +298,7 @@ void TetragonalOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(TetragonalHigh::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -305,7 +308,7 @@ RodriguesDType TetragonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
 
-  RodriguesDType rod = _calcRodNearestOrigin(TetragonalHigh::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(inRod);
 
   AxisAngleDType ax = rod.toAxisAngle();
 

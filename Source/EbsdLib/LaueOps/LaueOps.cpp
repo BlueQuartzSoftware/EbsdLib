@@ -545,7 +545,7 @@ AxisAngleDType LaueOps::calculateMisorientationInternal(const std::vector<QuatD>
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RodriguesDType LaueOps::_calcRodNearestOrigin(const std::vector<RodriguesDType>& rodsym, const RodriguesDType& inRod) const
+RodriguesDType LaueOps::_calcRodNearestOrigin(const RodriguesDType& inRod) const
 {
   double denom = 0.0f, dist = 0.0f;
   double smallestdist = 100000000.0f;
@@ -556,13 +556,18 @@ RodriguesDType LaueOps::_calcRodNearestOrigin(const std::vector<RodriguesDType>&
   rod[0] *= rod[3];
   rod[1] *= rod[3];
   rod[2] *= rod[3];
-  size_t numsym = rodsym.size();
+  size_t numsym = static_cast<size_t>(getNumRodriguesSymOps());
+
   for(size_t i = 0; i < numsym; i++)
   {
-    denom = 1 - (rod[0] * rodsym[i][0] + rod[1] * rodsym[i][1] + rod[2] * rodsym[i][2]);
-    rc1 = (rod[0] + rodsym[i][0] - (rod[1] * rodsym[i][2] - rod[2] * rodsym[i][1])) / denom;
-    rc2 = (rod[1] + rodsym[i][1] - (rod[2] * rodsym[i][0] - rod[0] * rodsym[i][2])) / denom;
-    rc3 = (rod[2] + rodsym[i][2] - (rod[0] * rodsym[i][1] - rod[1] * rodsym[i][0])) / denom;
+    RodriguesDType currentRodSymmetry = getRodSymOp(i);
+    // Convert Rodrigues 4 component into a 3 component
+    std::array<double, 3> symRod = {currentRodSymmetry[0] * currentRodSymmetry[3], currentRodSymmetry[1] * currentRodSymmetry[3], currentRodSymmetry[2] * currentRodSymmetry[3]};
+
+    denom = 1 - (rod[0] * symRod[0] + rod[1] * symRod[1] + rod[2] * symRod[2]);
+    rc1 = (rod[0] + symRod[0] - (rod[1] * symRod[2] - rod[2] * symRod[1])) / denom;
+    rc2 = (rod[1] + symRod[1] - (rod[2] * symRod[0] - rod[0] * symRod[2])) / denom;
+    rc3 = (rod[2] + symRod[2] - (rod[0] * symRod[1] - rod[1] * symRod[0])) / denom;
     dist = rc1 * rc1 + rc2 * rc2 + rc3 * rc3;
     if(dist < smallestdist)
     {
@@ -572,7 +577,7 @@ RodriguesDType LaueOps::_calcRodNearestOrigin(const std::vector<RodriguesDType>&
       outRod[2] = rc3;
     }
   }
-  double mag = sqrt(outRod[0] * outRod[0] + outRod[1] * outRod[1] + outRod[2] * outRod[2]);
+  double mag = std::sqrt(outRod[0] * outRod[0] + outRod[1] * outRod[1] + outRod[2] * outRod[2]);
   if(mag == 0.0f)
   {
     outRod[3] = std::numeric_limits<double>::infinity();

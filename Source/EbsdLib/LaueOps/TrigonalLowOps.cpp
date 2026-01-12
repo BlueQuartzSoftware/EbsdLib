@@ -215,11 +215,14 @@ QuatD TrigonalLowOps::getQuatSymOp(int32_t i) const
   return TrigonalLow::QuatSym[i];
 }
 
-void TrigonalLowOps::getRodSymOp(int i, double* r) const
+int32_t TrigonalLowOps::getNumRodriguesSymOps() const
 {
-  r[0] = TrigonalLow::RodSym[i][0];
-  r[1] = TrigonalLow::RodSym[i][1];
-  r[2] = TrigonalLow::RodSym[i][2];
+  return TrigonalLow::RodSym.size();
+}
+
+RodriguesDType TrigonalLowOps::getRodSymOp(size_t i) const
+{
+  return TrigonalLow::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D TrigonalLowOps::getMatSymOpD(int i) const
@@ -265,7 +268,7 @@ void TrigonalLowOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType TrigonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(TrigonalLow::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -276,7 +279,7 @@ RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
   float n1n2mag = 0.0f;
 
-  RodriguesDType rod = _calcRodNearestOrigin(TrigonalLow::RodSym, inRod);
+  RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
 
   float denom = static_cast<float>(std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]));

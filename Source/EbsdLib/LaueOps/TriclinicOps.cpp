@@ -206,11 +206,14 @@ QuatD TriclinicOps::getQuatSymOp(int32_t i) const
   return Triclinic::QuatSym[i];
 }
 
-void TriclinicOps::getRodSymOp(int i, double* r) const
+int32_t TriclinicOps::getNumRodriguesSymOps() const
 {
-  r[0] = Triclinic::RodSym[i][0];
-  r[1] = Triclinic::RodSym[i][1];
-  r[2] = Triclinic::RodSym[i][2];
+  return Triclinic::RodSym.size();
+}
+
+RodriguesDType TriclinicOps::getRodSymOp(size_t i) const
+{
+  return Triclinic::RodSym[i];
 }
 
 ebsdlib::Matrix3X3D TriclinicOps::getMatSymOpD(int i) const
@@ -256,7 +259,7 @@ void TriclinicOps::getMatSymOp(int i, float g[3][3]) const
 // -----------------------------------------------------------------------------
 RodriguesDType TriclinicOps::getODFFZRod(const RodriguesDType& rod) const
 {
-  return _calcRodNearestOrigin(Triclinic::RodSym, rod);
+  return _calcRodNearestOrigin(rod);
 }
 
 // -----------------------------------------------------------------------------
@@ -266,7 +269,7 @@ RodriguesDType TriclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   throw ebsdlib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
 
-  RodriguesDType rod = LaueOps::_calcRodNearestOrigin(Triclinic::RodSym, inRod);
+  RodriguesDType rod = LaueOps::_calcRodNearestOrigin(inRod);
 
   AxisAngleDType ax = rod.toAxisAngle();
   /// FIXME: Are we missing code for TriclinicOps MDF FZ Rodrigues calculation?
