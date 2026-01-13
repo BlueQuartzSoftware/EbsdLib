@@ -41,8 +41,6 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ComputeStereographicProjection::ComputeStereographicProjection(ebsdlib::FloatArrayType* xyzCoords, PoleFigureConfiguration_t* config, ebsdlib::DoubleArrayType* intensity)
 : m_XYZCoords(xyzCoords)
 , m_Config(config)
@@ -51,12 +49,8 @@ ComputeStereographicProjection::ComputeStereographicProjection(ebsdlib::FloatArr
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ComputeStereographicProjection::~ComputeStereographicProjection() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ComputeStereographicProjection::operator()() const
 {

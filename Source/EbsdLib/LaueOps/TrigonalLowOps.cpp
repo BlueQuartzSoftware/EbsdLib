@@ -58,52 +58,53 @@ using namespace ebsdlib;
 
 namespace TrigonalLow
 {
-constexpr std::array<size_t, 3> OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
-constexpr int symSize0 = 2;
-constexpr int symSize1 = 2;
-constexpr int symSize2 = 2;
+constexpr int k_SymSize0 = 2;
+constexpr int k_SymSize1 = 2;
+constexpr int k_SymSize2 = 2;
 
-constexpr int k_OdfSize = 124416;
-constexpr int k_MdfSize = 124416;
-constexpr int k_SymOpsCount = 3;
+constexpr size_t k_OdfSize = 124416;
+constexpr size_t k_MdfSize = 124416;
+constexpr size_t k_SymOpsCount = 3;
 constexpr int k_NumMdfBins = 12;
 
 static double sq32 = std::sqrt(3.0) / 2.0;
+static const double sqrtThree = std::sqrt(3.0);
 
 // Rotation Point Group: 3
 /* clang-format off */
-static const std::vector<QuatD> QuatSym ={
-    QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(0.0, 0.0, sq32, 0.5),
-    QuatD(0.0, 0.0, sq32, -0.5),
+static const std::vector<QuatD> k_QuatSym ={
+  QuatD(0.0, 0.0, 0.0, 1.0),
+  QuatD(0.0, 0.0, sq32, 0.5),
+  QuatD(0.0, 0.0, sq32, -0.5),
 };
 
-static const std::vector<RodriguesDType> RodSym = {
-    {0.0, 0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0, 1.7320508075688767},
-    {0.0, 0.0, sq32, 10000000000000.0},
+static const std::vector<RodriguesDType> k_RodSym = {
+  {0.0, 0.0, 1.0, 0.0},
+  {0.0, 0.0, 1.0, sqrtThree},
+  {0.0, 0.0, sq32, 10000000000000.0},
 };
 
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, -sq32, 0.0},
-    {sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, sq32, 0.0},
-    {-sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
+static const std::vector<Matrix3X3D> k_MatSym = {
+  {1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, -sq32, 0.0,
+  sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, sq32, 0.0,
+  -sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
 };
 /* clang-format on */
 constexpr double k_EtaMin = -120.0;
@@ -112,17 +113,11 @@ constexpr double k_ChiMax = 90.0;
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TrigonalLowOps::TrigonalLowOps() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TrigonalLowOps::~TrigonalLowOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool TrigonalLowOps::getHasInversion() const
 {
@@ -130,9 +125,7 @@ bool TrigonalLowOps::getHasInversion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TrigonalLowOps::getODFSize() const
+size_t TrigonalLowOps::getODFSize() const
 {
   return TrigonalLow::k_OdfSize;
 }
@@ -140,13 +133,11 @@ int TrigonalLowOps::getODFSize() const
 // -----------------------------------------------------------------------------
 std::array<int32_t, 3> TrigonalLowOps::getNumSymmetry() const
 {
-  return {TrigonalLow::symSize0, TrigonalLow::symSize1, TrigonalLow::symSize2};
+  return {TrigonalLow::k_SymSize0, TrigonalLow::k_SymSize1, TrigonalLow::k_SymSize2};
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TrigonalLowOps::getMDFSize() const
+size_t TrigonalLowOps::getMDFSize() const
 {
   return TrigonalLow::k_MdfSize;
 }
@@ -158,9 +149,7 @@ int TrigonalLowOps::getMdfPlotBins() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TrigonalLowOps::getNumSymOps() const
+size_t TrigonalLowOps::getNumSymOps() const
 {
   return TrigonalLow::k_SymOpsCount;
 }
@@ -168,19 +157,15 @@ int TrigonalLowOps::getNumSymOps() const
 // -----------------------------------------------------------------------------
 std::array<size_t, 3> TrigonalLowOps::getOdfNumBins() const
 {
-  return TrigonalLow::OdfNumBins;
+  return TrigonalLow::k_OdfNumBins;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string TrigonalLowOps::getSymmetryName() const
 {
   return "Trigonal -3 (C3i)";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string TrigonalLowOps::getRotationPointGroup() const
 {
@@ -207,47 +192,42 @@ bool TrigonalLowOps::isInsideFZ(const RodriguesDType& rod) const
 
 AxisAngleDType TrigonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(TrigonalLow::QuatSym, q1, q2);
+  return calculateMisorientationInternal(TrigonalLow::k_QuatSym, q1, q2);
 }
 
-QuatD TrigonalLowOps::getQuatSymOp(int32_t i) const
+QuatD TrigonalLowOps::getQuatSymOp(size_t i) const
 {
-  return TrigonalLow::QuatSym[i];
+  return TrigonalLow::k_QuatSym[i];
 }
 
-int32_t TrigonalLowOps::getNumRodriguesSymOps() const
+size_t TrigonalLowOps::getNumRodriguesSymOps() const
 {
-  return TrigonalLow::RodSym.size();
+  return TrigonalLow::k_RodSym.size();
 }
 
 RodriguesDType TrigonalLowOps::getRodSymOp(size_t i) const
 {
-  return TrigonalLow::RodSym[i];
+  return TrigonalLow::k_RodSym[i];
 }
 
-Matrix3X3D TrigonalLowOps::getMatSymOpD(int i) const
+Matrix3X3D TrigonalLowOps::getMatSymOpD(size_t i) const
 {
-  return {TrigonalLow::MatSym[i][0][0], TrigonalLow::MatSym[i][0][1], TrigonalLow::MatSym[i][0][2], TrigonalLow::MatSym[i][1][0], TrigonalLow::MatSym[i][1][1],
-          TrigonalLow::MatSym[i][1][2], TrigonalLow::MatSym[i][2][0], TrigonalLow::MatSym[i][2][1], TrigonalLow::MatSym[i][2][2]};
+  return TrigonalLow::k_MatSym[i];
 }
 
-Matrix3X3F TrigonalLowOps::getMatSymOpF(int i) const
+Matrix3X3F TrigonalLowOps::getMatSymOpF(size_t i) const
 {
-  return {static_cast<float>(TrigonalLow::MatSym[i][0][0]), static_cast<float>(TrigonalLow::MatSym[i][0][1]), static_cast<float>(TrigonalLow::MatSym[i][0][2]),
-          static_cast<float>(TrigonalLow::MatSym[i][1][0]), static_cast<float>(TrigonalLow::MatSym[i][1][1]), static_cast<float>(TrigonalLow::MatSym[i][1][2]),
-          static_cast<float>(TrigonalLow::MatSym[i][2][0]), static_cast<float>(TrigonalLow::MatSym[i][2][1]), static_cast<float>(TrigonalLow::MatSym[i][2][2])};
+  return {static_cast<float>(TrigonalLow::k_MatSym[i](0, 0)), static_cast<float>(TrigonalLow::k_MatSym[i](0, 1)), static_cast<float>(TrigonalLow::k_MatSym[i](0, 2)),
+          static_cast<float>(TrigonalLow::k_MatSym[i](1, 0)), static_cast<float>(TrigonalLow::k_MatSym[i](1, 1)), static_cast<float>(TrigonalLow::k_MatSym[i](1, 2)),
+          static_cast<float>(TrigonalLow::k_MatSym[i](2, 0)), static_cast<float>(TrigonalLow::k_MatSym[i](2, 1)), static_cast<float>(TrigonalLow::k_MatSym[i](2, 2))};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TrigonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(rod);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
@@ -297,15 +277,13 @@ RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QuatD TrigonalLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(TrigonalLow::QuatSym, q1, q2);
+  return _calcNearestQuat(TrigonalLow::k_QuatSym, q1, q2);
 }
 QuatF TrigonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  return _calcNearestQuat(TrigonalLow::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+  return _calcNearestQuat(TrigonalLow::k_QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -313,11 +291,9 @@ QuatD TrigonalLowOps::getFZQuat(const QuatD& qr) const
 {
   LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
   LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
-  return ConvertToFZ(TrigonalLow::QuatSym, qr, fzType, orderingType);
+  return ConvertToFZ(TrigonalLow::k_QuatSym, qr, fzType, orderingType);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int TrigonalLowOps::getMisoBin(const RodriguesDType& rod) const
 {
@@ -327,21 +303,19 @@ int TrigonalLowOps::getMisoBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = TrigonalLow::OdfDimInitValue[0];
-  dim[1] = TrigonalLow::OdfDimInitValue[1];
-  dim[2] = TrigonalLow::OdfDimInitValue[2];
-  step[0] = TrigonalLow::OdfDimStepValue[0];
-  step[1] = TrigonalLow::OdfDimStepValue[1];
-  step[2] = TrigonalLow::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(TrigonalLow::OdfNumBins[0]);
-  bins[1] = static_cast<double>(TrigonalLow::OdfNumBins[1]);
-  bins[2] = static_cast<double>(TrigonalLow::OdfNumBins[2]);
+  dim[0] = TrigonalLow::k_OdfDimInitValue[0];
+  dim[1] = TrigonalLow::k_OdfDimInitValue[1];
+  dim[2] = TrigonalLow::k_OdfDimInitValue[2];
+  step[0] = TrigonalLow::k_OdfDimStepValue[0];
+  step[1] = TrigonalLow::k_OdfDimStepValue[1];
+  step[2] = TrigonalLow::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(TrigonalLow::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(TrigonalLow::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(TrigonalLow::k_OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) const
 {
@@ -350,15 +324,15 @@ EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) co
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = TrigonalLow::OdfDimInitValue[0];
-  init[1] = TrigonalLow::OdfDimInitValue[1];
-  init[2] = TrigonalLow::OdfDimInitValue[2];
-  step[0] = TrigonalLow::OdfDimStepValue[0];
-  step[1] = TrigonalLow::OdfDimStepValue[1];
-  step[2] = TrigonalLow::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % TrigonalLow::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / TrigonalLow::OdfNumBins[0]) % TrigonalLow::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (TrigonalLow::OdfNumBins[0] * TrigonalLow::OdfNumBins[1]));
+  init[0] = TrigonalLow::k_OdfDimInitValue[0];
+  init[1] = TrigonalLow::k_OdfDimInitValue[1];
+  init[2] = TrigonalLow::k_OdfDimInitValue[2];
+  step[0] = TrigonalLow::k_OdfDimStepValue[0];
+  step[1] = TrigonalLow::k_OdfDimStepValue[1];
+  step[2] = TrigonalLow::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % TrigonalLow::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / TrigonalLow::k_OdfNumBins[0]) % TrigonalLow::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (TrigonalLow::k_OdfNumBins[0] * TrigonalLow::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
@@ -369,18 +343,14 @@ EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) co
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EulerDType TrigonalLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TrigonalLow::k_SymOpsCount);
   QuatD quat = synea.toQuaternion();
-  QuatD qc = TrigonalLow::QuatSym[symOp] * quat;
+  QuatD qc = TrigonalLow::k_QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TrigonalLowOps::determineRodriguesVector(double random[3], int choose) const
 {
@@ -389,15 +359,15 @@ RodriguesDType TrigonalLowOps::determineRodriguesVector(double random[3], int ch
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = TrigonalLow::OdfDimInitValue[0];
-  init[1] = TrigonalLow::OdfDimInitValue[1];
-  init[2] = TrigonalLow::OdfDimInitValue[2];
-  step[0] = TrigonalLow::OdfDimStepValue[0];
-  step[1] = TrigonalLow::OdfDimStepValue[1];
-  step[2] = TrigonalLow::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % TrigonalLow::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / TrigonalLow::OdfNumBins[0]) % TrigonalLow::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (TrigonalLow::OdfNumBins[0] * TrigonalLow::OdfNumBins[1]));
+  init[0] = TrigonalLow::k_OdfDimInitValue[0];
+  init[1] = TrigonalLow::k_OdfDimInitValue[1];
+  init[2] = TrigonalLow::k_OdfDimInitValue[2];
+  step[0] = TrigonalLow::k_OdfDimStepValue[0];
+  step[1] = TrigonalLow::k_OdfDimStepValue[1];
+  step[2] = TrigonalLow::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % TrigonalLow::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / TrigonalLow::k_OdfNumBins[0]) % TrigonalLow::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (TrigonalLow::k_OdfNumBins[0] * TrigonalLow::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
@@ -405,8 +375,6 @@ RodriguesDType TrigonalLowOps::determineRodriguesVector(double random[3], int ch
   return ro;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int TrigonalLowOps::getOdfBin(const RodriguesDType& rod) const
 {
@@ -416,15 +384,15 @@ int TrigonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = TrigonalLow::OdfDimInitValue[0];
-  dim[1] = TrigonalLow::OdfDimInitValue[1];
-  dim[2] = TrigonalLow::OdfDimInitValue[2];
-  step[0] = TrigonalLow::OdfDimStepValue[0];
-  step[1] = TrigonalLow::OdfDimStepValue[1];
-  step[2] = TrigonalLow::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(TrigonalLow::OdfNumBins[0]);
-  bins[1] = static_cast<double>(TrigonalLow::OdfNumBins[1]);
-  bins[2] = static_cast<double>(TrigonalLow::OdfNumBins[2]);
+  dim[0] = TrigonalLow::k_OdfDimInitValue[0];
+  dim[1] = TrigonalLow::k_OdfDimInitValue[1];
+  dim[2] = TrigonalLow::k_OdfDimInitValue[2];
+  step[0] = TrigonalLow::k_OdfDimStepValue[0];
+  step[1] = TrigonalLow::k_OdfDimStepValue[1];
+  step[2] = TrigonalLow::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(TrigonalLow::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(TrigonalLow::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(TrigonalLow::k_OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
 }
@@ -454,21 +422,21 @@ void TrigonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doubl
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = TrigonalLow::MatSym[i][2][0] * plane[0] + TrigonalLow::MatSym[i][2][1] * plane[1] + TrigonalLow::MatSym[i][2][2] * plane[2];
+    slipPlane[2] = TrigonalLow::k_MatSym[i](2, 0) * plane[0] + TrigonalLow::k_MatSym[i](2, 1) * plane[1] + TrigonalLow::k_MatSym[i](2, 2) * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = TrigonalLow::MatSym[i][0][0] * plane[0] + TrigonalLow::MatSym[i][0][1] * plane[1] + TrigonalLow::MatSym[i][0][2] * plane[2];
-      slipPlane[1] = TrigonalLow::MatSym[i][1][0] * plane[0] + TrigonalLow::MatSym[i][1][1] * plane[1] + TrigonalLow::MatSym[i][1][2] * plane[2];
+      slipPlane[0] = TrigonalLow::k_MatSym[i](0, 0) * plane[0] + TrigonalLow::k_MatSym[i](0, 1) * plane[1] + TrigonalLow::k_MatSym[i](0, 2) * plane[2];
+      slipPlane[1] = TrigonalLow::k_MatSym[i](1, 0) * plane[0] + TrigonalLow::k_MatSym[i](1, 1) * plane[1] + TrigonalLow::k_MatSym[i](1, 2) * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = TrigonalLow::MatSym[i][0][0] * direction[0] + TrigonalLow::MatSym[i][0][1] * direction[1] + TrigonalLow::MatSym[i][0][2] * direction[2];
-      slipDirection[1] = TrigonalLow::MatSym[i][1][0] * direction[0] + TrigonalLow::MatSym[i][1][1] * direction[1] + TrigonalLow::MatSym[i][1][2] * direction[2];
-      slipDirection[2] = TrigonalLow::MatSym[i][2][0] * direction[0] + TrigonalLow::MatSym[i][2][1] * direction[1] + TrigonalLow::MatSym[i][2][2] * direction[2];
+      slipDirection[0] = TrigonalLow::k_MatSym[i](0, 0) * direction[0] + TrigonalLow::k_MatSym[i](0, 1) * direction[1] + TrigonalLow::k_MatSym[i](0, 2) * direction[2];
+      slipDirection[1] = TrigonalLow::k_MatSym[i](1, 0) * direction[0] + TrigonalLow::k_MatSym[i](1, 1) * direction[1] + TrigonalLow::k_MatSym[i](1, 2) * direction[2];
+      slipDirection[2] = TrigonalLow::k_MatSym[i](2, 0) * direction[0] + TrigonalLow::k_MatSym[i](2, 1) * direction[1] + TrigonalLow::k_MatSym[i](2, 2) * direction[2];
 
-      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
-      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
+      const double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      const double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
       double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
@@ -501,8 +469,6 @@ double TrigonalLowOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], boo
 {
   return 0.0;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 
 namespace TrigonalLow
@@ -578,24 +544,22 @@ public:
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void TrigonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
   // Sanity Check the size of the arrays
-  if(xyz001->getNumberOfTuples() < nOrientations * TrigonalLow::symSize0)
+  if(xyz001->getNumberOfTuples() < nOrientations * TrigonalLow::k_SymSize0)
   {
-    xyz001->resizeTuples(nOrientations * TrigonalLow::symSize0 * 3);
+    xyz001->resizeTuples(nOrientations * TrigonalLow::k_SymSize0 * 3);
   }
-  if(xyz011->getNumberOfTuples() < nOrientations * TrigonalLow::symSize1)
+  if(xyz011->getNumberOfTuples() < nOrientations * TrigonalLow::k_SymSize1)
   {
-    xyz011->resizeTuples(nOrientations * TrigonalLow::symSize1 * 3);
+    xyz011->resizeTuples(nOrientations * TrigonalLow::k_SymSize1 * 3);
   }
-  if(xyz111->getNumberOfTuples() < nOrientations * TrigonalLow::symSize2)
+  if(xyz111->getNumberOfTuples() < nOrientations * TrigonalLow::k_SymSize2)
   {
-    xyz111->resizeTuples(nOrientations * TrigonalLow::symSize2 * 3);
+    xyz111->resizeTuples(nOrientations * TrigonalLow::k_SymSize2 * 3);
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -619,8 +583,6 @@ std::array<double, 3> TrigonalLowOps::getIpfColorAngleLimits(double eta) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool TrigonalLowOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < (TrigonalLow::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (TrigonalLow::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
@@ -628,15 +590,11 @@ bool TrigonalLowOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb TrigonalLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
@@ -646,13 +604,11 @@ ebsdlib::Rgb TrigonalLowOps::generateIPFColor(double phi1, double phi, double ph
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0f * TrigonalLow::OdfDimInitValue[0];
-  double range2 = 2.0f * TrigonalLow::OdfDimInitValue[1];
-  double range3 = 2.0f * TrigonalLow::OdfDimInitValue[2];
+  double range1 = 2.0f * TrigonalLow::k_OdfDimInitValue[0];
+  double range2 = 2.0f * TrigonalLow::k_OdfDimInitValue[1];
+  double range3 = 2.0f * TrigonalLow::k_OdfDimInitValue[2];
   double max1 = range1 / 2.0f;
   double max2 = range2 / 2.0f;
   double max3 = range3 / 2.0f;
@@ -669,15 +625,11 @@ ebsdlib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::array<std::string, 3> TrigonalLowOps::getDefaultPoleFigureNames() const
 {
   return {"<0001>", "<-1-120>", "<2-1-10>"};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
@@ -704,11 +656,11 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::k_SymSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::k_SymSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TrigonalLow::k_SymSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -716,7 +668,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
-  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
+  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
   ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
@@ -924,10 +876,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
   std::vector<bool> drawAngle = {true, false, false, false, false, false, false, false, true, true, true, true};
-  float radius = 1.0; // Work with a Unit Circle.
+
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0f;
     float angle = angles[idx];
     float rads = angle * ebsdlib::constants::k_PiOver180F;
     float x = radius * (cos(rads));
@@ -1082,13 +1034,13 @@ TrigonalLowOps::Pointer TrigonalLowOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string TrigonalLowOps::getNameOfClass() const
 {
-  return std::string("TrigonalLowOps");
+  return {"TrigonalLowOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string TrigonalLowOps::ClassName()
 {
-  return std::string("TrigonalLowOps");
+  return {"TrigonalLowOps"};
 }
 
 // -----------------------------------------------------------------------------

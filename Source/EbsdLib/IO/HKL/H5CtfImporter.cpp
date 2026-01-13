@@ -104,17 +104,11 @@ using namespace ebsdlib;
   }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5CtfImporter::H5CtfImporter() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5CtfImporter::~H5CtfImporter() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5CtfImporter::getDims(int64_t& x, int64_t& y)
 {
@@ -123,8 +117,6 @@ void H5CtfImporter::getDims(int64_t& x, int64_t& y)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5CtfImporter::getSpacing(float& x, float& y)
 {
   x = xRes;
@@ -132,15 +124,11 @@ void H5CtfImporter::getSpacing(float& x, float& y)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5CtfImporter::numberOfSlicesImported()
 {
   return m_NumSlicesImported;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5CtfImporter::importFile(hid_t fileId, int64_t z, const std::string& ctfFile)
 {
@@ -231,8 +219,6 @@ int H5CtfImporter::importFile(hid_t fileId, int64_t z, const std::string& ctfFil
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int actualSlice)
 {
@@ -376,8 +362,6 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 #define WRITE_PHASE_HEADER_DATA(reader, m_msgType, prpty, key)                                                                                                                                         \
   {                                                                                                                                                                                                    \
     m_msgType t = reader->get##prpty();                                                                                                                                                                \
@@ -426,8 +410,6 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
   }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5CtfImporter::writePhaseData(CtfReader& reader, hid_t phasesGid)
 {
   int err = 0;
@@ -465,8 +447,6 @@ int H5CtfImporter::writePhaseData(CtfReader& reader, hid_t phasesGid)
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5CtfImporter::setFileVersion(uint32_t version)
 {

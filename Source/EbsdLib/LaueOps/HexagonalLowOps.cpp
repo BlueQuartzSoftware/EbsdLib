@@ -57,70 +57,72 @@ using namespace ebsdlib;
 
 namespace HexagonalLow
 {
-constexpr std::array<size_t, 3> OdfNumBins = {72, 72, 12}; // Represents a 5Deg bin
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
+constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 12}; // Represents a 5Deg bin
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
 
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
-constexpr int symSize0 = 2;
-constexpr int symSize1 = 2;
-constexpr int symSize2 = 2;
+constexpr int k_SymSize0 = 2;
+constexpr int k_SymSize1 = 2;
+constexpr int k_SymSize2 = 2;
 
-constexpr int k_OdfSize = 62208;
-constexpr int k_MdfSize = 62208;
-constexpr int k_SymOpsCount = 6;
+constexpr size_t k_OdfSize = 62208;
+constexpr size_t k_MdfSize = 62208;
+constexpr size_t k_SymOpsCount = 6;
 constexpr int k_NumMdfBins = 36;
 
 static double sq32 = std::sqrt(3.0) / 2.0;
+static const double sqrtOneThird = std::sqrt(0.3333333333333333333);
+static const double sqrtThree = std::sqrt(3.0);
 
 // Rotation Point Group: 6
 /* clang-format off */
-static const std::vector<QuatD> QuatSym ={
-    QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(0.0, 0.0, 0.5, sq32),
-    QuatD(0.0, 0.0, sq32, 0.5),
-    QuatD(0.0, 0.0, 1.0, 0.0),
-    QuatD(0.0, 0.0, sq32, -0.5),
-    QuatD(0.0, 0.0, 0.5, -sq32),
+static const std::vector<QuatD> k_QuatSym ={
+  QuatD(0.0, 0.0, 0.0, 1.0),
+  QuatD(0.0, 0.0, 0.5, sq32),
+  QuatD(0.0, 0.0, sq32, 0.5),
+  QuatD(0.0, 0.0, 1.0, 0.0),
+  QuatD(0.0, 0.0, sq32, -0.5),
+  QuatD(0.0, 0.0, 0.5, -sq32),
 };
 
-static const std::vector<RodriguesDType> RodSym = {
-    {0.0, 0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0, 0.5773502691896258},
-    {0.0, 0.0, 1.0, 1.7320508075688767},
-    {0.0, 0.0, 1.0, 10000000000000.0},
-    {0.0, 0.0, sq32, 10000000000000.0},
-    {0.0, 0.0, 0.5, 10000000000000.0},
+static const std::vector<RodriguesDType> k_RodSym = {
+  {0.0, 0.0, 1.0, 0.0},
+  {0.0, 0.0, 1.0, sqrtOneThird},
+  {0.0, 0.0, 1.0, sqrtThree},
+  {0.0, 0.0, 1.0, 10000000000000.0},
+  {0.0, 0.0, sq32, 10000000000000.0},
+  {0.0, 0.0, 0.5, 10000000000000.0},
 };
 
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.5, -sq32, 0.0},
-    {sq32, 0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, -sq32, 0.0},
-    {sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, sq32, 0.0},
-    {-sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.5, sq32, 0.0},
-    {-sq32, 0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
+static const std::vector<Matrix3X3D> k_MatSym = {
+  {1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.5, -sq32, 0.0,
+  sq32, 0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, -sq32, 0.0,
+  sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, sq32, 0.0,
+  -sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.5, sq32, 0.0,
+  -sq32, 0.5, 0.0,
+  0.0, 0.0, 1.0},
+
 };
 /* clang-format on */
 
@@ -130,17 +132,11 @@ constexpr double k_ChiMax = 90.0;
 } // namespace HexagonalLow
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 HexagonalLowOps::HexagonalLowOps() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 HexagonalLowOps::~HexagonalLowOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool HexagonalLowOps::getHasInversion() const
 {
@@ -148,9 +144,7 @@ bool HexagonalLowOps::getHasInversion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalLowOps::getODFSize() const
+size_t HexagonalLowOps::getODFSize() const
 {
   return HexagonalLow::k_OdfSize;
 }
@@ -158,13 +152,11 @@ int HexagonalLowOps::getODFSize() const
 // -----------------------------------------------------------------------------
 std::array<int32_t, 3> HexagonalLowOps::getNumSymmetry() const
 {
-  return {HexagonalLow::symSize0, HexagonalLow::symSize1, HexagonalLow::symSize2};
+  return {HexagonalLow::k_SymSize0, HexagonalLow::k_SymSize1, HexagonalLow::k_SymSize2};
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalLowOps::getMDFSize() const
+size_t HexagonalLowOps::getMDFSize() const
 {
   return HexagonalLow::k_MdfSize;
 }
@@ -176,9 +168,7 @@ int HexagonalLowOps::getMdfPlotBins() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalLowOps::getNumSymOps() const
+size_t HexagonalLowOps::getNumSymOps() const
 {
   return HexagonalLow::k_SymOpsCount;
 }
@@ -186,19 +176,15 @@ int HexagonalLowOps::getNumSymOps() const
 // -----------------------------------------------------------------------------
 std::array<size_t, 3> HexagonalLowOps::getOdfNumBins() const
 {
-  return HexagonalLow::OdfNumBins;
+  return HexagonalLow::k_OdfNumBins;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string HexagonalLowOps::getSymmetryName() const
 {
   return "Hexagonal 6/m (C6h)";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string HexagonalLowOps::getRotationPointGroup() const
 {
@@ -225,47 +211,42 @@ bool HexagonalLowOps::isInsideFZ(const RodriguesDType& rod) const
 
 AxisAngleDType HexagonalLowOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(HexagonalLow::QuatSym, q1, q2);
+  return calculateMisorientationInternal(HexagonalLow::k_QuatSym, q1, q2);
 }
 
-QuatD HexagonalLowOps::getQuatSymOp(int32_t i) const
+QuatD HexagonalLowOps::getQuatSymOp(size_t i) const
 {
-  return HexagonalLow::QuatSym[i];
+  return HexagonalLow::k_QuatSym[i];
 }
 
-int32_t HexagonalLowOps::getNumRodriguesSymOps() const
+size_t HexagonalLowOps::getNumRodriguesSymOps() const
 {
-  return HexagonalLow::RodSym.size();
+  return HexagonalLow::k_RodSym.size();
 }
 
 RodriguesDType HexagonalLowOps::getRodSymOp(size_t i) const
 {
-  return HexagonalLow::RodSym[i];
+  return HexagonalLow::k_RodSym[i];
 }
 
-Matrix3X3D HexagonalLowOps::getMatSymOpD(int i) const
+Matrix3X3D HexagonalLowOps::getMatSymOpD(size_t i) const
 {
-  return {HexagonalLow::MatSym[i][0][0], HexagonalLow::MatSym[i][0][1], HexagonalLow::MatSym[i][0][2], HexagonalLow::MatSym[i][1][0], HexagonalLow::MatSym[i][1][1],
-          HexagonalLow::MatSym[i][1][2], HexagonalLow::MatSym[i][2][0], HexagonalLow::MatSym[i][2][1], HexagonalLow::MatSym[i][2][2]};
+  return HexagonalLow::k_MatSym[i];
 }
 
-Matrix3X3F HexagonalLowOps::getMatSymOpF(int i) const
+Matrix3X3F HexagonalLowOps::getMatSymOpF(size_t i) const
 {
-  return {static_cast<float>(HexagonalLow::MatSym[i][0][0]), static_cast<float>(HexagonalLow::MatSym[i][0][1]), static_cast<float>(HexagonalLow::MatSym[i][0][2]),
-          static_cast<float>(HexagonalLow::MatSym[i][1][0]), static_cast<float>(HexagonalLow::MatSym[i][1][1]), static_cast<float>(HexagonalLow::MatSym[i][1][2]),
-          static_cast<float>(HexagonalLow::MatSym[i][2][0]), static_cast<float>(HexagonalLow::MatSym[i][2][1]), static_cast<float>(HexagonalLow::MatSym[i][2][2])};
+  return {static_cast<float>(HexagonalLow::k_MatSym[i](0, 0)), static_cast<float>(HexagonalLow::k_MatSym[i](0, 1)), static_cast<float>(HexagonalLow::k_MatSym[i](0, 2)),
+          static_cast<float>(HexagonalLow::k_MatSym[i](1, 0)), static_cast<float>(HexagonalLow::k_MatSym[i](1, 1)), static_cast<float>(HexagonalLow::k_MatSym[i](1, 2)),
+          static_cast<float>(HexagonalLow::k_MatSym[i](2, 0)), static_cast<float>(HexagonalLow::k_MatSym[i](2, 1)), static_cast<float>(HexagonalLow::k_MatSym[i](2, 2))};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(rod);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
@@ -321,26 +302,22 @@ RodriguesDType HexagonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 
 QuatD HexagonalLowOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(HexagonalLow::QuatSym, q1, q2);
+  return _calcNearestQuat(HexagonalLow::k_QuatSym, q1, q2);
 }
 
 QuatF HexagonalLowOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  return _calcNearestQuat(HexagonalLow::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+  return _calcNearestQuat(HexagonalLow::k_QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 QuatD HexagonalLowOps::getFZQuat(const QuatD& qr) const
 {
   LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
   LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
-  return ConvertToFZ(HexagonalLow::QuatSym, qr, fzType, orderingType);
+  return ConvertToFZ(HexagonalLow::k_QuatSym, qr, fzType, orderingType);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int HexagonalLowOps::getMisoBin(const RodriguesDType& rod) const
 {
@@ -350,21 +327,19 @@ int HexagonalLowOps::getMisoBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = HexagonalLow::OdfDimInitValue[0];
-  dim[1] = HexagonalLow::OdfDimInitValue[1];
-  dim[2] = HexagonalLow::OdfDimInitValue[2];
-  step[0] = HexagonalLow::OdfDimStepValue[0];
-  step[1] = HexagonalLow::OdfDimStepValue[1];
-  step[2] = HexagonalLow::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(HexagonalLow::OdfNumBins[0]);
-  bins[1] = static_cast<double>(HexagonalLow::OdfNumBins[1]);
-  bins[2] = static_cast<double>(HexagonalLow::OdfNumBins[2]);
+  dim[0] = HexagonalLow::k_OdfDimInitValue[0];
+  dim[1] = HexagonalLow::k_OdfDimInitValue[1];
+  dim[2] = HexagonalLow::k_OdfDimInitValue[2];
+  step[0] = HexagonalLow::k_OdfDimStepValue[0];
+  step[1] = HexagonalLow::k_OdfDimStepValue[1];
+  step[2] = HexagonalLow::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalLow::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalLow::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalLow::k_OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EulerDType HexagonalLowOps::determineEulerAngles(double random[3], int choose) const
 {
@@ -373,15 +348,15 @@ EulerDType HexagonalLowOps::determineEulerAngles(double random[3], int choose) c
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexagonalLow::OdfDimInitValue[0];
-  init[1] = HexagonalLow::OdfDimInitValue[1];
-  init[2] = HexagonalLow::OdfDimInitValue[2];
-  step[0] = HexagonalLow::OdfDimStepValue[0];
-  step[1] = HexagonalLow::OdfDimStepValue[1];
-  step[2] = HexagonalLow::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % HexagonalLow::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / HexagonalLow::OdfNumBins[0]) % HexagonalLow::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (HexagonalLow::OdfNumBins[0] * HexagonalLow::OdfNumBins[1]));
+  init[0] = HexagonalLow::k_OdfDimInitValue[0];
+  init[1] = HexagonalLow::k_OdfDimInitValue[1];
+  init[2] = HexagonalLow::k_OdfDimInitValue[2];
+  step[0] = HexagonalLow::k_OdfDimStepValue[0];
+  step[1] = HexagonalLow::k_OdfDimStepValue[1];
+  step[2] = HexagonalLow::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalLow::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalLow::k_OdfNumBins[0]) % HexagonalLow::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalLow::k_OdfNumBins[0] * HexagonalLow::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
@@ -392,18 +367,14 @@ EulerDType HexagonalLowOps::determineEulerAngles(double random[3], int choose) c
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EulerDType HexagonalLowOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(HexagonalLow::k_SymOpsCount);
   QuatD quat = synea.toQuaternion();
-  QuatD qc = HexagonalLow::QuatSym[symOp] * quat;
+  QuatD qc = HexagonalLow::k_QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalLowOps::determineRodriguesVector(double random[3], int choose) const
 {
@@ -412,15 +383,15 @@ RodriguesDType HexagonalLowOps::determineRodriguesVector(double random[3], int c
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexagonalLow::OdfDimInitValue[0];
-  init[1] = HexagonalLow::OdfDimInitValue[1];
-  init[2] = HexagonalLow::OdfDimInitValue[2];
-  step[0] = HexagonalLow::OdfDimStepValue[0];
-  step[1] = HexagonalLow::OdfDimStepValue[1];
-  step[2] = HexagonalLow::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % HexagonalLow::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / HexagonalLow::OdfNumBins[0]) % HexagonalLow::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (HexagonalLow::OdfNumBins[0] * HexagonalLow::OdfNumBins[1]));
+  init[0] = HexagonalLow::k_OdfDimInitValue[0];
+  init[1] = HexagonalLow::k_OdfDimInitValue[1];
+  init[2] = HexagonalLow::k_OdfDimInitValue[2];
+  step[0] = HexagonalLow::k_OdfDimStepValue[0];
+  step[1] = HexagonalLow::k_OdfDimStepValue[1];
+  step[2] = HexagonalLow::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalLow::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalLow::k_OdfNumBins[0]) % HexagonalLow::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalLow::k_OdfNumBins[0] * HexagonalLow::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
@@ -428,8 +399,6 @@ RodriguesDType HexagonalLowOps::determineRodriguesVector(double random[3], int c
   return ro;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int HexagonalLowOps::getOdfBin(const RodriguesDType& rod) const
 {
@@ -439,15 +408,15 @@ int HexagonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = HexagonalLow::OdfDimInitValue[0];
-  dim[1] = HexagonalLow::OdfDimInitValue[1];
-  dim[2] = HexagonalLow::OdfDimInitValue[2];
-  step[0] = HexagonalLow::OdfDimStepValue[0];
-  step[1] = HexagonalLow::OdfDimStepValue[1];
-  step[2] = HexagonalLow::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(HexagonalLow::OdfNumBins[0]);
-  bins[1] = static_cast<double>(HexagonalLow::OdfNumBins[1]);
-  bins[2] = static_cast<double>(HexagonalLow::OdfNumBins[2]);
+  dim[0] = HexagonalLow::k_OdfDimInitValue[0];
+  dim[1] = HexagonalLow::k_OdfDimInitValue[1];
+  dim[2] = HexagonalLow::k_OdfDimInitValue[2];
+  step[0] = HexagonalLow::k_OdfDimStepValue[0];
+  step[1] = HexagonalLow::k_OdfDimStepValue[1];
+  step[2] = HexagonalLow::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalLow::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalLow::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalLow::k_OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
 }
@@ -778,21 +747,21 @@ void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = HexagonalLow::MatSym[i][2][0] * plane[0] + HexagonalLow::MatSym[i][2][1] * plane[1] + HexagonalLow::MatSym[i][2][2] * plane[2];
+    slipPlane[2] = HexagonalLow::k_MatSym[i](2, 0) * plane[0] + HexagonalLow::k_MatSym[i](2, 1) * plane[1] + HexagonalLow::k_MatSym[i](2, 2) * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = HexagonalLow::MatSym[i][0][0] * plane[0] + HexagonalLow::MatSym[i][0][1] * plane[1] + HexagonalLow::MatSym[i][0][2] * plane[2];
-      slipPlane[1] = HexagonalLow::MatSym[i][1][0] * plane[0] + HexagonalLow::MatSym[i][1][1] * plane[1] + HexagonalLow::MatSym[i][1][2] * plane[2];
+      slipPlane[0] = HexagonalLow::k_MatSym[i](0, 0) * plane[0] + HexagonalLow::k_MatSym[i](0, 1) * plane[1] + HexagonalLow::k_MatSym[i](0, 2) * plane[2];
+      slipPlane[1] = HexagonalLow::k_MatSym[i](1, 0) * plane[0] + HexagonalLow::k_MatSym[i](1, 1) * plane[1] + HexagonalLow::k_MatSym[i](1, 2) * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = HexagonalLow::MatSym[i][0][0] * direction[0] + HexagonalLow::MatSym[i][0][1] * direction[1] + HexagonalLow::MatSym[i][0][2] * direction[2];
-      slipDirection[1] = HexagonalLow::MatSym[i][1][0] * direction[0] + HexagonalLow::MatSym[i][1][1] * direction[1] + HexagonalLow::MatSym[i][1][2] * direction[2];
-      slipDirection[2] = HexagonalLow::MatSym[i][2][0] * direction[0] + HexagonalLow::MatSym[i][2][1] * direction[1] + HexagonalLow::MatSym[i][2][2] * direction[2];
+      slipDirection[0] = HexagonalLow::k_MatSym[i](0, 0) * direction[0] + HexagonalLow::k_MatSym[i](0, 1) * direction[1] + HexagonalLow::k_MatSym[i](0, 2) * direction[2];
+      slipDirection[1] = HexagonalLow::k_MatSym[i](1, 0) * direction[0] + HexagonalLow::k_MatSym[i](1, 1) * direction[1] + HexagonalLow::k_MatSym[i](1, 2) * direction[2];
+      slipDirection[2] = HexagonalLow::k_MatSym[i](2, 0) * direction[0] + HexagonalLow::k_MatSym[i](2, 1) * direction[1] + HexagonalLow::k_MatSym[i](2, 2) * direction[2];
 
-      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
-      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
+      const double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      const double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
       double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
@@ -1066,8 +1035,6 @@ double HexagonalLowOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bo
 #endif
 }
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 
 namespace HexagonalLow
 {
@@ -1161,17 +1128,17 @@ void HexagonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eu
   size_t nOrientations = eulers->getNumberOfTuples();
 
   // Sanity Check the size of the arrays
-  if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalLow::symSize0)
+  if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalLow::k_SymSize0)
   {
-    xyz0001->resizeTuples(nOrientations * HexagonalLow::symSize0 * 3);
+    xyz0001->resizeTuples(nOrientations * HexagonalLow::k_SymSize0 * 3);
   }
-  if(xyz1010->getNumberOfTuples() < nOrientations * HexagonalLow::symSize1)
+  if(xyz1010->getNumberOfTuples() < nOrientations * HexagonalLow::k_SymSize1)
   {
-    xyz1010->resizeTuples(nOrientations * HexagonalLow::symSize1 * 3);
+    xyz1010->resizeTuples(nOrientations * HexagonalLow::k_SymSize1 * 3);
   }
-  if(xyz1120->getNumberOfTuples() < nOrientations * HexagonalLow::symSize2)
+  if(xyz1120->getNumberOfTuples() < nOrientations * HexagonalLow::k_SymSize2)
   {
-    xyz1120->resizeTuples(nOrientations * HexagonalLow::symSize2 * 3);
+    xyz1120->resizeTuples(nOrientations * HexagonalLow::k_SymSize2 * 3);
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -1195,8 +1162,6 @@ std::array<double, 3> HexagonalLowOps::getIpfColorAngleLimits(double eta) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool HexagonalLowOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < (HexagonalLow::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (HexagonalLow::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
@@ -1204,15 +1169,11 @@ bool HexagonalLowOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
@@ -1222,13 +1183,11 @@ ebsdlib::Rgb HexagonalLowOps::generateIPFColor(double phi1, double phi, double p
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0 * HexagonalLow::OdfDimInitValue[0];
-  double range2 = 2.0 * HexagonalLow::OdfDimInitValue[1];
-  double range3 = 2.0 * HexagonalLow::OdfDimInitValue[2];
+  double range1 = 2.0 * HexagonalLow::k_OdfDimInitValue[0];
+  double range2 = 2.0 * HexagonalLow::k_OdfDimInitValue[1];
+  double range3 = 2.0 * HexagonalLow::k_OdfDimInitValue[2];
   double max1 = range1 / 2.0;
   double max2 = range2 / 2.0;
   double max3 = range3 / 2.0;
@@ -1245,15 +1204,11 @@ ebsdlib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, doubl
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalLowOps::getDefaultPoleFigureNames() const
 {
   return {"<0001>", "<11-20>", "<2-1-10>"};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
@@ -1279,11 +1234,11 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::k_SymSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::k_SymSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalLow::k_SymSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0;
 
@@ -1291,7 +1246,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalLowOps::generatePoleFigur
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
-  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
+  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
   ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
@@ -1508,10 +1463,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
   std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false, false, false, false, false};
-  float radius = 1.0; // Work with a Unit Circle.
+
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0f;
     float angle = angles[idx];
     float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
@@ -1667,13 +1622,13 @@ HexagonalLowOps::Pointer HexagonalLowOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string HexagonalLowOps::getNameOfClass() const
 {
-  return std::string("HexagonalLowOps");
+  return {"HexagonalLowOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string HexagonalLowOps::ClassName()
 {
-  return std::string("HexagonalLowOps");
+  return {"HexagonalLowOps"};
 }
 
 // -----------------------------------------------------------------------------

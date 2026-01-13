@@ -40,17 +40,11 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ColorUtilities::ColorUtilities() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ColorUtilities::~ColorUtilities() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
 {
@@ -130,8 +124,6 @@ ebsdlib::Rgb ColorUtilities::ConvertHSVtoRgb(float h, float s, float v)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
 {
   double hh, p, q, t, ff;
@@ -210,8 +202,6 @@ ebsdlib::Rgb ColorUtilities::Hsv2Rgb(float h, float s, float v)
   return ebsdlib::RgbColor::dRgb(static_cast<int>(out.r * 255), static_cast<int>(out.g * 255), static_cast<int>(out.b * 255), 255);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::Rgb> ColorUtilities::GenerateColors(int count, int saturation, int value)
 {

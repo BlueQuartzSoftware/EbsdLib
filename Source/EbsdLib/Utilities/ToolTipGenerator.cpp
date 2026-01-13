@@ -37,20 +37,14 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ToolTipGenerator::ToolTipGenerator() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ToolTipGenerator::~ToolTipGenerator()
 {
   clear();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ToolTipGenerator::addTitle(const std::string& title)
 {
@@ -60,8 +54,6 @@ void ToolTipGenerator::addTitle(const std::string& title)
   m_Rows.push_back(titleRow);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ToolTipGenerator::addValue(const std::string& name, const std::string& value)
 {
@@ -73,8 +65,6 @@ void ToolTipGenerator::addValue(const std::string& name, const std::string& valu
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ToolTipGenerator::addSpacer()
 {
   RowItem spacer;
@@ -82,8 +72,6 @@ void ToolTipGenerator::addSpacer()
   m_Rows.push_back(spacer);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ToolTipGenerator::append(const ToolTipGenerator& other)
 {
@@ -95,15 +83,11 @@ void ToolTipGenerator::append(const ToolTipGenerator& other)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ToolTipGenerator::clear()
 {
   m_Rows.clear();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string ToolTipGenerator::getRowColorStr() const
 {
@@ -111,15 +95,11 @@ std::string ToolTipGenerator::getRowColorStr() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ToolTipGenerator::setRowColorStr(const std::string& color)
 {
   m_RowColorStr = color;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string ToolTipGenerator::generateHTML() const
 {
@@ -145,8 +125,6 @@ std::string ToolTipGenerator::generateHTML() const
   return html;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string ToolTipGenerator::rowToHTML(const RowItem& row) const
 {

@@ -487,7 +487,7 @@ public:
    * THESE ARE THE CRYSTALLOGRAPHIC ORIENTATION CONVERSION METHODS
    * ****************************************************************************/
   /**
-   * @brief Ensures this Quat represents an orientation that is located in the northern hemisphere.
+   * @brief Ensures this Quat represents an orientation that is located in the Northern Hemisphere.
    *
    * NOTE: This is done IN PLACE!!
    */
@@ -503,7 +503,7 @@ public:
   }
 
   /**
-   * @brief Returns a new Quat that represents an orientation that is located in the northern hemisphere
+   * @brief Returns a new Quat that represents an orientation that is located in the Northern Hemisphere
    * @return Copy of Quat
    */
   SelfType getPositiveOrientation() const

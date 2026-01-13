@@ -85,8 +85,6 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestCtfReader", "[EbsdLib][CtfReaderTest]")
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_European", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
@@ -122,8 +120,6 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_European", "[EbsdLib][CtfR
   DREAM3D_REQUIRE(euler3[1] == 0.2423f)
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_US", "[EbsdLib][CtfReaderTest]")
 {
@@ -161,8 +157,6 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_US", "[EbsdLib][CtfReaderT
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::CtfReaderTest::TestCellCountToLarge", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
@@ -172,8 +166,6 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestCellCountToLarge", "[EbsdLib][CtfReaderTe
   DREAM3D_REQUIRED(err, ==, -110)
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::CtfReaderTest::TestShortFile", "[EbsdLib][CtfReaderTest]")
 {

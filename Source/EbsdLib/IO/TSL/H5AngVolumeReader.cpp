@@ -49,8 +49,6 @@ using namespace H5Support;
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5AngVolumeReader::H5AngVolumeReader()
 {
   // Init all the arrays to nullptr
@@ -66,8 +64,6 @@ H5AngVolumeReader::H5AngVolumeReader()
   m_Fit = nullptr;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 H5AngVolumeReader::~H5AngVolumeReader()
 {
@@ -85,8 +81,6 @@ H5AngVolumeReader::~H5AngVolumeReader()
     set##name##Pointer(_##name);                                                                                                                                                                       \
   }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5AngVolumeReader::initPointers(size_t numElements)
 {
@@ -108,8 +102,6 @@ void H5AngVolumeReader::initPointers(size_t numElements)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5AngVolumeReader::deletePointers()
 {
   this->deallocateArrayData<float>(m_Phi1);
@@ -124,8 +116,6 @@ void H5AngVolumeReader::deletePointers()
   this->deallocateArrayData<float>(m_Fit);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void* H5AngVolumeReader::getPointerByName(const std::string& featureName)
 {
@@ -173,8 +163,6 @@ void* H5AngVolumeReader::getPointerByName(const std::string& featureName)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type H5AngVolumeReader::getPointerType(const std::string& featureName)
 {
   if(featureName == ebsdlib::Ang::Phi1)
@@ -220,8 +208,6 @@ ebsdlib::NumericTypes::Type H5AngVolumeReader::getPointerType(const std::string&
   return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
 {
@@ -299,8 +285,6 @@ float H5AngVolumeReader::getYStep()
   return y;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoints, uint32_t ZDir)
 {

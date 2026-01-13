@@ -50,8 +50,6 @@ using namespace H5Support;
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjectionArray::ModifiedLambertProjectionArray()
 : m_Name("")
 {
@@ -59,12 +57,8 @@ ModifiedLambertProjectionArray::ModifiedLambertProjectionArray()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjectionArray::~ModifiedLambertProjectionArray() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::getXdmfTypeAndSize(std::string& xdmfTypeName, int& precision) const
 {
@@ -73,15 +67,11 @@ void ModifiedLambertProjectionArray::getXdmfTypeAndSize(std::string& xdmfTypeNam
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string ModifiedLambertProjectionArray::getTypeAsString() const
 {
   return "ModifiedLambertProjectionArray";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, int rank, const size_t* dims, const std::string& name, bool allocate) const
 {
@@ -89,15 +79,11 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNe
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::createNewArray(size_t numElements, const std::vector<size_t>& dims, const std::string& name, bool allocate) const
 {
   return ModifiedLambertProjectionArray::NullPointer();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool ModifiedLambertProjectionArray::isAllocated() const
 {
@@ -105,15 +91,11 @@ bool ModifiedLambertProjectionArray::isAllocated() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::clearAll()
 {
   m_ModifiedLambertProjectionArray.clear();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::setModifiedLambertProjection(int index, ModifiedLambertProjection::Pointer ModifiedLambertProjection)
 {
@@ -131,8 +113,6 @@ void ModifiedLambertProjectionArray::setModifiedLambertProjection(int index, Mod
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::fillArrayWithNewModifiedLambertProjection(size_t n)
 {
   m_ModifiedLambertProjectionArray.resize(n);
@@ -146,8 +126,6 @@ void ModifiedLambertProjectionArray::fillArrayWithNewModifiedLambertProjection(s
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::getModifiedLambertProjection(int idx)
 {
 #ifndef NDEBUG
@@ -159,8 +137,6 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::getModifiedLa
   return m_ModifiedLambertProjectionArray[idx];
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](size_t idx)
 {
@@ -174,14 +150,10 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjectionArray::operator[](si
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::setName(const std::string& name)
 {
   m_Name = name;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string ModifiedLambertProjectionArray::getName() const
 {
@@ -189,21 +161,15 @@ std::string ModifiedLambertProjectionArray::getName() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::takeOwnership()
 {
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::releaseOwnership()
 {
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void* ModifiedLambertProjectionArray::getVoidPointer(size_t i)
 {
@@ -221,23 +187,17 @@ void* ModifiedLambertProjectionArray::getVoidPointer(size_t i)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 size_t ModifiedLambertProjectionArray::getNumberOfTuples() const
 {
   return m_ModifiedLambertProjectionArray.size();
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 size_t ModifiedLambertProjectionArray::getSize() const
 {
   return m_ModifiedLambertProjectionArray.size();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::SetNumberOfComponents(int nc)
 {
@@ -248,15 +208,11 @@ void ModifiedLambertProjectionArray::SetNumberOfComponents(int nc)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::getNumberOfComponents() const
 {
   return 1;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<size_t> ModifiedLambertProjectionArray::getComponentDimensions() const
 {
@@ -265,14 +221,10 @@ std::vector<size_t> ModifiedLambertProjectionArray::getComponentDimensions() con
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::SetRank(int rnk)
 {
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::getRank() const
 {
@@ -280,15 +232,11 @@ int ModifiedLambertProjectionArray::getRank() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 size_t ModifiedLambertProjectionArray::getTypeSize() const
 {
   return sizeof(ModifiedLambertProjection);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
 {
@@ -341,16 +289,12 @@ int ModifiedLambertProjectionArray::eraseTuples(std::vector<size_t>& idxs)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::copyTuple(size_t currentPos, size_t newPos)
 {
   m_ModifiedLambertProjectionArray[newPos] = m_ModifiedLambertProjectionArray[currentPos];
   return 0;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, ModifiedLambertProjectionArray::Pointer sourceArray, size_t srcTupleOffset, size_t totalSrcTuples)
 {
@@ -396,15 +340,11 @@ bool ModifiedLambertProjectionArray::copyFromArray(size_t destTupleOffset, Modif
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::initializeTuple(size_t i, void* p)
 {
   EBSD_METHOD_NOT_IMPLEMENTED()
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::initializeWithZeros()
 {
@@ -415,8 +355,6 @@ void ModifiedLambertProjectionArray::initializeWithZeros()
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::deepCopy(bool forceNoAllocate) const
 {
@@ -434,8 +372,6 @@ ModifiedLambertProjectionArray::Pointer ModifiedLambertProjectionArray::deepCopy
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int32_t ModifiedLambertProjectionArray::resizeTotalElements(size_t size)
 {
   m_ModifiedLambertProjectionArray.resize(size);
@@ -443,22 +379,16 @@ int32_t ModifiedLambertProjectionArray::resizeTotalElements(size_t size)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::resizeTuples(size_t numTuples)
 {
   resizeTotalElements(numTuples);
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::printTuple(std::stringstream& out, size_t i, char delimiter) const
 {
   EBSD_METHOD_NOT_IMPLEMENTED()
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjectionArray::printComponent(std::stringstream& out, size_t i, int j) const {EBSD_METHOD_NOT_IMPLEMENTED()}
 
@@ -616,8 +546,6 @@ void Create2DExpandableDataset(hid_t gid, const std::string& dsetName, int lambe
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vector<size_t>& tDims) const
 {
   herr_t err = 0;
@@ -659,8 +587,6 @@ int ModifiedLambertProjectionArray::writeH5Data(hid_t parentId, const std::vecto
   err = H5Utilities::closeHDF5Object(gid);
   return err;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 {
@@ -704,16 +630,12 @@ int ModifiedLambertProjectionArray::readH5Data(hid_t parentId)
 #endif
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjectionArray::writeXdmfAttribute(std::stringstream& out, int64_t* volDims, const std::string& hdfFileName, const std::string& groupPath, const std::string& labelb) const
 {
   out << "<!-- Xdmf is not supported for " << getNameOfClass() << " with type " << getTypeAsString() << " --> ";
   return -1;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string ModifiedLambertProjectionArray::getInfoString(ebsdlib::InfoStringFormat format) const
 {
@@ -724,8 +646,6 @@ std::string ModifiedLambertProjectionArray::getInfoString(ebsdlib::InfoStringFor
   return std::string();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::ToolTipGenerator ModifiedLambertProjectionArray::getToolTipGenerator() const
 {

@@ -58,55 +58,55 @@ using namespace ebsdlib;
 
 namespace OrthoRhombic
 {
-constexpr std::array<size_t, 3> OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 36}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
-constexpr int symSize0 = 2;
-constexpr int symSize1 = 2;
-constexpr int symSize2 = 2;
+constexpr int k_SymSize0 = 2;
+constexpr int k_SymSize1 = 2;
+constexpr int k_SymSize2 = 2;
 
-constexpr int k_OdfSize = 46656;
-constexpr int k_MdfSize = 46656;
-constexpr int k_SymOpsCount = 4;
+constexpr size_t k_OdfSize = 46656;
+constexpr size_t k_MdfSize = 46656;
+constexpr size_t k_SymOpsCount = 4;
 constexpr int k_NumMdfBins = 36;
 // Rotation Point Group: 222
 /* clang-format off */
-static const std::vector<QuatD> QuatSym ={
-    QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(1.0, 0.0, 0.0, 0.0),
-    QuatD(0.0, 1.0, 0.0, 0.0),
-    QuatD(0.0, 0.0, 1.0, 0.0),
+static const std::vector<QuatD> k_QuatSym ={
+  QuatD(0.0, 0.0, 0.0, 1.0),
+  QuatD(1.0, 0.0, 0.0, 0.0),
+  QuatD(0.0, 1.0, 0.0, 0.0),
+  QuatD(0.0, 0.0, 1.0, 0.0),
 };
 
-static const std::vector<RodriguesDType> RodSym = {
-    {0.0, 0.0, 1.0, 0.0},
-    {1.0, 0.0, 0.0, 10000000000000.0},
-    {0.0, 1.0, 0.0, 10000000000000.0},
-    {0.0, 0.0, 1.0, 10000000000000.0},
+static const std::vector<RodriguesDType> k_RodSym = {
+  {0.0, 0.0, 1.0, 0.0},
+  {1.0, 0.0, 0.0, 10000000000000.0},
+  {0.0, 1.0, 0.0, 10000000000000.0},
+  {0.0, 0.0, 1.0, 10000000000000.0},
 };
 
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
+static const std::vector<Matrix3X3D> k_MatSym = {
+  {1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, 1.0},
+
 };
 /* clang-format on */
 constexpr double k_EtaMin = 0.0;
@@ -115,17 +115,11 @@ constexpr double k_ChiMax = 90.0;
 } // namespace OrthoRhombic
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 OrthoRhombicOps::OrthoRhombicOps() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 OrthoRhombicOps::~OrthoRhombicOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool OrthoRhombicOps::getHasInversion() const
 {
@@ -133,9 +127,7 @@ bool OrthoRhombicOps::getHasInversion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int OrthoRhombicOps::getODFSize() const
+size_t OrthoRhombicOps::getODFSize() const
 {
   return OrthoRhombic::k_OdfSize;
 }
@@ -143,13 +135,11 @@ int OrthoRhombicOps::getODFSize() const
 // -----------------------------------------------------------------------------
 std::array<int32_t, 3> OrthoRhombicOps::getNumSymmetry() const
 {
-  return {OrthoRhombic::symSize0, OrthoRhombic::symSize1, OrthoRhombic::symSize2};
+  return {OrthoRhombic::k_SymSize0, OrthoRhombic::k_SymSize1, OrthoRhombic::k_SymSize2};
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int OrthoRhombicOps::getMDFSize() const
+size_t OrthoRhombicOps::getMDFSize() const
 {
   return OrthoRhombic::k_MdfSize;
 }
@@ -161,9 +151,7 @@ int OrthoRhombicOps::getMdfPlotBins() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int OrthoRhombicOps::getNumSymOps() const
+size_t OrthoRhombicOps::getNumSymOps() const
 {
   return OrthoRhombic::k_SymOpsCount;
 }
@@ -171,19 +159,15 @@ int OrthoRhombicOps::getNumSymOps() const
 // -----------------------------------------------------------------------------
 std::array<size_t, 3> OrthoRhombicOps::getOdfNumBins() const
 {
-  return OrthoRhombic::OdfNumBins;
+  return OrthoRhombic::k_OdfNumBins;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string OrthoRhombicOps::getSymmetryName() const
 {
   return "Orthorhombic mmm (D2h)";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string OrthoRhombicOps::getRotationPointGroup() const
 {
@@ -210,47 +194,42 @@ bool OrthoRhombicOps::isInsideFZ(const RodriguesDType& rod) const
 
 AxisAngleDType OrthoRhombicOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(OrthoRhombic::QuatSym, q1, q2);
+  return calculateMisorientationInternal(OrthoRhombic::k_QuatSym, q1, q2);
 }
 
-QuatD OrthoRhombicOps::getQuatSymOp(int32_t i) const
+QuatD OrthoRhombicOps::getQuatSymOp(size_t i) const
 {
-  return OrthoRhombic::QuatSym[i];
+  return OrthoRhombic::k_QuatSym[i];
 }
 
-int32_t OrthoRhombicOps::getNumRodriguesSymOps() const
+size_t OrthoRhombicOps::getNumRodriguesSymOps() const
 {
-  return OrthoRhombic::RodSym.size();
+  return OrthoRhombic::k_RodSym.size();
 }
 
 RodriguesDType OrthoRhombicOps::getRodSymOp(size_t i) const
 {
-  return OrthoRhombic::RodSym[i];
+  return OrthoRhombic::k_RodSym[i];
 }
 
-Matrix3X3D OrthoRhombicOps::getMatSymOpD(int i) const
+Matrix3X3D OrthoRhombicOps::getMatSymOpD(size_t i) const
 {
-  return {OrthoRhombic::MatSym[i][0][0], OrthoRhombic::MatSym[i][0][1], OrthoRhombic::MatSym[i][0][2], OrthoRhombic::MatSym[i][1][0], OrthoRhombic::MatSym[i][1][1],
-          OrthoRhombic::MatSym[i][1][2], OrthoRhombic::MatSym[i][2][0], OrthoRhombic::MatSym[i][2][1], OrthoRhombic::MatSym[i][2][2]};
+  return OrthoRhombic::k_MatSym[i];
 }
 
-Matrix3X3F OrthoRhombicOps::getMatSymOpF(int i) const
+Matrix3X3F OrthoRhombicOps::getMatSymOpF(size_t i) const
 {
-  return {static_cast<float>(OrthoRhombic::MatSym[i][0][0]), static_cast<float>(OrthoRhombic::MatSym[i][0][1]), static_cast<float>(OrthoRhombic::MatSym[i][0][2]),
-          static_cast<float>(OrthoRhombic::MatSym[i][1][0]), static_cast<float>(OrthoRhombic::MatSym[i][1][1]), static_cast<float>(OrthoRhombic::MatSym[i][1][2]),
-          static_cast<float>(OrthoRhombic::MatSym[i][2][0]), static_cast<float>(OrthoRhombic::MatSym[i][2][1]), static_cast<float>(OrthoRhombic::MatSym[i][2][2])};
+  return {static_cast<float>(OrthoRhombic::k_MatSym[i](0, 0)), static_cast<float>(OrthoRhombic::k_MatSym[i](0, 1)), static_cast<float>(OrthoRhombic::k_MatSym[i](0, 2)),
+          static_cast<float>(OrthoRhombic::k_MatSym[i](1, 0)), static_cast<float>(OrthoRhombic::k_MatSym[i](1, 1)), static_cast<float>(OrthoRhombic::k_MatSym[i](1, 2)),
+          static_cast<float>(OrthoRhombic::k_MatSym[i](2, 0)), static_cast<float>(OrthoRhombic::k_MatSym[i](2, 1)), static_cast<float>(OrthoRhombic::k_MatSym[i](2, 2))};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(rod);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
@@ -271,16 +250,14 @@ RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QuatD OrthoRhombicOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(OrthoRhombic::QuatSym, q1, q2);
+  return _calcNearestQuat(OrthoRhombic::k_QuatSym, q1, q2);
 }
 
 QuatF OrthoRhombicOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  return _calcNearestQuat(OrthoRhombic::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+  return _calcNearestQuat(OrthoRhombic::k_QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -288,11 +265,9 @@ QuatD OrthoRhombicOps::getFZQuat(const QuatD& qr) const
 {
   LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
   LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
-  return ConvertToFZ(OrthoRhombic::QuatSym, qr, fzType, orderingType);
+  return ConvertToFZ(OrthoRhombic::k_QuatSym, qr, fzType, orderingType);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int OrthoRhombicOps::getMisoBin(const RodriguesDType& rod) const
 {
@@ -301,21 +276,19 @@ int OrthoRhombicOps::getMisoBin(const RodriguesDType& rod) const
   double step[3];
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = OrthoRhombic::OdfDimInitValue[0];
-  dim[1] = OrthoRhombic::OdfDimInitValue[1];
-  dim[2] = OrthoRhombic::OdfDimInitValue[2];
-  step[0] = OrthoRhombic::OdfDimStepValue[0];
-  step[1] = OrthoRhombic::OdfDimStepValue[1];
-  step[2] = OrthoRhombic::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(OrthoRhombic::OdfNumBins[0]);
-  bins[1] = static_cast<double>(OrthoRhombic::OdfNumBins[1]);
-  bins[2] = static_cast<double>(OrthoRhombic::OdfNumBins[2]);
+  dim[0] = OrthoRhombic::k_OdfDimInitValue[0];
+  dim[1] = OrthoRhombic::k_OdfDimInitValue[1];
+  dim[2] = OrthoRhombic::k_OdfDimInitValue[2];
+  step[0] = OrthoRhombic::k_OdfDimStepValue[0];
+  step[1] = OrthoRhombic::k_OdfDimStepValue[1];
+  step[2] = OrthoRhombic::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(OrthoRhombic::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(OrthoRhombic::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(OrthoRhombic::k_OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EulerDType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) const
 {
@@ -324,15 +297,15 @@ EulerDType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) c
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = OrthoRhombic::OdfDimInitValue[0];
-  init[1] = OrthoRhombic::OdfDimInitValue[1];
-  init[2] = OrthoRhombic::OdfDimInitValue[2];
-  step[0] = OrthoRhombic::OdfDimStepValue[0];
-  step[1] = OrthoRhombic::OdfDimStepValue[1];
-  step[2] = OrthoRhombic::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % OrthoRhombic::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / OrthoRhombic::OdfNumBins[0]) % OrthoRhombic::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::OdfNumBins[0] * OrthoRhombic::OdfNumBins[1]));
+  init[0] = OrthoRhombic::k_OdfDimInitValue[0];
+  init[1] = OrthoRhombic::k_OdfDimInitValue[1];
+  init[2] = OrthoRhombic::k_OdfDimInitValue[2];
+  step[0] = OrthoRhombic::k_OdfDimStepValue[0];
+  step[1] = OrthoRhombic::k_OdfDimStepValue[1];
+  step[2] = OrthoRhombic::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % OrthoRhombic::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / OrthoRhombic::k_OdfNumBins[0]) % OrthoRhombic::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::k_OdfNumBins[0] * OrthoRhombic::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
@@ -343,18 +316,14 @@ EulerDType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) c
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EulerDType OrthoRhombicOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(OrthoRhombic::k_SymOpsCount);
   QuatD quat = synea.toQuaternion();
-  QuatD qc = OrthoRhombic::QuatSym[symOp] * quat;
+  QuatD qc = OrthoRhombic::k_QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::determineRodriguesVector(double random[3], int choose) const
 {
@@ -363,15 +332,15 @@ RodriguesDType OrthoRhombicOps::determineRodriguesVector(double random[3], int c
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = OrthoRhombic::OdfDimInitValue[0];
-  init[1] = OrthoRhombic::OdfDimInitValue[1];
-  init[2] = OrthoRhombic::OdfDimInitValue[2];
-  step[0] = OrthoRhombic::OdfDimStepValue[0];
-  step[1] = OrthoRhombic::OdfDimStepValue[1];
-  step[2] = OrthoRhombic::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % OrthoRhombic::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / OrthoRhombic::OdfNumBins[0]) % OrthoRhombic::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::OdfNumBins[0] * OrthoRhombic::OdfNumBins[1]));
+  init[0] = OrthoRhombic::k_OdfDimInitValue[0];
+  init[1] = OrthoRhombic::k_OdfDimInitValue[1];
+  init[2] = OrthoRhombic::k_OdfDimInitValue[2];
+  step[0] = OrthoRhombic::k_OdfDimStepValue[0];
+  step[1] = OrthoRhombic::k_OdfDimStepValue[1];
+  step[2] = OrthoRhombic::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % OrthoRhombic::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / OrthoRhombic::k_OdfNumBins[0]) % OrthoRhombic::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::k_OdfNumBins[0] * OrthoRhombic::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
@@ -379,8 +348,6 @@ RodriguesDType OrthoRhombicOps::determineRodriguesVector(double random[3], int c
   return ro;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int OrthoRhombicOps::getOdfBin(const RodriguesDType& rod) const
 {
@@ -390,15 +357,15 @@ int OrthoRhombicOps::getOdfBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = OrthoRhombic::OdfDimInitValue[0];
-  dim[1] = OrthoRhombic::OdfDimInitValue[1];
-  dim[2] = OrthoRhombic::OdfDimInitValue[2];
-  step[0] = OrthoRhombic::OdfDimStepValue[0];
-  step[1] = OrthoRhombic::OdfDimStepValue[1];
-  step[2] = OrthoRhombic::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(OrthoRhombic::OdfNumBins[0]);
-  bins[1] = static_cast<double>(OrthoRhombic::OdfNumBins[1]);
-  bins[2] = static_cast<double>(OrthoRhombic::OdfNumBins[2]);
+  dim[0] = OrthoRhombic::k_OdfDimInitValue[0];
+  dim[1] = OrthoRhombic::k_OdfDimInitValue[1];
+  dim[2] = OrthoRhombic::k_OdfDimInitValue[2];
+  step[0] = OrthoRhombic::k_OdfDimStepValue[0];
+  step[1] = OrthoRhombic::k_OdfDimStepValue[1];
+  step[2] = OrthoRhombic::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(OrthoRhombic::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(OrthoRhombic::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(OrthoRhombic::k_OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
 }
@@ -428,21 +395,21 @@ void OrthoRhombicOps::getSchmidFactorAndSS(double load[3], double plane[3], doub
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = OrthoRhombic::MatSym[i][2][0] * plane[0] + OrthoRhombic::MatSym[i][2][1] * plane[1] + OrthoRhombic::MatSym[i][2][2] * plane[2];
+    slipPlane[2] = OrthoRhombic::k_MatSym[i](2, 0) * plane[0] + OrthoRhombic::k_MatSym[i](2, 1) * plane[1] + OrthoRhombic::k_MatSym[i](2, 2) * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = OrthoRhombic::MatSym[i][0][0] * plane[0] + OrthoRhombic::MatSym[i][0][1] * plane[1] + OrthoRhombic::MatSym[i][0][2] * plane[2];
-      slipPlane[1] = OrthoRhombic::MatSym[i][1][0] * plane[0] + OrthoRhombic::MatSym[i][1][1] * plane[1] + OrthoRhombic::MatSym[i][1][2] * plane[2];
+      slipPlane[0] = OrthoRhombic::k_MatSym[i](0, 0) * plane[0] + OrthoRhombic::k_MatSym[i](0, 1) * plane[1] + OrthoRhombic::k_MatSym[i](0, 2) * plane[2];
+      slipPlane[1] = OrthoRhombic::k_MatSym[i](1, 0) * plane[0] + OrthoRhombic::k_MatSym[i](1, 1) * plane[1] + OrthoRhombic::k_MatSym[i](1, 2) * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = OrthoRhombic::MatSym[i][0][0] * direction[0] + OrthoRhombic::MatSym[i][0][1] * direction[1] + OrthoRhombic::MatSym[i][0][2] * direction[2];
-      slipDirection[1] = OrthoRhombic::MatSym[i][1][0] * direction[0] + OrthoRhombic::MatSym[i][1][1] * direction[1] + OrthoRhombic::MatSym[i][1][2] * direction[2];
-      slipDirection[2] = OrthoRhombic::MatSym[i][2][0] * direction[0] + OrthoRhombic::MatSym[i][2][1] * direction[1] + OrthoRhombic::MatSym[i][2][2] * direction[2];
+      slipDirection[0] = OrthoRhombic::k_MatSym[i](0, 0) * direction[0] + OrthoRhombic::k_MatSym[i](0, 1) * direction[1] + OrthoRhombic::k_MatSym[i](0, 2) * direction[2];
+      slipDirection[1] = OrthoRhombic::k_MatSym[i](1, 0) * direction[0] + OrthoRhombic::k_MatSym[i](1, 1) * direction[1] + OrthoRhombic::k_MatSym[i](1, 2) * direction[2];
+      slipDirection[2] = OrthoRhombic::k_MatSym[i](2, 0) * direction[0] + OrthoRhombic::k_MatSym[i](2, 1) * direction[1] + OrthoRhombic::k_MatSym[i](2, 2) * direction[2];
 
-      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
-      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
+      const double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      const double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
       double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
@@ -475,8 +442,6 @@ double OrthoRhombicOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bo
 {
   return 0.0;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 
 namespace OrthoRhombic
@@ -551,24 +516,22 @@ public:
 } // namespace OrthoRhombic
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void OrthoRhombicOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
   // Sanity Check the size of the arrays
-  if(xyz001->getNumberOfTuples() < nOrientations * OrthoRhombic::symSize0)
+  if(xyz001->getNumberOfTuples() < nOrientations * OrthoRhombic::k_SymSize0)
   {
-    xyz001->resizeTuples(nOrientations * OrthoRhombic::symSize0 * 3);
+    xyz001->resizeTuples(nOrientations * OrthoRhombic::k_SymSize0 * 3);
   }
-  if(xyz011->getNumberOfTuples() < nOrientations * OrthoRhombic::symSize1)
+  if(xyz011->getNumberOfTuples() < nOrientations * OrthoRhombic::k_SymSize1)
   {
-    xyz011->resizeTuples(nOrientations * OrthoRhombic::symSize1 * 3);
+    xyz011->resizeTuples(nOrientations * OrthoRhombic::k_SymSize1 * 3);
   }
-  if(xyz111->getNumberOfTuples() < nOrientations * OrthoRhombic::symSize2)
+  if(xyz111->getNumberOfTuples() < nOrientations * OrthoRhombic::k_SymSize2)
   {
-    xyz111->resizeTuples(nOrientations * OrthoRhombic::symSize2 * 3);
+    xyz111->resizeTuples(nOrientations * OrthoRhombic::k_SymSize2 * 3);
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -586,8 +549,6 @@ std::array<double, 3> OrthoRhombicOps::getIpfColorAngleLimits(double eta) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool OrthoRhombicOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < (OrthoRhombic::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (OrthoRhombic::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
@@ -595,15 +556,11 @@ bool OrthoRhombicOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb OrthoRhombicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
@@ -613,13 +570,11 @@ ebsdlib::Rgb OrthoRhombicOps::generateIPFColor(double phi1, double phi, double p
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb OrthoRhombicOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0f * OrthoRhombic::OdfDimInitValue[0];
-  double range2 = 2.0f * OrthoRhombic::OdfDimInitValue[1];
-  double range3 = 2.0f * OrthoRhombic::OdfDimInitValue[2];
+  double range1 = 2.0f * OrthoRhombic::k_OdfDimInitValue[0];
+  double range2 = 2.0f * OrthoRhombic::k_OdfDimInitValue[1];
+  double range3 = 2.0f * OrthoRhombic::k_OdfDimInitValue[2];
   double max1 = range1 / 2.0;
   double max2 = range2 / 2.0;
   double max3 = range3 / 2.0;
@@ -636,15 +591,11 @@ ebsdlib::Rgb OrthoRhombicOps::generateRodriguesColor(double r1, double r2, doubl
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::array<std::string, 3> OrthoRhombicOps::getDefaultPoleFigureNames() const
 {
   return {"<001>", "<100>", "<010>"};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
@@ -671,9 +622,9 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigur
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   std::vector<size_t> dims(1, 3);
   std::vector<ebsdlib::FloatArrayType::Pointer> coords(3);
-  coords[0] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize0, dims, label0 + std::string("001_Coords"), true);
-  coords[1] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize1, dims, label1 + std::string("100_Coords"), true);
-  coords[2] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::symSize2, dims, label2 + std::string("010_Coords"), true);
+  coords[0] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::k_SymSize0, dims, label0 + std::string("001_Coords"), true);
+  coords[1] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::k_SymSize1, dims, label1 + std::string("100_Coords"), true);
+  coords[2] = ebsdlib::FloatArrayType::CreateArray(numOrientations * OrthoRhombic::k_SymSize2, dims, label2 + std::string("010_Coords"), true);
 
   config.sphereRadius = 1.0;
 
@@ -681,7 +632,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> OrthoRhombicOps::generatePoleFigur
   generateSphereCoordsFromEulers(config.eulers, coords[0].get(), coords[1].get(), coords[2].get());
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
-  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
+  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
   ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity100 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity010 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
@@ -882,10 +833,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       +0.25F, 0.0F, -0.1F, 0.0F, 0.25F, 0.75F, 1.1F, 1.0F,
   };
   std::vector<bool> drawAngle = {true, true, true, false, false, false, false, false};
-  float radius = 1.0; // Work with a Unit Circle.
+
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0f;
     float angle = angles[idx];
     float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
@@ -1034,13 +985,13 @@ OrthoRhombicOps::Pointer OrthoRhombicOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string OrthoRhombicOps::getNameOfClass() const
 {
-  return std::string("OrthorhombicOps");
+  return {"OrthorhombicOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string OrthoRhombicOps::ClassName()
 {
-  return std::string("OrthorhombicOps");
+  return {"OrthorhombicOps"};
 }
 
 // -----------------------------------------------------------------------------

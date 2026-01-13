@@ -17,15 +17,11 @@
 #include "@VERSION_GEN_HEADER_FILE_NAME@"
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Complete()
 { 
   return std::string("@VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Major()
 { 
@@ -33,15 +29,11 @@ std::string @VERSION_GEN_NAMESPACE@::Version::Major()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Minor()
 { 
   return std::string("@VERSION_GEN_VER_MINOR@");
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Patch()
 { 
@@ -49,15 +41,11 @@ std::string @VERSION_GEN_NAMESPACE@::Version::Patch()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Revision()
 { 
   return std::string("@VERSION_GEN_VER_REVISION@");
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::Package()
 { 
@@ -66,23 +54,17 @@ std::string @VERSION_GEN_NAMESPACE@::Version::Package()
 
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::PackageComplete()
 { 
   return std::string("@PROJECT_PREFIX@ Version @VERSION_GEN_VER_MAJOR@.@VERSION_GEN_VER_MINOR@.@VERSION_GEN_VER_PATCH@.@VERSION_GEN_VER_REVISION@");
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::BuildDate()
 { 
   return std::string("@VERSION_BUILD_DATE@");
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string @VERSION_GEN_NAMESPACE@::Version::GitHash()
 { 

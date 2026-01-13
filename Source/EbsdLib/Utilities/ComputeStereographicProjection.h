@@ -78,7 +78,7 @@ std::vector<ebsdlib::Matrix3X1<T>> TransformUnitSphereToStereographicCoords(cons
 
   for(const auto& point : points)
   {
-    if(point[2] < 0) // project southern hemisphere
+    if(point[2] < 0) // project Southern Hemisphere
     {
       stereoPts.emplace_back(Point3DType{(point[0] / (1.0F - point[2])), (point[1] / (1.0F - point[2])), 0});
     }

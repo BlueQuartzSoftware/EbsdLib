@@ -276,8 +276,6 @@ int H5EspritReader::readFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EspritReader::readHeaderOnly()
 {
   int err = sanityCheckForOpening();
@@ -336,8 +334,6 @@ int H5EspritReader::readHeaderOnly()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EspritReader::readScanNames(std::list<std::string>& names)
 {
   if(getFileName().empty())
@@ -368,8 +364,6 @@ int H5EspritReader::readScanNames(std::list<std::string>& names)
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EspritReader::readHeader(hid_t parId)
 {
@@ -508,8 +502,6 @@ int H5EspritReader::readHeader(hid_t parId)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EspritReader::readData(hid_t parId)
 {
   int err = -1;
@@ -617,8 +609,6 @@ int H5EspritReader::readData(hid_t parId)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5EspritReader::setArraysToRead(const std::set<std::string>& names)
 {
   m_ArrayNames = names;
@@ -626,15 +616,11 @@ void H5EspritReader::setArraysToRead(const std::set<std::string>& names)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5EspritReader::readAllArrays(bool b)
 {
   m_ReadAllArrays = b;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EspritReader::getXDimension()
 {
@@ -642,23 +628,17 @@ int H5EspritReader::getXDimension()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5EspritReader::setXDimension(int xdim)
 {
   setNumColumns(xdim);
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EspritReader::getYDimension()
 {
   return getNumRows();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5EspritReader::setYDimension(int ydim)
 {
@@ -756,8 +736,6 @@ void H5EspritReader::releaseOwnership(const std::string& name)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void* H5EspritReader::getPointerByName(const std::string& featureName)
 {
   //  if(featureName == ebsdlib::H5Esprit::DD)
@@ -832,8 +810,6 @@ void* H5EspritReader::getPointerByName(const std::string& featureName)
   return nullptr;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type H5EspritReader::getPointerType(const std::string& featureName)
 {

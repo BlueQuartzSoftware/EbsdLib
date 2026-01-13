@@ -1531,8 +1531,6 @@ T* EbsdDataArray<T>::resizeAndExtend(size_t size)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 #if !defined(__APPLE__) && !defined(_MSC_VER)
 #undef EbsdLib_EXPORT
 #define EbsdLib_EXPORT

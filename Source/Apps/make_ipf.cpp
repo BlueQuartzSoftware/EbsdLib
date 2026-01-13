@@ -9,7 +9,6 @@
 #include "EbsdLib/IO/TSL/AngPhase.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
@@ -26,7 +25,7 @@ using namespace ebsdlib;
 class GenerateIPFColorsImpl
 {
 public:
-  GenerateIPFColorsImpl(FloatVec3Type& referenceDir, const std::vector<float>& eulers, int32_t* phases, std::vector<AngPhase::Pointer>& crystalStructures, bool* goodVoxels, uint8_t* colors)
+  GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, std::vector<AngPhase::Pointer>& crystalStructures, bool* goodVoxels, uint8_t* colors)
   : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
@@ -96,7 +95,7 @@ public:
   }
 
 private:
-  FloatVec3Type m_ReferenceDir;
+  Matrix3X1F m_ReferenceDir;
   const std::vector<float>& m_CellEulerAngles;
   int32_t* m_CellPhases;
   std::vector<AngPhase::Pointer> m_PhaseInfos;
@@ -119,7 +118,7 @@ public:
   Ang2IPF& operator=(const Ang2IPF&) = delete; // Copy Assignment Not Implemented
   Ang2IPF& operator=(Ang2IPF&&) = delete;      // Move Assignment Not Implemented
 
-  std::array<float, 3> m_ReferenceDir = {0.0F, 0.0F, 1.0F};
+  Matrix3X1F m_ReferenceDir = {0.0f, 0.0f, 1.0f};
 
   /**
    * @brief incrementPhaseWarningCount
@@ -152,8 +151,7 @@ public:
     // int32_t numPhase = static_cast<int32_t>(crystalStructures.size());
 
     // Make sure we are dealing with a unit 1 vector.
-    std::array<float, 3> normRefDir = m_ReferenceDir; // Make a copy of the reference Direction
-    ebsdlib::EbsdMatrixMath::Normalize3x1(normRefDir[0], normRefDir[1], normRefDir[2]);
+    Matrix3X1F normRefDir = m_ReferenceDir.normalize(); // Make a copy of the reference Direction and normalize it
 
     float* phi1Ptr = reader.getPhi1Pointer(false);
     float* phiPtr = reader.getPhiPointer(false);

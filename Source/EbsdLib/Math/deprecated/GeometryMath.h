@@ -33,27 +33,34 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "EbsdMatrixMath.h"
+#pragma once
 
-#include "EbsdLib/Math/EbsdLibMath.h"
-using namespace ebsdlib;
+#error DEPRECATED
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-ebsdlib::EbsdMatrixMath::EbsdMatrixMath() = default;
+#include "EbsdLib/EbsdLib.h"
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-ebsdlib::EbsdMatrixMath::~EbsdMatrixMath() = default;
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ebsdlib::EbsdMatrixMath::Multiply3x3with3x1(const double g1[3][3], const double g2[3], float outMat[3])
+namespace ebsdlib
 {
-  outMat[0] = static_cast<float>(g1[0][0] * g2[0] + g1[0][1] * g2[1] + g1[0][2] * g2[2]);
-  outMat[1] = static_cast<float>(g1[1][0] * g2[0] + g1[1][1] * g2[1] + g1[1][2] * g2[2]);
-  outMat[2] = static_cast<float>(g1[2][0] * g2[0] + g1[2][1] * g2[1] + g1[2][2] * g2[2]);
-}
+/*
+ * @class GeometryMath GeometryMath.h DREAM3DLib/Common/GeometryMath.h
+ * @brief This class performs Crystallographic Misorientation Calculations
+ * @author Michael A. Jackson (BlueQuartz Software)
+ * @author Michael A. Groeber (US Air Force Research Laboratory)
+ * @date Feb 19, 2011
+ * @version 1.0
+ */
+namespace GeometryMath
+{
+/**
+ * @brief Calculates the Cosine of the angle between 2 vectors. To get the actual angle the programmer should
+ * use the following form: float radians = acos(GeometryMath::CosThetaBetweenVectors(a, b));
+ * @deprecated You should probably be using the Matrix3X1 instead if possible
+ * @param a 1x3 Vector
+ * @param b 1x3 Vector
+ * @return
+ */
+EbsdLib_EXPORT float CosThetaBetweenVectors(const float a[3], const float b[3]);
+EbsdLib_EXPORT double CosThetaBetweenVectors(const double a[3], const double b[3]);
+
+} // namespace GeometryMath
+} // namespace ebsdlib

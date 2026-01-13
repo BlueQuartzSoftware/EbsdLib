@@ -79,8 +79,6 @@ static int SizeOfFailed = 6;
 
 #if 0
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::stringstream& operator<<(std::stringstream& out, const DataArrayPath& v)
 {
   out << v.getDataContainerName() << "|" << v.getAttributeMatrixName() << "|" << v.getDataArrayName();
@@ -88,8 +86,6 @@ std::stringstream& operator<<(std::stringstream& out, const DataArrayPath& v)
 }
 #endif
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 class TestException : public std::exception
 {
@@ -201,8 +197,6 @@ private:
 };
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 inline void TestPassed(const std::string& test)
 {
   ::memset(ebsdlib::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
@@ -224,8 +218,6 @@ inline void TestPassed(const std::string& test)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 inline void TestFailed(const std::string& test)
 {
   ::memset(ebsdlib::unittest::TestMessage, ' ', NUM_COLS); // Splat Spaces across the entire message
@@ -246,8 +238,6 @@ inline void TestFailed(const std::string& test)
   ebsdlib::unittest::numTestFailed++;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 #define INFINITYCHECK 1
 #define SIGNCHECK 1
@@ -497,8 +487,6 @@ inline bool AlmostEqualUlpsFinal(float* A, float* B, int maxUlps)
   }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 template <typename T, typename K>
 void require_equal(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)
 {
@@ -515,8 +503,6 @@ void require_equal(T l, const std::string& L, K r, const std::string& R, const s
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 template <typename T, typename K>
 void require_less_than(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)
 {
@@ -531,8 +517,6 @@ void require_less_than(T l, const std::string& L, K r, const std::string& R, con
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 template <typename T, typename K>
 void require_greater_than(T l, const std::string& L, K r, const std::string& R, const std::string file = "", int line = 0)

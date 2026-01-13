@@ -35,7 +35,6 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/Math/EbsdMatrixMath.h"
 #include "EbsdLib/Math/Matrix3X1.hpp"
 #include "EbsdLib/Math/Matrix3X3.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
@@ -67,9 +66,9 @@ TEST_CASE("ebsdlib::QuaternionTest::TestEbsdMatrixMath", "[EbsdLib][QuaternionTe
   }
 
   {
-    std::array<float, 3> dir = {1.0f, 2.0f, 3.0f};
-    ebsdlib::EbsdMatrixMath::Normalize3x1(dir.data());
-    ebsdlib::EbsdMatrixMath::Multiply3x1withConstant(dir.data(), -1.0f);
+    Matrix3X1F dir = {1.0f, 2.0f, 3.0f};
+    dir = dir.normalize();
+    dir = dir * -1.0f;
   }
 }
 

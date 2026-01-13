@@ -52,8 +52,6 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void makeTestFile(const std::string delim, const std::string& outputFile)
 {
   int count = 1000;

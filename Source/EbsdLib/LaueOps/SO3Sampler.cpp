@@ -96,12 +96,8 @@ static const int FZoarray[32] = {NoAxisOrder,        NoAxisOrder,        TwoFold
                                  SixFoldAxisOrder,   SixFoldAxisOrder,   SixFoldAxisOrder,   NoAxisOrder,        NoAxisOrder,       NoAxisOrder,       NoAxisOrder,       NoAxisOrder};
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 SO3Sampler::SO3Sampler() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 SO3Sampler::~SO3Sampler() = default;
 

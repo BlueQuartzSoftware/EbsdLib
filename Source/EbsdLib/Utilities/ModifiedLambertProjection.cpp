@@ -63,8 +63,6 @@ double calcInterpolatedValue(const ModifiedLambertProjection& self, const std::a
 } // namespace
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjection::ModifiedLambertProjection()
 : m_Dimension(0)
 , m_StepSize(0.0f)
@@ -75,12 +73,8 @@ ModifiedLambertProjection::ModifiedLambertProjection()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ModifiedLambertProjection::~ModifiedLambertProjection() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquare(ebsdlib::FloatArrayType* coords, int dimension, float sphereRadius)
 {
@@ -147,8 +141,6 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 {
   m_Dimension = dims;
@@ -174,8 +166,6 @@ void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 }
 #ifdef DATA_ARRAY_ENABLE_HDF5_IO
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 {
   int err = -1;
@@ -190,8 +180,6 @@ int ModifiedLambertProjection::writeHDF5Data(hid_t groupId)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
 {
   int err = -1;
@@ -199,8 +187,6 @@ int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
 }
 
 #endif
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCoord, double value)
 {
@@ -293,8 +279,6 @@ void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCo
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjection::addValue(Square square, int index, double value)
 {
   if(square == NorthSquare)
@@ -310,8 +294,6 @@ void ModifiedLambertProjection::addValue(Square square, int index, double value)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjection::setValue(Square square, int index, double value)
 {
   if(square == NorthSquare)
@@ -325,8 +307,6 @@ void ModifiedLambertProjection::setValue(Square square, int index, double value)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 double ModifiedLambertProjection::getValue(Square square, int index)
 {
   if(square == NorthSquare)
@@ -337,8 +317,6 @@ double ModifiedLambertProjection::getValue(Square square, int index)
   return m_SouthSquare->getValue(index);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 double ModifiedLambertProjection::getInterpolatedValue(Square square, const float* sqCoord) const
 {
@@ -421,8 +399,6 @@ double ModifiedLambertProjection::getInterpolatedValue(Square square, const floa
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool ModifiedLambertProjection::getSquareCoord(const float* xyz, float* sqCoord) const
 {
   bool nhCheck = false;
@@ -463,8 +439,6 @@ bool ModifiedLambertProjection::getSquareCoord(const float* xyz, float* sqCoord)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int ModifiedLambertProjection::getSquareIndex(float* sqCoord)
 {
   int x = (int)((sqCoord[0] + m_MaxCoord) / m_StepSize);
@@ -490,8 +464,6 @@ int ModifiedLambertProjection::getSquareIndex(float* sqCoord)
   return index;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::normalizeSquares()
 {
@@ -521,8 +493,6 @@ void ModifiedLambertProjection::normalizeSquares()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ModifiedLambertProjection::normalizeSquaresToMRD()
 {
   // First Normalize the squares
@@ -540,8 +510,6 @@ void ModifiedLambertProjection::normalizeSquaresToMRD()
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::createStereographicProjection(int dim, ebsdlib::DoubleArrayType& stereoIntensity)
 {
@@ -587,8 +555,6 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, ebsdlib::
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
 {

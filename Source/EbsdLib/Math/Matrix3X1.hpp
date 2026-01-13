@@ -87,7 +87,7 @@ public:
    * @param rhs
    * @return result
    */
-  SelfType operator+(const SelfType& rhs)
+  SelfType operator+(const SelfType& rhs) const
   {
     return {m_Data[0] + rhs[0], m_Data[1] + rhs[1], m_Data[2] + rhs[2]};
   }
@@ -97,7 +97,7 @@ public:
    * @param rhs
    * @return result
    */
-  SelfType operator+(T scalar)
+  SelfType operator+(T scalar) const
   {
     return {m_Data[0] + scalar, m_Data[1] + scalar, m_Data[2] + scalar};
   }
@@ -107,7 +107,7 @@ public:
    * @param rhs
    * @return outMat result
    */
-  SelfType operator-(const SelfType& rhs)
+  SelfType operator-(const SelfType& rhs) const
   {
     return {m_Data[0] - rhs[0], m_Data[1] - rhs[1], m_Data[2] - rhs[2]};
   }
@@ -126,7 +126,7 @@ public:
    * @return Matrix3X1 (1,0,0);
    */
 
-  Matrix3X1 identity()
+  Matrix3X1 identity() const
   {
     return {1.0f, 0.0f, 0.0f};
   }
@@ -253,7 +253,7 @@ public:
   /**
    * @brief Returns index of maximum value.
    */
-  size_t maxValueIndex()
+  size_t maxValueIndex() const
   {
     float a = fabs(m_Data[0]);
     float b = fabs(m_Data[1]);

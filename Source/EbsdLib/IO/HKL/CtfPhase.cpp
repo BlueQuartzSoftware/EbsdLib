@@ -41,8 +41,6 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CtfPhase::CtfPhase()
 : m_PhaseIndex(-1)
 , m_LaueGroup(ebsdlib::Ctf::LaueGroupTable::LG_Cubic_Low)
@@ -52,12 +50,8 @@ CtfPhase::CtfPhase()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CtfPhase::~CtfPhase() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CtfPhase::convertEuropeanDecimals(std::string& line)
 {
@@ -71,8 +65,6 @@ void CtfPhase::convertEuropeanDecimals(std::string& line)
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CtfPhase::parsePhase(const std::string& line)
 {
@@ -114,8 +106,6 @@ void CtfPhase::parsePhase(const std::string& line)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CtfPhase::printSelf(std::ostream& stream)
 {
   stream << ebsdlib::Ctf::LatticeConstants << " " << m_LatticeConstants[0] << ", " << m_LatticeConstants[1] << ", " << m_LatticeConstants[2] << " " << m_LatticeConstants[3] << ", "
@@ -128,8 +118,6 @@ void CtfPhase::printSelf(std::ostream& stream)
   stream << ebsdlib::Ctf::Comment << " " << m_Comment << std::endl;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 unsigned int CtfPhase::determineOrientationOpsIndex()
 {
@@ -167,8 +155,6 @@ unsigned int CtfPhase::determineOrientationOpsIndex()
   return ebsdlib::CrystalStructure::UnknownCrystalStructure;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string CtfPhase::getMaterialName()
 {

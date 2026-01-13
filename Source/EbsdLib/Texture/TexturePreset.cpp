@@ -39,19 +39,13 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TexturePreset::TexturePreset() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 TexturePreset::~TexturePreset() = default;
 
 #define ADD_NEW_TEXTURE(name, xtal, e1, e2, e3) textures.push_back(TexturePreset::New(xtal, name, e1, e2, e3));
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
 {
@@ -73,8 +67,6 @@ std::vector<TexturePreset::Pointer> CubicTexturePresets::getTextures()
   return textures;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<TexturePreset::Pointer> HexTexturePresets::getTextures()
 {

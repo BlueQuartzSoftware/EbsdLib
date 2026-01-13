@@ -59,110 +59,111 @@ using namespace ebsdlib;
 
 namespace HexagonalHigh
 {
-constexpr std::array<size_t, 3> OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
-constexpr int symSize0 = 2;
-constexpr int symSize1 = 6;
-constexpr int symSize2 = 6;
+constexpr int k_SymSize0 = 2;
+constexpr int k_SymSize1 = 6;
+constexpr int k_SymSize2 = 6;
 
-constexpr int k_OdfSize = 15552;
-constexpr int k_MdfSize = 15552;
-constexpr int k_SymOpsCount = 12;
+constexpr size_t k_OdfSize = 15552;
+constexpr size_t k_MdfSize = 15552;
+constexpr size_t k_SymOpsCount = 12;
 constexpr int k_NumMdfBins = 20;
 
 static double sq32 = std::sqrt(3.0) / 2.0;
+static const double sqrtOneThird = std::sqrt(0.3333333333333333333);
+static const double sqrtThree = std::sqrt(3.0);
+
 // Rotation Point Group: 622
 /* clang-format off */
-static const std::vector<QuatD> QuatSym ={
-    QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(0.0, 0.0, 0.5, sq32),
-    QuatD(0.0, 0.0, sq32, 0.5),
-    QuatD(0.0, 0.0, 1.0, 0.0),
-    QuatD(0.0, 0.0, sq32, -0.5),
-    QuatD(0.0, 0.0, 0.5, -sq32),
-    QuatD(1.0, 0.0, 0.0, 0.0),
-    QuatD(sq32, 0.5, 0.0, 0.0),
-    QuatD(0.5, sq32, 0.0, 0.0),
-    QuatD(0.0, 1.0, 0.0, 0.0),
-    QuatD(-0.5, sq32, 0.0, 0.0),
-    QuatD(-sq32, 0.5, 0.0, 0.0),
+static const std::vector<QuatD> k_QuatSym ={
+  QuatD(0.0, 0.0, 0.0, 1.0),
+  QuatD(0.0, 0.0, 0.5, sq32),
+  QuatD(0.0, 0.0, sq32, 0.5),
+  QuatD(0.0, 0.0, 1.0, 0.0),
+  QuatD(0.0, 0.0, sq32, -0.5),
+  QuatD(0.0, 0.0, 0.5, -sq32),
+  QuatD(1.0, 0.0, 0.0, 0.0),
+  QuatD(sq32, 0.5, 0.0, 0.0),
+  QuatD(0.5, sq32, 0.0, 0.0),
+  QuatD(0.0, 1.0, 0.0, 0.0),
+  QuatD(-0.5, sq32, 0.0, 0.0),
+  QuatD(-sq32, 0.5, 0.0, 0.0),
 };
 
-static const std::vector<RodriguesDType> RodSym = {
-    {0.0, 0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0, 0.5773502691896258},
-    {0.0, 0.0, 1.0, 1.7320508075688767},
-
-    {0.0, 0.0, 1.0, 10000000000000.0},
-    {0.0, 0.0, sq32, 10000000000000.0},
-    {0.0, 0.0, 0.5, 10000000000000.0},
-
-    {1.0, 0.0, 0.0, 10000000000000.0},
-    {sq32, 0.5, 0.0, 10000000000000.0},
-    {0.5, sq32, 0.0, 10000000000000.0},
-
-    {0.0, 1.0, 0.0, 10000000000000.0},
-    {-0.5, sq32, 0.0, 10000000000000.0},
-    {-sq32, 0.5, 0.0, 10000000000000.0},
+static const std::vector<RodriguesDType> k_RodSym = {
+  {0.0, 0.0, 1.0, 0.0},
+  {0.0, 0.0, 1.0, sqrtOneThird},
+  {0.0, 0.0, 1.0, sqrtThree},
+  {0.0, 0.0, 1.0, 10000000000000.0},
+  {0.0, 0.0, sq32, 10000000000000.0},
+  {0.0, 0.0, 0.5, 10000000000000.0},
+  {1.0, 0.0, 0.0, 10000000000000.0},
+  {sq32, 0.5, 0.0, 10000000000000.0},
+  {0.5, sq32, 0.0, 10000000000000.0},
+  {0.0, 1.0, 0.0, 10000000000000.0},
+  {-0.5, sq32, 0.0, 10000000000000.0},
+  {-sq32, 0.5, 0.0, 10000000000000.0},
 };
 
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.5, -sq32, 0.0},
-    {sq32, 0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, -sq32, 0.0},
-    {sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-0.5, sq32, 0.0},
-    {-sq32, -0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.5, sq32, 0.0},
-    {-sq32, 0.5, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{0.5, sq32, 0.0},
-    {sq32, -0.5, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-0.5, sq32, 0.0},
-    {sq32, 0.5, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-0.5, -sq32, 0.0},
-    {-sq32, 0.5, 0.0},
-    {-0.0, 0.0, -1.0}},
-    
-    {{0.5, -sq32, 0.0},
-    {-sq32, -0.5, 0.0},
-    {-0.0, 0.0, -1.0}},
-    
+static const std::vector<Matrix3X3D> k_MatSym = {
+  {1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.5, -sq32, 0.0,
+  sq32, 0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, -sq32, 0.0,
+  sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-0.5, sq32, 0.0,
+  -sq32, -0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.5, sq32, 0.0,
+  -sq32, 0.5, 0.0,
+  0.0, 0.0, 1.0},
+
+  {1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {0.5, sq32, 0.0,
+  sq32, -0.5, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-0.5, sq32, 0.0,
+  sq32, 0.5, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-0.5, -sq32, 0.0,
+  -sq32, 0.5, 0.0,
+  -0.0, 0.0, -1.0},
+
+  {0.5, -sq32, 0.0,
+  -sq32, -0.5, 0.0,
+  -0.0, 0.0, -1.0},
+
 };
 /* clang-format on */
+
 constexpr double k_EtaMin = 0.0;
 constexpr double k_EtaMax = 30.0;
 constexpr double k_ChiMax = 90.0;
@@ -170,17 +171,11 @@ constexpr double k_ChiMax = 90.0;
 } // namespace HexagonalHigh
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 HexagonalOps::HexagonalOps() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 HexagonalOps::~HexagonalOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool HexagonalOps::getHasInversion() const
 {
@@ -188,9 +183,7 @@ bool HexagonalOps::getHasInversion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalOps::getODFSize() const
+size_t HexagonalOps::getODFSize() const
 {
   return HexagonalHigh::k_OdfSize;
 }
@@ -198,13 +191,11 @@ int HexagonalOps::getODFSize() const
 // -----------------------------------------------------------------------------
 std::array<int32_t, 3> HexagonalOps::getNumSymmetry() const
 {
-  return {HexagonalHigh::symSize0, HexagonalHigh::symSize1, HexagonalHigh::symSize2};
+  return {HexagonalHigh::k_SymSize0, HexagonalHigh::k_SymSize1, HexagonalHigh::k_SymSize2};
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalOps::getMDFSize() const
+size_t HexagonalOps::getMDFSize() const
 {
   return HexagonalHigh::k_MdfSize;
 }
@@ -216,9 +207,7 @@ int HexagonalOps::getMdfPlotBins() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int HexagonalOps::getNumSymOps() const
+size_t HexagonalOps::getNumSymOps() const
 {
   return HexagonalHigh::k_SymOpsCount;
 }
@@ -226,19 +215,15 @@ int HexagonalOps::getNumSymOps() const
 // -----------------------------------------------------------------------------
 std::array<size_t, 3> HexagonalOps::getOdfNumBins() const
 {
-  return HexagonalHigh::OdfNumBins;
+  return HexagonalHigh::k_OdfNumBins;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string HexagonalOps::getSymmetryName() const
 {
   return "Hexagonal 6/mmm (D6h)";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string HexagonalOps::getRotationPointGroup() const
 {
@@ -266,51 +251,46 @@ bool HexagonalOps::isInsideFZ(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 AxisAngleDType HexagonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(HexagonalHigh::QuatSym, q1, q2);
+  return calculateMisorientationInternal(HexagonalHigh::k_QuatSym, q1, q2);
 }
 
-QuatD HexagonalOps::getQuatSymOp(int32_t i) const
+QuatD HexagonalOps::getQuatSymOp(size_t i) const
 {
-  return HexagonalHigh::QuatSym[i];
-  //  q.x = HexagonalHigh::QuatSym[i][0];
-  //  q.y = HexagonalHigh::QuatSym[i][1];
-  //  q.z = HexagonalHigh::QuatSym[i][2];
-  //  q.w = HexagonalHigh::QuatSym[i][3];
+  return HexagonalHigh::k_QuatSym[i];
+  //  q.x = HexagonalHigh::k_QuatSym[i][0];
+  //  q.y = HexagonalHigh::k_QuatSym[i][1];
+  //  q.z = HexagonalHigh::k_QuatSym[i][2];
+  //  q.w = HexagonalHigh::k_QuatSym[i][3];
 }
 
-int32_t HexagonalOps::getNumRodriguesSymOps() const
+size_t HexagonalOps::getNumRodriguesSymOps() const
 {
-  return HexagonalHigh::RodSym.size();
+  return HexagonalHigh::k_RodSym.size();
 }
 
 RodriguesDType HexagonalOps::getRodSymOp(size_t i) const
 {
-  return HexagonalHigh::RodSym[i];
+  return HexagonalHigh::k_RodSym[i];
 }
 
-Matrix3X3D HexagonalOps::getMatSymOpD(int i) const
+Matrix3X3D HexagonalOps::getMatSymOpD(size_t i) const
 {
-  return {HexagonalHigh::MatSym[i][0][0], HexagonalHigh::MatSym[i][0][1], HexagonalHigh::MatSym[i][0][2], HexagonalHigh::MatSym[i][1][0], HexagonalHigh::MatSym[i][1][1],
-          HexagonalHigh::MatSym[i][1][2], HexagonalHigh::MatSym[i][2][0], HexagonalHigh::MatSym[i][2][1], HexagonalHigh::MatSym[i][2][2]};
+  return HexagonalHigh::k_MatSym[i];
 }
 
-Matrix3X3F HexagonalOps::getMatSymOpF(int i) const
+Matrix3X3F HexagonalOps::getMatSymOpF(size_t i) const
 {
-  return {static_cast<float>(HexagonalHigh::MatSym[i][0][0]), static_cast<float>(HexagonalHigh::MatSym[i][0][1]), static_cast<float>(HexagonalHigh::MatSym[i][0][2]),
-          static_cast<float>(HexagonalHigh::MatSym[i][1][0]), static_cast<float>(HexagonalHigh::MatSym[i][1][1]), static_cast<float>(HexagonalHigh::MatSym[i][1][2]),
-          static_cast<float>(HexagonalHigh::MatSym[i][2][0]), static_cast<float>(HexagonalHigh::MatSym[i][2][1]), static_cast<float>(HexagonalHigh::MatSym[i][2][2])};
+  return {static_cast<float>(HexagonalHigh::k_MatSym[i](0, 0)), static_cast<float>(HexagonalHigh::k_MatSym[i](0, 1)), static_cast<float>(HexagonalHigh::k_MatSym[i](0, 2)),
+          static_cast<float>(HexagonalHigh::k_MatSym[i](1, 0)), static_cast<float>(HexagonalHigh::k_MatSym[i](1, 1)), static_cast<float>(HexagonalHigh::k_MatSym[i](1, 2)),
+          static_cast<float>(HexagonalHigh::k_MatSym[i](2, 0)), static_cast<float>(HexagonalHigh::k_MatSym[i](2, 1)), static_cast<float>(HexagonalHigh::k_MatSym[i](2, 2))};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(rod);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
@@ -367,26 +347,22 @@ RodriguesDType HexagonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 
 QuatD HexagonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(HexagonalHigh::QuatSym, q1, q2);
+  return _calcNearestQuat(HexagonalHigh::k_QuatSym, q1, q2);
 }
 
 QuatF HexagonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  return _calcNearestQuat(HexagonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+  return _calcNearestQuat(HexagonalHigh::k_QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 QuatD HexagonalOps::getFZQuat(const QuatD& qr) const
 {
   LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
   LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
-  return ConvertToFZ(HexagonalHigh::QuatSym, qr, fzType, orderingType);
+  return ConvertToFZ(HexagonalHigh::k_QuatSym, qr, fzType, orderingType);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int HexagonalOps::getMisoBin(const RodriguesDType& rod) const
 {
@@ -396,21 +372,19 @@ int HexagonalOps::getMisoBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = HexagonalHigh::OdfDimInitValue[0];
-  dim[1] = HexagonalHigh::OdfDimInitValue[1];
-  dim[2] = HexagonalHigh::OdfDimInitValue[2];
-  step[0] = HexagonalHigh::OdfDimStepValue[0];
-  step[1] = HexagonalHigh::OdfDimStepValue[1];
-  step[2] = HexagonalHigh::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(HexagonalHigh::OdfNumBins[0]);
-  bins[1] = static_cast<double>(HexagonalHigh::OdfNumBins[1]);
-  bins[2] = static_cast<double>(HexagonalHigh::OdfNumBins[2]);
+  dim[0] = HexagonalHigh::k_OdfDimInitValue[0];
+  dim[1] = HexagonalHigh::k_OdfDimInitValue[1];
+  dim[2] = HexagonalHigh::k_OdfDimInitValue[2];
+  step[0] = HexagonalHigh::k_OdfDimStepValue[0];
+  step[1] = HexagonalHigh::k_OdfDimStepValue[1];
+  step[2] = HexagonalHigh::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalHigh::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalHigh::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalHigh::k_OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EulerDType HexagonalOps::determineEulerAngles(double random[3], int choose) const
 {
@@ -419,15 +393,15 @@ EulerDType HexagonalOps::determineEulerAngles(double random[3], int choose) cons
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexagonalHigh::OdfDimInitValue[0];
-  init[1] = HexagonalHigh::OdfDimInitValue[1];
-  init[2] = HexagonalHigh::OdfDimInitValue[2];
-  step[0] = HexagonalHigh::OdfDimStepValue[0];
-  step[1] = HexagonalHigh::OdfDimStepValue[1];
-  step[2] = HexagonalHigh::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::OdfNumBins[0]) % HexagonalHigh::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::OdfNumBins[0] * HexagonalHigh::OdfNumBins[1]));
+  init[0] = HexagonalHigh::k_OdfDimInitValue[0];
+  init[1] = HexagonalHigh::k_OdfDimInitValue[1];
+  init[2] = HexagonalHigh::k_OdfDimInitValue[2];
+  step[0] = HexagonalHigh::k_OdfDimStepValue[0];
+  step[1] = HexagonalHigh::k_OdfDimStepValue[1];
+  step[2] = HexagonalHigh::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::k_OdfNumBins[0]) % HexagonalHigh::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::k_OdfNumBins[0] * HexagonalHigh::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
@@ -438,18 +412,14 @@ EulerDType HexagonalOps::determineEulerAngles(double random[3], int choose) cons
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EulerDType HexagonalOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(HexagonalHigh::k_SymOpsCount);
   QuatD quat = synea.toQuaternion();
-  QuatD qc = HexagonalHigh::QuatSym[symOp] * quat;
+  QuatD qc = HexagonalHigh::k_QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType HexagonalOps::determineRodriguesVector(double random[3], int choose) const
 {
@@ -458,15 +428,15 @@ RodriguesDType HexagonalOps::determineRodriguesVector(double random[3], int choo
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = HexagonalHigh::OdfDimInitValue[0];
-  init[1] = HexagonalHigh::OdfDimInitValue[1];
-  init[2] = HexagonalHigh::OdfDimInitValue[2];
-  step[0] = HexagonalHigh::OdfDimStepValue[0];
-  step[1] = HexagonalHigh::OdfDimStepValue[1];
-  step[2] = HexagonalHigh::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::OdfNumBins[0]) % HexagonalHigh::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::OdfNumBins[0] * HexagonalHigh::OdfNumBins[1]));
+  init[0] = HexagonalHigh::k_OdfDimInitValue[0];
+  init[1] = HexagonalHigh::k_OdfDimInitValue[1];
+  init[2] = HexagonalHigh::k_OdfDimInitValue[2];
+  step[0] = HexagonalHigh::k_OdfDimStepValue[0];
+  step[1] = HexagonalHigh::k_OdfDimStepValue[1];
+  step[2] = HexagonalHigh::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % HexagonalHigh::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / HexagonalHigh::k_OdfNumBins[0]) % HexagonalHigh::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::k_OdfNumBins[0] * HexagonalHigh::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
@@ -474,8 +444,6 @@ RodriguesDType HexagonalOps::determineRodriguesVector(double random[3], int choo
   return ro;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int HexagonalOps::getOdfBin(const RodriguesDType& rod) const
 {
@@ -485,15 +453,15 @@ int HexagonalOps::getOdfBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = HexagonalHigh::OdfDimInitValue[0];
-  dim[1] = HexagonalHigh::OdfDimInitValue[1];
-  dim[2] = HexagonalHigh::OdfDimInitValue[2];
-  step[0] = HexagonalHigh::OdfDimStepValue[0];
-  step[1] = HexagonalHigh::OdfDimStepValue[1];
-  step[2] = HexagonalHigh::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(HexagonalHigh::OdfNumBins[0]);
-  bins[1] = static_cast<double>(HexagonalHigh::OdfNumBins[1]);
-  bins[2] = static_cast<double>(HexagonalHigh::OdfNumBins[2]);
+  dim[0] = HexagonalHigh::k_OdfDimInitValue[0];
+  dim[1] = HexagonalHigh::k_OdfDimInitValue[1];
+  dim[2] = HexagonalHigh::k_OdfDimInitValue[2];
+  step[0] = HexagonalHigh::k_OdfDimStepValue[0];
+  step[1] = HexagonalHigh::k_OdfDimStepValue[1];
+  step[2] = HexagonalHigh::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(HexagonalHigh::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(HexagonalHigh::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(HexagonalHigh::k_OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
 }
@@ -825,21 +793,21 @@ void HexagonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double 
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = HexagonalHigh::MatSym[i][2][0] * plane[0] + HexagonalHigh::MatSym[i][2][1] * plane[1] + HexagonalHigh::MatSym[i][2][2] * plane[2];
+    slipPlane[2] = HexagonalHigh::k_MatSym[i](2, 0) * plane[0] + HexagonalHigh::k_MatSym[i](2, 1) * plane[1] + HexagonalHigh::k_MatSym[i](2, 2) * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = HexagonalHigh::MatSym[i][0][0] * plane[0] + HexagonalHigh::MatSym[i][0][1] * plane[1] + HexagonalHigh::MatSym[i][0][2] * plane[2];
-      slipPlane[1] = HexagonalHigh::MatSym[i][1][0] * plane[0] + HexagonalHigh::MatSym[i][1][1] * plane[1] + HexagonalHigh::MatSym[i][1][2] * plane[2];
+      slipPlane[0] = HexagonalHigh::k_MatSym[i](0, 0) * plane[0] + HexagonalHigh::k_MatSym[i](0, 1) * plane[1] + HexagonalHigh::k_MatSym[i](0, 2) * plane[2];
+      slipPlane[1] = HexagonalHigh::k_MatSym[i](1, 0) * plane[0] + HexagonalHigh::k_MatSym[i](1, 1) * plane[1] + HexagonalHigh::k_MatSym[i](1, 2) * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = HexagonalHigh::MatSym[i][0][0] * direction[0] + HexagonalHigh::MatSym[i][0][1] * direction[1] + HexagonalHigh::MatSym[i][0][2] * direction[2];
-      slipDirection[1] = HexagonalHigh::MatSym[i][1][0] * direction[0] + HexagonalHigh::MatSym[i][1][1] * direction[1] + HexagonalHigh::MatSym[i][1][2] * direction[2];
-      slipDirection[2] = HexagonalHigh::MatSym[i][2][0] * direction[0] + HexagonalHigh::MatSym[i][2][1] * direction[1] + HexagonalHigh::MatSym[i][2][2] * direction[2];
+      slipDirection[0] = HexagonalHigh::k_MatSym[i](0, 0) * direction[0] + HexagonalHigh::k_MatSym[i](0, 1) * direction[1] + HexagonalHigh::k_MatSym[i](0, 2) * direction[2];
+      slipDirection[1] = HexagonalHigh::k_MatSym[i](1, 0) * direction[0] + HexagonalHigh::k_MatSym[i](1, 1) * direction[1] + HexagonalHigh::k_MatSym[i](1, 2) * direction[2];
+      slipDirection[2] = HexagonalHigh::k_MatSym[i](2, 0) * direction[0] + HexagonalHigh::k_MatSym[i](2, 1) * direction[1] + HexagonalHigh::k_MatSym[i](2, 2) * direction[2];
 
-      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
-      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
+      const double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      const double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
       double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
@@ -1112,8 +1080,6 @@ double HexagonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool 
 #endif
 }
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 namespace HexagonalHigh
 {
 class GenerateSphereCoordsImpl
@@ -1215,24 +1181,22 @@ public:
 } // namespace HexagonalHigh
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
   // Sanity Check the size of the arrays
-  if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize0)
+  if(xyz0001->getNumberOfTuples() < nOrientations * HexagonalHigh::k_SymSize0)
   {
-    xyz0001->resizeTuples(nOrientations * HexagonalHigh::symSize0 * 3);
+    xyz0001->resizeTuples(nOrientations * HexagonalHigh::k_SymSize0 * 3);
   }
-  if(xyz1010->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize1)
+  if(xyz1010->getNumberOfTuples() < nOrientations * HexagonalHigh::k_SymSize1)
   {
-    xyz1010->resizeTuples(nOrientations * HexagonalHigh::symSize1 * 3);
+    xyz1010->resizeTuples(nOrientations * HexagonalHigh::k_SymSize1 * 3);
   }
-  if(xyz1120->getNumberOfTuples() < nOrientations * HexagonalHigh::symSize2)
+  if(xyz1120->getNumberOfTuples() < nOrientations * HexagonalHigh::k_SymSize2)
   {
-    xyz1120->resizeTuples(nOrientations * HexagonalHigh::symSize2 * 3);
+    xyz1120->resizeTuples(nOrientations * HexagonalHigh::k_SymSize2 * 3);
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -1256,8 +1220,6 @@ std::array<double, 3> HexagonalOps::getIpfColorAngleLimits(double eta) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool HexagonalOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < (HexagonalHigh::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (HexagonalHigh::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
@@ -1265,15 +1227,11 @@ bool HexagonalOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
@@ -1283,13 +1241,11 @@ ebsdlib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0f * HexagonalHigh::OdfDimInitValue[0];
-  double range2 = 2.0f * HexagonalHigh::OdfDimInitValue[1];
-  double range3 = 2.0f * HexagonalHigh::OdfDimInitValue[2];
+  double range1 = 2.0f * HexagonalHigh::k_OdfDimInitValue[0];
+  double range2 = 2.0f * HexagonalHigh::k_OdfDimInitValue[1];
+  double range3 = 2.0f * HexagonalHigh::k_OdfDimInitValue[2];
   double max1 = range1 / 2.0f;
   double max2 = range2 / 2.0f;
   double max3 = range3 / 2.0f;
@@ -1306,15 +1262,11 @@ ebsdlib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalOps::getDefaultPoleFigureNames() const
 {
   return {"<0001>", "<10-10>", "<2-1-10>"};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
@@ -1341,11 +1293,11 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::k_SymSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::k_SymSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * HexagonalHigh::k_SymSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -1564,10 +1516,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       +0.25F, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.25F, 0.5F, 1.0F, 1.1F, 1.0F, 1.0F,
   };
   std::vector<bool> drawAngle = {true, false, false, false, false, false, false, false, false, false, false, true};
-  float radius = 1.0; // Work with a Unit Circle.
+
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0f;
     float angle = angles[idx];
     float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
@@ -1712,13 +1664,13 @@ HexagonalOps::Pointer HexagonalOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string HexagonalOps::getNameOfClass() const
 {
-  return std::string("HexagonalOps");
+  return {"HexagonalOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string HexagonalOps::ClassName()
 {
-  return std::string("HexagonalOps");
+  return {"HexagonalOps"};
 }
 
 // -----------------------------------------------------------------------------

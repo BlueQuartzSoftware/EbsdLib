@@ -92,12 +92,8 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 } // namespace
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 LaueOps::LaueOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
 
@@ -543,8 +539,6 @@ AxisAngleDType LaueOps::calculateMisorientationInternal(const std::vector<QuatD>
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 RodriguesDType LaueOps::_calcRodNearestOrigin(const RodriguesDType& inRod) const
 {
   double denom = 0.0f, dist = 0.0f;
@@ -592,8 +586,6 @@ RodriguesDType LaueOps::_calcRodNearestOrigin(const RodriguesDType& inRod) const
   return outRod;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& q1, const QuatD& q2) const
 {
@@ -691,8 +683,6 @@ void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], d
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const HomochoricDType& ho) const
 {
   int g1euler1bin = static_cast<int>((ho[0] + dim[0]) / step[0]);
@@ -726,8 +716,6 @@ int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const Ho
   return g1odfbin;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 {
@@ -810,8 +798,6 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgN
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::vector<std::string> LaueOps::GetLaueNames()
 {
   std::vector<std::string> names;
@@ -826,8 +812,6 @@ std::vector<std::string> LaueOps::GetLaueNames()
   return names;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps) const
 {
@@ -856,13 +840,13 @@ LaueOps::Pointer LaueOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string LaueOps::getNameOfClass() const
 {
-  return std::string("LaueOps");
+  return {"LaueOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string LaueOps::ClassName()
 {
-  return std::string("LaueOps");
+  return {"LaueOps"};
 }
 
 //-----------------------------------------------------------------------------

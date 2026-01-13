@@ -77,7 +77,7 @@ public:
 
   /**
    * @brief GetAllOrientationOps This method returns a vector of each type of LaueOps placed such that the
-   * index into the vector is the value of the constant at ebsdlib::CrystalStructure::***
+   * index into the vector is the value of the constant at CrystalStructure::***
    * @return Vector of LaueOps subclasses.
    */
   static std::vector<LaueOps::Pointer> GetAllOrientationOps();
@@ -99,10 +99,10 @@ public:
    * @brief getODFSize Returns the number of elements in the ODF array
    * @return
    */
-  virtual int getODFSize() const = 0;
+  virtual size_t getODFSize() const = 0;
 
   /**
-   * @brief getNumSymmetry Returns the internal variables for symSize0, symSize1, symSize2
+   * @brief getNumSymmetry Returns the internal variables for k_SymSize0, k_SymSize1, k_SymSize2
    * @return
    */
   virtual std::array<int32_t, 3> getNumSymmetry() const = 0;
@@ -123,19 +123,19 @@ public:
    * @brief getMDFSize Returns the number of elements in the MDF Array
    * @return
    */
-  virtual int getMDFSize() const = 0;
+  virtual size_t getMDFSize() const = 0;
 
   /**
    * @brief getNumSymOps Returns the number of symmetry operators
    * @return
    */
-  virtual int getNumSymOps() const = 0;
+  virtual size_t getNumSymOps() const = 0;
 
   /**
    * @brief getNumRodriguesSymOps Returns the number of Rodrigues symmetry operators
    * @return
    */
-  virtual int getNumRodriguesSymOps() const = 0;
+  virtual size_t getNumRodriguesSymOps() const = 0;
 
   /**
    * @brief getSymmetryName Returns the name of the symmetry
@@ -182,7 +182,7 @@ public:
    * @param i The index into the Symmetry operators array
    * @return The quaternion symmetry operator
    */
-  virtual QuatD getQuatSymOp(int i) const = 0;
+  virtual QuatD getQuatSymOp(size_t i) const = 0;
 
   /**
    * @brief getRodSymOp Returns a Rodrigues vector based on the symmetry operator at index i
@@ -197,8 +197,8 @@ public:
    * @param g The g matrix
    * @return void or a Matrix3X3 object.
    */
-  virtual Matrix3X3F getMatSymOpF(int i) const = 0;
-  virtual Matrix3X3D getMatSymOpD(int i) const = 0;
+  virtual Matrix3X3F getMatSymOpF(size_t i) const = 0;
+  virtual Matrix3X3D getMatSymOpD(size_t i) const = 0;
 
   /**
    * @brief getODFFZRod
@@ -255,7 +255,7 @@ public:
 
   virtual double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
-  virtual void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3) const = 0;
+  virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const = 0;
 
   static void RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod);
 
@@ -273,7 +273,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
+  virtual Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction
@@ -286,7 +286,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual ebsdlib::Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
+  virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -295,24 +295,24 @@ public:
    * @param r3 Third component of the Rodrigues Vector
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
+  virtual Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
 
   /**
    * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
    * @param q A Quaternion representing the crystal direction
    * @param refFrame A Quaternion representing the sample reference direction
-   * @return A ebsdlib::Rgb value
+   * @return A Rgb value
    */
-  virtual ebsdlib::Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const;
+  virtual Rgb generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
    * angles that are passed in.
    * @param config The Pole Figure configuration struct
-   * @return A std::vector of ebsdlib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
+   * @return A std::vector of UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
    * an image object from other libraries and written out to disk.
    */
-  virtual std::vector<ebsdlib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
+  virtual std::vector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
   /**
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
@@ -324,7 +324,7 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  virtual ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
+  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
 
   enum class FZType : int32_t
   {
@@ -505,7 +505,7 @@ protected:
    * @param deg2Rad
    * @return
    */
-  ebsdlib::Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
+  Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
 
   /**
    * @brief Converts in input Quaternion into a version that is inside the fundamental zone.

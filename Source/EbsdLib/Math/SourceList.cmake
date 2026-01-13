@@ -2,9 +2,7 @@ set(DIR_NAME Math)
 
 set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdLibMath.h
-  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/GeometryMath.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ArrayHelpers.hpp
-  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdMatrixMath.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdLibRandom.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Matrix3X1.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Matrix3X3.hpp  
@@ -12,8 +10,6 @@ set(EbsdLib_${DIR_NAME}_HDRS
 
 set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdLibMath.cpp
-  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/GeometryMath.cpp
-  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdMatrixMath.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdLibRandom.cpp
 )
 

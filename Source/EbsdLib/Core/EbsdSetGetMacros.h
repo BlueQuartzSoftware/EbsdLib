@@ -338,8 +338,6 @@ public:                                                                         
   virtual EBSD_SET_STRING_PROPERTY(prpty, m_##prpty) virtual EBSD_GET_STRING_PROPERTY(prpty, m_##prpty)
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 /**
  * @brief Creates a "setter" method to set the property.
  */
@@ -422,8 +420,6 @@ public:                                                                         
     }                                                                                                                                                                                                  \
   }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 // These are simple over-rides from the boost distribution because we don't want the entire boost distribution just
 // for a few boost headers

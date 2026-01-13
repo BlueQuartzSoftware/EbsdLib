@@ -39,17 +39,11 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 OrientationMath::OrientationMath() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 OrientationMath::~OrientationMath() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void OrientationMath::MetricTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float mt[3][3])
 {
@@ -65,8 +59,6 @@ void OrientationMath::MetricTensorFromLatticeParameters(float a, float b, float 
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void OrientationMath::RootTensorFromLatticeParameters(float a, float b, float c, float alpha, float beta, float gamma, float rt[3][3])
 {
   rt[0][0] = a * sinf(beta) * sinf(gamma);
@@ -81,16 +73,12 @@ void OrientationMath::RootTensorFromLatticeParameters(float a, float b, float c,
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void OrientationMath::MillerBravaisToMillerDirection(const int32_t millerBravais[4], int32_t miller[3])
 {
   miller[0] = millerBravais[0] - millerBravais[2];
   miller[1] = millerBravais[1] - millerBravais[2];
   miller[2] = millerBravais[3];
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void OrientationMath::MillerToMillerBravaisDirection(const int32_t miller[3], int32_t millerBravais[4])
 {
@@ -100,16 +88,12 @@ void OrientationMath::MillerToMillerBravaisDirection(const int32_t miller[3], in
   millerBravais[3] = miller[2];
 }
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void OrientationMath::MillerBravaisToMillerPlane(const int32_t millerBravais[4], int32_t miller[3])
 {
   miller[0] = millerBravais[0];
   miller[1] = millerBravais[1];
   miller[2] = millerBravais[3];
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void OrientationMath::MillerToMillerBravaisPlane(const int32_t miller[3], int32_t millerBravais[4])
 {

@@ -39,8 +39,6 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 PoleFigureData::PoleFigureData(std::vector<float>& x_data, std::vector<float>& y_data, const std::string& title, int32_t* kernelRad, int32_t* size)
 : xData(x_data)
 , yData(y_data)
@@ -52,8 +50,6 @@ PoleFigureData::PoleFigureData(std::vector<float>& x_data, std::vector<float>& y
   kernelRadius[1] = kernelRad[1];
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 PoleFigureData::PoleFigureData(const PoleFigureData& rhs)
 {
@@ -68,12 +64,8 @@ PoleFigureData::PoleFigureData(const PoleFigureData& rhs)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 PoleFigureData::~PoleFigureData() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void PoleFigureData::operator=(const PoleFigureData& rhs)
 {

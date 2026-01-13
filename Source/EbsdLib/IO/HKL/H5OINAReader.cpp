@@ -78,8 +78,6 @@ H5OINAReader::H5OINAReader()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5OINAReader::~H5OINAReader()
 {
   // this->deallocateArrayData<uint8_t>(m_PatternData);
@@ -158,8 +156,6 @@ void* H5OINAReader::getPointerByName(const std::string& featureName)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type H5OINAReader::getPointerType(const std::string& featureName)
 {
   // std::cout << "featureName: " << featureName << std::endl;
@@ -218,8 +214,6 @@ void H5OINAReader::getPatternDims(std::array<int32_t, 2> dims)
   ;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5OINAReader::readFile()
 {
@@ -331,8 +325,6 @@ int H5OINAReader::readFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5OINAReader::readHeaderOnly()
 {
   int err = -1;
@@ -408,8 +400,6 @@ int H5OINAReader::readHeaderOnly()
   return getErrorCode();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5OINAReader::readScanNames(std::list<std::string>& names)
 {
@@ -714,15 +704,11 @@ int H5OINAReader::readData(hid_t parId)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5OINAReader::setArraysToRead(const std::set<std::string>& names)
 {
   m_ArrayNames = names;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5OINAReader::readAllArrays(bool b)
 {

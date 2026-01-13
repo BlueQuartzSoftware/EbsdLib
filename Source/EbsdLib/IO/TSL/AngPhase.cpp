@@ -94,8 +94,6 @@ std::string HKLFamily::ClassName()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AngPhase::AngPhase()
 : m_PhaseIndex(-1)
 , m_Symmetry(0)
@@ -104,12 +102,8 @@ AngPhase::AngPhase()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AngPhase::~AngPhase() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 {
@@ -122,8 +116,6 @@ void AngPhase::parseMaterialName(std::vector<std::string>& tokens)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AngPhase::parseFormula(std::vector<std::string>& tokens)
 {
   m_Formula.clear();
@@ -135,8 +127,6 @@ void AngPhase::parseFormula(std::vector<std::string>& tokens)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 // void AngPhase::parseInfo(std::vector<std::string>& tokens)
 //{
 //  m_Info.clear();
@@ -146,8 +136,6 @@ void AngPhase::parseFormula(std::vector<std::string>& tokens)
 //  }
 //}
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 // void AngPhase::parseSymmetry(char* value, size_t start, size_t length)
 //{
@@ -160,8 +148,6 @@ void AngPhase::parseFormula(std::vector<std::string>& tokens)
 //  m_Symmetry = data.toUInt(&ok, 10);
 //}
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 {
@@ -176,8 +162,6 @@ void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 // void AngPhase::parseNumberFamilies(char* value, size_t start, size_t length)
 //{
 //  if (value[start] == ':')
@@ -189,8 +173,6 @@ void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 //  m_NumberFamilies = data);
 //}
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 {
@@ -227,8 +209,6 @@ void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AngPhase::parseCategories(std::vector<std::string>& tokens)
 {
   m_Categories.clear();
@@ -253,8 +233,6 @@ void AngPhase::parseCategories(std::vector<std::string>& tokens)
   }
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::printSelf(std::stringstream& stream)
 {
@@ -287,8 +265,6 @@ void AngPhase::printSelf(std::stringstream& stream)
   stream << std::string("\n");
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 unsigned int AngPhase::determineOrientationOpsIndex()
 {
@@ -378,15 +354,11 @@ unsigned int AngPhase::determineOrientationOpsIndex()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantA(float a)
 {
   m_LatticeConstants[0] = a;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantB(float a)
 {
@@ -394,15 +366,11 @@ void AngPhase::setLatticeConstantB(float a)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantC(float a)
 {
   m_LatticeConstants[2] = a;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantAlpha(float a)
 {
@@ -410,15 +378,11 @@ void AngPhase::setLatticeConstantAlpha(float a)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantBeta(float a)
 {
   m_LatticeConstants[4] = a;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngPhase::setLatticeConstantGamma(float a)
 {

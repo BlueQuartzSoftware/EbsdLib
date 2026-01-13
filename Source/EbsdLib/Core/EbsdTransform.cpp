@@ -36,8 +36,6 @@
 #include "EbsdTransform.h"
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EbsdTransform::EbsdTransform()
 
     = default;
@@ -75,8 +73,6 @@ ebsdlib::EbsdToSampleCoordinateMapping EbsdTransform::IdentifyStandardTransforma
   return ebsdlib::UnknownCoordinateMapping;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EbsdTransform::~EbsdTransform() = default;
 

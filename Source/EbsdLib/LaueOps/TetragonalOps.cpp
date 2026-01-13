@@ -57,99 +57,96 @@ using namespace ebsdlib;
 
 namespace TetragonalHigh
 {
-constexpr std::array<size_t, 3> OdfNumBins = {36, 36, 18}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 18}; // Represents a 5Deg bin
 
-static const std::array<double, 3> OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
-                                                      std::pow((0.75 * ((ebsdlib::constants::k_PiOver4D)-std::sin((ebsdlib::constants::k_PiOver4D)))), (1.0 / 3.0))};
-static const std::array<double, 3> OdfDimStepValue = {OdfDimInitValue[0] / static_cast<double>(OdfNumBins[0] / 2), OdfDimInitValue[1] / static_cast<double>(OdfNumBins[1] / 2),
-                                                      OdfDimInitValue[2] / static_cast<double>(OdfNumBins[2] / 2)};
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver4D)-std::sin((ebsdlib::constants::k_PiOver4D)))), (1.0 / 3.0))};
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
-constexpr int symSize0 = 2;
-constexpr int symSize1 = 4;
-constexpr int symSize2 = 4;
+constexpr int k_SymSize0 = 2;
+constexpr int k_SymSize1 = 4;
+constexpr int k_SymSize2 = 4;
 
-constexpr int k_OdfSize = 23328;
-constexpr int k_MdfSize = 23328;
-constexpr int k_SymOpsCount = 8;
+constexpr size_t k_OdfSize = 23328;
+constexpr size_t k_MdfSize = 23328;
+constexpr size_t k_SymOpsCount = 8;
 constexpr int k_NumMdfBins = 20;
+
+static const double sqrtHalf = std::sqrt(0.500000000000000);
 
 // Rotation Point Group: 422
 /* clang-format off */
-static const std::vector<QuatD> QuatSym ={
-    QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(0.0, 0.0, 1.0, 0.0),
-    QuatD(0.0, 0.0, 0.7071067811865476, 0.7071067811865476),
-    QuatD(0.0, 0.0, -0.7071067811865476, 0.7071067811865476),
-    QuatD(1.0, 0.0, 0.0, 0.0),
-    QuatD(0.0, 1.0, 0.0, 0.0),
-    QuatD(0.7071067811865476, 0.7071067811865476, 0.0, 0.0),
-    QuatD(-0.7071067811865476, 0.7071067811865476, 0.0, 0.0),
+static const std::vector<QuatD> k_QuatSym ={
+  QuatD(0.0, 0.0, 0.0, 1.0),
+  QuatD(0.0, 0.0, 1.0, 0.0),
+  QuatD(0.0, 0.0, sqrtHalf, sqrtHalf),
+  QuatD(0.0, 0.0, -sqrtHalf, sqrtHalf),
+  QuatD(1.0, 0.0, 0.0, 0.0),
+  QuatD(0.0, 1.0, 0.0, 0.0),
+  QuatD(sqrtHalf, sqrtHalf, 0.0, 0.0),
+  QuatD(-sqrtHalf, sqrtHalf, 0.0, 0.0),
 };
 
-static const std::vector<RodriguesDType> RodSym = {
-    {0.0, 0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0, 10000000000000.0},
-    {0.0, 0.0, 1.0, 1.0},
-    {0.0, 0.0, -1.0, 1.0},
-    {1.0, 0.0, 0.0, 10000000000000.0},
-    {0.0, 1.0, 0.0, 10000000000000.0},
-    {0.7071067811865476, 0.7071067811865476, 0.0, 10000000000000.0},
-    {-0.7071067811865476, 0.7071067811865476, 0.0, 10000000000000.0},
+static const std::vector<RodriguesDType> k_RodSym = {
+  {0.0, 0.0, 1.0, 0.0},
+  {0.0, 0.0, 1.0, 10000000000000.0},
+  {0.0, 0.0, 1.0, 1.0},
+  {0.0, 0.0, -1.0, 1.0},
+  {1.0, 0.0, 0.0, 10000000000000.0},
+  {0.0, 1.0, 0.0, 10000000000000.0},
+  {sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
+  {-sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
 };
 
-static const double MatSym[k_SymOpsCount][3][3] = {
-    {{1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.0, -1.0, 0.0},
-    {1.0, 0.0, 0.0},
-    {0.0, 0.0, 1.0}},
-    
-    {{0.0, 1.0, 0.0},
-    {-1.0, 0.0, -0.0},
-    {-0.0, 0.0, 1.0}},
-    
-    {{1.0, 0.0, 0.0},
-    {0.0, -1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{-1.0, 0.0, 0.0},
-    {0.0, 1.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{0.0, 1.0, 0.0},
-    {1.0, 0.0, 0.0},
-    {0.0, 0.0, -1.0}},
-    
-    {{0.0, -1.0, 0.0},
-    {-1.0, 0.0, 0.0},
-    {-0.0, 0.0, -1.0}},
-    
+static const std::vector<Matrix3X3D> k_MatSym = {
+  {1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.0, -1.0, 0.0,
+  1.0, 0.0, 0.0,
+  0.0, 0.0, 1.0},
+
+  {0.0, 1.0, 0.0,
+  -1.0, 0.0, -0.0,
+  -0.0, 0.0, 1.0},
+
+  {1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, 1.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {0.0, 1.0, 0.0,
+  1.0, 0.0, 0.0,
+  0.0, 0.0, -1.0},
+
+  {0.0, -1.0, 0.0,
+  -1.0, 0.0, 0.0,
+  -0.0, 0.0, -1.0},
+
 };
 /* clang-format on */
+
 constexpr double k_EtaMin = 0.0;
 constexpr double k_EtaMax = 45.0;
 constexpr double k_ChiMax = 90.0;
 } // namespace TetragonalHigh
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TetragonalOps::TetragonalOps() = default;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 TetragonalOps::~TetragonalOps() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 bool TetragonalOps::getHasInversion() const
 {
@@ -157,9 +154,7 @@ bool TetragonalOps::getHasInversion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TetragonalOps::getODFSize() const
+size_t TetragonalOps::getODFSize() const
 {
   return TetragonalHigh::k_OdfSize;
 }
@@ -167,13 +162,11 @@ int TetragonalOps::getODFSize() const
 // -----------------------------------------------------------------------------
 std::array<int32_t, 3> TetragonalOps::getNumSymmetry() const
 {
-  return {TetragonalHigh::symSize0, TetragonalHigh::symSize1, TetragonalHigh::symSize2};
+  return {TetragonalHigh::k_SymSize0, TetragonalHigh::k_SymSize1, TetragonalHigh::k_SymSize2};
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TetragonalOps::getMDFSize() const
+size_t TetragonalOps::getMDFSize() const
 {
   return TetragonalHigh::k_MdfSize;
 }
@@ -185,9 +178,7 @@ int TetragonalOps::getMdfPlotBins() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-int TetragonalOps::getNumSymOps() const
+size_t TetragonalOps::getNumSymOps() const
 {
   return TetragonalHigh::k_SymOpsCount;
 }
@@ -195,11 +186,9 @@ int TetragonalOps::getNumSymOps() const
 // -----------------------------------------------------------------------------
 std::array<size_t, 3> TetragonalOps::getOdfNumBins() const
 {
-  return TetragonalHigh::OdfNumBins;
+  return TetragonalHigh::k_OdfNumBins;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string TetragonalOps::getSymmetryName() const
 {
@@ -207,8 +196,6 @@ std::string TetragonalOps::getSymmetryName() const
   ;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::string TetragonalOps::getRotationPointGroup() const
 {
@@ -236,47 +223,42 @@ bool TetragonalOps::isInsideFZ(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 AxisAngleDType TetragonalOps::calculateMisorientation(const QuatD& q1, const QuatD& q2) const
 {
-  return calculateMisorientationInternal(TetragonalHigh::QuatSym, q1, q2);
+  return calculateMisorientationInternal(TetragonalHigh::k_QuatSym, q1, q2);
 }
 
-QuatD TetragonalOps::getQuatSymOp(int32_t i) const
+QuatD TetragonalOps::getQuatSymOp(size_t i) const
 {
-  return TetragonalHigh::QuatSym[i];
+  return TetragonalHigh::k_QuatSym[i];
 }
 
-int32_t TetragonalOps::getNumRodriguesSymOps() const
+size_t TetragonalOps::getNumRodriguesSymOps() const
 {
-  return TetragonalHigh::RodSym.size();
+  return TetragonalHigh::k_RodSym.size();
 }
 
 RodriguesDType TetragonalOps::getRodSymOp(size_t i) const
 {
-  return TetragonalHigh::RodSym[i];
+  return TetragonalHigh::k_RodSym[i];
 }
 
-Matrix3X3D TetragonalOps::getMatSymOpD(int i) const
+Matrix3X3D TetragonalOps::getMatSymOpD(size_t i) const
 {
-  return {TetragonalHigh::MatSym[i][0][0], TetragonalHigh::MatSym[i][0][1], TetragonalHigh::MatSym[i][0][2], TetragonalHigh::MatSym[i][1][0], TetragonalHigh::MatSym[i][1][1],
-          TetragonalHigh::MatSym[i][1][2], TetragonalHigh::MatSym[i][2][0], TetragonalHigh::MatSym[i][2][1], TetragonalHigh::MatSym[i][2][2]};
+  return TetragonalHigh::k_MatSym[i];
 }
 
-Matrix3X3F TetragonalOps::getMatSymOpF(int i) const
+Matrix3X3F TetragonalOps::getMatSymOpF(size_t i) const
 {
-  return {static_cast<float>(TetragonalHigh::MatSym[i][0][0]), static_cast<float>(TetragonalHigh::MatSym[i][0][1]), static_cast<float>(TetragonalHigh::MatSym[i][0][2]),
-          static_cast<float>(TetragonalHigh::MatSym[i][1][0]), static_cast<float>(TetragonalHigh::MatSym[i][1][1]), static_cast<float>(TetragonalHigh::MatSym[i][1][2]),
-          static_cast<float>(TetragonalHigh::MatSym[i][2][0]), static_cast<float>(TetragonalHigh::MatSym[i][2][1]), static_cast<float>(TetragonalHigh::MatSym[i][2][2])};
+  return {static_cast<float>(TetragonalHigh::k_MatSym[i](0, 0)), static_cast<float>(TetragonalHigh::k_MatSym[i](0, 1)), static_cast<float>(TetragonalHigh::k_MatSym[i](0, 2)),
+          static_cast<float>(TetragonalHigh::k_MatSym[i](1, 0)), static_cast<float>(TetragonalHigh::k_MatSym[i](1, 1)), static_cast<float>(TetragonalHigh::k_MatSym[i](1, 2)),
+          static_cast<float>(TetragonalHigh::k_MatSym[i](2, 0)), static_cast<float>(TetragonalHigh::k_MatSym[i](2, 1)), static_cast<float>(TetragonalHigh::k_MatSym[i](2, 2))};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalOps::getODFFZRod(const RodriguesDType& rod) const
 {
   return _calcRodNearestOrigin(rod);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
@@ -295,15 +277,13 @@ RodriguesDType TetragonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QuatD TetragonalOps::getNearestQuat(const QuatD& q1, const QuatD& q2) const
 {
-  return _calcNearestQuat(TetragonalHigh::QuatSym, q1, q2);
+  return _calcNearestQuat(TetragonalHigh::k_QuatSym, q1, q2);
 }
 QuatF TetragonalOps::getNearestQuat(const QuatF& q1f, const QuatF& q2f) const
 {
-  return _calcNearestQuat(TetragonalHigh::QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
+  return _calcNearestQuat(TetragonalHigh::k_QuatSym, q1f.to<double>(), q2f.to<double>()).to<float>();
 }
 
 // -----------------------------------------------------------------------------
@@ -311,11 +291,9 @@ QuatD TetragonalOps::getFZQuat(const QuatD& qr) const
 {
   LaueOps::FZType fzType = laue_ops::FZtarray[getPointGroup() - 1];
   LaueOps::AxisOrderingType orderingType = laue_ops::FZoarray[getPointGroup() - 1];
-  return ConvertToFZ(TetragonalHigh::QuatSym, qr, fzType, orderingType);
+  return ConvertToFZ(TetragonalHigh::k_QuatSym, qr, fzType, orderingType);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int TetragonalOps::getMisoBin(const RodriguesDType& rod) const
 {
@@ -325,21 +303,19 @@ int TetragonalOps::getMisoBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = TetragonalHigh::OdfDimInitValue[0];
-  dim[1] = TetragonalHigh::OdfDimInitValue[1];
-  dim[2] = TetragonalHigh::OdfDimInitValue[2];
-  step[0] = TetragonalHigh::OdfDimStepValue[0];
-  step[1] = TetragonalHigh::OdfDimStepValue[1];
-  step[2] = TetragonalHigh::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(TetragonalHigh::OdfNumBins[0]);
-  bins[1] = static_cast<double>(TetragonalHigh::OdfNumBins[1]);
-  bins[2] = static_cast<double>(TetragonalHigh::OdfNumBins[2]);
+  dim[0] = TetragonalHigh::k_OdfDimInitValue[0];
+  dim[1] = TetragonalHigh::k_OdfDimInitValue[1];
+  dim[2] = TetragonalHigh::k_OdfDimInitValue[2];
+  step[0] = TetragonalHigh::k_OdfDimStepValue[0];
+  step[1] = TetragonalHigh::k_OdfDimStepValue[1];
+  step[2] = TetragonalHigh::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(TetragonalHigh::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(TetragonalHigh::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(TetragonalHigh::k_OdfNumBins[2]);
 
   return _calcMisoBin(dim, bins, step, ho);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 EulerDType TetragonalOps::determineEulerAngles(double random[3], int choose) const
 {
@@ -348,15 +324,15 @@ EulerDType TetragonalOps::determineEulerAngles(double random[3], int choose) con
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = TetragonalHigh::OdfDimInitValue[0];
-  init[1] = TetragonalHigh::OdfDimInitValue[1];
-  init[2] = TetragonalHigh::OdfDimInitValue[2];
-  step[0] = TetragonalHigh::OdfDimStepValue[0];
-  step[1] = TetragonalHigh::OdfDimStepValue[1];
-  step[2] = TetragonalHigh::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % TetragonalHigh::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / TetragonalHigh::OdfNumBins[0]) % TetragonalHigh::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (TetragonalHigh::OdfNumBins[0] * TetragonalHigh::OdfNumBins[1]));
+  init[0] = TetragonalHigh::k_OdfDimInitValue[0];
+  init[1] = TetragonalHigh::k_OdfDimInitValue[1];
+  init[2] = TetragonalHigh::k_OdfDimInitValue[2];
+  step[0] = TetragonalHigh::k_OdfDimStepValue[0];
+  step[1] = TetragonalHigh::k_OdfDimStepValue[1];
+  step[2] = TetragonalHigh::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % TetragonalHigh::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / TetragonalHigh::k_OdfNumBins[0]) % TetragonalHigh::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (TetragonalHigh::k_OdfNumBins[0] * TetragonalHigh::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
 
@@ -367,18 +343,14 @@ EulerDType TetragonalOps::determineEulerAngles(double random[3], int choose) con
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 EulerDType TetragonalOps::randomizeEulerAngles(const EulerDType& synea) const
 {
   size_t symOp = getRandomSymmetryOperatorIndex(TetragonalHigh::k_SymOpsCount);
   QuatD quat = synea.toQuaternion();
-  QuatD qc = TetragonalHigh::QuatSym[symOp] * quat;
+  QuatD qc = TetragonalHigh::k_QuatSym[symOp] * quat;
   return QuaternionDType(qc).toEuler();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalOps::determineRodriguesVector(double random[3], int choose) const
 {
@@ -387,15 +359,15 @@ RodriguesDType TetragonalOps::determineRodriguesVector(double random[3], int cho
   int32_t phi[3];
   double h1, h2, h3;
 
-  init[0] = TetragonalHigh::OdfDimInitValue[0];
-  init[1] = TetragonalHigh::OdfDimInitValue[1];
-  init[2] = TetragonalHigh::OdfDimInitValue[2];
-  step[0] = TetragonalHigh::OdfDimStepValue[0];
-  step[1] = TetragonalHigh::OdfDimStepValue[1];
-  step[2] = TetragonalHigh::OdfDimStepValue[2];
-  phi[0] = static_cast<int32_t>(choose % TetragonalHigh::OdfNumBins[0]);
-  phi[1] = static_cast<int32_t>((choose / TetragonalHigh::OdfNumBins[0]) % TetragonalHigh::OdfNumBins[1]);
-  phi[2] = static_cast<int32_t>(choose / (TetragonalHigh::OdfNumBins[0] * TetragonalHigh::OdfNumBins[1]));
+  init[0] = TetragonalHigh::k_OdfDimInitValue[0];
+  init[1] = TetragonalHigh::k_OdfDimInitValue[1];
+  init[2] = TetragonalHigh::k_OdfDimInitValue[2];
+  step[0] = TetragonalHigh::k_OdfDimStepValue[0];
+  step[1] = TetragonalHigh::k_OdfDimStepValue[1];
+  step[2] = TetragonalHigh::k_OdfDimStepValue[2];
+  phi[0] = static_cast<int32_t>(choose % TetragonalHigh::k_OdfNumBins[0]);
+  phi[1] = static_cast<int32_t>((choose / TetragonalHigh::k_OdfNumBins[0]) % TetragonalHigh::k_OdfNumBins[1]);
+  phi[2] = static_cast<int32_t>(choose / (TetragonalHigh::k_OdfNumBins[0] * TetragonalHigh::k_OdfNumBins[1]));
 
   _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
@@ -403,8 +375,6 @@ RodriguesDType TetragonalOps::determineRodriguesVector(double random[3], int cho
   return ro;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int TetragonalOps::getOdfBin(const RodriguesDType& rod) const
 {
@@ -414,15 +384,15 @@ int TetragonalOps::getOdfBin(const RodriguesDType& rod) const
 
   HomochoricDType ho = rod.toHomochoric();
 
-  dim[0] = TetragonalHigh::OdfDimInitValue[0];
-  dim[1] = TetragonalHigh::OdfDimInitValue[1];
-  dim[2] = TetragonalHigh::OdfDimInitValue[2];
-  step[0] = TetragonalHigh::OdfDimStepValue[0];
-  step[1] = TetragonalHigh::OdfDimStepValue[1];
-  step[2] = TetragonalHigh::OdfDimStepValue[2];
-  bins[0] = static_cast<double>(TetragonalHigh::OdfNumBins[0]);
-  bins[1] = static_cast<double>(TetragonalHigh::OdfNumBins[1]);
-  bins[2] = static_cast<double>(TetragonalHigh::OdfNumBins[2]);
+  dim[0] = TetragonalHigh::k_OdfDimInitValue[0];
+  dim[1] = TetragonalHigh::k_OdfDimInitValue[1];
+  dim[2] = TetragonalHigh::k_OdfDimInitValue[2];
+  step[0] = TetragonalHigh::k_OdfDimStepValue[0];
+  step[1] = TetragonalHigh::k_OdfDimStepValue[1];
+  step[2] = TetragonalHigh::k_OdfDimStepValue[2];
+  bins[0] = static_cast<double>(TetragonalHigh::k_OdfNumBins[0]);
+  bins[1] = static_cast<double>(TetragonalHigh::k_OdfNumBins[1]);
+  bins[2] = static_cast<double>(TetragonalHigh::k_OdfNumBins[2]);
 
   return _calcODFBin(dim, bins, step, ho);
 }
@@ -452,21 +422,21 @@ void TetragonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double
   {
     // compute slip system
     double slipPlane[3] = {0};
-    slipPlane[2] = TetragonalHigh::MatSym[i][2][0] * plane[0] + TetragonalHigh::MatSym[i][2][1] * plane[1] + TetragonalHigh::MatSym[i][2][2] * plane[2];
+    slipPlane[2] = TetragonalHigh::k_MatSym[i](2, 0) * plane[0] + TetragonalHigh::k_MatSym[i](2, 1) * plane[1] + TetragonalHigh::k_MatSym[i](2, 2) * plane[2];
 
     // dont consider negative z planes (to avoid duplicates)
     if(slipPlane[2] >= 0)
     {
-      slipPlane[0] = TetragonalHigh::MatSym[i][0][0] * plane[0] + TetragonalHigh::MatSym[i][0][1] * plane[1] + TetragonalHigh::MatSym[i][0][2] * plane[2];
-      slipPlane[1] = TetragonalHigh::MatSym[i][1][0] * plane[0] + TetragonalHigh::MatSym[i][1][1] * plane[1] + TetragonalHigh::MatSym[i][1][2] * plane[2];
+      slipPlane[0] = TetragonalHigh::k_MatSym[i](0, 0) * plane[0] + TetragonalHigh::k_MatSym[i](0, 1) * plane[1] + TetragonalHigh::k_MatSym[i](0, 2) * plane[2];
+      slipPlane[1] = TetragonalHigh::k_MatSym[i](1, 0) * plane[0] + TetragonalHigh::k_MatSym[i](1, 1) * plane[1] + TetragonalHigh::k_MatSym[i](1, 2) * plane[2];
 
       double slipDirection[3] = {0};
-      slipDirection[0] = TetragonalHigh::MatSym[i][0][0] * direction[0] + TetragonalHigh::MatSym[i][0][1] * direction[1] + TetragonalHigh::MatSym[i][0][2] * direction[2];
-      slipDirection[1] = TetragonalHigh::MatSym[i][1][0] * direction[0] + TetragonalHigh::MatSym[i][1][1] * direction[1] + TetragonalHigh::MatSym[i][1][2] * direction[2];
-      slipDirection[2] = TetragonalHigh::MatSym[i][2][0] * direction[0] + TetragonalHigh::MatSym[i][2][1] * direction[1] + TetragonalHigh::MatSym[i][2][2] * direction[2];
+      slipDirection[0] = TetragonalHigh::k_MatSym[i](0, 0) * direction[0] + TetragonalHigh::k_MatSym[i](0, 1) * direction[1] + TetragonalHigh::k_MatSym[i](0, 2) * direction[2];
+      slipDirection[1] = TetragonalHigh::k_MatSym[i](1, 0) * direction[0] + TetragonalHigh::k_MatSym[i](1, 1) * direction[1] + TetragonalHigh::k_MatSym[i](1, 2) * direction[2];
+      slipDirection[2] = TetragonalHigh::k_MatSym[i](2, 0) * direction[0] + TetragonalHigh::k_MatSym[i](2, 1) * direction[1] + TetragonalHigh::k_MatSym[i](2, 2) * direction[2];
 
-      double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
-      double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
+      const double cosPhi = fabs(load[0] * slipPlane[0] + load[1] * slipPlane[1] + load[2] * slipPlane[2]) / planeMag;
+      const double cosLambda = fabs(load[0] * slipDirection[0] + load[1] * slipDirection[1] + load[2] * slipDirection[2]) / directionMag;
 
       double schmid = cosPhi * cosLambda;
       if(schmid > schmidfactor)
@@ -499,8 +469,6 @@ double TetragonalOps::getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool
 {
   return 0.0;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 namespace TetragonalHigh
 {
@@ -588,24 +556,22 @@ public:
 };
 } // namespace TetragonalHigh
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void TetragonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
   // Sanity Check the size of the arrays
-  if(xyz001->getNumberOfTuples() < nOrientations * TetragonalHigh::symSize0)
+  if(xyz001->getNumberOfTuples() < nOrientations * TetragonalHigh::k_SymSize0)
   {
-    xyz001->resizeTuples(nOrientations * TetragonalHigh::symSize0 * 3);
+    xyz001->resizeTuples(nOrientations * TetragonalHigh::k_SymSize0 * 3);
   }
-  if(xyz011->getNumberOfTuples() < nOrientations * TetragonalHigh::symSize1)
+  if(xyz011->getNumberOfTuples() < nOrientations * TetragonalHigh::k_SymSize1)
   {
-    xyz011->resizeTuples(nOrientations * TetragonalHigh::symSize1 * 3);
+    xyz011->resizeTuples(nOrientations * TetragonalHigh::k_SymSize1 * 3);
   }
-  if(xyz111->getNumberOfTuples() < nOrientations * TetragonalHigh::symSize2)
+  if(xyz111->getNumberOfTuples() < nOrientations * TetragonalHigh::k_SymSize2)
   {
-    xyz111->resizeTuples(nOrientations * TetragonalHigh::symSize2 * 3);
+    xyz111->resizeTuples(nOrientations * TetragonalHigh::k_SymSize2 * 3);
   }
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
@@ -629,8 +595,6 @@ std::array<double, 3> TetragonalOps::getIpfColorAngleLimits(double eta) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool TetragonalOps::inUnitTriangle(double eta, double chi) const
 {
   return !(eta < (TetragonalHigh::k_EtaMin * ebsdlib::constants::k_PiOver180D) || eta > (TetragonalHigh::k_EtaMax * ebsdlib::constants::k_PiOver180D) || chi < 0 ||
@@ -638,15 +602,11 @@ bool TetragonalOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb TetragonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
 {
@@ -656,13 +616,11 @@ ebsdlib::Rgb TetragonalOps::generateIPFColor(double phi1, double phi, double phi
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
-  double range1 = 2.0f * TetragonalHigh::OdfDimInitValue[0];
-  double range2 = 2.0f * TetragonalHigh::OdfDimInitValue[1];
-  double range3 = 2.0f * TetragonalHigh::OdfDimInitValue[2];
+  double range1 = 2.0f * TetragonalHigh::k_OdfDimInitValue[0];
+  double range2 = 2.0f * TetragonalHigh::k_OdfDimInitValue[1];
+  double range3 = 2.0f * TetragonalHigh::k_OdfDimInitValue[2];
   double max1 = range1 / 2.0f;
   double max2 = range2 / 2.0f;
   double max3 = range3 / 2.0f;
@@ -679,15 +637,11 @@ ebsdlib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::array<std::string, 3> TetragonalOps::getDefaultPoleFigureNames() const
 {
   return {"<001>", "<100>", "<110>"};
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
@@ -714,11 +668,11 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   // Create an Array to hold the XYZ Coordinates which are the coords on the sphere.
   // this is size for CUBIC ONLY, <001> Family
   std::vector<size_t> dims(1, 3);
-  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize0, dims, label0 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz001 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::k_SymSize0, dims, label0 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <011> Family
-  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize1, dims, label1 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz011 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::k_SymSize1, dims, label1 + std::string("xyzCoords"), true);
   // this is size for CUBIC ONLY, <111> Family
-  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::symSize2, dims, label2 + std::string("xyzCoords"), true);
+  ebsdlib::FloatArrayType::Pointer xyz111 = ebsdlib::FloatArrayType::CreateArray(numOrientations * TetragonalHigh::k_SymSize2, dims, label2 + std::string("xyzCoords"), true);
 
   config.sphereRadius = 1.0f;
 
@@ -726,7 +680,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TetragonalOps::generatePoleFigure(
   generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
-  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for northern hemisphere, 1 for southern hemisphere
+  // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
   ebsdlib::DoubleArrayType::Pointer intensity001 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label0 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity011 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label1 + "_Intensity_Image", true);
   ebsdlib::DoubleArrayType::Pointer intensity111 = ebsdlib::DoubleArrayType::CreateArray(config.imageDim * config.imageDim, label2 + "_Intensity_Image", true);
@@ -924,10 +878,10 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
       +0.25F, 0.0F, -0.1F, 0.0F, 0.25F, 0.75F, 1.1F, 1.0F,
   };
   std::vector<bool> drawAngle = {true, true, false, false, false, false, false, false};
-  float radius = 1.0; // Work with a Unit Circle.
+
   for(size_t idx = 0; idx < angles.size(); idx++)
   {
-    radius = 1.0F;
+    float radius = 1.0f;
     float angle = angles[idx];
     float rads = angle * ebsdlib::constants::k_DegToRadF;
     float x = radius * (cos(rads));
@@ -1077,13 +1031,13 @@ TetragonalOps::Pointer TetragonalOps::NullPointer()
 // -----------------------------------------------------------------------------
 std::string TetragonalOps::getNameOfClass() const
 {
-  return std::string("TetragonalOps");
+  return {"TetragonalOps"};
 }
 
 // -----------------------------------------------------------------------------
 std::string TetragonalOps::ClassName()
 {
-  return std::string("TetragonalOps");
+  return {"TetragonalOps"};
 }
 
 // -----------------------------------------------------------------------------

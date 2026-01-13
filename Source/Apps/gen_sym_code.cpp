@@ -158,9 +158,9 @@ void Print3x3(const OrientationMatrixDType& m)
   std::cout << std::fixed;
   std::cout << std::setprecision(16);
   size_t i = 0;
-  std::cout << "    {{" << m[i++] << ", " << m[i++] << ", " << m[i++] << "},\n";
-  std::cout << "    {" << m[i++] << ", " << m[i++] << ", " << m[i++] << "},\n";
-  std::cout << "    {" << m[i++] << ", " << m[i++] << ", " << m[i++] << "}},\n";
+  std::cout << "    {" << m[i++] << ", " << m[i++] << ", " << m[i++] << ",\n";
+  std::cout << "    " << m[i++] << ", " << m[i++] << ", " << m[i++] << ",\n";
+  std::cout << "    " << m[i++] << ", " << m[i++] << ", " << m[i++] << "},\n";
 }
 
 void PrintQuat(const QuatD& q, bool sv)
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 
     std::cout << std::setprecision(8);
     std::cout << "/* clang-format off */\n";
-    std::cout << "static const std::vector<QuatD> QuatSym ={\n";
+    std::cout << "static const std::vector<QuatD> k_QuatSym ={\n";
     for(const auto& symOp : symOPs)
     {
       PrintQuat(symOp, false);
@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
     }
     std::cout << "};\n\n";
 
-    std::cout << "static const std::vector<RodriguesDType> RodSym = {\n";
+    std::cout << "static const std::vector<RodriguesDType> k_RodSym = {\n";
     for(const auto& symOp : symOPs)
     {
       auto ro = QuaternionDType(symOp).toRodrigues();
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
     }
     std::cout << "};\n\n";
 
-    std::cout << "static const double MatSym[k_SymOpsCount][3][3] = {\n";
+    std::cout << "static const std::vector<Matrix3X3D> k_MatSym = {\n";
     for(const auto& symOp : symOPs)
     {
       auto om = QuaternionDType(symOp).toOrientationMatrix();

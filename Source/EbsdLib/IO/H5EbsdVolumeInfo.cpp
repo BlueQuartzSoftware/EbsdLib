@@ -85,8 +85,6 @@ using namespace H5Support;
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5EbsdVolumeInfo::H5EbsdVolumeInfo()
 : m_ErrorCode(0)
 , m_ErrorMessage("")
@@ -94,12 +92,8 @@ H5EbsdVolumeInfo::H5EbsdVolumeInfo()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5EbsdVolumeInfo::~H5EbsdVolumeInfo() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5EbsdVolumeInfo::invalidateCache()
 {
@@ -116,8 +110,6 @@ void H5EbsdVolumeInfo::invalidateCache()
   m_Manufacturer = "";
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::updateToLatestVersion()
 {
@@ -138,8 +130,6 @@ int H5EbsdVolumeInfo::updateToLatestVersion()
   return 0;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::readVolumeInfo()
 {
@@ -266,8 +256,6 @@ int H5EbsdVolumeInfo::readVolumeInfo()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 uint32_t H5EbsdVolumeInfo::getFileVersion()
 {
   int err = -1;
@@ -282,8 +270,6 @@ uint32_t H5EbsdVolumeInfo::getFileVersion()
   return m_FileVersion;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getDimsAndResolution(int64_t& xDim, int64_t& yDim, int64_t& zDim, float& xRes, float& yRes, float& zRes)
 {
@@ -310,8 +296,6 @@ int H5EbsdVolumeInfo::getDimsAndResolution(int64_t& xDim, int64_t& yDim, int64_t
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getDims(int64_t& xDim, int64_t& yDim, int64_t& zDim)
 {
   int err = -1;
@@ -333,8 +317,6 @@ int H5EbsdVolumeInfo::getDims(int64_t& xDim, int64_t& yDim, int64_t& zDim)
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getSpacing(float& xRes, float& yRes, float& zRes)
 {
@@ -358,8 +340,6 @@ int H5EbsdVolumeInfo::getSpacing(float& xRes, float& yRes, float& zRes)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::string H5EbsdVolumeInfo::getManufacturer()
 {
   int err = -1;
@@ -374,8 +354,6 @@ std::string H5EbsdVolumeInfo::getManufacturer()
   return m_Manufacturer;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getNumSlices()
 {
@@ -392,8 +370,6 @@ int H5EbsdVolumeInfo::getNumSlices()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getZStart()
 {
   int err = -1;
@@ -408,8 +384,6 @@ int H5EbsdVolumeInfo::getZStart()
   return m_ZStart;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getZEnd()
 {
@@ -426,8 +400,6 @@ int H5EbsdVolumeInfo::getZEnd()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int H5EbsdVolumeInfo::getNumPhases()
 {
   int err = -1;
@@ -442,8 +414,6 @@ int H5EbsdVolumeInfo::getNumPhases()
   return m_NumPhases;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 uint32_t H5EbsdVolumeInfo::getStackingOrder()
 {
@@ -460,8 +430,6 @@ uint32_t H5EbsdVolumeInfo::getStackingOrder()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 float H5EbsdVolumeInfo::getSampleTransformationAngle()
 {
   int err = -1;
@@ -476,8 +444,6 @@ float H5EbsdVolumeInfo::getSampleTransformationAngle()
   return m_SampleTransformationAngle;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::array<float, 3> H5EbsdVolumeInfo::getSampleTransformationAxis()
 {
@@ -494,8 +460,6 @@ std::array<float, 3> H5EbsdVolumeInfo::getSampleTransformationAxis()
   return m_SampleTransformationAxis;
 }
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 float H5EbsdVolumeInfo::getEulerTransformationAngle()
 {
   int err = -1;
@@ -509,8 +473,6 @@ float H5EbsdVolumeInfo::getEulerTransformationAngle()
   }
   return m_EulerTransformationAngle;
 }
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::array<float, 3> H5EbsdVolumeInfo::getEulerTransformationAxis()
 {
@@ -527,8 +489,6 @@ std::array<float, 3> H5EbsdVolumeInfo::getEulerTransformationAxis()
   return m_EulerTransformationAxis;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::set<std::string> H5EbsdVolumeInfo::getDataArrayNames()
 {

@@ -49,11 +49,7 @@ using namespace H5Support;
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 H5CtfVolumeReader::H5CtfVolumeReader() = default;
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 H5CtfVolumeReader::~H5CtfVolumeReader()
 {
@@ -71,8 +67,6 @@ H5CtfVolumeReader::~H5CtfVolumeReader()
     set##name##Pointer(_##name);                                                                                                                                                                       \
   }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void H5CtfVolumeReader::initPointers(size_t numElements)
 {
@@ -96,8 +90,6 @@ void H5CtfVolumeReader::initPointers(size_t numElements)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void H5CtfVolumeReader::deletePointers()
 {
   this->deallocateArrayData<int>(m_Phase);
@@ -113,8 +105,6 @@ void H5CtfVolumeReader::deletePointers()
   this->deallocateArrayData<int>(m_BS);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void* H5CtfVolumeReader::getPointerByName(const std::string& featureName)
 {
@@ -166,8 +156,6 @@ void* H5CtfVolumeReader::getPointerByName(const std::string& featureName)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const std::string& featureName)
 {
   if(featureName == ebsdlib::Ctf::Phase)
@@ -217,8 +205,6 @@ ebsdlib::NumericTypes::Type H5CtfVolumeReader::getPointerType(const std::string&
   return ebsdlib::NumericTypes::Type::UnknownNumType;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
 {
@@ -295,8 +281,6 @@ float H5CtfVolumeReader::getYStep()
   return y;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoints, uint32_t ZDir)
 {

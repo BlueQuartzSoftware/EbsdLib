@@ -121,8 +121,6 @@ public:
   DataParser& operator=(DataParser&&) = delete;      // Move Assignment Not Implemented
 };
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 class UInt8Parser : public DataParser
 {
 public:
@@ -231,8 +229,6 @@ public:
   UInt8Parser& operator=(UInt8Parser&&) = delete;      // Move Assignment Not Implemented
 };
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 class Int32Parser : public DataParser
 {

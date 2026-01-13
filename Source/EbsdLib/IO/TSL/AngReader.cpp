@@ -94,8 +94,6 @@ std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Typ
 } // namespace
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AngReader::AngReader()
 {
   // Init all the arrays to nullptr
@@ -202,8 +200,6 @@ AngReader::~AngReader()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void* AngReader::getPointerByName(const std::string& featureName)
 {
   if(featureName == ebsdlib::Ang::Phi1)
@@ -249,8 +245,6 @@ void* AngReader::getPointerByName(const std::string& featureName)
   return nullptr;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type AngReader::getPointerType(const std::string& featureName)
 {
@@ -298,8 +292,6 @@ ebsdlib::NumericTypes::Type AngReader::getPointerType(const std::string& feature
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int AngReader::readHeaderOnly()
 {
   int err = 1;
@@ -333,8 +325,6 @@ int AngReader::readHeaderOnly()
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int AngReader::readFile()
 {
@@ -431,8 +421,6 @@ int AngReader::readFile()
   return getErrorCode();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngReader::readData(std::ifstream& in, std::string& buf)
 {
@@ -959,8 +947,6 @@ void AngReader::parseDataLine(std::string& line, size_t i)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& indexMap)
 {
   int64_t numCols = getNumOddCols();
@@ -1038,15 +1024,11 @@ std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& inde
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int AngReader::getXDimension()
 {
   return getNumEvenCols();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngReader::setXDimension(int xdim)
 {
@@ -1055,15 +1037,11 @@ void AngReader::setXDimension(int xdim)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int AngReader::getYDimension()
 {
   return getNumRows();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void AngReader::setYDimension(int ydim)
 {

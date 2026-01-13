@@ -92,8 +92,6 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 } // namespace
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CtfReader::CtfReader()
 {
 
@@ -126,8 +124,6 @@ CtfReader::CtfReader()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CtfReader::~CtfReader() = default;
 
 //// -----------------------------------------------------------------------------
@@ -154,8 +150,6 @@ CtfReader::~CtfReader() = default;
 //}
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void* CtfReader::getPointerByName(const std::string& featureName)
 {
   void* ptr = nullptr;
@@ -166,8 +160,6 @@ void* CtfReader::getPointerByName(const std::string& featureName)
   return ptr;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 ebsdlib::NumericTypes::Type CtfReader::getPointerType(const std::string& featureName)
 {
@@ -241,8 +233,6 @@ ebsdlib::NumericTypes::Type CtfReader::getPointerType(const std::string& feature
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int CtfReader::getTypeSize(const std::string& featureName)
 {
   if(featureName == ebsdlib::Ctf::Phase)
@@ -312,8 +302,6 @@ int CtfReader::getTypeSize(const std::string& featureName)
   return 0;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 DataParser::Pointer CtfReader::getParser(const std::string& featureName, void* ptr, size_t size)
 {
@@ -386,8 +374,6 @@ DataParser::Pointer CtfReader::getParser(const std::string& featureName, void* p
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int CtfReader::readHeaderOnly()
 {
   int err = 1;
@@ -413,8 +399,6 @@ int CtfReader::readHeaderOnly()
   return err;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int CtfReader::readFile()
 {
@@ -466,15 +450,11 @@ int CtfReader::readFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CtfReader::readOnlySliceIndex(int slice)
 {
   m_SingleSliceRead = slice;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int CtfReader::readData(std::ifstream& in)
 {
@@ -644,8 +624,6 @@ int CtfReader::readData(std::ifstream& in)
 #endif
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int CtfReader::parseHeaderLines(std::vector<std::string>& headerLines)
 {
   int err = 0;
@@ -806,8 +784,6 @@ int CtfReader::parseDataLine(std::string& line, size_t row, size_t col, size_t o
 
 #if 0
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 std::vector<std::string> CtfReader::tokenize(char* buf, char delimiter)
 {
   std::vector<std::string> output;
@@ -829,8 +805,6 @@ std::vector<std::string> CtfReader::tokenize(char* buf, char delimiter)
 }
 #endif
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& headerLines)
 {
@@ -867,8 +841,6 @@ int CtfReader::getHeaderLines(std::ifstream& reader, std::vector<std::string>& h
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool CtfReader::isDataHeaderLine(const std::vector<std::string>& columns) const
 {
   if(columns.size() != 11)
@@ -888,15 +860,11 @@ bool CtfReader::isDataHeaderLine(const std::vector<std::string>& columns) const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int CtfReader::getXDimension()
 {
   return getXCells();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CtfReader::setXDimension(int xdim)
 {
@@ -904,15 +872,11 @@ void CtfReader::setXDimension(int xdim)
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int CtfReader::getYDimension()
 {
   return getYCells();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CtfReader::setYDimension(int ydim)
 {
@@ -928,8 +892,6 @@ void CtfReader::setYDimension(int ydim)
   /* Copy the values back into the array over writing the original values*/                                                                                                                            \
   ::memcpy(var, tempPtr, numRows * sizeof(m_msgType));
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 std::vector<std::string> CtfReader::getColumnNames()
 {
@@ -947,8 +909,6 @@ std::vector<std::string> CtfReader::getColumnNames()
 
 #define CTF_PRINT_HEADER_VALUE(var, out) out << #var << ": " << get##var() << std::endl;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CtfReader::printHeader(std::ostream& out)
 {
@@ -982,8 +942,6 @@ void CtfReader::printHeader(std::ostream& out)
   std::cout << "----------------------------------------" << std::endl;
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 int CtfReader::writeFile(const std::string& filepath)
 {
