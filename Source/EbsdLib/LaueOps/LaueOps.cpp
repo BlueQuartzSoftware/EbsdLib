@@ -550,7 +550,7 @@ RodriguesDType LaueOps::_calcRodNearestOrigin(const RodriguesDType& inRod) const
   rod[0] *= rod[3];
   rod[1] *= rod[3];
   rod[2] *= rod[3];
-  size_t numsym = static_cast<size_t>(getNumRodriguesSymOps());
+  size_t numsym = getNumRodriguesSymOps();
 
   for(size_t i = 0; i < numsym; i++)
   {
