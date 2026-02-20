@@ -20,7 +20,7 @@ TEST_CASE("ebsdlib::CanvasUtilitiesTest::MirrorImage", "[EbsdLib][CanvasUtilitie
   {
     uint8_t red[4] = {255, 0, 0, 255};
     uint8_t blue[4] = {0, 0, 255, 255};
-    src->setTuple(0 * dim + x, red);       // top row
+    src->setTuple(0 * dim + x, red);          // top row
     src->setTuple((dim - 1) * dim + x, blue); // bottom row
   }
 

@@ -274,9 +274,9 @@ TEST_CASE("ebsdlib::Matrix3X3Test::Cofactor", "[EbsdLib][Matrix3X3Test]")
   auto cof = m.cofactor();
 
   // Cofactor applies sign checkerboard to minors
-  REQUIRE(cof[0] == Approx(-3.0f));  // +minor[0]
-  REQUIRE(cof[1] == Approx(6.0f));   // -minor[1]
-  REQUIRE(cof[2] == Approx(-3.0f));  // +minor[2]
+  REQUIRE(cof[0] == Approx(-3.0f)); // +minor[0]
+  REQUIRE(cof[1] == Approx(6.0f));  // -minor[1]
+  REQUIRE(cof[2] == Approx(-3.0f)); // +minor[2]
 }
 
 // -----------------------------------------------------------------------------

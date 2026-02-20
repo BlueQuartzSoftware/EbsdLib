@@ -148,7 +148,7 @@ public:
  * @brief The GeneratePoleFigureRgbaImageImpl class is a wrapper around generating the RGBA image (2D UChar Array with 4 Components) from the
  * intensity image. This should be called from a TBB Task
  */
-class GeneratePoleFigureRgbaImageImpl
+class EbsdLib_EXPORT GeneratePoleFigureRgbaImageImpl
 {
 public:
   GeneratePoleFigureRgbaImageImpl(ebsdlib::DoubleArrayType* intensity, PoleFigureConfiguration_t* config, ebsdlib::UInt8ArrayType* rgba);

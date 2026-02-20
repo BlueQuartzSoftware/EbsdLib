@@ -1,8 +1,8 @@
 #pragma once
 
+#include <array>
 #include <cmath>
 #include <memory>
-#include <array>
 
 namespace ebsdlib
 {

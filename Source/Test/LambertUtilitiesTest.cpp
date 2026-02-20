@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/LambertUtilities.h"
 
 #include <cmath>
@@ -40,7 +41,7 @@ TEST_CASE("ebsdlib::LambertUtilitiesTest::SouthHemisphere_NonZeroInput", "[EbsdL
 TEST_CASE("ebsdlib::LambertUtilitiesTest::OutputOnUnitSphere", "[EbsdLib][LambertUtilitiesTest]")
 {
   // Test several points to verify output is on the unit sphere
-  float halfRange = static_cast<float>(std::sqrt(M_PI / 2.0));
+  float halfRange = static_cast<float>(std::sqrt(ebsdlib::constants::k_PiD / 2.0));
   float testValues[] = {0.0f, 0.3f, -0.3f, 0.6f, -0.6f, halfRange * 0.5f};
 
   for(float x : testValues)

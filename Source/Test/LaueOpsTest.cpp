@@ -5,7 +5,6 @@
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
 #include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/LaueOps/MonoclinicOps.h"
 #include "EbsdLib/LaueOps/OrthoRhombicOps.h"
 #include "EbsdLib/LaueOps/TetragonalLowOps.h"
@@ -13,6 +12,7 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Utilities/ColorTable.h"
 
 #include <cmath>
 #include <string>
@@ -43,17 +43,17 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetNumSymOps", "[EbsdLib][LaueOpsTest]")
   // 4=Triclinic, 5=Monoclinic, 6=OrthoRhombic
   // 7=Tetragonal_Low, 8=Tetragonal_High
   // 9=Trigonal_Low, 10=Trigonal_High
-  CHECK(ops[0]->getNumSymOps() == 12);  // Hexagonal_High
-  CHECK(ops[1]->getNumSymOps() == 24);  // Cubic_High
-  CHECK(ops[2]->getNumSymOps() == 6);   // Hexagonal_Low
-  CHECK(ops[3]->getNumSymOps() == 12);  // Cubic_Low
-  CHECK(ops[4]->getNumSymOps() == 1);   // Triclinic
-  CHECK(ops[5]->getNumSymOps() == 2);   // Monoclinic
-  CHECK(ops[6]->getNumSymOps() == 4);   // OrthoRhombic
-  CHECK(ops[7]->getNumSymOps() == 4);   // Tetragonal_Low
-  CHECK(ops[8]->getNumSymOps() == 8);   // Tetragonal_High
-  CHECK(ops[9]->getNumSymOps() == 3);   // Trigonal_Low
-  CHECK(ops[10]->getNumSymOps() == 6);  // Trigonal_High
+  CHECK(ops[0]->getNumSymOps() == 12); // Hexagonal_High
+  CHECK(ops[1]->getNumSymOps() == 24); // Cubic_High
+  CHECK(ops[2]->getNumSymOps() == 6);  // Hexagonal_Low
+  CHECK(ops[3]->getNumSymOps() == 12); // Cubic_Low
+  CHECK(ops[4]->getNumSymOps() == 1);  // Triclinic
+  CHECK(ops[5]->getNumSymOps() == 2);  // Monoclinic
+  CHECK(ops[6]->getNumSymOps() == 4);  // OrthoRhombic
+  CHECK(ops[7]->getNumSymOps() == 4);  // Tetragonal_Low
+  CHECK(ops[8]->getNumSymOps() == 8);  // Tetragonal_High
+  CHECK(ops[9]->getNumSymOps() == 3);  // Trigonal_Low
+  CHECK(ops[10]->getNumSymOps() == 6); // Trigonal_High
 }
 
 // -----------------------------------------------------------------------------

@@ -5,9 +5,9 @@
 
 #include <Eigen/Dense>
 
+#include <array>
 #include <cassert>
 #include <cmath>
-#include <array>
 
 namespace ebsdlib
 {

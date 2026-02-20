@@ -47,10 +47,10 @@ TEST_CASE("ebsdlib::StereographicProjectionTest::RoundTrip_SphericalToStereoToSp
 {
   // Round-trip for unit sphere points with z > -1
   std::vector<ebsdlib::Matrix3X1<double>> spherePoints = {
-      {0.0, 0.0, 1.0},                                                                              // north pole
-      {1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0)},                          // (1,1,1)/sqrt(3)
-      {1.0 / std::sqrt(2.0), 0.0, 1.0 / std::sqrt(2.0)},                                           // 45 degrees
-      {std::sqrt(3.0) / 2.0, 0.0, 0.5},                                                             // 60 degrees from pole
+      {0.0, 0.0, 1.0},                                                    // north pole
+      {1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0)}, // (1,1,1)/sqrt(3)
+      {1.0 / std::sqrt(2.0), 0.0, 1.0 / std::sqrt(2.0)},                  // 45 degrees
+      {std::sqrt(3.0) / 2.0, 0.0, 0.5},                                   // 60 degrees from pole
   };
 
   for(const auto& pt : spherePoints)

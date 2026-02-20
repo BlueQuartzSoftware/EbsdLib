@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 
-#include "EbsdLib/Utilities/TiffWriter.h"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
+#include "EbsdLib/Utilities/TiffWriter.h"
 
 #include <cstdint>
 #include <filesystem>
