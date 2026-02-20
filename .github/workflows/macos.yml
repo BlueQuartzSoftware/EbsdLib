@@ -1,0 +1,66 @@
+name: macos
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  build:
+    env:
+      VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-14
+          - macos-15
+        include:
+          - os: macos-14
+            preset: ci-macos-arm64
+          - os: macos-15
+            preset: ci-macos-arm64
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup vcpkg
+        run: |
+          if [ -z "$VCPKG_INSTALLATION_ROOT" ] || [ ! -d "$VCPKG_INSTALLATION_ROOT" ]; then
+            git clone https://www.github.com/microsoft/vcpkg && cd vcpkg && ./bootstrap-vcpkg.sh
+            VCPKG_INSTALLATION_ROOT=${{github.workspace}}/vcpkg
+            echo "$VCPKG_INSTALLATION_ROOT" >> $GITHUB_PATH
+            echo "VCPKG_INSTALLATION_ROOT=$VCPKG_INSTALLATION_ROOT" >> "$GITHUB_ENV"
+          fi
+      - name: Add C++ Problem Matcher
+        uses: ammaraskar/gcc-problem-matcher@0.2.0
+      - name: Install Dependencies
+        run: |
+          brew install ninja mono
+      - name: Setup NuGet Credentials
+        shell: bash
+        run: |
+          mono `vcpkg fetch nuget | tail -n 1` \
+          sources add \
+          -source "https://nuget.pkg.github.com/BlueQuartzSoftware/index.json" \
+          -storepasswordincleartext \
+          -name "GitHub" \
+          -username "BlueQuartzSoftware" \
+          -password "${{secrets.GITHUB_TOKEN}}"
+          mono `vcpkg fetch nuget | tail -n 1` \
+          setapikey "${{secrets.GITHUB_TOKEN}}" \
+          -source "https://nuget.pkg.github.com/BlueQuartzSoftware/index.json"
+      - name: Configure
+        run: |
+          cmake --preset ${{matrix.preset}} ${{github.workspace}}
+      - name: Build
+        run: |
+          cmake --build --preset ${{matrix.preset}}
+      - name: Test
+        run: |
+          ctest --preset ${{matrix.preset}}

@@ -141,9 +141,6 @@
             "type": "STRING",
             "value": "Debug"
           }
-        },
-        "environment": {
-            "VCPKG_INSTALLATION_ROOT": "/opt/local/vcpkg"
         }
       },
       {
@@ -160,14 +157,7 @@
           "VCPKG_HOST_TRIPLET": {
             "type": "STRING",
             "value": "x64-linux-dynamic"
-          },
-          "CMAKE_MAKE_PROGRAM": {
-              "type": "FILEPATH",
-              "value": "$env{VCPKG_INSTALLATION_ROOT}/downloads/tools/ninja/1.10.2-linux/ninja"
           }
-        },
-        "environment": {
-            "VCPKG_INSTALLATION_ROOT": "/opt/local/vcpkg"
         }
       }
     ],

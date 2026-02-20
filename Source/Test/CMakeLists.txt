@@ -52,4 +52,6 @@ if(MSVC)
   set_source_files_properties(${EbsdLibProj_BINARY_DIR}/EbsdLibUnitTest.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 
+catch_discover_tests(${UNIT_TEST_TARGET} TEST_PREFIX "EbsdLib::")
+
 get_property(EbsdLib_EXTRA_LIBRARY_DIRS GLOBAL PROPERTY EbsdLib_EXTRA_LIBRARY_DIRS)

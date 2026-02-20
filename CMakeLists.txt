@@ -164,6 +164,7 @@ include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
 # Build Unit Test
 # ------------------------------------------------------------------------------
 if(EbsdLib_BUILD_TESTS)
+  enable_testing()
 	include(${EbsdLibProj_SOURCE_DIR}/Source/Test/CMakeLists.txt)
 endif()
 
