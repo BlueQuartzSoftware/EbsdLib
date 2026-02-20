@@ -25,6 +25,14 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TextureTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationConverterTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/Matrix3X1Test.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/Matrix3X3Test.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ArrayHelpersTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdDataArrayTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdStringUtilsTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdTransformTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdLibRandomTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationMathTest.cpp
 )
 
 

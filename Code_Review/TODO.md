@@ -59,6 +59,12 @@ There are **12 active test files** compiled into a single `EbsdLibUnitTest` exec
 **Severity:** MEDIUM - Tests pass even with wildly incorrect values
 **Issue:** The tolerance check uses `delta < 1.0E6` (one million) instead of `1.0E-6` (one millionth). This means the round-trip conversion tests will pass even if values are off by up to a million, making the tests effectively useless for catching conversion errors.
 
+### Bug 5: `EbsdDataArray::eraseTuples()` - Does not update `m_NumTuples`
+
+**File:** `Source/EbsdLib/Core/EbsdDataArray.cpp:678`
+**Severity:** MEDIUM - `getNumberOfTuples()` returns stale value after eraseTuples
+**Issue:** The `eraseTuples()` method updates `m_Size`, `m_MaxId`, and `m_Array` but never updates `m_NumTuples`. After calling `eraseTuples()`, `getNumberOfTuples()` returns the original tuple count instead of the new (reduced) count. `getSize()` correctly returns the new total element count.
+
 ---
 
 ## Classes Requiring Unit Tests
@@ -70,7 +76,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 1. `EbsdDataArray<T>` - Core data container
 
 - **File:** `Source/EbsdLib/Core/EbsdDataArray.hpp`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/EbsdDataArrayTest.cpp` (23 test cases)
 - **Why:** Core template class used by virtually every reader and computation. Wraps raw arrays with lifecycle management.
 - **Recommended tests:**
   - Construction (default, sized, from existing pointer)
@@ -85,7 +91,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 2. `Matrix3X1<T>` - 3x1 vector operations
 
 - **File:** `Source/EbsdLib/Math/Matrix3X1.hpp`
-- **Status:** Only `cosTheta` tested (in QuaternionTest)
+- **Status:** **DONE** - `Source/Test/Matrix3X1Test.cpp` (20 test cases)
 - **Why:** Core math class with known bugs (see Bugs #1 and #2)
 - **Recommended tests:**
   - Construction and element access
@@ -99,7 +105,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 3. `Matrix3X3<T>` - 3x3 matrix operations
 
 - **File:** `Source/EbsdLib/Math/Matrix3X3.hpp`
-- **Status:** Exercised in TextureTest but no assertions on results
+- **Status:** **DONE** - `Source/Test/Matrix3X3Test.cpp` (23 test cases)
 - **Why:** Used in orientation math, coordinate transforms; currently only smoke-tested
 - **Recommended tests:**
   - Construction and element access
@@ -145,7 +151,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 7. `OrientationMath` - Crystallographic math
 
 - **File:** `Source/EbsdLib/Core/OrientationMath.h`
-- **Status:** No direct tests (indirectly exercised by ConvertToFundamentalZoneTest)
+- **Status:** **DONE** - `Source/Test/OrientationMathTest.cpp` (12 test cases)
 - **Why:** Static methods for misorientation calculations, widely used
 - **Recommended tests:**
   - `axisAngletoMatrix()`, `quatsToMatrix()`
@@ -156,7 +162,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 8. `EbsdStringUtils` - String utilities
 
 - **File:** `Source/EbsdLib/Utilities/EbsdStringUtils.hpp`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/EbsdStringUtilsTest.cpp` (18 test cases)
 - **Why:** String parsing utilities used by all readers
 - **Recommended tests:**
   - `split()`, `tokenize()` with various delimiters
@@ -168,7 +174,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 9. `EbsdTransform` - Reference frame transformations
 
 - **File:** `Source/EbsdLib/Core/EbsdTransform.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/EbsdTransformTest.cpp` (6 test cases)
 - **Why:** Transforms sample and Euler reference frames; errors here corrupt all downstream analysis
 - **Recommended tests:**
   - Sample reference frame transformations (all axis combinations)
@@ -179,7 +185,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 10. `EbsdLibRandom` - PRNG
 
 - **File:** `Source/EbsdLib/Math/EbsdLibRandom.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/EbsdLibRandomTest.cpp` (9 test cases)
 - **Why:** Mersenne Twister wrapper; used for texture generation
 - **Recommended tests:**
   - Seeded deterministic output verification
@@ -189,7 +195,7 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 11. `ArrayHelpers<T,K>` - Template math helpers
 
 - **File:** `Source/EbsdLib/Math/ArrayHelpers.hpp`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/ArrayHelpersTest.cpp` (13 test cases)
 - **Why:** Static utility methods used in orientation conversions
 - **Recommended tests:**
   - `splat()`, `multiply()`, `scalarMultiply()`
