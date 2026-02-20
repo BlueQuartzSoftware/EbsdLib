@@ -287,37 +287,37 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 23. `ToolTipGenerator` - HTML tooltip builder
 
 - **File:** `Source/EbsdLib/Utilities/ToolTipGenerator.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/ToolTipGeneratorTest.cpp` (8 test cases). Also fixed bug where `generateHTML()` and `rowToHTML()` returned empty strings.
 - **Recommended tests:** `addTitle()`, `addValue()`, output HTML correctness
 
 #### 24. `PoleFigureData` - Data holder
 
 - **File:** `Source/EbsdLib/Utilities/PoleFigureData.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/PoleFigureDataTest.cpp` (5 test cases)
 - **Recommended tests:** Construction, getter verification
 
 #### 25. `CanvasUtilities` - Visualization helpers
 
 - **File:** `Source/EbsdLib/Utilities/CanvasUtilities.hpp`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/CanvasUtilitiesTest.cpp` (6 test cases)
 - **Recommended tests:** Only if visual regression testing infrastructure is added
 
 #### 26. `ModifiedLambertProjectionArray` - Array variant
 
 - **File:** `Source/EbsdLib/Utilities/ModifiedLambertProjectionArray.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/ModifiedLambertProjectionArrayTest.cpp` (16 test cases)
 - **Recommended tests:** Array construction, element access, resize
 
 #### 27. `PoleFigureUtilities` - Pole figure generation
 
 - **File:** `Source/EbsdLib/Utilities/PoleFigureUtilities.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/PoleFigureUtilitiesTest.cpp` (4 test cases)
 - **Recommended tests:** Configuration setup, pole figure generation with known inputs
 
 #### 28. `TiffWriter` - TIFF file output
 
 - **File:** `Source/EbsdLib/Utilities/TiffWriter.h`
-- **Status:** Indirectly tested via IPFLegendTest (only checks return code)
+- **Status:** **DONE** - `Source/Test/TiffWriterTest.cpp` (4 test cases)
 - **Recommended tests:** Write and read-back verification, grayscale and color modes
 
 ---

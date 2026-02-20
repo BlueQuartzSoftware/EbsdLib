@@ -122,7 +122,7 @@ std::string ToolTipGenerator::generateHTML() const
   ss << rowToHTML(spacer);
   ss << "</tbody></table>\n";
   ss << "</body></html>";
-  return html;
+  return ss.str();
 }
 
 // -----------------------------------------------------------------------------
@@ -144,5 +144,5 @@ std::string ToolTipGenerator::rowToHTML(const RowItem& row) const
     break;
   }
 
-  return html;
+  return ss.str();
 }

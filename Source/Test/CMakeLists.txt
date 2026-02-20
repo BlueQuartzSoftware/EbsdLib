@@ -42,6 +42,12 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjection3DTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationTransformationTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ToolTipGeneratorTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureDataTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/CanvasUtilitiesTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionArrayTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureUtilitiesTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/TiffWriterTest.cpp
 )
 
 
@@ -62,6 +68,11 @@ target_link_libraries(${UNIT_TEST_TARGET}
   PRIVATE
     EbsdLib
     Catch2::Catch2
+)
+
+target_include_directories(${UNIT_TEST_TARGET}
+  PRIVATE
+    "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src"
 )
 
 
