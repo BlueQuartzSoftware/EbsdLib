@@ -219,43 +219,43 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 13. `ColorTable` / `ColorUtilities` - Color handling
 
 - **Files:** `Source/EbsdLib/Utilities/ColorTable.h`, `Source/EbsdLib/Utilities/ColorUtilities.h`
-- **Status:** No direct tests
+- **Status:** **DONE** - `Source/Test/ColorTableTest.cpp` (11 test cases)
 - **Recommended tests:** `RgbColor` helpers, HSV-to-RGB conversion, color component extraction
 
 #### 14. `LambertUtilities` - Square-to-sphere mapping
 
 - **File:** `Source/EbsdLib/Utilities/LambertUtilities.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/LambertUtilitiesTest.cpp` (4 test cases)
 - **Recommended tests:** Square-to-sphere and sphere-to-square conversions, round-trip consistency, boundary values
 
 #### 15. `ModifiedLambertProjection` - Lambert projection
 
 - **File:** `Source/EbsdLib/Utilities/ModifiedLambertProjection.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/ModifiedLambertProjectionTest.cpp` (7 test cases)
 - **Recommended tests:** North/south hemisphere projection, `addInterpolatedValues()`, normalization
 
 #### 16. `ComputeStereographicProjection` - Stereographic projection utilities
 
 - **File:** `Source/EbsdLib/Utilities/ComputeStereographicProjection.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/StereographicProjectionTest.cpp` (6 test cases)
 - **Recommended tests:** Stereographic-to-spherical and spherical-to-stereographic round-trips
 
 #### 17. `TexturePreset` - Texture presets
 
 - **File:** `Source/EbsdLib/Texture/TexturePreset.h`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/TexturePresetTest.cpp` (5 test cases)
 - **Recommended tests:** Preset value getters, preset registration
 
 #### 18. `AngPhase` / `CtfPhase` / `EspritPhase` - Phase data classes
 
 - **Files:** `Source/EbsdLib/IO/TSL/AngPhase.h`, `Source/EbsdLib/IO/HKL/CtfPhase.h`, `Source/EbsdLib/IO/BrukerNano/EspritPhase.h`
-- **Status:** CtfPhase partially tested via CtfReaderTest; others untested
+- **Status:** **DONE** - `Source/Test/PhaseTest.cpp` (18 test cases)
 - **Recommended tests:** Construction, getter/setter verification, lattice constant parsing
 
 #### 19. LaueOps subclasses - Enhanced symmetry tests
 
 - **Files:** `Source/EbsdLib/LaueOps/*.h` (11 subclasses)
-- **Status:** FZ tests comprehensive; IPF generation and misorientation calculation only smoke-tested
+- **Status:** **DONE** - `Source/Test/LaueOpsTest.cpp` (11 test cases)
 - **Recommended tests:**
   - `getNumSymOps()` returns expected count for each crystal system
   - `getIPFColor()` with known orientations against reference values
@@ -265,13 +265,13 @@ These classes have zero or near-zero test coverage and contain non-trivial logic
 #### 20. `ModifiedLambertProjection3D<T,K>` - 3D Lambert projection
 
 - **File:** `Source/EbsdLib/Utilities/ModifiedLambertProjection3D.hpp`
-- **Status:** No tests
+- **Status:** **DONE** - `Source/Test/ModifiedLambertProjection3DTest.cpp` (7 test cases)
 - **Recommended tests:** Cube-to-sphere and sphere-to-cube conversions, edge cases at cube boundaries
 
 #### 21. `OrientationTransformation` (namespace) - Conversion functions
 
 - **File:** `Source/EbsdLib/Core/OrientationTransformation.hpp`
-- **Status:** Well-tested via OrientationTest.cpp (round-trip), but not all individual functions are directly tested
+- **Status:** **DONE** - `Source/Test/OrientationTransformationTest.cpp` (11 test cases)
 - **Recommended tests:** Direct tests of each `xx2yy()` function with known analytical values (supplement existing round-trip tests)
 
 #### 22. `H5CtfReader` / `H5AngReader` - HDF5 format readers

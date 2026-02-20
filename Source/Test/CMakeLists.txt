@@ -33,6 +33,15 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdTransformTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/EbsdLibRandomTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationMathTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ColorTableTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/LambertUtilitiesTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/StereographicProjectionTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/TexturePresetTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/PhaseTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/LaueOpsTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjection3DTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationTransformationTest.cpp
 )
 
 
