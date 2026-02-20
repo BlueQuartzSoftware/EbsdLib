@@ -85,7 +85,7 @@ public:
     ResultType res;
     res.result = 1;
 
-    value_type epsd = 1.0E15; // std::numeric_limits<float>::epsilon();
+    value_type epsd = 1.0E-15; // std::numeric_limits<float>::epsilon();
     ValueType rd = magnitude();
     if(rd > 1.0 + epsd)
     {

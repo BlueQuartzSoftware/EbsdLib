@@ -34,6 +34,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <catch2/catch.hpp>
 
+#include <cmath>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
@@ -42,6 +43,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/Orientation/Euler.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 
@@ -82,7 +84,7 @@ TEST_CASE("ebsdlib::OrientationConverterTest::TestEuler2Quaternion", "[EbsdLib][
   for(size_t i = 0; i < 8; i++)
   {
     float delta = std::abs(exemplar[i] - (*output)[i]);
-    REQUIRE(delta < 1.0E6);
+    REQUIRE(delta < 1.0E-6);
   }
 }
 
@@ -132,17 +134,22 @@ void TestEulerAngle(float phi1, float phi, float phi2)
       converters[t1]->convertRepresentationTo(ocTypes[t0]);
       ebsdlib::FloatArrayType::Pointer t0_output = converters[t1]->getOutputData();
 
-      qStride = strides[t0];
-      std::vector<float> delta(qStride, 0);
+      // Compare via orientation matrices to avoid Euler angle ambiguities
+      // (periodicity and gimbal lock at Phi=0 or Phi=pi)
       for(size_t i = 0; i < nTuples; i++)
       {
-        float* orig = eulers->getPointer(i * qStride);
-        float* converted = t0_output->getPointer(i * qStride);
-        // printf("%s -> %s -> %s\n", tStrings[t0].toLatin1().constData(), tStrings[t1].toLatin1().constData(), tStrings[t0].toLatin1().constData());
-        for(size_t j = 0; j < qStride; j++)
+        float* orig = eulers->getPointer(i * 3);
+        float* converted = t0_output->getPointer(i * 3);
+
+        ebsdlib::Euler<float> origEu(orig[0], orig[1], orig[2]);
+        ebsdlib::Euler<float> convEu(converted[0], converted[1], converted[2]);
+        auto origOm = origEu.toOrientationMatrix();
+        auto convOm = convEu.toOrientationMatrix();
+
+        for(size_t j = 0; j < 9; j++)
         {
-          delta[j] = std::abs(orig[j] - converted[j]);
-          REQUIRE(delta[j] < 1.0E6);
+          float delta = std::abs(origOm[j] - convOm[j]);
+          REQUIRE(delta < 1.0E-4);
         }
       }
     }

@@ -187,6 +187,7 @@ public:
     i = i / denom;
     j = j / denom;
     k = k / denom;
+    return true;
   }
 
   /**
@@ -195,7 +196,7 @@ public:
    */
   SelfType sortAscending()
   {
-    SelfType outMat = this; // copy constructor
+    SelfType outMat = *this; // copy constructor
     T temp;
 
     if(outMat[0] <= outMat[1] && outMat[0] <= outMat[2])
@@ -248,6 +249,7 @@ public:
         outMat[2] = temp;
       }
     }
+    return outMat;
   }
 
   /**
