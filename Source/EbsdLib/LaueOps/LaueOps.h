@@ -46,6 +46,7 @@
 #include "EbsdLib/Orientation/OrientationFwd.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
+#include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 namespace ebsdlib
@@ -325,6 +326,16 @@ public:
    * @return
    */
   virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
+
+  /**
+   * @brief Generates 3 inverse pole figure density images for 3 orthogonal sample directions.
+   * The IPF density plot shows how a sample direction distributes across crystal directions
+   * within the Standard Stereographic Triangle (SST) using equal-area projection.
+   * This is a non-virtual base class method that works through existing virtual dispatch.
+   * @param config The configuration struct controlling the IPF generation
+   * @return A std::vector of 3 UInt8ArrayType pointers, each representing a 2D RGBA image
+   */
+  std::vector<UInt8ArrayType::Pointer> generateInversePoleFigure(InversePoleFigureConfiguration_t& config) const;
 
   enum class FZType : int32_t
   {

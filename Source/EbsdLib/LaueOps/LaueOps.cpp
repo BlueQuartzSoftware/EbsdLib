@@ -850,6 +850,87 @@ std::string LaueOps::ClassName()
 }
 
 //-----------------------------------------------------------------------------
+std::vector<UInt8ArrayType::Pointer> LaueOps::generateInversePoleFigure(InversePoleFigureConfiguration_t& config) const
+{
+  std::vector<UInt8ArrayType::Pointer> ipfImages(3);
+
+  // Determine labels
+  std::string label0 = "IPF-0";
+  std::string label1 = "IPF-1";
+  std::string label2 = "IPF-2";
+  if(config.labels.size() >= 1)
+  {
+    label0 = config.labels[0];
+  }
+  if(config.labels.size() >= 2)
+  {
+    label1 = config.labels[1];
+  }
+  if(config.labels.size() >= 3)
+  {
+    label2 = config.labels[2];
+  }
+
+  // Step 1: Compute IPF directions for each sample direction
+  ebsdlib::FloatArrayType::Pointer dirs0 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[0]);
+  ebsdlib::FloatArrayType::Pointer dirs1 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[1]);
+  ebsdlib::FloatArrayType::Pointer dirs2 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[2]);
+
+  // Step 2: Compute intensity images for each
+  ebsdlib::DoubleArrayType::Pointer intensity0 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs0.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD);
+  ebsdlib::DoubleArrayType::Pointer intensity1 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs1.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD);
+  ebsdlib::DoubleArrayType::Pointer intensity2 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs2.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD);
+
+  // Step 3: Find global min/max across all 3 intensity images (only for pixels inside SST, value >= 0)
+  double globalMax = std::numeric_limits<double>::lowest();
+  double globalMin = std::numeric_limits<double>::max();
+
+  std::array<ebsdlib::DoubleArrayType*, 3> intensities = {intensity0.get(), intensity1.get(), intensity2.get()};
+  for(auto* intensityArr : intensities)
+  {
+    double* dPtr = intensityArr->getPointer(0);
+    size_t count = intensityArr->getNumberOfTuples();
+    for(size_t i = 0; i < count; ++i)
+    {
+      if(dPtr[i] >= 0.0) // Only consider pixels inside the SST
+      {
+        if(dPtr[i] > globalMax)
+        {
+          globalMax = dPtr[i];
+        }
+        if(dPtr[i] < globalMin)
+        {
+          globalMin = dPtr[i];
+        }
+      }
+    }
+  }
+
+  // Handle case where no valid pixels were found
+  if(globalMax < globalMin)
+  {
+    globalMin = 0.0;
+    globalMax = 1.0;
+  }
+
+  // Step 4: Create RGBA color images
+  std::vector<size_t> dims = {4};
+  ebsdlib::UInt8ArrayType::Pointer image0 = ebsdlib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageWidth * config.imageHeight), dims, label0, true);
+  ebsdlib::UInt8ArrayType::Pointer image1 = ebsdlib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageWidth * config.imageHeight), dims, label1, true);
+  ebsdlib::UInt8ArrayType::Pointer image2 = ebsdlib::UInt8ArrayType::CreateArray(static_cast<size_t>(config.imageWidth * config.imageHeight), dims, label2, true);
+
+  InversePoleFigureUtilities::createIPFColorImage(intensity0.get(), config.imageWidth, config.imageHeight, config.numColors, globalMin, globalMax, image0.get());
+  InversePoleFigureUtilities::createIPFColorImage(intensity1.get(), config.imageWidth, config.imageHeight, config.numColors, globalMin, globalMax, image1.get());
+  InversePoleFigureUtilities::createIPFColorImage(intensity2.get(), config.imageWidth, config.imageHeight, config.numColors, globalMin, globalMax, image2.get());
+
+  ipfImages[0] = image0;
+  ipfImages[1] = image1;
+  ipfImages[2] = image2;
+
+  return ipfImages;
+}
+
+//-----------------------------------------------------------------------------
 ebsdlib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& refFrame) const
 {
   throw std::runtime_error("LaueOps::generateMisorientationColor is not implemented.");

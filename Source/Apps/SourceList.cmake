@@ -32,6 +32,13 @@ target_include_directories(generate_ipf_legends
     PRIVATE
         "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src")
 
+add_executable(generate_ipf_density ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_density.cpp)
+target_link_libraries(generate_ipf_density PUBLIC EbsdLib)
+target_include_directories(generate_ipf_density
+    PUBLIC
+        ${EbsdLibProj_SOURCE_DIR}/Source
+        ${EbsdLibProj_BINARY_DIR})
+
 add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
 target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
 target_include_directories(ParseAztecProject PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)

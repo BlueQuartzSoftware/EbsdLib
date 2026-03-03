@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cmake --build:*)",
+      "Bash(ctest:*)",
+      "Bash(cmake:*)",
+      "Bash(python3:*)",
+      "Bash(ninja -t targets:*)",
+      "Bash(git rm:*)",
+      "Bash(tar:*)",
+      "Bash(test:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(/Users/mjackson/Workspace5/DREAM3D-Build/NX-Com-Qt69-Vtk95-Rel/Bin/SimplnxCoreUnitTest:*)",
+      "Bash(/opt/local/cmake-3.30.3-macos-universal/CMake.app/Contents/bin/cmake:*)",
+      "Bash(for f in segment_features_neighbor_scheme_test.tar.gz segment_features_test_data.tar.gz)",
+      "Bash(do /opt/local/cmake-3.30.3-macos-universal/CMake.app/Contents/bin/cmake -E tar xzf \"$f\")",
+      "Bash(done)",
+      "Bash(for f in 6_5_test_data_1_v2.tar.gz segment_features_test_data.tar.gz 6_6_ebsd_segment_features.tar.gz segment_features_neighbor_scheme_test.tar.gz)",
+      "Bash(do echo \"Extracting $f...\")",
+      "Bash(echo:*)",
+      "Bash(for f in 6_5_test_data_1_v2.tar.gz segment_features_test_data.tar.gz segment_features_neighbor_scheme_test.tar.gz)",
+      "Bash(do tar -xzf \"$f\")",
+      "Bash(/Users/mjackson/Workspace5/DREAM3D-Build/NX-Com-Qt69-Vtk95-Rel/Bin/OrientationAnalysisUnitTest:*)",
+      "Bash(xargs sed:*)",
+      "Bash(grep:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(tee:*)",
+      "Bash(git mv:*)",
+      "Bash(perl -pe:*)",
+      "Bash(find:*)",
+      "Bash(perl -pi -e:*)",
+      "Bash(perl -pi -e 's/k_TypeName = \"\"AbstractNodeGeometry0D\"\"/k_TypeName = \"\"INodeGeometry0D\"\"/g':*)",
+      "Bash(gh pr view:*)",
+      "Bash(/opt/local/bin/gh pr view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)"
+    ]
+  }
+}
