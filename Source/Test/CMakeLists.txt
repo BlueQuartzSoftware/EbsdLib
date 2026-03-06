@@ -48,6 +48,9 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionArrayTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureUtilitiesTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TiffWriterTest.cpp
+
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/DirectionalStatsTest.cpp
+
 )
 
 
