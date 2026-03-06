@@ -7,11 +7,16 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 
+#include <fmt/format.h>
+
 #include "UnitTestSupport.hpp"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
+#include <cmath>
+#include <cstdio>
 #include <limits>
+#include <iostream>
 
 using namespace ebsdlib;
 
@@ -34,28 +39,74 @@ std::vector<QuatD> k_TestQuats = {
 }
 //clang-format on
 
+TEST_CASE("DirectionalStatsTest:Test Print", "[DirectionalStatsTest]")
+{
+  for(const auto& quat : Detail::k_TestQuats)
+  {
+    std::cout <<  quat.w() << " " <<  quat.x()<< " " <<  quat.y()<< " " <<  quat.z() << std::endl;
+  }
+}
+
+
+// Port of the Fortran orav_ subroutine from mod_orav.f90
+// Tests VMF and Watson directional statistics averaging
 TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
 {
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
 
-  DirectionalStats dictVMF("VMF", ops[1]); // Use Cubic High for this test?
+  // VMF averaging (mirrors Fortran: dictVMF = DirStat_T(DStype='VMF', pgnum=pgnum))
+  DirectionalStats dictVMF("VMF", cubicOps);
   dictVMF.setNumEM(25);
   dictVMF.setNumIter(30);
   dictVMF.setQuatArray(Detail::k_TestQuats);
 
-  // VMF averaging
   uint32_t seed = 43514;
   QuatD muhat = QuatD::identity();
   double kappahat = 0.0;
 
   dictVMF.EMforDS(seed, muhat, kappahat, false);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion von Mises-Fisher average\n");
+  std::printf(" <q> wxyz     : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %16.12f\n", kappahat);
+  std::printf(" eq. deg. : %16.12f\n", eqDeg);
+}
+
+TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
+{
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
+
+  // Watson averaging (mirrors Fortran: dictWAT = DirStat_T(DStype='WAT', pgnum=pgnum))
+  DirectionalStats dictWAT("WAT", cubicOps);
+  dictWAT.setNumEM(25);
+  dictWAT.setNumIter(30);
+  dictWAT.setQuatArray(Detail::k_TestQuats);
+
+  uint32_t seed = 43514;
+  QuatD muhat = QuatD::identity();
+  double kappahat = 0.0;
+
+  dictWAT.EMforDS(seed, muhat, kappahat, false);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion Watson average\n");
+  std::printf(" <q>wxyz      : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %16.12f\n", kappahat);
+  std::printf(" eq. deg. : %16.12f\n", eqDeg);
 }
 
 TEST_CASE("DirectionalStatsTest:SpaceGroupTest", "[DirectionalStatsTest]")
 {
-    for(size_t sgNum = 1; sgNum <= 230; ++sgNum)
-    {
-      auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
-    }
+  for(size_t sgNum = 1; sgNum <= 230; ++sgNum)
+  {
+    auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
+  }
 }
 
