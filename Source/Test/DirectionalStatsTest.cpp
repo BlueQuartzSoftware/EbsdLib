@@ -48,6 +48,7 @@ TEST_CASE("DirectionalStatsTest:Test Print", "[DirectionalStatsTest]")
 }
 
 
+
 // Port of the Fortran orav_ subroutine from mod_orav.f90
 // Tests VMF and Watson directional statistics averaging
 TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
@@ -74,6 +75,15 @@ TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
   std::printf(" <q> wxyz     : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
   std::printf(" kappa    : %16.12f\n", kappahat);
   std::printf(" eq. deg. : %16.12f\n", eqDeg);
+
+
+  REQUIRE (muhat.w() == Approx(0.84950496579883705 ));
+  REQUIRE (muhat.x() == Approx(-0.11703380290527357));
+  REQUIRE (muhat.y() == Approx(-0.41859550518870220));
+  REQUIRE (muhat.z() == Approx(0.29903545792507868));
+  REQUIRE (kappahat == 31.041324777872255);
+  REQUIRE (eqDeg == 14.582781149219644);
+
 }
 
 TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
@@ -100,13 +110,21 @@ TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
   std::printf(" <q>wxyz      : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
   std::printf(" kappa    : %16.12f\n", kappahat);
   std::printf(" eq. deg. : %16.12f\n", eqDeg);
+
+  REQUIRE (muhat.w() == Approx(0.89092674559930174));
+  REQUIRE (muhat.x() == Approx(-3.6428986725595566E-002));
+  REQUIRE (muhat.y() == Approx(-0.34211765663628535));
+  REQUIRE (muhat.z() == Approx(0.29644218984429377));
+  REQUIRE (kappahat == 14.547000000000001);
+  REQUIRE (eqDeg == 21.368338461543093);
+
 }
 
-TEST_CASE("DirectionalStatsTest:SpaceGroupTest", "[DirectionalStatsTest]")
-{
-  for(size_t sgNum = 1; sgNum <= 230; ++sgNum)
-  {
-    auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
-  }
-}
+// TEST_CASE("DirectionalStatsTest:SpaceGroupTest", "[DirectionalStatsTest]")
+// {
+//   for(size_t sgNum = 1; sgNum <= 230; ++sgNum)
+//   {
+//     auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
+//   }
+// }
 

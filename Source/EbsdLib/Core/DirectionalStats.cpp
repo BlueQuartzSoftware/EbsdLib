@@ -189,17 +189,19 @@ T BesselI2(T x) noexcept
   return BesselI0(x) - (T(2) / x) * BesselI1(x);
 }
 
+// Park-Miller "minimal standard" PRNG — matches the Fortran r8_uniform_01 exactly.
+// Reference: Lewis, Goodman, Miller (1969); Schrage's method to avoid overflow.
+//   seed = 16807 * seed mod (2^31 - 1)
+//   result = seed / (2^31 - 1)
 double r8_uniform_01(uint32_t& seed)
 {
-  // Simple 32-bit LCG; returns (0,1). (Not cryptographically secure.)
-  seed = 1664525u * seed + 1013904223u;
-  // Map to (0,1); avoid exact 0 to keep log() safe
-  double u = (static_cast<double>(seed) + 0.5) / static_cast<double>(std::numeric_limits<uint32_t>::max());
-  if(u <= 0.0)
-    u = std::numeric_limits<double>::min();
-  if(u >= 1.0)
-    u = std::nextafter(1.0, 0.0);
-  return u;
+  int32_t s = static_cast<int32_t>(seed);
+  const int32_t k = s / 127773;
+  s = 16807 * (s - k * 127773) - k * 2836;
+  if(s < 0)
+    s += 2147483647;
+  seed = static_cast<uint32_t>(s);
+  return static_cast<double>(s) * 4.656612875e-10;
 }
 
 void r8vec_uniform_01(int m, uint32_t& seed, std::vector<double>& r)
