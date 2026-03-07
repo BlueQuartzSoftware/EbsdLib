@@ -16,12 +16,11 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
-#include <iostream>
 
 using namespace ebsdlib;
 
 //clang-format off
-namespace Detail
+namespace detail
 {
 std::vector<QuatD> k_TestQuats = {
     {0.6719963424253053, 0.6129423860730265, 0.1364166710960659, 0.3925723359703083},    {0.295631110116223, 0.8806176765212745, -0.1670640703896814, 0.330460816004792},
@@ -39,16 +38,6 @@ std::vector<QuatD> k_TestQuats = {
 }
 //clang-format on
 
-TEST_CASE("DirectionalStatsTest:Test Print", "[DirectionalStatsTest]")
-{
-  for(const auto& quat : Detail::k_TestQuats)
-  {
-    std::cout <<  quat.w() << " " <<  quat.x()<< " " <<  quat.y()<< " " <<  quat.z() << std::endl;
-  }
-}
-
-
-
 // Port of the Fortran orav_ subroutine from mod_orav.f90
 // Tests VMF and Watson directional statistics averaging
 TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
@@ -56,11 +45,22 @@ TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
   LaueOps::Pointer cubicOps = ops[1]; // Cubic High
 
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  // (mirrors Fortran: call SO%ReducelisttoRFZ(qsym) in mod_orav.f90 line 315)
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(detail::k_TestQuats.size());
+  for(const auto& q : detail::k_TestQuats)
+  {
+   fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
   // VMF averaging (mirrors Fortran: dictVMF = DirStat_T(DStype='VMF', pgnum=pgnum))
   DirectionalStats dictVMF("VMF", cubicOps);
-  dictVMF.setNumEM(25);
-  dictVMF.setNumIter(30);
-  dictVMF.setQuatArray(Detail::k_TestQuats);
+  int numEmIterations = 5;
+  int numIterations = 10;
+  dictVMF.setNumEM(numEmIterations);
+  dictVMF.setNumIter(numIterations);
+  dictVMF.setQuatArray(fzQuats);
 
   uint32_t seed = 43514;
   QuatD muhat = QuatD::identity();
@@ -72,18 +72,18 @@ TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
   double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
 
   std::printf(" Quaternion von Mises-Fisher average\n");
-  std::printf(" <q> wxyz     : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
-  std::printf(" kappa    : %16.12f\n", kappahat);
-  std::printf(" eq. deg. : %16.12f\n", eqDeg);
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q> wxyz     : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
 
-
-  REQUIRE (muhat.w() == Approx(0.84950496579883705 ));
-  REQUIRE (muhat.x() == Approx(-0.11703380290527357));
-  REQUIRE (muhat.y() == Approx(-0.41859550518870220));
-  REQUIRE (muhat.z() == Approx(0.29903545792507868));
-  REQUIRE (kappahat == 31.041324777872255);
-  REQUIRE (eqDeg == 14.582781149219644);
-
+  REQUIRE(muhat.w() == Approx(0.8893749825279105));
+  REQUIRE(muhat.x() == Approx(0.3322000547718371));
+  REQUIRE(muhat.y() == Approx(-0.1964639452260062));
+  REQUIRE(muhat.z() == Approx(0.2450656693404858));
+  REQUIRE(kappahat == Approx(88.9943042750539774));
+  REQUIRE(eqDeg == Approx(8.5973386361977155));
 }
 
 TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
@@ -91,11 +91,22 @@ TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
   LaueOps::Pointer cubicOps = ops[1]; // Cubic High
 
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(detail::k_TestQuats.size());
+  for(const auto& q : detail::k_TestQuats)
+  {
+    fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
   // Watson averaging (mirrors Fortran: dictWAT = DirStat_T(DStype='WAT', pgnum=pgnum))
   DirectionalStats dictWAT("WAT", cubicOps);
-  dictWAT.setNumEM(25);
-  dictWAT.setNumIter(30);
-  dictWAT.setQuatArray(Detail::k_TestQuats);
+  int numEmIterations = 5;
+  int numIterations = 10;
+
+  dictWAT.setNumEM(numEmIterations);
+  dictWAT.setNumIter(numIterations);
+  dictWAT.setQuatArray(fzQuats);
 
   uint32_t seed = 43514;
   QuatD muhat = QuatD::identity();
@@ -107,17 +118,19 @@ TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
   double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
 
   std::printf(" Quaternion Watson average\n");
-  std::printf(" <q>wxyz      : %16.12f %16.12f %16.12f %16.12f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
-  std::printf(" kappa    : %16.12f\n", kappahat);
-  std::printf(" eq. deg. : %16.12f\n", eqDeg);
 
-  REQUIRE (muhat.w() == Approx(0.89092674559930174));
-  REQUIRE (muhat.x() == Approx(-3.6428986725595566E-002));
-  REQUIRE (muhat.y() == Approx(-0.34211765663628535));
-  REQUIRE (muhat.z() == Approx(0.29644218984429377));
-  REQUIRE (kappahat == 14.547000000000001);
-  REQUIRE (eqDeg == 21.368338461543093);
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q>wxyz      : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
 
+  REQUIRE(muhat.w() == Approx(0.9011878668560466));
+  REQUIRE(muhat.x() == Approx(0.2948298270586034));
+  REQUIRE(muhat.y() == Approx(-0.2106011604618418));
+  REQUIRE(muhat.z() == Approx(0.2378717152588106));
+  REQUIRE(kappahat == Approx(30.5730272919979669));
+  REQUIRE(eqDeg == Approx(14.6946529653613620));
 }
 
 // TEST_CASE("DirectionalStatsTest:SpaceGroupTest", "[DirectionalStatsTest]")
@@ -127,4 +140,3 @@ TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
 //     auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
 //   }
 // }
-

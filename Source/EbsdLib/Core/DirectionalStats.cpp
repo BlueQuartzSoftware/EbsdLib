@@ -48,44 +48,43 @@ using namespace ebsdlib;
 namespace
 { // ---------- Random helpers mirroring the Fortran routines ----------
 
-template <class T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 T BesselI0(T x) noexcept
 {
   // Coefficients (cast to T)
-  const T P1 = T(1.0);
-  const T P2 = T(3.5156229);
-  const T P3 = T(3.0899424);
-  const T P4 = T(1.2067492);
-  const T P5 = T(0.2659732);
-  const T P6 = T(0.0360768); // 0.360768D-1
-  const T P7 = T(0.0045813); // 0.45813D-2
+  const T p1 = T(1.0);
+  const T p2 = T(3.5156229);
+  const T p3 = T(3.0899424);
+  const T p4 = T(1.2067492);
+  const T p5 = T(0.2659732);
+  const T p6 = T(0.0360768); // 0.360768D-1
+  const T p7 = T(0.0045813); // 0.45813D-2
 
-  const T Q1 = T(0.39894228);
-  const T Q2 = T(0.01328592);  // 0.1328592D-1
-  const T Q3 = T(0.00225319);  // 0.225319D-2
-  const T Q4 = T(-0.00157565); // -0.157565D-2
-  const T Q5 = T(0.00916281);  // 0.916281D-2
-  const T Q6 = T(-0.02057706); // -0.2057706D-1
-  const T Q7 = T(0.02635537);  // 0.2635537D-1
-  const T Q8 = T(-0.01647633); // -0.1647633D-1
-  const T Q9 = T(0.00392377);  // 0.392377D-2
+  const T q1 = T(0.39894228);
+  const T q2 = T(0.01328592);  // 0.1328592D-1
+  const T q3 = T(0.00225319);  // 0.225319D-2
+  const T q4 = T(-0.00157565); // -0.157565D-2
+  const T q5 = T(0.00916281);  // 0.916281D-2
+  const T q6 = T(-0.02057706); // -0.2057706D-1
+  const T q7 = T(0.02635537);  // 0.2635537D-1
+  const T q8 = T(-0.01647633); // -0.1647633D-1
+  const T q9 = T(0.00392377);  // 0.392377D-2
 
   const T ax = std::abs(x);
   if(ax < T(3.75))
   {
     const T y = (x / T(3.75)) * (x / T(3.75));
-    return P1 + y * (P2 + y * (P3 + y * (P4 + y * (P5 + y * (P6 + y * P7)))));
+    return p1 + y * (p2 + y * (p3 + y * (p4 + y * (p5 + y * (p6 + y * p7)))));
   }
-  else
-  {
-    const T y = T(3.75) / ax;
-    const T bx = std::exp(ax) / std::sqrt(ax);
-    const T a = Q1 + y * (Q2 + y * (Q3 + y * (Q4 + y * (Q5 + y * (Q6 + y * (Q7 + y * (Q8 + y * Q9)))))));
-    return a * bx;
-  }
+
+  const T y = T(3.75) / ax;
+  const T bx = std::exp(ax) / std::sqrt(ax);
+  const T a = q1 + y * (q2 + y * (q3 + y * (q4 + y * (q5 + y * (q6 + y * (q7 + y * (q8 + y * 19)))))));
+  return a * bx;
+
 }
 
-template <class T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 T BesselI1(T x) noexcept
 {
   // Coefficients (from the Fortran routine), cast to T
@@ -114,34 +113,36 @@ T BesselI1(T x) noexcept
     // Small-argument series: note the leading factor x
     return x * (P1 + y * (P2 + y * (P3 + y * (P4 + y * (P5 + y * (P6 + y * P7))))));
   }
-  else
-  {
-    const T y = T(3.75) / ax;
+
+      const T y = T(3.75) / ax;
     const T bx = std::exp(ax) / std::sqrt(ax);
     const T a = Q1 + y * (Q2 + y * (Q3 + y * (Q4 + y * (Q5 + y * (Q6 + y * (Q7 + y * (Q8 + y * Q9)))))));
     // As in the provided Fortran, this branch does not apply sign(x).
     return a * bx;
-  }
+
 }
 
 // Assumes templated BesselI0<T> and BesselI1<T> are available.
 
 // Modified Bessel function of the first kind, integer order N: I_N(x)
-template <class T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 T BesselIn(T x, int N) noexcept
 {
   // Special cases
-  if(N == 0)
+  if(N == 0) {
     return BesselI0(x);
-  if(N == 1)
+}
+  if(N == 1) {
     return BesselI1(x);
-  if(x == T(0))
+}
+  if(x == T(0)) {
     return T(0);
+}
 
   // Constants (mirroring Fortran)
-  constexpr int IACC = 40;
-  const T BIGNO = T(1e10);
-  const T BIGNI = T(1e-10);
+  constexpr int iacc = 40;
+  const T bigno = T(1e10);
+  const T bigni = T(1e-10);
 
   // Set up Miller downward recurrence
   const T tox = T(2) / x;
@@ -150,22 +151,23 @@ T BesselIn(T x, int N) noexcept
   T bessi = T(0);
 
   // M = 2 * ( N + int(sqrt(IACC * N)) )
-  const int M = 2 * (N + static_cast<int>(std::sqrt(static_cast<T>(IACC * N))));
+  const int M = 2 * (N + static_cast<int>(std::sqrt(static_cast<T>(iacc * N))));
 
   for(int j = M; j >= 1; --j)
   {
-    const T bim = bip + static_cast<T>(j) * tox * bi;
+    const T bim = bip + (static_cast<T>(j) * tox * bi);
     bip = bi;
     bi = bim;
 
-    if(std::abs(bi) > BIGNO)
+    if(std::abs(bi) > bigno)
     {
-      bi *= BIGNI;
-      bip *= BIGNI;
-      bessi *= BIGNI;
+      bi *= bigni;
+      bip *= bigni;
+      bessi *= bigni;
     }
-    if(j == N)
+    if(j == N) {
       bessi = bip;
+}
   }
 
   // Normalize using I0(x)
@@ -174,7 +176,7 @@ T BesselIn(T x, int N) noexcept
 }
 
 // ---- small helper for I2 using a stable recurrence + small-x series ----
-template <class T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 T BesselI2(T x) noexcept
 {
   const T ax = std::abs(x);
@@ -182,11 +184,11 @@ T BesselI2(T x) noexcept
   {
     // Series: I2(x) = x^2/8 + x^4/96 + O(x^6)
     const T x2 = x * x;
-    return x2 * (T(1) / T(8)) + x2 * x2 * (T(1) / T(96));
+    return (x2 * (T(1) / T(8))) + (x2 * x2 * (T(1) / T(96)));
   }
   // Recurrence: I_{ν-1} - I_{ν+1} = (2ν/x) I_ν, with ν=1 -> I0 - I2 = (2/x) I1
   // => I2 = I0 - (2/x) * I1
-  return BesselI0(x) - (T(2) / x) * BesselI1(x);
+  return BesselI0(x) - ((T(2) / x) * BesselI1(x));
 }
 
 // Park-Miller "minimal standard" PRNG — matches the Fortran r8_uniform_01 exactly.
@@ -197,9 +199,10 @@ double r8_uniform_01(uint32_t& seed)
 {
   int32_t s = static_cast<int32_t>(seed);
   const int32_t k = s / 127773;
-  s = 16807 * (s - k * 127773) - k * 2836;
-  if(s < 0)
+  s = (16807 * (s - k * 127773)) - (k * 2836);
+  if(s < 0) {
     s += 2147483647;
+}
   seed = static_cast<uint32_t>(s);
   return static_cast<double>(s) * 4.656612875e-10;
 }
@@ -207,8 +210,9 @@ double r8_uniform_01(uint32_t& seed)
 void r8vec_uniform_01(int m, uint32_t& seed, std::vector<double>& r)
 {
   r.resize(m);
-  for(int i = 0; i < m; ++i)
+  for(int i = 0; i < m; ++i) {
     r[i] = r8_uniform_01(seed);
+}
 }
 
 // Faithful port of the Fortran r8vec_normal_01
@@ -228,8 +232,9 @@ void r8vec_normal_01(int n, uint32_t& seed, double* x)
   if(x_hi_index - x_lo_index + 1 == 1)
   {
     double r1 = r8_uniform_01(seed);
-    if(r1 <= 0.0)
+    if(r1 <= 0.0) {
       r1 = std::numeric_limits<double>::min();
+}
     double r2 = r8_uniform_01(seed);
     x[x_hi_index] = std::sqrt(-2.0 * std::log(r1)) * std::cos(2.0 * r8_pi * r2);
     return;
@@ -378,59 +383,60 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
 
   // array sizes
   const int N = this->getN();
-  const int Pmdims = m_LaueOps->getNumSymOps();
-  const int NumEM = this->NumEM_;
-  const int NumIter = this->NumIter_;
+  const int pmdims = m_LaueOps->getNumSymOps();
+  const int numEm = this->NumEM_;
+  const int numIter = this->NumIter_;
 
   // initialize some auxiliary arrays
-  std::vector<QuatD> Mu_All(NumEM); //
-  std::vector<double> Kappa_All(NumEM, 0.0);
-  std::vector<double> L_All(NumEM, 0.0);
+  std::vector<QuatD> muAll(numEm); //
+  std::vector<double> kappaAll(numEm, 0.0);
+  std::vector<double> lAll(numEm, 0.0);
 
   // auto idxMu = [&](int init, int k) { return init * 4 + k; }; // k=0..3 → (w,x,y,z)
   // main loop (EM typically uses a few starting parameter sets to make sure we don't get stuck in a local maximum)
-  for(int init = 0; init < NumEM; ++init)
+  for(int init = 0; init < numEm; ++init)
   {
     // generate a normal random vector and normalize it as a starting guess for Mu (i.e., a unit quaternion)
     std::array<double, 4> v;
     r8vec_normal_01(4, seed, v.data());
-    QuatD Mu = QuatD(v[0], v[1], v[2], v[3]).normalize().getPositiveOrientation();
+    // v comes from Fortran-order PRNG: v[0]=w, v[1]=x, v[2]=y, v[3]=z
+    QuatD mu = QuatD(v[1], v[2], v[3], v[0]).normalize().getPositiveOrientation();
 
     // starting value for Kappa
-    double Kappa = 30.0;
+    double kappa = 30.0;
     // define the number of iterations and the Q and L function arrays
-    std::vector<double> Q(NumIter, 0.0);
-    std::vector<double> L(NumIter, 0.0);
+    std::vector<double> q(numIter, 0.0);
+    std::vector<double> l(numIter, 0.0);
 
     // and here we go with the EM iteration...
     // we use quaternion multiplication throughout instead of the matrix version in the Matlab version
     // quaternion multiplication has been verified against the 4x4 matrix multiplication of the Matlab code on 01/02/15
-    for(int i = 0; i < NumIter; ++i)
+    for(int i = 0; i < numIter; ++i)
     {
       // E-step
-      std::vector<double> R = this->Estep_(Mu, Kappa);
+      std::vector<double> const r = this->Estep_(mu, kappa);
 
       // M-step — returns MuKa
-      std::array<double, 5> MuKa = this->Mstep_(R, N, Pmdims);
+      std::array<double, 5> muKa = this->Mstep_(r, N, pmdims);
 
       // Q and Likelihood
       double Qi = 0.0, Li = 0.0;
-      this->getQandL_(MuKa, R, Qi, Li);
-      Q[i] = Qi;
-      L[i] = Li;
+      this->getQandL_(muKa, r, Qi, Li);
+      q[i] = Qi;
+      l[i] = Li;
 
       // Persist latest params for this init
       // MuKa is [x,y,z,w,kappa] matching QuatD(x,y,z,w) constructor
-      Mu_All[init] = QuatD(MuKa[0], MuKa[1], MuKa[2], MuKa[3]);
-      Kappa_All[init] = MuKa[4];
-      L_All[init] = L[i];
+      muAll[init] = QuatD(muKa[0], muKa[1], muKa[2], muKa[3]);
+      kappaAll[init] = muKa[4];
+      lAll[init] = l[i];
 
-      // Update Mu/Kappa for next iter
-      Mu = Mu_All[init].getPositiveOrientation();
-      Kappa = Kappa_All[init];
+      // Update Mu/Kappa for next iter (Fortran does NOT call quat_pos here)
+      mu = muAll[init];
+      kappa = kappaAll[init];
 
       // Convergence: |Q(i) - Q(i-1)| < 0.01
-      if(i >= 1 && std::fabs(Q[i] - Q[i - 1]) < 0.01)
+      if(i >= 1 && std::fabs(q[i] - q[i - 1]) < 0.01)
       {
         break;
       }
@@ -441,28 +447,28 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
   int dd = 0;
   {
     double best = -std::numeric_limits<double>::infinity();
-    for(int i = 0; i < NumEM; ++i)
+    for(int i = 0; i < numEm; ++i)
     {
-      if(L_All[i] > best)
+      if(lAll[i] > best)
       {
-        best = L_All[i];
+        best = lAll[i];
         dd = i;
       }
     }
   }
 
   // Recover Mu for best init
-  QuatD Mu = Mu_All[dd];
-  Mu.positiveOrientation();
-  kappahat = Kappa_All[dd];
+  QuatD mu = muAll[dd];
+  mu.positiveOrientation();
+  kappahat = kappaAll[dd];
 
   // Ensure Mu lies in the fundamental zone:
   // Cycle symmetry equivalents (Fortran loop i=1..Pmdims → C++ i=0..Pmdims-1 with +1)
-  QuatD quat = Mu;
-  for(int i = 0; i < Pmdims; ++i)
+  QuatD const quat = mu;
+  for(int i = 0; i < pmdims; ++i)
   {
-    QuatD qi = m_LaueOps->getQuatSymOp(i); // 1-based access
-    QuatD qu = (quat * qi).getPositiveOrientation();
+    QuatD const qi = m_LaueOps->getQuatSymOp(i); // 1-based access
+    QuatD const qu = (quat * qi).getPositiveOrientation();
 
     // test FZ, and, if inside, convert back
     if(m_LaueOps->IsInsideFZ(qu, m_LaueOps->getFZType(), m_LaueOps->getAxisOrderingType()))
@@ -473,7 +479,7 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
   }
 
   // Fallback (once stubs are real, we should have returned above)
-  muhat = Mu;
+  muhat = mu;
   muhat.positiveOrientation();
 }
 
@@ -704,6 +710,7 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
     }
 
     y_scalar = nGamma / static_cast<double>(N);
+
   }
   else if(this->DStype == "WAT")
   {
