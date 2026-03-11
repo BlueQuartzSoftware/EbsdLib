@@ -417,16 +417,16 @@ bool LaueOps::InsideCubicFZ(const RodriguesDType& rod, const FZType fzType)
   bool c2 = false;
 
   constexpr double r1 = 1.0;
-  constexpr double eps = 1.0e-10;
+  constexpr double eps = 1.0e-8; // Match EMsoftOO tolerance for FZ boundary
 
   const std::array<double, 4> x = {rod[0], rod[1], rod[2], rod[3]}; // Make a copy of rod
   const std::array<double, 3> r = {x[0] * x[3], x[1] * x[3], x[2] * x[3]};
-
   // primary cube planes (only needed for octahedral case)
   if(fzType == FZType::Octahedral)
   {
     double max = std::max({std::fabs(r[0]), std::fabs(r[1]), std::fabs(r[2])});
-    c1 = (max - LPs::BP[4 - 1]) <= eps;
+    double diff = max - LPs::BP[4 - 1];
+    c1 = (diff <= eps);
   }
   else
   {
@@ -618,8 +618,8 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
 QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order)
 {
   // Ensure the Quaternion is Normalized and the Scalar Part is positive
-  QuatD normalizedQuat = qr.getPositiveOrientation();
-  RodriguesDType rod = QuaternionDType(normalizedQuat).toRodrigues();
+  QuatD normalizedQuat = qr.normalize().getPositiveOrientation();
+  RodriguesDType rod = normalizedQuat.toRodrigues();
 
   if(IsInsideFZ(rod, fzType, order))
   {
@@ -629,16 +629,16 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   size_t numsym = quatsym.size();
   for(size_t i = 0; i < numsym; i++)
   {
-    QuatD qc = quatsym[i] * qr;
+    QuatD qc = (quatsym[i] * qr).normalize();
     normalizedQuat = qc.getPositiveOrientation();
-    rod = QuaternionDType(normalizedQuat).toRodrigues();
+    rod = normalizedQuat.toRodrigues();
 
     if(normalizedQuat.w() < 1.0E5 && IsInsideFZ(rod, fzType, order))
     {
       return normalizedQuat;
     }
   }
-  // This should never happen so I guess returning a Qauaternion with all Infinity values is _a_ way to do it?
+  // This should never happen, so I guess returning a Quaternion with all Infinity values is _a_ way to do it?
   // Maybe we should throw an exception instead? Or return a std::optional() if we were using C++17
   return {std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
 }

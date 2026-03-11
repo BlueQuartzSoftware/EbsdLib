@@ -79,9 +79,8 @@ T BesselI0(T x) noexcept
 
   const T y = T(3.75) / ax;
   const T bx = std::exp(ax) / std::sqrt(ax);
-  const T a = q1 + y * (q2 + y * (q3 + y * (q4 + y * (q5 + y * (q6 + y * (q7 + y * (q8 + y * 19)))))));
+  const T a = q1 + y * (q2 + y * (q3 + y * (q4 + y * (q5 + y * (q6 + y * (q7 + y * (q8 + y * q9)))))));
   return a * bx;
-
 }
 
 template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
@@ -114,12 +113,11 @@ T BesselI1(T x) noexcept
     return x * (P1 + y * (P2 + y * (P3 + y * (P4 + y * (P5 + y * (P6 + y * P7))))));
   }
 
-      const T y = T(3.75) / ax;
-    const T bx = std::exp(ax) / std::sqrt(ax);
-    const T a = Q1 + y * (Q2 + y * (Q3 + y * (Q4 + y * (Q5 + y * (Q6 + y * (Q7 + y * (Q8 + y * Q9)))))));
-    // As in the provided Fortran, this branch does not apply sign(x).
-    return a * bx;
-
+  const T y = T(3.75) / ax;
+  const T bx = std::exp(ax) / std::sqrt(ax);
+  const T a = Q1 + y * (Q2 + y * (Q3 + y * (Q4 + y * (Q5 + y * (Q6 + y * (Q7 + y * (Q8 + y * Q9)))))));
+  // As in the provided Fortran, this branch does not apply sign(x).
+  return a * bx;
 }
 
 // Assumes templated BesselI0<T> and BesselI1<T> are available.
@@ -129,15 +127,18 @@ template <class T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 T BesselIn(T x, int N) noexcept
 {
   // Special cases
-  if(N == 0) {
+  if(N == 0)
+  {
     return BesselI0(x);
-}
-  if(N == 1) {
+  }
+  if(N == 1)
+  {
     return BesselI1(x);
-}
-  if(x == T(0)) {
+  }
+  if(x == T(0))
+  {
     return T(0);
-}
+  }
 
   // Constants (mirroring Fortran)
   constexpr int iacc = 40;
@@ -165,9 +166,10 @@ T BesselIn(T x, int N) noexcept
       bip *= bigni;
       bessi *= bigni;
     }
-    if(j == N) {
+    if(j == N)
+    {
       bessi = bip;
-}
+    }
   }
 
   // Normalize using I0(x)
@@ -200,9 +202,10 @@ double r8_uniform_01(uint32_t& seed)
   int32_t s = static_cast<int32_t>(seed);
   const int32_t k = s / 127773;
   s = (16807 * (s - k * 127773)) - (k * 2836);
-  if(s < 0) {
+  if(s < 0)
+  {
     s += 2147483647;
-}
+  }
   seed = static_cast<uint32_t>(s);
   return static_cast<double>(s) * 4.656612875e-10;
 }
@@ -210,9 +213,10 @@ double r8_uniform_01(uint32_t& seed)
 void r8vec_uniform_01(int m, uint32_t& seed, std::vector<double>& r)
 {
   r.resize(m);
-  for(int i = 0; i < m; ++i) {
+  for(int i = 0; i < m; ++i)
+  {
     r[i] = r8_uniform_01(seed);
-}
+  }
 }
 
 // Faithful port of the Fortran r8vec_normal_01
@@ -232,9 +236,10 @@ void r8vec_normal_01(int n, uint32_t& seed, double* x)
   if(x_hi_index - x_lo_index + 1 == 1)
   {
     double r1 = r8_uniform_01(seed);
-    if(r1 <= 0.0) {
+    if(r1 <= 0.0)
+    {
       r1 = std::numeric_limits<double>::min();
-}
+    }
     double r2 = r8_uniform_01(seed);
     x[x_hi_index] = std::sqrt(-2.0 * std::log(r1)) * std::cos(2.0 * r8_pi * r2);
     return;
@@ -387,6 +392,12 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
   const int numEm = this->NumEM_;
   const int numIter = this->NumIter_;
 
+  if(verbose)
+  {
+    std::printf(" Starting EMforDS routine\n");
+    std::printf(" N=%d, Pmdims=%d, NumEM=%d, NumIter=%d\n", N, pmdims, numEm, numIter);
+  }
+
   // initialize some auxiliary arrays
   std::vector<QuatD> muAll(numEm); //
   std::vector<double> kappaAll(numEm, 0.0);
@@ -408,9 +419,42 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
     std::vector<double> q(numIter, 0.0);
     std::vector<double> l(numIter, 0.0);
 
+    if(verbose)
+    {
+      std::printf("\n starting iteration %4d\n", init + 1);
+      std::printf(" Initial guess for Mu (wxyz): %12.8f %12.8f %12.8f %12.8f\n", mu.w(), mu.x(), mu.y(), mu.z());
+      std::printf(" Initial guess for Kappa : %12.8f\n", kappa);
+
+      if(init == 0)
+      {
+        // Print first 3 Xquats for diagnostic comparison
+        std::printf(" First 3 Xquats (wxyz):\n");
+        for(int d = 0; d < 3 && d < N; ++d)
+        {
+          QuatD xq = m_XQuats[d];
+          std::printf("  [%d] %20.16f %20.16f %20.16f %20.16f\n", d, xq.w(), xq.x(), xq.y(), xq.z());
+        }
+
+        // Print logCp(30) diagnostic
+        double testC = this->logCp_(30.0);
+        std::printf(" logCp(30) = %20.16f\n", testC);
+
+        // Print first 3 density values for j=0 (identity symmetry op)
+        QuatD PmMu0 = mu * m_LaueOps->getQuatSymOp(0);
+        std::printf(" PmMu0 (wxyz): %20.16f %20.16f %20.16f %20.16f\n", PmMu0.w(), PmMu0.x(), PmMu0.y(), PmMu0.z());
+        std::vector<double> dens0 = this->Density_(PmMu0, kappa, testC);
+        for(int d = 0; d < 3 && d < N; ++d)
+        {
+          double dp = PmMu0.dotProduct(m_XQuats[d]);
+          std::printf("  density[%d] = %20.16e  dot=%20.16f\n", d, dens0[d], dp);
+        }
+      }
+    }
+
     // and here we go with the EM iteration...
     // we use quaternion multiplication throughout instead of the matrix version in the Matlab version
     // quaternion multiplication has been verified against the 4x4 matrix multiplication of the Matlab code on 01/02/15
+    double Qi = 0.0, Li = 0.0; // persist across inner iterations (Fortran INOUT semantics)
     for(int i = 0; i < numIter; ++i)
     {
       // E-step
@@ -420,10 +464,31 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
       std::array<double, 5> muKa = this->Mstep_(r, N, pmdims);
 
       // Q and Likelihood
-      double Qi = 0.0, Li = 0.0;
       this->getQandL_(muKa, r, Qi, Li);
       q[i] = Qi;
       l[i] = Li;
+
+      if(verbose)
+      {
+        std::printf(" inner loop : %4d\n", i + 1);
+        std::printf("   Li : %16.8f\n", Li);
+        std::printf("   Qi : %16.8f\n", Qi);
+        std::printf("   Current guess for MuKa (wxyz,kappa): %12.8f %12.8f %12.8f %12.8f %12.8f\n", muKa[3], muKa[0], muKa[1], muKa[2], muKa[4]);
+
+        if(init == 0 && i == 0)
+        {
+          // Print diagnostic R matrix stats
+          double rSum = 0.0;
+          for(size_t ri = 0; ri < r.size(); ++ri)
+            rSum += r[ri];
+          std::printf("   R total sum: %20.16f (expected ~%d)\n", rSum, N);
+          // Print first 3 R values for j=0
+          for(int d = 0; d < 3 && d < N; ++d)
+          {
+            std::printf("   R[%d,0] = %20.16e\n", d, r[d]);
+          }
+        }
+      }
 
       // Persist latest params for this init
       // MuKa is [x,y,z,w,kappa] matching QuatD(x,y,z,w) constructor
@@ -438,6 +503,10 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
       // Convergence: |Q(i) - Q(i-1)| < 0.01
       if(i >= 1 && std::fabs(q[i] - q[i - 1]) < 0.01)
       {
+        if(verbose)
+        {
+          std::printf(" Exiting inner loop : %4d\n", i + 1);
+        }
         break;
       }
     }
@@ -455,6 +524,11 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
         dd = i;
       }
     }
+  }
+
+  if(verbose)
+  {
+    std::printf(" best fit init: %d\n", dd + 1);
   }
 
   // Recover Mu for best init
@@ -710,7 +784,6 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
     }
 
     y_scalar = nGamma / static_cast<double>(N);
-
   }
   else if(this->DStype == "WAT")
   {

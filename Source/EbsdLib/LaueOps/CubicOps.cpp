@@ -88,24 +88,16 @@ static const double sqrtOneThird = std::sqrt(0.3333333333333333333);
 static const double sqrtThree = std::sqrt(3.0);
 
 // Rotation Point Group: 432
+// Operator ordering matches EMsoftOO: identity, 90deg, 270deg, 120deg, 180deg-axis, 180deg-diagonal
 /* clang-format off */
 static const std::vector<QuatD> k_QuatSym ={
     QuatD(0.0, 0.0, 0.0, 1.0),
-    QuatD(1.0, 0.0, 0.0, 0.0),
-    QuatD(0.0, 1.0, 0.0, 0.0),
-    QuatD(0.0, 0.0, 1.0, 0.0),
     QuatD(sqrtHalf, 0.0, 0.0, sqrtHalf),
     QuatD(0.0, sqrtHalf, 0.0, sqrtHalf),
     QuatD(0.0, 0.0, sqrtHalf, sqrtHalf),
     QuatD(-sqrtHalf, 0.0, 0.0, sqrtHalf),
     QuatD(0.0, -sqrtHalf, 0.0, sqrtHalf),
     QuatD(0.0, 0.0, -sqrtHalf, sqrtHalf),
-    QuatD(sqrtHalf, sqrtHalf, 0.0, 0.0),
-    QuatD(-sqrtHalf, sqrtHalf, 0.0, 0.0),
-    QuatD(0.0, sqrtHalf, sqrtHalf, 0.0),
-    QuatD(0.0, -sqrtHalf, sqrtHalf, 0.0),
-    QuatD(sqrtHalf, 0.0, sqrtHalf, 0.0),
-    QuatD(-sqrtHalf, 0.0, sqrtHalf, 0.0),
     QuatD(0.5, 0.5, 0.5, 0.5),
     QuatD(-0.5, -0.5, -0.5, 0.5),
     QuatD(0.5, -0.5, 0.5, 0.5),
@@ -114,25 +106,25 @@ static const std::vector<QuatD> k_QuatSym ={
     QuatD(0.5, -0.5, -0.5, 0.5),
     QuatD(-0.5, -0.5, 0.5, 0.5),
     QuatD(0.5, 0.5, -0.5, 0.5),
+    QuatD(1.0, 0.0, 0.0, 0.0),
+    QuatD(0.0, 1.0, 0.0, 0.0),
+    QuatD(0.0, 0.0, 1.0, 0.0),
+    QuatD(sqrtHalf, sqrtHalf, 0.0, 0.0),
+    QuatD(-sqrtHalf, sqrtHalf, 0.0, 0.0),
+    QuatD(0.0, sqrtHalf, sqrtHalf, 0.0),
+    QuatD(0.0, -sqrtHalf, sqrtHalf, 0.0),
+    QuatD(sqrtHalf, 0.0, sqrtHalf, 0.0),
+    QuatD(-sqrtHalf, 0.0, sqrtHalf, 0.0),
 };
 
 static const std::vector<RodriguesDType> k_RodSym = {
     {0.0, 0.0, 1.0, 0.0},
-    {1.0, 0.0, 0.0, 10000000000000.0},
-    {0.0, 1.0, 0.0, 10000000000000.0},
-    {0.0, 0.0, 1.0, 10000000000000.0},
     {1.0, 0.0, 0.0, 1.0},
     {0.0, 1.0, 0.0, 1.0},
     {0.0, 0.0, 1.0, 1.0},
     {-1.0, 0.0, 0.0, 1.0},
     {0.0, -1.0, 0.0, 1.0},
     {0.0, 0.0, -1.0, 1.0},
-    {sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
-    {-sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
-    {0.0, sqrtHalf, sqrtHalf, 10000000000000.0},
-    {0.0, -sqrtHalf, sqrtHalf, 10000000000000.0},
-    {sqrtHalf, 0.0, sqrtHalf, 10000000000000.0},
-    {-sqrtHalf, 0.0, sqrtHalf, 10000000000000.0},
     {sqrtOneThird, sqrtOneThird, sqrtOneThird, sqrtThree},
     {-sqrtOneThird, -sqrtOneThird, -sqrtOneThird, sqrtThree},
     {sqrtOneThird, -sqrtOneThird, sqrtOneThird, sqrtThree},
@@ -141,23 +133,20 @@ static const std::vector<RodriguesDType> k_RodSym = {
     {sqrtOneThird, -sqrtOneThird, -sqrtOneThird, sqrtThree},
     {-sqrtOneThird, -sqrtOneThird, sqrtOneThird, sqrtThree},
     {sqrtOneThird, sqrtOneThird, -sqrtOneThird, sqrtThree},
+    {1.0, 0.0, 0.0, 10000000000000.0},
+    {0.0, 1.0, 0.0, 10000000000000.0},
+    {0.0, 0.0, 1.0, 10000000000000.0},
+    {sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
+    {-sqrtHalf, sqrtHalf, 0.0, 10000000000000.0},
+    {0.0, sqrtHalf, sqrtHalf, 10000000000000.0},
+    {0.0, -sqrtHalf, sqrtHalf, 10000000000000.0},
+    {sqrtHalf, 0.0, sqrtHalf, 10000000000000.0},
+    {-sqrtHalf, 0.0, sqrtHalf, 10000000000000.0},
 };
 
 static const std::vector<Matrix3X3D> k_MatSym = {
     {1.0, 0.0, 0.0,
     0.0, 1.0, 0.0,
-    0.0, 0.0, 1.0},
-
-    {1.0, 0.0, 0.0,
-    0.0, -1.0, 0.0,
-    0.0, 0.0, -1.0},
-
-    {-1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 0.0, -1.0},
-
-    {-1.0, 0.0, 0.0,
-    0.0, -1.0, 0.0,
     0.0, 0.0, 1.0},
 
     {1.0, 0.0, 0.0,
@@ -184,6 +173,50 @@ static const std::vector<Matrix3X3D> k_MatSym = {
     -1.0, 0.0, -0.0,
     -0.0, 0.0, 1.0},
 
+    {0.0, 0.0, 1.0,
+    1.0, 0.0, 0.0,
+    0.0, 1.0, 0.0},
+
+    {0.0, 1.0, 0.0,
+    0.0, 0.0, 1.0,
+    1.0, 0.0, 0.0},
+
+    {0.0, -1.0, 0.0,
+    0.0, 0.0, -1.0,
+    1.0, 0.0, 0.0},
+
+    {0.0, 0.0, 1.0,
+    -1.0, 0.0, 0.0,
+    0.0, -1.0, 0.0},
+
+    {0.0, -1.0, 0.0,
+    0.0, 0.0, 1.0,
+    -1.0, 0.0, 0.0},
+
+    {0.0, 0.0, -1.0,
+    -1.0, 0.0, 0.0,
+    0.0, 1.0, 0.0},
+
+    {0.0, 0.0, -1.0,
+    1.0, 0.0, 0.0,
+    0.0, -1.0, 0.0},
+
+    {0.0, 1.0, 0.0,
+    0.0, 0.0, -1.0,
+    -1.0, 0.0, 0.0},
+
+    {1.0, 0.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, 0.0, -1.0},
+
+    {-1.0, 0.0, 0.0,
+    0.0, 1.0, 0.0,
+    0.0, 0.0, -1.0},
+
+    {-1.0, 0.0, 0.0,
+    0.0, -1.0, 0.0,
+    0.0, 0.0, 1.0},
+
     {0.0, 1.0, 0.0,
     1.0, 0.0, 0.0,
     0.0, 0.0, -1.0},
@@ -208,38 +241,6 @@ static const std::vector<Matrix3X3D> k_MatSym = {
     0.0, -1.0, 0.0,
     -1.0, 0.0, 0.0},
 
-    {0.0, 0.0, 1.0,
-    1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0},
-
-    {0.0, 1.0, 0.0,
-    0.0, 0.0, 1.0,
-    1.0, 0.0, 0.0},
-
-    {0.0, -1.0, 0.0,
-    0.0, 0.0, -1.0,
-    1.0, 0.0, 0.0},
-
-    {0.0, 0.0, 1.0,
-    -1.0, 0.0, 0.0,
-    0.0, -1.0, 0.0},
-
-    {0.0, -1.0, 0.0,
-    0.0, 0.0, 1.0,
-    -1.0, 0.0, 0.0},
-
-    {0.0, 0.0, -1.0,
-    -1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0},
-
-    {0.0, 0.0, -1.0,
-    1.0, 0.0, 0.0,
-    0.0, -1.0, 0.0},
-
-    {0.0, 1.0, 0.0,
-    0.0, 0.0, -1.0,
-    -1.0, 0.0, 0.0},
-    
 };
 /* clang-format on */
 

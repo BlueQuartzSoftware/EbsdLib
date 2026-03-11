@@ -1,7 +1,5 @@
 #include <catch2/catch.hpp>
 
-
-
 #include "EbsdLib/Core/DirectionalStats.hpp"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
@@ -15,7 +13,10 @@
 
 #include <cmath>
 #include <cstdio>
+#include <fstream>
 #include <limits>
+#include <sstream>
+#include <string>
 
 using namespace ebsdlib;
 
@@ -51,7 +52,7 @@ TEST_CASE("DirectionalStatsTest:VMF", "[DirectionalStatsTest]")
   fzQuats.reserve(detail::k_TestQuats.size());
   for(const auto& q : detail::k_TestQuats)
   {
-   fzQuats.push_back(cubicOps->getFZQuat(q));
+    fzQuats.push_back(cubicOps->getFZQuat(q));
   }
 
   // VMF averaging (mirrors Fortran: dictVMF = DirStat_T(DStype='VMF', pgnum=pgnum))
@@ -133,10 +134,223 @@ TEST_CASE("DirectionalStatsTest:Watson", "[DirectionalStatsTest]")
   REQUIRE(eqDeg == Approx(14.6946529653613620));
 }
 
-// TEST_CASE("DirectionalStatsTest:SpaceGroupTest", "[DirectionalStatsTest]")
-// {
-//   for(size_t sgNum = 1; sgNum <= 230; ++sgNum)
-//   {
-//     auto ops = LaueOps::GetOrientationOpsFromSpaceGroupNumber(sgNum);
-//   }
-// }
+namespace detail
+{
+/**
+ * @brief Reads a text file of quaternions in WXYZ order (EMsoft format) and
+ * returns them as QuatD objects (XYZW order).
+ *
+ * Expected file format:
+ *   qu                    (orientation type header)
+ *   <num_orientations>    (integer count)
+ *   w x y z              (space-separated, one per line)
+ *   ...
+ */
+std::vector<QuatD> readQuatsFromFile(const std::string& filePath)
+{
+  std::vector<QuatD> quats;
+  std::ifstream inFile(filePath);
+  REQUIRE(inFile.is_open());
+
+  // Read orientation type header (e.g., "qu")
+  std::string angleMode;
+  inFile >> angleMode;
+  REQUIRE(angleMode == "qu");
+
+  // Read number of orientations
+  int numOrientations = 0;
+  inFile >> numOrientations;
+  REQUIRE(numOrientations > 0);
+
+  quats.reserve(numOrientations);
+  for(int i = 0; i < numOrientations; ++i)
+  {
+    double w = 0.0;
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+    inFile >> w >> x >> y >> z;
+
+    // File is WXYZ, QuatD constructor is XYZW; normalize to ensure unit quaternion
+    quats.push_back(QuatD(x, y, z, w).normalize());
+  }
+
+  return quats;
+}
+} // namespace detail
+
+TEST_CASE("DirectionalStatsTest:VMF_FromCSV", "[DirectionalStatsTest]")
+{
+  std::string csvPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_9260_File;
+  std::vector<QuatD> inputQuats = detail::readQuatsFromFile(csvPath);
+  REQUIRE(inputQuats.size() == 9260);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
+
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(inputQuats.size());
+  for(const auto& q : inputQuats)
+  {
+    fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
+  // VMF averaging
+  DirectionalStats dictVMF("VMF", cubicOps);
+  int numEmIterations = 5;
+  int numIterations = 10;
+  dictVMF.setNumEM(numEmIterations);
+  dictVMF.setNumIter(numIterations);
+  dictVMF.setQuatArray(fzQuats);
+
+  uint32_t seed = 43514;
+  QuatD muhat = QuatD::identity();
+  double kappahat = 0.0;
+
+  dictVMF.EMforDS(seed, muhat, kappahat, true);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion VMF average (CSV input, %zu quats)\n", inputQuats.size());
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q> wxyz     : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
+
+  // EMsoftOO reference values:
+  // best fit Mu (WXYZ, RFZ-reduced): 0.92397289 0.38244926 0.00091773 0.00241359
+  // best fit kappa: 589.79047395
+}
+
+TEST_CASE("DirectionalStatsTest:Watson_FromCSV", "[DirectionalStatsTest]")
+{
+  std::string csvPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_9260_File;
+  std::vector<QuatD> inputQuats = detail::readQuatsFromFile(csvPath);
+  REQUIRE(inputQuats.size() == 9260);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
+
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(inputQuats.size());
+  for(const auto& q : inputQuats)
+  {
+    fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
+  // Watson averaging
+  DirectionalStats dictWAT("WAT", cubicOps);
+  int numEmIterations = 5;
+  int numIterations = 10;
+  dictWAT.setNumEM(numEmIterations);
+  dictWAT.setNumIter(numIterations);
+  dictWAT.setQuatArray(fzQuats);
+
+  uint32_t seed = 43514;
+  QuatD muhat = QuatD::identity();
+  double kappahat = 0.0;
+
+  dictWAT.EMforDS(seed, muhat, kappahat, true);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion Watson average (CSV input, %zu quats)\n", inputQuats.size());
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q> wxyz     : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
+
+  // EMsoftOO reference values:
+  // best fit Mu (WXYZ, RFZ-reduced): 0.92395702 0.38249445 0.00041948 0.00111833
+  // best fit kappa: 315.60762339
+}
+
+TEST_CASE("DirectionalStatsTest:VMF_FromTXT", "[DirectionalStatsTest]")
+{
+  std::string txtPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_29791_File;
+  std::vector<QuatD> inputQuats = detail::readQuatsFromFile(txtPath);
+  REQUIRE(inputQuats.size() == 29791);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
+
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(inputQuats.size());
+  for(const auto& q : inputQuats)
+  {
+    fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
+  // VMF averaging
+  DirectionalStats dictVMF("VMF", cubicOps);
+  int numEmIterations = 5;
+  int numIterations = 10;
+  dictVMF.setNumEM(numEmIterations);
+  dictVMF.setNumIter(numIterations);
+  dictVMF.setQuatArray(fzQuats);
+
+  uint32_t seed = 43514;
+  QuatD muhat = QuatD::identity();
+  double kappahat = 0.0;
+
+  dictVMF.EMforDS(seed, muhat, kappahat, true);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion VMF average (TXT input, %zu quats)\n", inputQuats.size());
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q> wxyz     : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
+}
+
+TEST_CASE("DirectionalStatsTest:Watson_FromTXT", "[DirectionalStatsTest]")
+{
+  std::string txtPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_29791_File;
+  std::vector<QuatD> inputQuats = detail::readQuatsFromFile(txtPath);
+  REQUIRE(inputQuats.size() == 29791);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer cubicOps = ops[1]; // Cubic High
+
+  // Reduce input quaternions to the Rodrigues Fundamental Zone
+  std::vector<QuatD> fzQuats;
+  fzQuats.reserve(inputQuats.size());
+  for(const auto& q : inputQuats)
+  {
+    fzQuats.push_back(cubicOps->getFZQuat(q));
+  }
+
+  // Watson averaging
+  DirectionalStats dictWAT("WAT", cubicOps);
+  int numEmIterations = 5;
+  int numIterations = 10;
+  dictWAT.setNumEM(numEmIterations);
+  dictWAT.setNumIter(numIterations);
+  dictWAT.setQuatArray(fzQuats);
+
+  uint32_t seed = 43514;
+  QuatD muhat = QuatD::identity();
+  double kappahat = 0.0;
+
+  dictWAT.EMforDS(seed, muhat, kappahat, true);
+
+  constexpr double k_Pi = 3.141592653589793238462643383279502884;
+  double eqDeg = 180.0 * std::acos(1.0 - 1.0 / kappahat) / k_Pi;
+
+  std::printf(" Quaternion Watson average (TXT input, %zu quats)\n", inputQuats.size());
+  std::printf(" num EM Iterations: %d\n", numEmIterations);
+  std::printf(" num Iterations: %d\n", numIterations);
+  std::printf(" <q> wxyz     : %20.16f %20.16f %20.16f %20.16f\n", muhat.w(), muhat.x(), muhat.y(), muhat.z());
+  std::printf(" kappa    : %20.16f\n", kappahat);
+  std::printf(" eq. deg. : %20.16f\n", eqDeg);
+}

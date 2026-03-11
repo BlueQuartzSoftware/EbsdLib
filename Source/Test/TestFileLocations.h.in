@@ -101,6 +101,13 @@ const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5Espri
 const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/H5Esprit_Output_File.h5");
 } // namespace H5EspritReaderTest
 
+namespace DirectionalStatsTest
+{
+const std::string QuatsWXYZ_9260_File ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_9260.csv");
+const std::string QuatsWXYZ_29791_File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_29791.csv");
+const std::string QuatsWXYZ_10_File   ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_10.csv");
+} // namespace DirectionalStatsTest
+
 namespace IPFLegendTest
 {
 const std::string CubicLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Cubic_Low_m3(Tetrahedral).png");

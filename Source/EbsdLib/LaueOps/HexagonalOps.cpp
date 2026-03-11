@@ -81,12 +81,12 @@ static const double sqrtOneThird = std::sqrt(0.3333333333333333333);
 static const double sqrtThree = std::sqrt(3.0);
 
 // Rotation Point Group: 622
+// Operator ordering matches EMsoftOO: identity, 60deg, 120deg, 240deg, 300deg, 180deg-equatorial, 180deg-axis
 /* clang-format off */
 static const std::vector<QuatD> k_QuatSym ={
   QuatD(0.0, 0.0, 0.0, 1.0),
   QuatD(0.0, 0.0, 0.5, sq32),
   QuatD(0.0, 0.0, sq32, 0.5),
-  QuatD(0.0, 0.0, 1.0, 0.0),
   QuatD(0.0, 0.0, sq32, -0.5),
   QuatD(0.0, 0.0, 0.5, -sq32),
   QuatD(1.0, 0.0, 0.0, 0.0),
@@ -95,13 +95,13 @@ static const std::vector<QuatD> k_QuatSym ={
   QuatD(0.0, 1.0, 0.0, 0.0),
   QuatD(-0.5, sq32, 0.0, 0.0),
   QuatD(-sq32, 0.5, 0.0, 0.0),
+  QuatD(0.0, 0.0, 1.0, 0.0),
 };
 
 static const std::vector<RodriguesDType> k_RodSym = {
   {0.0, 0.0, 1.0, 0.0},
   {0.0, 0.0, 1.0, sqrtOneThird},
   {0.0, 0.0, 1.0, sqrtThree},
-  {0.0, 0.0, 1.0, 10000000000000.0},
   {0.0, 0.0, sq32, 10000000000000.0},
   {0.0, 0.0, 0.5, 10000000000000.0},
   {1.0, 0.0, 0.0, 10000000000000.0},
@@ -110,6 +110,7 @@ static const std::vector<RodriguesDType> k_RodSym = {
   {0.0, 1.0, 0.0, 10000000000000.0},
   {-0.5, sq32, 0.0, 10000000000000.0},
   {-sq32, 0.5, 0.0, 10000000000000.0},
+  {0.0, 0.0, 1.0, 10000000000000.0},
 };
 
 static const std::vector<Matrix3X3D> k_MatSym = {
@@ -125,10 +126,6 @@ static const std::vector<Matrix3X3D> k_MatSym = {
   sq32, -0.5, 0.0,
   0.0, 0.0, 1.0},
 
-  {-1.0, 0.0, 0.0,
-  0.0, -1.0, 0.0,
-  0.0, 0.0, 1.0},
-
   {-0.5, sq32, 0.0,
   -sq32, -0.5, 0.0,
   0.0, 0.0, 1.0},
@@ -160,6 +157,10 @@ static const std::vector<Matrix3X3D> k_MatSym = {
   {0.5, -sq32, 0.0,
   -sq32, -0.5, 0.0,
   -0.0, 0.0, -1.0},
+
+  {-1.0, 0.0, 0.0,
+  0.0, -1.0, 0.0,
+  0.0, 0.0, 1.0},
 
 };
 /* clang-format on */

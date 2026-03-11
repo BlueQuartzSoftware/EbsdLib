@@ -289,8 +289,8 @@ inline constexpr double BP[12] = {
 
 } // namespace LambertParametersType
 
-// Add some shortened namespace alias
-// Condense some of the namespaces to same some typing later on.
+// Add shortened namespace alias
+// Condense namespaces to save some typing later on.
 namespace LPs = LambertParametersType;
 
 } // namespace ebsdlib

@@ -13,7 +13,7 @@ namespace ebsdlib
 {
 class EbsdLib_EXPORT DirectionalStats
 {
-  public:
+public:
   DirectionalStats(const std::string& DSType, LaueOps::Pointer laueOps);
   virtual ~DirectionalStats();
 
@@ -80,7 +80,7 @@ class EbsdLib_EXPORT DirectionalStats
     return m_XQuats.size();
   }
 
-  private:
+private:
   int NumEM_ = 0;
   int NumIter_ = 0;
   std::string DStype = "";
@@ -94,4 +94,4 @@ class EbsdLib_EXPORT DirectionalStats
 
   LaueOps::Pointer m_LaueOps;
 };
-}
+} // namespace ebsdlib
