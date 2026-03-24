@@ -4,6 +4,7 @@
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/IColorKey.hpp"
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -82,11 +83,27 @@ public:
    */
   static double saturation(double L, double lambdaS);
 
+  /**
+   * @brief Apply Gaussian-based hue correction to expand compressed yellow/cyan regions.
+   *
+   * Uses a precomputed CDF of the hue speed function to redistribute hue values
+   * so that all six color sectors (R, Y, G, C, B, M) get proportional area.
+   *
+   * @param hueIn Raw hue in [0, 1)
+   * @return Corrected hue in [0, 1)
+   */
+  double correctHue(double hueIn) const;
+
 private:
   FundamentalSectorGeometry m_Sector;
   double m_LambdaL;
   double m_LambdaS;
   std::unique_ptr<FundamentalSectorGeometry> m_SupergroupSector; // null for standard/impossible
+
+  // Precomputed hue correction CDF table (Gaussian-based redistribution)
+  static constexpr size_t k_HueCdfSize = 1000;
+  std::array<double, k_HueCdfSize> m_HueCdf = {};
+  void precomputeHueCdf();
 };
 
 } // namespace ebsdlib

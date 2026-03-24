@@ -63,6 +63,59 @@ NolzeHielscherColorKey::NolzeHielscherColorKey(const FundamentalSectorGeometry& 
   {
     m_SupergroupSector = buildSupergroupSector(m_Sector.supergroupIndex());
   }
+  precomputeHueCdf();
+}
+
+// -----------------------------------------------------------------------
+// precomputeHueCdf
+//
+// Build a CDF from Gaussian bumps at R(0), G(1/3), B(2/3) positions.
+// This redistributes hue so that yellow, cyan, and magenta get
+// proportionally more angular space (they are compressed in raw HSV).
+//
+// From the paper (Appendix A.1): the hue speed function has Gaussian
+// peaks at the three primary positions. The CDF of this function
+// remaps hue to equalize the color distribution.
+// -----------------------------------------------------------------------
+void NolzeHielscherColorKey::precomputeHueCdf()
+{
+  // Build the speed function f(z) with Gaussian bumps
+  constexpr double k_GaussWidth = 200.0; // Controls bump sharpness (larger = narrower bumps)
+  constexpr double k_Baseline = 0.5;     // Constant baseline
+  std::array<double, k_HueCdfSize> f = {};
+
+  for(size_t i = 0; i < k_HueCdfSize; i++)
+  {
+    double z = static_cast<double>(i) / static_cast<double>(k_HueCdfSize);
+    double val = k_Baseline;
+    // Three Gaussian bumps at red (0), green (1/3), blue (2/3)
+    for(double center : {0.0, 1.0 / 3.0, 2.0 / 3.0})
+    {
+      double dx = std::fmod(z - center + 0.5, 1.0) - 0.5; // periodic wrap to [-0.5, 0.5]
+      val += std::exp(-k_GaussWidth * dx * dx);
+    }
+    f[i] = val;
+  }
+
+  // Normalize to probability distribution
+  double sum = 0.0;
+  for(auto v : f)
+  {
+    sum += v;
+  }
+  for(auto& v : f)
+  {
+    v /= sum;
+  }
+
+  // Cumulative sum -> CDF
+  m_HueCdf[0] = f[0];
+  for(size_t i = 1; i < k_HueCdfSize; i++)
+  {
+    m_HueCdf[i] = m_HueCdf[i - 1] + f[i];
+  }
+  // Ensure last entry is exactly 1.0
+  m_HueCdf[k_HueCdfSize - 1] = 1.0;
 }
 
 // -----------------------------------------------------------------------
@@ -75,6 +128,32 @@ double NolzeHielscherColorKey::hueSpeedFunction(double rhoDeg, double distance)
   v += std::exp(-std::abs(wrapDeg(rhoDeg - 120.0)) / 4.0);
   v += std::exp(-std::abs(wrapDeg(rhoDeg + 120.0)) / 4.0);
   return v * distance;
+}
+
+// -----------------------------------------------------------------------
+// correctHue -- Gaussian CDF-based hue redistribution
+// -----------------------------------------------------------------------
+double NolzeHielscherColorKey::correctHue(double hueIn) const
+{
+  // hueIn is in [0, 1)
+  double h = std::fmod(hueIn, 1.0);
+  if(h < 0.0)
+  {
+    h += 1.0;
+  }
+
+  // Fractional index into CDF table
+  double fIdx = h * static_cast<double>(k_HueCdfSize);
+  size_t idx0 = static_cast<size_t>(fIdx);
+  double frac = fIdx - static_cast<double>(idx0);
+
+  if(idx0 >= k_HueCdfSize - 1)
+  {
+    return m_HueCdf[k_HueCdfSize - 1];
+  }
+
+  // Linear interpolation
+  return m_HueCdf[idx0] * (1.0 - frac) + m_HueCdf[idx0 + 1] * frac;
 }
 
 // -----------------------------------------------------------------------
@@ -119,7 +198,8 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
 
   // 2. Hue from azimuthal angle
   // rho is in [0, 2*pi) -- normalize to [0, 1) for HSL conversion
-  double hue = rho / k_TwoPi;
+  // Then apply Gaussian CDF correction to expand yellow/cyan/magenta regions
+  double hue = correctHue(rho / k_TwoPi);
 
   // 3. Lightness from radial distance via gray gradient blending
   //
@@ -135,62 +215,68 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
   double lHsl = 0.5; // default = fully saturated
   double sHsl = 1.0;
 
+  // Common lightness/saturation computation using the color sphere model.
+  // The radius [0,1] maps to a position on the color sphere:
+  //   Center (r=0) -> white (HSL L=1, desaturated)
+  //   Boundary (r=1) -> fully saturated (HSL L=0.5, full saturation)
+  //
+  // The key insight: map radius to the color sphere's polar angle theta,
+  // then extract HSL from the sphere position. The sphere model:
+  //   theta=0 (north pole) = white, theta=pi/2 (equator) = saturated, theta=pi (south pole) = black
+  //
+  // For white center: radius [0,1] -> theta [pi, pi/2] (from pole to equator)
+  // For black center: radius [0,1] -> theta [0, pi/2]
+
+  auto computeColorFromSphere = [&](double r, double grayValue) -> void
+  {
+    // Map radius to color sphere theta.
+    // Use a nonlinear mapping that compresses the neutral center:
+    //   Apply gray gradient blending between linear and cosine curves
+    double th = (2.0 * k_GrayGradient * r + (1.0 - k_GrayGradient) * (1.0 - std::cos(r * k_Pi))) / 2.0;
+
+    // Compute gray value envelope: peak saturation at th=0.5, reduced at poles
+    double gray = 1.0 - 2.0 * grayValue * std::abs(th - 0.5);
+
+    // HSL lightness: th=0 maps to L=0.5, th=0.5 maps to L=0.5, th=1 maps to L=0.5
+    // Actually: L = (th - 0.5)*gray + 0.5
+    //   At th=0: L = -0.5*gray + 0.5 (dark)
+    //   At th=0.5: L = 0.5 (fully saturated)
+    //   At th=1: L = 0.5*gray + 0.5 (light/white)
+    lHsl = (th - 0.5) * gray + 0.5;
+
+    // HSL saturation: derived from the chroma at this sphere position
+    double denominator = 1.0 - std::abs(2.0 * lHsl - 1.0);
+    sHsl = (denominator > 1.0e-10) ? gray * (1.0 - std::abs(2.0 * th - 1.0)) / denominator : 0.0;
+    sHsl = std::clamp(sHsl, 0.0, 1.0);
+  };
+
   if(m_Sector.colorKeyMode() == "standard" || m_Sector.colorKeyMode() == "impossible")
   {
     // Standard: white center only
-    // Map radius [0,1] -> [1.0, 0.5]
-    // Center (r=0) -> 1.0 (north pole of color sphere = white/gray)
-    // Boundary (r=1) -> 0.5 (equator of color sphere = fully saturated)
-    double radiusMapped = 1.0 - radius / 2.0;
-
-    // Apply gray gradient correction (blends linear and cosine curves)
-    double th = (2.0 * k_GrayGradient * radiusMapped + (1.0 - k_GrayGradient) * (1.0 - std::cos(radiusMapped * k_Pi))) / 2.0;
-
-    // Compute gray value: controls saturation envelope
-    double gray = 1.0 - 2.0 * k_GrayValueWhite * std::abs(th - 0.5);
-
-    // Compute HSL lightness and saturation
-    lHsl = (th - 0.5) * gray + 0.5;
-    double denominator = 1.0 - std::abs(2.0 * lHsl - 1.0);
-    sHsl = (denominator > 1.0e-10) ? gray * (1.0 - std::abs(2.0 * th - 1.0)) / denominator : 0.0;
-    sHsl = std::clamp(sHsl, 0.0, 1.0);
+    // Map radius [0,1] -> sphere parameter [1.0, 0.5]
+    // Use sqrt(radius) to accelerate transition: shrinks white center, expands saturated region
+    double rEff = std::pow(radius, 0.35);
+    double r = 1.0 - rEff / 2.0;
+    computeColorFromSphere(r, k_GrayValueWhite);
   }
   else if(m_Sector.colorKeyMode() == "extended" && m_SupergroupSector)
   {
-    // Extended: check if direction is in the supergroup sector
     bool inSupergroup = m_SupergroupSector->isInside(direction);
-
-    double radiusMapped;
-    double grayValue;
 
     if(inSupergroup)
     {
-      // White center half: radius_mapped [1.0, 0.5]
-      // Center (r=0) -> 1.0 (north pole = white), boundary (r=1) -> 0.5 (equator = saturated)
       auto [sgRadius, sgRho] = m_SupergroupSector->polarCoordinates(direction);
-      hue = sgRho / k_TwoPi;
-      radiusMapped = 1.0 - sgRadius / 2.0;
-      grayValue = k_GrayValueWhite;
+      hue = correctHue(sgRho / k_TwoPi);
+      double rEff = std::pow(sgRadius, 0.35);
+      double r = 1.0 - rEff / 2.0;
+      computeColorFromSphere(r, k_GrayValueWhite);
     }
     else
     {
-      // Black center half: radius_mapped [0.0, 0.5]
-      // Center (r=0) -> 0.0 (south pole = black), boundary (r=1) -> 0.5 (equator = saturated)
-      radiusMapped = radius / 2.0;
-      grayValue = k_GrayValueBlack;
+      double rEff = std::pow(radius, 0.35);
+      double r = rEff / 2.0;
+      computeColorFromSphere(r, k_GrayValueBlack);
     }
-
-    // Apply gray gradient correction
-    double th = (2.0 * k_GrayGradient * radiusMapped + (1.0 - k_GrayGradient) * (1.0 - std::cos(radiusMapped * k_Pi))) / 2.0;
-
-    // Compute gray value
-    double gray = 1.0 - 2.0 * grayValue * std::abs(th - 0.5);
-
-    // Compute HSL lightness and saturation
-    lHsl = (th - 0.5) * gray + 0.5;
-    double denominator = 1.0 - std::abs(2.0 * lHsl - 1.0);
-    sHsl = (denominator > 1.0e-10) ? gray * (1.0 - std::abs(2.0 * th - 1.0)) / denominator : 0.0;
-    sHsl = std::clamp(sHsl, 0.0, 1.0);
   }
 
   // 5. Convert HSL to RGB
