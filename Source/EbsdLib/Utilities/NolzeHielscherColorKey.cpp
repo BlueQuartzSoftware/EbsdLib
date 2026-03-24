@@ -26,6 +26,28 @@ double wrapDeg(double x)
   }
   return x - 180.0;
 }
+/**
+ * @brief Build a supergroup FundamentalSectorGeometry from a crystal structure index.
+ *
+ * The indices come from FundamentalSectorGeometry::supergroupIndex() and
+ * correspond to the EbsdLibConstants.h crystal structure numbering.
+ */
+std::unique_ptr<FundamentalSectorGeometry> buildSupergroupSector(int32_t index)
+{
+  switch(index)
+  {
+  case 0:
+    return std::make_unique<FundamentalSectorGeometry>(FundamentalSectorGeometry::hexagonalHigh());
+  case 1:
+    return std::make_unique<FundamentalSectorGeometry>(FundamentalSectorGeometry::cubicHigh());
+  case 6:
+    return std::make_unique<FundamentalSectorGeometry>(FundamentalSectorGeometry::orthorhombic());
+  case 8:
+    return std::make_unique<FundamentalSectorGeometry>(FundamentalSectorGeometry::tetragonalHigh());
+  default:
+    return nullptr;
+  }
+}
 } // namespace
 
 // -----------------------------------------------------------------------
@@ -36,6 +58,11 @@ NolzeHielscherColorKey::NolzeHielscherColorKey(const FundamentalSectorGeometry& 
 , m_LambdaL(lambdaL)
 , m_LambdaS(lambdaS)
 {
+  // For extended color keys, construct the supergroup's sector
+  if(m_Sector.colorKeyMode() == "extended" && m_Sector.supergroupIndex() >= 0)
+  {
+    m_SupergroupSector = buildSupergroupSector(m_Sector.supergroupIndex());
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -80,19 +107,46 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
   double hue = rho / k_TwoPi;
 
   // 3. Lightness from radial distance
-  // theta maps radius [0,1] to angular distance [0, pi/2]
-  double theta = radius * k_HalfPi;
-  double lRaw = lightness(theta, m_LambdaL);
+  double lHsl = 0.5; // default = fully saturated
 
-  // Compute the lightness at the boundary (radius=1, theta=pi/2) for normalization
-  double lBoundary = lightness(k_HalfPi, m_LambdaL);
+  if(m_Sector.colorKeyMode() == "standard" || m_Sector.colorKeyMode() == "impossible")
+  {
+    // Standard: white center only
+    // Center (radius=0) -> white (L=1.0), boundary (radius=1) -> saturated (L=0.5)
+    double theta = radius * k_HalfPi;
+    double lRaw = lightness(theta, m_LambdaL);
+    double lBoundary = lightness(k_HalfPi, m_LambdaL);
+    double lNormalized = (lBoundary > 1.0e-10) ? (lRaw / lBoundary) : radius;
+    lHsl = 1.0 - 0.5 * lNormalized;
+  }
+  else if(m_Sector.colorKeyMode() == "extended" && m_SupergroupSector)
+  {
+    // Extended: check if direction is in the supergroup sector
+    bool inSupergroup = m_SupergroupSector->isInside(direction);
 
-  // Normalize to [0, 1]
-  double lNormalized = (lBoundary > 1.0e-10) ? (lRaw / lBoundary) : radius;
-
-  // Map to HSL lightness: center (radius=0) -> white (L=1.0),
-  // boundary (radius=1) -> fully saturated (L=0.5)
-  double lHsl = 1.0 - 0.5 * lNormalized;
+    if(inSupergroup)
+    {
+      // White center half: L goes from 1.0 (center) to 0.5 (boundary)
+      // Use the supergroup's polar coordinates for smoother mapping
+      auto [sgRadius, sgRho] = m_SupergroupSector->polarCoordinates(direction);
+      hue = sgRho / k_TwoPi; // use supergroup's azimuthal angle for hue
+      double theta = sgRadius * k_HalfPi;
+      double lRaw = lightness(theta, m_LambdaL);
+      double lBoundary = lightness(k_HalfPi, m_LambdaL);
+      double lNormalized = (lBoundary > 1.0e-10) ? (lRaw / lBoundary) : sgRadius;
+      lHsl = 1.0 - 0.5 * lNormalized; // maps [0,1] -> [1.0, 0.5]
+    }
+    else
+    {
+      // Black center half: L goes from 0.0 (center) to 0.5 (boundary)
+      // Use the main sector's polar coords but invert the lightness mapping
+      double theta = radius * k_HalfPi;
+      double lRaw = lightness(theta, m_LambdaL);
+      double lBoundary = lightness(k_HalfPi, m_LambdaL);
+      double lNormalized = (lBoundary > 1.0e-10) ? (lRaw / lBoundary) : radius;
+      lHsl = 0.5 * lNormalized; // maps [0,1] -> [0.0, 0.5]
+    }
+  }
 
   // 4. Saturation
   double s = saturation(lHsl, m_LambdaS);

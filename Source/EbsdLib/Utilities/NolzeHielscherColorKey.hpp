@@ -4,6 +4,7 @@
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/IColorKey.hpp"
 
+#include <memory>
 #include <string>
 
 namespace ebsdlib
@@ -85,6 +86,7 @@ private:
   FundamentalSectorGeometry m_Sector;
   double m_LambdaL;
   double m_LambdaS;
+  std::unique_ptr<FundamentalSectorGeometry> m_SupergroupSector; // null for standard/impossible
 };
 
 } // namespace ebsdlib

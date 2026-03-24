@@ -272,3 +272,83 @@ TEST_CASE("ebsdlib::NolzeHielscherColorKey::CustomLambdaParameters", "[EbsdLib][
     REQUIRE(b <= 1.0);
   }
 }
+
+// ---------------------------------------------------------------------------
+TEST_CASE("ebsdlib::NolzeHielscherColorKey::ExtendedKey_CubicLow", "[EbsdLib][NolzeHielscher]")
+{
+  auto sector = ebsdlib::FundamentalSectorGeometry::cubicLow();
+  REQUIRE(sector.colorKeyMode() == "extended");
+
+  auto supergroupSector = ebsdlib::FundamentalSectorGeometry::cubicHigh();
+  ebsdlib::NolzeHielscherColorKey nhKey(sector);
+
+  SECTION("All outputs in valid range across m-3 sector")
+  {
+    for(double eta = 0.01; eta < M_PI / 2.0 - 0.01; eta += 0.1)
+    {
+      double chiMax = std::acos(std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta))));
+      for(double chi = 0.01; chi < chiMax - 0.01; chi += 0.1)
+      {
+        double sinChi = std::sin(chi);
+        std::array<double, 3> dir = {sinChi * std::cos(eta), sinChi * std::sin(eta), std::cos(chi)};
+        auto [r, g, b] = nhKey.direction2Color(dir);
+        REQUIRE(r >= 0.0);
+        REQUIRE(r <= 1.0);
+        REQUIRE(g >= 0.0);
+        REQUIRE(g <= 1.0);
+        REQUIRE(b >= 0.0);
+        REQUIRE(b <= 1.0);
+      }
+    }
+  }
+
+  SECTION("Uses both bright and dark colors (extended range)")
+  {
+    bool hasBright = false;
+    bool hasDark = false;
+    for(double eta = 0.01; eta < M_PI / 2.0 - 0.01; eta += 0.05)
+    {
+      double chiMax = std::acos(std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta))));
+      for(double chi = 0.01; chi < chiMax - 0.01; chi += 0.05)
+      {
+        double sinChi = std::sin(chi);
+        std::array<double, 3> dir = {sinChi * std::cos(eta), sinChi * std::sin(eta), std::cos(chi)};
+        auto [r, g, b] = nhKey.direction2Color(dir);
+        double brightness = (r + g + b) / 3.0;
+        if(brightness > 0.6)
+        {
+          hasBright = true;
+        }
+        if(brightness < 0.4)
+        {
+          hasDark = true;
+        }
+      }
+    }
+    REQUIRE(hasBright);
+    REQUIRE(hasDark);
+  }
+
+  SECTION("Direction in supergroup sector -> bright, direction outside -> dark")
+  {
+    // The supergroup's barycenter is inside both sectors and near the center
+    // of the supergroup sector, so it should map to a high lightness (bright/white).
+    auto sgCenter = supergroupSector.barycenter();
+    if(supergroupSector.isInside(sgCenter) && sector.isInside(sgCenter))
+    {
+      auto [r, g, b] = nhKey.direction2Color(sgCenter);
+      double brightness = (r + g + b) / 3.0;
+      REQUIRE(brightness > 0.5);
+    }
+
+    // eta ~= 60 deg is outside m-3m [0, 45] but inside m-3 [0, 90] -> should be dark
+    double sinChi = std::sin(0.3);
+    std::array<double, 3> dirExtended = {sinChi * std::cos(1.1), sinChi * std::sin(1.1), std::cos(0.3)};
+    if(sector.isInside(dirExtended) && !supergroupSector.isInside(dirExtended))
+    {
+      auto [r, g, b] = nhKey.direction2Color(dirExtended);
+      double brightness = (r + g + b) / 3.0;
+      REQUIRE(brightness < 0.5);
+    }
+  }
+}
