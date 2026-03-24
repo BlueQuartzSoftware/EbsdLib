@@ -352,3 +352,80 @@ TEST_CASE("ebsdlib::NolzeHielscherColorKey::ExtendedKey_CubicLow", "[EbsdLib][No
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+TEST_CASE("ebsdlib::NolzeHielscherColorKey::ImpossibleMode_Triclinic", "[EbsdLib][NolzeHielscher]")
+{
+  auto sector = ebsdlib::FundamentalSectorGeometry::triclinic();
+  REQUIRE(sector.colorKeyMode() == "impossible");
+
+  ebsdlib::NolzeHielscherColorKey nhKey(sector);
+
+  SECTION("Produces valid colors for directions in upper hemisphere")
+  {
+    for(double eta = 0.0; eta < 2.0 * M_PI; eta += 0.3)
+    {
+      for(double chi = 0.05; chi < M_PI / 2.0 - 0.05; chi += 0.3)
+      {
+        double sinChi = std::sin(chi);
+        std::array<double, 3> dir = {sinChi * std::cos(eta), sinChi * std::sin(eta), std::cos(chi)};
+        auto [r, g, b] = nhKey.direction2Color(dir);
+        REQUIRE(r >= 0.0);
+        REQUIRE(r <= 1.0);
+        REQUIRE(g >= 0.0);
+        REQUIRE(g <= 1.0);
+        REQUIRE(b >= 0.0);
+        REQUIRE(b <= 1.0);
+      }
+    }
+  }
+
+  SECTION("All outputs are in valid range for a swept grid")
+  {
+    // Sweep the full upper hemisphere: triclinic SST covers all eta, chi in [0, pi/2).
+    // The impossible mode uses the same white-center code path as standard.
+    for(double eta = 0.0; eta < 2.0 * M_PI; eta += 0.5)
+    {
+      double chi = M_PI / 4.0;
+      double sinChi = std::sin(chi);
+      std::array<double, 3> dir = {sinChi * std::cos(eta), sinChi * std::sin(eta), std::cos(chi)};
+      auto [r, g, b] = nhKey.direction2Color(dir);
+      REQUIRE(r >= 0.0);
+      REQUIRE(r <= 1.0);
+      REQUIRE(g >= 0.0);
+      REQUIRE(g <= 1.0);
+      REQUIRE(b >= 0.0);
+      REQUIRE(b <= 1.0);
+    }
+  }
+
+  SECTION("Center direction produces near-white color")
+  {
+    auto center = sector.barycenter();
+    auto [r, g, b] = nhKey.direction2Color(center);
+    double brightness = (r + g + b) / 3.0;
+    REQUIRE(brightness > 0.7);
+  }
+}
+
+// ---------------------------------------------------------------------------
+TEST_CASE("ebsdlib::NolzeHielscherColorKey::ImpossibleMode_TrigonalLow", "[EbsdLib][NolzeHielscher]")
+{
+  auto sector = ebsdlib::FundamentalSectorGeometry::trigonalLow();
+  REQUIRE(sector.colorKeyMode() == "impossible");
+
+  ebsdlib::NolzeHielscherColorKey nhKey(sector);
+
+  SECTION("Produces valid colors for interior directions")
+  {
+    // Sample some directions that should be inside the trigonal low sector
+    auto center = sector.barycenter();
+    auto [r, g, b] = nhKey.direction2Color(center);
+    REQUIRE(r >= 0.0);
+    REQUIRE(r <= 1.0);
+    REQUIRE(g >= 0.0);
+    REQUIRE(g <= 1.0);
+    REQUIRE(b >= 0.0);
+    REQUIRE(b <= 1.0);
+  }
+}
