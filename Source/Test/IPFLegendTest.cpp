@@ -36,6 +36,9 @@
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
@@ -63,6 +66,59 @@ TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
       outputFilePathStream << ebsdlib::unit_test::k_TestTempDir << "/" << ops[index]->getNameOfClass() << ".tiff";
       auto result = TiffWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
       REQUIRE(result.first == 0);
+    }
+  }
+}
+
+TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTest]")
+{
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+
+  for(size_t index = 0; index < 11; index++)
+  {
+    SECTION(ops[index]->getSymmetryName() + " NH Legend")
+    {
+      // Switch to NH color key for this operator
+      // Use the cubicHigh sector as a simple stand-in for now
+      // (the legend generation doesn't use the sector geometry directly --
+      //  it goes through generateIPFColor which uses the color key's
+      //  direction2Color(eta, chi, angleLimits) overload)
+      auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(
+        ebsdlib::FundamentalSectorGeometry::cubicHigh());
+      ops[index]->setColorKey(nhKey);
+
+      auto legend = ops[index]->generateIPFTriangleLegend(64, false);
+      REQUIRE(legend != nullptr);
+      REQUIRE(legend->getNumberOfTuples() > 0);
+
+      // Verify the image has some non-white pixels (NH key produces colors)
+      bool hasNonWhitePixel = false;
+      size_t numTuples = legend->getNumberOfTuples();
+      for(size_t i = 0; i < numTuples; i++)
+      {
+        uint8_t* pixel = legend->getTuplePointer(i);
+        // Legend is RGB (3 components after alpha removal)
+        if(legend->getNumberOfComponents() == 3)
+        {
+          if(pixel[0] != 255 || pixel[1] != 255 || pixel[2] != 255)
+          {
+            hasNonWhitePixel = true;
+            break;
+          }
+        }
+        else if(legend->getNumberOfComponents() == 4)
+        {
+          if(pixel[0] != 255 || pixel[1] != 255 || pixel[2] != 255)
+          {
+            hasNonWhitePixel = true;
+            break;
+          }
+        }
+      }
+      REQUIRE(hasNonWhitePixel);
+
+      // Reset to TSL for other tests
+      ops[index]->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
     }
   }
 }
