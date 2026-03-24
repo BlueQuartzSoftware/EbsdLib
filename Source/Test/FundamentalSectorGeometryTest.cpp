@@ -45,32 +45,33 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::PolarCoordinates", "[EbsdLib][Fun
 {
   auto sector = ebsdlib::FundamentalSectorGeometry::cubicHigh();
 
-  SECTION("At barycenter: radius = 0")
+  SECTION("At barycenter: radius = 1 (center of sector)")
   {
     auto center = sector.barycenter();
     auto [radius, rho] = sector.polarCoordinates(center);
-    REQUIRE(radius == Approx(0.0).margin(1e-4));
+    // Convention: radius=1 at center, 0 at boundary (orix/MTEX convention)
+    REQUIRE(radius == Approx(1.0).margin(1e-4));
   }
 
-  SECTION("At vertex [001]: radius near 1")
+  SECTION("At vertex [001]: radius near 0 (on boundary)")
   {
     Vec3 v001 = {0.0, 0.0, 1.0};
     auto [radius, rho] = sector.polarCoordinates(v001);
-    REQUIRE(radius == Approx(1.0).margin(0.05));
+    REQUIRE(radius == Approx(0.0).margin(0.05));
   }
 
-  SECTION("At vertex [101]: radius near 1")
+  SECTION("At vertex [101]: radius near 0 (on boundary)")
   {
     Vec3 v101 = normalize({1.0, 0.0, 1.0});
     auto [radius, rho] = sector.polarCoordinates(v101);
-    REQUIRE(radius == Approx(1.0).margin(0.05));
+    REQUIRE(radius == Approx(0.0).margin(0.05));
   }
 
-  SECTION("At vertex [111]: radius near 1")
+  SECTION("At vertex [111]: radius near 0 (on boundary)")
   {
     Vec3 v111 = normalize({1.0, 1.0, 1.0});
     auto [radius, rho] = sector.polarCoordinates(v111);
-    REQUIRE(radius == Approx(1.0).margin(0.05));
+    REQUIRE(radius == Approx(0.0).margin(0.05));
   }
 
   SECTION("Radius is in [0, 1] for interior point")
@@ -95,11 +96,11 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::EdgeCases", "[EbsdLib][Fundamenta
 {
   auto sector = ebsdlib::FundamentalSectorGeometry::cubicHigh();
 
-  SECTION("Direction exactly at barycenter returns radius = 0")
+  SECTION("Direction exactly at barycenter returns radius = 1 (center)")
   {
     auto center = sector.barycenter();
     auto [radius, rho] = sector.polarCoordinates(center);
-    REQUIRE(radius == Approx(0.0).margin(1e-6));
+    REQUIRE(radius == Approx(1.0).margin(1e-6));
   }
 
   SECTION("isInside returns true for interior, false for exterior")

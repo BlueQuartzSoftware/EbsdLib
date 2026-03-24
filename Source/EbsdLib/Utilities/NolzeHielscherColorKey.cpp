@@ -255,10 +255,9 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
   if(m_Sector.colorKeyMode() == "standard" || m_Sector.colorKeyMode() == "impossible")
   {
     // Standard: white center only
-    // Map radius [0,1] -> sphere parameter [1.0, 0.5]
-    // Use sqrt(radius) to accelerate transition: shrinks white center, expands saturated region
-    double rEff = std::pow(radius, 0.35);
-    double r = 1.0 - rEff / 2.0;
+    // Radius convention: 1 at center, 0 at boundary
+    // Map to sphere parameter: center(r=1) -> 1.0 (white), boundary(r=0) -> 0.5 (saturated)
+    double r = 0.5 + radius / 2.0;
     computeColorFromSphere(r, k_GrayValueWhite);
   }
   else if(m_Sector.colorKeyMode() == "extended" && m_SupergroupSector)
@@ -270,13 +269,14 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
       auto [sgRadius, sgRho] = m_SupergroupSector->polarCoordinates(direction);
       double sgRhoCorrected = m_SupergroupSector->correctAzimuthalAngle(sgRho);
       hue = correctHue(sgRhoCorrected / k_TwoPi);
-      double rEff = std::pow(sgRadius, 0.35);
-      double r = 1.0 - rEff / 2.0;
+      // White center half: center(r=1)->1.0(white), boundary(r=0)->0.5(saturated)
+      double r = 0.5 + sgRadius / 2.0;
       computeColorFromSphere(r, k_GrayValueWhite);
     }
     else
     {
-      double rEff = std::pow(radius, 0.35);
+      // Black center half: center(r=1)->0.0(black), boundary(r=0)->0.5(saturated)
+      double rEff = radius;
       double r = rEff / 2.0;
       computeColorFromSphere(r, k_GrayValueBlack);
     }

@@ -131,52 +131,56 @@ std::pair<double, double> FundamentalSectorGeometry::polarCoordinates(const Vec3
   constexpr double k_Pi = 3.14159265358979323846;
 
   // Singularity guard: if h is at the barycenter
+  // Convention: radius=1 at center, 0 at boundary
   double angleToCenter = vecAngle(h, m_Barycenter);
   if(angleToCenter < 1.0e-10)
   {
-    return {0.0, 0.0};
+    return {1.0, 0.0};
   }
 
   // -------------------------------------------------------------------
   // RADIUS: normalized distance from center to boundary
   // -------------------------------------------------------------------
-  // Normal to the great circle through center and h
-  Vec3 gcNormal = vecNormalize(vecCross(m_Barycenter, h));
+  // Algorithm (from orix/MTEX polarCoordinates):
+  //   The great circle plane containing both h and center has normal
+  //   gcN = normalize(v.cross(center)).
+  //   For each boundary normal N_j, the intersection is:
+  //     bp = normalize(gcN.cross(N_j))
+  //   The radius is: min over j of angle(-v, bp) / angle(-center, bp)
+  //
+  //   This gives radius=0 at center, radius=1 at boundary,
+  //   and increases monotonically along any radial direction.
+  // -------------------------------------------------------------------
+  Vec3 hNeg = vecNeg(h);
+  Vec3 centerNeg = vecNeg(m_Barycenter);
+
+  // Normal to the great circle through h and center
+  // NOTE: order is h cross center (same as orix: v.cross(center))
+  Vec3 gcNormal = vecNormalize(vecCross(h, m_Barycenter));
 
   double radius = std::numeric_limits<double>::infinity();
-  double distCenterH = angleToCenter; // angle from center to h
 
   for(const auto& normal : m_BoundaryNormals)
   {
-    // Intersection of the great circle (center,h) with boundary plane N_j.
-    // The two great circles intersect at: P = normalize(cross(N_j, gcNormal)) and -P.
-    Vec3 bp = vecNormalize(vecCross(normal, gcNormal));
+    // Intersection of great circles: gcN cross N_j
+    Vec3 bp = vecNormalize(vecCross(gcNormal, normal));
 
-    // Choose the intersection point on the same side as h relative to center.
-    // We want the point P such that the arc center->P passes through or near h.
-    // Test: if dot(h, bp) < 0, flip to -bp (choose the hemisphere containing h).
-    if(vecDot(h, bp) < 0.0)
-    {
-      bp = vecNeg(bp);
-    }
-
-    double distCenterBp = vecAngle(m_Barycenter, bp);
+    // Compute ratio using antipodal distances
+    // This naturally selects the correct intersection point
+    double distNegH = vecAngle(hNeg, bp);
+    double distNegCenter = vecAngle(centerNeg, bp);
 
     double ratio;
-    if(distCenterBp < 1.0e-10)
+    if(distNegCenter < 1.0e-10)
     {
-      // Center is on this boundary -- boundary is at distance 0, but the sector
-      // is on the positive side. This shouldn't happen for well-defined sectors.
-      // Treat as no constraint.
-      continue;
+      ratio = 1.0;
     }
     else
     {
-      ratio = distCenterH / distCenterBp;
+      ratio = distNegH / distNegCenter;
     }
 
-    // Handle NaN
-    if(std::isnan(ratio))
+    if(std::isnan(ratio) || std::isinf(ratio))
     {
       ratio = 1.0;
     }
@@ -186,7 +190,7 @@ std::pair<double, double> FundamentalSectorGeometry::polarCoordinates(const Vec3
 
   if(std::isinf(radius))
   {
-    radius = 0.0;
+    radius = 1.0;
   }
   radius = std::clamp(radius, 0.0, 1.0);
 
