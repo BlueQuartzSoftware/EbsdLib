@@ -161,12 +161,16 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::CorrectAzimuthalAngle", "[EbsdLib
 {
   auto sector = ebsdlib::FundamentalSectorGeometry::cubicHigh();
 
-  SECTION("Identity mapping: output approximates input")
+  SECTION("Correction produces monotonically increasing output")
   {
-    // With the identity precomputation, corrected angle should be close to input
-    double rho = 1.5;
-    double corrected = sector.correctAzimuthalAngle(rho);
-    REQUIRE(corrected == Approx(rho).margin(0.02));
+    // The corrected angle should increase monotonically with input angle
+    double prev = 0.0;
+    for(double rho = 0.01; rho < 2.0 * M_PI - 0.01; rho += 0.05)
+    {
+      double corrected = sector.correctAzimuthalAngle(rho);
+      REQUIRE(corrected >= prev - 0.01); // monotonic (with small tolerance)
+      prev = corrected;
+    }
   }
 
   SECTION("Result is in [0, 2*pi)")

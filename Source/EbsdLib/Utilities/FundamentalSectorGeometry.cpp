@@ -220,14 +220,208 @@ std::pair<double, double> FundamentalSectorGeometry::polarCoordinates(const Vec3
 }
 
 // -----------------------------------------------------------------------
-// precomputeAzimuthalCorrection -- identity mapping for now
+// precomputeAzimuthalCorrection
+//
+// Builds a lookup table that redistributes the azimuthal angle so that:
+//   1. Each vertex of the sector gets an equal share of the hue circle
+//   2. The angular distribution is weighted by the boundary distance d(rho),
+//      which smooths the transition where the "nearest boundary" switches
+//
+// This implements the paper's Appendix A.1: the hue is the cumulative
+// integral of v(rho) = d(rho), normalized so that the total integral
+// maps to [0, 2*pi].
+//
+// For sectors with 0 or 1 vertex, the identity mapping is used.
 // -----------------------------------------------------------------------
 void FundamentalSectorGeometry::precomputeAzimuthalCorrection()
 {
-  constexpr double k_TwoPi = 2.0 * 3.14159265358979323846;
+  constexpr double k_Pi = 3.14159265358979323846;
+  constexpr double k_TwoPi = 2.0 * k_Pi;
+
+  if(m_Vertices.size() < 2 || m_BoundaryNormals.empty())
+  {
+    // No correction possible -- use identity mapping
+    for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+    {
+      m_AzimuthalCorrectionTable[i] = static_cast<double>(i) / static_cast<double>(k_AzimuthalTableSize) * k_TwoPi;
+    }
+    return;
+  }
+
+  // Step 1: Sample the boundary distance d(rho) at each azimuthal angle.
+  // For each sampled angle, rotate a reference direction around the barycenter
+  // by that angle and compute the radial distance to the boundary.
+  //
+  // Instead of doing full polarCoordinates (expensive), we directly compute
+  // the boundary distance: for each angle, create a direction at a small
+  // offset from the barycenter, then measure how far the boundary is.
+
+  // Reference direction in the tangent plane at the barycenter
+  Vec3 ref = {0.0, 0.0, 1.0};
+  if(std::abs(vecDot(ref, m_Barycenter)) > 0.99)
+  {
+    ref = {1.0, 0.0, 0.0};
+  }
+  double refDotCenter = vecDot(ref, m_Barycenter);
+  Vec3 rx = vecNormalize({ref[0] - refDotCenter * m_Barycenter[0],
+                          ref[1] - refDotCenter * m_Barycenter[1],
+                          ref[2] - refDotCenter * m_Barycenter[2]});
+  Vec3 ry = vecNormalize(vecCross(m_Barycenter, rx));
+
+  // For each sampled angle, compute the angular distance from barycenter to boundary
+  std::array<double, k_AzimuthalTableSize> boundaryDist = {};
+
   for(size_t i = 0; i < k_AzimuthalTableSize; i++)
   {
-    m_AzimuthalCorrectionTable[i] = static_cast<double>(i) / static_cast<double>(k_AzimuthalTableSize) * k_TwoPi;
+    double angle = static_cast<double>(i) / static_cast<double>(k_AzimuthalTableSize) * k_TwoPi;
+    double cosA = std::cos(angle);
+    double sinA = std::sin(angle);
+
+    // Direction in the tangent plane at this azimuth
+    Vec3 tangentDir = {cosA * rx[0] + sinA * ry[0],
+                       cosA * rx[1] + sinA * ry[1],
+                       cosA * rx[2] + sinA * ry[2]};
+
+    // Create a test direction slightly away from barycenter in this tangent direction
+    // We use a small angle offset (e.g., 0.01 radians) to stay in the linear regime
+    constexpr double k_SmallAngle = 0.01;
+    Vec3 testDir = vecNormalize({m_Barycenter[0] + k_SmallAngle * tangentDir[0],
+                                 m_Barycenter[1] + k_SmallAngle * tangentDir[1],
+                                 m_Barycenter[2] + k_SmallAngle * tangentDir[2]});
+
+    // Compute the boundary distance at this azimuth using the same algorithm as polarCoordinates
+    Vec3 gcNormal = vecNormalize(vecCross(m_Barycenter, testDir));
+    double distMax = k_Pi; // default large distance
+
+    // Handle degenerate gcNormal (testDir ~= barycenter)
+    double gcLen = std::sqrt(gcNormal[0] * gcNormal[0] + gcNormal[1] * gcNormal[1] + gcNormal[2] * gcNormal[2]);
+    if(gcLen < 1.0e-10)
+    {
+      boundaryDist[i] = 1.0;
+      continue;
+    }
+
+    for(const auto& normal : m_BoundaryNormals)
+    {
+      Vec3 bp = vecNormalize(vecCross(normal, gcNormal));
+      // Choose the intersection on the side of the barycenter
+      if(vecDot(testDir, bp) < 0.0)
+      {
+        bp = vecNeg(bp);
+      }
+      double d = vecAngle(m_Barycenter, bp);
+      if(d > 1.0e-10)
+      {
+        distMax = std::min(distMax, d);
+      }
+    }
+    boundaryDist[i] = distMax;
+  }
+
+  // Step 2: Compute vertex azimuths and assign equal hue sectors
+  size_t nVerts = m_Vertices.size();
+
+  // Compute the azimuthal angle of each vertex relative to the barycenter
+  std::vector<double> vertexAngles(nVerts);
+  for(size_t v = 0; v < nVerts; v++)
+  {
+    double hDotCenter = vecDot(m_Vertices[v], m_Barycenter);
+    Vec3 dv = {m_Vertices[v][0] - hDotCenter * m_Barycenter[0],
+               m_Vertices[v][1] - hDotCenter * m_Barycenter[1],
+               m_Vertices[v][2] - hDotCenter * m_Barycenter[2]};
+    vertexAngles[v] = std::fmod(std::atan2(vecDot(ry, dv), vecDot(rx, dv)) + k_TwoPi, k_TwoPi);
+  }
+
+  // Sort vertex angles
+  std::vector<size_t> sortIdx(nVerts);
+  std::iota(sortIdx.begin(), sortIdx.end(), 0);
+  std::sort(sortIdx.begin(), sortIdx.end(), [&](size_t a, size_t b) { return vertexAngles[a] < vertexAngles[b]; });
+  std::vector<double> sortedAngles(nVerts);
+  for(size_t i = 0; i < nVerts; i++)
+  {
+    sortedAngles[i] = vertexAngles[sortIdx[i]];
+  }
+
+  // Step 3: Build the weighted CDF with boundary distance weighting
+  // Weight each angular sample by d(rho) -- this is the core of the paper's
+  // hue speed function. Directions where the boundary is farther get more hue space.
+  std::array<double, k_AzimuthalTableSize> weights = {};
+  for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+  {
+    weights[i] = boundaryDist[i]; // weight by boundary distance
+  }
+
+  // Normalize within each vertex sector so each sector gets exactly (2*pi / nVerts)
+  double sectorSize = k_TwoPi / static_cast<double>(nVerts);
+  for(size_t s = 0; s < nVerts; s++)
+  {
+    double sectorStart = sortedAngles[s];
+    double sectorEnd = (s + 1 < nVerts) ? sortedAngles[s + 1] : sortedAngles[0] + k_TwoPi;
+
+    // Find indices in this sector
+    double sectorSum = 0.0;
+    size_t count = 0;
+    for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+    {
+      double angle = static_cast<double>(i) / static_cast<double>(k_AzimuthalTableSize) * k_TwoPi;
+      // Check if angle is in this sector (handle wrap-around)
+      bool inSector = false;
+      if(sectorEnd <= k_TwoPi)
+      {
+        inSector = (angle >= sectorStart && angle < sectorEnd);
+      }
+      else
+      {
+        inSector = (angle >= sectorStart || angle < std::fmod(sectorEnd, k_TwoPi));
+      }
+      if(inSector)
+      {
+        sectorSum += weights[i];
+        count++;
+      }
+    }
+
+    // Normalize this sector's weights so they sum to sectorSize
+    if(sectorSum > 1.0e-10 && count > 0)
+    {
+      double scale = sectorSize / sectorSum;
+      for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+      {
+        double angle = static_cast<double>(i) / static_cast<double>(k_AzimuthalTableSize) * k_TwoPi;
+        bool inSector = false;
+        if(sectorEnd <= k_TwoPi)
+        {
+          inSector = (angle >= sectorStart && angle < sectorEnd);
+        }
+        else
+        {
+          inSector = (angle >= sectorStart || angle < std::fmod(sectorEnd, k_TwoPi));
+        }
+        if(inSector)
+        {
+          weights[i] *= scale;
+        }
+      }
+    }
+  }
+
+  // Step 4: Cumulative sum -> correction table
+  // The CDF maps raw angle to corrected angle
+  double cumSum = 0.0;
+  for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+  {
+    cumSum += weights[i];
+    m_AzimuthalCorrectionTable[i] = cumSum;
+  }
+
+  // Normalize so the total is exactly 2*pi
+  if(cumSum > 1.0e-10)
+  {
+    double scale = k_TwoPi / cumSum;
+    for(size_t i = 0; i < k_AzimuthalTableSize; i++)
+    {
+      m_AzimuthalCorrectionTable[i] *= scale;
+    }
   }
 }
 

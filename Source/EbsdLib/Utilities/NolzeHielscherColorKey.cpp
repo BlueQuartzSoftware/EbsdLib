@@ -197,9 +197,11 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
   auto [radius, rho] = m_Sector.polarCoordinates(direction);
 
   // 2. Hue from azimuthal angle
-  // rho is in [0, 2*pi) -- normalize to [0, 1) for HSL conversion
-  // Then apply Gaussian CDF correction to expand yellow/cyan/magenta regions
-  double hue = correctHue(rho / k_TwoPi);
+  // First apply boundary-distance-weighted azimuthal correction to smooth
+  // the transitions between boundary zones and equalize vertex hue sectors.
+  // Then apply Gaussian CDF correction to expand yellow/cyan/magenta regions.
+  double rhoCorrected = m_Sector.correctAzimuthalAngle(rho);
+  double hue = correctHue(rhoCorrected / k_TwoPi);
 
   // 3. Lightness from radial distance via gray gradient blending
   //
@@ -266,7 +268,8 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
     if(inSupergroup)
     {
       auto [sgRadius, sgRho] = m_SupergroupSector->polarCoordinates(direction);
-      hue = correctHue(sgRho / k_TwoPi);
+      double sgRhoCorrected = m_SupergroupSector->correctAzimuthalAngle(sgRho);
+      hue = correctHue(sgRhoCorrected / k_TwoPi);
       double rEff = std::pow(sgRadius, 0.35);
       double r = 1.0 - rEff / 2.0;
       computeColorFromSphere(r, k_GrayValueWhite);
