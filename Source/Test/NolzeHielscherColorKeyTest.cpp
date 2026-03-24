@@ -153,7 +153,7 @@ TEST_CASE("ebsdlib::NolzeHielscherColorKey::CubicHighOutput", "[EbsdLib][NolzeHi
     auto center = sector.barycenter();
     auto [r, g, b] = nhKey.direction2Color(center);
     double brightness = (r + g + b) / 3.0;
-    REQUIRE(brightness > 0.7);
+    REQUIRE(brightness > 0.8);
   }
 
   SECTION("All outputs are in valid range")
@@ -404,7 +404,7 @@ TEST_CASE("ebsdlib::NolzeHielscherColorKey::ImpossibleMode_Triclinic", "[EbsdLib
     auto center = sector.barycenter();
     auto [r, g, b] = nhKey.direction2Color(center);
     double brightness = (r + g + b) / 3.0;
-    REQUIRE(brightness > 0.7);
+    REQUIRE(brightness > 0.8);
   }
 }
 
