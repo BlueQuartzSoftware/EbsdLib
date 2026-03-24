@@ -24,6 +24,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureCompositor.h
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/inipp.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ColorSpaceUtils.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/IColorKey.hpp
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
