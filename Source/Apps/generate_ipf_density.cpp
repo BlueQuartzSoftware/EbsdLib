@@ -158,7 +158,7 @@ void writeIPFImage(ebsdlib::UInt8ArrayType* image, int width, int height, const 
 }
 
 // -----------------------------------------------------------------------
-// Generate and save IPF density images for a single LaueOps instance.
+// Generate and save annotated IPF density images for a single LaueOps instance.
 // -----------------------------------------------------------------------
 void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers, const std::string& outputDir, int imageWidth, int imageHeight, int lambertDim, const std::string& textureLabel)
 {
@@ -178,9 +178,9 @@ void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers
   config.phaseName = className;
   config.FlipFinalImage = false;
 
-  auto images = ops.generateInversePoleFigure(config);
+  auto images = ops.generateAnnotatedIPFDensity(config);
 
-  // Sanitize symmetry name for use as a filename (replace / and spaces)
+  // Sanitize symmetry name for filename
   std::string safeName = className;
   for(auto& c : safeName)
   {
@@ -190,12 +190,21 @@ void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers
     }
   }
 
+  int canvasDim = static_cast<int>(static_cast<float>(imageWidth) * 1.5f);
   std::array<std::string, 3> dirLabels = {"RD", "TD", "ND"};
-  for(size_t i = 0; i < 3; i++)
+  for(size_t i = 0; i < images.size(); i++)
   {
     std::ostringstream filePath;
     filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << "_" << textureLabel << ".tiff";
-    writeIPFImage(images[i].get(), imageWidth, imageHeight, filePath.str());
+    auto result = TiffWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
+    if(result.first < 0)
+    {
+      std::cerr << "  ERROR writing " << filePath.str() << ": " << result.second << std::endl;
+    }
+    else
+    {
+      std::cout << "  Wrote: " << filePath.str() << std::endl;
+    }
   }
 }
 

@@ -1046,7 +1046,7 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
 
   // Generate the color table
-  std::vector<float> colors;
+  std::vector<float> colors(numColors * 3, 0.0f);
   EbsdColorTable::GetColorTable(numColors, colors);
 
   // Create a canvas from the existing RGB image by first adding an alpha channel
