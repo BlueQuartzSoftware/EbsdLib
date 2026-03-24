@@ -25,6 +25,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
     ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/inipp.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ColorSpaceUtils.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/IColorKey.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/FundamentalSectorGeometry.hpp
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
@@ -41,6 +42,7 @@ set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/CanvasUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/Fonts.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureCompositor.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/FundamentalSectorGeometry.cpp
 )
 # # QT5_WRAP_CPP( EbsdLib_Generated_MOC_SRCS ${EbsdLib_Utilities_MOC_HDRS} )
 # set_source_files_properties( ${EbsdLib_Generated_MOC_SRCS} PROPERTIES HEADER_FILE_ONLY TRUE)

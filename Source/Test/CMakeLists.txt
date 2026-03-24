@@ -55,6 +55,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/UnitTestCommon.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/UnitTestCommon.hpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ColorSpaceUtilsTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/FundamentalSectorGeometryTest.cpp
 )
 
 
