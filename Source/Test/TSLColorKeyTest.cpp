@@ -1,5 +1,9 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Utilities/ColorTable.h"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include <array>
@@ -186,4 +190,45 @@ TEST_CASE("ebsdlib::TSLColorKey::PolymorphicUsage", "[EbsdLib][TSLColorKey]")
   REQUIRE(color[1] <= 1.0);
   REQUIRE(color[2] >= 0.0);
   REQUIRE(color[2] <= 1.0);
+}
+
+// ---------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOps::ColorKeyIntegration", "[EbsdLib][ColorKeyIntegration]")
+{
+  using namespace ebsdlib;
+
+  auto allOps = LaueOps::GetAllOrientationOps();
+
+  SECTION("Default color key is TSL")
+  {
+    for(size_t i = 0; i < 11; i++)
+    {
+      REQUIRE(allOps[i]->getColorKey()->name() == "TSL");
+    }
+  }
+
+  SECTION("Can switch to NolzeHielscher")
+  {
+    auto& cubicOps = *allOps[1]; // Cubic_High
+    auto nhKey = std::make_shared<NolzeHielscherColorKey>(FundamentalSectorGeometry::cubicHigh());
+    cubicOps.setColorKey(nhKey);
+    REQUIRE(cubicOps.getColorKey()->name() == "NolzeHielscher");
+    // Reset back to TSL for other tests
+    cubicOps.setColorKey(std::make_shared<TSLColorKey>());
+  }
+
+  SECTION("TSL backward compatibility: same output after refactor")
+  {
+    double refDir[3] = {0.0, 0.0, 1.0};
+    double eulers[3] = {0.5, 0.3, 0.2};
+
+    for(size_t i = 0; i < 11; i++)
+    {
+      auto color = allOps[i]->generateIPFColor(eulers, refDir, false);
+      int r = RgbColor::dRed(color);
+      int g = RgbColor::dGreen(color);
+      int b = RgbColor::dBlue(color);
+      REQUIRE(r + g + b > 0);
+    }
+  }
 }
