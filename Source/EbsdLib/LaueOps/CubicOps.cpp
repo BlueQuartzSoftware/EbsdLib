@@ -1955,11 +1955,47 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
 } // namespace
 
 // -----------------------------------------------------------------------------
-std::array<float, 2> CubicOps::adjustFigureOrigin(
-    std::array<float, 2> figureOrigin,
-    int legendWidth, int legendHeight,
-    const std::vector<float>& margins, float fontPtSize,
-    bool generateEntirePlane) const
+bool CubicOps::mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const
+{
+  double indexConst1 = 0.414 / static_cast<double>(imageDim);
+  double indexConst2 = 0.207 / static_cast<double>(imageDim);
+
+  double x = xPixel * indexConst1 + indexConst2;
+  double y = yPixel * indexConst1 + indexConst2;
+
+  double sumSquares = (x * x) + (y * y);
+  if(sumSquares > 1.0)
+  {
+    return false;
+  }
+  if(y < 0.0 || x < 0.0)
+  {
+    return false;
+  }
+
+  auto sc = stereographic::utils::StereoToSpherical(x, y).normalize();
+
+  double k_RootOfHalf = std::sqrt(0.5);
+  double red1 = sc[0] * (-k_RootOfHalf) + sc[2] * k_RootOfHalf;
+  double phi = std::acos(red1);
+  double x1alt = sc[0] / k_RootOfHalf;
+  x1alt = x1alt / std::sqrt((x1alt * x1alt) + (sc[1] * sc[1]));
+  double theta = std::acos(x1alt);
+
+  if(phi <= (45.0 * ebsdlib::constants::k_PiOver180D) || phi >= (90.0 * ebsdlib::constants::k_PiOver180D) || theta >= (35.26 * ebsdlib::constants::k_PiOver180D))
+  {
+    return false;
+  }
+
+  sphereDir[0] = static_cast<float>(sc[0]);
+  sphereDir[1] = static_cast<float>(sc[1]);
+  sphereDir[2] = static_cast<float>(sc[2]);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+std::array<float, 2> CubicOps::adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                  bool generateEntirePlane) const
 {
   if(!generateEntirePlane)
   {
@@ -2104,12 +2140,7 @@ ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasD
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
-  const std::vector<float> margins = {
-      fontPtSize * 3,
-      static_cast<float>(canvasDim / 7.0f),
-      fontPtSize * 2,
-      static_cast<float>(canvasDim / 7.0f)
-  };
+  const std::vector<float> margins = {fontPtSize * 3, static_cast<float>(canvasDim / 7.0f), fontPtSize * 2, static_cast<float>(canvasDim / 7.0f)};
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
   int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
   if(legendHeight > legendWidth)

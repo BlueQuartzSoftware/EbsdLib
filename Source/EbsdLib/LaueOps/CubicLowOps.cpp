@@ -992,11 +992,36 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicLowOps* ops, int ima
 } // namespace
 
 // -----------------------------------------------------------------------------
-std::array<float, 2> CubicLowOps::adjustFigureOrigin(
-    std::array<float, 2> figureOrigin,
-    int legendWidth, int legendHeight,
-    const std::vector<float>& margins, float fontPtSize,
-    bool generateEntirePlane) const
+bool CubicLowOps::mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const
+{
+  double xInc = 1.0 / static_cast<double>(imageDim);
+  double yInc = 1.0 / static_cast<double>(imageDim);
+
+  double x = 0.5 * static_cast<double>(xPixel) * xInc;
+  double y = 0.5 * static_cast<double>(yPixel) * yInc;
+
+  double sumSquares = (x * x) + (y * y);
+  if(sumSquares > 1.0)
+  {
+    return false;
+  }
+
+  auto sc = stereographic::utils::StereoToSpherical(x, y).normalize();
+
+  if(!(sc[2] > sc[0] && sc[2] > sc[1]))
+  {
+    return false;
+  }
+
+  sphereDir[0] = static_cast<float>(sc[0]);
+  sphereDir[1] = static_cast<float>(sc[1]);
+  sphereDir[2] = static_cast<float>(sc[2]);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+std::array<float, 2> CubicLowOps::adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                     bool generateEntirePlane) const
 {
   if(!generateEntirePlane)
   {
@@ -1152,12 +1177,7 @@ ebsdlib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canv
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
-  const std::vector<float> margins = {
-      fontPtSize * 3,
-      static_cast<float>(canvasDim / 7.0f),
-      fontPtSize * 2,
-      static_cast<float>(canvasDim / 7.0f)
-  };
+  const std::vector<float> margins = {fontPtSize * 3, static_cast<float>(canvasDim / 7.0f), fontPtSize * 2, static_cast<float>(canvasDim / 7.0f)};
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
   int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
   if(legendHeight > legendWidth)

@@ -335,22 +335,27 @@ public:
    * @brief Per-subclass hook that draws Miller index labels and SST boundary
    * annotations onto a canvas. Called by annotateIPFImage().
    */
-  virtual void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim,
-      float fontPtSize, const std::vector<float>& margins,
-      std::array<float, 2> figureOrigin,
-      std::array<float, 2> figureCenter,
-      bool drawFullCircle) const = 0;
+  virtual void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
+                                  bool drawFullCircle) const = 0;
+
+  /**
+   * @brief Maps a pixel coordinate to a unit sphere direction using the same
+   * stereographic projection as CreateIPFLegend (SST-only view).
+   * @param xPixel X pixel coordinate [0, imageDim)
+   * @param yPixel Y pixel coordinate [0, imageDim)
+   * @param imageDim Image dimension (square)
+   * @param sphereDir Output: unit sphere direction if pixel is inside SST
+   * @return true if the pixel maps to a point inside the Standard Stereographic Triangle
+   */
+  virtual bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const;
 
   /**
    * @brief Per-subclass hook that adjusts the figureOrigin when rendering
    * SST-only view. Each subclass overrides to position its triangle shape
    * correctly within the canvas. Default returns figureOrigin unchanged.
    */
-  virtual std::array<float, 2> adjustFigureOrigin(
-      std::array<float, 2> figureOrigin,
-      int legendWidth, int legendHeight,
-      const std::vector<float>& margins, float fontPtSize,
-      bool generateEntirePlane) const;
+  virtual std::array<float, 2> adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                  bool generateEntirePlane) const;
 
   /**
    * @brief Generates 3 annotated inverse pole figure density images with
@@ -358,9 +363,7 @@ public:
    * @param config Configuration struct; imageWidth must equal imageHeight (square images required)
    * @param outMinMax Optional output for the global [min, max] intensity values
    */
-  std::vector<UInt8ArrayType::Pointer> generateAnnotatedIPFDensity(
-      InversePoleFigureConfiguration_t& config,
-      std::pair<double, double>* outMinMax = nullptr) const;
+  std::vector<UInt8ArrayType::Pointer> generateAnnotatedIPFDensity(InversePoleFigureConfiguration_t& config, std::pair<double, double>* outMinMax = nullptr) const;
 
   /**
    * @brief Generates 3 inverse pole figure density images for 3 orthogonal sample directions.
@@ -495,22 +498,12 @@ protected:
    * @param generateEntirePlane true = full circle view, false = SST only
    * @return RGB image (canvasDim x canvasDim, 3 components)
    */
-  UInt8ArrayType::Pointer annotateIPFImage(
-      UInt8ArrayType::Pointer triangleImage,
-      int imageDim,
-      int canvasDim,
-      const std::string& title,
-      bool generateEntirePlane) const;
+  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane) const;
 
   /**
    * @brief Draws a color bar with min/max labels onto an existing RGB image.
    */
-  UInt8ArrayType::Pointer drawColorBar(
-      UInt8ArrayType::Pointer image,
-      int canvasDim,
-      int numColors,
-      double minValue, double maxValue,
-      bool isMRD) const;
+  UInt8ArrayType::Pointer drawColorBar(UInt8ArrayType::Pointer image, int canvasDim, int numColors, double minValue, double maxValue, bool isMRD) const;
 
   /**
    * @brief calculateMisorientationInternal

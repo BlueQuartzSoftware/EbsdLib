@@ -56,17 +56,17 @@ class LaueOps; // Forward declaration
  */
 struct InversePoleFigureConfiguration_t
 {
-  ebsdlib::FloatArrayType* eulers;              ///<* The Euler Angles (in Radians) to use for the inverse pole figure
-  std::array<Matrix3X1D, 3> sampleDirections;   ///<* 3 orthogonal sample reference directions (e.g., RD, TD, ND)
-  int imageWidth;                                ///<* The width of the generated inverse pole figure image in pixels
-  int imageHeight;                               ///<* The height of the generated inverse pole figure image in pixels
-  int lambertDim;                                ///<* The dimensions in voxels of the Lambert Square used for binning/smoothing
-  int numColors;                                 ///<* The number of colors to use in the color map
-  std::string colorMap;                          ///<* Name of the ColorMap to use
-  bool normalizeMRD;                             ///<* true=normalize to MRD (Multiples of Random Distribution), false=raw counts
-  std::vector<std::string> labels;               ///<* The labels for each of the 3 inverse pole figures (e.g., "RD", "TD", "ND")
-  std::string phaseName;                         ///<* The name of the phase
-  bool FlipFinalImage;                           ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+  ebsdlib::FloatArrayType* eulers;            ///<* The Euler Angles (in Radians) to use for the inverse pole figure
+  std::array<Matrix3X1D, 3> sampleDirections; ///<* 3 orthogonal sample reference directions (e.g., RD, TD, ND)
+  int imageWidth;                             ///<* The width of the generated inverse pole figure image in pixels
+  int imageHeight;                            ///<* The height of the generated inverse pole figure image in pixels
+  int lambertDim;                             ///<* The dimensions in voxels of the Lambert Square used for binning/smoothing
+  int numColors;                              ///<* The number of colors to use in the color map
+  std::string colorMap;                       ///<* Name of the ColorMap to use
+  bool normalizeMRD;                          ///<* true=normalize to MRD (Multiples of Random Distribution), false=raw counts
+  std::vector<std::string> labels;            ///<* The labels for each of the 3 inverse pole figures (e.g., "RD", "TD", "ND")
+  std::string phaseName;                      ///<* The name of the phase
+  bool FlipFinalImage;                        ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
 };
 
 /**
@@ -106,7 +106,8 @@ public:
    * @param normalizeMRD true to normalize to MRD, false for raw counts
    * @return DoubleArrayType intensity image (imageWidth * imageHeight). Pixels outside SST have value -1.0.
    */
-  static ebsdlib::DoubleArrayType::Pointer computeIPFIntensity(const LaueOps& ops, ebsdlib::FloatArrayType* ipfDirections, int imageWidth, int imageHeight, int lambertDim, bool normalizeMRD);
+  static ebsdlib::DoubleArrayType::Pointer computeIPFIntensity(const LaueOps& ops, ebsdlib::FloatArrayType* ipfDirections, int imageWidth, int imageHeight, int lambertDim, bool normalizeMRD,
+                                                              bool useStereographicSST = false);
 
   /**
    * @brief Converts an intensity image to RGBA with SST masking. Pixels inside the SST

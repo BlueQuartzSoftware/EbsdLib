@@ -865,11 +865,44 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
 } // namespace
 
 // -----------------------------------------------------------------------------
-std::array<float, 2> TrigonalOps::adjustFigureOrigin(
-    std::array<float, 2> figureOrigin,
-    int legendWidth, int legendHeight,
-    const std::vector<float>& margins, float fontPtSize,
-    bool generateEntirePlane) const
+bool TrigonalOps::mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const
+{
+  double xInc = 1.0 / static_cast<double>(imageDim);
+  double yInc = 1.0 / static_cast<double>(imageDim);
+
+  double x = -1.0 + 2.0 * xPixel * xInc;
+  double y = -1.0 + 2.0 * yPixel * yInc;
+
+  double sumSquares = (x * x) + (y * y);
+  if(sumSquares > 1.0)
+  {
+    return false;
+  }
+
+  if(x < 0.0 || y > 0.0)
+  {
+    return false;
+  }
+
+  auto sc = stereographic::utils::StereoToSpherical(x, y).normalize();
+
+  // Find the slope of the bounding line.
+  static const double m = std::sin(30.0 * ebsdlib::constants::k_PiOver180D) / std::cos(30.0 * ebsdlib::constants::k_PiOver180D);
+
+  if(std::fabs(sc[1] / sc[0]) < m)
+  {
+    return false;
+  }
+
+  sphereDir[0] = static_cast<float>(sc[0]);
+  sphereDir[1] = static_cast<float>(sc[1]);
+  sphereDir[2] = static_cast<float>(sc[2]);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+std::array<float, 2> TrigonalOps::adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                     bool generateEntirePlane) const
 {
   if(!generateEntirePlane)
   {
@@ -881,8 +914,7 @@ std::array<float, 2> TrigonalOps::adjustFigureOrigin(
 
 // -----------------------------------------------------------------------------
 void TrigonalOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin,
-                                      std::array<float, 2> figureCenter,
-                                      bool drawFullCircle) const
+                                     std::array<float, 2> figureCenter, bool drawFullCircle) const
 {
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];
@@ -973,12 +1005,7 @@ ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
-  const std::vector<float> margins = {
-      fontPtSize * 3,
-      static_cast<float>(canvasDim / 7.0f),
-      fontPtSize * 2,
-      static_cast<float>(canvasDim / 7.0f)
-  };
+  const std::vector<float> margins = {fontPtSize * 3, static_cast<float>(canvasDim / 7.0f), fontPtSize * 2, static_cast<float>(canvasDim / 7.0f)};
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
   int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
   if(legendHeight > legendWidth)
