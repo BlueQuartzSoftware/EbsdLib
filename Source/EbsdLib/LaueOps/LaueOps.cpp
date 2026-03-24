@@ -57,6 +57,7 @@
 #include <canvas_ity.hpp>
 
 #include <algorithm> // for std::max
+#include <array>
 #include <chrono>
 #include <exception>
 #include <iomanip>
@@ -943,29 +944,21 @@ ebsdlib::Rgb LaueOps::generateMisorientationColor(const QuatD& q, const QuatD& r
 }
 
 // -----------------------------------------------------------------------------
-std::array<float, 2> LaueOps::adjustFigureOrigin(
-    std::array<float, 2> figureOrigin,
-    int legendWidth, int legendHeight,
-    const std::vector<float>& margins, float fontPtSize,
-    bool generateEntirePlane) const
+std::array<float, 2> LaueOps::adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                 bool generateEntirePlane) const
 {
   return figureOrigin;
 }
 
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer LaueOps::annotateIPFImage(
-    UInt8ArrayType::Pointer triangleImage,
-    int imageDim,
-    int canvasDim,
-    const std::string& title,
-    bool generateEntirePlane) const
+UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane) const
 {
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
   const std::vector<float> margins = {
-      fontPtSize * 3,                        // Top
-      static_cast<float>(canvasDim / 7.0f),  // Right
-      fontPtSize * 2,                        // Bottom
-      static_cast<float>(canvasDim / 7.0f)   // Left
+      fontPtSize * 3,                       // Top
+      static_cast<float>(canvasDim / 7.0f), // Right
+      fontPtSize * 2,                       // Bottom
+      static_cast<float>(canvasDim / 7.0f)  // Left
   };
 
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
@@ -1013,10 +1006,7 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(
   context.fill();
 
   // Draw the triangle image onto the canvas
-  context.draw_image(image->getPointer(0), imageDim, imageDim,
-                     imageDim * image->getNumberOfComponents(),
-                     figureOrigin[0], figureOrigin[1],
-                     static_cast<float>(legendWidth),
+  context.draw_image(image->getPointer(0), imageDim, imageDim, imageDim * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
 
   // Draw title
@@ -1028,20 +1018,14 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(
   drawIPFAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
 
   // Extract rendered pixels and remove alpha channel
-  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(
-      canvasDim * canvasDim, {4ULL}, "Annotated IPF", true);
+  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(canvasDim * canvasDim, {4ULL}, "Annotated IPF", true);
   context.get_image_data(rgbaCanvasImage->getPointer(0), canvasDim, canvasDim, canvasDim * 4, 0, 0);
 
   return ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
 }
 
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer LaueOps::drawColorBar(
-    UInt8ArrayType::Pointer image,
-    int canvasDim,
-    int numColors,
-    double minValue, double maxValue,
-    bool isMRD) const
+UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int canvasDim, int numColors, double minValue, double maxValue, bool isMRD) const
 {
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
 
@@ -1064,10 +1048,7 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(
 
   canvas_ity::canvas context(canvasDim, canvasDim);
   // Put the existing image onto the canvas
-  context.draw_image(rgbaImage->getPointer(0), canvasDim, canvasDim,
-                     canvasDim * 4, 0.0f, 0.0f,
-                     static_cast<float>(canvasDim),
-                     static_cast<float>(canvasDim));
+  context.draw_image(rgbaImage->getPointer(0), canvasDim, canvasDim, canvasDim * 4, 0.0f, 0.0f, static_cast<float>(canvasDim), static_cast<float>(canvasDim));
 
   // Color bar dimensions
   const float barLeft = static_cast<float>(canvasDim) * 0.80f;
@@ -1137,9 +1118,7 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(
 }
 
 // -----------------------------------------------------------------------------
-std::vector<UInt8ArrayType::Pointer> LaueOps::generateAnnotatedIPFDensity(
-    InversePoleFigureConfiguration_t& config,
-    std::pair<double, double>* outMinMax) const
+std::vector<UInt8ArrayType::Pointer> LaueOps::generateAnnotatedIPFDensity(InversePoleFigureConfiguration_t& config, std::pair<double, double>* outMinMax) const
 {
   // Validate square images
   if(config.imageWidth != config.imageHeight)
@@ -1172,10 +1151,29 @@ std::vector<UInt8ArrayType::Pointer> LaueOps::generateAnnotatedIPFDensity(
   ebsdlib::FloatArrayType::Pointer dirs1 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[1]);
   ebsdlib::FloatArrayType::Pointer dirs2 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[2]);
 
-  // Step 2: Compute intensity images
-  ebsdlib::DoubleArrayType::Pointer intensity0 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs0.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD);
-  ebsdlib::DoubleArrayType::Pointer intensity1 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs1.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD);
-  ebsdlib::DoubleArrayType::Pointer intensity2 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs2.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD);
+  // Step 2: Compute SST bounding box for zoomed density images
+  // getIpfColorAngleLimits returns {etaMin, etaMax, chiMax(eta)} in radians.
+  auto angleLimits = getIpfColorAngleLimits(0.0);
+  double etaMin = angleLimits[0];
+  double etaMax = angleLimits[1];
+
+  // Get chiMax at etaMax (gives the largest chiMax for cubic; same for others)
+  auto angleLimitsAtMax = getIpfColorAngleLimits(etaMax);
+  double chiMax = angleLimitsAtMax[2];
+
+  // Also check chiMax at etaMin in case it's larger
+  auto angleLimitsAtMin = getIpfColorAngleLimits(etaMin);
+  if(angleLimitsAtMin[2] > chiMax)
+  {
+    chiMax = angleLimitsAtMin[2];
+  }
+
+  std::array<double, 4> sstBBox = {etaMin, etaMax, 0.0, chiMax};
+
+  // Compute intensity images with SST-zoomed mapping
+  ebsdlib::DoubleArrayType::Pointer intensity0 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs0.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD, &sstBBox);
+  ebsdlib::DoubleArrayType::Pointer intensity1 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs1.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD, &sstBBox);
+  ebsdlib::DoubleArrayType::Pointer intensity2 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs2.get(), imageDim, imageDim, config.lambertDim, config.normalizeMRD, &sstBBox);
 
   // Step 3: Find global min/max
   double globalMax = std::numeric_limits<double>::lowest();

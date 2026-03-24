@@ -137,7 +137,7 @@ ebsdlib::FloatArrayType::Pointer InversePoleFigureUtilities::computeIPFDirection
 
 // -----------------------------------------------------------------------------
 ebsdlib::DoubleArrayType::Pointer InversePoleFigureUtilities::computeIPFIntensity(const LaueOps& ops, ebsdlib::FloatArrayType* ipfDirections, int imageWidth, int imageHeight, int lambertDim,
-                                                                                  bool normalizeMRD)
+                                                                                  bool normalizeMRD, const std::array<double, 4>* sstBoundingBox)
 {
   // Step 1: Bin the crystal directions into the Lambert projection
   float sphereRadius = 1.0f;
@@ -169,66 +169,112 @@ ebsdlib::DoubleArrayType::Pointer InversePoleFigureUtilities::computeIPFIntensit
     // If not MRD, leave as raw counts
   }
 
-  // Step 3: Create the output intensity image using equal-area projection
+  // Step 3: Create the output intensity image
   std::vector<size_t> tDims = {static_cast<size_t>(imageWidth * imageHeight)};
   std::vector<size_t> cDims = {1};
   ebsdlib::DoubleArrayType::Pointer intensity = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "IPF_Intensity", true);
   double* intensityPtr = intensity->getPointer(0);
 
-  // Lambert azimuthal equal-area projection centered on north pole
-  // Maps the upper hemisphere (z >= 0) to a disk of radius sqrt(2)
-  float unitRadius = std::sqrt(2.0f);
-  float span = 2.0f * unitRadius;
-  float xres = span / static_cast<float>(imageWidth);
-  float yres = span / static_cast<float>(imageHeight);
-
-  int halfWidth = imageWidth / 2;
-  int halfHeight = imageHeight / 2;
-
-  for(int y = 0; y < imageHeight; y++)
+  if(sstBoundingBox != nullptr)
   {
-    for(int x = 0; x < imageWidth; x++)
+    // SST-zoomed mode: map pixels directly to (eta, chi) within the bounding box
+    double etaMin = (*sstBoundingBox)[0];
+    double etaMax = (*sstBoundingBox)[1];
+    double chiMin = (*sstBoundingBox)[2];
+    double chiMax = (*sstBoundingBox)[3];
+
+    for(int y = 0; y < imageHeight; y++)
     {
-      int index = y * imageWidth + x;
-
-      // Map pixel to equal-area projection coordinates
-      float xtmp = static_cast<float>(x - halfWidth) * xres + (xres * 0.5f);
-      float ytmp = static_cast<float>(y - halfHeight) * yres + (yres * 0.5f);
-
-      float rhoSq = xtmp * xtmp + ytmp * ytmp;
-
-      // Check if within hemisphere disk
-      if(rhoSq > 2.0f)
+      for(int x = 0; x < imageWidth; x++)
       {
-        intensityPtr[index] = -1.0; // Outside hemisphere
-        continue;
+        int index = y * imageWidth + x;
+
+        // Map pixel to (eta, chi) within the bounding box
+        // x maps to eta (left=etaMin, right=etaMax)
+        // y maps to chi (top=chiMin, bottom=chiMax)
+        double eta = etaMin + (static_cast<double>(x) + 0.5) / static_cast<double>(imageWidth) * (etaMax - etaMin);
+        double chi = chiMin + (static_cast<double>(y) + 0.5) / static_cast<double>(imageHeight) * (chiMax - chiMin);
+
+        if(!ops.inUnitTriangle(eta, chi))
+        {
+          intensityPtr[index] = -1.0;
+          continue;
+        }
+
+        // Convert (eta, chi) to unit sphere xyz
+        double sinChi = std::sin(chi);
+        std::array<float, 3> xyz = {static_cast<float>(sinChi * std::cos(eta)), static_cast<float>(sinChi * std::sin(eta)), static_cast<float>(std::cos(chi))};
+
+        // Look up intensity from Lambert bins
+        std::array<float, 2> sqCoord = {0.0f, 0.0f};
+        bool isNorth = lambert->getSquareCoord(xyz.data(), sqCoord.data());
+        if(isNorth)
+        {
+          intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::NorthSquare, sqCoord.data());
+        }
+        else
+        {
+          intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::SouthSquare, sqCoord.data());
+        }
       }
+    }
+  }
+  else
+  {
+    // Default full Lambert hemisphere disk mapping
+    float unitRadius = std::sqrt(2.0f);
+    float span = 2.0f * unitRadius;
+    float xres = span / static_cast<float>(imageWidth);
+    float yres = span / static_cast<float>(imageHeight);
 
-      // Inverse Lambert azimuthal equal-area projection (north pole centered)
-      float t = std::sqrt(1.0f - rhoSq / 4.0f);
-      std::array<float, 3> xyz = {xtmp * t, ytmp * t, 1.0f - rhoSq / 2.0f};
+    int halfWidth = imageWidth / 2;
+    int halfHeight = imageHeight / 2;
 
-      // Compute chi (polar angle from z-axis) and eta (azimuthal angle)
-      double chi = std::acos(static_cast<double>(xyz[2]));
-      double eta = std::atan2(static_cast<double>(xyz[1]), static_cast<double>(xyz[0]));
-
-      // Check if direction is inside the Standard Stereographic Triangle
-      if(!ops.inUnitTriangle(eta, chi))
+    for(int y = 0; y < imageHeight; y++)
+    {
+      for(int x = 0; x < imageWidth; x++)
       {
-        intensityPtr[index] = -1.0; // Outside SST
-        continue;
-      }
+        int index = y * imageWidth + x;
 
-      // Look up the interpolated intensity from the Lambert projection
-      std::array<float, 2> sqCoord = {0.0f, 0.0f};
-      bool isNorth = lambert->getSquareCoord(xyz.data(), sqCoord.data());
-      if(isNorth)
-      {
-        intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::NorthSquare, sqCoord.data());
-      }
-      else
-      {
-        intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::SouthSquare, sqCoord.data());
+        // Map pixel to equal-area projection coordinates
+        float xtmp = static_cast<float>(x - halfWidth) * xres + (xres * 0.5f);
+        float ytmp = static_cast<float>(y - halfHeight) * yres + (yres * 0.5f);
+
+        float rhoSq = xtmp * xtmp + ytmp * ytmp;
+
+        // Check if within hemisphere disk
+        if(rhoSq > 2.0f)
+        {
+          intensityPtr[index] = -1.0; // Outside hemisphere
+          continue;
+        }
+
+        // Inverse Lambert azimuthal equal-area projection (north pole centered)
+        float t = std::sqrt(1.0f - rhoSq / 4.0f);
+        std::array<float, 3> xyz = {xtmp * t, ytmp * t, 1.0f - rhoSq / 2.0f};
+
+        // Compute chi (polar angle from z-axis) and eta (azimuthal angle)
+        double chi = std::acos(static_cast<double>(xyz[2]));
+        double eta = std::atan2(static_cast<double>(xyz[1]), static_cast<double>(xyz[0]));
+
+        // Check if direction is inside the Standard Stereographic Triangle
+        if(!ops.inUnitTriangle(eta, chi))
+        {
+          intensityPtr[index] = -1.0; // Outside SST
+          continue;
+        }
+
+        // Look up the interpolated intensity from the Lambert projection
+        std::array<float, 2> sqCoord = {0.0f, 0.0f};
+        bool isNorth = lambert->getSquareCoord(xyz.data(), sqCoord.data());
+        if(isNorth)
+        {
+          intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::NorthSquare, sqCoord.data());
+        }
+        else
+        {
+          intensityPtr[index] = lambert->getInterpolatedValue(ModifiedLambertProjection::SouthSquare, sqCoord.data());
+        }
       }
     }
   }
@@ -237,7 +283,8 @@ ebsdlib::DoubleArrayType::Pointer InversePoleFigureUtilities::computeIPFIntensit
 }
 
 // -----------------------------------------------------------------------------
-void InversePoleFigureUtilities::createIPFColorImage(ebsdlib::DoubleArrayType* intensity, int imageWidth, int imageHeight, int numColors, double minScale, double maxScale, ebsdlib::UInt8ArrayType* rgba)
+void InversePoleFigureUtilities::createIPFColorImage(ebsdlib::DoubleArrayType* intensity, int imageWidth, int imageHeight, int numColors, double minScale, double maxScale,
+                                                     ebsdlib::UInt8ArrayType* rgba)
 {
   // Initialize the image with all zeros
   rgba->initializeWithZeros();
