@@ -91,9 +91,9 @@ ebsdlib::FloatArrayType::Pointer generateRandomEulers(size_t numOrientations, un
   for(size_t i = 0; i < numOrientations; i++)
   {
     float* ptr = eulers->getTuplePointer(i);
-    ptr[0] = phi1Dist(gen);                   // phi1: [0, 2pi)
-    ptr[1] = std::acos(cosDist(gen));          // Phi:  [0, pi] with uniform sphere coverage
-    ptr[2] = phi2Dist(gen);                    // phi2: [0, 2pi)
+    ptr[0] = phi1Dist(gen);           // phi1: [0, 2pi)
+    ptr[1] = std::acos(cosDist(gen)); // Phi:  [0, pi] with uniform sphere coverage
+    ptr[2] = phi2Dist(gen);           // phi2: [0, 2pi)
   }
   return eulers;
 }
@@ -135,7 +135,7 @@ ebsdlib::UInt8ArrayType::Pointer convertARGBtoRGB(ebsdlib::UInt8ArrayType* argbI
     uint32_t pixel = *reinterpret_cast<uint32_t*>(argb);
     rgb[0] = static_cast<uint8_t>((pixel >> 16) & 0xFF); // R
     rgb[1] = static_cast<uint8_t>((pixel >> 8) & 0xFF);  // G
-    rgb[2] = static_cast<uint8_t>(pixel & 0xFF);          // B
+    rgb[2] = static_cast<uint8_t>(pixel & 0xFF);         // B
   }
   return rgbImage;
 }
@@ -327,7 +327,7 @@ void generateSingleIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* 
 int main(int argc, char* argv[])
 {
   // Parse command-line arguments
-  std::string outputDir = UnitTest::TestTempDir + "/IPF_Density/";
+  std::string outputDir = ebsdlib::unit_test::k_TestTempDir + "/IPF_Density/";
   size_t numOrientations = 5000;
 
   if(argc >= 2)
@@ -428,7 +428,7 @@ int main(int argc, char* argv[])
   std::cout << "--- Part 5: Quaternion Texture File - All Laue Classes (ND) ---" << std::endl;
   std::cout << std::endl;
 
-  std::string quatFilePath = UnitTest::DataDir + "IPF_Legend/quats_000_1_deg.txt";
+  std::string quatFilePath = ebsdlib::unit_test::DataDir + "IPF_Legend/quats_000_1_deg.txt";
   auto textureEulers = readQuaternionFileAsEulers(quatFilePath);
   if(textureEulers != nullptr)
   {

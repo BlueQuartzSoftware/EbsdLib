@@ -108,12 +108,12 @@ void generatePoleFiguresForPhase(const LaueOps& ops, unsigned int laueOpsIndex, 
   PoleFigureConfiguration_t config;
   config.eulers = eulers;
   config.imageDim = imageDim;
-  config.lambertDim = 72;
+  config.lambertDim = 64;
   config.numColors = 32;
   config.minScale = 0.0;
   config.maxScale = 0.0; // 0 = auto-scale
   config.sphereRadius = 1.0F;
-  config.discrete = true;
+  config.discrete = false;
   config.discreteHeatMap = false;
   config.labels = {poleFigureNames[0], poleFigureNames[1], poleFigureNames[2]};
   config.order = {0, 1, 2};

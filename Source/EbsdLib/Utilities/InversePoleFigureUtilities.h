@@ -107,7 +107,7 @@ public:
    * @return DoubleArrayType intensity image (imageWidth * imageHeight). Pixels outside SST have value -1.0.
    */
   static ebsdlib::DoubleArrayType::Pointer computeIPFIntensity(const LaueOps& ops, ebsdlib::FloatArrayType* ipfDirections, int imageWidth, int imageHeight, int lambertDim, bool normalizeMRD,
-                                                              bool useStereographicSST = false);
+                                                               bool useStereographicSST = false);
 
   /**
    * @brief Converts an intensity image to RGBA with SST masking. Pixels inside the SST

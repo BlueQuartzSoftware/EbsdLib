@@ -883,9 +883,12 @@ std::vector<UInt8ArrayType::Pointer> LaueOps::generateInversePoleFigure(InverseP
   ebsdlib::FloatArrayType::Pointer dirs2 = InversePoleFigureUtilities::computeIPFDirections(*this, config.eulers, config.sampleDirections[2]);
 
   // Step 2: Compute intensity images for each (using stereographic SST mapping)
-  ebsdlib::DoubleArrayType::Pointer intensity0 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs0.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
-  ebsdlib::DoubleArrayType::Pointer intensity1 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs1.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
-  ebsdlib::DoubleArrayType::Pointer intensity2 = InversePoleFigureUtilities::computeIPFIntensity(*this, dirs2.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
+  ebsdlib::DoubleArrayType::Pointer intensity0 =
+      InversePoleFigureUtilities::computeIPFIntensity(*this, dirs0.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
+  ebsdlib::DoubleArrayType::Pointer intensity1 =
+      InversePoleFigureUtilities::computeIPFIntensity(*this, dirs1.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
+  ebsdlib::DoubleArrayType::Pointer intensity2 =
+      InversePoleFigureUtilities::computeIPFIntensity(*this, dirs2.get(), config.imageWidth, config.imageHeight, config.lambertDim, config.normalizeMRD, true);
 
   // Step 3: Find global min/max across all 3 intensity images (only for pixels inside SST, value >= 0)
   double globalMax = std::numeric_limits<double>::lowest();
@@ -956,17 +959,16 @@ std::array<float, 2> LaueOps::adjustFigureOrigin(std::array<float, 2> figureOrig
 }
 
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane,
-                                                  bool hasColorBar) const
+UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar) const
 {
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
   // When a color bar will be drawn, use a wider right margin to make room
   float rightMargin = hasColorBar ? static_cast<float>(canvasDim / 3.5f) : static_cast<float>(canvasDim / 7.0f);
   const std::vector<float> margins = {
-      fontPtSize * 3,                       // Top
-      rightMargin,                          // Right
-      fontPtSize * 2,                       // Bottom
-      static_cast<float>(canvasDim / 7.0f)  // Left
+      fontPtSize * 3,                      // Top
+      rightMargin,                         // Right
+      fontPtSize * 2,                      // Bottom
+      static_cast<float>(canvasDim / 7.0f) // Left
   };
 
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
