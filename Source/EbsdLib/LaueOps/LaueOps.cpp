@@ -956,12 +956,15 @@ std::array<float, 2> LaueOps::adjustFigureOrigin(std::array<float, 2> figureOrig
 }
 
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane) const
+UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane,
+                                                  bool hasColorBar) const
 {
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
+  // When a color bar will be drawn, use a wider right margin to make room
+  float rightMargin = hasColorBar ? static_cast<float>(canvasDim / 3.5f) : static_cast<float>(canvasDim / 7.0f);
   const std::vector<float> margins = {
       fontPtSize * 3,                       // Top
-      static_cast<float>(canvasDim / 7.0f), // Right
+      rightMargin,                          // Right
       fontPtSize * 2,                       // Bottom
       static_cast<float>(canvasDim / 7.0f)  // Left
   };
@@ -1055,11 +1058,24 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int
   // Put the existing image onto the canvas
   context.draw_image(rgbaImage->getPointer(0), canvasDim, canvasDim, canvasDim * 4, 0.0f, 0.0f, static_cast<float>(canvasDim), static_cast<float>(canvasDim));
 
-  // Color bar dimensions
-  const float barLeft = static_cast<float>(canvasDim) * 0.80f;
-  const float barTop = static_cast<float>(canvasDim) * 0.15f;
-  const float barWidth = static_cast<float>(canvasDim) * 0.04f;
-  const float barHeight = static_cast<float>(canvasDim) * 0.65f;
+  // Color bar dimensions — positioned in the right margin area
+  // Compute the figure right edge using the same layout as annotateIPFImage with hasColorBar=true
+  float rightMargin = static_cast<float>(canvasDim / 3.5f);
+  float leftMargin = static_cast<float>(canvasDim / 7.0f);
+  float topMargin = fontPtSize * 3;
+  float bottomMargin = fontPtSize * 2;
+  int legendHeight = canvasDim - static_cast<int>(topMargin) - static_cast<int>(bottomMargin);
+  int legendWidth = canvasDim - static_cast<int>(rightMargin) - static_cast<int>(leftMargin);
+  if(legendHeight > legendWidth)
+  {
+    legendHeight = legendWidth;
+  }
+  float figureRightEdge = leftMargin + static_cast<float>(legendWidth);
+
+  const float barLeft = figureRightEdge + fontPtSize * 2.5f;
+  const float barTop = topMargin * 1.33f;
+  const float barWidth = fontPtSize * 0.8f;
+  const float barHeight = static_cast<float>(legendHeight) * 0.75f;
 
   // Draw color bar segments
   int colorSegments = numColors;
@@ -1211,9 +1227,9 @@ std::vector<UInt8ArrayType::Pointer> LaueOps::generateAnnotatedIPFDensity(Invers
   std::string titlePrefix = config.phaseName.empty() ? "" : config.phaseName + " - ";
 
   // Step 6: Annotate each image
-  UInt8ArrayType::Pointer annotated0 = annotateIPFImage(image0, imageDim, canvasDim, titlePrefix + label0, false);
-  UInt8ArrayType::Pointer annotated1 = annotateIPFImage(image1, imageDim, canvasDim, titlePrefix + label1, false);
-  UInt8ArrayType::Pointer annotated2 = annotateIPFImage(image2, imageDim, canvasDim, titlePrefix + label2, false);
+  UInt8ArrayType::Pointer annotated0 = annotateIPFImage(image0, imageDim, canvasDim, titlePrefix + label0, false, true);
+  UInt8ArrayType::Pointer annotated1 = annotateIPFImage(image1, imageDim, canvasDim, titlePrefix + label1, false, true);
+  UInt8ArrayType::Pointer annotated2 = annotateIPFImage(image2, imageDim, canvasDim, titlePrefix + label2, false, true);
 
   // Step 7: Add color bars
   annotated0 = drawColorBar(annotated0, canvasDim, config.numColors, globalMin, globalMax, config.normalizeMRD);

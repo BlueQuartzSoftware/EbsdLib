@@ -498,7 +498,8 @@ protected:
    * @param generateEntirePlane true = full circle view, false = SST only
    * @return RGB image (canvasDim x canvasDim, 3 components)
    */
-  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane) const;
+  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane,
+                                           bool hasColorBar = false) const;
 
   /**
    * @brief Draws a color bar with min/max labels onto an existing RGB image.
