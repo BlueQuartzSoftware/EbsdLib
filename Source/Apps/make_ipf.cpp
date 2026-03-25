@@ -1,35 +1,37 @@
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/IO/HKL/CtfPhase.h"
+#include "EbsdLib/IO/HKL/CtfReader.h"
 #include "EbsdLib/IO/TSL/AngPhase.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
-class Ang2IPF;
-
 using FloatVec3Type = std::array<float, 3>;
 
 using namespace ebsdlib;
 
 /**
- * @brief The GenerateIPFColorsImpl class implements a threaded algorithm that computes the IPF
- * colors for each element in a geometry
+ * @brief The GenerateIPFColorsImpl class computes the IPF colors for each element in a geometry.
+ * Uses LaueOps indices directly so it works with both .ang and .ctf phase data.
  */
 class GenerateIPFColorsImpl
 {
 public:
-  GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, std::vector<AngPhase::Pointer>& crystalStructures, bool* goodVoxels, uint8_t* colors)
+  GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, const std::vector<size_t>& laueOpsIndices, bool* goodVoxels, uint8_t* colors)
   : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
-  , m_PhaseInfos(crystalStructures)
+  , m_LaueOpsIndices(laueOpsIndices)
   , m_GoodVoxels(goodVoxels)
   , m_CellIPFColors(colors)
   {
@@ -46,13 +48,7 @@ public:
     int32_t phase = 0;
     bool calcIPF = false;
     size_t index = 0;
-    int32_t numPhases = static_cast<int32_t>(m_PhaseInfos.size());
-
-    std::vector<size_t> laueOpsIndex(m_PhaseInfos.size());
-    for(size_t i = 0; i < laueOpsIndex.size(); i++)
-    {
-      laueOpsIndex[i] = m_PhaseInfos[i]->determineOrientationOpsIndex();
-    }
+    int32_t numPhases = static_cast<int32_t>(m_LaueOpsIndices.size());
 
     size_t totalPoints = m_CellEulerAngles.size() / 3;
     for(size_t i = 0; i < totalPoints; i++)
@@ -66,20 +62,17 @@ public:
       dEuler[1] = m_CellEulerAngles[index + 1];
       dEuler[2] = m_CellEulerAngles[index + 2];
 
-      // Make sure we are using a valid Euler Angles with valid crystal symmetry
       calcIPF = true;
       if(nullptr != m_GoodVoxels)
       {
         calcIPF = m_GoodVoxels[i];
       }
-      // Sanity check the phase data to make sure we do not walk off the end of the array
       if(phase >= numPhases)
       {
-        // m_Filter->incrementPhaseWarningCount();
         std::cout << "phase > number of phases" << std::endl;
       }
 
-      size_t currentLaueOpsIndex = laueOpsIndex[phase];
+      size_t currentLaueOpsIndex = m_LaueOpsIndices[phase];
 
       if(phase < numPhases && calcIPF && currentLaueOpsIndex < ebsdlib::CrystalStructure::LaueGroupEnd)
       {
@@ -87,9 +80,6 @@ public:
         m_CellIPFColors[index] = static_cast<uint8_t>(ebsdlib::RgbColor::dRed(argb));
         m_CellIPFColors[index + 1] = static_cast<uint8_t>(ebsdlib::RgbColor::dGreen(argb));
         m_CellIPFColors[index + 2] = static_cast<uint8_t>(ebsdlib::RgbColor::dBlue(argb));
-
-        //  std::cout << (int32_t)(m_CellIPFColors[index]) << "\t" << (int32_t)(m_CellIPFColors[index + 1]) << (int32_t)(m_CellIPFColors[index + 2]) << m_CellEulerAngles[index] << "\t"
-        //            << m_CellEulerAngles[index + 1] << "\t" << m_CellEulerAngles[index + 2] << std::endl;
       }
     }
   }
@@ -98,120 +88,181 @@ private:
   Matrix3X1F m_ReferenceDir;
   const std::vector<float>& m_CellEulerAngles;
   int32_t* m_CellPhases;
-  std::vector<AngPhase::Pointer> m_PhaseInfos;
+  std::vector<size_t> m_LaueOpsIndices;
 
   bool* m_GoodVoxels;
   uint8_t* m_CellIPFColors;
 };
 
 // -----------------------------------------------------------------------------
-class Ang2IPF
+// Reads a .ang file and generates an IPF color map image.
+// -----------------------------------------------------------------------------
+int32_t executeAng(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir)
 {
-public:
-  Ang2IPF()
+  AngReader reader;
+  reader.setFileName(filepath);
+  int32_t err = reader.readFile();
+  if(err < 0)
   {
-  }
-  ~Ang2IPF() = default;
-
-  Ang2IPF(const Ang2IPF&) = delete;            // Copy Constructor Not Implemented
-  Ang2IPF(Ang2IPF&&) = delete;                 // Move Constructor Not Implemented
-  Ang2IPF& operator=(const Ang2IPF&) = delete; // Copy Assignment Not Implemented
-  Ang2IPF& operator=(Ang2IPF&&) = delete;      // Move Assignment Not Implemented
-
-  Matrix3X1F m_ReferenceDir = {0.0f, 0.0f, 1.0f};
-
-  /**
-   * @brief incrementPhaseWarningCount
-   */
-  void incrementPhaseWarningCount()
-  {
-    m_PhaseWarningCount++;
+    std::cerr << "Error reading .ang file: " << filepath << std::endl;
+    return err;
   }
 
-  /**
-   * @brief execute
-   * @return
-   */
-  int32_t execute(const std::string& filepath, const std::string& outputFile)
+  std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
+  size_t totalPoints = reader.getNumberOfElements();
+
+  // Build LaueOps index vector. Insert a dummy at index 0 since ANG phases are 1-based.
+  std::vector<AngPhase::Pointer> angPhases = reader.getPhaseVector();
+  std::vector<size_t> laueOpsIndices;
+  laueOpsIndices.push_back(0); // Dummy for index 0
+  for(const auto& phase : angPhases)
   {
-    m_PhaseWarningCount = 0;
-    AngReader reader;
-    reader.setFileName(filepath);
-    int32_t err = reader.readFile();
-    if(err < 0)
-    {
-      return err;
-    }
-
-    std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
-
-    size_t totalPoints = reader.getNumberOfElements();
-    std::vector<AngPhase::Pointer> crystalStructures = reader.getPhaseVector();
-    crystalStructures.emplace(crystalStructures.begin(), AngPhase::New());
-    // int32_t numPhase = static_cast<int32_t>(crystalStructures.size());
-
-    // Make sure we are dealing with a unit 1 vector.
-    Matrix3X1F normRefDir = m_ReferenceDir.normalize(); // Make a copy of the reference Direction and normalize it
-
-    float* phi1Ptr = reader.getPhi1Pointer(false);
-    float* phiPtr = reader.getPhiPointer(false);
-    float* phi2Ptr = reader.getPhi2Pointer(false);
-
-    // We need to interleave the phi1, PHI, phi2 data into a single 3 component array
-    std::vector<float> eulers(3 * totalPoints);
-
-    for(size_t i = 0; i < totalPoints; i++)
-    {
-      eulers[i * 3] = phi1Ptr[i];
-      eulers[i * 3 + 1] = phiPtr[i];
-      eulers[i * 3 + 2] = phi2Ptr[i];
-    }
-
-    int32_t* phaseData = reader.getPhaseDataPointer(false);
-    for(size_t i = 0; i < totalPoints; i++)
-    {
-      if(phaseData[i] < 1)
-      {
-        phaseData[i] = 1;
-      }
-    }
-
-    bool* goodVoxels = nullptr;
-    std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-    GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, crystalStructures, goodVoxels, ipfColors.data());
-    generateIPF.run();
-
-    std::pair<int32_t, std::string> error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
-    if(error.first < 0)
-    {
-      std::cout << error.second << std::endl;
-    }
-    return error.first;
+    laueOpsIndices.push_back(phase->determineOrientationOpsIndex());
   }
 
-private:
-  int32_t m_PhaseWarningCount = {0};
-};
+  Matrix3X1F normRefDir = refDir.normalize();
+
+  // ANG Euler angles are in radians — interleave into a single array
+  float* phi1Ptr = reader.getPhi1Pointer(false);
+  float* phiPtr = reader.getPhiPointer(false);
+  float* phi2Ptr = reader.getPhi2Pointer(false);
+
+  std::vector<float> eulers(3 * totalPoints);
+  for(size_t i = 0; i < totalPoints; i++)
+  {
+    eulers[i * 3] = phi1Ptr[i];
+    eulers[i * 3 + 1] = phiPtr[i];
+    eulers[i * 3 + 2] = phi2Ptr[i];
+  }
+
+  // Map phase 0 (unindexed) to phase 1
+  int32_t* phaseData = reader.getPhaseDataPointer(false);
+  for(size_t i = 0; i < totalPoints; i++)
+  {
+    if(phaseData[i] < 1)
+    {
+      phaseData[i] = 1;
+    }
+  }
+
+  bool* goodVoxels = nullptr;
+  std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data());
+  generateIPF.run();
+
+  auto error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
+  if(error.first < 0)
+  {
+    std::cerr << error.second << std::endl;
+  }
+  return error.first;
+}
+
+// -----------------------------------------------------------------------------
+// Reads a .ctf file and generates an IPF color map image.
+// CTF Euler angles are in degrees and must be converted to radians.
+// -----------------------------------------------------------------------------
+int32_t executeCtf(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir)
+{
+  CtfReader reader;
+  reader.setFileName(filepath);
+  int32_t err = reader.readFile();
+  if(err < 0)
+  {
+    std::cerr << "Error reading .ctf file: " << filepath << std::endl;
+    return err;
+  }
+
+  std::vector<int32_t> dims = {reader.getXDimension(), reader.getYDimension()};
+  size_t totalPoints = reader.getNumberOfElements();
+
+  // Build LaueOps index vector. Insert a dummy at index 0 since CTF phases are 1-based.
+  std::vector<CtfPhase::Pointer> ctfPhases = reader.getPhaseVector();
+  std::vector<size_t> laueOpsIndices;
+  laueOpsIndices.push_back(0); // Dummy for index 0
+  for(const auto& phase : ctfPhases)
+  {
+    laueOpsIndices.push_back(phase->determineOrientationOpsIndex());
+  }
+
+  Matrix3X1F normRefDir = refDir.normalize();
+
+  // CTF Euler angles are in degrees — convert to radians and interleave
+  float* euler1Ptr = reader.getEuler1Pointer();
+  float* euler2Ptr = reader.getEuler2Pointer();
+  float* euler3Ptr = reader.getEuler3Pointer();
+  const float degToRad = static_cast<float>(ebsdlib::constants::k_DegToRadD);
+
+  std::vector<float> eulers(3 * totalPoints);
+  for(size_t i = 0; i < totalPoints; i++)
+  {
+    eulers[i * 3] = euler1Ptr[i] * degToRad;
+    eulers[i * 3 + 1] = euler2Ptr[i] * degToRad;
+    eulers[i * 3 + 2] = euler3Ptr[i] * degToRad;
+  }
+
+  // Map phase 0 (unindexed) to phase 1
+  int* phaseData = reader.getPhasePointer();
+  std::vector<int32_t> phases(totalPoints);
+  for(size_t i = 0; i < totalPoints; i++)
+  {
+    phases[i] = (phaseData[i] < 1) ? 1 : phaseData[i];
+  }
+
+  bool* goodVoxels = nullptr;
+  std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data());
+  generateIPF.run();
+
+  auto error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
+  if(error.first < 0)
+  {
+    std::cerr << error.second << std::endl;
+  }
+  return error.first;
+}
 
 // -----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-
   if(argc != 3)
   {
-    std::cout << "Program needs file path to .ang file and output image file" << std::endl;
+    std::cout << "Usage: make_ipf <input_file.ang|input_file.ctf> <output_image.tiff>" << std::endl;
     return 1;
   }
-  std::cout << "WARNING: This program makes NO attempt to fix the sample and crystal reference frame issue that is common on TSL systems." << std::endl;
+
+  std::cout << "WARNING: This program makes NO attempt to fix the sample and crystal reference frame issue." << std::endl;
   std::cout << "WARNING: You are probably *not* seeing the correct colors. Use something like DREAM.3D to fully correct for these issues." << std::endl;
+
   std::string filePath(argv[1]);
   std::string outPath(argv[2]);
+
+  // Determine file type from extension
+  std::string ext = std::filesystem::path(filePath).extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+  Matrix3X1F referenceDir = {0.0f, 0.0f, 1.0f};
+
   std::cout << "Creating IPF Color Map for " << filePath << std::endl;
 
-  Ang2IPF Ang2IPF;
-  if(Ang2IPF.execute(filePath, outPath) < 0)
+  int32_t result = -1;
+  if(ext == ".ang")
   {
-    std::cout << "Error creating the IPF Color map" << std::endl;
+    result = executeAng(filePath, outPath, referenceDir);
   }
-  return 0;
+  else if(ext == ".ctf")
+  {
+    result = executeCtf(filePath, outPath, referenceDir);
+  }
+  else
+  {
+    std::cerr << "ERROR: Unsupported file extension '" << ext << "'. Use .ang or .ctf" << std::endl;
+    return 1;
+  }
+
+  if(result < 0)
+  {
+    std::cerr << "Error creating the IPF Color map" << std::endl;
+  }
+  return result < 0 ? 1 : 0;
 }
