@@ -41,6 +41,10 @@ add_executable(generate_ipf_from_file ${EbsdLibProj_SOURCE_DIR}/Source/Apps/gene
 target_link_libraries(generate_ipf_from_file PUBLIC EbsdLib)
 target_include_directories(generate_ipf_from_file PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 
+add_executable(generate_pole_figure ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_pole_figure.cpp)
+target_link_libraries(generate_pole_figure PUBLIC EbsdLib)
+target_include_directories(generate_pole_figure PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
 add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
 target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
 target_include_directories(ParseAztecProject PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
