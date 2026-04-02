@@ -41,7 +41,7 @@ project(EbsdLibProj VERSION 2.2.0)
 
 
 # Request C++17 standard, using new CMake variables.
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -114,6 +114,13 @@ else()
   message(WARNING "The Eigen Library is required for some algorithms to execute. These algorithms will be disabled.")
 endif()
 
+
+# -----------------------------------------------------------------------
+# Find FMT library
+# -----------------------------------------------------------------------
+find_package(fmt CONFIG REQUIRED)
+
+
 #-------------------------------------------------------------------------------
 # Determine if we need the ghcFilesystem library
 #-------------------------------------------------------------------------------
@@ -159,6 +166,66 @@ if(EbsdLib_ENABLE_MULTICORE)  # If TBB already exists no need to look for it (e.
 endif()
 
 include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
+
+
+
+# ------------------------------------------------------------------------------
+# Check if a different Data_Archive web site is being used.
+#   The alternate would be for the internal build bots that can download from a
+#   local webserver
+# ------------------------------------------------------------------------------
+if("${DATA_ARCHIVE_WEB_SITE}" STREQUAL "")
+  set(DATA_ARCHIVE_WEB_SITE "https://github.com/bluequartzsoftware/ebsdlib/releases/download/Data_Archive/")
+endif()
+
+file(TO_CMAKE_PATH "${EBSDLIB_DATA_DIR}" EBSDLIB_DATA_DIR_NORM)
+
+
+# -----------------------------------------------------------------------
+# This section creates a global file that holds the commands to copy data
+# files, test data files, pipelines into a single cmake file that gets
+# generated. This reduces the many copy targets to a single target.
+# -----------------------------------------------------------------------
+set_property(GLOBAL PROPERTY FETCH_FILE_INDEX 0)
+set(FETCH_FILE_PATH "${EbsdLibProj_BINARY_DIR}/EbsdLibProj_fetch_remote_files.cmake")
+set_property(GLOBAL PROPERTY FETCH_FILE_PATH "${FETCH_FILE_PATH}")
+file(WRITE ${FETCH_FILE_PATH} "# -----------------------------------------------------------------------
+# This file is programmatically generated from the CMake file ${CMAKE_CURRENT_LIST_FILE}
+# This file has the commands to download each of the test files.
+# The WORKING_DIRECTORY is set to the following CMake code:
+# ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>
+# -----------------------------------------------------------------------\n
+cmake_policy(SET CMP0012 NEW)
+cmake_policy(SET CMP0054 NEW)
+# The ``FindPythonInterp`` and ``FindPythonLibs`` modules are removed.
+# if(CMAKE_VERSION VERSION_GREATER \"3.27.0\")
+#   cmake_policy(SET CMP0148 NEW)
+# endif()
+# resolves symlinks before collapsing ../ components.
+if(CMAKE_VERSION VERSION_GREATER \"3.28.0\")
+  cmake_policy(SET CMP0152 NEW)
+endif()
+set(CONFIG \${CMAKE_CONFIG})
+set(LOG_FILE \"${EbsdLibProj_BINARY_DIR}/EbsdLibProj_fetch_remote_files.log\")\n
+FILE(WRITE \"\${LOG_FILE}\" \"Featch File Log Start\n\")\n
+")
+
+message(STATUS "FETCH_FILE_PATH: ${FETCH_FILE_PATH}")
+
+set(TEST_WORKING_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+  set(TEST_WORKING_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>")
+endif()
+
+if(EBSDLIB_DOWNLOAD_TEST_FILES)
+  add_custom_target(EbsdLib_Fetch_Remote_Data_Files ALL
+    COMMAND "${CMAKE_COMMAND}" -DCMAKE_CONFIG=$<CONFIG> -P "${FETCH_FILE_PATH}"
+    COMMENT "Downloading EbsdLib Test Data Files"
+  #  WORKING_DIRECTORY "${TEST_WORKING_DIR}"
+  )
+  set_target_properties(EbsdLib_Fetch_Remote_Data_Files PROPERTIES FOLDER ZZ_FETCH_TEST_FILES)
+endif()
+
 
 # ------------------------------------------------------------------------------
 # Build Unit Test

@@ -39,14 +39,14 @@ endfunction()
 #------------------------------------------------------------------------------
 #
 #------------------------------------------------------------------------------
-function(simplnx_enable_warnings)
+function(EbsdLibProj_enable_warnings)
   set(optionsArgs)
   set(oneValueArgs TARGET)
   set(multiValueArgs)
   cmake_parse_arguments(ARG "${optionsArgs}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT TARGET ${ARG_TARGET})
-    message(FATAL_ERROR "simplnx_enable_warnings must be called with the argument TARGET set to a valid target")
+    message(FATAL_ERROR "EbsdLibProj_enable_warnings must be called with the argument TARGET set to a valid target")
   endif()
 
   if(MSVC)
@@ -105,21 +105,21 @@ endfunction()
 include(FetchContent)
 include(ExternalProject)
 
-function(download_test_data)
+function(ebsdlib_download_test_data)
   set(optionsArgs INSTALL COPY_DATA)
-  set(oneValueArgs DREAM3D_DATA_DIR ARCHIVE_NAME SHA512)
+  set(oneValueArgs EBSDLIB_DATA_DIR ARCHIVE_NAME SHA512)
   set(multiValueArgs FILES)
   cmake_parse_arguments(ARGS "${optionsArgs}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT SIMPLNX_DOWNLOAD_TEST_FILES)
+  if(NOT EBSDLIB_DOWNLOAD_TEST_FILES)
     return()
   endif()
 
   get_property(FETCH_FILE_PATH GLOBAL PROPERTY FETCH_FILE_PATH)
 
   get_filename_component(archive_base_name ${ARGS_ARCHIVE_NAME} NAME_WE)
-  file(TO_CMAKE_PATH "${simplnx_BINARY_DIR}/TestFiles" test_files_dir)
-  file(TO_CMAKE_PATH "${ARGS_DREAM3D_DATA_DIR}" ARGS_DREAM3D_DATA_DIR)
+  file(TO_CMAKE_PATH "${EbsdLibProj_BINARY_DIR}/TestFiles" test_files_dir)
+  file(TO_CMAKE_PATH "${ARGS_EBSDLIB_DATA_DIR}" ARGS_EBSDLIB_DATA_DIR)
   #----------------------------------------------------------------------------
   # Create the custom CMake File for this archive file
   #----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ function(download_test_data)
   # This section configures the bit of CMake code for the specific data file
   # that is being downloaded
   #----------------------------------------------------------------------------
-  configure_file(${simplnx_SOURCE_DIR}/cmake/FetchDataFile.cmake.in
+  configure_file(${EbsdLibProj_SOURCE_DIR}/cmake/FetchDataFile.cmake.in
                 ${fetch_data_file}
                 @ONLY
   )
@@ -184,13 +184,13 @@ endfunction()
 #------------------------------------------------------------------------------
 function(create_data_copy_rules)
   set(optionsArgs)
-  set(oneValueArgs DREAM3D_DATA_DIR)
+  set(oneValueArgs EBSDLIB_DATA_DIR)
   set(multiValueArgs FILES)
   cmake_parse_arguments(ARGS "${optionsArgs}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  message(STATUS "DREAM3D_DATA_DIR: ${ARGS_DREAM3D_DATA_DIR}")
+  message(STATUS "EBSDLIB_DATA_DIR: ${ARGS_EBSDLIB_DATA_DIR}")
   # If the data directory does not exist then bail out now.
-  if(NOT EXISTS "${ARGS_DREAM3D_DATA_DIR}")
+  if(NOT EXISTS "${ARGS_EBSDLIB_DATA_DIR}")
     message(STATUS "DREAM3D_Data directory does not exist. Not creating copy and install rules.")
     return()
   endif()
@@ -203,28 +203,28 @@ function(create_data_copy_rules)
   endif()
 
   set(DATA_DEST_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CX_CONFIG_DIR}/Data/")
-  if(EXISTS "${ARGS_DREAM3D_DATA_DIR}/Data")
+  if(EXISTS "${ARGS_EBSDLIB_DATA_DIR}/Data")
     add_custom_target(DataFolderCopy ALL
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARGS_DREAM3D_DATA_DIR}/Data ${DATA_DEST_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARGS_EBSDLIB_DATA_DIR}/Data ${DATA_DEST_DIR}
       COMMENT "Copying Data Folder into Binary Directory"
       COMMAND_EXPAND_LISTS
       VERBATIM
     )
     set_target_properties(DataFolderCopy PROPERTIES FOLDER ZZ_COPY_FILES)
 
-    set(DREAM3D_DATA_DIRECTORIES
-      ${ARGS_DREAM3D_DATA_DIR}/Data/Image
-      ${ARGS_DREAM3D_DATA_DIR}/Data/Models
+    set(EBSDLIB_DATA_DIRECTORIES
+      ${ARGS_EBSDLIB_DATA_DIR}/Data/Image
+      ${ARGS_EBSDLIB_DATA_DIR}/Data/Models
     )
 
-    set(SIMPLNX_DATA_INSTALL_DIR "Data")
+    set(EbsdLibProj_DATA_INSTALL_DIR "Data")
 
     # NOTE: If we are creating an Anaconda install the install directory WILL be different
-    foreach(data_dir ${DREAM3D_DATA_DIRECTORIES})
+    foreach(data_dir ${EBSDLIB_DATA_DIRECTORIES})
       if(EXISTS ${data_dir})
         install(DIRECTORY
           ${data_dir}
-          DESTINATION ${SIMPLNX_DATA_INSTALL_DIR}
+          DESTINATION ${EbsdLibProj_DATA_INSTALL_DIR}
           COMPONENT Applications
         )
       endif()
@@ -478,11 +478,11 @@ function(AddPythonTest)
   set(multiValueArgs PYTHONPATH)
   cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
   # message(STATUS "ARGS_FILE:${ARGS_FILE}")
-  if(SIMPLNX_BUILD_PYTHON)
+  if(EbsdLibProj_BUILD_PYTHON)
     if(WIN32)
-      set(test_driver_file ${simplnx_SOURCE_DIR}/wrapping/python/testing/anaconda_test.bat)
+      set(test_driver_file ${EbsdLibProj_SOURCE_DIR}/wrapping/python/testing/anaconda_test.bat)
     else()
-      set(test_driver_file ${simplnx_SOURCE_DIR}/wrapping/python/testing/anaconda_test.sh)
+      set(test_driver_file ${EbsdLibProj_SOURCE_DIR}/wrapping/python/testing/anaconda_test.sh)
     endif()
 
     add_test(NAME ${ARGS_NAME}

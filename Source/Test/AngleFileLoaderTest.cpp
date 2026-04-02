@@ -74,10 +74,10 @@ void makeTestFile(const std::string delim, const std::string& outputFile)
 TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSpaceDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
-  makeTestFile(" ", UnitTest::AngleFileLoaderTest::OutputFile);
+  makeTestFile(" ", ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
 
   AngleFileLoader::Pointer reader = AngleFileLoader::New();
-  reader->setInputFile(UnitTest::AngleFileLoaderTest::OutputFile);
+  reader->setInputFile(ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
   reader->setDelimiter(" ");
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
@@ -87,10 +87,10 @@ TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSpaceDelimited", "[EbsdLib][Angle
 TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingCommaDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
-  makeTestFile(", ", UnitTest::AngleFileLoaderTest::OutputFile);
+  makeTestFile(", ", ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
 
   AngleFileLoader::Pointer reader = AngleFileLoader::New();
-  reader->setInputFile(UnitTest::AngleFileLoaderTest::OutputFile);
+  reader->setInputFile(ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
   reader->setDelimiter(",");
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
@@ -100,10 +100,10 @@ TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingCommaDelimited", "[EbsdLib][Angle
 TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSemiColonDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
-  makeTestFile(";", UnitTest::AngleFileLoaderTest::OutputFile);
+  makeTestFile(";", ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
 
   AngleFileLoader::Pointer reader = AngleFileLoader::New();
-  reader->setInputFile(UnitTest::AngleFileLoaderTest::OutputFile);
+  reader->setInputFile(ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
   reader->setDelimiter(";");
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();
@@ -113,10 +113,10 @@ TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingSemiColonDelimited", "[EbsdLib][A
 TEST_CASE("ebsdlib::AngleFileLoader-TestLoadingTabDelimited", "[EbsdLib][AngleFileLoader]")
 {
   // Create a Teset File
-  makeTestFile("\t", UnitTest::AngleFileLoaderTest::OutputFile);
+  makeTestFile("\t", ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
 
   AngleFileLoader::Pointer reader = AngleFileLoader::New();
-  reader->setInputFile(UnitTest::AngleFileLoaderTest::OutputFile);
+  reader->setInputFile(ebsdlib::unit_test::AngleFileLoaderTest::OutputFile);
   reader->setDelimiter("\t");
   reader->setAngleRepresentation(AngleFileLoader::EulerAngles);
   reader->loadData();

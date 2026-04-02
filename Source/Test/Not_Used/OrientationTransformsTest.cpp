@@ -298,7 +298,7 @@ public:
         std::string outputFile;
         std::stringstream out(outputFile);
 
-        out << UnitTest::TestTempDir << "/OrientationTransformsTest_";
+        out << ebsdlib::unit_test::TestTempDir << "/OrientationTransformsTest_";
 
         for(int e = 0; e < entry.size(); e++)
         {

@@ -37,6 +37,7 @@ release
 debug
 Test/ProjectTest/Build
 CMakeUserPresets.json
+.claude
 
 # Python build-related files
 pyebsd/build/

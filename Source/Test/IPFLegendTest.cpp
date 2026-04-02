@@ -60,7 +60,7 @@ TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
     {
       ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false);
       std::stringstream outputFilePathStream;
-      outputFilePathStream << UnitTest::TestTempDir << "/" << ops[index]->getNameOfClass() << ".tiff";
+      outputFilePathStream << ebsdlib::unit_test::TestTempDir << "/" << ops[index]->getNameOfClass() << ".tiff";
       auto result = TiffWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
       REQUIRE(result.first == 0);
     }

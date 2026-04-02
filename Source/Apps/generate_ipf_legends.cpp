@@ -33,8 +33,8 @@
 
 using namespace ebsdlib;
 
-// const std::string k_Output_Dir(UnitTest::DataDir + "/IPF_Legend/");
-const std::string k_Output_Dir(UnitTest::TestTempDir + "/IPF_Legend/");
+// const std::string k_Output_Dir(ebsdlib::unit_test::DataDir + "/IPF_Legend/");
+const std::string k_Output_Dir(ebsdlib::unit_test::TestTempDir + "/IPF_Legend/");
 
 using EbsdDoubleArrayType = EbsdDataArray<float>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
@@ -42,7 +42,7 @@ using OCType = OrientationConverter<ebsdlib::DoubleArrayType, float>;
 
 std::map<std::string, int32_t> k_AlgorithmIndexMap = {{"eu", 0}, {"om", 1}, {"qu", 2}, {"aa", 3}, {"ro", 4}, {"ho", 5}, {"cu", 6}, {"st", 7}};
 
-const std::string k_QuatsFilePath(UnitTest::DataDir + "IPF_Legend/quats_000_1_deg.txt");
+const std::string k_QuatsFilePath(ebsdlib::unit_test::DataDir + "IPF_Legend/quats_000_1_deg.txt");
 
 // -----------------------------------------------------------------------------
 template <typename T>

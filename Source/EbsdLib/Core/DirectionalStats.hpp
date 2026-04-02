@@ -22,13 +22,13 @@ public:
   DirectionalStats& operator=(const DirectionalStats&) = delete;
   DirectionalStats& operator=(DirectionalStats&&) noexcept = delete;
 
-  void setNumEM(int NumEM)
+  void setNumEM(int numEM)
   {
-    NumEM_ = NumEM;
+    m_NumEM = numEM;
   }
-  void setNumIter(int NumIter)
+  void setNumIter(int numIter)
   {
-    NumIter_ = NumIter;
+    m_NumIter = numIter;
   }
 
   void EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, bool verbose);
@@ -43,28 +43,6 @@ public:
 
   void getQandL_(const std::array<double, 5>& MuKa, const std::vector<double>& R, double& Q, double& L) const;
 
-  // struct qsym_
-  // {
-  //
-  //
-  //   QuatD getQuatfromArray(int i) const
-  //   {
-  //     return laueOps->getQuatSymOp(i);
-  //   }
-  //
-  // } qsym;
-
-  // struct Xquats_
-  // {
-  //
-  //   std::vector<QuatD> Quats;
-  // } Xquats;
-
-  // int getQnumber() const
-  // {
-  //   return laueOps->getNumSymOps();
-  // }
-
   QuatD getQuatfromArray(int i) const
   {
     return m_XQuats[i];
@@ -72,7 +50,12 @@ public:
 
   void setQuatArray(const std::vector<QuatD>& quats)
   {
-    m_XQuats = quats; // THIS IS GOING TO MAKE COPY!!! THIS IS REALLY BAD.
+    m_XQuats = quats;
+  }
+
+  void setQuatArray(std::vector<QuatD>&& quats)
+  {
+    m_XQuats = std::move(quats);
   }
 
   int getN() const
@@ -81,14 +64,13 @@ public:
   }
 
 private:
-  int NumEM_ = 0;
-  int NumIter_ = 0;
-  std::string DStype = "";
-  // int Pmdims_ = 0; // This is just the number of Symmetry operators for a given LaueClass
+  int m_NumEM = 0;
+  int m_NumIter = 0;
+  std::string m_DSType;
 
-  int Apnum = 3500;
-  std::vector<double> xAp;
-  std::vector<double> yAp;
+  int m_ApNum = 3500;
+  std::vector<double> m_XAp;
+  std::vector<double> m_YAp;
 
   std::vector<QuatD> m_XQuats;
 

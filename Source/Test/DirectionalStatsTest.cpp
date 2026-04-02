@@ -4,17 +4,24 @@
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
+#include "UnitTestCommon.hpp"
+
+#include <H5Support/H5Lite.h>
+#include <H5Support/H5ScopedSentinel.h>
+#include <H5Support/H5Utilities.h>
 
 #include <fmt/format.h>
 
 #include "UnitTestSupport.hpp"
 
-#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
-
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+#include <iomanip>
 #include <limits>
+#include <numbers>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -38,6 +45,120 @@ std::vector<QuatD> k_TestQuats = {
 
 }
 //clang-format on
+
+void TestDistribution(const std::string& phaseName, LaueOps::Pointer op, const std::string& distributionType)
+{
+  constexpr size_t k_NumSamplingGroups = 8;
+  constexpr size_t k_NumQuats = 10000;
+  constexpr size_t k_QuatSize = 4;
+
+  std::string inputFilePath = fmt::format("{}/Laue_Orientation_Clusters_v6/{}.h5", ebsdlib::unit_test::k_TestFilesDir, phaseName);
+  hid_t fid = H5Support::H5Utilities::openFile(inputFilePath, true);
+  REQUIRE(fid > 0);
+  H5Support::H5ScopedFileSentinel fileSentinel(fid, false);
+
+  // Read averaging parameters from HDF5
+  int32_t numEmIterations = 0;
+  herr_t err = H5Support::H5Lite::readScalarDataset(fid, "/EMData/Sampler/NumEM", numEmIterations);
+  REQUIRE(err == 0);
+
+  int32_t numIterations = 0;
+  err = H5Support::H5Lite::readScalarDataset(fid, "/EMData/Sampler/NumIter", numIterations);
+  REQUIRE(err == 0);
+
+  // Read the seedarray: shape (2, 2, 8) in Fortran column-major
+  // seedarray(seedIdx, distType, groupIdx) where seedIdx=1,2 distType=1(VMF),2(WAT) groupIdx=1..8
+  std::vector<int32_t> seedarray;
+  err = H5Support::H5Lite::readVectorDataset(fid, "/EMData/Sampler/seedarray", seedarray);
+  REQUIRE(err == 0);
+
+  // Read reference data: prefix is "vMF" or "WAT"
+  std::string prefix = (distributionType == "VMF") ? "vMF" : "WAT";
+  std::vector<double> refMuhat;
+  err = H5Support::H5Lite::readVectorDataset(fid, fmt::format("/EMData/Sampler/{}muhat", prefix), refMuhat);
+  REQUIRE(err == 0);
+
+  std::vector<double> refKappahat;
+  err = H5Support::H5Lite::readVectorDataset(fid, fmt::format("/EMData/Sampler/{}kappahat", prefix), refKappahat);
+  REQUIRE(err == 0);
+
+  std::vector<double> quatarray;
+  err = H5Support::H5Lite::readVectorDataset(fid, fmt::format("/EMData/Sampler/{}quatarray", prefix), quatarray);
+  REQUIRE(err == 0);
+
+  // distType index for seedarray: VMF=0, WAT=1 (Fortran 1-based: 1,2)
+  int distTypeIdx = (distributionType == "VMF") ? 0 : 1;
+
+  for(size_t sampleId = 0; sampleId < k_NumSamplingGroups; ++sampleId)
+  {
+    // Fill FZ-corrected quaternion array
+    std::vector<QuatD> fzQuats;
+    fzQuats.reserve(k_NumQuats);
+    for(size_t quatIdx = 0; quatIdx < k_NumQuats; ++quatIdx)
+    {
+      // HDF5 stores quaternions as WXYZ (EMsoft), convert to XYZW (EbsdLib)
+      size_t idx = (sampleId * k_NumQuats * k_QuatSize) + (quatIdx * k_QuatSize);
+      QuatD q(quatarray[idx + 1], quatarray[idx + 2], quatarray[idx + 3], quatarray[idx]);
+      fzQuats.push_back(op->getFZQuat(q));
+    }
+
+    DirectionalStats dict(distributionType, op);
+    dict.setNumEM(numEmIterations);
+    dict.setNumIter(numIterations);
+    dict.setQuatArray(fzQuats);
+
+    // Read the seed for this specific group from seedarray
+    // Fortran column-major (2, 2, 8): index = seedIdx + 2*distTypeIdx + 4*sampleId
+    // seed2 is at seedIdx=1 (0-based)
+    uint32_t seed = static_cast<uint32_t>(seedarray[1 + 2 * distTypeIdx + 4 * sampleId]);
+    QuatD muhat = QuatD::identity();
+    double kappahat = 0.0;
+
+    dict.EMforDS(seed, muhat, kappahat, false);
+    muhat = muhat.normalize();
+
+    // Reference from HDF5 (WXYZ -> XYZW conversion)
+    QuatD refMu = QuatD(refMuhat[sampleId * 4 + 1], refMuhat[sampleId * 4 + 2], refMuhat[sampleId * 4 + 3], refMuhat[sampleId * 4]).normalize();
+    double refKappa = refKappahat[sampleId];
+
+    std::printf("  %s group %zu: kappa EbsdLib=%12.6f EMsoft=%12.6f  muW EbsdLib=%10.7f EMsoft=%10.7f\n",
+                distributionType.c_str(), sampleId, kappahat, refKappa, muhat.w(), refMu.w());
+
+    REQUIRE(muhat.w() == Approx(refMu.w()).margin(1e-6));
+    REQUIRE(muhat.x() == Approx(refMu.x()).margin(1e-6));
+    REQUIRE(muhat.y() == Approx(refMu.y()).margin(1e-6));
+    REQUIRE(muhat.z() == Approx(refMu.z()).margin(1e-6));
+    REQUIRE(kappahat == Approx(refKappa).epsilon(1e-4));
+  }
+}
+
+TEST_CASE("DirectionalStatsTest:AverageOrientation", "[DirectionalStatsTest]")
+{
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", false, false);
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+
+  std::set<std::string> tested;
+  for(const auto& op : ops)
+  {
+    const std::string rpg = op->getRotationPointGroup();
+    // Skip Triclinic (no FZ boundary) and duplicates (OrthoRhombicOps appears twice)
+    if(rpg == "1" || tested.count(rpg) > 0)
+    {
+      continue;
+    }
+    tested.insert(rpg);
+
+    const std::string phaseName = fmt::format("Laue_{}", rpg);
+    SECTION(phaseName + " WAT")
+    {
+      TestDistribution(phaseName, op, "WAT");
+    }
+    SECTION(phaseName + " VMF")
+    {
+      TestDistribution(phaseName, op, "VMF");
+    }
+  }
+}
 
 // Port of the Fortran orav_ subroutine from mod_orav.f90
 // Tests VMF and Watson directional statistics averaging
@@ -181,7 +302,7 @@ std::vector<QuatD> readQuatsFromFile(const std::string& filePath)
 
 TEST_CASE("DirectionalStatsTest:VMF_FromCSV", "[DirectionalStatsTest]")
 {
-  std::string csvPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_9260_File;
+  std::string csvPath = ebsdlib::unit_test::DirectionalStatsTest::QuatsWXYZ_9260_File;
   std::vector<QuatD> inputQuats = detail::readQuatsFromFile(csvPath);
   REQUIRE(inputQuats.size() == 9260);
 
@@ -227,7 +348,7 @@ TEST_CASE("DirectionalStatsTest:VMF_FromCSV", "[DirectionalStatsTest]")
 
 TEST_CASE("DirectionalStatsTest:Watson_FromCSV", "[DirectionalStatsTest]")
 {
-  std::string csvPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_9260_File;
+  std::string csvPath = ebsdlib::unit_test::DirectionalStatsTest::QuatsWXYZ_9260_File;
   std::vector<QuatD> inputQuats = detail::readQuatsFromFile(csvPath);
   REQUIRE(inputQuats.size() == 9260);
 
@@ -273,7 +394,7 @@ TEST_CASE("DirectionalStatsTest:Watson_FromCSV", "[DirectionalStatsTest]")
 
 TEST_CASE("DirectionalStatsTest:VMF_FromTXT", "[DirectionalStatsTest]")
 {
-  std::string txtPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_29791_File;
+  std::string txtPath = ebsdlib::unit_test::DirectionalStatsTest::QuatsWXYZ_29791_File;
   std::vector<QuatD> inputQuats = detail::readQuatsFromFile(txtPath);
   REQUIRE(inputQuats.size() == 29791);
 
@@ -315,7 +436,7 @@ TEST_CASE("DirectionalStatsTest:VMF_FromTXT", "[DirectionalStatsTest]")
 
 TEST_CASE("DirectionalStatsTest:Watson_FromTXT", "[DirectionalStatsTest]")
 {
-  std::string txtPath = UnitTest::DirectionalStatsTest::QuatsWXYZ_29791_File;
+  std::string txtPath = ebsdlib::unit_test::DirectionalStatsTest::QuatsWXYZ_29791_File;
   std::vector<QuatD> inputQuats = detail::readQuatsFromFile(txtPath);
   REQUIRE(inputQuats.size() == 29791);
 
@@ -354,3 +475,4 @@ TEST_CASE("DirectionalStatsTest:Watson_FromTXT", "[DirectionalStatsTest]")
   std::printf(" kappa    : %20.16f\n", kappahat);
   std::printf(" eq. deg. : %20.16f\n", eqDeg);
 }
+

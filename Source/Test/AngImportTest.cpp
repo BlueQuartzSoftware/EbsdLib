@@ -56,7 +56,7 @@ TEST_CASE("ebsdlib::AngImportTest-TestNormalFile", "[EbsdLib][AngImportTest]")
 {
   // This is just a normal Ang file, well formed and should read without error
   AngReader reader;
-  reader.setFileName(UnitTest::AngImportTest::TestFile1);
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::TestFile1);
   int err = reader.readFile();
   std::cout << reader.getErrorMessage();
   REQUIRE(err == 0);
@@ -71,7 +71,7 @@ TEST_CASE("ebsdlib::AngImportTest-TestMissingHeaders", "[EbsdLib][AngImportTest]
 {
 
   AngReader reader;
-  reader.setFileName(UnitTest::AngImportTest::MissingHeader1);
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::MissingHeader1);
   int err = reader.readHeaderOnly();
   // It should read through this header just fine
   REQUIRE(err > 0);
@@ -99,7 +99,7 @@ TEST_CASE("ebsdlib::AngImportTest-TestMissingHeaders", "[EbsdLib][AngImportTest]
 TEST_CASE("ebsdlib::AngImportTest-TestHexGrid", "[EbsdLib][AngImportTest]")
 {
   AngReader reader;
-  reader.setFileName(UnitTest::AngImportTest::HexHeader);
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::HexHeader);
   int err = reader.readHeaderOnly();
   // It should read through this header just fine
   REQUIRE(err > 0);
@@ -112,7 +112,7 @@ TEST_CASE("ebsdlib::AngImportTest-TestHexGrid", "[EbsdLib][AngImportTest]")
 TEST_CASE("ebsdlib::AngImportTest-TestMissingGrid", "[EbsdLib][AngImportTest]")
 {
   AngReader reader;
-  reader.setFileName(UnitTest::AngImportTest::GridMissing);
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::GridMissing);
   int err = reader.readHeaderOnly();
   // It should read through this header just fine
   REQUIRE(err > 0);
@@ -125,7 +125,7 @@ TEST_CASE("ebsdlib::AngImportTest-TestMissingGrid", "[EbsdLib][AngImportTest]")
 TEST_CASE("ebsdlib::AngImportTest-TestShortFile", "[EbsdLib][AngImportTest]")
 {
   AngReader reader;
-  reader.setFileName(UnitTest::AngImportTest::ShortFile);
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::ShortFile);
   int err = reader.readFile();
   // It should read through this header just fine but die when reading the file because there is not enough data being read
   std::cout << reader.getErrorMessage();

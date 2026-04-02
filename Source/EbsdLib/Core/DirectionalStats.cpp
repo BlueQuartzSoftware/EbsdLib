@@ -2,38 +2,6 @@
 
 #include "EbsdLib/Orientation/Quaternion.hpp"
 
-// ======================= DirectionStats::EMforDS_ (QuatD + OrientationD) =================
-//
-// Assumptions (adjust names if they differ in your codebase):
-//   using QuatD = Quaternion<double>;   // your alias
-//   class Quaternion<T> {
-//     Quaternion(T x, T y, T z, T w);   // (x,y,z,w)
-//     void normalize();
-//     void makePositive();               // canonicalize sign like Fortran's quat_pos()
-//     Quaternion operator*(const Quaternion&) const;
-//   };
-//
-//   class OrientationD {                 // Rodrigues-like; ctor: (x, y, z, l)
-//     OrientationD(double x, double y, double z, double l);
-//   };
-//
-//   class Symmetry {
-//     int getQnumber() const;
-//     QuatD getQuatfromArray(int one_based_index) const; // Fortran-style indexing
-//   };
-//
-//   class DirectionStats {
-//     int getN() const;
-//     int NumEM, NumIter, pgnum;
-//     Symmetry qsym;
-//     std::vector<double> Estep_(const QuatD& Mu, double Kappa) const; // size N*Pmdims
-//     // Returns [w,x,y,z,kappa] in Fortran order:
-//     std::array<double,5> Mstep_(const std::vector<double>& R, int N, int Pmdims) const;
-//     void getQandL_(const std::array<double,5>& MuKa,
-//                    const std::vector<double>& R,
-//                    double& Qout, double& Lout) const;
-//   };
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -300,97 +268,69 @@ void r8vec_normal_01(int n, uint32_t& seed, double* x)
 } // anonymous namespace
 
 DirectionalStats::DirectionalStats(const std::string& DSType, LaueOps::Pointer laueOps)
-: DStype(DSType)
+: m_DSType(DSType)
+, m_LaueOps(laueOps)
 {
-  m_LaueOps = laueOps;
-
-  // von Mises-Fisher mode: (DStype='VMF')
-  // the next part of the initial Matlab code computes a lookup table for the parameter Ap(u) (Appendix in paper)
-  // this lookup table is only used when the ratio of the BesselI functions is between 0 and 0.95; for the
-  // region between 0.95 and 1, we use an analytical approximation (see VMF_Mstep routine).
-  //
-  // Watson mode: (DStype='WAT')
-  // we've used a similar approach to create a lookup table for values of kappa that are smaller than 35, in
-  // which case we use the standard ratio of Kummer functions:  Kummer[3/2,3,k]/Kummer[1/2,2,k]/k.  For
-  // larger kappa values, we have an expansion using the large argument behavior of the modified Bessel functions.
-  //
-
-  // ----- Optional DStype setup and lookup table generation -----
-  if(!DSType.empty())
+  if(m_DSType.empty())
   {
-    // this->DStype = DStype;
-
-    // Allocate/size parameter arrays
-    this->Apnum = 35000;
-    this->xAp.resize(this->Apnum);
-    this->yAp.resize(this->Apnum);
-
-    // Define xAp(i) = 0.001 + (i-1)*0.001, i=1..Apnum  (Fortran 1-based)
-    // In 0-based C++: xAp[k] = 0.001 + k*0.001
-    for(int k = 0; k < this->Apnum; ++k)
-    {
-      this->xAp[k] = 0.001 + static_cast<double>(k) * 0.001;
-    }
-
-    if(this->DStype == "VMF")
-    {
-      // yAp(i) = I2(x) / I1(x)
-      for(int k = 0; k < this->Apnum; ++k)
-      {
-        const double x = this->xAp[k];
-        const double denom = static_cast<double>(BesselI1(x));
-        const double numer = static_cast<double>(BesselI2(x));
-        // Guard against zero denom (very small x)
-        const double safeDen = (std::abs(denom) > 1e-300) ? denom : std::numeric_limits<double>::min();
-        this->yAp[k] = numer / safeDen;
-      }
-    }
-    else if(this->DStype == "WAT")
-    {
-      // yAp(i) = I1(x/2) / ((I0(x/2) - I1(x/2)) * x)
-      for(int k = 0; k < this->Apnum; ++k)
-      {
-        const double x = this->xAp[k];
-        const double xh = 0.5 * x;
-        const double I1h = static_cast<double>(BesselI1(xh));
-        const double I0h = static_cast<double>(BesselI0(xh));
-        double denom = (I0h - I1h) * x;
-        if(!(std::abs(denom) > 0.0))
-          denom = std::numeric_limits<double>::min(); // guard
-        this->yAp[k] = I1h / denom;
-      }
-    }
+    return;
   }
 
-  // ----- Optional symmetry initialization -----
-  // if (PGnumOpt >= 0)
-  //   {
-  //   this->pgnum = PGnumOpt;
-  //   this->qsym.QSym_Init(this->pgnum);
-  // this->Pmdims_ = m_LaueOps->getNumSymOps();
-  // }
+  // Build a lookup table for the Ap(u) parameter used in the M-step.
+  // For VMF: ratio I2/I1 is tabulated for kappa in [0.001, 35].
+  // For Watson: ratio involving I0,I1 at half-kappa is tabulated for kappa in [0.001, 35].
+  // Above these ranges an analytical approximation is used instead.
+  m_ApNum = 35000;
+  m_XAp.resize(m_ApNum);
+  m_YAp.resize(m_ApNum);
+
+  for(int k = 0; k < m_ApNum; ++k)
+  {
+    m_XAp[k] = 0.001 + static_cast<double>(k) * 0.001;
+  }
+
+  if(m_DSType == "VMF")
+  {
+    for(int k = 0; k < m_ApNum; ++k)
+    {
+      const double x = m_XAp[k];
+      const double denom = static_cast<double>(BesselI1(x));
+      const double numer = static_cast<double>(BesselI2(x));
+      const double safeDen = (std::abs(denom) > 1e-300) ? denom : std::numeric_limits<double>::min();
+      m_YAp[k] = numer / safeDen;
+    }
+  }
+  else if(m_DSType == "WAT")
+  {
+    for(int k = 0; k < m_ApNum; ++k)
+    {
+      const double x = m_XAp[k];
+      const double xh = 0.5 * x;
+      const double I1h = static_cast<double>(BesselI1(xh));
+      const double I0h = static_cast<double>(BesselI0(xh));
+      double denom = (I0h - I1h) * x;
+      if(!(std::abs(denom) > 0.0))
+      {
+        denom = std::numeric_limits<double>::min();
+      }
+      m_YAp[k] = I1h / denom;
+    }
+  }
 }
 
 DirectionalStats::~DirectionalStats() = default;
 
-// author: MDG, based on 2015 Chen's Matlab code, with simplifications
-// version: 1.0
-// date: 01/23/20
-//
-// Expectation maximization approach to maximum likelihood problem for mu and kappa
-//
-// this routine expects the input quaternion array to be stored in Xquats using the setQuatArray method
+// Expectation-maximization estimation of mean direction (muhat) and concentration
+// parameter (kappahat) for the VMF or Watson distribution on the quaternion sphere.
+// Input quaternions must be set via setQuatArray() before calling.
 void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, bool verbose)
 {
-  // In this routine, we perform the EM algorithm to obtain an estimate for the
-  // mean direction and concentration parameter of the modified von Mises-Fisher (mVMF)
-  // distribution that models the statistics of the orientation point cloud.
 
   // array sizes
   const int N = this->getN();
   const int pmdims = m_LaueOps->getNumSymOps();
-  const int numEm = this->NumEM_;
-  const int numIter = this->NumIter_;
+  const int numEm = m_NumEM;
+  const int numIter = m_NumIter;
 
   if(verbose)
   {
@@ -398,24 +338,19 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
     std::printf(" N=%d, Pmdims=%d, NumEM=%d, NumIter=%d\n", N, pmdims, numEm, numIter);
   }
 
-  // initialize some auxiliary arrays
-  std::vector<QuatD> muAll(numEm); //
+  std::vector<QuatD> muAll(numEm);
   std::vector<double> kappaAll(numEm, 0.0);
   std::vector<double> lAll(numEm, 0.0);
 
-  // auto idxMu = [&](int init, int k) { return init * 4 + k; }; // k=0..3 → (w,x,y,z)
-  // main loop (EM typically uses a few starting parameter sets to make sure we don't get stuck in a local maximum)
+  // Run EM from multiple random starting points to avoid local maxima
   for(int init = 0; init < numEm; ++init)
   {
-    // generate a normal random vector and normalize it as a starting guess for Mu (i.e., a unit quaternion)
+    // Random unit quaternion as starting guess for Mu
     std::array<double, 4> v;
     r8vec_normal_01(4, seed, v.data());
-    // v comes from Fortran-order PRNG: v[0]=w, v[1]=x, v[2]=y, v[3]=z
     QuatD mu = QuatD(v[1], v[2], v[3], v[0]).normalize().getPositiveOrientation();
 
-    // starting value for Kappa
     double kappa = 30.0;
-    // define the number of iterations and the Q and L function arrays
     std::vector<double> q(numIter, 0.0);
     std::vector<double> l(numIter, 0.0);
 
@@ -424,37 +359,9 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
       std::printf("\n starting iteration %4d\n", init + 1);
       std::printf(" Initial guess for Mu (wxyz): %12.8f %12.8f %12.8f %12.8f\n", mu.w(), mu.x(), mu.y(), mu.z());
       std::printf(" Initial guess for Kappa : %12.8f\n", kappa);
-
-      if(init == 0)
-      {
-        // Print first 3 Xquats for diagnostic comparison
-        std::printf(" First 3 Xquats (wxyz):\n");
-        for(int d = 0; d < 3 && d < N; ++d)
-        {
-          QuatD xq = m_XQuats[d];
-          std::printf("  [%d] %20.16f %20.16f %20.16f %20.16f\n", d, xq.w(), xq.x(), xq.y(), xq.z());
-        }
-
-        // Print logCp(30) diagnostic
-        double testC = this->logCp_(30.0);
-        std::printf(" logCp(30) = %20.16f\n", testC);
-
-        // Print first 3 density values for j=0 (identity symmetry op)
-        QuatD PmMu0 = mu * m_LaueOps->getQuatSymOp(0);
-        std::printf(" PmMu0 (wxyz): %20.16f %20.16f %20.16f %20.16f\n", PmMu0.w(), PmMu0.x(), PmMu0.y(), PmMu0.z());
-        std::vector<double> dens0 = this->Density_(PmMu0, kappa, testC);
-        for(int d = 0; d < 3 && d < N; ++d)
-        {
-          double dp = PmMu0.dotProduct(m_XQuats[d]);
-          std::printf("  density[%d] = %20.16e  dot=%20.16f\n", d, dens0[d], dp);
-        }
-      }
     }
 
-    // and here we go with the EM iteration...
-    // we use quaternion multiplication throughout instead of the matrix version in the Matlab version
-    // quaternion multiplication has been verified against the 4x4 matrix multiplication of the Matlab code on 01/02/15
-    double Qi = 0.0, Li = 0.0; // persist across inner iterations (Fortran INOUT semantics)
+    double Qi = 0.0, Li = 0.0;
     for(int i = 0; i < numIter; ++i)
     {
       // E-step
@@ -474,33 +381,16 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
         std::printf("   Li : %16.8f\n", Li);
         std::printf("   Qi : %16.8f\n", Qi);
         std::printf("   Current guess for MuKa (wxyz,kappa): %12.8f %12.8f %12.8f %12.8f %12.8f\n", muKa[3], muKa[0], muKa[1], muKa[2], muKa[4]);
-
-        if(init == 0 && i == 0)
-        {
-          // Print diagnostic R matrix stats
-          double rSum = 0.0;
-          for(size_t ri = 0; ri < r.size(); ++ri)
-            rSum += r[ri];
-          std::printf("   R total sum: %20.16f (expected ~%d)\n", rSum, N);
-          // Print first 3 R values for j=0
-          for(int d = 0; d < 3 && d < N; ++d)
-          {
-            std::printf("   R[%d,0] = %20.16e\n", d, r[d]);
-          }
-        }
       }
 
-      // Persist latest params for this init
-      // MuKa is [x,y,z,w,kappa] matching QuatD(x,y,z,w) constructor
       muAll[init] = QuatD(muKa[0], muKa[1], muKa[2], muKa[3]);
       kappaAll[init] = muKa[4];
       lAll[init] = l[i];
 
-      // Update Mu/Kappa for next iter (Fortran does NOT call quat_pos here)
       mu = muAll[init];
       kappa = kappaAll[init];
 
-      // Convergence: |Q(i) - Q(i-1)| < 0.01
+      // Convergence check
       if(i >= 1 && std::fabs(q[i] - q[i - 1]) < 0.01)
       {
         if(verbose)
@@ -512,7 +402,7 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
     }
   }
 
-  // Pick best init by max likelihood
+  // Select the starting point that achieved the highest likelihood
   int dd = 0;
   {
     double best = -std::numeric_limits<double>::infinity();
@@ -531,20 +421,15 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
     std::printf(" best fit init: %d\n", dd + 1);
   }
 
-  // Recover Mu for best init
   QuatD mu = muAll[dd];
   mu.positiveOrientation();
   kappahat = kappaAll[dd];
 
-  // Ensure Mu lies in the fundamental zone:
-  // Cycle symmetry equivalents (Fortran loop i=1..Pmdims → C++ i=0..Pmdims-1 with +1)
-  QuatD const quat = mu;
+  // Map mu into the fundamental zone by testing all symmetry equivalents
   for(int i = 0; i < pmdims; ++i)
   {
-    QuatD const qi = m_LaueOps->getQuatSymOp(i); // 1-based access
-    QuatD const qu = (quat * qi).getPositiveOrientation();
+    QuatD const qu = (mu * m_LaueOps->getQuatSymOp(i)).getPositiveOrientation();
 
-    // test FZ, and, if inside, convert back
     if(m_LaueOps->IsInsideFZ(qu, m_LaueOps->getFZType(), m_LaueOps->getAxisOrderingType()))
     {
       muhat = qu;
@@ -552,31 +437,13 @@ void DirectionalStats::EMforDS(uint32_t& seed, QuatD& muhat, double& kappahat, b
     }
   }
 
-  // Fallback (once stubs are real, we should have returned above)
   muhat = mu;
   muhat.positiveOrientation();
 }
 
 // Computes the E-step responsibilities matrix R (size N x Pmdims), column-major.
-// Fortran reference:
-//   C = self%logCp_(kappa)
-//   do j=1,self%Pmdims
-//     PmMu = Mu * self%qsym%getQuatfromArray(j)
-//     R(1:self%N,j) = self%Density_(PmMu%get_quatd(), Kappa, C)
-//   end do
-//   Rdenom = 1.D0/sum(R,2)    // row-wise sum over columns
-//   do j=1,self%Pmdims
-//     R(1:self%N,j) = R(1:self%N,j)*Rdenom(1:self%N)
-//   end do
-//
-// Assumed DirectionStats API (adjust if names differ):
-//   int getN() const;
-//   Symmetry qsym;                        // qsym.getQuatfromArray(1..Pmdims)
-//   int Pmdims == qsym.getQnumber()
-//   double logCp_(double kappa) const;
-//   std::vector<double> Density_(const QuatD& q, double kappa, double C) const; // returns N-length vector
-//
-// Returns: std::vector<double> of length N*Pmdims, column-major.
+// For each symmetry operator j, computes the density of each quaternion under
+// the distribution centered at Mu*symOp(j), then normalizes rows to sum to 1.
 std::vector<double> DirectionalStats::Estep_(const QuatD& Mu, double Kappa) const
 {
   const int N = this->getN();
@@ -627,43 +494,27 @@ std::vector<double> DirectionalStats::Estep_(const QuatD& Mu, double Kappa) cons
   return R;
 }
 
-// Returns y of length N, where
+// Computes the density of each stored quaternion under the distribution
+// centered at mu with concentration kappa and log-normalization constant C.
 //   VMF: y_j = exp( C + kappa * dot(mu, q_j) )
 //   WAT: y_j = exp( C + kappa * dot(mu, q_j)^2 )
-//
-// Args:
-//   mu     : mean direction (QuatD; stored as (x,y,z,w))
-//   kappa  : concentration parameter
-//   C      : precomputed logCp(kappa) (i.e., log normalization constant)
-//
-// Notes:
-// - Fortran used dot product on (w,x,y,z); here we compute the dot in (x,y,z,w)
-//   for both operands consistently, which is equivalent.
 std::vector<double> DirectionalStats::Density_(const QuatD& mu, double kappa, double C) const
 {
   const int N = this->getN();
   std::vector<double> y(N);
 
-  const bool isVMF = (this->DStype == "VMF");
-  const bool isWAT = (this->DStype == "WAT");
+  const bool isWAT = (m_DSType == "WAT");
 
   for(int j = 0; j < N; ++j)
   {
-    QuatD q = m_XQuats[j];
+    const double dp = mu.dotProduct(m_XQuats[j]);
 
-    const double dp = mu.dotProduct(q);
-
-    if(isVMF)
-    {
-      y[j] = std::exp(C + kappa * dp);
-    }
-    else if(isWAT)
+    if(isWAT)
     {
       y[j] = std::exp(C + kappa * (dp * dp));
     }
     else
     {
-      // Default to VMF if type is unrecognized (you can throw/log if preferred)
       y[j] = std::exp(C + kappa * dp);
     }
   }
@@ -671,67 +522,41 @@ std::vector<double> DirectionalStats::Density_(const QuatD& mu, double kappa, do
   return y;
 }
 
+// Log normalization constant for the VMF or Watson distribution on S^3.
 double DirectionalStats::logCp_(double kappa) const
 {
-  // Precomputed constants (copied verbatim from Fortran)
-  // C  = ln(1 / (2*pi)^2)
-  // C2 = ln(512 / sqrt(2) / pi^(3/2))
-  // C2W = ln(128 * sqrt(pi))
   constexpr double C = -3.675754132818690967;   // ln(1/(2*pi)^2)
   constexpr double C2 = 4.1746562059854348688;  // ln(512/sqrt(2)/pi^(3/2))
   constexpr double C2W = 5.4243952068443172530; // ln(128*sqrt(pi))
 
-  const bool isVMF = (this->DStype == "VMF");
-  const bool isWAT = (this->DStype == "WAT");
-
-  double lCp = 0.0;
-
-  if(isVMF)
-  {
-    // For kappa > 30: approximation
-    if(kappa > 30.0)
-    {
-      // lCp = C2 - kappa + log( kappa^4.5 / (-105 + 8*kappa*(-15 + 16*kappa*(-3 + 8*kappa))) )
-      // Compute in log-space for stability:
-      const double num_log = 4.5 * std::log(kappa);
-      const double den_poly = -105.0 + 8.0 * kappa * (-15.0 + 16.0 * kappa * (-3.0 + 8.0 * kappa));
-      lCp = C2 - kappa + (num_log - std::log(std::abs(den_poly)));
-    }
-    else
-    {
-      // lCp = C + log( kappa / I1(kappa) )
-      const double I1 = BesselI1(kappa);
-      const double denom = (I1 > 0.0) ? I1 : std::numeric_limits<double>::min();
-      lCp = C + std::log(kappa / denom);
-    }
-    return lCp;
-  }
-
-  if(isWAT)
+  if(m_DSType == "WAT")
   {
     if(kappa > 20.0)
     {
-      // lCp = C2W - kappa + log( kappa^4.5 / (525 + 4*kappa*(45 + 8*kappa*(3 + 4*kappa))) )
       const double num_log = 4.5 * std::log(kappa);
       const double den_poly = 525.0 + 4.0 * kappa * (45.0 + 8.0 * kappa * (3.0 + 4.0 * kappa));
-      lCp = C2W - kappa + (num_log - std::log(den_poly));
+      return C2W - kappa + (num_log - std::log(den_poly));
     }
-    else
+
+    const double x = 0.5 * kappa;
+    const double I0 = BesselI0(x);
+    const double I1 = BesselI1(x);
+    double diff = I0 - I1;
+    if(!(diff > 0.0))
     {
-      // lCp = -0.5*kappa - log( I0(0.5*kappa) - I1(0.5*kappa) )
-      const double x = 0.5 * kappa;
-      const double I0 = BesselI0(x);
-      const double I1 = BesselI1(x);
-      double diff = I0 - I1;
-      if(!(diff > 0.0))
-        diff = std::numeric_limits<double>::min(); // guard
-      lCp = -0.5 * kappa - std::log(diff);
+      diff = std::numeric_limits<double>::min();
     }
-    return lCp;
+    return -0.5 * kappa - std::log(diff);
   }
 
-  // Fallback (if DStype is neither VMF nor WAT): return something sane; VMF default.
-  // You might prefer to throw or assert instead.
+  // VMF (default)
+  if(kappa > 30.0)
+  {
+    const double num_log = 4.5 * std::log(kappa);
+    const double den_poly = -105.0 + 8.0 * kappa * (-15.0 + 16.0 * kappa * (-3.0 + 8.0 * kappa));
+    return C2 - kappa + (num_log - std::log(std::abs(den_poly)));
+  }
+
   const double I1 = BesselI1(kappa);
   const double denom = (I1 > 0.0) ? I1 : std::numeric_limits<double>::min();
   return C + std::log(kappa / denom);
@@ -739,16 +564,15 @@ double DirectionalStats::logCp_(double kappa) const
 
 std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int N, int Pmdims) const
 {
-  std::array<double, 5> MuKa{0, 0, 0, 0, 0}; // [x,y,z,w,kappa] (EbsdLib order)
+  std::array<double, 5> MuKa{0, 0, 0, 0, 0}; // [x,y,z,w,kappa]
   auto norm4 = [](const std::array<double, 4>& a) -> double { return std::sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3]); };
 
-  double y_scalar = 0.0; // "y" in the Fortran, used to compute kappa at the end
+  double y_scalar = 0.0;
 
-  if(this->DStype == "VMF")
+  if(m_DSType == "VMF")
   {
-    // ----- VMF branch -----
-    // tmpGamma = sum_{j=1..Pmdims} sum_{i=1..N} R(i,j) * (X_i * conj(qsym_j))
-    std::array<double, 4> tmpGamma{0, 0, 0, 0}; //
+    // Weighted sum of quaternions rotated into a common frame via symmetry conjugates
+    std::array<double, 4> tmpGamma{0, 0, 0, 0};
 
     for(int j = 0; j < Pmdims; ++j)
     {
@@ -758,10 +582,8 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
       for(int i = 0; i < N; ++i)
       {
         const double rij = R[colBase + i];
-        QuatD xi = this->m_XQuats[i]; //
-        QuatD qu = xi * symj_conj;
+        QuatD qu = m_XQuats[i] * symj_conj;
 
-        // accumulate in EbsdLib (x,y,z,w) order
         tmpGamma[0] += rij * qu.x();
         tmpGamma[1] += rij * qu.y();
         tmpGamma[2] += rij * qu.z();
@@ -772,23 +594,21 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
     const double nGamma = norm4(tmpGamma);
     if(nGamma > 0.0)
     {
-      MuKa[0] = tmpGamma[0] / nGamma; // x
-      MuKa[1] = tmpGamma[1] / nGamma; // y
-      MuKa[2] = tmpGamma[2] / nGamma; // z
-      MuKa[3] = tmpGamma[3] / nGamma; // w
+      MuKa[0] = tmpGamma[0] / nGamma;
+      MuKa[1] = tmpGamma[1] / nGamma;
+      MuKa[2] = tmpGamma[2] / nGamma;
+      MuKa[3] = tmpGamma[3] / nGamma;
     }
     else
     {
-      MuKa[0] = MuKa[1] = MuKa[2] = 0.0;
-      MuKa[3] = 1.0; // fallback: identity quaternion
+      MuKa[3] = 1.0; // identity quaternion fallback
     }
 
     y_scalar = nGamma / static_cast<double>(N);
   }
-  else if(this->DStype == "WAT")
+  else if(m_DSType == "WAT")
   {
-    // ----- WAT branch -----
-    // Build Tscatt = (1/N) * sum_{j,i} R(i,j) * (x x^T), with x in (w,x,y,z)
+    // Build scatter matrix Tscatt = (1/N) * sum_{j,i} R(i,j) * (x x^T)
     Eigen::Matrix4d Tscatt = Eigen::Matrix4d::Zero();
 
     for(int j = 0; j < Pmdims; ++j)
@@ -799,10 +619,8 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
       for(int i = 0; i < N; ++i)
       {
         const double rij = R[colBase + i];
-        QuatD xi = m_XQuats[i];
-        QuatD qu = xi * symj_conj;
+        QuatD qu = m_XQuats[i] * symj_conj;
 
-        // x in wxyz
         Eigen::Vector4d xwxyz;
         xwxyz << qu.w(), qu.x(), qu.y(), qu.z();
 
@@ -811,115 +629,91 @@ std::array<double, 5> DirectionalStats::Mstep_(const std::vector<double>& R, int
     }
 
     if(N > 0)
+    {
       Tscatt *= (1.0 / static_cast<double>(N));
+    }
 
-    // Largest eigenpair of symmetric Tscatt
+    // Dominant eigenvector of the symmetric scatter matrix gives the mean direction
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> es(Tscatt);
-    // Eigenvalues are ascending; the dominant eigenvector is the last column
     const Eigen::Vector4d qq = es.eigenvectors().col(3);
 
-    // Mu = dominant eigenvector (Fortran used A(:,4) from DSYEV with UPLO='U')
-    // qq is in (w,x,y,z) order from Eigen; store in EbsdLib (x,y,z,w) order
-    MuKa[0] = qq(1); // x
-    MuKa[1] = qq(2); // y
-    MuKa[2] = qq(3); // z
-    MuKa[3] = qq(0); // w
+    // qq is in (w,x,y,z) order; store in EbsdLib (x,y,z,w) order
+    MuKa[0] = qq(1);
+    MuKa[1] = qq(2);
+    MuKa[2] = qq(3);
+    MuKa[3] = qq(0);
 
-    // y = qq^T * Tscatt * qq
     y_scalar = (qq.transpose() * Tscatt * qq)(0, 0);
   }
-  else
-  {
-    // Unknown type conservative fallback: identity quaternion in (x,y,z,w)
-    MuKa[0] = MuKa[1] = MuKa[2] = 0.0;
-    MuKa[3] = 1.0;
-    y_scalar = 1.0 / static_cast<double>(std::max(1, N));
-  }
 
-  // ----- Convert y -> kappa (same as Fortran) -----
+  // Convert y_scalar -> kappa
   if(y_scalar >= 0.94)
   {
-    if(this->DStype == "VMF")
-    {
-      MuKa[4] = (15.0 - 3.0 * y_scalar + std::sqrt(15.0 + 90.0 * y_scalar + 39.0 * y_scalar * y_scalar)) / (16.0 * (1.0 - y_scalar));
-    }
-    else if(this->DStype == "WAT")
+    if(m_DSType == "WAT")
     {
       MuKa[4] = (5.0 * y_scalar - 11.0 - std::sqrt(39.0 - 12.0 * y_scalar + 9.0 * y_scalar * y_scalar)) / (8.0 * (y_scalar - 1.0));
     }
     else
     {
-      // default VMF-style
       MuKa[4] = (15.0 - 3.0 * y_scalar + std::sqrt(15.0 + 90.0 * y_scalar + 39.0 * y_scalar * y_scalar)) / (16.0 * (1.0 - y_scalar));
     }
   }
   else
   {
-    // Lookup: minloc(|y - yAp|), with the Fortran quirk (if idx==1 → use 2)
-    int M = static_cast<int>(this->Apnum); // mirror Fortran's Apnum
-    if(M <= 0)
+    // Lookup table: find the xAp value whose yAp is closest to y_scalar
+    int idx = 0;
+    double best = std::numeric_limits<double>::infinity();
+    for(int k = 0; k < m_ApNum; ++k)
     {
-      MuKa[4] = 30.0; // defensive default
-    }
-    else
-    {
-      // assume xAp and yAp are sized at least Apnum
-      int idx = 0;
-      double best = std::numeric_limits<double>::infinity();
-      for(int k = 0; k < M; ++k)
+      const double d = std::abs(y_scalar - m_YAp[k]);
+      if(d < best)
       {
-        const double d = std::abs(y_scalar - this->yAp[k]);
-        if(d < best)
-        {
-          best = d;
-          idx = k;
-        }
+        best = d;
+        idx = k;
       }
-      if(idx == 0 && M > 1)
-        idx = 1; // Fortran: if (minp.eq.1) minp = 2
-      MuKa[4] = this->xAp[idx];
     }
+    if(idx == 0 && m_ApNum > 1)
+    {
+      idx = 1;
+    }
+    MuKa[4] = m_XAp[idx];
   }
 
   return MuKa;
 }
 
-// Computes Q and L given MuKa = [x,y,z,w,kappa] (EbsdLib order)
-// and R (responsibilities, N x Pmdims, column-major).
+// Computes the Q-function (expected complete-data log-likelihood) and
+// the observed-data log-likelihood L, given current parameters and responsibilities.
 void DirectionalStats::getQandL_(const std::array<double, 5>& MuKa, const std::vector<double>& R, double& Q, double& L) const
 {
   const int N = this->getN();
   const int Pmdims = m_LaueOps->getNumSymOps();
 
-  // Keep old values in case Phi has non-positive entries
   const double oldQ = Q;
   const double oldL = L;
 
-  // C = logCp_(kappa); For VMF ONLY, Fortran exponentiates C before passing to Density_
-  double C = this->logCp_(MuKa[4]); // MuKa[4] is kappa
-  if(this->DStype == "VMF")
+  // For VMF, the normalization constant is exponentiated before passing to Density_
+  double C = this->logCp_(MuKa[4]);
+  if(m_DSType != "WAT")
   {
     C = std::exp(C);
   }
 
-  // Build Phi(N, Pmdims) column-wise using Density_(PmMu, kappa, C)
-  // MuKa is (x,y,z,w) matching QuatD convention
   const QuatD qu(MuKa[0], MuKa[1], MuKa[2], MuKa[3]);
 
-  std::vector<double> Phi_storage(static_cast<size_t>(N) * Pmdims, 0.0);
-  Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> Phi(Phi_storage.data(), N, Pmdims);
+  std::vector<double> phiStorage(static_cast<size_t>(N) * Pmdims, 0.0);
+  Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> Phi(phiStorage.data(), N, Pmdims);
 
   for(int j = 0; j < Pmdims; ++j)
   {
-    // PmMu = qsym(j+1) * qu   (Fortran did: PmMu = qsym(j) * qu)
     QuatD PmMu = m_LaueOps->getQuatSymOp(j) * qu;
 
-    // Density_ returns an N-length vector
     std::vector<double> col = this->Density_(PmMu, MuKa[4], C);
     if(static_cast<int>(col.size()) != N)
+    {
       col.resize(N, 0.0);
+    }
 
-    // Store as column j (column-major)
     for(int i = 0; i < N; ++i)
     {
       Phi(i, j) = col[i];
@@ -931,23 +725,17 @@ void DirectionalStats::getQandL_(const std::array<double, 5>& MuKa, const std::v
     Phi.array() /= static_cast<double>(Pmdims);
   }
 
-  // If minval(Phi) > 0, compute:
-  //   L = sum( log( sum(Phi, 2) ) )     // row-wise sum, then log and sum
-  //   Q = sum( R * log(Phi) )           // elementwise
   const double minPhi = Phi.minCoeff();
   if(minPhi > 0.0)
   {
-    // L
     Eigen::VectorXd rowSums = Phi.rowwise().sum();
     L = rowSums.array().log().sum();
 
-    // Q
     Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> Rm(R.data(), N, Pmdims);
     Q = (Rm.array() * Phi.array().log()).sum();
   }
   else
   {
-    // Reuse old values if any Phi <= 0
     L = oldL;
     Q = oldQ;
   }

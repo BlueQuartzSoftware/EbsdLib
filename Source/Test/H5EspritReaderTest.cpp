@@ -43,7 +43,7 @@ TEST_CASE("ebsdlib::H5EspritReaderTest::TestH5EspritReader", "[EbsdLib][H5Esprit
   err = reader->getErrorCode();
   DREAM3D_REQUIRED(err, ==, -2)
 
-  reader->setFileName(UnitTest::H5EspritReaderTest::InputFile);
+  reader->setFileName(ebsdlib::unit_test::H5EspritReaderTest::InputFile);
   reader->readHeaderOnly();
   err = reader->getErrorCode();
   if(err < 0)

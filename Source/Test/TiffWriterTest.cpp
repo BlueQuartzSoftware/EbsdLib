@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::TiffWriterTest::WriteColorImage_RGB", "[EbsdLib][TiffWriterTest]")
 {
-  std::string outputPath = UnitTest::TestTempDir + "TiffWriterTest_RGB.tif";
+  std::string outputPath = ebsdlib::unit_test::TestTempDir + "TiffWriterTest_RGB.tif";
 
   int32_t width = 4;
   int32_t height = 4;
@@ -41,7 +41,7 @@ TEST_CASE("ebsdlib::TiffWriterTest::WriteColorImage_RGB", "[EbsdLib][TiffWriterT
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::TiffWriterTest::WriteColorImage_RGBA", "[EbsdLib][TiffWriterTest]")
 {
-  std::string outputPath = UnitTest::TestTempDir + "TiffWriterTest_RGBA.tif";
+  std::string outputPath = ebsdlib::unit_test::TestTempDir + "TiffWriterTest_RGBA.tif";
 
   int32_t width = 4;
   int32_t height = 4;
@@ -70,7 +70,7 @@ TEST_CASE("ebsdlib::TiffWriterTest::WriteColorImage_RGBA", "[EbsdLib][TiffWriter
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::TiffWriterTest::WriteGrayScaleImage", "[EbsdLib][TiffWriterTest]")
 {
-  std::string outputPath = UnitTest::TestTempDir + "TiffWriterTest_Gray.tif";
+  std::string outputPath = ebsdlib::unit_test::TestTempDir + "TiffWriterTest_Gray.tif";
 
   int32_t width = 4;
   int32_t height = 4;

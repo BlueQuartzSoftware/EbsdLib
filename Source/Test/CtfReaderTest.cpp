@@ -52,7 +52,7 @@ using namespace ebsdlib;
 TEST_CASE("ebsdlib::CtfReaderTest::TestCtfReader", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::EuropeanInputFile1);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::EuropeanInputFile1);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, >=, 0)
 
@@ -88,7 +88,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestCtfReader", "[EbsdLib][CtfReaderTest]")
 TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_European", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::EuropeanInputFile2);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::EuropeanInputFile2);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, >=, 0)
 
@@ -124,7 +124,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_European", "[EbsdLib][CtfR
 TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_US", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::USInputFile2);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::USInputFile2);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, >=, 0)
 
@@ -160,7 +160,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestMultiplePhases_US", "[EbsdLib][CtfReaderT
 TEST_CASE("ebsdlib::CtfReaderTest::TestCellCountToLarge", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::Corrupted_XCells);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::Corrupted_XCells);
   int err = reader.readFile();
   std::cout << reader.getErrorMessage();
   DREAM3D_REQUIRED(err, ==, -110)
@@ -170,7 +170,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestCellCountToLarge", "[EbsdLib][CtfReaderTe
 TEST_CASE("ebsdlib::CtfReaderTest::TestShortFile", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::ShortFile);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::ShortFile);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, ==, -105)
 }
@@ -179,7 +179,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestShortFile", "[EbsdLib][CtfReaderTest]")
 TEST_CASE("ebsdlib::CtfReaderTest::TestZeroXYCells", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::ZeroXYCells);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::ZeroXYCells);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, ==, -103)
 }
@@ -188,7 +188,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestZeroXYCells", "[EbsdLib][CtfReaderTest]")
 TEST_CASE("ebsdlib::CtfReaderTest::TestWriteCtfFile", "[EbsdLib][CtfReaderTest]")
 {
   CtfReader reader;
-  reader.setFileName(UnitTest::CtfReaderTest::USInputFile1);
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::USInputFile1);
   int err = reader.readFile();
   DREAM3D_REQUIRED(err, ==, 0)
 
@@ -205,7 +205,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestWriteCtfFile", "[EbsdLib][CtfReaderTest]"
   }
 
   std::stringstream filePath;
-  filePath << UnitTest::TestTempDir << "/CTF_WriteFile_test.ctf";
+  filePath << ebsdlib::unit_test::TestTempDir << "/CTF_WriteFile_test.ctf";
   err = reader.writeFile(filePath.str());
   DREAM3D_REQUIRE(err == 0);
   if(REMOVE_TEST_FILES == 1)

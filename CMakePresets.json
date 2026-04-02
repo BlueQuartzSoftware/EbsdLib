@@ -61,6 +61,14 @@
               "type": "BOOL",
               "value": "ON"
             },
+            "EBSDLIB_DOWNLOAD_TEST_FILES": {
+              "type": "BOOL",
+              "value": "ON"
+            },
+            "EBSDLIB_DATA_DIR": {
+              "type": "PATH",
+              "value": "${sourceDir}/../EbsdLib_Data"
+            },
             "BUILDNAME": {
               "type": "STRING",
               "value": "$env{PRESET_NAME}-$env{BUILD_BUILDNUMBER}-PR$env{SYSTEM_PULLREQUEST_PULLREQUESTNUMBER}"

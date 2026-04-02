@@ -53,7 +53,7 @@ TEST_CASE("ebsdlib::EdaxOIMReaderTest::TestH5OIMReader", "[EbsdLib][EdaxOIMReade
   int err = 0;
   int err1 = 0;
   H5OIMReader::Pointer reader = H5OIMReader::New();
-  reader->setFileName(UnitTest::AngImportTest::EdaxOIMH5File);
+  reader->setFileName(ebsdlib::unit_test::AngImportTest::EdaxOIMH5File);
   std::list<std::string> names;
   err = reader->readScanNames(names);
   DREAM3D_REQUIRED(err, >=, 0)
