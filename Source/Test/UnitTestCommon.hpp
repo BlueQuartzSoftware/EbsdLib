@@ -66,4 +66,4 @@ private:
   bool m_RemoveTemp;
 };
 
-}
+} // namespace ebsdlib::unit_test

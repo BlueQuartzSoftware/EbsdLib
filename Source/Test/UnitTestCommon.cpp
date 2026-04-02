@@ -43,7 +43,6 @@ TestFileSentinel::~TestFileSentinel()
   }
 }
 
-
 namespace
 {
 // Parse an octal field from a tar header, returning 0 on empty/null fields
@@ -262,5 +261,4 @@ std::error_code TestFileSentinel::decompress()
   return {};
 }
 
-
-}
+} // namespace ebsdlib::unit_test

@@ -121,8 +121,7 @@ void TestDistribution(const std::string& phaseName, LaueOps::Pointer op, const s
     QuatD refMu = QuatD(refMuhat[sampleId * 4 + 1], refMuhat[sampleId * 4 + 2], refMuhat[sampleId * 4 + 3], refMuhat[sampleId * 4]).normalize();
     double refKappa = refKappahat[sampleId];
 
-    std::printf("  %s group %zu: kappa EbsdLib=%12.6f EMsoft=%12.6f  muW EbsdLib=%10.7f EMsoft=%10.7f\n",
-                distributionType.c_str(), sampleId, kappahat, refKappa, muhat.w(), refMu.w());
+    std::printf("  %s group %zu: kappa EbsdLib=%12.6f EMsoft=%12.6f  muW EbsdLib=%10.7f EMsoft=%10.7f\n", distributionType.c_str(), sampleId, kappahat, refKappa, muhat.w(), refMu.w());
 
     REQUIRE(muhat.w() == Approx(refMu.w()).margin(1e-6));
     REQUIRE(muhat.x() == Approx(refMu.x()).margin(1e-6));
@@ -134,7 +133,7 @@ void TestDistribution(const std::string& phaseName, LaueOps::Pointer op, const s
 
 TEST_CASE("DirectionalStatsTest:AverageOrientation", "[DirectionalStatsTest]")
 {
-  const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", false, false);
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
 
   std::set<std::string> tested;
@@ -475,4 +474,3 @@ TEST_CASE("DirectionalStatsTest:Watson_FromTXT", "[DirectionalStatsTest]")
   std::printf(" kappa    : %20.16f\n", kappahat);
   std::printf(" eq. deg. : %20.16f\n", eqDeg);
 }
-

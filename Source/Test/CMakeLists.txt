@@ -76,9 +76,8 @@ if(EBSDLIB_DOWNLOAD_TEST_FILES)
     file(MAKE_DIRECTORY "${EBSDLIB_DATA_DIR}/TestFiles/")
   endif()
 
-  ebsdlib_download_test_data(EBSDLIB_DATA_DIR ${EBSDLIB_DATA_DIR} ARCHIVE_NAME Laue_Orientation_Clusters_v5.tar.gz SHA512 1be0876dbb77e8ca032b371b16c3f642bbfcbac78adb7b3dfb0ad14ec43ec170cf793dab61873b27974a7aa0e0200d27fca07cd51f6620d23dbcc0c7134f60e6)
+  ebsdlib_download_test_data(EBSDLIB_DATA_DIR ${EBSDLIB_DATA_DIR} ARCHIVE_NAME Laue_Orientation_Clusters_v6.tar.gz SHA512 f327d3d2a86d539b3c1f3fc755d8f5741d8eb68aab45fc1ab54d9e5db48643903f9a37898366203e6eb2e7585ce57c6e186cca2107acb1a53318b813345cb10a)
   
-
 endif()
 
 
