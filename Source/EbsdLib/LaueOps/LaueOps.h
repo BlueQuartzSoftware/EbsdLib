@@ -46,6 +46,7 @@
 #include "EbsdLib/Orientation/OrientationFwd.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/IColorKey.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
@@ -301,6 +302,15 @@ public:
    * @return The current color key
    */
   ebsdlib::IColorKey::Pointer getColorKey() const;
+
+  /**
+   * @brief Set the legend rendering mode.
+   * PerPixel: exact color at every pixel (default, current behavior)
+   * GridInterpolated: MTEX-style flat-shaded grid cells at the given resolution
+   * @param mode The rendering mode to use
+   * @param gridResolutionDeg Grid cell size in degrees (only used for GridInterpolated mode)
+   */
+  void setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg = 1.0);
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector

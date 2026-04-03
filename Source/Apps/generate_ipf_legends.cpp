@@ -18,6 +18,7 @@
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/TiffWriter.h"
@@ -374,6 +375,23 @@ void GenerateNolzeHielscherLegends(int imageDim)
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
 
+    // Set to grid-interpolated mode (MTEX-style rendering)
+    ops.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 1.0);
+
+    // Generate gridded full-circle legend
+    legend = ops.generateIPFTriangleLegend(imageDim, true);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED_FULL.tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Gridded Full Result: " << result.first << ": " << result.second << std::endl;
+
+    // Generate gridded triangle-only legend
+    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED.tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
+
     // Reset to TSL for subsequent operations
     ops.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
   }
@@ -393,7 +411,7 @@ int main(int argc, char* argv[])
   }
 
   std::stringstream ss;
-  int imageDim = 512;
+  int imageDim = 1500;
   {
     TrigonalOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);

@@ -51,6 +51,7 @@
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include <algorithm> // for std::max
@@ -111,6 +112,32 @@ void LaueOps::setColorKey(ebsdlib::IColorKey::Pointer colorKey)
 ebsdlib::IColorKey::Pointer LaueOps::getColorKey() const
 {
   return m_ColorKey;
+}
+
+// -----------------------------------------------------------------------------
+void LaueOps::setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg)
+{
+  if(mode == ebsdlib::LegendRenderMode::GridInterpolated)
+  {
+    // Wrap the current color key with a GriddedColorKey if not already wrapped
+    auto currentKey = m_ColorKey;
+    // If already gridded, unwrap first to avoid double-wrapping
+    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(currentKey);
+    if(griddedKey)
+    {
+      currentKey = griddedKey->innerKey();
+    }
+    m_ColorKey = std::make_shared<ebsdlib::GriddedColorKey>(currentKey, gridResolutionDeg);
+  }
+  else
+  {
+    // PerPixel mode: unwrap if currently gridded
+    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(m_ColorKey);
+    if(griddedKey)
+    {
+      m_ColorKey = griddedKey->innerKey();
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
