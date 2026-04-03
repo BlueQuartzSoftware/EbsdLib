@@ -83,8 +83,7 @@ TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTe
       // (the legend generation doesn't use the sector geometry directly --
       //  it goes through generateIPFColor which uses the color key's
       //  direction2Color(eta, chi, angleLimits) overload)
-      auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(
-        ebsdlib::FundamentalSectorGeometry::cubicHigh());
+      auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::cubicHigh());
       ops[index]->setColorKey(nhKey);
 
       auto legend = ops[index]->generateIPFTriangleLegend(64, false);

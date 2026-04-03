@@ -141,10 +141,10 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::NonTriangularSectors", "[EbsdLib]
 TEST_CASE("ebsdlib::FundamentalSectorGeometry::AllLaueGroups", "[EbsdLib][FundamentalSector]")
 {
   std::vector<ebsdlib::FundamentalSectorGeometry> sectors = {
-      ebsdlib::FundamentalSectorGeometry::cubicHigh(),     ebsdlib::FundamentalSectorGeometry::cubicLow(),       ebsdlib::FundamentalSectorGeometry::hexagonalHigh(),
-      ebsdlib::FundamentalSectorGeometry::hexagonalLow(),  ebsdlib::FundamentalSectorGeometry::tetragonalHigh(), ebsdlib::FundamentalSectorGeometry::tetragonalLow(),
-      ebsdlib::FundamentalSectorGeometry::trigonalHigh(),  ebsdlib::FundamentalSectorGeometry::trigonalLow(),    ebsdlib::FundamentalSectorGeometry::orthorhombic(),
-      ebsdlib::FundamentalSectorGeometry::monoclinic(),    ebsdlib::FundamentalSectorGeometry::triclinic(),
+      ebsdlib::FundamentalSectorGeometry::cubicHigh(),    ebsdlib::FundamentalSectorGeometry::cubicLow(),       ebsdlib::FundamentalSectorGeometry::hexagonalHigh(),
+      ebsdlib::FundamentalSectorGeometry::hexagonalLow(), ebsdlib::FundamentalSectorGeometry::tetragonalHigh(), ebsdlib::FundamentalSectorGeometry::tetragonalLow(),
+      ebsdlib::FundamentalSectorGeometry::trigonalHigh(), ebsdlib::FundamentalSectorGeometry::trigonalLow(),    ebsdlib::FundamentalSectorGeometry::orthorhombic(),
+      ebsdlib::FundamentalSectorGeometry::monoclinic(),   ebsdlib::FundamentalSectorGeometry::triclinic(),
   };
 
   for(size_t i = 0; i < sectors.size(); i++)

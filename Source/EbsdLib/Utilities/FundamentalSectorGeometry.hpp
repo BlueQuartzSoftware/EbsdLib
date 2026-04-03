@@ -17,8 +17,7 @@ class EbsdLib_EXPORT FundamentalSectorGeometry
 public:
   using Vec3 = std::array<double, 3>;
 
-  FundamentalSectorGeometry(std::vector<Vec3> boundaryNormals, std::vector<Vec3> vertices,
-                            std::string colorKeyMode, int32_t supergroupIndex = -1);
+  FundamentalSectorGeometry(std::vector<Vec3> boundaryNormals, std::vector<Vec3> vertices, std::string colorKeyMode, int32_t supergroupIndex = -1);
 
   std::pair<double, double> polarCoordinates(const Vec3& h) const;
   double correctAzimuthalAngle(double rhoRaw) const;
@@ -31,7 +30,7 @@ public:
   int32_t supergroupIndex() const;
 
   // Static factory methods for each Laue group
-  static FundamentalSectorGeometry cubicHigh();     // m-3m
+  static FundamentalSectorGeometry cubicHigh();      // m-3m
   static FundamentalSectorGeometry cubicLow();       // m-3
   static FundamentalSectorGeometry hexagonalHigh();  // 6/mmm
   static FundamentalSectorGeometry hexagonalLow();   // 6/m

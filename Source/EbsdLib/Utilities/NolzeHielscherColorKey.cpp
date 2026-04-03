@@ -1,6 +1,6 @@
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
-#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/ColorSpaceUtils.hpp"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -229,8 +229,7 @@ NolzeHielscherColorKey::Vec3 NolzeHielscherColorKey::direction2Color(const Vec3&
   // For white center: radius [0,1] -> theta [pi, pi/2] (from pole to equator)
   // For black center: radius [0,1] -> theta [0, pi/2]
 
-  auto computeColorFromSphere = [&](double r, double grayValue) -> void
-  {
+  auto computeColorFromSphere = [&](double r, double grayValue) -> void {
     // Map radius to color sphere theta.
     // Use a nonlinear mapping that compresses the neutral center:
     //   Apply gray gradient blending between linear and cosine curves

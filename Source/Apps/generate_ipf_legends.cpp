@@ -338,17 +338,17 @@ void GenerateNolzeHielscherLegends(int imageDim)
 
   // Map from LaueOps index to FundamentalSectorGeometry factory
   std::vector<std::function<ebsdlib::FundamentalSectorGeometry()>> sectorFactories = {
-    ebsdlib::FundamentalSectorGeometry::hexagonalHigh,   // 0: Hexagonal_High
-    ebsdlib::FundamentalSectorGeometry::cubicHigh,       // 1: Cubic_High
-    ebsdlib::FundamentalSectorGeometry::hexagonalLow,    // 2: Hexagonal_Low
-    ebsdlib::FundamentalSectorGeometry::cubicLow,        // 3: Cubic_Low
-    ebsdlib::FundamentalSectorGeometry::triclinic,       // 4: Triclinic
-    ebsdlib::FundamentalSectorGeometry::monoclinic,      // 5: Monoclinic
-    ebsdlib::FundamentalSectorGeometry::orthorhombic,    // 6: OrthoRhombic
-    ebsdlib::FundamentalSectorGeometry::tetragonalLow,   // 7: Tetragonal_Low
-    ebsdlib::FundamentalSectorGeometry::tetragonalHigh,  // 8: Tetragonal_High
-    ebsdlib::FundamentalSectorGeometry::trigonalLow,     // 9: Trigonal_Low
-    ebsdlib::FundamentalSectorGeometry::trigonalHigh,    // 10: Trigonal_High
+      ebsdlib::FundamentalSectorGeometry::hexagonalHigh,  // 0: Hexagonal_High
+      ebsdlib::FundamentalSectorGeometry::cubicHigh,      // 1: Cubic_High
+      ebsdlib::FundamentalSectorGeometry::hexagonalLow,   // 2: Hexagonal_Low
+      ebsdlib::FundamentalSectorGeometry::cubicLow,       // 3: Cubic_Low
+      ebsdlib::FundamentalSectorGeometry::triclinic,      // 4: Triclinic
+      ebsdlib::FundamentalSectorGeometry::monoclinic,     // 5: Monoclinic
+      ebsdlib::FundamentalSectorGeometry::orthorhombic,   // 6: OrthoRhombic
+      ebsdlib::FundamentalSectorGeometry::tetragonalLow,  // 7: Tetragonal_Low
+      ebsdlib::FundamentalSectorGeometry::tetragonalHigh, // 8: Tetragonal_High
+      ebsdlib::FundamentalSectorGeometry::trigonalLow,    // 9: Trigonal_Low
+      ebsdlib::FundamentalSectorGeometry::trigonalHigh,   // 10: Trigonal_High
   };
 
   for(size_t i = 0; i < allOps.size(); i++)
@@ -375,21 +375,22 @@ void GenerateNolzeHielscherLegends(int imageDim)
     result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
 
-    // Set to grid-interpolated mode (MTEX-style rendering)
-    ops.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 1.0);
+    // Set to grid-interpolated mode (MTEX-style rendering, 0.5 degree grid)
+    ops.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 0.5);
 
-    // Generate gridded full-circle legend
-    legend = ops.generateIPFTriangleLegend(imageDim, true);
+    // Generate gridded legends at higher resolution (2000x2000)
+    constexpr int k_GriddedImageDim = 2000;
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, true);
     ss.str("");
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED_FULL.tiff";
-    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    result = TiffWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Gridded Full Result: " << result.first << ": " << result.second << std::endl;
 
     // Generate gridded triangle-only legend
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, false);
     ss.str("");
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED.tiff";
-    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    result = TiffWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
 
     // Reset to TSL for subsequent operations

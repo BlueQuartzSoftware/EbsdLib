@@ -12,8 +12,7 @@ namespace ebsdlib
 // -----------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------
-FundamentalSectorGeometry::FundamentalSectorGeometry(std::vector<Vec3> boundaryNormals, std::vector<Vec3> vertices,
-                                                     std::string colorKeyMode, int32_t supergroupIndex)
+FundamentalSectorGeometry::FundamentalSectorGeometry(std::vector<Vec3> boundaryNormals, std::vector<Vec3> vertices, std::string colorKeyMode, int32_t supergroupIndex)
 : m_BoundaryNormals(std::move(boundaryNormals))
 , m_Vertices(std::move(vertices))
 , m_ColorKeyMode(std::move(colorKeyMode))
@@ -267,9 +266,7 @@ void FundamentalSectorGeometry::precomputeAzimuthalCorrection()
     ref = {1.0, 0.0, 0.0};
   }
   double refDotCenter = vecDot(ref, m_Barycenter);
-  Vec3 rx = vecNormalize({ref[0] - refDotCenter * m_Barycenter[0],
-                          ref[1] - refDotCenter * m_Barycenter[1],
-                          ref[2] - refDotCenter * m_Barycenter[2]});
+  Vec3 rx = vecNormalize({ref[0] - refDotCenter * m_Barycenter[0], ref[1] - refDotCenter * m_Barycenter[1], ref[2] - refDotCenter * m_Barycenter[2]});
   Vec3 ry = vecNormalize(vecCross(m_Barycenter, rx));
 
   // For each sampled angle, compute the angular distance from barycenter to boundary
@@ -282,16 +279,12 @@ void FundamentalSectorGeometry::precomputeAzimuthalCorrection()
     double sinA = std::sin(angle);
 
     // Direction in the tangent plane at this azimuth
-    Vec3 tangentDir = {cosA * rx[0] + sinA * ry[0],
-                       cosA * rx[1] + sinA * ry[1],
-                       cosA * rx[2] + sinA * ry[2]};
+    Vec3 tangentDir = {cosA * rx[0] + sinA * ry[0], cosA * rx[1] + sinA * ry[1], cosA * rx[2] + sinA * ry[2]};
 
     // Create a test direction slightly away from barycenter in this tangent direction
     // We use a small angle offset (e.g., 0.01 radians) to stay in the linear regime
     constexpr double k_SmallAngle = 0.01;
-    Vec3 testDir = vecNormalize({m_Barycenter[0] + k_SmallAngle * tangentDir[0],
-                                 m_Barycenter[1] + k_SmallAngle * tangentDir[1],
-                                 m_Barycenter[2] + k_SmallAngle * tangentDir[2]});
+    Vec3 testDir = vecNormalize({m_Barycenter[0] + k_SmallAngle * tangentDir[0], m_Barycenter[1] + k_SmallAngle * tangentDir[1], m_Barycenter[2] + k_SmallAngle * tangentDir[2]});
 
     // Compute the boundary distance at this azimuth using the same algorithm as polarCoordinates
     Vec3 gcNormal = vecNormalize(vecCross(m_Barycenter, testDir));
@@ -330,9 +323,7 @@ void FundamentalSectorGeometry::precomputeAzimuthalCorrection()
   for(size_t v = 0; v < nVerts; v++)
   {
     double hDotCenter = vecDot(m_Vertices[v], m_Barycenter);
-    Vec3 dv = {m_Vertices[v][0] - hDotCenter * m_Barycenter[0],
-               m_Vertices[v][1] - hDotCenter * m_Barycenter[1],
-               m_Vertices[v][2] - hDotCenter * m_Barycenter[2]};
+    Vec3 dv = {m_Vertices[v][0] - hDotCenter * m_Barycenter[0], m_Vertices[v][1] - hDotCenter * m_Barycenter[1], m_Vertices[v][2] - hDotCenter * m_Barycenter[2]};
     vertexAngles[v] = std::fmod(std::atan2(vecDot(ry, dv), vecDot(rx, dv)) + k_TwoPi, k_TwoPi);
   }
 
@@ -493,13 +484,13 @@ FundamentalSectorGeometry FundamentalSectorGeometry::cubicHigh()
   double s3 = 1.0 / std::sqrt(3.0);
   return FundamentalSectorGeometry(
       // Boundary normals (dot(h, N) >= 0 defines interior)
-      {{0.0, 1.0, 0.0},   // y >= 0: eta >= 0 boundary
-       {s2, -s2, 0.0},    // eta <= 45deg boundary
-       {-s2, 0.0, s2}},   // hypotenuse: great circle [101]-[111]
+      {{0.0, 1.0, 0.0}, // y >= 0: eta >= 0 boundary
+       {s2, -s2, 0.0},  // eta <= 45deg boundary
+       {-s2, 0.0, s2}}, // hypotenuse: great circle [101]-[111]
       // Vertices
-      {{0.0, 0.0, 1.0},   // [001]
-       {s2, 0.0, s2},     // [101]
-       {s3, s3, s3}},     // [111]
+      {{0.0, 0.0, 1.0}, // [001]
+       {s2, 0.0, s2},   // [101]
+       {s3, s3, s3}},   // [111]
       "standard");
 }
 
@@ -544,15 +535,15 @@ FundamentalSectorGeometry FundamentalSectorGeometry::cubicLow()
   double s3 = 1.0 / std::sqrt(3.0);
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},   // y >= 0: eta >= 0
-       {1.0, 0.0, 0.0},   // x >= 0: eta <= 90deg
-       {-s2, 0.0, s2},    // hypotenuse arc [101]-[111]
-       {0.0, -s2, s2}},   // hypotenuse arc [111]-[011]
+      {{0.0, 1.0, 0.0}, // y >= 0: eta >= 0
+       {1.0, 0.0, 0.0}, // x >= 0: eta <= 90deg
+       {-s2, 0.0, s2},  // hypotenuse arc [101]-[111]
+       {0.0, -s2, s2}}, // hypotenuse arc [111]-[011]
       // Vertices
-      {{0.0, 0.0, 1.0},   // [001]
-       {s2, 0.0, s2},     // [101]
-       {0.0, s2, s2},     // [011]
-       {s3, s3, s3}},     // [111]
+      {{0.0, 0.0, 1.0}, // [001]
+       {s2, 0.0, s2},   // [101]
+       {0.0, s2, s2},   // [011]
+       {s3, s3, s3}},   // [111]
       "extended",
       1 // supergroup = CubicHigh
   );
@@ -584,12 +575,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::hexagonalHigh()
   double s3h = std::sqrt(3.0) / 2.0; // cos(30)
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},         // y >= 0: eta >= 0
-       {0.5, -s3h, 0.0}},       // eta <= 30deg
+      {{0.0, 1.0, 0.0},   // y >= 0: eta >= 0
+       {0.5, -s3h, 0.0}}, // eta <= 30deg
       // Vertices
-      {{0.0, 0.0, 1.0},         // [0001]
-       {1.0, 0.0, 0.0},         // [10-10] at eta=0, chi=90
-       {s3h, 0.5, 0.0}},        // [2-1-10] at eta=30, chi=90
+      {{0.0, 0.0, 1.0},  // [0001]
+       {1.0, 0.0, 0.0},  // [10-10] at eta=0, chi=90
+       {s3h, 0.5, 0.0}}, // [2-1-10] at eta=30, chi=90
       "standard");
 }
 
@@ -609,12 +600,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::hexagonalLow()
   double s3h = std::sqrt(3.0) / 2.0; // sin(60) = cos(30)
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},         // y >= 0: eta >= 0
-       {s3h, -0.5, 0.0}},       // eta <= 60deg
+      {{0.0, 1.0, 0.0},   // y >= 0: eta >= 0
+       {s3h, -0.5, 0.0}}, // eta <= 60deg
       // Vertices
-      {{0.0, 0.0, 1.0},         // [0001]
-       {1.0, 0.0, 0.0},         // at eta=0, chi=90
-       {0.5, s3h, 0.0}},        // at eta=60, chi=90
+      {{0.0, 0.0, 1.0},  // [0001]
+       {1.0, 0.0, 0.0},  // at eta=0, chi=90
+       {0.5, s3h, 0.0}}, // at eta=60, chi=90
       "extended",
       0 // supergroup = HexagonalHigh
   );
@@ -634,12 +625,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::tetragonalHigh()
   double s2 = 1.0 / std::sqrt(2.0);
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},         // y >= 0: eta >= 0
-       {s2, -s2, 0.0}},         // eta <= 45deg
+      {{0.0, 1.0, 0.0}, // y >= 0: eta >= 0
+       {s2, -s2, 0.0}}, // eta <= 45deg
       // Vertices
-      {{0.0, 0.0, 1.0},         // [001]
-       {1.0, 0.0, 0.0},         // [100] at eta=0, chi=90
-       {s2, s2, 0.0}},          // [110] at eta=45, chi=90
+      {{0.0, 0.0, 1.0}, // [001]
+       {1.0, 0.0, 0.0}, // [100] at eta=0, chi=90
+       {s2, s2, 0.0}},  // [110] at eta=45, chi=90
       "standard");
 }
 
@@ -656,12 +647,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::tetragonalLow()
 {
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},         // y >= 0: eta >= 0
-       {1.0, 0.0, 0.0}},        // x >= 0: eta <= 90deg
+      {{0.0, 1.0, 0.0},  // y >= 0: eta >= 0
+       {1.0, 0.0, 0.0}}, // x >= 0: eta <= 90deg
       // Vertices
-      {{0.0, 0.0, 1.0},         // [001]
-       {1.0, 0.0, 0.0},         // [100] at eta=0, chi=90
-       {0.0, 1.0, 0.0}},        // [010] at eta=90, chi=90
+      {{0.0, 0.0, 1.0},  // [001]
+       {1.0, 0.0, 0.0},  // [100] at eta=0, chi=90
+       {0.0, 1.0, 0.0}}, // [010] at eta=90, chi=90
       "extended",
       8 // supergroup = TetragonalHigh
   );
@@ -722,12 +713,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::trigonalHigh()
   double s3h = std::sqrt(3.0) / 2.0;
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{1.0, 0.0, 0.0},           // x >= 0: eta >= -90deg boundary
-       {-0.5, -s3h, 0.0}},        // eta <= -30deg boundary
+      {{1.0, 0.0, 0.0},    // x >= 0: eta >= -90deg boundary
+       {-0.5, -s3h, 0.0}}, // eta <= -30deg boundary
       // Vertices
-      {{0.0, 0.0, 1.0},           // [001]
-       {0.0, -1.0, 0.0},          // at eta=-90, chi=90
-       {s3h, -0.5, 0.0}},         // at eta=-30, chi=90
+      {{0.0, 0.0, 1.0},   // [001]
+       {0.0, -1.0, 0.0},  // at eta=-90, chi=90
+       {s3h, -0.5, 0.0}}, // at eta=-30, chi=90
       "standard");
 }
 
@@ -770,12 +761,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::trigonalLow()
   double s3h = std::sqrt(3.0) / 2.0;
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{s3h, -0.5, 0.0},           // eta >= -120deg
-       {0.0, -1.0, 0.0}},          // eta <= 0deg (y <= 0)
+      {{s3h, -0.5, 0.0},  // eta >= -120deg
+       {0.0, -1.0, 0.0}}, // eta <= 0deg (y <= 0)
       // Vertices
-      {{0.0, 0.0, 1.0},            // [001]
-       {1.0, 0.0, 0.0},            // at eta=0, chi=90
-       {-0.5, -s3h, 0.0}},         // at eta=-120, chi=90
+      {{0.0, 0.0, 1.0},    // [001]
+       {1.0, 0.0, 0.0},    // at eta=0, chi=90
+       {-0.5, -s3h, 0.0}}, // at eta=-120, chi=90
       "impossible");
 }
 
@@ -792,12 +783,12 @@ FundamentalSectorGeometry FundamentalSectorGeometry::orthorhombic()
 {
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0},         // y >= 0: eta >= 0
-       {1.0, 0.0, 0.0}},        // x >= 0: eta <= 90deg
+      {{0.0, 1.0, 0.0},  // y >= 0: eta >= 0
+       {1.0, 0.0, 0.0}}, // x >= 0: eta <= 90deg
       // Vertices
-      {{0.0, 0.0, 1.0},         // [001]
-       {1.0, 0.0, 0.0},         // [100] at eta=0, chi=90
-       {0.0, 1.0, 0.0}},        // [010] at eta=90, chi=90
+      {{0.0, 0.0, 1.0},  // [001]
+       {1.0, 0.0, 0.0},  // [100] at eta=0, chi=90
+       {0.0, 1.0, 0.0}}, // [010] at eta=90, chi=90
       "standard");
 }
 
@@ -822,11 +813,11 @@ FundamentalSectorGeometry FundamentalSectorGeometry::monoclinic()
 {
   return FundamentalSectorGeometry(
       // Boundary normals
-      {{0.0, 1.0, 0.0}},        // y >= 0: eta in [0, 180deg]
+      {{0.0, 1.0, 0.0}}, // y >= 0: eta in [0, 180deg]
       // Vertices
-      {{0.0, 0.0, 1.0},         // [001]
-       {1.0, 0.0, 0.0},         // [100] at eta=0, chi=90
-       {-1.0, 0.0, 0.0}},       // [-100] at eta=180, chi=90
+      {{0.0, 0.0, 1.0},   // [001]
+       {1.0, 0.0, 0.0},   // [100] at eta=0, chi=90
+       {-1.0, 0.0, 0.0}}, // [-100] at eta=180, chi=90
       "extended",
       6 // supergroup = OrthoRhombic
   );
@@ -848,8 +839,7 @@ FundamentalSectorGeometry FundamentalSectorGeometry::triclinic()
       // handle this implicitly for directions in the upper hemisphere.
       {},
       // No vertices
-      {},
-      "impossible");
+      {}, "impossible");
 }
 
 } // namespace ebsdlib
