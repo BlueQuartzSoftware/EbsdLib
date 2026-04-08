@@ -172,3 +172,138 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Square", "[EbsdLib][
   // Bottom row Y is one subCanvasHeight below top row Y
   REQUIRE(metrics.origins[2][1] == Approx(metrics.origins[0][1] + metrics.subCanvasHeight));
 }
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::GenerateComposite_Cubic_Horizontal", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const size_t numOrientations = 100;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  CompositePoleFigureConfiguration_t config;
+  config.eulers = eulers.get();
+  config.imageDim = 64;
+  config.lambertDim = 32;
+  config.numColors = 16;
+  config.discrete = false;
+  config.discreteHeatMap = false;
+  config.flipFinalImage = true;
+  config.laueOpsIndex = 1; // CubicOps (Cubic_High)
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+  config.phaseName = "TestPhase";
+  config.phaseNumber = 1;
+  config.title = "Test Pole Figure";
+
+  PoleFigureCompositor compositor;
+  CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+  REQUIRE(result.image != nullptr);
+  REQUIRE(result.width > 0);
+  REQUIRE(result.height > 0);
+  REQUIRE(result.image->getNumberOfComponents() == 4);
+  REQUIRE(result.image->getNumberOfTuples() == static_cast<size_t>(result.width * result.height));
+
+  LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
+  REQUIRE(result.width == metrics.pageWidth);
+  REQUIRE(result.height == metrics.pageHeight);
+
+  // Verify content (not all white)
+  bool hasNonWhite = false;
+  for(size_t i = 0; i < result.image->getNumberOfTuples() && !hasNonWhite; i++)
+  {
+    uint8_t* pixel = result.image->getTuplePointer(i);
+    if(pixel[0] != 255 || pixel[1] != 255 || pixel[2] != 255)
+    {
+      hasNonWhite = true;
+    }
+  }
+  REQUIRE(hasNonWhite);
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::GenerateComposite_Cubic_Discrete", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const size_t numOrientations = 50;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  CompositePoleFigureConfiguration_t config;
+  config.eulers = eulers.get();
+  config.imageDim = 64;
+  config.lambertDim = 32;
+  config.numColors = 16;
+  config.discrete = true;
+  config.discreteHeatMap = false;
+  config.flipFinalImage = true;
+  config.laueOpsIndex = 1;
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+  config.phaseName = "DiscretePhase";
+  config.phaseNumber = 1;
+  config.title = "Discrete Test";
+
+  PoleFigureCompositor compositor;
+  CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+  REQUIRE(result.image != nullptr);
+  REQUIRE(result.width > 0);
+  REQUIRE(result.height > 0);
+  REQUIRE(result.image->getNumberOfComponents() == 4);
+  REQUIRE(result.image->getNumberOfTuples() == static_cast<size_t>(result.width * result.height));
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::GenerateComposite_AllLayouts", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const size_t numOrientations = 50;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  std::vector<PoleFigureLayoutType> layouts = {PoleFigureLayoutType::Horizontal, PoleFigureLayoutType::Vertical, PoleFigureLayoutType::Square};
+
+  for(auto layout : layouts)
+  {
+    DYNAMIC_SECTION("Layout " << static_cast<uint32_t>(layout))
+    {
+      CompositePoleFigureConfiguration_t config;
+      config.eulers = eulers.get();
+      config.imageDim = 64;
+      config.lambertDim = 32;
+      config.numColors = 16;
+      config.laueOpsIndex = 1;
+      config.layoutType = layout;
+      config.phaseName = "TestPhase";
+      config.phaseNumber = 1;
+      config.title = "Layout Test";
+
+      PoleFigureCompositor compositor;
+      CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+      REQUIRE(result.image != nullptr);
+
+      LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
+      REQUIRE(result.width == metrics.pageWidth);
+      REQUIRE(result.height == metrics.pageHeight);
+    }
+  }
+}
