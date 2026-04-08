@@ -64,7 +64,8 @@ LayoutMetrics PoleFigureCompositor::computeLayoutMetrics(const CompositePoleFigu
     xCharWidth = tempContext.measure_text(buf.data());
   }
 
-  metrics.subCanvasWidth = metrics.margins + imageWidth + xCharWidth + metrics.margins;
+  // Extra margin on the right to ensure the "X" axis label is not clipped
+  metrics.subCanvasWidth = metrics.margins + imageWidth + metrics.margins + xCharWidth + metrics.margins;
   metrics.subCanvasHeight = metrics.margins + metrics.fontPtSize + imageHeight + metrics.fontPtSize * 2.0f + metrics.margins * 2.0f;
 
   switch(config.layoutType)
