@@ -27,7 +27,60 @@ CompositePoleFigureResult PoleFigureCompositor::generateCompositeImage(const Com
 // -----------------------------------------------------------------------------
 LayoutMetrics PoleFigureCompositor::computeLayoutMetrics(const CompositePoleFigureConfiguration_t& config)
 {
-  return {};
+  LayoutMetrics metrics;
+  const auto imageWidth = static_cast<float>(config.imageDim);
+  const auto imageHeight = static_cast<float>(config.imageDim);
+  metrics.fontPtSize = imageHeight / 16.0f;
+  metrics.margins = imageHeight / 32.0f;
+
+  // Measure "X" character width using a temporary canvas
+  float xCharWidth = 0.0f;
+  {
+    std::vector<unsigned char> latoBold = fonts::GetLatoBold();
+    canvas_ity::canvas tempContext(config.imageDim, config.imageDim);
+    tempContext.set_font(latoBold.data(), static_cast<int>(latoBold.size()), metrics.fontPtSize);
+    const std::array<char, 2> buf = {'X', 0};
+    xCharWidth = tempContext.measure_text(buf.data());
+  }
+
+  metrics.subCanvasWidth = metrics.margins + imageWidth + xCharWidth + metrics.margins;
+  metrics.subCanvasHeight = metrics.margins + metrics.fontPtSize + imageHeight + metrics.fontPtSize * 2.0f + metrics.margins * 2.0f;
+
+  switch(config.layoutType)
+  {
+  case PoleFigureLayoutType::Horizontal: {
+    metrics.pageWidth = static_cast<int32_t>(metrics.subCanvasWidth) * 4;
+    metrics.pageHeight = static_cast<int32_t>(metrics.margins + metrics.fontPtSize + metrics.subCanvasHeight);
+    const float y = static_cast<float>(metrics.pageHeight) - metrics.subCanvasHeight;
+    metrics.origins[0] = {0.0f, y};
+    metrics.origins[1] = {metrics.subCanvasWidth, y};
+    metrics.origins[2] = {metrics.subCanvasWidth * 2.0f, y};
+    metrics.origins[3] = {metrics.subCanvasWidth * 3.0f, y};
+    break;
+  }
+  case PoleFigureLayoutType::Vertical: {
+    metrics.pageWidth = static_cast<int32_t>(metrics.subCanvasWidth);
+    metrics.pageHeight = static_cast<int32_t>(metrics.margins + metrics.fontPtSize + metrics.subCanvasHeight * 4.0f);
+    const float topY = metrics.margins + metrics.fontPtSize;
+    metrics.origins[0] = {0.0f, topY};
+    metrics.origins[1] = {0.0f, topY + metrics.subCanvasHeight};
+    metrics.origins[2] = {0.0f, topY + metrics.subCanvasHeight * 2.0f};
+    metrics.origins[3] = {0.0f, topY + metrics.subCanvasHeight * 3.0f};
+    break;
+  }
+  case PoleFigureLayoutType::Square: {
+    metrics.pageWidth = static_cast<int32_t>(metrics.subCanvasWidth) * 2;
+    metrics.pageHeight = static_cast<int32_t>(metrics.margins + metrics.fontPtSize + metrics.subCanvasHeight * 2.0f);
+    const float topY = static_cast<float>(metrics.pageHeight) - 2.0f * metrics.subCanvasHeight;
+    const float bottomY = static_cast<float>(metrics.pageHeight) - metrics.subCanvasHeight;
+    metrics.origins[0] = {0.0f, topY};
+    metrics.origins[1] = {metrics.subCanvasWidth, topY};
+    metrics.origins[2] = {0.0f, bottomY};
+    metrics.origins[3] = {metrics.subCanvasWidth, bottomY};
+    break;
+  }
+  }
+  return metrics;
 }
 
 // -----------------------------------------------------------------------------
