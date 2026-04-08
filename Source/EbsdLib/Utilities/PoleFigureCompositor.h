@@ -158,10 +158,12 @@ public:
    * direction labels, a legend/scalar bar, and a title, arranged according to
    * the specified layout type.
    *
-   * @param config Configuration controlling pole figure generation, layout, and appearance
+   * @param config Configuration controlling pole figure generation, layout, and appearance.
+   *               Note: minScale and maxScale may be updated by the pole figure generation
+   *               to reflect the actual data range.
    * @return CompositePoleFigureResult containing the RGBA image and its dimensions
    */
-  CompositePoleFigureResult generateCompositeImage(const CompositePoleFigureConfiguration_t& config);
+  CompositePoleFigureResult generateCompositeImage(CompositePoleFigureConfiguration_t& config);
 
   /**
    * @brief Computes layout metrics without generating an image.
@@ -175,7 +177,7 @@ public:
   static LayoutMetrics computeLayoutMetrics(const CompositePoleFigureConfiguration_t& config);
 
 private:
-  std::vector<UInt8ArrayType::Pointer> generatePoleFigures(const CompositePoleFigureConfiguration_t& config);
+  std::vector<UInt8ArrayType::Pointer> generatePoleFigures(CompositePoleFigureConfiguration_t& config);
   void preprocessImages(std::vector<UInt8ArrayType::Pointer>& images, int imageDim, bool flipFinalImage);
   UInt8ArrayType::Pointer compositeToCanvas(const CompositePoleFigureConfiguration_t& config, const std::vector<UInt8ArrayType::Pointer>& images, const LayoutMetrics& layout);
 

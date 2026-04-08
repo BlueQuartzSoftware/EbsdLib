@@ -67,9 +67,9 @@ void EbsdColorTable::GetColorTable(int numColors, std::vector<float>& colorsOut)
   const float nodeStepSize = 1.0F / (maxNodeIndex);
   for(int i = 0; i < numColors; i++)
   {
-    float pos = i * stepSize; // [0, 1] range
+    const float pos = static_cast<float>(i) * stepSize; // [0, 1] range
     int currColorBin = static_cast<int>(pos / nodeStepSize);
-    float currFraction = (pos / nodeStepSize) - currColorBin;
+    const float currFraction = (pos / nodeStepSize) - static_cast<float>(currColorBin);
 
     float r;
     float g;

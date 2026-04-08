@@ -1,6 +1,7 @@
 #include "PoleFigureCompositor.h"
 
 #include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
@@ -19,7 +20,7 @@ namespace ebsdlib
 {
 
 // -----------------------------------------------------------------------------
-CompositePoleFigureResult PoleFigureCompositor::generateCompositeImage(const CompositePoleFigureConfiguration_t& config)
+CompositePoleFigureResult PoleFigureCompositor::generateCompositeImage(CompositePoleFigureConfiguration_t& config)
 {
   CompositePoleFigureResult result;
 
@@ -104,7 +105,7 @@ LayoutMetrics PoleFigureCompositor::computeLayoutMetrics(const CompositePoleFigu
 }
 
 // -----------------------------------------------------------------------------
-std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(const CompositePoleFigureConfiguration_t& config)
+std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(CompositePoleFigureConfiguration_t& config)
 {
   PoleFigureConfiguration_t pfConfig;
   pfConfig.eulers = config.eulers;
@@ -128,7 +129,14 @@ std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(c
     return {};
   }
 
-  return orientationOps[config.laueOpsIndex]->generatePoleFigure(pfConfig);
+  auto result = orientationOps[config.laueOpsIndex]->generatePoleFigure(pfConfig);
+
+  // LaueOps::generatePoleFigure updates minScale/maxScale to reflect the actual
+  // data range. Propagate these back so the scalar bar shows correct values.
+  config.minScale = pfConfig.minScale;
+  config.maxScale = pfConfig.maxScale;
+
+  return result;
 }
 
 // -----------------------------------------------------------------------------
@@ -225,7 +233,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   context.line_cap = canvas_ity::circle;
   context.set_line_width(3.0f);
   context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
-  context.arc(origin[0] + margins + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize / 2.0f, imageSize / 2.0f, 0, 2.0f * 3.14159265358979323846f);
+  context.arc(origin[0] + margins + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize / 2.0f, imageSize / 2.0f, 0, ebsdlib::constants::k_2PiF);
   context.stroke();
   context.close_path();
 
