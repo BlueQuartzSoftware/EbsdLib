@@ -3,6 +3,7 @@ set(UNIT_TEST_TARGET EbsdLibUnitTest)
 set(EBSDLIB_TEST_DIRS_HEADER ${EbsdLibProj_BINARY_DIR}/EbsdLib/Test/EbsdLibTestFileLocations.h)
 configure_file(${EbsdLibProj_SOURCE_DIR}/Source/Test/TestFileLocations.h.in ${EBSDLIB_TEST_DIRS_HEADER} @ONLY)
 
+file(MAKE_DIRECTORY ${EbsdLibProj_BINARY_DIR}/Testing/Temporary/)
 #------------------------------------------------------------------------------
 # Find the Catch2 unit testing package
 find_package(Catch2 CONFIG REQUIRED)
@@ -78,6 +79,7 @@ if(EBSDLIB_DOWNLOAD_TEST_FILES)
   endif()
 
   ebsdlib_download_test_data(EBSDLIB_DATA_DIR ${EBSDLIB_DATA_DIR} ARCHIVE_NAME Laue_Orientation_Clusters_v6.tar.gz SHA512 f327d3d2a86d539b3c1f3fc755d8f5741d8eb68aab45fc1ab54d9e5db48643903f9a37898366203e6eb2e7585ce57c6e186cca2107acb1a53318b813345cb10a)
+  ebsdlib_download_test_data(EBSDLIB_DATA_DIR ${EBSDLIB_DATA_DIR} ARCHIVE_NAME Pole_Figure_Images.tar.gz SHA512 c3111bd3dcb89ec3ddcfcee4792bb7a9a1815475ac3f9a70bd93915c2a6dbbdcc9091dfe5ddb064a655758d77f9718c1661dd2005bcc60502ba336e40eb205a1)
 
 endif()
 

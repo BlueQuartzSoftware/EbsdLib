@@ -31,7 +31,26 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
+#include "EbsdLib/Utilities/TiffWriter.h"
+#include "UnitTestCommon.hpp"
+#include "UnitTestSupport.hpp"
+
+#include <H5Support/H5Lite.h>
+#include <H5Support/H5ScopedSentinel.h>
+#include <H5Support/H5Utilities.h>
+
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <limits>
+#include <numbers>
+#include <set>
+#include <sstream>
+#include <string>
 
 using namespace ebsdlib;
 
@@ -63,6 +82,144 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::ConfigDefaults", "[EbsdLib][PoleFi
   REQUIRE(config.title.empty());
 }
 
+void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t exemplarFileId)
+{
+  constexpr size_t k_NumSamplingGroups = 8;
+  constexpr size_t k_NumQuats = 10000;
+  constexpr size_t k_QuatSize = 4;
+  const std::string distributionType("WAT");
+
+  std::string inputFilePath = fmt::format("{}/Laue_Orientation_Clusters_v6/{}.h5", ebsdlib::unit_test::k_TestFilesDir, phaseName);
+  hid_t fid = H5Support::H5Utilities::openFile(inputFilePath, true);
+  REQUIRE(fid > 0);
+  H5Support::H5ScopedFileSentinel fileSentinel(fid, false);
+
+  std::string prefix = (distributionType == "VMF") ? "vMF" : "WAT";
+  std::vector<double> quatarray;
+  herr_t err = H5Support::H5Lite::readVectorDataset(fid, fmt::format("/EMData/Sampler/{}quatarray", prefix), quatarray);
+  REQUIRE(err == 0);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  LaueOps::Pointer op = ops[opsIndex];
+
+  std::vector<PoleFigureLayoutType> layoutTypes = {PoleFigureLayoutType::Horizontal, PoleFigureLayoutType::Vertical, PoleFigureLayoutType::Square};
+  for(const auto& layoutType : layoutTypes)
+  {
+    std::string layoutStr = (layoutType == PoleFigureLayoutType::Horizontal) ? "Horz" : (layoutType == PoleFigureLayoutType::Vertical) ? "Vert" : "Sqr";
+    hid_t layoutGroupId = H5Support::H5Utilities::createGroup(exemplarFileId, layoutStr);
+    H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, true);
+
+    for(size_t sampleId = 0; sampleId < k_NumSamplingGroups; ++sampleId)
+    {
+      std::vector<size_t> compDims = {3};
+      auto eulers = FloatArrayType::CreateArray(k_NumQuats, compDims, "TestEulers", true);
+
+      // Generate Euler Angles from Quaternions in the file
+      for(size_t quatIdx = 0; quatIdx < k_NumQuats; ++quatIdx)
+      {
+        // HDF5 stores quaternions as WXYZ (EMsoft), convert to XYZW (EbsdLib)
+        size_t idx = (sampleId * k_NumQuats * k_QuatSize) + (quatIdx * k_QuatSize);
+        QuatD q(quatarray[idx + 1], quatarray[idx + 2], quatarray[idx + 3], quatarray[idx]);
+        q = op->getFZQuat(q);
+        EulerDType euler = q.toEuler();
+
+        // Assign Euler Angles
+        (*eulers)[quatIdx * 3] = static_cast<float>(euler[0]);
+        (*eulers)[quatIdx * 3 + 1] = static_cast<float>(euler[1]);
+        (*eulers)[quatIdx * 3 + 2] = static_cast<float>(euler[2]);
+      }
+
+      CompositePoleFigureConfiguration_t config;
+      config.eulers = eulers.get();
+      config.imageDim = 512;
+      config.lambertDim = 32;
+      config.numColors = 16;
+      config.discrete = true;
+      config.discreteHeatMap = false;
+      config.flipFinalImage = true;
+      config.laueOpsIndex = opsIndex;
+      config.layoutType = layoutType;
+      config.phaseName = "TestPhase";
+      config.phaseNumber = 1;
+      config.title = fmt::format("Laue Symmetry:{} Rotation Point Group: {}", op->getSymmetryName(), op->getRotationPointGroup());
+
+      PoleFigureCompositor compositor;
+      CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+      REQUIRE(result.image != nullptr);
+      REQUIRE(result.width > 0);
+      REQUIRE(result.height > 0);
+      REQUIRE(result.image->getNumberOfComponents() == 4);
+      REQUIRE(result.image->getNumberOfTuples() == static_cast<size_t>(result.width * result.height));
+
+      LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
+      REQUIRE(result.width == metrics.pageWidth);
+      REQUIRE(result.height == metrics.pageHeight);
+
+      UInt8ArrayType::Pointer image = result.image;
+      // std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr,op->getRotationPointGroup() , sampleId);
+      // auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
+      // REQUIRE(writerResult.first == 0);
+      //
+      std::string datasetName = fmt::format("{}", sampleId);
+      // std::vector<hsize_t> dims = {static_cast<hsize_t>(result.height), static_cast<hsize_t>(result.width), 4ULL};
+      // herr_t err = H5Support::H5Lite::writePointerDataset(layoutGroupId, datasetName, dims.size(), dims.data(), result.image->data());
+      // REQUIRE(err == 0);
+      std::vector<uint8_t> exemplarData;
+      err = H5Support::H5Lite::readVectorDataset(layoutGroupId, datasetName, exemplarData);
+      REQUIRE(err == 0);
+      REQUIRE(exemplarData.size() == static_cast<size_t>(result.width * result.height * 4));
+      for(size_t i = 0; i < exemplarData.size(); i++)
+      {
+        REQUIRE(exemplarData[i] == (*image)[i]);
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images.tar.gz", "Pole_Figure_Images", true, true);
+
+  const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
+  hid_t fileId = -1;
+  // if(!std::filesystem::exists(hdfInputFile))
+  // {
+  //   fileId = H5Support::H5Utilities::createFile(hdfInputFile);
+  // }
+  // else
+  {
+    fileId = H5Support::H5Utilities::openFile(hdfInputFile, true);
+  }
+  H5Support::H5ScopedFileSentinel fileSentinel(fileId, true);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+
+  std::set<std::string> tested;
+  for(size_t opsIdx = 0; opsIdx < ops.size(); opsIdx++)
+  {
+    LaueOps::Pointer op = ops[opsIdx];
+    const std::string rpg = op->getRotationPointGroup();
+    // Skip Triclinic (no FZ boundary) and duplicates (OrthoRhombicOps appears twice)
+    if(rpg == "1" || tested.count(rpg) > 0)
+    {
+      continue;
+    }
+    tested.insert(rpg);
+
+    hid_t layoutGroupId = H5Support::H5Utilities::createGroup(fileId, rpg);
+    H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, true);
+
+    const std::string phaseName = fmt::format("Laue_{}", rpg);
+    SECTION(phaseName + " VMF")
+    {
+      GeneratePoleFigures(phaseName, opsIdx, layoutGroupId);
+    }
+  }
+}
+
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Horizontal", "[EbsdLib][PoleFigureCompositorTest]")
 {
@@ -73,8 +230,8 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Horizontal", "[EbsdL
   LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
 
   const float imageDim = 256.0f;
-  const float expectedFontPtSize = imageDim / 16.0f;   // 16.0f
-  const float expectedMargins = imageDim / 32.0f;       // 8.0f
+  const float expectedFontPtSize = imageDim / 16.0f; // 16.0f
+  const float expectedMargins = imageDim / 32.0f;    // 8.0f
 
   REQUIRE(metrics.fontPtSize == Approx(expectedFontPtSize));
   REQUIRE(metrics.margins == Approx(expectedMargins));

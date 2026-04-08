@@ -50,7 +50,7 @@ namespace ebsdlib::unit_test
 {
 
 const std::string DataDir("@EbsdLibProj_SOURCE_DIR@/Data/");
-const std::string TestTempDir("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/");
+const std::string k_TestTempDir("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/");
 const std::string EbsdLibProjDir("@EbsdLibProj_SOURCE_DIR@");
 const std::string k_TestFilesDir = "@EBSDLIB_DATA_DIR_NORM@/TestFiles";
 

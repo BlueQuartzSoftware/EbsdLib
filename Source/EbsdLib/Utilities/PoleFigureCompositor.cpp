@@ -396,13 +396,12 @@ void PoleFigureCompositor::drawInfoBlock(canvas_ity::canvas& context, const Comp
     laueGroupName = laueNames[config.laueOpsIndex];
   }
 
-  const std::vector<std::string> labels = {
-      fmt::format("Phase Num: {}", config.phaseNumber),
-      fmt::format("Material Name: {}", config.phaseName),
-      fmt::format("Laue Group: {}", laueGroupName),
-      fmt::format("Upper & Lower:"),
-      fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
-      fmt::format("Lambert Sq. Dim: {}", config.lambertDim)};
+  const std::vector<std::string> labels = {fmt::format("Phase Num: {}", config.phaseNumber),
+                                           fmt::format("Material Name: {}", config.phaseName),
+                                           fmt::format("Laue Group: {}", laueGroupName),
+                                           fmt::format("Upper & Lower:"),
+                                           fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
+                                           fmt::format("Lambert Sq. Dim: {}", config.lambertDim)};
 
   float heightInc = 1.0f;
   for(const auto& label : labels)

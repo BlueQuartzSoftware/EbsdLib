@@ -205,7 +205,7 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestWriteCtfFile", "[EbsdLib][CtfReaderTest]"
   }
 
   std::stringstream filePath;
-  filePath << ebsdlib::unit_test::TestTempDir << "/CTF_WriteFile_test.ctf";
+  filePath << ebsdlib::unit_test::k_TestTempDir << "/CTF_WriteFile_test.ctf";
   err = reader.writeFile(filePath.str());
   DREAM3D_REQUIRE(err == 0);
   if(REMOVE_TEST_FILES == 1)
