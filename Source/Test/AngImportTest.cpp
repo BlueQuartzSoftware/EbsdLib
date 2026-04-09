@@ -131,3 +131,17 @@ TEST_CASE("ebsdlib::AngImportTest-TestShortFile", "[EbsdLib][AngImportTest]")
   std::cout << reader.getErrorMessage();
   REQUIRE(err < 0);
 }
+
+TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderPhase", "[EbsdLib][AngImportTest]")
+{
+  AngReader reader;
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::OutOfOrderPhase);
+  int err = reader.readFile();
+  REQUIRE(err == 0);
+
+  auto phaseVector = reader.getPhaseVector();
+  for(size_t i = 0; i < phaseVector.size(); i++)
+  {
+    REQUIRE(phaseVector[i]->getPhaseIndex() == i + 1);
+  }
+}

@@ -320,6 +320,16 @@ int AngReader::readHeaderOnly()
       ostr << buf << "\n";
     }
   }
+  // Update Phase Vector
+  std::vector<AngPhase::Pointer> phaseVector;
+  for(const auto& phase : m_PhaseVector)
+  {
+    if(phase != nullptr)
+    {
+      phaseVector.push_back(phase);
+    }
+  }
+  m_PhaseVector = phaseVector;
   // Update the Original Header variable
   setOriginalHeader(origHeader);
   return err;
@@ -359,6 +369,17 @@ int AngReader::readFile()
       parseHeaderLine(buf);
     }
   }
+  // Update Phase Vector
+  std::vector<AngPhase::Pointer> phaseVector;
+  for(const auto& phase : m_PhaseVector)
+  {
+    if(phase != nullptr)
+    {
+      phaseVector.push_back(phase);
+    }
+  }
+  m_PhaseVector = phaseVector;
+
   // Update the Original Header variable
   setOriginalHeader(origHeader);
 
@@ -689,7 +710,11 @@ void AngReader::parseHeaderLine(std::string& buf)
       std::cout << e.what() << std::endl;
     }
     // Parsing the phase is complete, now add it to the vector of Phases
-    m_PhaseVector.push_back(m_CurrentPhase);
+    if(m_PhaseVector.size() < m_CurrentPhase->getPhaseIndex() + 1)
+    {
+      m_PhaseVector.resize(m_CurrentPhase->getPhaseIndex() + 1);
+    }
+    m_PhaseVector.at(m_CurrentPhase->getPhaseIndex()) = m_CurrentPhase;
   }
   else if(word == ebsdlib::Ang::MaterialName && m_CurrentPhase.get() != nullptr)
   {
