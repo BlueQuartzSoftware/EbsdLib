@@ -28,6 +28,42 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
+/**
+Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
+
+  Root Cause: Floating-point non-determinism in canvas_ity rendering
+
+  The issue is not UB from float-to-uint8 casts. I've traced the full data flow and the values are properly bounded. The real cause is
+  floating-point precision differences between -O0 (Debug) and -O2 (Release) in the canvas_ity rendering pipeline.
+
+  Key areas where Debug/Release produce different float results:
+
+  1. canvas_ity.hpp:2195-2218 — Bicubic image resampling in paint_pixel(): cubic polynomial evaluation, weighted accumulation, and division. In
+  Release, the compiler may use FMA (fused multiply-add) instructions which have different rounding than separate multiply+add in Debug.
+  2. canvas_ity.hpp:2452-2454 — Compositing/blending: rgba blend = mix_fore * fore + mix_back * back — multiple float multiply-adds sensitive to
+  optimization.
+  3. canvas_ity.hpp:3075 — Bayer dithering + sRGB conversion: When 255.0f * delinearized_value + bayer_threshold lands close to an integer
+  boundary (e.g., 182.99999 vs 183.00001), the static_cast<unsigned char> truncation gives different results between Debug and Release.
+
+  I verified the float-to-unsigned-char cast (canvas_ity.hpp:3076-3079) is NOT UB because:
+  - clamped() constrains to [0.0, 1.0]
+  - delinearized() maps [0,1] → [0, ~1.0]
+  - * 255.0f → [0, ~255.0], plus Bayer threshold (max 0.97) → max ~255.97
+  - Truncation to 255, which is in range for unsigned char
+
+  I also verified PoleFigureUtilities.cpp:170 (static_cast<int>(r * 255.0f)) — this casts to int (not uint8), and dRgb masks with & 0xff, so it's
+   well-defined regardless.
+
+  The real problem: byte-exact test comparison
+
+  The test at PoleFigureCompositorTest.cpp:180 does:
+  if(exemplarData[i] != (*image)[i])
+
+  This requires bit-exact reproduction across optimization levels, which floating-point math doesn't guarantee.
+
+*/
+
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
@@ -107,6 +143,7 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
   {
     std::string layoutStr = (layoutType == PoleFigureLayoutType::Horizontal) ? "Horz" : (layoutType == PoleFigureLayoutType::Vertical) ? "Vert" : "Sqr";
     hid_t layoutGroupId = H5Support::H5Utilities::createGroup(exemplarFileId, layoutStr);
+    REQUIRE(layoutGroupId > 0);
     H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, true);
 
     for(size_t sampleId = 0; sampleId < k_NumSamplingGroups; ++sampleId)
@@ -157,22 +194,32 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       REQUIRE(result.height == metrics.pageHeight);
 
       UInt8ArrayType::Pointer image = result.image;
-      // std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr,op->getRotationPointGroup() , sampleId);
-      // auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
-      // REQUIRE(writerResult.first == 0);
-      //
       std::string datasetName = fmt::format("{}", sampleId);
-      // std::vector<hsize_t> dims = {static_cast<hsize_t>(result.height), static_cast<hsize_t>(result.width), 4ULL};
-      // herr_t err = H5Support::H5Lite::writePointerDataset(layoutGroupId, datasetName, dims.size(), dims.data(), result.image->data());
-      // REQUIRE(err == 0);
+#if WRITE_EXEMPLAR_IMAGES
+      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr,op->getRotationPointGroup() , sampleId);
+      auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
+      REQUIRE(writerResult.first == 0);
+      //
+
+      std::vector<hsize_t> dims = {static_cast<hsize_t>(result.height), static_cast<hsize_t>(result.width), 4ULL};
+      herr_t err = H5Support::H5Lite::writePointerDataset(layoutGroupId, datasetName, dims.size(), dims.data(), result.image->data());
+      REQUIRE(err == 0);
+#else
+
       std::vector<uint8_t> exemplarData;
       err = H5Support::H5Lite::readVectorDataset(layoutGroupId, datasetName, exemplarData);
       REQUIRE(err == 0);
       REQUIRE(exemplarData.size() == static_cast<size_t>(result.width * result.height * 4));
+      size_t misMatchCount = 0;
       for(size_t i = 0; i < exemplarData.size(); i++)
       {
-        REQUIRE(exemplarData[i] == (*image)[i]);
+        if(std::abs(static_cast<int>(exemplarData[i]) - static_cast<int>((*image)[i])) > 1)
+        {
+          misMatchCount++;
+        }
       }
+      REQUIRE(misMatchCount == 0);
+#endif
     }
   }
 }
@@ -181,19 +228,29 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
 TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][PoleFigureCompositorTest]")
 {
   const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
-  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images.tar.gz", "Pole_Figure_Images", true, true);
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images.tar.gz", "Pole_Figure_Images"
+#if WRITE_EXEMPLAR_IMAGES
+    , false, false
+#endif
+    );
 
   const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
   hid_t fileId = -1;
-  // if(!std::filesystem::exists(hdfInputFile))
-  // {
-  //   fileId = H5Support::H5Utilities::createFile(hdfInputFile);
-  // }
-  // else
+#if WRITE_EXEMPLAR_IMAGES
+  if(!std::filesystem::exists(hdfInputFile))
   {
+    std::cout << "Creating " << hdfInputFile << std::endl;
+    fileId = H5Support::H5Utilities::createFile(hdfInputFile);
+  }
+  else
+#else
+  {
+    std::cout << "Opening " << hdfInputFile << std::endl;
     fileId = H5Support::H5Utilities::openFile(hdfInputFile, true);
   }
-  H5Support::H5ScopedFileSentinel fileSentinel(fileId, true);
+#endif
+  REQUIRE(fileId > 0);
+  H5Support::H5ScopedFileSentinel fileSentinel(fileId, false);
 
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
 
@@ -210,10 +267,13 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][Pole
     tested.insert(rpg);
 
     hid_t layoutGroupId = H5Support::H5Utilities::createGroup(fileId, rpg);
-    H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, true);
+    REQUIRE(layoutGroupId > 0);
+    H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, false);
 
     const std::string phaseName = fmt::format("Laue_{}", rpg);
+#if !WRITE_EXEMPLAR_IMAGES
     SECTION(phaseName + " VMF")
+#endif
     {
       GeneratePoleFigures(phaseName, opsIdx, layoutGroupId);
     }

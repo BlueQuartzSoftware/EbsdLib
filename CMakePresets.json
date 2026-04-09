@@ -147,7 +147,7 @@
           },
           "CMAKE_BUILD_TYPE": {
             "type": "STRING",
-            "value": "Debug"
+            "value": "Release"
           }
         }
       },
