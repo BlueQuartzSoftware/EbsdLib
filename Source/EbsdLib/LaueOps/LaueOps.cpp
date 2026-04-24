@@ -51,6 +51,8 @@
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include <algorithm> // for std::max
 #include <chrono>
@@ -92,10 +94,51 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 } // namespace
 
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps() = default;
+LaueOps::LaueOps()
+: m_ColorKey(std::make_shared<ebsdlib::TSLColorKey>())
+{
+}
 
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
+
+// -----------------------------------------------------------------------------
+void LaueOps::setColorKey(ebsdlib::IColorKey::Pointer colorKey)
+{
+  m_ColorKey = colorKey;
+}
+
+// -----------------------------------------------------------------------------
+ebsdlib::IColorKey::Pointer LaueOps::getColorKey() const
+{
+  return m_ColorKey;
+}
+
+// -----------------------------------------------------------------------------
+void LaueOps::setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg)
+{
+  if(mode == ebsdlib::LegendRenderMode::GridInterpolated)
+  {
+    // Wrap the current color key with a GriddedColorKey if not already wrapped
+    auto currentKey = m_ColorKey;
+    // If already gridded, unwrap first to avoid double-wrapping
+    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(currentKey);
+    if(griddedKey)
+    {
+      currentKey = griddedKey->innerKey();
+    }
+    m_ColorKey = std::make_shared<ebsdlib::GriddedColorKey>(currentKey, gridResolutionDeg);
+  }
+  else
+  {
+    // PerPixel mode: unwrap if currently gridded
+    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(m_ColorKey);
+    if(griddedKey)
+    {
+      m_ColorKey = griddedKey->innerKey();
+    }
+  }
+}
 
 // -----------------------------------------------------------------------------
 std::string LaueOps::FZTypeToString(const FZType value)
@@ -200,6 +243,15 @@ ebsdlib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
   }
 
   const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
+
+  if(m_ColorKey)
+  {
+    auto [r, g, b] = m_ColorKey->direction2Color(eta, chi, angleLimits);
+    _rgb[0] = r;
+    _rgb[1] = g;
+    _rgb[2] = b;
+    return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(_rgb[0] * 255), static_cast<int32_t>(_rgb[1] * 255), static_cast<int32_t>(_rgb[2] * 255), 255);
+  }
 
   _rgb[0] = 1.0 - chi / angleLimits[2];
   _rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);

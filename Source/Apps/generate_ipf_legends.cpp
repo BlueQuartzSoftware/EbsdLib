@@ -17,6 +17,10 @@
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/TiffWriter.h"
 
 #include "EbsdLib/Apps/EbsdLibFileLocations.h"
@@ -25,6 +29,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -325,6 +330,75 @@ void GeneratePoleFigures(LaueOps& ops, int symType)
 }
 
 // -----------------------------------------------------------------------------
+void GenerateNolzeHielscherLegends(int imageDim)
+{
+  std::cout << "\n=== Generating Nolze-Hielscher IPF Legends ===\n" << std::endl;
+
+  auto allOps = LaueOps::GetAllOrientationOps();
+
+  // Map from LaueOps index to FundamentalSectorGeometry factory
+  std::vector<std::function<ebsdlib::FundamentalSectorGeometry()>> sectorFactories = {
+      ebsdlib::FundamentalSectorGeometry::hexagonalHigh,  // 0: Hexagonal_High
+      ebsdlib::FundamentalSectorGeometry::cubicHigh,      // 1: Cubic_High
+      ebsdlib::FundamentalSectorGeometry::hexagonalLow,   // 2: Hexagonal_Low
+      ebsdlib::FundamentalSectorGeometry::cubicLow,       // 3: Cubic_Low
+      ebsdlib::FundamentalSectorGeometry::triclinic,      // 4: Triclinic
+      ebsdlib::FundamentalSectorGeometry::monoclinic,     // 5: Monoclinic
+      ebsdlib::FundamentalSectorGeometry::orthorhombic,   // 6: OrthoRhombic
+      ebsdlib::FundamentalSectorGeometry::tetragonalLow,  // 7: Tetragonal_Low
+      ebsdlib::FundamentalSectorGeometry::tetragonalHigh, // 8: Tetragonal_High
+      ebsdlib::FundamentalSectorGeometry::trigonalLow,    // 9: Trigonal_Low
+      ebsdlib::FundamentalSectorGeometry::trigonalHigh,   // 10: Trigonal_High
+  };
+
+  for(size_t i = 0; i < allOps.size(); i++)
+  {
+    auto& ops = *allOps[i];
+    std::string symName = EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_");
+
+    // Set NH color key
+    auto sector = sectorFactories[i]();
+    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(sector);
+    ops.setColorKey(nhKey);
+
+    // Generate full-circle legend
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    std::stringstream ss;
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_FULL.tiff";
+    auto result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Full Result: " << result.first << ": " << result.second << std::endl;
+
+    // Generate triangle-only legend
+    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH.tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
+
+    // Set to grid-interpolated mode (MTEX-style rendering, 0.5 degree grid)
+    ops.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 0.5);
+
+    // Generate gridded legends at higher resolution (2000x2000)
+    constexpr int k_GriddedImageDim = 2000;
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, true);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED_FULL.tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Gridded Full Result: " << result.first << ": " << result.second << std::endl;
+
+    // Generate gridded triangle-only legend
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, false);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED.tiff";
+    result = TiffWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " NH Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
+
+    // Reset to TSL for subsequent operations
+    ops.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
+  }
+}
+
+// -----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
   // Create all the output directories needed.
@@ -338,7 +412,7 @@ int main(int argc, char* argv[])
   }
 
   std::stringstream ss;
-  int imageDim = 512;
+  int imageDim = 1500;
   {
     TrigonalOps ops;
     auto legend = ops.generateIPFTriangleLegend(imageDim, true);
@@ -696,6 +770,8 @@ int main(int argc, char* argv[])
     // Generate Pole Figures for the Input Test Orientations
     GeneratePoleFigures(ops, 1);
   }
+
+  GenerateNolzeHielscherLegends(imageDim);
 
   return 0;
 }
