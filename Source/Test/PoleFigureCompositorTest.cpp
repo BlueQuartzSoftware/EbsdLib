@@ -28,7 +28,6 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 /**
 Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
 
@@ -196,7 +195,7 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       UInt8ArrayType::Pointer image = result.image;
       std::string datasetName = fmt::format("{}", sampleId);
 #if WRITE_EXEMPLAR_IMAGES
-      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr,op->getRotationPointGroup() , sampleId);
+      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr, op->getRotationPointGroup(), sampleId);
       auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
       REQUIRE(writerResult.first == 0);
       //
@@ -230,9 +229,10 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][Pole
   const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
   const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images.tar.gz", "Pole_Figure_Images"
 #if WRITE_EXEMPLAR_IMAGES
-    , false, false
+                                                               ,
+                                                               false, false
 #endif
-    );
+  );
 
   const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
   hid_t fileId = -1;
@@ -249,7 +249,7 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][Pole
     fileId = H5Support::H5Utilities::openFile(hdfInputFile, true);
   }
 #endif
-  REQUIRE(fileId > 0);
+    REQUIRE(fileId > 0);
   H5Support::H5ScopedFileSentinel fileSentinel(fileId, false);
 
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();

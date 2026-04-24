@@ -539,51 +539,36 @@ AxisAngleDType LaueOps::calculateMisorientationInternal(const std::vector<QuatD>
 }
 
 // -----------------------------------------------------------------------------
+// Find the crystal-symmetry-equivalent orientation of inRod with the smallest
+// rotation angle from identity (the FZ representative nearest the origin in
+// Rodrigues space).
+//
+// Done in quaternion space to avoid the singularity at 180° rotations where
+// tan(θ/2) = ∞. Rodrigues-space symmetry reduction fails for 180° inputs
+// because the infinity in the 4th component propagates as NaN through
+// `rod · symRod` when any axis component is zero (IEEE 754: ∞ · 0 = NaN).
+//
+// Minimizing rotation angle ≡ maximizing |w| of the unit quaternion, since
+// |w| = cos(θ/2).
 RodriguesDType LaueOps::_calcRodNearestOrigin(const RodriguesDType& inRod) const
 {
-  double denom = 0.0f, dist = 0.0f;
-  double smallestdist = 100000000.0f;
-  double rc1 = 0.0f, rc2 = 0.0f, rc3 = 0.0f;
-  RodriguesDType outRod;
-  // Turn into an actual 3 Comp Rodrigues Vector
-  RodriguesDType rod = inRod;
-  rod[0] *= rod[3];
-  rod[1] *= rod[3];
-  rod[2] *= rod[3];
-  size_t numsym = getNumRodriguesSymOps();
+  QuatD q = inRod.toQuaternion().getPositiveOrientation();
+  QuatD qBest = q;
+  double largestAbsW = std::fabs(q.w());
 
+  size_t numsym = getNumSymOps();
   for(size_t i = 0; i < numsym; i++)
   {
-    RodriguesDType currentRodSymmetry = getRodSymOp(i);
-    // Convert Rodrigues 4 component into a 3 component
-    std::array<double, 3> symRod = {currentRodSymmetry[0] * currentRodSymmetry[3], currentRodSymmetry[1] * currentRodSymmetry[3], currentRodSymmetry[2] * currentRodSymmetry[3]};
-
-    denom = 1 - (rod[0] * symRod[0] + rod[1] * symRod[1] + rod[2] * symRod[2]);
-    rc1 = (rod[0] + symRod[0] - (rod[1] * symRod[2] - rod[2] * symRod[1])) / denom;
-    rc2 = (rod[1] + symRod[1] - (rod[2] * symRod[0] - rod[0] * symRod[2])) / denom;
-    rc3 = (rod[2] + symRod[2] - (rod[0] * symRod[1] - rod[1] * symRod[0])) / denom;
-    dist = rc1 * rc1 + rc2 * rc2 + rc3 * rc3;
-    if(dist < smallestdist)
+    QuatD qCandidate = (getQuatSymOp(i) * q).getPositiveOrientation();
+    double absW = std::fabs(qCandidate.w());
+    if(absW > largestAbsW)
     {
-      smallestdist = dist;
-      outRod[0] = rc1;
-      outRod[1] = rc2;
-      outRod[2] = rc3;
+      largestAbsW = absW;
+      qBest = qCandidate;
     }
   }
-  double mag = std::sqrt(outRod[0] * outRod[0] + outRod[1] * outRod[1] + outRod[2] * outRod[2]);
-  if(mag == 0.0f)
-  {
-    outRod[3] = std::numeric_limits<double>::infinity();
-  }
-  else
-  {
-    outRod[3] = mag;
-    outRod[0] = outRod[0] / outRod[3];
-    outRod[1] = outRod[1] / outRod[3];
-    outRod[2] = outRod[2] / outRod[3];
-  }
-  return outRod;
+
+  return qBest.toRodrigues();
 }
 
 // -----------------------------------------------------------------------------

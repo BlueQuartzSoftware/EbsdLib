@@ -208,6 +208,8 @@ public:
    */
   static Pointer FromStdVector(const std::vector<T>& vec, const std::string& name);
 
+  static Pointer FromStdVector(const std::vector<T>& vec, size_t numTuples, size_t numComps, const std::string& name);
+
   /**
    * @brief FromPointer Creates a EbsdDataArray<T> object with a <b>DEEP COPY</b> of the data
    * @param data

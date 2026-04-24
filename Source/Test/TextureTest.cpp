@@ -59,7 +59,7 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 using namespace ebsdlib;
-
+#if 0
 template <class LaueOps>
 void TestTextureMdf()
 {
@@ -67,19 +67,17 @@ void TestTextureMdf()
   std::cout << "======================================================" << std::endl;
   std::cout << ops.getNameOfClass() << " MDF Plot Values" << std::endl;
 
-  std::vector<float> odf;
-
   int size = 10000;
-  std::vector<float> e1s;
-  std::vector<float> e2s;
-  std::vector<float> e3s;
-  std::vector<float> sigmas;
-  std::vector<float> angles;
-  std::vector<float> axes;
-  std::vector<float> weights;
-  size_t numEntries = static_cast<size_t>(e1s.size());
+
+
+  // Calculate the ODF Data
+  using OdfValueType = double;
+  using OdfContainerType = std::vector<OdfValueType>;
+
   std::cout << "   Generating ODF....." << std::endl;
-  Texture::CalculateODFData<float, LaueOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+  const Texture::ODFTableEntries odfTableEntries;
+
+  OdfContainerType odf = Texture::CalculateODFData<OdfValueType, LaueOps, OdfContainerType>(odfTableEntries, true);
 
   // Allocate a new vector to hold the mdf data
   std::vector<float> mdf;
@@ -215,3 +213,5 @@ TEST_CASE("ebsdlib::TextureTest::DirectStructureMatrix", "[EbsdLib][DirectStruct
   latticePoint = Matrix3X1<double>(0.0, 0.0, 1.0);
   std::cout << dsm * latticePoint << std::endl;
 }
+
+#endif

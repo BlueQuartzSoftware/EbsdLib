@@ -35,10 +35,19 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Texture/StatsGen.hpp"
 #include "EbsdLib/Texture/Texture.hpp"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
+#include "EbsdLib/Utilities/TiffWriter.h"
+#include "UnitTestCommon.hpp"
+#include "UnitTestSupport.hpp"
 
+#include <fmt/format.h>
+
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -62,31 +71,67 @@ void Print_Coord(const T* om)
 }
 
 // -----------------------------------------------------------------------------
-TEST_CASE("ebsdlib::ODFTest::CubicODFTest", "[EbsdLib][ODFTest]")
+TEST_CASE("ebsdlib::ODFTest", "[EbsdLib][ODFTest]")
 {
-  CubicOps ops;
-  std::vector<float> odf(ops.getODFSize());
-  std::vector<float> e1s(2);
-  std::vector<float> e2s(2);
-  std::vector<float> e3s(2);
-  std::vector<float> weights(2);
-  std::vector<float> sigmas(2);
 
-  POPULATE_DATA(0, 35, 45, 0, 1000.0, 2.0)
-  POPULATE_DATA(1, 59, 37, 63, 1000.0, 1.0)
+  // Start with degrees
+  Texture::ODFTableEntry entry0 = {{180.0, 90.0, 0.0}, 50000.0, 0.05};
 
+  const Texture::ODFTableEntries odfTableEntries = {
+      {{entry0.euler[0] * ebsdlib::constants::k_PiOver180D, entry0.euler[1] * ebsdlib::constants::k_PiOver180D, entry0.euler[2] * ebsdlib::constants::k_PiOver180D}, entry0.weight, entry0.sigma}
+#if 0
+    ,
+                                                    {{59 * ebsdlib::constants::k_PiOver180D, 37 * ebsdlib::constants::k_PiOver180D, 63 * ebsdlib::constants::k_PiOver180D}, 1000.0, 1.0}
+#endif
+  };
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  uint32_t opsIndex = 0; // Hexagonal-High
+  LaueOps::Pointer op = ops[opsIndex];
   // Calculate the ODF Data
+  using OdfValueType = float;
+  using OdfContainerType = std::vector<OdfValueType>;
 
-  size_t numEntries = e1s.size();
-  Texture::CalculateODFData<float, CubicOps, std::vector<float>>(e1s, e2s, e3s, weights, sigmas, true, odf, numEntries);
+  OdfContainerType odf = Texture::CalculateODFData<OdfValueType, HexagonalOps, OdfContainerType>(odfTableEntries, true);
 
-  size_t npoints = 1000;
-  std::vector<float> x001(npoints * 3);
-  std::vector<float> y001(npoints * 3);
-  std::vector<float> x011(npoints * 6);
-  std::vector<float> y011(npoints * 6);
-  std::vector<float> x111(npoints * 4);
-  std::vector<float> y111(npoints * 4);
+  using EulerContainerType = std::vector<OdfValueType>;
+  size_t numSamplePoints = 500;
+  EulerContainerType eulers = StatsGen::GenODFPlotData<OdfValueType, HexagonalOps, OdfContainerType, EulerContainerType>(odf, numSamplePoints);
+
+  // Export sampled Euler angles (degrees) for MTEX comparison. One row per orientation: phi1, Phi, phi2
+  {
+    std::string csvPath = fmt::format("{}ODFTest_Eulers_deg.csv", ebsdlib::unit_test::k_TestTempDir);
+    std::ofstream csv(csvPath);
+    csv << "phi1,Phi,phi2\n";
+    for(size_t i = 0; i < numSamplePoints; ++i)
+    {
+      csv << eulers[3 * i] * 180.0 / M_PI << "," << eulers[3 * i + 1] * 180.0 / M_PI << "," << eulers[3 * i + 2] * 180.0 / M_PI << "\n";
+    }
+    std::cout << "Wrote Euler CSV: " << csvPath << std::endl;
+  }
+
+  ebsdlib::FloatArrayType::Pointer poleFigureEulersPtr = ebsdlib::FloatArrayType::FromStdVector(eulers, numSamplePoints, 3ULL, "Eulers");
+  ebsdlib::CompositePoleFigureConfiguration_t config;
+  config.eulers = poleFigureEulersPtr.get();
+  config.imageDim = 512;
+  config.lambertDim = 128;
+  config.numColors = 16;
+  config.discrete = true;
+  config.discreteHeatMap = false;
+  // flipFinalImage uses the default (true); flips image Y so sample +Y points up,
+  // matching MTEX convention (X east, Y north, Z out of page).
+  config.laueOpsIndex = opsIndex;
+  config.layoutType = ebsdlib::PoleFigureLayoutType::Horizontal;
+  config.phaseName = "EbsdLib ODF Test";
+  config.phaseNumber = 1;
+  config.title = fmt::format("{} <{}, {}, {}> ", op->getSymmetryName(), entry0.euler[0], entry0.euler[1], entry0.euler[2]);
+
+  PoleFigureCompositor compositor;
+  CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+  std::string outputPath = fmt::format("{}Pole_Figure_{}.tif", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
+  auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
+  REQUIRE(writerResult.first == 0);
 }
 
 TEST_CASE("ebsdlib::ODFTest::TestRotation", "[EbsdLib][ODFTest]")

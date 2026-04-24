@@ -66,8 +66,8 @@ static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / s
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
 constexpr int k_SymSize0 = 2;
-constexpr int k_SymSize1 = 2;
-constexpr int k_SymSize2 = 2;
+constexpr int k_SymSize1 = 6;
+constexpr int k_SymSize2 = 6;
 
 constexpr size_t k_OdfSize = 62208;
 constexpr size_t k_MdfSize = 62208;
@@ -1057,17 +1057,15 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    ebsdlib::Matrix3X3D gTranspose;
     ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     for(size_t i = start; i < end; ++i)
     {
-      ebsdlib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
-
-      gTranspose = g.transpose();
+      EulerDType euler(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      ebsdlib::Matrix3X3D gTranspose = euler.toOrientationMatrix().toGMatrix().transpose();
 
       // -----------------------------------------------------------------------------
-      // 001 Family
+      // <0001> (single c-axis direction, k_SymSize0 = 2 = 1 dir + antipode)
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
@@ -1077,24 +1075,42 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // [10-10], also [210]
+      // {10-10} plane normals under 6-fold rotation about c (MTEX X||a* convention:
+      // a1* along +X, so normals at 0°, 60°, 120° + antipodes = 6 poles).
+      direction[0] = 1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18));
+      std::transform(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3), m_xyz011->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
+      direction[0] = 0.5;
+      direction[1] = ebsdlib::constants::k_Root3Over2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 6));
+      std::transform(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9), m_xyz011->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
       direction[0] = -0.5;
       direction[1] = ebsdlib::constants::k_Root3Over2D;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
-      std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
-                     m_xyz011->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 12));
+      std::transform(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15), m_xyz011->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
 
       // -----------------------------------------------------------------------------
-      // [2-1-10] also [100]
-      direction[0] = 1;
-      direction[1] = 0;
-      direction[2] = 0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
-      std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
-                     m_xyz111->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      // {11-20} plane normals under 6-fold (MTEX X||a*, 30° off {10-10}:
+      // 30°, 90°, 150° + antipodes = 6 poles).
+      direction[0] = ebsdlib::constants::k_Root3Over2D;
+      direction[1] = 0.5;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18));
+      std::transform(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3), m_xyz111->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
+      direction[0] = 0.0;
+      direction[1] = 1.0;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 6));
+      std::transform(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9), m_xyz111->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
+      direction[0] = -ebsdlib::constants::k_Root3Over2D;
+      direction[1] = 0.5;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 12));
+      std::transform(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15), m_xyz111->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
     }
   }
 
@@ -1206,7 +1222,7 @@ ebsdlib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, doubl
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalLowOps::getDefaultPoleFigureNames() const
 {
-  return {"<0001>", "<11-20>", "<2-1-10>"};
+  return {"<0001>", "<10-10>", "<11-20>"};
 }
 
 // -----------------------------------------------------------------------------

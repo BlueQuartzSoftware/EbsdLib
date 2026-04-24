@@ -340,6 +340,19 @@ typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::ve
 
 // -----------------------------------------------------------------------------
 template <typename T>
+typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::FromStdVector(const std::vector<T>& vec, size_t numTuples, size_t numComps, const std::string& name)
+{
+  comp_dims_type cDims = {numComps};
+  Pointer p = CreateArray(numTuples, cDims, name, true);
+  if(nullptr != p)
+  {
+    std::copy(vec.cbegin(), vec.cend(), p->begin());
+  }
+  return p;
+}
+
+// -----------------------------------------------------------------------------
+template <typename T>
 typename EbsdDataArray<T>::Pointer EbsdDataArray<T>::CopyFromPointer(const T* data, size_t size, const std::string& name)
 {
   Pointer p = CreateArray(size, name, true);

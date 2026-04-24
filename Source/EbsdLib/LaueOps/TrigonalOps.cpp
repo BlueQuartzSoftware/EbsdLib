@@ -66,8 +66,8 @@ static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / s
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
 constexpr int k_SymSize0 = 2;
-constexpr int k_SymSize1 = 2;
-constexpr int k_SymSize2 = 2;
+constexpr int k_SymSize1 = 6;
+constexpr int k_SymSize2 = 6;
 
 constexpr size_t k_OdfSize = 31104;
 constexpr size_t k_MdfSize = 31104;
@@ -513,15 +513,13 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    ebsdlib::Matrix3X3D gTranspose;
     ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
-      ebsdlib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
-
-      gTranspose = g.transpose();
+      EulerDType euler(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      ebsdlib::Matrix3X3D gTranspose = euler.toOrientationMatrix().toGMatrix().transpose();
 
       // -----------------------------------------------------------------------------
       // [0001] Family
@@ -534,24 +532,42 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // [0-110]
-      direction[0] = 0;
-      direction[1] = -1.0;
+      // <0-110> direction family under 3-fold rotation about c (MTEX X||a*:
+      // -a2 + a3 at 240°, plus 120°-rotated siblings at 0° and 120°) + antipodes = 6 poles.
+      direction[0] = -0.5;
+      direction[1] = -ebsdlib::constants::k_Root3Over2D;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
-      std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
-                     m_xyz011->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18));
+      std::transform(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3), m_xyz011->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
+      direction[0] = 1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 6));
+      std::transform(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9), m_xyz011->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
+      direction[0] = -0.5;
+      direction[1] = ebsdlib::constants::k_Root3Over2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 12));
+      std::transform(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15), m_xyz011->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
 
       // -----------------------------------------------------------------------------
-      // [1-100]
-      direction[0] = ebsdlib::constants::k_Root3Over2D;
-      direction[1] = -0.5;
-      direction[2] = 0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
-      std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
-                     m_xyz111->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      // <1-100> direction family under 3-fold (MTEX X||a*: a1 - a2 at -60°/300°,
+      // plus 120°-rotated siblings at 60° and 180°) + antipodes = 6 poles.
+      direction[0] = 0.5;
+      direction[1] = -ebsdlib::constants::k_Root3Over2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18));
+      std::transform(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3), m_xyz111->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
+      direction[0] = 0.5;
+      direction[1] = ebsdlib::constants::k_Root3Over2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 6));
+      std::transform(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9), m_xyz111->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
+      direction[0] = -1.0;
+      direction[1] = 0.0;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 12));
+      std::transform(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15), m_xyz111->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
     }
   }
 
