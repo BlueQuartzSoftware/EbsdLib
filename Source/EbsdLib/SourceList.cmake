@@ -145,8 +145,9 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # If there are additional include directories that are needed for this plugin
 # you can use the target_include_directories(.....) cmake call
 target_include_directories(${PROJECT_NAME}
-  PRIVATE
-    "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src"
+  PUBLIC
+    $<BUILD_INTERFACE:${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src>
+    $<INSTALL_INTERFACE:include/EbsdLib>
 )
 if(EbsdLib_INSTALL_FILES)
   install(FILES

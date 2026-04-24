@@ -25,12 +25,25 @@ target_include_directories(eq_orientations PUBLIC ${EbsdLibProj_SOURCE_DIR}/Sour
 
 add_executable(generate_ipf_legends ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_legends.cpp)
 target_link_libraries(generate_ipf_legends PUBLIC EbsdLib)
-target_include_directories(generate_ipf_legends 
-    PUBLIC 
-        ${EbsdLibProj_SOURCE_DIR}/Source 
-        ${EbsdLibProj_BINARY_DIR} 
-    PRIVATE
-        "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src")
+target_include_directories(generate_ipf_legends
+    PUBLIC
+        ${EbsdLibProj_SOURCE_DIR}/Source
+        ${EbsdLibProj_BINARY_DIR})
+
+add_executable(generate_ipf_density ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_density.cpp)
+target_link_libraries(generate_ipf_density PUBLIC EbsdLib)
+target_include_directories(generate_ipf_density
+    PUBLIC
+        ${EbsdLibProj_SOURCE_DIR}/Source
+        ${EbsdLibProj_BINARY_DIR})
+
+add_executable(generate_ipf_from_file ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_ipf_from_file.cpp)
+target_link_libraries(generate_ipf_from_file PUBLIC EbsdLib)
+target_include_directories(generate_ipf_from_file PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
+add_executable(generate_pole_figure ${EbsdLibProj_SOURCE_DIR}/Source/Apps/generate_pole_figure.cpp)
+target_link_libraries(generate_pole_figure PUBLIC EbsdLib)
+target_include_directories(generate_pole_figure PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 
 add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
 target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
