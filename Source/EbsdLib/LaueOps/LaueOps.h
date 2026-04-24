@@ -46,7 +46,10 @@
 #include "EbsdLib/Orientation/OrientationFwd.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/IColorKey.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 namespace ebsdlib
 {
@@ -289,6 +292,27 @@ public:
   virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
 
   /**
+   * @brief Sets the color key strategy used for IPF coloring.
+   * @param colorKey The color key to use
+   */
+  void setColorKey(ebsdlib::IColorKey::Pointer colorKey);
+
+  /**
+   * @brief Returns the current color key strategy used for IPF coloring.
+   * @return The current color key
+   */
+  ebsdlib::IColorKey::Pointer getColorKey() const;
+
+  /**
+   * @brief Set the legend rendering mode.
+   * PerPixel: exact color at every pixel (default, current behavior)
+   * GridInterpolated: MTEX-style flat-shaded grid cells at the given resolution
+   * @param mode The rendering mode to use
+   * @param gridResolutionDeg Grid cell size in degrees (only used for GridInterpolated mode)
+   */
+  void setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg = 1.0);
+
+  /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
    * @param r1 First component of the Rodrigues Vector
    * @param r2 Second component of the Rodrigues Vector
@@ -506,6 +530,8 @@ protected:
    * @return
    */
   Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
+
+  ebsdlib::IColorKey::Pointer m_ColorKey;
 
   /**
    * @brief Converts in input Quaternion into a version that is inside the fundamental zone.
