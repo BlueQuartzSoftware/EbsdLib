@@ -34,9 +34,13 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include <canvas_ity.hpp>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
@@ -48,6 +52,7 @@
 #include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/IColorKey.hpp"
+#include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 
@@ -350,6 +355,50 @@ public:
    */
   virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
 
+  /**
+   * @brief Per-subclass hook that draws Miller index labels and SST boundary
+   * annotations onto a canvas. Called by annotateIPFImage().
+   */
+  virtual void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
+                                  bool drawFullCircle) const = 0;
+
+  /**
+   * @brief Maps a pixel coordinate to a unit sphere direction using the same
+   * stereographic projection as CreateIPFLegend (SST-only view).
+   * @param xPixel X pixel coordinate [0, imageDim)
+   * @param yPixel Y pixel coordinate [0, imageDim)
+   * @param imageDim Image dimension (square)
+   * @param sphereDir Output: unit sphere direction if pixel is inside SST
+   * @return true if the pixel maps to a point inside the Standard Stereographic Triangle
+   */
+  virtual bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const;
+
+  /**
+   * @brief Per-subclass hook that adjusts the figureOrigin when rendering
+   * SST-only view. Each subclass overrides to position its triangle shape
+   * correctly within the canvas. Default returns figureOrigin unchanged.
+   */
+  virtual std::array<float, 2> adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                  bool generateEntirePlane) const;
+
+  /**
+   * @brief Generates 3 annotated inverse pole figure density images with
+   * title, Miller index labels, and MRD color bar.
+   * @param config Configuration struct; imageWidth must equal imageHeight (square images required)
+   * @param outMinMax Optional output for the global [min, max] intensity values
+   */
+  std::vector<UInt8ArrayType::Pointer> generateAnnotatedIPFDensity(InversePoleFigureConfiguration_t& config, std::pair<double, double>* outMinMax = nullptr) const;
+
+  /**
+   * @brief Generates 3 inverse pole figure density images for 3 orthogonal sample directions.
+   * The IPF density plot shows how a sample direction distributes across crystal directions
+   * within the Standard Stereographic Triangle (SST) using equal-area projection.
+   * This is a non-virtual base class method that works through existing virtual dispatch.
+   * @param config The configuration struct controlling the IPF generation
+   * @return A std::vector of 3 UInt8ArrayType pointers, each representing a 2D RGBA image
+   */
+  std::vector<UInt8ArrayType::Pointer> generateInversePoleFigure(InversePoleFigureConfiguration_t& config) const;
+
   enum class FZType : int32_t
   {
     Anorthic = 0, // Triclinic
@@ -462,6 +511,23 @@ public:
 
 protected:
   LaueOps();
+
+  /**
+   * @brief Shared annotation scaffolding for IPF images. Creates a canvas,
+   * draws the triangle image, adds title and per-subclass annotations.
+   * @param triangleImage Pre-rendered ARGB image (square, imageDim x imageDim)
+   * @param imageDim Pixel dimension of the triangle image (square)
+   * @param canvasDim Pixel dimension of the output canvas (square)
+   * @param title Text to draw as the title
+   * @param generateEntirePlane true = full circle view, false = SST only
+   * @return RGB image (canvasDim x canvasDim, 3 components)
+   */
+  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar = false) const;
+
+  /**
+   * @brief Draws a color bar with min/max labels onto an existing RGB image.
+   */
+  UInt8ArrayType::Pointer drawColorBar(UInt8ArrayType::Pointer image, int canvasDim, int numColors, double minValue, double maxValue, bool isMRD) const;
 
   /**
    * @brief calculateMisorientationInternal

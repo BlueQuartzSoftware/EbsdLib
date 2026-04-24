@@ -1957,9 +1957,73 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
 }
 
 // -----------------------------------------------------------------------------
-void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, std::vector<float> margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                               bool drawFullCircle)
+} // namespace
+
+// -----------------------------------------------------------------------------
+bool CubicOps::mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const
 {
+  double indexConst1 = 0.414 / static_cast<double>(imageDim);
+  double indexConst2 = 0.207 / static_cast<double>(imageDim);
+
+  double x = xPixel * indexConst1 + indexConst2;
+  double y = yPixel * indexConst1 + indexConst2;
+
+  double sumSquares = (x * x) + (y * y);
+  if(sumSquares > 1.0)
+  {
+    return false;
+  }
+  if(y < 0.0 || x < 0.0)
+  {
+    return false;
+  }
+
+  auto sc = stereographic::utils::StereoToSpherical(x, y).normalize();
+
+  double k_RootOfHalf = std::sqrt(0.5);
+  double red1 = sc[0] * (-k_RootOfHalf) + sc[2] * k_RootOfHalf;
+  double phi = std::acos(red1);
+  double x1alt = sc[0] / k_RootOfHalf;
+  x1alt = x1alt / std::sqrt((x1alt * x1alt) + (sc[1] * sc[1]));
+  double theta = std::acos(x1alt);
+
+  if(phi <= (45.0 * ebsdlib::constants::k_PiOver180D) || phi >= (90.0 * ebsdlib::constants::k_PiOver180D) || theta >= (35.26 * ebsdlib::constants::k_PiOver180D))
+  {
+    return false;
+  }
+
+  sphereDir[0] = static_cast<float>(sc[0]);
+  sphereDir[1] = static_cast<float>(sc[1]);
+  sphereDir[2] = static_cast<float>(sc[2]);
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+std::array<float, 2> CubicOps::adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
+                                                  bool generateEntirePlane) const
+{
+  if(!generateEntirePlane)
+  {
+    figureOrigin[1] = fontPtSize * 2.0F;
+  }
+  return figureOrigin;
+}
+
+// -----------------------------------------------------------------------------
+void CubicOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
+                                  bool drawFullCircle) const
+{
+  if(!drawFullCircle)
+  {
+    int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
+    int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
+    if(legendHeight > legendWidth)
+    {
+      legendHeight = legendWidth;
+    }
+    figureCenter = {figureOrigin[0], figureOrigin[1] + static_cast<float>(legendHeight)};
+  }
+
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];
 
@@ -2076,21 +2140,14 @@ void DrawFullCircleAnnotations(canvas_ity::canvas& context, int canvasDim, float
   }
 }
 
-} // namespace
-
 // -----------------------------------------------------------------------------
 ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
 {
-  // Figure out the Legend Pixel Size
+  // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
-  const std::vector<float> margins = {fontPtSize * 3,                        // Top
-                                      static_cast<float>(canvasDim / 7.0f),  // Right
-                                      fontPtSize * 2,                        // Bottom
-                                      static_cast<float>(canvasDim / 7.0f)}; // Left
-
+  const std::vector<float> margins = {fontPtSize * 3, static_cast<float>(canvasDim / 7.0f), fontPtSize * 2, static_cast<float>(canvasDim / 7.0f)};
   int legendHeight = canvasDim - static_cast<int>(margins[0]) - static_cast<int>(margins[2]);
   int legendWidth = canvasDim - static_cast<int>(margins[1]) - static_cast<int>(margins[3]);
-
   if(legendHeight > legendWidth)
   {
     legendHeight = legendWidth;
@@ -2099,77 +2156,12 @@ ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasD
   {
     legendWidth = legendHeight;
   }
-  int pageHeight = canvasDim;
-  int pageWidth = canvasDim;
-  int halfWidth = legendWidth / 2;
-  int halfHeight = legendHeight / 2;
 
-  std::array<float, 2> figureOrigin = {margins[3], margins[0] * 1.33F};
-  if(!generateEntirePlane)
-  {
-    // figureOrigin[0] =  margins[3] * 2.0F;
-    figureOrigin[1] = 0.0F + fontPtSize * 2.0F;
-  }
-  std::array<float, 2> figureCenter = {figureOrigin[0] + halfWidth, figureOrigin[1] + halfHeight};
-
-  // Create the actual Legend which will come back as ARGB values
+  // Generate the colored SST triangle image (ARGB)
   ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
 
-  // Convert from ARGB to RGBA which is what canvas_itk wants
-  image = ebsdlib::ConvertColorOrder(image.get(), legendHeight);
-
-  // We need to mirror across the X Axis because the image was drawn with +Y pointing down
-  image = ebsdlib::MirrorImage(image.get(), legendHeight);
-
-  // Create a 2D Canvas to draw into now that the Legend is in the proper form
-  canvas_ity::canvas context(pageWidth, pageHeight);
-
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
-  context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
-  canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
-  context.text_baseline = baselines[0];
-
-  // Fill the whole background with white
-  context.move_to(0.0f, 0.0f);
-  context.line_to(static_cast<float>(pageWidth), 0.0f);
-  context.line_to(static_cast<float>(pageWidth), static_cast<float>(pageHeight));
-  context.line_to(0.0f, static_cast<float>(pageHeight));
-  context.line_to(0.0f, 0.0f);
-  context.close_path();
-  context.set_color(canvas_ity::fill_style, 1.0f, 1.0f, 1.0f, 1.0f);
-  context.fill();
-
-  // Draw the legend image onto the canvas at the correct spot.
-  context.draw_image(image->getPointer(0), legendWidth, legendHeight, legendWidth * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
-                     static_cast<float>(legendHeight));
-
-  // Draw Title of Legend
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
-  ebsdlib::WriteText(context, getSymmetryName(), {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
-
-  if(generateEntirePlane)
-  {
-    context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, true);
-  }
-  else
-  {
-    figureCenter = {figureOrigin[0], figureOrigin[1] + legendHeight};
-    context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
-    DrawFullCircleAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, false);
-  }
-
-  // Fetch the rendered RGBA pixels from the entire canvas.
-  ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(pageHeight * pageWidth, {4ULL}, "Triangle Legend", true);
-  // std::vector<unsigned char> rgbaCanvasImage(static_cast<size_t>(pageHeight * pageWidth * 4));
-  context.get_image_data(rgbaCanvasImage->getPointer(0), pageWidth, pageHeight, pageWidth * 4, 0, 0);
-
-  // Remove the Alpha channel from the final image
-  rgbaCanvasImage = ebsdlib::RemoveAlphaChannel(rgbaCanvasImage.get());
-
-  return rgbaCanvasImage;
+  // Annotate with title and Miller index labels
+  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);
 }
 
 std::vector<std::pair<double, double>> CubicOps::rodri2pair(std::vector<double> x, std::vector<double> y, std::vector<double> z)

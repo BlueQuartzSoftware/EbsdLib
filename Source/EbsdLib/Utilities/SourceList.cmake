@@ -5,6 +5,7 @@ set(EbsdLib_${DIR_NAME}_MOC_HDRS
 )
 
 set(EbsdLib_${DIR_NAME}_HDRS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/InversePoleFigureUtilities.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureUtilities.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjection.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjectionArray.h
@@ -32,6 +33,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/InversePoleFigureUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjection.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjectionArray.cpp
