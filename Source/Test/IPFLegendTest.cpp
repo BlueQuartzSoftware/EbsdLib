@@ -36,6 +36,7 @@
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
+#include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
@@ -44,7 +45,9 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "UnitTestSupport.hpp"
 
+#include <filesystem>
 #include <fstream>
+#include <set>
 
 #define IMAGE_WIDTH 512
 #define IMAGE_HEIGHT 512
@@ -119,5 +122,96 @@ TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTe
       // Reset to TSL for other tests
       ops[index]->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Corner probe: for every Laue class, the TSL IPF color at the crystal c-axis
+// direction (sample refDir pointing along crystal [001]/[0001]) must be pure
+// red. computeIPFColor maps chi=0 -> R=1, G=0, B=0; this test is therefore a
+// convention sanity check that catches:
+//   - Euler-to-matrix sign flips (c-axis lands somewhere other than chi=0)
+//   - Inversion/symmetry bugs that move the vertex off the triangle corner
+//   - Color-key regressions in the TSL default
+// It doesn't cover the interior of the triangle; for that, compare against
+// the MTEX legends under Data/IPF_Legend/MTEX_Reference/.
+TEST_CASE("ebsdlib::IPFLegendTest::CAxisIsRed", "[EbsdLib][IPFLegendTest]")
+{
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  std::set<std::string> seen;
+
+  double identityEuler[3] = {0.0, 0.0, 0.0};
+  double cAxisSampleDir[3] = {0.0, 0.0, 1.0};
+
+  for(size_t i = 0; i < ops.size(); ++i)
+  {
+    LaueOps::Pointer op = ops[i];
+    const std::string rpg = op->getRotationPointGroup();
+    if(seen.count(rpg) > 0)
+    {
+      continue;
+    }
+    seen.insert(rpg);
+
+    Rgb color = op->generateIPFColor(identityEuler, cAxisSampleDir, false);
+    int r = RgbColor::dRed(color);
+    int g = RgbColor::dGreen(color);
+    int b = RgbColor::dBlue(color);
+
+    INFO(op->getSymmetryName() << " (" << rpg << ") c-axis -> RGB(" << r << ", " << g << ", " << b << ")");
+    // Red-dominant, and green+blue should be low (pure-red triangle vertex)
+    CHECK(r >= 200);
+    CHECK(g <= 60);
+    CHECK(b <= 60);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dump every Laue class's TSL IPF legend to Testing/Temporary/IPFComparison/.
+// Companion MATLAB script at Code_Review/compare_ipf_legends_all_laue.m reads
+// this directory and writes MTEX ipfHSVKey legends as mtex.png for visual
+// side-by-side validation. (Analogous to the PoleFigureLaueComparisonTest.)
+TEST_CASE("ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses", "[EbsdLib][IPFLegendTest]")
+{
+  const std::string baseDir = std::string(ebsdlib::unit_test::k_TestTempDir) + "IPFComparison";
+  std::filesystem::create_directories(baseDir);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  std::set<std::string> seen;
+
+  std::ofstream master(baseDir + "/manifest.txt");
+  master << "# IPF legend Laue-class comparison\n";
+  master << "# columns: rotationPointGroup, symmetryName\n";
+
+  for(size_t i = 0; i < ops.size(); ++i)
+  {
+    LaueOps::Pointer op = ops[i];
+    const std::string rpg = op->getRotationPointGroup();
+    if(seen.count(rpg) > 0)
+    {
+      continue;
+    }
+    seen.insert(rpg);
+
+    std::string safe = rpg;
+    for(char& c : safe)
+    {
+      if(c == '/' || c == ' ')
+      {
+        c = '_';
+      }
+    }
+
+    std::string dir = baseDir + "/" + safe;
+    std::filesystem::create_directories(dir);
+
+    auto legend = op->generateIPFTriangleLegend(512, false);
+    REQUIRE(legend != nullptr);
+
+    std::string tifPath = dir + "/ebsdlib.tiff";
+    auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
+    REQUIRE(result.first == 0);
+
+    master << rpg << "," << op->getSymmetryName() << "\n";
   }
 }
