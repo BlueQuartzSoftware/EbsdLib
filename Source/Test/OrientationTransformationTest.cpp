@@ -1,5 +1,8 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/LaueOps/HexagonalOps.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+#include "EbsdLib/Math/Matrix3X3.hpp"
 #include "EbsdLib/Orientation/AxisAngle.hpp"
 #include "EbsdLib/Orientation/Cubochoric.hpp"
 #include "EbsdLib/Orientation/Euler.hpp"
@@ -192,4 +195,36 @@ TEST_CASE("ebsdlib::OrientationTransformationTest::Euler_AxisAngle_RoundTrip", "
   CHECK(euBack[0] == Approx(eu[0]).margin(1.0e-6));
   CHECK(euBack[1] == Approx(eu[1]).margin(1.0e-6));
   CHECK(euBack[2] == Approx(eu[2]).margin(1.0e-6));
+}
+
+// -----------------------------------------------------------------------------
+// Regression test for 180-degree rotation handling in LaueOps::_calcRodNearestOrigin
+// (invoked via getODFFZRod). Euler (180°, 90°, 0°) is a 180° rotation about
+// (0, 1, 1)/√2. Because tan(90°) = ∞, naive Rodrigues-space symmetry reduction
+// produces NaN/∞ and returns a degenerate FZ representative. The FZ rep must
+// represent the same physical orientation as the input (modulo crystal symmetry),
+// so the crystal c-axis [0001] expressed in the sample frame must match the
+// input's c-axis direction up to sign (hexagonal 6/mmm is centrosymmetric).
+TEST_CASE("ebsdlib::OrientationTransformationTest::GetODFFZRod_180DegRotation_Hexagonal", "[EbsdLib][OrientationTransformationTest]")
+{
+  HexagonalOps hexOps;
+
+  EulerDType euIn(ebsdlib::constants::k_PiD, ebsdlib::constants::k_PiOver2D, 0.0);
+  Matrix3X1D cCrystal{0.0, 0.0, 1.0};
+  // Crystal c-axis in sample frame = g^T * c_crystal
+  Matrix3X1D cAxisIn = euIn.toOrientationMatrix().toGMatrix().transpose() * cCrystal;
+
+  RodriguesDType rodIn = euIn.toRodrigues();
+  RodriguesDType rodFZ = hexOps.getODFFZRod(rodIn);
+
+  // Output must not be degenerate (non-finite axis or NaN)
+  REQUIRE(std::isfinite(rodFZ[0]));
+  REQUIRE(std::isfinite(rodFZ[1]));
+  REQUIRE(std::isfinite(rodFZ[2]));
+
+  Matrix3X1D cAxisOut = rodFZ.toOrientationMatrix().toGMatrix().transpose() * cCrystal;
+
+  double dot = cAxisIn[0] * cAxisOut[0] + cAxisIn[1] * cAxisOut[1] + cAxisIn[2] * cAxisOut[2];
+  // Parallel or antiparallel: |dot| ≈ 1
+  CHECK(std::fabs(dot) == Approx(1.0).margin(1.0e-6));
 }

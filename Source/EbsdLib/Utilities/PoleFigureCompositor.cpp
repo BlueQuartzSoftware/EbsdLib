@@ -263,7 +263,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
-  context.fill_text("X", origin[0] + margins * 2.0f + imageSize, origin[1] + fontPtSize * 2.25f + margins * 2.0f + imageSize / 2.0f);
+  context.fill_text("TD", origin[0] + margins * 1.5f + imageSize, origin[1] + fontPtSize * 2.25f + margins * 2.0f + imageSize / 2.0f);
   context.close_path();
 
   // "Y" axis label
@@ -271,8 +271,8 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
-  const float yFontWidth = context.measure_text("Y");
-  context.fill_text("Y", origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins);
+  const float yFontWidth = context.measure_text("RD");
+  context.fill_text("RD", origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins);
   context.close_path();
 
   // Direction label (e.g., "<001>" displayed as "(001)")

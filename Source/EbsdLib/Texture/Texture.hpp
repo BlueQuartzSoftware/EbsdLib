@@ -44,14 +44,11 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/LaueOps/CubicOps.h"
-#include "EbsdLib/LaueOps/HexagonalOps.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/LaueOps/OrthoRhombicOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
+#include "EbsdLib/Orientation/Euler.hpp"
 #include "EbsdLib/Orientation/OrientationFwd.hpp"
-#include "EbsdLib/Orientation/Rodrigues.hpp"
 
 namespace ebsdlib
 {
@@ -66,10 +63,19 @@ class Texture
 public:
   virtual ~Texture() = default;
 
+  using ODFTableEntry = struct
+  {
+    ebsdlib::Euler<double> euler;
+    double weight;
+    double sigma;
+  };
+
+  using ODFTableEntries = std::vector<ODFTableEntry>;
+
   /**
    * @brief This will calculate ODF data based on an array of weights that are
-   * passed in and a Hexagonal Crystal Structure. This is templated on the container
-   * type that holds the data. Containers that adhere to the STL Vector API
+   * passed in and a Crystal Structure. This is templated on the container
+   * type, LaueOps, and type of data. Containers that adhere to the STL Vector API
    * should be usable. std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
    * @param e1s The first euler angles
@@ -83,101 +89,109 @@ public:
    * @param numEntries (OUT) The TotalWeight value that is also calculated
    */
   template <typename T, class LaueOps, class Container>
-  static void CalculateODFData(Container& e1s, Container& e2s, Container& e3s, Container& weights, Container& sigmas, bool normalize, Container& odf, size_t numEntries)
+  static Container CalculateODFData(const ODFTableEntries& odfTableEntries, bool normalize)
   {
     LaueOps ops;
-    std::array<size_t, 3> odfNumBins = ops.getOdfNumBins();
-    odf.resize(ops.getODFSize());
-    ebsdlib::Int32ArrayType::Pointer textureBins = ebsdlib::Int32ArrayType::CreateArray(numEntries, "TextureBins", true);
-    int32_t* TextureBins = textureBins->getPointer(0);
 
-    float addweight = 0;
-    float totaladdweight = 0;
-    float totalweight = float(ops.getODFSize());
+    // The number of ODF Bins is hard set at 5 degrees. This is something hard set inside
+    // all the Laue classes. There is NO Changing this without a LOT of work
+    std::array<size_t, 3> odfNumBins = ops.getOdfNumBins();
+
+    std::vector<int32_t> textureBins(odfTableEntries.size());
+
+    T addweight = 0;
+    T totalAddWeight = 0;
+    T totalWeight = T(ops.getODFSize());
     int bin, addbin;
     int bin1, bin2, bin3;
     int addbin1, addbin2, addbin3;
-    float dist, fraction;
-    // Use double precision for the calculations
-    for(size_t i = 0; i < numEntries; i++)
-    {
-      RodriguesDType rod = EulerDType(e1s[i], e2s[i], e3s[i]).toRodrigues();
+    T dist, fraction;
 
-      rod = ops.getODFFZRod(rod);
+    // Loop on each odfTableEntry and build up the ODF Bins that the Euler belongs to
+    for(size_t i = 0; i < odfTableEntries.size(); i++)
+    {
+      RodriguesDType rod = ops.getODFFZRod(odfTableEntries.at(i).euler.toRodrigues());
       bin = ops.getOdfBin(rod);
-      TextureBins[i] = static_cast<int>(bin);
+      textureBins[i] = bin;
     }
 
-    for(int i = 0; i < ops.getODFSize(); i++)
+    // Create the ODF container and initialize all bins to ZERO
+    Container odf(ops.getODFSize(), 0.0);
+
+    // For each entry in the table...
+    for(size_t i = 0; i < odfTableEntries.size(); i++)
     {
-      odf[i] = 0;
-    }
-    for(size_t i = 0; i < numEntries; i++)
-    {
-      bin = TextureBins[i];
+      const ODFTableEntry& odfTableEntry = odfTableEntries.at(i);
+      bin = textureBins[i]; // Get the histogram bin that the Euler is assigned to
       bin1 = bin % odfNumBins[0];
       bin2 = static_cast<int32_t>((bin / odfNumBins[0]) % odfNumBins[1]);
       bin3 = bin / static_cast<int32_t>((odfNumBins[0] * odfNumBins[1]));
-      for(int j = static_cast<int>(-sigmas[i]); j <= sigmas[i]; j++)
+      for(int j = static_cast<int>(-odfTableEntry.sigma); j <= odfTableEntry.sigma; j++)
       {
         int jsqrd = j * j;
-        for(int k = static_cast<int>(-sigmas[i]); k <= sigmas[i]; k++)
+        for(int k = static_cast<int>(-odfTableEntry.sigma); k <= odfTableEntry.sigma; k++)
         {
           int ksqrd = k * k;
-          for(int l = static_cast<int>(-sigmas[i]); l <= sigmas[i]; l++)
+          for(int l = static_cast<int>(-odfTableEntry.sigma); l <= odfTableEntry.sigma; l++)
           {
-            int lsqrd = l * l;
+
             addbin1 = bin1 + int(j);
             addbin2 = bin2 + int(k);
             addbin3 = bin3 + int(l);
-            int good = 1;
+
             if(addbin1 < 0)
             {
-              good = 0;
+              continue;
             }
             if(addbin1 >= odfNumBins[0])
             {
-              good = 0;
+              continue;
             }
             if(addbin2 < 0)
             {
-              good = 0;
+              continue;
             }
             if(addbin2 >= odfNumBins[1])
             {
-              good = 0;
+              continue;
             }
             if(addbin3 < 0)
             {
-              good = 0;
+              continue;
             }
             if(addbin3 >= odfNumBins[2])
             {
-              good = 0;
+              continue;
             }
+
+            int lsqrd = l * l;
             addbin = static_cast<int>((addbin3 * odfNumBins[0] * odfNumBins[1]) + (addbin2 * odfNumBins[0]) + (addbin1));
-            dist = static_cast<float>(std::pow(static_cast<float>(jsqrd + ksqrd + lsqrd), 0.5));
-            fraction = static_cast<float>(1.0 - (double(dist / int(sigmas[i])) * double(dist / int(sigmas[i]))));
-            if(dist <= int(sigmas[i]) && good == 1)
+            dist = static_cast<float>(std::pow(static_cast<double>(jsqrd + ksqrd + lsqrd), 0.5));
+
+            double temp = dist / static_cast<double>(odfTableEntry.sigma);
+
+            fraction = static_cast<float>(1.0 - (temp * temp));
+            if(dist <= static_cast<int>(odfTableEntry.sigma))
             {
-              addweight = (weights[i] * fraction);
-              if(sigmas[i] == 0.0)
+              addweight = (odfTableEntry.weight * fraction);
+              if(odfTableEntry.sigma == 0.0)
               {
-                addweight = weights[i];
+                addweight = odfTableEntry.weight;
               }
               odf[addbin] = odf[addbin] + addweight;
-              totaladdweight = totaladdweight + addweight;
+              totalAddWeight = totalAddWeight + addweight;
             }
           }
         }
       }
     }
-    // These next loops *look* like they can be parallelized but the arrays are not large enough
+
+    // These next loops *look* like they can be parallelized, but the arrays are not large enough
     // to see any benefit so don't go down that road. std::transform is also slower than the
     // manual loops that are coded.
-    if(totaladdweight > totalweight)
+    if(totalAddWeight > totalWeight)
     {
-      float scale = (totaladdweight / totalweight);
+      float scale = (totalAddWeight / totalWeight);
       for(int i = 0; i < ops.getODFSize(); i++)
       {
         odf[i] = odf[i] / scale;
@@ -185,8 +199,8 @@ public:
     }
     else
     {
-      float remainingweight = totalweight - totaladdweight;
-      float background = remainingweight / static_cast<float>(ops.getODFSize());
+      float remainingWeight = totalWeight - totalAddWeight;
+      float background = remainingWeight / static_cast<float>(ops.getODFSize());
       for(int i = 0; i < ops.getODFSize(); i++)
       {
         odf[i] += background;
@@ -197,9 +211,11 @@ public:
       // Normalize the odf
       for(int i = 0; i < ops.getODFSize(); i++)
       {
-        odf[i] = odf[i] / totalweight;
+        odf[i] = odf[i] / totalWeight;
       }
     }
+
+    return odf;
   }
 
   /**

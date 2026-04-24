@@ -535,7 +535,7 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, ebsdlib::
       if((xtmp * xtmp + ytmp * ytmp) <= 1.0)
       {
         std::array<float, 3> xyz{};
-        // project xy from stereo projection to the unit spehere
+        // project xy from stereo projection to the unit sphere
         xyz[2] = -((xtmp * xtmp + ytmp * ytmp) - 1) / ((xtmp * xtmp + ytmp * ytmp) + 1);
         xyz[0] = xtmp * (1 + xyz[2]);
         xyz[1] = ytmp * (1 + xyz[2]);

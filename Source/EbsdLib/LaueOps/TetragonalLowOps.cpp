@@ -65,8 +65,8 @@ static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / s
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
 constexpr int k_SymSize0 = 2;
-constexpr int k_SymSize1 = 2;
-constexpr int k_SymSize2 = 2;
+constexpr int k_SymSize1 = 4;
+constexpr int k_SymSize2 = 4;
 
 constexpr size_t k_OdfSize = 93312;
 constexpr size_t k_MdfSize = 93312;
@@ -464,17 +464,15 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    ebsdlib::Matrix3X3D gTranspose;
     ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
 
     for(size_t i = start; i < end; ++i)
     {
-      ebsdlib::Matrix3X3D g(EulerDType(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2)).toOrientationMatrix().data());
-
-      gTranspose = g.transpose();
+      EulerDType euler(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
+      ebsdlib::Matrix3X3D gTranspose = euler.toOrientationMatrix().toGMatrix().transpose();
 
       // -----------------------------------------------------------------------------
-      // 001 Family
+      // <001> (single c-axis direction, k_SymSize0 = 2 = 1 dir + antipode)
       direction[0] = 0.0;
       direction[1] = 0.0;
       direction[2] = 1.0;
@@ -484,24 +482,30 @@ public:
                      [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
 
       // -----------------------------------------------------------------------------
-      // 011 Family
+      // <100> family under 4-fold rotation about c: (1,0,0) and (0,1,0) plus antipodes (4 poles total)
       direction[0] = 1.0;
       direction[1] = 0.0;
       direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 6));
-      std::transform(m_xyz011->getPointer(i * 6), m_xyz011->getPointer(i * 6 + 3),
-                     m_xyz011->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-
-      // -----------------------------------------------------------------------------
-      // 111 Family
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12));
+      std::transform(m_xyz011->getPointer(i * 12), m_xyz011->getPointer(i * 12 + 3), m_xyz011->getPointer(i * 12 + 3), [](float value) { return value * -1.0F; });
       direction[0] = 0.0;
       direction[1] = 1.0;
-      direction[2] = 0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 6));
-      std::transform(m_xyz111->getPointer(i * 6), m_xyz111->getPointer(i * 6 + 3),
-                     m_xyz111->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 12 + 6));
+      std::transform(m_xyz011->getPointer(i * 12 + 6), m_xyz011->getPointer(i * 12 + 9), m_xyz011->getPointer(i * 12 + 9), [](float value) { return value * -1.0F; });
+
+      // -----------------------------------------------------------------------------
+      // <110> family under 4-fold: (1,1,0)/√2 and (-1,1,0)/√2 plus antipodes (4 poles total)
+      direction[0] = ebsdlib::constants::k_1OverRoot2D;
+      direction[1] = ebsdlib::constants::k_1OverRoot2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12));
+      std::transform(m_xyz111->getPointer(i * 12), m_xyz111->getPointer(i * 12 + 3), m_xyz111->getPointer(i * 12 + 3), [](float value) { return value * -1.0F; });
+      direction[0] = -ebsdlib::constants::k_1OverRoot2D;
+      direction[1] = ebsdlib::constants::k_1OverRoot2D;
+      direction[2] = 0.0;
+      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 12 + 6));
+      std::transform(m_xyz111->getPointer(i * 12 + 6), m_xyz111->getPointer(i * 12 + 9), m_xyz111->getPointer(i * 12 + 9), [](float value) { return value * -1.0F; });
     }
   }
 
@@ -592,7 +596,7 @@ ebsdlib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TetragonalLowOps::getDefaultPoleFigureNames() const
 {
-  return {"<001>", "<100>", "<010>"};
+  return {"<001>", "<100>", "<110>"};
 }
 
 // -----------------------------------------------------------------------------

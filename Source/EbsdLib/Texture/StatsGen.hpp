@@ -45,6 +45,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
+#include "EbsdLib/LaueOps/OrthoRhombicOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Math/EbsdLibRandom.h"
 #include "EbsdLib/Texture/Texture.hpp"
@@ -239,38 +240,40 @@ public:
   /**
    * @brief  This method will generate ODF data for 3 scatter plots which are the
    * <001>, <011> and <111> directions.
-   * @param odf Pointer to ODF bin data which has been sized to CubicOps::k_OdfSize
-   * @param eulers Euler angles to be generated. This memory must already be preallocated.
-   * @param npoints The number of points for the Scatter Plot which is at least the number of elements used in the allocation of the various output arrays.
+   * @param odf ODF bin data which has been sized
+   * @param numSamplePoints
+   * @return Euler angles that are generated.
    */
-  template <typename T, class LaueOpsType, class ContainerType>
-  static int GenODFPlotData(const ContainerType& odf, T* eulers, size_t npoints)
+  template <typename T, class LaueOpsType, class OdfContainerType, class EulerContainerType>
+  static EulerContainerType GenODFPlotData(const OdfContainerType& odf, size_t numSamplePoints)
   {
-    std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
+    EulerContainerType eulers(numSamplePoints * 3);
+
+    std::random_device randomDevice;           // Will be used to get a seed for the random number engine
     std::mt19937_64 generator(randomDevice()); // Standard mersenne_twister_engine seeded with rd()
     std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
     generator.seed(seed);
     std::uniform_real_distribution<> distribution(0.0, 1.0);
+
     std::array<double, 3> randx3;
 
-    int err = 0;
     int choose = 0;
-    T totaldensity;
+    T totalDensity;
     T random, density;
 
     LaueOpsType ops;
     T td1;
-    for(size_t i = 0; i < npoints; i++)
+    for(size_t i = 0; i < numSamplePoints; i++)
     {
       random = distribution(generator);
       choose = 0;
-      totaldensity = 0;
+      totalDensity = 0;
       for(int j = 0; j < ops.getODFSize(); j++)
       {
         density = odf[j];
-        td1 = totaldensity;
-        totaldensity = totaldensity + density;
-        if(random < totaldensity && random >= td1)
+        td1 = totalDensity;
+        totalDensity = totalDensity + density;
+        if(random < totalDensity && random >= td1)
         {
           choose = static_cast<int>(j);
           break;
@@ -284,7 +287,7 @@ public:
       eulers[3 * i + 1] = eu[1];
       eulers[3 * i + 2] = eu[2];
     }
-    return err;
+    return std::move(eulers);
   }
 
 #if 0
@@ -435,18 +438,6 @@ public:
    * type is a std::vector conforming class type that holds the data.
    * std::vector falls into this category. The input data for the
    * euler angles is in Columnar fashion instead of row major format.
-   * @param e1s The first euler angles (input)
-   * @param e2s The second euler angles (input)
-   * @param e3s The third euler angles (input)
-   * @param weights Array of weights values. (input)
-   * @param sigmas Array of sigma values. (input)
-   * @param xA X Values of the A axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param yA Y Values of the A axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param xB X Values of the B axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param yB Y Values of the B axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param xC X Values of the C axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param yC Y Values of the C axis PF Scatter plot (Output). This memory must already be preallocated.
-   * @param size The number of points for the Scatter Plot
    */
   template <typename T>
   static int GenAxisODFPlotData(T* odf, T* eulers, int npoints)
