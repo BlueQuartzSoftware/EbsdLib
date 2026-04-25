@@ -15,104 +15,135 @@
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- These will never match because MTEX uses a polar coordinate system instead of TSL's etc/chi equations
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
+
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 
 ## 2
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 
 ## 3
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 4
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 6
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 
 ## 23
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 32
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 222
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 422
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 432
 
 ### TSL Comparison
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match
 
 ## 622
 
@@ -122,8 +153,11 @@
 - EbsdLib needs to be flipped vertically (rotate around the X Axis) and then have the labels updated to match MTEX
 - MTEX is using the TSL color table but using the Gridded rendering scheme, can EbsdLib do the same, at least for the comparison?
 
-- [ ] Ebsdlib and MTEX Match
+
+- [X] EbsdLib Per Pixel and MTEX Match
+- [X] Ebsdlib Gridded and MTEX Match
 
 ### NH Gridded Comparison
 
-- [ ] Ebsdlib and MTEX Match
+- [ ] EbsdLib Per Pixel and MTEX Match
+- [ ] Ebsdlib Gridded and MTEX Match

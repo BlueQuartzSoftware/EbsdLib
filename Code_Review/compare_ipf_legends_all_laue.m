@@ -4,8 +4,8 @@
 %
 % For every Laue class in IPFComparison/, writes two MTEX legends so the
 % pairs can be compared apples-to-apples against the EbsdLib outputs:
-%   ebsdlib_ipf_legend_tsl.tiff  vs  mtex_ipf_legend_tsl.png
-%   ebsdlib_ipf_legend_nh.tiff   vs  mtex_ipf_legend_hsv.png
+%   ebsdlib_ipf_legend_tsl.png  vs  mtex_ipf_legend_tsl.png
+%   ebsdlib_ipf_legend_nh.png   vs  mtex_ipf_legend_hsv.png
 % The TSL pair uses MTEX's ipfTSLKey; the NH pair uses MTEX's ipfHSVKey,
 % which is the Nolze-Hielscher-style HSV scheme that EbsdLib's
 % NolzeHielscherColorKey is modeled on.
@@ -57,7 +57,7 @@ for e = 1:numel(entries)
     classDir = fullfile(baseDir, name);
     cs = laueMap(name);
 
-    % --- TSL pair (compare ebsdlib_ipf_legend_tsl.tiff vs mtex_ipf_legend_tsl.png) ---
+    % --- TSL pair (compare ebsdlib_ipf_legend_tsl.png vs mtex_ipf_legend_tsl.png) ---
     try
         keyTSL = ipfTSLKey(cs);
     catch
@@ -77,7 +77,7 @@ for e = 1:numel(entries)
     close(fT);
     fprintf('wrote %s\n', outTSL);
 
-    % --- NH/HSV pair (compare ebsdlib_ipf_legend_nh.tiff vs mtex_ipf_legend_hsv.png) ---
+    % --- NH/HSV pair (compare ebsdlib_ipf_legend_nh.png vs mtex_ipf_legend_hsv.png) ---
     keyHSV = ipfHSVKey(cs);
     fH = figure('Visible', 'off', 'Position', [100 100 600 600]);
     plot(keyHSV);
@@ -90,8 +90,8 @@ for e = 1:numel(entries)
 end
 
 fprintf('\nDone. For each Laue class directory there should now be:\n');
-fprintf('  <class>/ebsdlib_ipf_legend_tsl.tiff   EbsdLib TSL legend\n');
-fprintf('  <class>/ebsdlib_ipf_legend_nh.tiff    EbsdLib Nolze-Hielscher legend\n');
+fprintf('  <class>/ebsdlib_ipf_legend_tsl.png   EbsdLib TSL legend\n');
+fprintf('  <class>/ebsdlib_ipf_legend_nh.png    EbsdLib Nolze-Hielscher legend\n');
 fprintf('  <class>/mtex_ipf_legend_tsl.png       MTEX ipfTSLKey legend\n');
 fprintf('  <class>/mtex_ipf_legend_hsv.png       MTEX ipfHSVKey legend\n');
 fprintf('Compare each pair (TSL <-> TSL, NH <-> HSV) side-by-side.\n');

@@ -271,10 +271,10 @@ Bin/EbsdLibUnitTest "ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses"
 ```
 
 Output lands in `<build>/Testing/Temporary/IPFComparison/<rpg>/`:
-- `tsl_ebsdlib_ipf_legend.tiff` — per-pixel TSL
-- `tsl_gridded_ebsdlib_ipf_legend.tiff` — 1° gridded TSL
-- `nh_ebsdlib_ipf_legend.tiff` — per-pixel Nolze-Hielscher
-- `nh_gridded_ebsdlib_ipf_legend.tiff` — 1° gridded NH
+- `tsl_ebsdlib_ipf_legend.png` — per-pixel TSL
+- `tsl_gridded_ebsdlib_ipf_legend.png` — 1° gridded TSL
+- `nh_ebsdlib_ipf_legend.png` — per-pixel Nolze-Hielscher
+- `nh_gridded_ebsdlib_ipf_legend.png` — 1° gridded NH
 - `tsl_mtex_ipf_legend.png` — MTEX `ipfTSLKey`
 - `nh_mtex_ipf_legend.png` — MTEX `ipfHSVKey`
 

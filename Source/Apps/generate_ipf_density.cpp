@@ -56,7 +56,7 @@
 #include "EbsdLib/OrientationMath/OrientationConverter.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include "EbsdLib/Apps/EbsdLibFileLocations.h"
 
@@ -118,7 +118,7 @@ ebsdlib::FloatArrayType::Pointer generateSingleCrystalEulers(size_t numOrientati
 
 // -----------------------------------------------------------------------
 // Convert an ARGB UInt8ArrayType image to RGB by stripping the alpha channel,
-// suitable for TiffWriter::WriteColorImage with samplesPerPixel=3.
+// suitable for PngWriter::WriteColorImage with samplesPerPixel=3.
 // -----------------------------------------------------------------------
 ebsdlib::UInt8ArrayType::Pointer convertARGBtoRGB(ebsdlib::UInt8ArrayType* argbImage)
 {
@@ -146,7 +146,7 @@ ebsdlib::UInt8ArrayType::Pointer convertARGBtoRGB(ebsdlib::UInt8ArrayType* argbI
 void writeIPFImage(ebsdlib::UInt8ArrayType* image, int width, int height, const std::string& filePath)
 {
   auto rgbImage = convertARGBtoRGB(image);
-  auto result = TiffWriter::WriteColorImage(filePath, width, height, 3, rgbImage->data());
+  auto result = PngWriter::WriteColorImage(filePath, width, height, 3, rgbImage->data());
   if(result.first < 0)
   {
     std::cerr << "  ERROR writing " << filePath << ": " << result.second << std::endl;
@@ -195,8 +195,8 @@ void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers
   for(size_t i = 0; i < images.size(); i++)
   {
     std::ostringstream filePath;
-    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << "_" << textureLabel << ".tiff";
-    auto result = TiffWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
+    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << "_" << textureLabel << ".png";
+    auto result = PngWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
     if(result.first < 0)
     {
       std::cerr << "  ERROR writing " << filePath.str() << ": " << result.second << std::endl;
@@ -317,7 +317,7 @@ void generateSingleIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* 
   }
 
   std::ostringstream filePath;
-  filePath << outputDir << "/" << safeName << "_IPF_" << dirLabel << "_" << textureLabel << "_" << modeLabel << ".tiff";
+  filePath << outputDir << "/" << safeName << "_IPF_" << dirLabel << "_" << textureLabel << "_" << modeLabel << ".png";
   writeIPFImage(rgba.get(), imageWidth, imageHeight, filePath.str());
 }
 

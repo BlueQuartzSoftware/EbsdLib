@@ -14,14 +14,17 @@
         "h5support",
         "hdf5",
         "tbb",
+        "lz4",
         "ninja",
         "vcpkg-cmake",
         "vcpkg-cmake-config",
         "zlib",
         "zstd",
-        "catch2"
+        "catch2",
+        "tiff",
+        "stb"
       ],
-      "baseline": "9ff0ea7373196b1c26c9cac15919b23045405994"
+      "baseline": "9d197cfd916dbded196c47eb0bab6325bc787635"
     }
   ]
 }

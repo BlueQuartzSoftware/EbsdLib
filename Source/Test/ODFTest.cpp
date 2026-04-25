@@ -41,7 +41,7 @@
 #include "EbsdLib/Texture/StatsGen.hpp"
 #include "EbsdLib/Texture/Texture.hpp"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 #include "UnitTestCommon.hpp"
 #include "UnitTestSupport.hpp"
 
@@ -129,8 +129,8 @@ TEST_CASE("ebsdlib::ODFTest", "[EbsdLib][ODFTest]")
   PoleFigureCompositor compositor;
   CompositePoleFigureResult result = compositor.generateCompositeImage(config);
 
-  std::string outputPath = fmt::format("{}Pole_Figure_{}.tif", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
-  auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
+  std::string outputPath = fmt::format("{}Pole_Figure_{}.png", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
+  auto writerResult = PngWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
   REQUIRE(writerResult.first == 0);
 }
 

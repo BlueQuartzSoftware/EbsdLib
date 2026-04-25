@@ -51,7 +51,7 @@
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include <cmath>
 #include <filesystem>
@@ -106,8 +106,8 @@ void generateIPFForPhase(const LaueOps& ops, ebsdlib::FloatArrayType* eulers, co
   for(size_t i = 0; i < images.size(); i++)
   {
     std::ostringstream filePath;
-    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << ".tiff";
-    auto result = TiffWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
+    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << ".png";
+    auto result = PngWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
     if(result.first < 0)
     {
       std::cerr << "  ERROR writing " << filePath.str() << ": " << result.second << std::endl;
