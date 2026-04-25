@@ -2,9 +2,13 @@
 %
 % Companion to EbsdLib's IPFLegendTest::MTEXCompare_AllLaueClasses.
 %
-% For every Laue class listed in manifest.txt, writes the MTEX ipfHSVKey
-% legend as mtex.png next to EbsdLib's ebsdlib.tiff so the two can be
-% compared side-by-side.
+% For every Laue class in IPFComparison/, writes two MTEX legends so the
+% pairs can be compared apples-to-apples against the EbsdLib outputs:
+%   ebsdlib_ipf_legend_tsl.tiff  vs  mtex_ipf_legend_tsl.png
+%   ebsdlib_ipf_legend_nh.tiff   vs  mtex_ipf_legend_hsv.png
+% The TSL pair uses MTEX's ipfTSLKey; the NH pair uses MTEX's ipfHSVKey,
+% which is the Nolze-Hielscher-style HSV scheme that EbsdLib's
+% NolzeHielscherColorKey is modeled on.
 %
 % Usage:
 %   1. Build and run the EbsdLib unit test first:
@@ -52,20 +56,35 @@ for e = 1:numel(entries)
     classDir = fullfile(baseDir, name);
     cs = laueMap(name);
 
-    key = ipfHSVKey(cs);
+    % --- TSL pair (compare ebsdlib_ipf_legend_tsl.tiff vs mtex_ipf_legend_tsl.png) ---
+    try
+        keyTSL = ipfTSLKey(cs);
+    catch
+        warning('ipfTSLKey not available for %s; falling back to ipfHKLKey', name);
+        keyTSL = ipfHKLKey(cs);
+    end
+    fT = figure('Visible', 'off', 'Position', [100 100 600 600]);
+    plot(keyTSL);
+    title(sprintf('MTEX ipfTSLKey %s', name));
+    outTSL = fullfile(classDir, 'tsl_mtex_ipf_legend.png');
+    saveas(fT, outTSL);
+    close(fT);
+    fprintf('wrote %s\n', outTSL);
 
-    f = figure('Visible', 'off', 'Position', [100 100 600 600]);
-    plot(key);
-    ttl = sprintf('MTEX ipfHSVKey %s', name);
-    title(ttl);
-
-    outPath = fullfile(classDir, 'mtex.png');
-    saveas(f, outPath);
-    close(f);
-    fprintf('wrote %s\n', outPath);
+    % --- NH/HSV pair (compare ebsdlib_ipf_legend_nh.tiff vs mtex_ipf_legend_hsv.png) ---
+    keyHSV = ipfHSVKey(cs);
+    fH = figure('Visible', 'off', 'Position', [100 100 600 600]);
+    plot(keyHSV);
+    title(sprintf('MTEX ipfHSVKey %s', name));
+    outHSV = fullfile(classDir, 'nh_mtex_ipf_legend.png');
+    saveas(fH, outHSV);
+    close(fH);
+    fprintf('wrote %s\n', outHSV);
 end
 
 fprintf('\nDone. For each Laue class directory there should now be:\n');
-fprintf('  <class>/ebsdlib.tiff    EbsdLib TSL legend (pure, no annotations)\n');
-fprintf('  <class>/mtex.png        MTEX ipfHSVKey legend\n');
-fprintf('Compare them side-by-side.\n');
+fprintf('  <class>/ebsdlib_ipf_legend_tsl.tiff   EbsdLib TSL legend\n');
+fprintf('  <class>/ebsdlib_ipf_legend_nh.tiff    EbsdLib Nolze-Hielscher legend\n');
+fprintf('  <class>/mtex_ipf_legend_tsl.png       MTEX ipfTSLKey legend\n');
+fprintf('  <class>/mtex_ipf_legend_hsv.png       MTEX ipfHSVKey legend\n');
+fprintf('Compare each pair (TSL <-> TSL, NH <-> HSV) side-by-side.\n');

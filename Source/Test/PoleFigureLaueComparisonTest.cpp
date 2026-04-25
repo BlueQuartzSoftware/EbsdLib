@@ -101,7 +101,7 @@ TEST_CASE("ebsdlib::PoleFigureLaueComparisonTest::GenerateAllLaueClasses", "[Ebs
 
     // Write CSV (phi1, Phi, phi2 in degrees)
     {
-      std::ofstream csv(fmt::format("{}/eulers.csv", dir));
+      std::ofstream csv(fmt::format("{}/pole_figure_input_eulers.csv", dir));
       csv << "phi1,Phi,phi2\n";
       for(size_t i = 0; i < k_NumSamples; ++i)
       {
@@ -128,7 +128,7 @@ TEST_CASE("ebsdlib::PoleFigureLaueComparisonTest::GenerateAllLaueClasses", "[Ebs
     CompositePoleFigureResult result = compositor.generateCompositeImage(config);
     REQUIRE(result.image != nullptr);
 
-    const std::string tifPath = fmt::format("{}/ebsdlib.tif", dir);
+    const std::string tifPath = fmt::format("{}/ebsdlib_pole_figure.tif", dir);
     auto writeResult = TiffWriter::WriteColorImage(tifPath, result.width, result.height, 4, result.image->data());
     REQUIRE(writeResult.first == 0);
 
