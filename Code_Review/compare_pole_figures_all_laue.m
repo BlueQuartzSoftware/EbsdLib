@@ -4,7 +4,7 @@
 %
 % For every Laue class listed in manifest.txt, reads eulers.csv, reconstructs
 % the orientations in MTEX with the matching crystal symmetry, and saves
-% a pole figure PNG named mtex.png next to EbsdLib's ebsdlib.tif — so the two
+% a pole figure PNG named mtex.png next to EbsdLib's ebsdlib.png — so the two
 % images can be compared side-by-side per Laue class.
 %
 % Usage:
@@ -113,6 +113,6 @@ end
 
 fprintf('\nDone. For each Laue class directory there should now be:\n');
 fprintf('  <class>/eulers.csv      input Euler samples\n');
-fprintf('  <class>/ebsdlib.tif     EbsdLib-rendered composite\n');
+fprintf('  <class>/ebsdlib.png     EbsdLib-rendered composite\n');
 fprintf('  <class>/mtex.png        MTEX-rendered composite\n');
 fprintf('Compare the two image files per class to verify convention agreement.\n');

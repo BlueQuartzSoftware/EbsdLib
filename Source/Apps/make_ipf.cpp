@@ -14,7 +14,7 @@
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 using FloatVec3Type = std::array<float, 3>;
 
@@ -150,7 +150,7 @@ int32_t executeAng(const std::string& filepath, const std::string& outputFile, M
   GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data());
   generateIPF.run();
 
-  auto error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
+  auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
   if(error.first < 0)
   {
     std::cerr << error.second << std::endl;
@@ -214,7 +214,7 @@ int32_t executeCtf(const std::string& filepath, const std::string& outputFile, M
   GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data());
   generateIPF.run();
 
-  auto error = TiffWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
+  auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
   if(error.first < 0)
   {
     std::cerr << error.second << std::endl;
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 {
   if(argc != 3)
   {
-    std::cout << "Usage: make_ipf <input_file.ang|input_file.ctf> <output_image.tiff>" << std::endl;
+    std::cout << "Usage: make_ipf <input_file.ang|input_file.ctf> <output_image.png>" << std::endl;
     return 1;
   }
 

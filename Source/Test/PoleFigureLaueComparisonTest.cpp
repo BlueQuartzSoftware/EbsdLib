@@ -13,7 +13,7 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include <fmt/format.h>
 
@@ -128,8 +128,8 @@ TEST_CASE("ebsdlib::PoleFigureLaueComparisonTest::GenerateAllLaueClasses", "[Ebs
     CompositePoleFigureResult result = compositor.generateCompositeImage(config);
     REQUIRE(result.image != nullptr);
 
-    const std::string tifPath = fmt::format("{}/ebsdlib_pole_figure.tif", dir);
-    auto writeResult = TiffWriter::WriteColorImage(tifPath, result.width, result.height, 4, result.image->data());
+    const std::string tifPath = fmt::format("{}/ebsdlib_pole_figure.png", dir);
+    auto writeResult = PngWriter::WriteColorImage(tifPath, result.width, result.height, 4, result.image->data());
     REQUIRE(writeResult.first == 0);
 
     auto pfNames = op->getDefaultPoleFigureNames();

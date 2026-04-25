@@ -41,7 +41,7 @@
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "UnitTestSupport.hpp"
@@ -67,8 +67,8 @@ TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
     {
       ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false);
       std::stringstream outputFilePathStream;
-      outputFilePathStream << ebsdlib::unit_test::k_TestTempDir << "/" << ops[index]->getNameOfClass() << ".tiff";
-      auto result = TiffWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
+      outputFilePathStream << ebsdlib::unit_test::k_TestTempDir << "/" << ops[index]->getNameOfClass() << ".png";
+      auto result = PngWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
       REQUIRE(result.first == 0);
     }
   }
@@ -225,8 +225,8 @@ ebsdlib::FundamentalSectorGeometry SectorForRotationPointGroup(const std::string
 // script at Code_Review/compare_ipf_legends_all_laue.m emits matching
 // mtex_ipf_legend_tsl.png and mtex_ipf_legend_hsv.png so the two pairs can
 // be compared apples-to-apples per Laue class:
-//   ebsdlib_ipf_legend_tsl.tiff  vs  mtex_ipf_legend_tsl.png  (TSL key)
-//   ebsdlib_ipf_legend_nh.tiff   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
+//   ebsdlib_ipf_legend_tsl.png  vs  mtex_ipf_legend_tsl.png  (TSL key)
+//   ebsdlib_ipf_legend_nh.png   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
 // (Analogous to the PoleFigureLaueComparisonTest.)
 TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFLegendTest]")
 {
@@ -268,8 +268,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPF
     {
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
-      std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
@@ -281,8 +281,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPF
     {
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
-      std::string tifPath = dir + "/tsl_gridded_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      std::string tifPath = dir + "/tsl_gridded_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
@@ -299,8 +299,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPF
 // script at Code_Review/compare_ipf_legends_all_laue.m emits matching
 // mtex_ipf_legend_tsl.png and mtex_ipf_legend_hsv.png so the two pairs can
 // be compared apples-to-apples per Laue class:
-//   ebsdlib_ipf_legend_tsl.tiff  vs  mtex_ipf_legend_tsl.png  (TSL key)
-//   ebsdlib_ipf_legend_nh.tiff   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
+//   ebsdlib_ipf_legend_tsl.png  vs  mtex_ipf_legend_tsl.png  (TSL key)
+//   ebsdlib_ipf_legend_nh.png   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
 // (Analogous to the PoleFigureLaueComparisonTest.)
 TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFLegendTest]")
 {
@@ -342,8 +342,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFL
     {
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
-      std::string tifPath = dir + "/nh_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      std::string tifPath = dir + "/nh_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
@@ -356,8 +356,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFL
     {
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
-      std::string tifPath = dir + "/nh_gridded_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      std::string tifPath = dir + "/nh_gridded_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 

@@ -53,7 +53,7 @@
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include <algorithm>
 #include <cmath>
@@ -154,8 +154,8 @@ void generatePoleFiguresForPhase(const LaueOps& ops, unsigned int laueOpsIndex, 
     cleanedLabel = EbsdStringUtils::replace(cleanedLabel, "|", "_");
 
     std::ostringstream filePath;
-    filePath << outputDir << "/" << safeName << "_PF_" << cleanedLabel << ".tiff";
-    auto result = TiffWriter::WriteColorImage(filePath.str(), config.imageDim, config.imageDim, 3, poleFigures[i]->getTuplePointer(0));
+    filePath << outputDir << "/" << safeName << "_PF_" << cleanedLabel << ".png";
+    auto result = PngWriter::WriteColorImage(filePath.str(), config.imageDim, config.imageDim, 3, poleFigures[i]->getTuplePointer(0));
     if(result.first < 0)
     {
       std::cerr << "  ERROR writing " << filePath.str() << ": " << result.second << std::endl;

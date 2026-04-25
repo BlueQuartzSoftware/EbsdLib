@@ -79,7 +79,7 @@ for idx = 1:length(symmetries)
   plot(ipfKeyTSL);
   title(sprintf('%s (%s) - TSL Color Key', symName, symHM));
 
-  tslFile = fullfile(outputDir, sprintf('%s_TSL_Z.tiff', symPrefix));
+  tslFile = fullfile(outputDir, sprintf('%s_TSL_Z.png', symPrefix));
   exportgraphics(fig1, tslFile, 'Resolution', imageDPI);
   fprintf('  Saved: %s\n', tslFile);
   close(fig1);
@@ -93,7 +93,7 @@ for idx = 1:length(symmetries)
   plot(ipfKeyHSV);
   title(sprintf('%s (%s) - Nolze-Hielscher HSV Color Key', symName, symHM));
 
-  hsvFile = fullfile(outputDir, sprintf('%s_NH_HSV_Z.tiff', symPrefix));
+  hsvFile = fullfile(outputDir, sprintf('%s_NH_HSV_Z.png', symPrefix));
   exportgraphics(fig2, hsvFile, 'Resolution', imageDPI);
   fprintf('  Saved: %s\n', hsvFile);
   close(fig2);
@@ -106,7 +106,7 @@ for idx = 1:length(symmetries)
     fig3 = figure('Visible', 'off');
     plot(ipfKeyTSL);
     title(sprintf('%s (%s) - TSL Color Key [X]', symName, symHM));
-    tslFileX = fullfile(outputDir, sprintf('%s_TSL_X.tiff', symPrefix));
+    tslFileX = fullfile(outputDir, sprintf('%s_TSL_X.png', symPrefix));
     exportgraphics(fig3, tslFileX, 'Resolution', imageDPI);
     fprintf('  Saved: %s\n', tslFileX);
     close(fig3);
@@ -117,7 +117,7 @@ for idx = 1:length(symmetries)
     fig4 = figure('Visible', 'off');
     plot(ipfKeyTSL);
     title(sprintf('%s (%s) - TSL Color Key [Y]', symName, symHM));
-    tslFileY = fullfile(outputDir, sprintf('%s_TSL_Y.tiff', symPrefix));
+    tslFileY = fullfile(outputDir, sprintf('%s_TSL_Y.png', symPrefix));
     exportgraphics(fig4, tslFileY, 'Resolution', imageDPI);
     fprintf('  Saved: %s\n', tslFileY);
     close(fig4);
@@ -128,7 +128,7 @@ for idx = 1:length(symmetries)
     fig5 = figure('Visible', 'off');
     plot(ipfKeyHSV);
     title(sprintf('%s (%s) - NH HSV Color Key [X]', symName, symHM));
-    hsvFileX = fullfile(outputDir, sprintf('%s_NH_HSV_X.tiff', symPrefix));
+    hsvFileX = fullfile(outputDir, sprintf('%s_NH_HSV_X.png', symPrefix));
     exportgraphics(fig5, hsvFileX, 'Resolution', imageDPI);
     fprintf('  Saved: %s\n', hsvFileX);
     close(fig5);
@@ -139,7 +139,7 @@ for idx = 1:length(symmetries)
     fig6 = figure('Visible', 'off');
     plot(ipfKeyHSV);
     title(sprintf('%s (%s) - NH HSV Color Key [Y]', symName, symHM));
-    hsvFileY = fullfile(outputDir, sprintf('%s_NH_HSV_Y.tiff', symPrefix));
+    hsvFileY = fullfile(outputDir, sprintf('%s_NH_HSV_Y.png', symPrefix));
     exportgraphics(fig6, hsvFileY, 'Resolution', imageDPI);
     fprintf('  Saved: %s\n', hsvFileY);
     close(fig6);
@@ -152,7 +152,7 @@ fprintf('  All IPF legend images have been saved to:\n');
 fprintf('    %s\n', outputDir);
 fprintf('\n');
 fprintf('  Files generated:\n');
-listing = dir(fullfile(outputDir, '*.tiff'));
+listing = dir(fullfile(outputDir, '*.png'));
 for k = 1:length(listing)
   fprintf('    %s\n', listing(k).name);
 end

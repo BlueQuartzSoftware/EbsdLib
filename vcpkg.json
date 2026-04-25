@@ -18,6 +18,12 @@
     },
     {
       "name": "h5support"
+    },
+    {
+      "name": "tiff"
+    },
+    {
+      "name": "stb"
     }
   ],
   "features": {

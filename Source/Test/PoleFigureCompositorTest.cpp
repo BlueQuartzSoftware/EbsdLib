@@ -69,7 +69,7 @@ Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
-#include "EbsdLib/Utilities/TiffWriter.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 #include "UnitTestCommon.hpp"
 #include "UnitTestSupport.hpp"
 
@@ -195,8 +195,8 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       UInt8ArrayType::Pointer image = result.image;
       std::string datasetName = fmt::format("{}", sampleId);
 #if WRITE_EXEMPLAR_IMAGES
-      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.tif", ebsdlib::unit_test::k_TestFilesDir, layoutStr, op->getRotationPointGroup(), sampleId);
-      auto writerResult = TiffWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
+      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.png", ebsdlib::unit_test::k_TestFilesDir, layoutStr, op->getRotationPointGroup(), sampleId);
+      auto writerResult = PngWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
       REQUIRE(writerResult.first == 0);
       //
 
