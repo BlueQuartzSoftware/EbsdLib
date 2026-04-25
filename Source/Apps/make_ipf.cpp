@@ -14,7 +14,10 @@
 #include "EbsdLib/IO/TSL/AngReader.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/ColorTable.h"
+#include "EbsdLib/Utilities/IColorKey.hpp"
+#include "EbsdLib/Utilities/PUCMColorKey.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 using FloatVec3Type = std::array<float, 3>;
 
@@ -27,13 +30,15 @@ using namespace ebsdlib;
 class GenerateIPFColorsImpl
 {
 public:
-  GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, const std::vector<size_t>& laueOpsIndices, bool* goodVoxels, uint8_t* colors)
+  GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, const std::vector<size_t>& laueOpsIndices, bool* goodVoxels, uint8_t* colors,
+                        std::vector<LaueOps::Pointer> ops)
   : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
   , m_LaueOpsIndices(laueOpsIndices)
   , m_GoodVoxels(goodVoxels)
   , m_CellIPFColors(colors)
+  , m_Ops(std::move(ops))
   {
   }
 
@@ -41,7 +46,7 @@ public:
 
   void run() const
   {
-    std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+    const std::vector<LaueOps::Pointer>& ops = m_Ops;
     double refDir[3] = {m_ReferenceDir[0], m_ReferenceDir[1], m_ReferenceDir[2]};
     double dEuler[3] = {0.0, 0.0, 0.0};
     ebsdlib::Rgb argb = 0x00000000;
@@ -92,12 +97,13 @@ private:
 
   bool* m_GoodVoxels;
   uint8_t* m_CellIPFColors;
+  std::vector<LaueOps::Pointer> m_Ops;
 };
 
 // -----------------------------------------------------------------------------
 // Reads a .ang file and generates an IPF color map image.
 // -----------------------------------------------------------------------------
-int32_t executeAng(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir)
+int32_t executeAng(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops)
 {
   AngReader reader;
   reader.setFileName(filepath);
@@ -147,7 +153,7 @@ int32_t executeAng(const std::string& filepath, const std::string& outputFile, M
 
   bool* goodVoxels = nullptr;
   std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data());
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data(), ops);
   generateIPF.run();
 
   auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
@@ -162,7 +168,7 @@ int32_t executeAng(const std::string& filepath, const std::string& outputFile, M
 // Reads a .ctf file and generates an IPF color map image.
 // CTF Euler angles are in degrees and must be converted to radians.
 // -----------------------------------------------------------------------------
-int32_t executeCtf(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir)
+int32_t executeCtf(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops)
 {
   CtfReader reader;
   reader.setFileName(filepath);
@@ -211,7 +217,7 @@ int32_t executeCtf(const std::string& filepath, const std::string& outputFile, M
 
   bool* goodVoxels = nullptr;
   std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data());
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data(), ops);
   generateIPF.run();
 
   auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
@@ -225,9 +231,11 @@ int32_t executeCtf(const std::string& filepath, const std::string& outputFile, M
 // -----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-  if(argc != 3)
+  if(argc < 3 || argc > 4)
   {
-    std::cout << "Usage: make_ipf <input_file.ang|input_file.ctf> <output_image.png>" << std::endl;
+    std::cout << "Usage: make_ipf <input_file.ang|input_file.ctf> <output_image.png> [tsl|pucm]" << std::endl;
+    std::cout << "  Optional 3rd argument selects the IPF color key for every Laue class." << std::endl;
+    std::cout << "  Default is tsl." << std::endl;
     return 1;
   }
 
@@ -236,6 +244,33 @@ int main(int argc, char* argv[])
 
   std::string filePath(argv[1]);
   std::string outPath(argv[2]);
+  std::string colorKeyName = (argc == 4) ? std::string(argv[3]) : std::string("tsl");
+  std::transform(colorKeyName.begin(), colorKeyName.end(), colorKeyName.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+  if(colorKeyName != "tsl" && colorKeyName != "pucm")
+  {
+    std::cerr << "ERROR: unknown color key '" << colorKeyName << "', use 'tsl' or 'pucm'" << std::endl;
+    return 1;
+  }
+
+  // Configure each LaueOps with the requested color key. PUCM needs the
+  // rotation point group string for dispatch; TSL is identical for every
+  // class so we use a single shared instance.
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  if(colorKeyName == "pucm")
+  {
+    for(auto& op : ops)
+    {
+      op->setColorKey(std::make_shared<ebsdlib::PUCMColorKey>(op->getRotationPointGroup()));
+    }
+  }
+  else
+  {
+    auto sharedKey = std::make_shared<ebsdlib::TSLColorKey>();
+    for(auto& op : ops)
+    {
+      op->setColorKey(sharedKey);
+    }
+  }
 
   // Determine file type from extension
   std::string ext = std::filesystem::path(filePath).extension().string();
@@ -243,16 +278,16 @@ int main(int argc, char* argv[])
 
   Matrix3X1F referenceDir = {0.0f, 0.0f, 1.0f};
 
-  std::cout << "Creating IPF Color Map for " << filePath << std::endl;
+  std::cout << "Creating IPF Color Map (" << colorKeyName << ") for " << filePath << std::endl;
 
   int32_t result = -1;
   if(ext == ".ang")
   {
-    result = executeAng(filePath, outPath, referenceDir);
+    result = executeAng(filePath, outPath, referenceDir, ops);
   }
   else if(ext == ".ctf")
   {
-    result = executeCtf(filePath, outPath, referenceDir);
+    result = executeCtf(filePath, outPath, referenceDir, ops);
   }
   else
   {
