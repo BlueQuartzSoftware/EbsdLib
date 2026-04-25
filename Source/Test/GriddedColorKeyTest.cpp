@@ -170,3 +170,52 @@ TEST_CASE("ebsdlib::GriddedColorKey::SetLegendRenderMode", "[EbsdLib][GriddedCol
   // Reset to default
   cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 }
+
+// -----------------------------------------------------------------------------
+// Regression test for the angleLimits-discard bug. The 3-argument overload
+// of GriddedColorKey::direction2Color must honor the caller's angleLimits;
+// it cannot just look up colors from a precomputed grid that was baked using
+// the inner key's default (cubic) angle limits.
+//
+// Test: at (eta=15°, chi=45°) with hexagonal-high angle limits
+// (etaMin=0, etaMax=30°, chiMax=90°), the gridded TSL key's color must equal
+// the per-pixel TSL key's color at the same SNAPPED (eta, chi). Previously
+// the gridded key was returning colors computed under cubic m-3m limits
+// (etaMax=45°, chiMax=35.26°) for every Laue class, producing wrong-colored
+// IPF legends across the board.
+TEST_CASE("ebsdlib::GriddedColorKey::HonorsAngleLimitsIn3ArgOverload", "[EbsdLib][GriddedColorKey]")
+{
+  auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
+  auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
+
+  // Hexagonal-high IPF SST limits, in radians.
+  const std::array<double, 3> hexLimits = {0.0, M_PI / 6.0, M_PI / 2.0};
+  // Cubic-m3m IPF SST limits — what the gridded key currently bakes into its
+  // grid via TSLColorKey's default angle limits.
+  const std::array<double, 3> cubicLimits = {0.0, M_PI / 4.0, std::acos(1.0 / std::sqrt(3.0))};
+
+  // (eta, chi) chosen so the cubic and hexagonal formulas give clearly
+  // different colors: chi=45° is much more than the cubic chiMax (~35.26°)
+  // so the cubic formula clamps red to 0, while the hex formula gives red>0.5.
+  const double eta = 15.0 * M_PI / 180.0;
+  const double chi = 45.0 * M_PI / 180.0;
+
+  auto gridded = gridKey->direction2Color(eta, chi, hexLimits);
+  auto perPixelHex = tslKey->direction2Color(eta, chi, hexLimits);
+  auto perPixelCubic = tslKey->direction2Color(eta, chi, cubicLimits);
+
+  INFO("gridded RGB (under hex limits)         = (" << gridded[0] << ", " << gridded[1] << ", " << gridded[2] << ")");
+  INFO("per-pixel TSL RGB under hex limits     = (" << perPixelHex[0] << ", " << perPixelHex[1] << ", " << perPixelHex[2] << ")");
+  INFO("per-pixel TSL RGB under cubic limits   = (" << perPixelCubic[0] << ", " << perPixelCubic[1] << ", " << perPixelCubic[2] << ")");
+
+  // The two limit sets must produce visibly different colors (otherwise the
+  // test wouldn't actually catch the bug). Verify that as a precondition.
+  REQUIRE(std::abs(perPixelHex[0] - perPixelCubic[0]) > 0.05);
+
+  // The gridded color under hex limits should equal the per-pixel TSL color
+  // under hex limits (modulo grid snapping; with 1° grid and exact-degree
+  // input the snap is essentially identity).
+  CHECK(gridded[0] == Approx(perPixelHex[0]).margin(0.01));
+  CHECK(gridded[1] == Approx(perPixelHex[1]).margin(0.01));
+  CHECK(gridded[2] == Approx(perPixelHex[2]).margin(0.01));
+}
