@@ -102,6 +102,10 @@ for e = 1:numel(entries)
     sgtitle(ttl);
 
     outPath = fullfile(classDir, 'mtex_pole_figure.png');
+    outDir = fileparts(outPath);
+    if ~isfolder(outDir)
+        mkdir(outDir);
+    end
     exportgraphics(f, outPath, 'Resolution', 72);
     close(f);
     fprintf('wrote %s\n', outPath);

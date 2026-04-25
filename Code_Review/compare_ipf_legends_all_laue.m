@@ -67,6 +67,11 @@ for e = 1:numel(entries)
     plot(keyTSL);
     title(sprintf('MTEX ipfTSLKey %s', name));
     outTSL = fullfile(classDir, 'tsl_mtex_ipf_legend.png');
+    outDir = fileparts(outTSL);
+    if ~isfolder(outDir)
+        mkdir(outDir);
+    end
+    %exportgraphics(outTSL, outTSL, 'Resolution', 72);
     saveas(fT, outTSL);
     close(fT);
     fprintf('wrote %s\n', outTSL);
@@ -76,7 +81,8 @@ for e = 1:numel(entries)
     fH = figure('Visible', 'off', 'Position', [100 100 600 600]);
     plot(keyHSV);
     title(sprintf('MTEX ipfHSVKey %s', name));
-    outHSV = fullfile(classDir, 'nh_mtex_ipf_legend.png');
+    outHSV = fullfile(classDir, 'nh_gridded_mtex_ipf_legend.png');
+    %exportgraphics(outHSV, outHSV, 'Resolution', 72);
     saveas(fH, outHSV);
     close(fH);
     fprintf('wrote %s\n', outHSV);

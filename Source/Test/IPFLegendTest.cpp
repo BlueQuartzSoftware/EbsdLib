@@ -263,12 +263,26 @@ TEST_CASE("ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses", "[EbsdLib][IPFLe
     std::string dir = baseDir + "/" + safe;
     std::filesystem::create_directories(dir);
 
-    // TSL legend (EbsdLib default key). Compare against MTEX ipfTSLKey.
-    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
+    // TSL legend (per-pixel sampling, EbsdLib default).
+    auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
+    op->setColorKey(tslKey);
     {
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.tiff";
+      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
+
+    // Gridded TSL legend. MTEX renders all its color keys via 1-degree grid
+    // sampling; this is the apples-to-apples render style for comparison
+    // against MTEX ipfTSLKey output.
+    auto griddedTslKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
+    op->setColorKey(griddedTslKey);
+    {
+      auto legend = op->generateIPFTriangleLegend(1024, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/tsl_gridded_ebsdlib_ipf_legend.tiff";
       auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
