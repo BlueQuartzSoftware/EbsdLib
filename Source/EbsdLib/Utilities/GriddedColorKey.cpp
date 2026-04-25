@@ -79,19 +79,42 @@ GriddedColorKey::Vec3 GriddedColorKey::direction2Color(double eta, double chi, c
   // Snap (eta, chi) to nearest grid coordinates so neighboring pixels in the
   // same cell return identical colors (flat-shaded patches, MTEX-style),
   // then ask the inner color key for the color at the snapped coordinates
-  // using the caller-supplied angleLimits. We cannot use the precomputed
-  // grid here because that grid was baked at construction time using the
-  // inner key's *default* angle limits (cubic m-3m for TSLColorKey), which
-  // are wrong for every other Laue class.
-  double etaForSnap = eta;
-  if(etaForSnap < 0.0)
-  {
-    etaForSnap += 2.0 * k_Pi;
-  }
-  const int ei = static_cast<int>(std::round(etaForSnap / m_ResolutionRad));
+  // using the caller-supplied angleLimits. We pass eta through unchanged
+  // (no [0, 2π] wrap): some Laue classes have negative angleLimits[0]
+  // (Trigonal-3 etaMin=-120°, -3m etaMin=-90°) and the TSL formula uses
+  // |eta - etaMin| directly, which is correct only if eta retains its sign.
+  // We cannot use the precomputed grid here because that grid was baked at
+  // construction time using the inner key's *default* angle limits (cubic
+  // m-3m for TSLColorKey), which are wrong for every other Laue class.
+  const int ei = static_cast<int>(std::round(eta / m_ResolutionRad));
   const int ci = static_cast<int>(std::round(chi / m_ResolutionRad));
-  const double snappedEta = static_cast<double>(ei) * m_ResolutionRad;
-  const double snappedChi = static_cast<double>(ci) * m_ResolutionRad;
+  double snappedEta = static_cast<double>(ei) * m_ResolutionRad;
+  double snappedChi = static_cast<double>(ci) * m_ResolutionRad;
+
+  // Clamp the snapped coordinates to the angleLimits. Without this, boundary
+  // pixels can be pushed marginally outside the SST by the snap, e.g. for
+  // cubic m-3m where chiMax depends on eta: the legend renderer passes
+  // angleLimits[2] = chiMax(original_eta) but after the snap the effective
+  // chiMax for snappedEta may differ. The TSL formula r = 1 - chi/chiMax
+  // then goes negative, sqrt produces NaN, and the resulting cast-to-int
+  // produces a stippled gray/dark line along the curved edge of the legend.
+  if(snappedEta < angleLimits[0])
+  {
+    snappedEta = angleLimits[0];
+  }
+  if(snappedEta > angleLimits[1])
+  {
+    snappedEta = angleLimits[1];
+  }
+  if(snappedChi < 0.0)
+  {
+    snappedChi = 0.0;
+  }
+  if(snappedChi > angleLimits[2])
+  {
+    snappedChi = angleLimits[2];
+  }
+
   return m_InnerKey->direction2Color(snappedEta, snappedChi, angleLimits);
 }
 

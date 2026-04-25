@@ -219,3 +219,70 @@ TEST_CASE("ebsdlib::GriddedColorKey::HonorsAngleLimitsIn3ArgOverload", "[EbsdLib
   CHECK(gridded[1] == Approx(perPixelHex[1]).margin(0.01));
   CHECK(gridded[2] == Approx(perPixelHex[2]).margin(0.01));
 }
+
+// -----------------------------------------------------------------------------
+// Regression test: GriddedColorKey must pass eta to the inner key
+// unmodified, even when eta is negative. Trigonal-low (-3) and trigonal-high
+// (-3m) have negative etaMin (-120° and -90° respectively), and the inner
+// TSL formula uses |eta - etaMin| which already handles negative eta
+// correctly. A pre-snap "wrap to [0, 2π]" step in the grid lookup will
+// destroy that math by remapping eta=-60° to +300°.
+TEST_CASE("ebsdlib::GriddedColorKey::HandlesNegativeEta", "[EbsdLib][GriddedColorKey]")
+{
+  auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
+  auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
+
+  // Trigonal-3m angle limits in radians.
+  const std::array<double, 3> trigLimits = {-M_PI / 2.0, -M_PI / 6.0, M_PI / 2.0};
+
+  // Pick eta = -60° which lies between etaMin=-90° and etaMax=-30°.
+  const double eta = -60.0 * M_PI / 180.0;
+  const double chi = 45.0 * M_PI / 180.0;
+
+  auto gridded = gridKey->direction2Color(eta, chi, trigLimits);
+  auto perPixel = tslKey->direction2Color(eta, chi, trigLimits);
+
+  INFO("gridded   = (" << gridded[0] << ", " << gridded[1] << ", " << gridded[2] << ")");
+  INFO("per-pixel = (" << perPixel[0] << ", " << perPixel[1] << ", " << perPixel[2] << ")");
+
+  CHECK(gridded[0] == Approx(perPixel[0]).margin(0.01));
+  CHECK(gridded[1] == Approx(perPixel[1]).margin(0.01));
+  CHECK(gridded[2] == Approx(perPixel[2]).margin(0.01));
+}
+
+// -----------------------------------------------------------------------------
+// Regression test for boundary pixels of the cubic-m3m IPF triangle. The
+// curved [011]->[111] edge has chiMax that varies with eta. The legend
+// renderer passes angleLimits computed at the *original* (pre-snap) eta, but
+// GriddedColorKey snaps eta and chi to grid cells before computing the color.
+// For a pixel just inside the boundary, the snap can push chi to be equal-to
+// or just past angleLimits[2], producing NaN in the TSL formula
+// (1 - chi/chiMax → negative → sqrt). The result is a stippled gray/dark line
+// along the curved edge of the cubic IPF legend.
+//
+// Expected behavior: gridded value should be a valid (non-NaN, R/G/B in [0,1])
+// color whose red channel is clamped to 0 rather than going NaN.
+TEST_CASE("ebsdlib::GriddedColorKey::BoundarySnapDoesNotProduceNaN", "[EbsdLib][GriddedColorKey]")
+{
+  auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
+  auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
+
+  // Cubic m-3m at eta=22.5° has chiMax ≈ 47.27°. Pick a pixel JUST inside.
+  const double eta = 22.5 * M_PI / 180.0;
+  const double chiMax = std::acos(std::sqrt(1.0 / (2.0 + std::tan(eta) * std::tan(eta))));
+  const double chi = chiMax - 0.05 * M_PI / 180.0; // 0.05° inside the boundary
+  const std::array<double, 3> angleLimits = {0.0, M_PI / 4.0, chiMax};
+
+  auto gridded = gridKey->direction2Color(eta, chi, angleLimits);
+
+  INFO("gridded boundary pixel = (" << gridded[0] << ", " << gridded[1] << ", " << gridded[2] << ")");
+  CHECK(std::isfinite(gridded[0]));
+  CHECK(std::isfinite(gridded[1]));
+  CHECK(std::isfinite(gridded[2]));
+  CHECK(gridded[0] >= 0.0);
+  CHECK(gridded[0] <= 1.0);
+  CHECK(gridded[1] >= 0.0);
+  CHECK(gridded[1] <= 1.0);
+  CHECK(gridded[2] >= 0.0);
+  CHECK(gridded[2] <= 1.0);
+}
