@@ -286,3 +286,39 @@ TEST_CASE("ebsdlib::GriddedColorKey::BoundarySnapDoesNotProduceNaN", "[EbsdLib][
   CHECK(gridded[2] >= 0.0);
   CHECK(gridded[2] <= 1.0);
 }
+
+// -----------------------------------------------------------------------------
+// Regression test for triclinic IPF legend coloring. Triclinic (-1) has
+// etaMin=0, etaMax=π — i.e. the upper bound is 180° and the legend renders
+// the full stereographic disk. Pixels in the lower hemisphere of the disk
+// have eta from atan2 in [-π, 0]; the TSL formula uses |eta - etaMin| =
+// |eta| so negative eta colors the disk symmetrically about y=0. Clamping
+// snappedEta to [angleLimits[0], angleLimits[1]] would collapse all of
+// those pixels to a single eta value, ruining the lower-hemisphere colors.
+TEST_CASE("ebsdlib::GriddedColorKey::TriclinicNegativeEtaProducesColor", "[EbsdLib][GriddedColorKey]")
+{
+  auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
+  auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
+
+  // Triclinic IPF angle limits.
+  const std::array<double, 3> tricLimits = {0.0, M_PI, M_PI / 2.0};
+
+  // A lower-hemisphere pixel at eta = -90°. Per-pixel TSL must render this
+  // with the same color as eta = +90° (because the formula uses |eta|).
+  const double eta = -90.0 * M_PI / 180.0;
+  const double chi = 30.0 * M_PI / 180.0;
+
+  auto gridded = gridKey->direction2Color(eta, chi, tricLimits);
+  auto perPixelNeg = tslKey->direction2Color(eta, chi, tricLimits);
+  auto perPixelPos = tslKey->direction2Color(-eta, chi, tricLimits);
+
+  // The per-pixel TSL formula is symmetric in |eta|.
+  REQUIRE(perPixelNeg[0] == Approx(perPixelPos[0]).margin(1e-9));
+  REQUIRE(perPixelNeg[1] == Approx(perPixelPos[1]).margin(1e-9));
+  REQUIRE(perPixelNeg[2] == Approx(perPixelPos[2]).margin(1e-9));
+
+  // The gridded TSL should match the per-pixel result (modulo grid snap).
+  CHECK(gridded[0] == Approx(perPixelNeg[0]).margin(0.01));
+  CHECK(gridded[1] == Approx(perPixelNeg[1]).margin(0.01));
+  CHECK(gridded[2] == Approx(perPixelNeg[2]).margin(0.01));
+}
