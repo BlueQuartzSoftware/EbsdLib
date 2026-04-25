@@ -38,6 +38,7 @@
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/TiffWriter.h"
@@ -265,21 +266,35 @@ TEST_CASE("ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses", "[EbsdLib][IPFLe
     // TSL legend (EbsdLib default key). Compare against MTEX ipfTSLKey.
     op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
     {
-      auto legend = op->generateIPFTriangleLegend(512, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
+      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
-    // Nolze-Hielscher legend. Compare against MTEX ipfHSVKey.
+    // Nolze-Hielscher legend (per-pixel sampling). Compare against MTEX ipfHSVKey.
     auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(SectorForRotationPointGroup(rpg));
     op->setColorKey(nhKey);
     {
-      auto legend = op->generateIPFTriangleLegend(512, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/nh_ebsdlib_ipf_legend.tiff";
-      auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
+      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
+
+    // Gridded Nolze-Hielscher legend. Wraps the NH key in a GriddedColorKey
+    // decorator that snaps every pixel to a 1-degree grid sample, producing
+    // flat-shaded color patches that match MTEX's coarse-sampling/triangle-mesh
+    // rendering style.
+    auto griddedNhKey = std::make_shared<ebsdlib::GriddedColorKey>(nhKey, 1.0);
+    op->setColorKey(griddedNhKey);
+    {
+      auto legend = op->generateIPFTriangleLegend(1024, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/nh_gridded_ebsdlib_ipf_legend.tiff";
+      auto result = TiffWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
