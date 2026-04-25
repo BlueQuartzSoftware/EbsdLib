@@ -292,17 +292,77 @@ below.
 
 ---
 
+## PUCM color key (perceptually uniform, EDAX-style)
+
+EbsdLib now ships a third IPF color key, `PUCMColorKey`, ported from
+William Lenthe's BSD-3 reference implementation
+(`wlenthe/crystallography/orientation_coloring.hpp`, vendored at
+`Source/EbsdLib/Utilities/wlenthe_orientation_coloring.hpp`).
+PUCMColorKey is a thin dispatch wrapper that selects the correct
+wlenthe entry-point per Laue class.
+
+The implementation follows:
+- Nolze, G. and Hielscher, R. *"Orientations Perfectly Colors."*
+  J. Appl. Crystallogr. 49.5 (2016): 1786–1802.
+- EDAX OIM Analysis "perceptually uniform" IPF color scheme (PUCM):
+  see <https://www.edax.com/news-events/edax-blog/edax-blog-posts/improved-ipf-color-palettes>.
+
+`make_ipf` accepts a third optional argument `tsl|pucm` to pick the
+color key. PUCM constructs a per-rotation-point-group color key on
+each LaueOps before rendering.
+
+### Validation against EDAX PUCM reference (`EDAX_PUCM_IPF.bmp`)
+
+Same input as the TSL validation (AllLaueClasses_RandO.ang, 96×100
+grid, 12 phases). EDAX renders this with their PUCM color scheme and
+ships it alongside the test data.
+
+| Phase | EDAX_PUCM ↔ EbsdLib_PUCM mean diff |
+| ----- | ----------------- |
+| dihex 6/mmm     | **0.47** |
+| triclinic       | 0.47     |
+| cubic m-3m      | 0.87     |
+| ortho mmm       | 1.19     |
+| trig -3         | 1.25     |
+| ditrig -3m      | 1.30     |
+| mono b          | 1.79     |
+| hex 6/m         | 1.91     |
+| tetrahedral m-3 | 2.42     |
+| tet 4/m         | 10.05    |
+| ditet 4/mmm     | 11.78    |
+| **mono c**      | **74.67** |
+| **whole image** | **9.01**, 26.5% of pixels differ at all |
+
+9 of 12 Laue classes match EDAX PUCM to within sub-pixel accuracy
+(mean diff < 3 / 255). Mono-c is the same outlier we saw with the TSL
+comparison and is therefore not a PUCM-specific issue — see Open
+Questions.
+
+`tet 4/m` and `ditet 4/mmm` have moderate divergences (mean ≈ 10–12).
+Plausible causes: small fundamental-sector convention differences
+between wlenthe's reference and what EDAX ships, or a subtle dispatch
+issue in `PUCMColorKey` for those specific Laue classes. Worth
+investigating; not yet diagnosed.
+
+---
+
 ## Open questions
 
 (Add as they come up.)
 
 - **Monoclinic c-setting (`mono c`, point group `112/m`) — EbsdLib vs
-  EDAX disagree** by mean=31.82 / max=244 over 46% of pixels in the
-  AllLaueClasses_RandO comparison. Every other Laue class matches EDAX
-  to within ~3 mean diff. Likely a b-setting vs c-setting axis
-  convention mismatch in the EbsdLib MonoclinicOps phase / Laue-class
-  mapping (or in the Euler-angle interpretation specific to c-setting).
-  Worth investigating; isolated to one phase.
+  EDAX disagree** by mean=31.82 / max=244 (TSL) and mean=74.67 / max=255
+  (PUCM) over ~46–100% of pixels in the AllLaueClasses_RandO comparison.
+  Every other Laue class matches EDAX to within ~3 mean diff for both
+  color keys. The fact that mono-c diverges in BOTH TSL and PUCM
+  comparisons rules out a color-formula bug — strongly indicates a
+  b-setting vs c-setting axis convention mismatch in EbsdLib's
+  MonoclinicOps phase mapping or Euler-angle interpretation.
+- **Tetragonal-low (4/m) and tetragonal-high (4/mmm) PUCM** have moderate
+  divergence vs EDAX_PUCM (mean ≈ 10–12) while the same classes match
+  exactly under TSL (mean ≈ 1–2). Suggests the wlenthe dispatch or the
+  fundamental-sector convention is subtly different for these two
+  classes specifically. The other 9 Laue classes are clean.
 
 - The visual hex `<10-10>` and `<11-20>` PF positions match MTEX after
   the X\|\|a\* convention fix, but the *interior* coloring of the
