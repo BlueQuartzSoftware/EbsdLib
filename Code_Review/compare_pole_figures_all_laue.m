@@ -70,9 +70,9 @@ for e = 1:numel(entries)
     end
 
     classDir = fullfile(baseDir, name);
-    csvPath = fullfile(classDir, 'eulers.csv');
+    csvPath = fullfile(classDir, 'pole_figure_input_eulers.csv');
     if ~exist(csvPath, 'file')
-        fprintf('skipping %s (no eulers.csv)\n', name);
+        fprintf('skipping %s (no pole_figure_input_eulers.csv)\n', name);
         continue;
     end
 
@@ -96,13 +96,13 @@ for e = 1:numel(entries)
     end
     h = [hArr{:}];
 
-    f = figure('Visible', 'off', 'Position', [100 100 1400 500]);
+    f = figure('Visible', 'off', 'Position', [100 100 700 250]);
     plotPDF(ori, h, 'MarkerSize', 3, 'upper', 'projection', 'eangle', 'complete');
     ttl = sprintf('MTEX %s — Euler %.1f, %.1f, %.1f (deg)', name, eulers_deg(1,1), eulers_deg(1,2), eulers_deg(1,3));
     sgtitle(ttl);
 
-    outPath = fullfile(classDir, 'mtex.png');
-    saveas(f, outPath);
+    outPath = fullfile(classDir, 'mtex_pole_figure.png');
+    exportgraphics(f, outPath, 'Resolution', 72);
     close(f);
     fprintf('wrote %s\n', outPath);
 end

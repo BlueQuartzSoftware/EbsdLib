@@ -167,10 +167,67 @@ TEST_CASE("ebsdlib::IPFLegendTest::CAxisIsRed", "[EbsdLib][IPFLegendTest]")
 }
 
 // -----------------------------------------------------------------------------
-// Dump every Laue class's TSL IPF legend to Testing/Temporary/IPFComparison/.
-// Companion MATLAB script at Code_Review/compare_ipf_legends_all_laue.m reads
-// this directory and writes MTEX ipfHSVKey legends as mtex.png for visual
-// side-by-side validation. (Analogous to the PoleFigureLaueComparisonTest.)
+// Per-Laue-class FundamentalSectorGeometry lookup so each Laue class's
+// NolzeHielscherColorKey is constructed with its own sector instead of the
+// cubicHigh placeholder used elsewhere in this file.
+namespace
+{
+ebsdlib::FundamentalSectorGeometry SectorForRotationPointGroup(const std::string& rpg)
+{
+  if(rpg == "432")
+  {
+    return ebsdlib::FundamentalSectorGeometry::cubicHigh();
+  }
+  if(rpg == "23")
+  {
+    return ebsdlib::FundamentalSectorGeometry::cubicLow();
+  }
+  if(rpg == "622")
+  {
+    return ebsdlib::FundamentalSectorGeometry::hexagonalHigh();
+  }
+  if(rpg == "6")
+  {
+    return ebsdlib::FundamentalSectorGeometry::hexagonalLow();
+  }
+  if(rpg == "422")
+  {
+    return ebsdlib::FundamentalSectorGeometry::tetragonalHigh();
+  }
+  if(rpg == "4")
+  {
+    return ebsdlib::FundamentalSectorGeometry::tetragonalLow();
+  }
+  if(rpg == "32")
+  {
+    return ebsdlib::FundamentalSectorGeometry::trigonalHigh();
+  }
+  if(rpg == "3")
+  {
+    return ebsdlib::FundamentalSectorGeometry::trigonalLow();
+  }
+  if(rpg == "222")
+  {
+    return ebsdlib::FundamentalSectorGeometry::orthorhombic();
+  }
+  if(rpg == "2")
+  {
+    return ebsdlib::FundamentalSectorGeometry::monoclinic();
+  }
+  return ebsdlib::FundamentalSectorGeometry::triclinic();
+}
+} // namespace
+
+// -----------------------------------------------------------------------------
+// Dump every Laue class's IPF legend with BOTH the TSL color key (EbsdLib's
+// default) and the Nolze-Hielscher color key (the EbsdLib analog of MTEX's
+// ipfHSVKey) into Testing/Temporary/IPFComparison/<rpg>/. Companion MATLAB
+// script at Code_Review/compare_ipf_legends_all_laue.m emits matching
+// mtex_ipf_legend_tsl.png and mtex_ipf_legend_hsv.png so the two pairs can
+// be compared apples-to-apples per Laue class:
+//   ebsdlib_ipf_legend_tsl.tiff  vs  mtex_ipf_legend_tsl.png  (TSL key)
+//   ebsdlib_ipf_legend_nh.tiff   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
+// (Analogous to the PoleFigureLaueComparisonTest.)
 TEST_CASE("ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses", "[EbsdLib][IPFLegendTest]")
 {
   const std::string baseDir = std::string(ebsdlib::unit_test::k_TestTempDir) + "IPFComparison";
@@ -205,12 +262,29 @@ TEST_CASE("ebsdlib::IPFLegendTest::MTEXCompare_AllLaueClasses", "[EbsdLib][IPFLe
     std::string dir = baseDir + "/" + safe;
     std::filesystem::create_directories(dir);
 
-    auto legend = op->generateIPFTriangleLegend(512, false);
-    REQUIRE(legend != nullptr);
+    // TSL legend (EbsdLib default key). Compare against MTEX ipfTSLKey.
+    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
+    {
+      auto legend = op->generateIPFTriangleLegend(512, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.tiff";
+      auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
 
-    std::string tifPath = dir + "/ebsdlib.tiff";
-    auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
-    REQUIRE(result.first == 0);
+    // Nolze-Hielscher legend. Compare against MTEX ipfHSVKey.
+    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(SectorForRotationPointGroup(rpg));
+    op->setColorKey(nhKey);
+    {
+      auto legend = op->generateIPFTriangleLegend(512, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/nh_ebsdlib_ipf_legend.tiff";
+      auto result = TiffWriter::WriteColorImage(tifPath, 512, 512, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
+
+    // Restore TSL default for any test that runs after this one
+    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 
     master << rpg << "," << op->getSymmetryName() << "\n";
   }
