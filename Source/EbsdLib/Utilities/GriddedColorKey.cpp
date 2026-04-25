@@ -76,16 +76,23 @@ GriddedColorKey::Vec3 GriddedColorKey::direction2Color(const Vec3& direction) co
 
 GriddedColorKey::Vec3 GriddedColorKey::direction2Color(double eta, double chi, const Vec3& angleLimits) const
 {
-  // Snap eta and chi to nearest grid point (flat shading).
-  // Instead of computing the exact color at (eta, chi),
-  // we return the precomputed color at the nearest grid point.
-  // This produces flat-colored patches like MTEX's surf() rendering.
-  double etaPositive = eta;
-  if(etaPositive < 0.0)
+  // Snap (eta, chi) to nearest grid coordinates so neighboring pixels in the
+  // same cell return identical colors (flat-shaded patches, MTEX-style),
+  // then ask the inner color key for the color at the snapped coordinates
+  // using the caller-supplied angleLimits. We cannot use the precomputed
+  // grid here because that grid was baked at construction time using the
+  // inner key's *default* angle limits (cubic m-3m for TSLColorKey), which
+  // are wrong for every other Laue class.
+  double etaForSnap = eta;
+  if(etaForSnap < 0.0)
   {
-    etaPositive += 2.0 * k_Pi;
+    etaForSnap += 2.0 * k_Pi;
   }
-  return lookupGrid(etaPositive, chi);
+  const int ei = static_cast<int>(std::round(etaForSnap / m_ResolutionRad));
+  const int ci = static_cast<int>(std::round(chi / m_ResolutionRad));
+  const double snappedEta = static_cast<double>(ei) * m_ResolutionRad;
+  const double snappedChi = static_cast<double>(ci) * m_ResolutionRad;
+  return m_InnerKey->direction2Color(snappedEta, snappedChi, angleLimits);
 }
 
 std::string GriddedColorKey::name() const
