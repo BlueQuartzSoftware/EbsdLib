@@ -91,21 +91,19 @@ GriddedColorKey::Vec3 GriddedColorKey::direction2Color(double eta, double chi, c
   double snappedEta = static_cast<double>(ei) * m_ResolutionRad;
   double snappedChi = static_cast<double>(ci) * m_ResolutionRad;
 
-  // Clamp the snapped coordinates to the angleLimits. Without this, boundary
-  // pixels can be pushed marginally outside the SST by the snap, e.g. for
-  // cubic m-3m where chiMax depends on eta: the legend renderer passes
-  // angleLimits[2] = chiMax(original_eta) but after the snap the effective
-  // chiMax for snappedEta may differ. The TSL formula r = 1 - chi/chiMax
-  // then goes negative, sqrt produces NaN, and the resulting cast-to-int
-  // produces a stippled gray/dark line along the curved edge of the legend.
-  if(snappedEta < angleLimits[0])
-  {
-    snappedEta = angleLimits[0];
-  }
-  if(snappedEta > angleLimits[1])
-  {
-    snappedEta = angleLimits[1];
-  }
+  // Clamp the snapped *chi* to [0, chiMax]. Without this, boundary pixels can
+  // be pushed marginally outside the SST by the snap — for cubic m-3m chiMax
+  // depends on eta, so the legend renderer passes angleLimits[2] =
+  // chiMax(original_eta) but the snap shifts eta to a different cell whose
+  // effective chiMax may differ. The TSL formula r = 1 - chi/chiMax then
+  // goes negative, sqrt produces NaN, and the resulting cast-to-int produces
+  // a stippled gray/dark line along the curved edge of the legend.
+  //
+  // We deliberately do NOT clamp snappedEta to [angleLimits[0],
+  // angleLimits[1]]. Triclinic (-1) and any other class with a wide eta
+  // range relies on the inner formula's |eta - etaMin| handling of out-of-
+  // range eta to color the full IPF disk; clamping eta would collapse the
+  // lower hemisphere of the disk to a single eta value.
   if(snappedChi < 0.0)
   {
     snappedChi = 0.0;

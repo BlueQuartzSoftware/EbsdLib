@@ -17,6 +17,7 @@
 %   2. Edit `baseDir` below to point at the IPFComparison directory
 %   3. Run this script in MATLAB (MTEX must be on the path: startup_mtex)
 
+
 baseDir = '/Users/mjackson/Workspace7/DREAM3D-Build/ebsdlib-Release/Testing/Temporary/IPFComparison';
 
 if ~exist(baseDir, 'dir')
