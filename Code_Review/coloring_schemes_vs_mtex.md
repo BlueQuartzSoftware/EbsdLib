@@ -242,9 +242,67 @@ math is still the EbsdLib chi-eta formula, not MTEX's polar/HSL formula.
 
 ---
 
+## Validation against EDAX TSL reference (`EDAX_TSL_IPF.bmp`)
+
+Test data and reference output supplied by EDAX:
+- Input: `Data/ipf_color_tests/AllLaueClasses_RandO.ang` — 96×100 grid,
+  one orientation per row, 12 phases (one per Laue class) repeated
+  across 8-pixel-wide vertical strips.
+- TSL reference: `Data/ipf_color_tests/EDAX_TSL_IPF.bmp` (533×511,
+  ~5.33× upscaled from the .ang grid).
+- PUCM reference (separate scheme, future work):
+  `Data/ipf_color_tests/EDAX_PUCM_IPF.bmp`.
+
+Comparison procedure:
+
+```bash
+make_ipf Data/ipf_color_tests/AllLaueClasses_RandO.ang /tmp/ebsdlib.png
+# nearest-downsample EDAX_TSL_IPF.bmp to 96x100 with PIL/etc.
+# diff against /tmp/ebsdlib.png pixelwise
+```
+
+Per-Laue-class result (mean per-channel diff out of 255, full strip):
+
+| Phase | EDAX_TSL ↔ EbsdLib | EDAX_TSL ↔ MTEX |
+| ----- | ------------------ | ---------------- |
+| dihex 6/mmm        | **0.42** | 18.28 |
+| triclinic          | 0.57     | 91.32 |
+| cubic m-3m         | 0.64     | 14.05 |
+| hex 6/m            | 0.91     | 11.02 |
+| ditet 4/mmm        | 1.02     | 14.42 |
+| mono b             | 1.02     | 39.60 |
+| ortho mmm          | 1.28     | 13.86 |
+| tetrahedral m-3    | 1.29     | 20.03 |
+| tet 4/m            | 1.49     | 14.51 |
+| trig -3            | 1.81     | 21.50 |
+| ditrig -3m         | 2.65     | 71.76 |
+| **mono c**         | **31.82** | 35.71 |
+| **whole image**    | **3.74**, only 5.8 % of pixels differ at all | 30.51 |
+
+Headline: **EbsdLib's TSL key matches EDAX's TSL output to within
+sub-pixel accuracy on 11 of 12 Laue classes**. The remaining ~2%
+"mismatch floor" on those 11 phases is consistent with antialiasing /
+quantization from the 5.33× non-integer downsample of the EDAX BMP and
+is not a real coloring difference. MTEX disagrees with EDAX as
+documented above (polar-HSL vs chi-eta TSL formulas).
+
+Mono-c is the one phase where EbsdLib disagrees with EDAX in a way
+that's clearly not just downsample noise — added to "Open questions"
+below.
+
+---
+
 ## Open questions
 
 (Add as they come up.)
+
+- **Monoclinic c-setting (`mono c`, point group `112/m`) — EbsdLib vs
+  EDAX disagree** by mean=31.82 / max=244 over 46% of pixels in the
+  AllLaueClasses_RandO comparison. Every other Laue class matches EDAX
+  to within ~3 mean diff. Likely a b-setting vs c-setting axis
+  convention mismatch in the EbsdLib MonoclinicOps phase / Laue-class
+  mapping (or in the Euler-angle interpretation specific to c-setting).
+  Worth investigating; isolated to one phase.
 
 - The visual hex `<10-10>` and `<11-20>` PF positions match MTEX after
   the X\|\|a\* convention fix, but the *interior* coloring of the
