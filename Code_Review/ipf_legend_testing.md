@@ -3,6 +3,14 @@
 - Each Laue class has a subsection below
 - Each Laue class has 2 options: "NH" and "TSL"
 
+## After IPF Legends are all matching
+
+- Create a square grid of Euler Angles that can reasonable represent a wide range of orientations
+- Treat that Square Grid like a normal EBSD Scan
+- Render it with the variations of the "IPF Colors" using both MTEX and EbsdLib
+- Compare the images that are produced. They should be nearly exactly the same.
+
+
 ## 1
 
 ### TSL Comparison

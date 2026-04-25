@@ -1470,7 +1470,10 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int im
       {
         color = 0xFFFFFFFF;
       }
-      else if(!generateEntirePlane && x < 0.0F)
+      // Use <= here so the x=0 column (stereographic y-axis) is treated as
+      // outside the SST and rendered white. The original < produced a single
+      // stray vertical pixel column down the centerline of the image.
+      else if(!generateEntirePlane && x <= 0.0F)
       {
         color = 0xFFFFFFFF;
       }

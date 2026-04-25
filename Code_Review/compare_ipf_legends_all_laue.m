@@ -66,7 +66,7 @@ for e = 1:numel(entries)
     fT = figure('Visible', 'off', 'Position', [100 100 600 600]);
     plot(keyTSL);
     title(sprintf('MTEX ipfTSLKey %s', name));
-    outTSL = fullfile(classDir, 'tsl_mtex_ipf_legend.png');
+    outTSL = fullfile(classDir, 'tsl_gridded_mtex_ipf_legend.png');
     outDir = fileparts(outTSL);
     if ~isfolder(outDir)
         mkdir(outDir);
