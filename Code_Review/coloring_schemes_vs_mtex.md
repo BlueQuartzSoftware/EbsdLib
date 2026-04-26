@@ -311,6 +311,25 @@ The implementation follows:
 color key. PUCM constructs a per-rotation-point-group color key on
 each LaueOps before rendering.
 
+PUCM is also wired into the legend pipeline: every Laue class now
+emits four EbsdLib legend variants per `IPFLegendTest` run:
+
+```
+<rpg>/tsl_ebsdlib_ipf_legend.png
+<rpg>/tsl_gridded_ebsdlib_ipf_legend.png
+<rpg>/nh_ebsdlib_ipf_legend.png
+<rpg>/nh_gridded_ebsdlib_ipf_legend.png
+<rpg>/pucm_ebsdlib_ipf_legend.png         <-- new
+<rpg>/pucm_gridded_ebsdlib_ipf_legend.png <-- new
+```
+
+The PUCM legends use the same `LaueOps::generateIPFTriangleLegend`
+machinery as TSL/NH; the rendering loop calls `generateIPFColor` per
+pixel, which routes through the active `m_ColorKey`. Setting the key
+to a `PUCMColorKey(rpg)` instance for the corresponding Laue class
+just before rendering produces the perceptually uniform legend
+without any other code path changes.
+
 ### Validation against EDAX PUCM reference (`EDAX_PUCM_IPF.bmp`)
 
 Same input as the TSL validation (AllLaueClasses_RandO.ang, 96×100
