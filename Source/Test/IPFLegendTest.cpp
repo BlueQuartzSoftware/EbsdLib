@@ -40,6 +40,7 @@
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/PUCMColorKey.hpp"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
 
@@ -357,6 +358,30 @@ TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFL
       auto legend = op->generateIPFTriangleLegend(1024, false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/nh_gridded_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
+
+    // PUCM legend (per-pixel). Compare against EDAX's perceptually uniform
+    // IPF palette. Constructed per Laue class so the wlenthe dispatch
+    // selects the correct cyclic / dihedral / cubic / hemispheric path.
+    auto pucmKey = std::make_shared<ebsdlib::PUCMColorKey>(rpg);
+    op->setColorKey(pucmKey);
+    {
+      auto legend = op->generateIPFTriangleLegend(1024, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/pucm_ebsdlib_ipf_legend.png";
+      auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
+      REQUIRE(result.first == 0);
+    }
+
+    // Gridded PUCM legend (1-degree flat-shaded cells, MTEX-style).
+    auto griddedPucmKey = std::make_shared<ebsdlib::GriddedColorKey>(pucmKey, 1.0);
+    op->setColorKey(griddedPucmKey);
+    {
+      auto legend = op->generateIPFTriangleLegend(1024, false);
+      REQUIRE(legend != nullptr);
+      std::string tifPath = dir + "/pucm_gridded_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
