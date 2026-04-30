@@ -47,6 +47,8 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "UnitTestSupport.hpp"
 
+#include <fmt/format.h>
+
 #include <filesystem>
 #include <fstream>
 #include <set>
@@ -60,6 +62,13 @@ using namespace ebsdlib;
 
 TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
 {
+
+  fs::path dir = fmt::format("{}/IPFLegendTest", ebsdlib::unit_test::k_TestTempDir);
+  if(fs::exists(dir) == false)
+  {
+    fs::create_directories(dir);
+  }
+
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
 
   for(size_t index = 0; index < 11; index++)
@@ -67,9 +76,10 @@ TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
     SECTION(ops[index]->getSymmetryName())
     {
       ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false);
-      std::stringstream outputFilePathStream;
-      outputFilePathStream << ebsdlib::unit_test::k_TestTempDir << "/" << ops[index]->getNameOfClass() << ".png";
-      auto result = PngWriter::WriteColorImage(outputFilePathStream.str(), IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
+
+      std::string outputFilePath = fmt::format("{}/IPFLegendTest/{}.png", ebsdlib::unit_test::k_TestTempDir, ops[index]->getNameOfClass());
+      EnsureParentDirectoryExists(outputFilePath);
+      auto result = PngWriter::WriteColorImage(outputFilePath, IMAGE_WIDTH, IMAGE_WIDTH, 3, image->data());
       REQUIRE(result.first == 0);
     }
   }
@@ -361,6 +371,57 @@ TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFL
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
+
+    // Restore TSL default for any test that runs after this one
+    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
+
+    master << rpg << "," << op->getSymmetryName() << "\n";
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dump every Laue class's IPF legend with MTEX Nolze-Hielscher color key (the EbsdLib analog of MTEX's
+// ipfHSVKey) into Testing/Temporary/IPFComparison/<rpg>/. Companion MATLAB
+// script at Code_Review/compare_ipf_legends_all_laue.m emits matching
+// mtex_ipf_legend_tsl.png and mtex_ipf_legend_hsv.png so the two pairs can
+// be compared apples-to-apples per Laue class:
+//   ebsdlib_ipf_legend_tsl.png  vs  mtex_ipf_legend_tsl.png  (TSL key)
+//   ebsdlib_ipf_legend_nh.png   vs  mtex_ipf_legend_hsv.png  (NH = MTEX HSV)
+// (Analogous to the PoleFigureLaueComparisonTest.)
+TEST_CASE("ebsdlib::IPFLegendTest::PUCM_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFLegendTest]")
+{
+  const std::string baseDir = std::string(ebsdlib::unit_test::k_TestTempDir) + "IPFComparison";
+  std::filesystem::create_directories(baseDir);
+
+  std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
+  std::set<std::string> seen;
+
+  std::ofstream master(baseDir + "/manifest.txt");
+  master << "# IPF legend Laue-class comparison\n";
+  master << "# columns: rotationPointGroup, symmetryName\n";
+
+  for(size_t i = 0; i < ops.size(); ++i)
+  {
+    LaueOps::Pointer op = ops[i];
+    const std::string rpg = op->getRotationPointGroup();
+    if(seen.count(rpg) > 0)
+    {
+      continue;
+    }
+    seen.insert(rpg);
+
+    std::string safe = rpg;
+    for(char& c : safe)
+    {
+      if(c == '/' || c == ' ')
+      {
+        c = '_';
+      }
+    }
+
+    std::string dir = baseDir + "/" + safe;
+    std::filesystem::create_directories(dir);
+
 
     // PUCM legend (per-pixel). Compare against EDAX's perceptually uniform
     // IPF palette. Constructed per Laue class so the wlenthe dispatch

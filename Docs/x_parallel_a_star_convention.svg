@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif">
+  <!-- =================================================================== -->
+  <!-- X||a vs X||a* — Hexagonal Cartesian-frame conventions               -->
+  <!-- Companion to Data/Pole_Figure_Validation/ReadMe.md                  -->
+  <!-- =================================================================== -->
+
+  <defs>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2980b9"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#999"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="520" fill="#ffffff"/>
+
+  <!-- =================================================================== -->
+  <!-- Title bar                                                            -->
+  <!-- =================================================================== -->
+  <text x="400" y="34" font-size="19" font-weight="600" text-anchor="middle" fill="#1a1a1a">
+    X‖a  vs  X‖a*  —  Hexagonal Cartesian-frame conventions
+  </text>
+  <text x="400" y="54" font-size="12" text-anchor="middle" fill="#666">
+    Same crystal, same physics. Only the choice of where Cartesian X points within the basal plane changes.
+  </text>
+
+  <!-- Panel separator -->
+  <line x1="400" y1="78" x2="400" y2="468" stroke="#e5e5e5" stroke-width="1"/>
+
+  <!-- =================================================================== -->
+  <!-- LEFT PANEL: basal-plane geometry                                    -->
+  <!-- =================================================================== -->
+  <text x="200" y="98" font-size="13" font-weight="500" text-anchor="middle" fill="#333">
+    Basal plane (looking down c-axis)
+  </text>
+
+  <!-- Reference circle (very faint) -->
+  <circle cx="200" cy="290" r="135" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+
+  <!-- Real-lattice vectors a₁, a₂, a₃ (light gray dashed) -->
+  <g stroke="#aaa" stroke-width="1.3" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-gray)">
+    <line x1="200" y1="290" x2="328" y2="290"/>      <!-- a₁ at 0° -->
+    <line x1="200" y1="290" x2="136" y2="179.1"/>    <!-- a₂ at 120° -->
+    <line x1="200" y1="290" x2="136" y2="400.9"/>    <!-- a₃ at 240° -->
+  </g>
+  <g font-size="13" font-style="italic" fill="#777">
+    <text x="338" y="294" text-anchor="start">a<tspan font-size="9" baseline-shift="sub">1</tspan></text>
+    <text x="125" y="173" text-anchor="middle">a<tspan font-size="9" baseline-shift="sub">2</tspan></text>
+    <text x="125" y="412" text-anchor="middle">a<tspan font-size="9" baseline-shift="sub">3</tspan></text>
+  </g>
+
+  <!-- Reciprocal vector a*₁ direction (also where X||a* axis points) -->
+  <line x1="200" y1="290" x2="306.9" y2="228.3" stroke="#aaa" stroke-width="1.3" stroke-dasharray="5,3"/>
+  <text x="316" y="220" font-size="12" font-style="italic" fill="#777">
+    a*<tspan font-size="9" baseline-shift="sub">1</tspan>
+  </text>
+
+  <!-- Cartesian X-axis under X||a (red, solid arrow, along a₁) -->
+  <line x1="200" y1="290" x2="318" y2="290" stroke="#c0392b" stroke-width="2.6" marker-end="url(#arrow-red)"/>
+  <text x="338" y="312" font-size="13" font-weight="600" fill="#c0392b" text-anchor="start">X</text>
+  <text x="350" y="312" font-size="11" fill="#c0392b" text-anchor="start">(X‖a)</text>
+
+  <!-- Cartesian X-axis under X||a* (blue, solid arrow, along a*₁ at 30°) -->
+  <line x1="200" y1="290" x2="298" y2="233.4" stroke="#2980b9" stroke-width="2.6" marker-end="url(#arrow-blue)"/>
+  <text x="316" y="200" font-size="13" font-weight="600" fill="#2980b9" text-anchor="start">X</text>
+  <text x="328" y="200" font-size="11" fill="#2980b9" text-anchor="start">(X‖a*)</text>
+
+  <!-- 30° arc between the two X-axes -->
+  <path d="M 245 290 A 45 45 0 0 0 238.97 267.50" fill="none" stroke="#444" stroke-width="1.4"/>
+  <text x="258" y="278" font-size="11" font-weight="500" fill="#444">30°</text>
+
+  <!-- Origin dot -->
+  <circle cx="200" cy="290" r="3.2" fill="#1a1a1a"/>
+
+  <!-- Caption -->
+  <g font-size="11" fill="#555" text-anchor="middle">
+    <text x="200" y="445">a*<tspan font-size="9" baseline-shift="sub">1</tspan> is perpendicular to (a<tspan font-size="9" baseline-shift="sub">2</tspan>, c) — at 30° CCW from a<tspan font-size="9" baseline-shift="sub">1</tspan> in the basal plane.</text>
+    <text x="200" y="461">Picking the Cartesian X-axis along a<tspan font-size="9" baseline-shift="sub">1</tspan> (red) or a*<tspan font-size="9" baseline-shift="sub">1</tspan> (blue) is a 30° choice.</text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- RIGHT PANEL: pole-figure consequence                                -->
+  <!-- =================================================================== -->
+  <text x="600" y="98" font-size="13" font-weight="500" text-anchor="middle" fill="#333">
+    Same (10-10) plane normal — two pole-figure positions
+  </text>
+
+  <!-- Disk -->
+  <circle cx="600" cy="290" r="100" fill="#fafafa" stroke="#bbb" stroke-width="1"/>
+
+  <!-- Reference cross inside disk -->
+  <g stroke="#d8d8d8" stroke-width="0.8" stroke-dasharray="3,3">
+    <line x1="500" y1="290" x2="700" y2="290"/>
+    <line x1="600" y1="190" x2="600" y2="390"/>
+  </g>
+  <g font-size="10" fill="#a8a8a8">
+    <text x="708" y="293">+x</text>
+    <text x="603" y="186">+y</text>
+  </g>
+
+  <!-- Position under X||a — at (0.866, 0.5), upper right -->
+  <line x1="600" y1="290" x2="686.6" y2="240" stroke="#c0392b" stroke-width="1.3"/>
+  <circle cx="686.6" cy="240" r="5.5" fill="#c0392b"/>
+  <text x="694" y="232" font-size="11" font-weight="600" fill="#c0392b">X‖a</text>
+  <text x="694" y="246" font-size="10" fill="#c0392b">(0.866, 0.5)</text>
+
+  <!-- Position under X||a* — at (1, 0), on +x axis -->
+  <line x1="600" y1="290" x2="700" y2="290" stroke="#2980b9" stroke-width="1.3"/>
+  <circle cx="700" cy="290" r="5.5" fill="#2980b9"/>
+  <text x="710" y="285" font-size="11" font-weight="600" fill="#2980b9">X‖a*</text>
+  <text x="710" y="299" font-size="10" fill="#2980b9">(1, 0)</text>
+
+  <!-- 30° arc inside the disk — from blue (angle 0°) to red (angle 30°) -->
+  <path d="M 635 290 A 35 35 0 0 0 630.31 272.50" fill="none" stroke="#444" stroke-width="1.4"/>
+  <text x="643" y="280" font-size="11" font-weight="500" fill="#444">30°</text>
+
+  <!-- Origin dot -->
+  <circle cx="600" cy="290" r="3.2" fill="#1a1a1a"/>
+
+  <!-- Caption -->
+  <g font-size="11" fill="#555" text-anchor="middle">
+    <text x="600" y="445">The plane normal of (10-10) is a*<tspan font-size="9" baseline-shift="sub">1</tspan> — same physical direction in both frames.</text>
+    <text x="600" y="461">Its Cartesian (x, y) — and so its pole-figure position — rotates by 30°.</text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- Footer band                                                          -->
+  <!-- =================================================================== -->
+  <rect x="0" y="478" width="800" height="42" fill="#f7f7f7"/>
+  <text x="400" y="497" font-size="11" text-anchor="middle" fill="#444">
+    EbsdLib v3 uses X‖a* for hexagonal/trigonal Laue classes — matching MTEX and Oxford / HKL acquisition systems.
+  </text>
+  <text x="400" y="512" font-size="10" text-anchor="middle" fill="#777">
+    See Data/Pole_Figure_Validation/ReadMe.md for the full per-Laue-class convention table and validation methodology.
+  </text>
+</svg>

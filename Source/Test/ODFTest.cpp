@@ -98,9 +98,15 @@ TEST_CASE("ebsdlib::ODFTest", "[EbsdLib][ODFTest]")
   size_t numSamplePoints = 500;
   EulerContainerType eulers = StatsGen::GenODFPlotData<OdfValueType, HexagonalOps, OdfContainerType, EulerContainerType>(odf, numSamplePoints);
 
+  fs::path dir = fmt::format("{}/ODFTest", ebsdlib::unit_test::k_TestTempDir);
+  if(fs::exists(dir) == false)
+  {
+    fs::create_directories(dir);
+  }
+
   // Export sampled Euler angles (degrees) for MTEX comparison. One row per orientation: phi1, Phi, phi2
   {
-    std::string csvPath = fmt::format("{}ODFTest_Eulers_deg.csv", ebsdlib::unit_test::k_TestTempDir);
+    std::string csvPath = fmt::format("{}/ODFTest/ODFTest_Eulers_deg.csv", ebsdlib::unit_test::k_TestTempDir);
     std::ofstream csv(csvPath);
     csv << "phi1,Phi,phi2\n";
     for(size_t i = 0; i < numSamplePoints; ++i)
@@ -129,7 +135,9 @@ TEST_CASE("ebsdlib::ODFTest", "[EbsdLib][ODFTest]")
   PoleFigureCompositor compositor;
   CompositePoleFigureResult result = compositor.generateCompositeImage(config);
 
-  std::string outputPath = fmt::format("{}Pole_Figure_{}.png", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
+
+  std::string outputPath = fmt::format("{}/ODFTest/Pole_Figure_{}.png", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
+
   auto writerResult = PngWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
   REQUIRE(writerResult.first == 0);
 }

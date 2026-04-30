@@ -36,6 +36,7 @@
 #pragma once
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/Matrix3X1.hpp"
 
@@ -76,6 +77,13 @@ struct PoleFigureConfiguration_t
   std::vector<unsigned int> order; ///<* The order that the pole figures should appear in.
   std::string phaseName;           ///<* The Names of the phase
   bool FlipFinalImage;             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+
+  ///<* Cartesian basis convention for hex/trig phases. Default preserves
+  /// current EbsdLib v3 behavior (X||a*) while plumbing is being added;
+  /// this default flips to XParallelA in PR 3 once internal SymOps tables
+  /// are reorganized. Ignored for cubic / tetragonal / orthorhombic /
+  /// monoclinic / triclinic Laue classes. See ebsdlib::HexConvention.
+  ebsdlib::HexConvention hexConvention = ebsdlib::HexConvention::XParallelAStar;
 };
 
 /**

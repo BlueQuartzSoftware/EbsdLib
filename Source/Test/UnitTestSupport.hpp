@@ -39,10 +39,12 @@
 #include <assert.h>
 
 //-- C++ Includes
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string.h>
 #include <string>
+#include <system_error>
 
 #define NUM_COLS 120
 
@@ -236,6 +238,29 @@ inline void TestFailed(const std::string& test)
   ebsdlib::unittest::TestMessage[NUM_COLS] = 0; // Make sure it is null terminated
   std::cout << ebsdlib::unittest::TestMessage << std::endl;
   ebsdlib::unittest::numTestFailed++;
+}
+
+// -----------------------------------------------------------------------------
+// Ensures the directory portion of `filePath` exists, creating any missing
+// intermediate directories. The file itself is NOT created. Safe to call
+// when the directory already exists (no-op) or when `filePath` has no
+// parent (also no-op). Returns true on success, false on filesystem error;
+// wrap in DREAM3D_REQUIRE(...) if a hard test failure is desired.
+inline bool EnsureParentDirectoryExists(const std::string& filePath)
+{
+  std::filesystem::path parent = std::filesystem::path(filePath).parent_path();
+  if(parent.empty())
+  {
+    return true;
+  }
+  std::error_code ec;
+  std::filesystem::create_directories(parent, ec);
+  if(ec)
+  {
+    std::cerr << "EnsureParentDirectoryExists: failed to create '" << parent.string() << "': " << ec.message() << std::endl;
+    return false;
+  }
+  return true;
 }
 
 // -----------------------------------------------------------------------------

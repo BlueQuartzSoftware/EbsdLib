@@ -742,13 +742,13 @@ bool CubicLowOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad) const
+ebsdlib::Rgb CubicLowOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
 {
   return computeIPFColor(eulers, refDir, degToRad);
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad) const
+ebsdlib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::HexConvention conv) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
@@ -756,7 +756,7 @@ ebsdlib::Rgb CubicLowOps::generateIPFColor(double phi1, double phi, double phi2,
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3) const
+ebsdlib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv) const
 {
   double range1 = 2.0f * CubicLow::k_OdfDimInitValue[0];
   double range2 = 2.0f * CubicLow::k_OdfDimInitValue[1];
@@ -777,7 +777,7 @@ ebsdlib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3
 }
 
 // -----------------------------------------------------------------------------
-std::array<std::string, 3> CubicLowOps::getDefaultPoleFigureNames() const
+std::array<std::string, 3> CubicLowOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
   return {"<001>", "<011>", "<111>"};
 }
@@ -1171,7 +1171,7 @@ void CubicLowOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim,
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane) const
+ebsdlib::UInt8ArrayType::Pointer CubicLowOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv) const
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;

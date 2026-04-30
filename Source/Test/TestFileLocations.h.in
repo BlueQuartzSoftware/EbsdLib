@@ -61,7 +61,7 @@ const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
 const std::string TestFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_1.ang");
 const std::string TestFile2("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_2.ang");
 const std::string TestFile3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_3.ang");
-const std::string H5EbsdOutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/FromAng.h5ebsd");
+const std::string H5EbsdOutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/AngImportTest/FromAng.h5ebsd");
 const std::string MissingHeader1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_1.ang");
 const std::string GridMissing("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/GridMissing.ang");
 const std::string MissingHeader3("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/MissingHeader_3.ang");
@@ -73,7 +73,7 @@ const std::string OutOfOrderPhase("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/o
 
 namespace AngleFileLoaderTest
 {
-    const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/output_file.csv");
+    const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/AngleFileLoaderTest/output_file.csv");
 }
 
 namespace CtfReaderTest
@@ -87,7 +87,7 @@ const std::string Corrupted_XCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/
 const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ctf");
 const std::string ZeroXYCells("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ZeroXYCells.ctf");
 
-const std::string H5EbsdOutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/FromCtf.h5ebsd");
+const std::string H5EbsdOutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/CtfReaderTest/FromCtf.h5ebsd");
 } // namespace CtfReaderTest
 
 namespace HedmReaderTest
@@ -101,7 +101,7 @@ const std::string MicFile("@EbsdLibProj_SOURCE_DIR@/Data/HEDMTestFiles/HedmTest.
 namespace H5EspritReaderTest
 {
 const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
-const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/H5Esprit_Output_File.h5");
+const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/H5EspritReaderTest/H5Esprit_Output_File.h5");
 } // namespace H5EspritReaderTest
 
 namespace DirectionalStatsTest
@@ -113,17 +113,17 @@ const std::string QuatsWXYZ_10_File   ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFi
 
 namespace IPFLegendTest
 {
-const std::string CubicLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Cubic_Low_m3(Tetrahedral).png");
-const std::string CubicHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Cubic_High_m3m.png");
-const std::string HexagonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Hexagonal-Low_6_m.png");
-const std::string HexagonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Hexagonal-High_6_mmm.png");
-const std::string MonoclinicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Monoclinic-2_m.png");
-const std::string OrthorhombicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Orthorhombic_mmm.png");
-const std::string TetragonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Tetragonal_Low_4m.png");
-const std::string TetragonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Tetragonal_High_4mmm.png");
-const std::string TriclinicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Triclinic-1.png");
-const std::string TrignonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Trigonal-3.png");
-const std::string TrignonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/Trigonal_high-3m.png");
+const std::string CubicLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Cubic_Low_m3(Tetrahedral).png");
+const std::string CubicHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Cubic_High_m3m.png");
+const std::string HexagonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Hexagonal-Low_6_m.png");
+const std::string HexagonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Hexagonal-High_6_mmm.png");
+const std::string MonoclinicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Monoclinic-2_m.png");
+const std::string OrthorhombicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Orthorhombic_mmm.png");
+const std::string TetragonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Tetragonal_Low_4m.png");
+const std::string TetragonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Tetragonal_High_4mmm.png");
+const std::string TriclinicFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Triclinic-1.png");
+const std::string TrignonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Trigonal-3.png");
+const std::string TrignonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Trigonal_high-3m.png");
 } // namespace IPFLegendTest
 
 } // namespace UnitTest

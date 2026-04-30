@@ -34,6 +34,14 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/IO/AngleFileLoader.h"
+
+#include "UnitTestSupport.hpp"
+
+#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -42,18 +50,13 @@
 
 #include <fstream>
 
-#include "EbsdLib/EbsdLib.h"
-#include "EbsdLib/IO/AngleFileLoader.h"
-
-#include "UnitTestSupport.hpp"
-
-#include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
 void makeTestFile(const std::string delim, const std::string& outputFile)
 {
+  EnsureParentDirectoryExists(outputFile);
   int count = 1000;
   float e0, e1, e2;
 
