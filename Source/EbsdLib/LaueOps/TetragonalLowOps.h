@@ -215,7 +215,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const override;
+  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
@@ -228,7 +228,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees) const override;
+  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -237,7 +237,7 @@ public:
    * @param r3 Third component of the Rodrigues Vector
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
+  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -254,13 +254,13 @@ public:
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
    *<001>, <011> and <111> for a cubic system
    */
-  std::array<std::string, 3> getDefaultPoleFigureNames() const override;
+  std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const override;
+  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const override;
 

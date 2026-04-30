@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 
 namespace canvas_ity
@@ -86,6 +87,14 @@ struct EbsdLib_EXPORT CompositePoleFigureConfiguration_t
   std::string phaseName;                                              ///< Material/phase name for the legend
   int32_t phaseNumber = 1;                                            ///< Phase number for the legend
   std::string title;                                                  ///< Title text drawn at the top of the composite image
+
+  // --- Convention parameters ---
+  /// Cartesian basis convention for hex/trig phases. Default preserves
+  /// current EbsdLib v3 behavior (X||a*) while plumbing is being added;
+  /// this default flips to XParallelA in PR 3 once internal SymOps tables
+  /// are reorganized. Ignored for cubic / tetragonal / orthorhombic /
+  /// monoclinic / triclinic Laue classes. See ebsdlib::HexConvention.
+  ebsdlib::HexConvention hexConvention = ebsdlib::HexConvention::XParallelAStar;
 };
 
 /**

@@ -45,6 +45,10 @@ add_executable(generate_pole_figure ${EbsdLibProj_SOURCE_DIR}/Source/Apps/genera
 target_link_libraries(generate_pole_figure PUBLIC EbsdLib)
 target_include_directories(generate_pole_figure PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 
+add_executable(make_pole_figure ${EbsdLibProj_SOURCE_DIR}/Source/Apps/make_pole_figure.cpp)
+target_link_libraries(make_pole_figure PUBLIC EbsdLib)
+target_include_directories(make_pole_figure PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
 add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
 target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
 target_include_directories(ParseAztecProject PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)

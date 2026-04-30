@@ -43,6 +43,7 @@
 #include <canvas_ity.hpp>
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Math/Matrix3X3.hpp"
 #include "EbsdLib/Orientation/AxisAngle.hpp"
@@ -279,9 +280,12 @@ public:
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
    * @param convertDegrees Are the input angles in Degrees
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
+   *             Ignored for non-hex/trig Laue classes.
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees) const = 0;
+  virtual Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction
@@ -292,9 +296,13 @@ public:
    * @param dir1 Second component of the Reference Direction
    * @param dir2 Third component of the Reference Direction
    * @param convertDegrees Are the input angles in Degrees
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
+   *             Ignored for non-hex/trig Laue classes.
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees) const = 0;
+  virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees,
+                               ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief Sets the color key strategy used for IPF coloring.
@@ -322,9 +330,12 @@ public:
    * @param r1 First component of the Rodrigues Vector
    * @param r2 Second component of the Rodrigues Vector
    * @param r3 Third component of the Rodrigues Vector
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
+   *             Ignored for non-hex/trig Laue classes.
    * @return rgb [output] The pointer to store the RGB value
    */
-  virtual Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
+  virtual Rgb generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
@@ -346,14 +357,20 @@ public:
   /**
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
    *<001>, <011> and <111> for a cubic system
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
+   *             Ignored for non-hex/trig Laue classes.
    */
-  virtual std::array<std::string, 3> getDefaultPoleFigureNames() const = 0;
+  virtual std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
+   *             Ignored for non-hex/trig Laue classes.
    * @return
    */
-  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane) const = 0;
+  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief Per-subclass hook that draws Miller index labels and SST boundary

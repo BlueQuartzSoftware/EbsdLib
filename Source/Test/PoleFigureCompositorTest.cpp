@@ -87,6 +87,7 @@ Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
 #include <sstream>
 #include <string>
 
+
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------

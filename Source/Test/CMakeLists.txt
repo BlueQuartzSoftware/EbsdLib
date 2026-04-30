@@ -50,6 +50,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureUtilitiesTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureCompositorTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureLaueComparisonTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigurePositionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/InversePoleFigureTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TiffWriterTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/DirectionalStatsTest.cpp
