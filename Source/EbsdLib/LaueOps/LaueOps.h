@@ -264,7 +264,14 @@ public:
 
   virtual double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const = 0;
 
-  virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3) const = 0;
+  /**
+   * @brief Generate the sphere-coordinate sets for the three default plane families
+   * @param conv Cartesian basis convention for hex/trig phases. Default
+   *             preserves current EbsdLib v3 behavior. Ignored for non-hex/trig
+   *             Laue classes.
+   */
+  virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3,
+                                              ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   static void RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod);
 

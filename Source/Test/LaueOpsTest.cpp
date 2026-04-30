@@ -140,6 +140,52 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexagonalOps", "[EbsdLib][Laue
 }
 
 // -----------------------------------------------------------------------------
+// PR 2b regression test: confirm that generateSphereCoordsFromEulers honors
+// the HexConvention parameter for HexagonalOps. For an identity orientation,
+// the {10-10} family-1 first member sits at:
+//   - X||a* (default): cartesian (1, 0, 0)        -- a*1 along X
+//   - X||a:            cartesian (cos30°, sin30°) -- a*1 at +30° from a (= X)
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateSphereCoords_HexConvention_HexagonalOps", "[EbsdLib][LaueOpsTest]")
+{
+  HexagonalOps hexOps;
+
+  // Identity orientation -> sample-frame projection equals crystal-frame direction.
+  std::vector<float> eulerVec = {0.0F, 0.0F, 0.0F};
+  std::vector<size_t> dims = {3ULL};
+  ebsdlib::FloatArrayType::Pointer eulers = ebsdlib::FloatArrayType::FromStdVector(eulerVec, 1ULL, 3ULL, "Eulers");
+  ebsdlib::FloatArrayType::Pointer xyz0001 = ebsdlib::FloatArrayType::CreateArray(2ULL, dims, "f0", true);
+  ebsdlib::FloatArrayType::Pointer xyz1010_aStar = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f1aStar", true);
+  ebsdlib::FloatArrayType::Pointer xyz1010_a = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f1a", true);
+  ebsdlib::FloatArrayType::Pointer xyz1120 = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f2", true);
+
+  // Default (X||a*) path: family-1 first member should be (1, 0, 0).
+  hexOps.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get());
+  CHECK(xyz1010_aStar->getValue(0) == Approx(1.0F).margin(1e-5));
+  CHECK(xyz1010_aStar->getValue(1) == Approx(0.0F).margin(1e-5));
+  CHECK(xyz1010_aStar->getValue(2) == Approx(0.0F).margin(1e-5));
+
+  // Explicit X||a: family-1 first member should be (cos30°, sin30°, 0) ≈ (0.866, 0.5, 0).
+  hexOps.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_a.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelA);
+  CHECK(xyz1010_a->getValue(0) == Approx(std::cos(30.0 * ebsdlib::constants::k_PiOver180D)).margin(1e-5));
+  CHECK(xyz1010_a->getValue(1) == Approx(std::sin(30.0 * ebsdlib::constants::k_PiOver180D)).margin(1e-5));
+  CHECK(xyz1010_a->getValue(2) == Approx(0.0F).margin(1e-5));
+
+  // Sanity: the two outputs differ (the XParallelA opt-in must produce a
+  // different sample-frame projection than the default).
+  const float dx = xyz1010_aStar->getValue(0) - xyz1010_a->getValue(0);
+  const float dy = xyz1010_aStar->getValue(1) - xyz1010_a->getValue(1);
+  CHECK(std::sqrt(dx * dx + dy * dy) > 0.1F);
+
+  // c-axis ({0001} family) is convention-invariant: should match.
+  ebsdlib::FloatArrayType::Pointer xyz0001_a = ebsdlib::FloatArrayType::CreateArray(2ULL, dims, "f0a", true);
+  hexOps.generateSphereCoordsFromEulers(eulers.get(), xyz0001_a.get(), xyz1010_a.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelA);
+  for(size_t i = 0; i < 6; ++i)
+  {
+    CHECK(xyz0001->getValue(i) == Approx(xyz0001_a->getValue(i)).margin(1e-5));
+  }
+}
+
+// -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::LaueOpsTest::FZTypeToString", "[EbsdLib][LaueOpsTest]")
 {
   CHECK(!LaueOps::FZTypeToString(LaueOps::FZType::Anorthic).empty());

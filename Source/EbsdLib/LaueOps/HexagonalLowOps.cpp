@@ -1139,7 +1139,7 @@ std::vector<ebsdlib::Point3DType> GenerateSphereCoordsUsingReferenceDirection(eb
 }
 
 // -----------------------------------------------------------------------------
-void HexagonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120) const
+void HexagonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120, ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
