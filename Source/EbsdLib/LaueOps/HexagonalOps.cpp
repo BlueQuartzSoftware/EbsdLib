@@ -196,13 +196,38 @@ struct SymOps
   std::vector<RodriguesDType> rod;
   std::vector<Matrix3X3D> mat;
 
+  // Plane-family direction tables for generateSphereCoordsFromEulers, one
+  // unique direction per slot (the antipodes are written by the rendering
+  // loop). Sizes match k_SymSize0 / 2, k_SymSize1 / 2, k_SymSize2 / 2.
+  //
+  // Under X||a*, family-1's first member at (1, 0, 0) is the {10-10}
+  // plane normal a*1, and family-2's first member at (cos30, sin30, 0)
+  // is the {2-1-10} direction. Under X||a, those Cartesian numbers
+  // change because the basis rotates 30° about c.
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily0; // {0001} family
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily1; // {10-10} family
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily2; // {2-1-10} family
+
   template <ebsdlib::HexConvention Conv>
   static SymOps build()
   {
+    // Canonical (X||a*) plane-family direction sets. Each entry is one
+    // unique direction; antipodes are emitted by the rendering loop.
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {
+        {0.0, 0.0, 1.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {
+        {1.0, 0.0, 0.0},
+        {0.5, ebsdlib::constants::k_Root3Over2D, 0.0},
+        {-0.5, ebsdlib::constants::k_Root3Over2D, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {
+        {ebsdlib::constants::k_Root3Over2D, 0.5, 0.0},
+        {0.0, 1.0, 0.0},
+        {-ebsdlib::constants::k_Root3Over2D, 0.5, 0.0}};
+
     if constexpr (Conv == ebsdlib::HexConvention::XParallelAStar)
     {
       // Trivial copy of the canonical (v3) tables.
-      return SymOps{k_QuatSym, k_RodSym, k_MatSym};
+      return SymOps{k_QuatSym, k_RodSym, k_MatSym, canonicalDirsFamily0, canonicalDirsFamily1, canonicalDirsFamily2};
     }
     else // XParallelA -- derive by 30°-about-c similarity transform.
     {
@@ -211,6 +236,13 @@ struct SymOps
       const double cos15 = std::cos(15.0 * ebsdlib::constants::k_PiOver180D);
       const QuatD q30(0.0, 0.0, sin15, cos15);
       const QuatD q30Inv = q30.conjugate();
+
+      // R_z(+30°) as a 3x3 matrix for rotating the cartesian direction tables.
+      const double c30 = ebsdlib::constants::k_Root3Over2D; // cos(30°)
+      const double s30 = 0.5;                               // sin(30°)
+      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0,
+                                     s30, c30, 0.0,
+                                     0.0, 0.0, 1.0);
 
       SymOps out;
       out.quat.reserve(k_QuatSym.size());
@@ -224,6 +256,20 @@ struct SymOps
         // so all three representations stay self-consistent.
         out.mat.push_back(qA.toOrientationMatrix().toGMatrix());
         out.rod.push_back(qA.toRodrigues());
+      }
+
+      // Direction tables: rotate each entry by R_z(+30°) to land in X||a basis.
+      // c-axis is invariant; basal-plane vectors rotate.
+      out.dirsFamily0 = canonicalDirsFamily0; // c-axis: same in both bases
+      out.dirsFamily1.reserve(canonicalDirsFamily1.size());
+      out.dirsFamily2.reserve(canonicalDirsFamily2.size());
+      for (const auto& d : canonicalDirsFamily1)
+      {
+        out.dirsFamily1.push_back(rz30 * d);
+      }
+      for (const auto& d : canonicalDirsFamily2)
+      {
+        out.dirsFamily2.push_back(rz30 * d);
       }
       return out;
     }
@@ -1156,20 +1202,36 @@ class GenerateSphereCoordsImpl
   ebsdlib::FloatArrayType* m_xyz001;
   ebsdlib::FloatArrayType* m_xyz011;
   ebsdlib::FloatArrayType* m_xyz111;
+  const SymOps* m_Sym;
 
 public:
-  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz0001Coords, ebsdlib::FloatArrayType* xyz1010Coords, ebsdlib::FloatArrayType* xyz1120Coords)
+  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz0001Coords, ebsdlib::FloatArrayType* xyz1010Coords, ebsdlib::FloatArrayType* xyz1120Coords, const SymOps* sym)
   : m_Eulers(eulerAngles)
   , m_xyz001(xyz0001Coords)
   , m_xyz011(xyz1010Coords)
   , m_xyz111(xyz1120Coords)
+  , m_Sym(sym)
   {
   }
   virtual ~GenerateSphereCoordsImpl() = default;
 
+  // Project one direction at slot `s` of a family into the destination array
+  // and write its antipode in the next slot. `slot` is the unique-direction
+  // index (0, 1, ..., N-1); `slot * 2` is the byte offset in the destination
+  // measured in 3-tuples (each direction emits one + and one - = 2 tuples).
+  static inline void emitDirAndAntipode(const ebsdlib::Matrix3X3D& gTranspose, const ebsdlib::Matrix3X1D& dir, ebsdlib::FloatArrayType* dest, size_t pairOffsetTuples)
+  {
+    const size_t plus = pairOffsetTuples * 3;
+    const size_t minus = plus + 3;
+    (gTranspose * dir).copyInto<float>(dest->getPointer(plus));
+    std::transform(dest->getPointer(plus), dest->getPointer(plus + 3), dest->getPointer(minus), [](float v) { return v * -1.0F; });
+  }
+
   void generate(size_t start, size_t end) const
   {
-    ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
+    const size_t f0Stride = m_Sym->dirsFamily0.size() * 2; // tuples per orientation
+    const size_t f1Stride = m_Sym->dirsFamily1.size() * 2;
+    const size_t f2Stride = m_Sym->dirsFamily2.size() * 2;
 
     // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
@@ -1177,65 +1239,21 @@ public:
       EulerDType euler(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
       ebsdlib::Matrix3X3D gTranspose = euler.toOrientationMatrix().toGMatrix().transpose();
 
-      // -----------------------------------------------------------------------------
-      // 0001 Family
-      direction[0] = 0.0;
-      direction[1] = 0.0;
-      direction[2] = 1.0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
-                     m_xyz001->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-
-      // -----------------------------------------------------------------------------
-      // (10-10) plane normals (MTEX X||a* convention: a1* along X, so {10-10}
-      // plane normals fall at 0°, 60°, 120° in the basal plane).
-      direction[0] = 1.0;
-      direction[1] = 0.0;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18));
-      std::transform(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3),
-                     m_xyz011->getPointer(i * 18 + 3),           // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-      direction[0] = 0.5;
-      direction[1] = ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 6));
-      std::transform(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9),
-                     m_xyz011->getPointer(i * 18 + 9),           // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-      direction[0] = -0.5;
-      direction[1] = ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 12));
-      std::transform(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15),
-                     m_xyz011->getPointer(i * 18 + 15),          // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-
-      // -----------------------------------------------------------------------------
-      // (2-1-10) plane normals (MTEX X||a*: {2-1-10} = {11-20} plane family,
-      // offset 30° from {10-10}, so 30°, 90°, 150°).
-      direction[0] = ebsdlib::constants::k_Root3Over2D;
-      direction[1] = 0.5;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18));
-      std::transform(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3),
-                     m_xyz111->getPointer(i * 18 + 3),           // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-      direction[0] = 0.0;
-      direction[1] = 1.0;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 6));
-      std::transform(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9),
-                     m_xyz111->getPointer(i * 18 + 9),           // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-      direction[0] = -ebsdlib::constants::k_Root3Over2D;
-      direction[1] = 0.5;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 12));
-      std::transform(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15),
-                     m_xyz111->getPointer(i * 18 + 15),          // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
+      // 0001 Family (typically 1 unique direction; antipode written by emitDirAndAntipode).
+      for(size_t k = 0; k < m_Sym->dirsFamily0.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily0[k], m_xyz001, i * f0Stride + k * 2);
+      }
+      // {10-10} plane-normal family (3 unique under hex 6/mmm).
+      for(size_t k = 0; k < m_Sym->dirsFamily1.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily1[k], m_xyz011, i * f1Stride + k * 2);
+      }
+      // {2-1-10} plane-normal family (3 unique under hex 6/mmm), offset 30° from {10-10}.
+      for(size_t k = 0; k < m_Sym->dirsFamily2.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily2[k], m_xyz111, i * f2Stride + k * 2);
+      }
     }
   }
 
@@ -1249,7 +1267,7 @@ public:
 } // namespace HexagonalHigh
 
 // -----------------------------------------------------------------------------
-void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120) const
+void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120, ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -1267,16 +1285,21 @@ void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* euler
     xyz1120->resizeTuples(nOrientations * HexagonalHigh::k_SymSize2 * 3);
   }
 
+  // Pick the convention-appropriate SymOps instance once. The two static
+  // instances (canonical X||a* and derived X||a) live in the HexagonalHigh
+  // namespace block above.
+  const HexagonalHigh::SymOps* sym = (conv == ebsdlib::HexConvention::XParallelAStar) ? &HexagonalHigh::k_SymOps_XParallelAStar : &HexagonalHigh::k_SymOps_XParallelA;
+
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   bool doParallel = true;
   if(doParallel)
   {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), HexagonalHigh::GenerateSphereCoordsImpl(eulers, xyz0001, xyz1010, xyz1120, sym), tbb::auto_partitioner());
   }
   else
 #endif
   {
-    HexagonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120);
+    HexagonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz0001, xyz1010, xyz1120, sym);
     serial.generate(0, nOrientations);
   }
 }
@@ -1370,7 +1393,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
   config.sphereRadius = 1.0f;
 
   // Generate the coords on the sphere **** Parallelized
-  generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
+  generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get(), config.hexConvention);
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere

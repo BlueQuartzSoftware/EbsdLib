@@ -199,7 +199,7 @@ public:
   double getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
-  void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3) const override;
+  void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
   /**
    * @brief
    * @param eta Optional input value only needed for the "Cubic" Laue classes
