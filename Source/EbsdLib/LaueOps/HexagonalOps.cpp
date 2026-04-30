@@ -168,6 +168,73 @@ static const std::vector<Matrix3X3D> k_MatSym = {
 constexpr double k_EtaMin = 0.0;
 constexpr double k_EtaMax = 30.0;
 constexpr double k_ChiMax = 90.0;
+
+// ---------------------------------------------------------------------------
+// SymOps: convention-aware bundle of symmetry operations.
+//
+// The canonical k_QuatSym, k_RodSym, k_MatSym arrays above hold the hex 6/mmm
+// symmetry rotations expressed in the X||a* (MTEX / Oxford) basis -- the v3
+// internal default. For the X||a (TSL/EDAX/legacy DREAM3D) convention, the
+// SAME twelve physical rotations are expressed in a basis rotated by 30°
+// about the c-axis, which in quaternion form is a similarity transform:
+//
+//     S_X||a = q_30 * S_X||a* * conj(q_30)        where q_30 = R_z(+30°)
+//
+// Two static instances of SymOps live below (one per convention) so any
+// caller that has selected a convention can read sym ops directly via a
+// pointer flip rather than computing the conjugation per-call.
+//
+// PR 2a scope: this struct + the two static instances are added but no
+// rendering method consults them yet -- pure plumbing. Subsequent PRs wire
+// the rendering methods to dispatch on the caller's HexConvention.
+//
+// See Code_Review/v3_phase0_design_notes.md for the full design.
+// ---------------------------------------------------------------------------
+struct SymOps
+{
+  std::vector<QuatD> quat;
+  std::vector<RodriguesDType> rod;
+  std::vector<Matrix3X3D> mat;
+
+  template <ebsdlib::HexConvention Conv>
+  static SymOps build()
+  {
+    if constexpr (Conv == ebsdlib::HexConvention::XParallelAStar)
+    {
+      // Trivial copy of the canonical (v3) tables.
+      return SymOps{k_QuatSym, k_RodSym, k_MatSym};
+    }
+    else // XParallelA -- derive by 30°-about-c similarity transform.
+    {
+      // q_30 = quaternion of R_z(+30°). EbsdLib QuatD layout is (x, y, z, w).
+      const double sin15 = std::sin(15.0 * ebsdlib::constants::k_PiOver180D);
+      const double cos15 = std::cos(15.0 * ebsdlib::constants::k_PiOver180D);
+      const QuatD q30(0.0, 0.0, sin15, cos15);
+      const QuatD q30Inv = q30.conjugate();
+
+      SymOps out;
+      out.quat.reserve(k_QuatSym.size());
+      out.rod.reserve(k_QuatSym.size());
+      out.mat.reserve(k_QuatSym.size());
+      for (const auto& qStar : k_QuatSym)
+      {
+        const QuatD qA = q30 * qStar * q30Inv;
+        out.quat.push_back(qA);
+        // Derive matrix and Rodrigues forms from the conjugated quaternion
+        // so all three representations stay self-consistent.
+        out.mat.push_back(qA.toOrientationMatrix().toGMatrix());
+        out.rod.push_back(qA.toRodrigues());
+      }
+      return out;
+    }
+  }
+};
+
+// Two static instances. Built once at TU static-init. Order is well-defined
+// because they sit BELOW k_QuatSym / k_RodSym / k_MatSym in the same TU.
+static const SymOps k_SymOps_XParallelAStar = SymOps::build<ebsdlib::HexConvention::XParallelAStar>();
+static const SymOps k_SymOps_XParallelA = SymOps::build<ebsdlib::HexConvention::XParallelA>();
+
 // Use a namespace for some detail that only this class needs
 } // namespace HexagonalHigh
 
