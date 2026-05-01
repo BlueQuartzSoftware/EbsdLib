@@ -123,6 +123,7 @@ std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(C
   pfConfig.order = config.order;
   pfConfig.phaseName = config.phaseName;
   pfConfig.FlipFinalImage = config.flipFinalImage;
+  pfConfig.hexConvention = config.hexConvention;
 
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
   if(config.laueOpsIndex >= orientationOps.size())
@@ -401,7 +402,8 @@ void PoleFigureCompositor::drawInfoBlock(canvas_ity::canvas& context, const Comp
                                            fmt::format("Laue Group: {}", laueGroupName),
                                            fmt::format("Upper & Lower:"),
                                            fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
-                                           fmt::format("Lambert Sq. Dim: {}", config.lambertDim)};
+                                           fmt::format("Lambert Sq. Dim: {}", config.lambertDim),
+                                           fmt::format("Hex/Trig Convention: {}", config.hexConvention == ebsdlib::HexConvention::XParallelAStar ? "x||a*" : "x||a")};
 
   float heightInc = 1.0f;
   for(const auto& label : labels)

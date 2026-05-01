@@ -360,7 +360,12 @@ bool writePoleFigure(const Options& opts, PhaseScan& s, LaueOps::Pointer op, con
   config.laueOpsIndex = s.laueOpsIndex;
   config.phaseName = s.phaseName;
   config.phaseNumber = s.phaseIndex;
-  config.title = s.phaseName + " (" + op->getSymmetryName() + ", " + conventionToken(opts.convention) + ")";
+  // Don't bake the convention token into the title: the smoke test asserts
+  // PF bytes differ between conventions, and we want that difference to come
+  // strictly from the rendered disk content (proof the convention plumbing
+  // reaches LaueOps), not from rasterized title text. The output FILENAME
+  // already stamps the convention.
+  config.title = s.phaseName + " (" + op->getSymmetryName() + ")";
   config.hexConvention = opts.convention;
 
   auto names = op->getDefaultPoleFigureNames(opts.convention);
