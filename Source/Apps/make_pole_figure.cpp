@@ -26,7 +26,6 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/PngWriter.h"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
-#include "EbsdLib/Orientation/Euler.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -92,10 +91,10 @@ std::vector<PhaseData> readAngFile(const std::string& filePath)
     std::cout << "  Phase " << idx << ": " << name << " (LaueOps index: " << phaseToLaueOps[idx] << ")" << std::endl;
   }
 
-  ebsdlib::OrientationMatrixDType om = ebsdlib::AxisAngleDType(0.0, 0.0, 1.0, 90.0 * constants::k_PiOver180D).toOrientationMatrix();
-  auto rotMat = om.toEigenGMatrix();
-  double k_ThiryDegrees = 30.0 * constants::k_PiOver180D;
-
+  // Eulers are passed straight through to LaueOps. The legacy phi2-30° basal-
+  // plane shift and the 90°-about-z sample-frame rotation that used to live
+  // here have been removed; convention handling is now done inside LaueOps
+  // via config.hexConvention = XParallelA below.
   std::map<int, std::vector<float>> phaseEulerMap;
   for(size_t i = 0; i < totalPoints; i++)
   {
@@ -114,15 +113,9 @@ std::vector<PhaseData> readAngFile(const std::string& filePath)
     }
     if(ci[i] > 0.1)
     {
-      // Rotate Euler Reference Frame 90 degrees about <001> axis
-      om = ebsdlib::EulerDType(phi1[i], phi[i], phi2[i] - k_ThiryDegrees).toOrientationMatrix();
-      using Matrix3dR = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
-      Matrix3dR gNew = (om * rotMat).colwise().normalized();
-      ebsdlib::EulerDType eu = ebsdlib::OrientationMatrixDType(gNew.data()).toEuler();
-      // Store the Euler Angle
-      phaseEulerMap[p].push_back(eu[0]);
-      phaseEulerMap[p].push_back(eu[1]);
-      phaseEulerMap[p].push_back(eu[2]);
+      phaseEulerMap[p].push_back(phi1[i]);
+      phaseEulerMap[p].push_back(phi[i]);
+      phaseEulerMap[p].push_back(phi2[i]);
     }
   }
 
@@ -315,9 +308,13 @@ int main(int argc, char* argv[])
     config.laueOpsIndex = static_cast<uint32_t>(pd.laueOpsIndex);
     config.phaseName = pd.phaseName;
     config.phaseNumber = pd.phaseIndex;
+    // make_pole_figure ingests TSL .ang / Oxford .ctf files, both of which
+    // store orientations in the X||a (legacy / OIM-Analysis) basis. Pass that
+    // through to LaueOps so the convention bridge is applied internally.
+    config.hexConvention = ebsdlib::HexConvention::XParallelA;
     config.title = pd.phaseName + " (" + op->getSymmetryName() + ")";
 
-    auto pfNames = op->getDefaultPoleFigureNames();
+    auto pfNames = op->getDefaultPoleFigureNames(config.hexConvention);
     config.labels = {pfNames[0], pfNames[1], pfNames[2]};
     config.order = {0, 1, 2};
 

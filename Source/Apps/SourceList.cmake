@@ -49,6 +49,13 @@ add_executable(make_pole_figure ${EbsdLibProj_SOURCE_DIR}/Source/Apps/make_pole_
 target_link_libraries(make_pole_figure PUBLIC EbsdLib)
 target_include_directories(make_pole_figure PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
 
+add_executable(render_ebsd
+  ${EbsdLibProj_SOURCE_DIR}/Source/Apps/render_ebsd.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/Apps/render_ebsd.h
+  ${EbsdLibProj_SOURCE_DIR}/Source/Apps/render_ebsd_main.cpp)
+target_link_libraries(render_ebsd PUBLIC EbsdLib)
+target_include_directories(render_ebsd PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
+
 add_executable(ParseAztecProject ${EbsdLibProj_SOURCE_DIR}/Source/Apps/ParseAztecProject.cpp)
 target_link_libraries(ParseAztecProject PUBLIC EbsdLib)
 target_include_directories(ParseAztecProject PUBLIC ${EbsdLibProj_SOURCE_DIR}/Source)
