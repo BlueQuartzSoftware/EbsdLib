@@ -140,6 +140,50 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexagonalOps", "[EbsdLib][Laue
 }
 
 // -----------------------------------------------------------------------------
+// PR 2c regression test: confirm that generateIPFColor honors the
+// HexConvention parameter on HexagonalOps and that the convention-aware
+// code path is exercised without crashing or returning garbage.
+//
+// For HexagonalOps (Laue class 6/mmm), IPF coloring is genuinely
+// convention-invariant: the SST (0° <= eta <= 30°, 0° <= chi <= 90°) is
+// reached via c-axis rotations plus the inversion fold (p[2] < 0 -> flip),
+// and c-axis rotations are basis-invariant. The basal-plane 180° sym ops
+// that differ between X||a and X||a* are operationally redundant for this
+// Laue class -- any orientation reachable via a basal op is also reachable
+// via the c-rotation/inversion combo.
+//
+// So the expected behavior here is: both conventions produce the SAME
+// non-trivial RGB. PR 2d will exercise HexagonalLowOps / TrigonalOps /
+// TrigonalLowOps where the SST geometry is different and the convention
+// parameter MAY produce different IPF colors; that's where any color-shift
+// regression would manifest.
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexConvention_HexagonalOps", "[EbsdLib][LaueOpsTest]")
+{
+  HexagonalOps hexOps;
+  // Phi=90° tilts the c-axis into the basal plane, putting a basal-plane
+  // direction along sample-z (the IPF-Z reference direction). A non-trivial
+  // orientation that exercises the FZ-reduction loop.
+  double eulers[3] = {0.0, 90.0 * ebsdlib::constants::k_PiOver180D, 0.0};
+  double refDir[3] = {0.0, 0.0, 1.0};
+
+  Rgb colorAStar = hexOps.generateIPFColor(eulers, refDir, false);
+  Rgb colorA = hexOps.generateIPFColor(eulers, refDir, false, ebsdlib::HexConvention::XParallelA);
+  Rgb colorAStarExplicit = hexOps.generateIPFColor(eulers, refDir, false, ebsdlib::HexConvention::XParallelAStar);
+
+  // 6/mmm is convention-invariant for IPF color (see comment above).
+  CHECK(colorAStar == colorA);
+  CHECK(colorAStar == colorAStarExplicit);
+
+  // Sanity: the color must be non-trivial (not pure black, not all-channel
+  // zero) -- guards against the convention dispatch silently returning the
+  // wrong sym-op-zero result.
+  const int r = RgbColor::dRed(colorAStar);
+  const int g = RgbColor::dGreen(colorAStar);
+  const int b = RgbColor::dBlue(colorAStar);
+  CHECK((r + g + b) > 0);
+}
+
+// -----------------------------------------------------------------------------
 // PR 2b regression test: confirm that generateSphereCoordsFromEulers honors
 // the HexConvention parameter for HexagonalOps. For an identity orientation,
 // the {10-10} family-1 first member sits at:
