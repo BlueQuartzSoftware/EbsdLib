@@ -1318,9 +1318,93 @@ bool HexagonalOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
+ebsdlib::Rgb HexagonalOps::generateIPFColorImpl(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
+{
+  // Pick the convention-appropriate SymOps once for the FZ-reduction loop.
+  // Mirrors LaueOps::computeIPFColor exactly except that the inner loop reads
+  // sym->quat[j] instead of the convention-blind getQuatSymOp(j).
+  const HexagonalHigh::SymOps* sym = (conv == ebsdlib::HexConvention::XParallelAStar) ? &HexagonalHigh::k_SymOps_XParallelAStar : &HexagonalHigh::k_SymOps_XParallelA;
+
+  const ebsdlib::Matrix3X1D refDirection(refDir);
+  double chi = 0.0;
+  double eta = 0.0;
+  double rgb[3] = {0.0, 0.0, 0.0};
+
+  EulerDType eu(eulers[0], eulers[1], eulers[2]);
+  if(degToRad)
+  {
+    eu[0] *= ebsdlib::constants::k_DegToRadD;
+    eu[1] *= ebsdlib::constants::k_DegToRadD;
+    eu[2] *= ebsdlib::constants::k_DegToRadD;
+  }
+  OrientationMatrixDType om;
+  QuatD q1 = eu.toQuaternion();
+
+  for(size_t j = 0; j < sym->quat.size(); j++)
+  {
+    QuaternionDType qu(sym->quat[j] * q1);
+    om = qu.toOrientationMatrix();
+    ebsdlib::Matrix3X3D g(om.data());
+    ebsdlib::Matrix3X1D p = (g * refDirection).normalize();
+
+    if(!getHasInversion() && p[2] < 0)
+    {
+      continue;
+    }
+    if(getHasInversion() && p[2] < 0)
+    {
+      p = p * -1.0;
+    }
+    chi = std::acos(p[2]);
+    eta = std::atan2(p[1], p[0]);
+    if(!inUnitTriangle(eta, chi))
+    {
+      continue;
+    }
+    break;
+  }
+
+  const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
+
+  if(m_ColorKey)
+  {
+    auto [r, g, b] = m_ColorKey->direction2Color(eta, chi, angleLimits);
+    rgb[0] = r;
+    rgb[1] = g;
+    rgb[2] = b;
+    return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
+  }
+
+  // Fallback color computation if no color key is set. Mirrors the base
+  // class fallback in LaueOps::computeIPFColor.
+  rgb[0] = 1.0 - chi / angleLimits[2];
+  rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);
+  rgb[1] = 1 - rgb[2];
+  rgb[1] *= chi / angleLimits[2];
+  rgb[2] *= chi / angleLimits[2];
+  rgb[0] = std::sqrt(rgb[0]);
+  rgb[1] = std::sqrt(rgb[1]);
+  rgb[2] = std::sqrt(rgb[2]);
+
+  double max = rgb[0];
+  if(rgb[1] > max)
+  {
+    max = rgb[1];
+  }
+  if(rgb[2] > max)
+  {
+    max = rgb[2];
+  }
+  rgb[0] /= max;
+  rgb[1] /= max;
+  rgb[2] /= max;
+  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
+}
+
+// -----------------------------------------------------------------------------
 ebsdlib::Rgb HexagonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
 {
-  return computeIPFColor(eulers, refDir, degToRad);
+  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
 }
 
 // -----------------------------------------------------------------------------
@@ -1328,7 +1412,7 @@ ebsdlib::Rgb HexagonalOps::generateIPFColor(double phi1, double phi, double phi2
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
-  return computeIPFColor(eulers, refDir, degToRad);
+  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
 }
 
 // -----------------------------------------------------------------------------
@@ -1516,7 +1600,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(P
 
 namespace
 {
-ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
@@ -1570,7 +1654,7 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const HexagonalOps* ops, int im
       else
       {
         auto sphericalCoords = stereographic::utils::StereoToSpherical(x, y).normalize();
-        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false, conv);
       }
 
       pixelPtr[idx] = color;
@@ -1739,7 +1823,7 @@ ebsdlib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   }
 
   // Generate the colored SST triangle image (ARGB)
-  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, conv);
 
   // Annotate with title and Miller index labels
   return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);
