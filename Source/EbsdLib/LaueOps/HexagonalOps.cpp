@@ -1731,7 +1731,7 @@ std::array<float, 2> HexagonalOps::adjustFigureOrigin(std::array<float, 2> figur
 
 // -----------------------------------------------------------------------------
 void HexagonalOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin,
-                                      std::array<float, 2> figureCenter, bool drawFullCircle) const
+                                      std::array<float, 2> figureCenter, bool drawFullCircle, ebsdlib::HexConvention conv) const
 {
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];
@@ -1750,7 +1750,13 @@ void HexagonalOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim
   int halfHeight = legendHeight / 2;
 
   std::vector<float> angles = {0.0f, 30.0f, 60.0f, 90.0f, 120.0f, 150.0f, 180.0f, 210.0f, 240.0f, 270.0f, 300.0f, 330.0f};
-  std::vector<std::string> labels2 = {"[2-1-10]", "[10-10]", "[11-20]", "[01-10]", "[-12-10]", "[-1100]", "[-2110]", "[-1010]", "[-1-120]", "[0-110]", "[1-210]", "[1-100]"};
+
+  // X||a labels: cartesian +X = a-vector. Angle 0° = a = [2-1-10]; angle 30° = a* = [10-10].
+  // X||a* labels: cartesian +X = a*-vector. Equivalent to rotating the X||a label list one slot
+  // to the left (labels_X_astar[i] = labels_X_a[(i + 1) % 12]) — under X||a* angle 0° = [10-10].
+  static const std::vector<std::string> labels_X_a = {"[2-1-10]", "[10-10]", "[11-20]", "[01-10]", "[-12-10]", "[-1100]", "[-2110]", "[-1010]", "[-1-120]", "[0-110]", "[1-210]", "[1-100]"};
+  static const std::vector<std::string> labels_X_astar = {"[10-10]", "[11-20]", "[01-10]", "[-12-10]", "[-1100]", "[-2110]", "[-1010]", "[-1-120]", "[0-110]", "[1-210]", "[1-100]", "[2-1-10]"};
+  const std::vector<std::string>& labels2 = (conv == ebsdlib::HexConvention::XParallelA) ? labels_X_a : labels_X_astar;
 
   std::vector<float> xAdj = {
       0.1F, 0.0F, 0.0F, -0.5F, -1.0F, -1.0F, -1.1F, -1.1F, -1.1F, -0.5F, 0.0F, 0.0F,
@@ -1837,7 +1843,7 @@ ebsdlib::UInt8ArrayType::Pointer HexagonalOps::generateIPFTriangleLegend(int can
   ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, conv);
 
   // Annotate with title and Miller index labels
-  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);
+  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane, false, conv);
 }
 
 // -----------------------------------------------------------------------------

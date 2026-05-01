@@ -128,14 +128,15 @@ TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionsDifferOnHexagonalHigh", "[Eb
   // that differ between bases are operationally redundant — see the comment
   // in LaueOpsTest::GenerateIPFColor_HexConvention_HexagonalOps).
   //
-  // The IPF LEGEND for 6/mmm is similarly convention-invariant: the SST in
-  // eta-chi space is the same region under both bases (only the labels at
-  // the corners would change), and this driver renders the colored triangle
-  // without textual corner labels.
+  // The IPF LEGEND MUST differ byte-for-byte between conventions: the SST
+  // colored region is convention-invariant for 6/mmm, but the Miller-index
+  // labels drawn around the unit circle change (PR 2h plumbed conv through
+  // annotateIPFImage / drawIPFAnnotations). Under X||a the +X corner reads
+  // [2-1-10]; under X||a* it reads [10-10].
   //
-  // So for HexagonalHigh we check: PF differs (positive proof), and
-  // IPF/legend match (consistent with the 6/mmm invariance documented in
-  // LaueOpsTest).
+  // So for HexagonalHigh we check: PF differs (positive proof of compositor
+  // plumbing), IPF map identical (6/mmm SST color invariance), and legend
+  // differs (positive proof of label plumbing).
   const auto readBytes = [](const std::string& path) {
     std::ifstream ifs(path, std::ios::binary);
     return std::vector<char>{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
@@ -152,5 +153,5 @@ TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionsDifferOnHexagonalHigh", "[Eb
 
   const auto legBytesA = readBytes(rA.phases[0].legendPath);
   const auto legBytesAStar = readBytes(rAStar.phases[0].legendPath);
-  CHECK(legBytesA == legBytesAStar);
+  CHECK(legBytesA != legBytesAStar);
 }

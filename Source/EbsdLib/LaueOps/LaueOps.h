@@ -384,7 +384,7 @@ public:
    * annotations onto a canvas. Called by annotateIPFImage().
    */
   virtual void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                                  bool drawFullCircle) const = 0;
+                                  bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
 
   /**
    * @brief Maps a pixel coordinate to a unit sphere direction using the same
@@ -546,7 +546,8 @@ protected:
    * @param generateEntirePlane true = full circle view, false = SST only
    * @return RGB image (canvasDim x canvasDim, 3 components)
    */
-  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar = false) const;
+  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar = false,
+                                           ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const;
 
   /**
    * @brief Draws a color bar with min/max labels onto an existing RGB image.

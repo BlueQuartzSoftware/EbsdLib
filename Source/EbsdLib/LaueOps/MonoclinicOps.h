@@ -262,7 +262,7 @@ public:
   bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const override;
 
   void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                          bool drawFullCircle) const override;
+                          bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief Returns if the given Quaternion is within the Rodrigues Fundamental Zone (RFZ)
