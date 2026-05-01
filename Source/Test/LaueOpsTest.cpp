@@ -184,6 +184,69 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexConvention_HexagonalOps", "
 }
 
 // -----------------------------------------------------------------------------
+// PR 2d regression tests: same convention dispatch and same closed-form
+// expectation as PR 2b but for HexagonalLowOps, TrigonalOps, and
+// TrigonalLowOps. For all four hex/trig classes, family-1's first
+// canonical (X||a*) cartesian direction rotates by R_z(+30°) under the
+// X||a derivation. The c-axis ({0001}) is invariant.
+
+#include "EbsdLib/LaueOps/HexagonalLowOps.h"
+#include "EbsdLib/LaueOps/TrigonalLowOps.h"
+#include "EbsdLib/LaueOps/TrigonalOps.h"
+
+namespace
+{
+template <typename OpsT>
+void checkSphereCoordsConvention(const ebsdlib::Matrix3X1D& expectedFamily1FirstAStar)
+{
+  OpsT ops;
+  std::vector<float> eulerVec = {0.0F, 0.0F, 0.0F}; // identity orientation
+  std::vector<size_t> dims = {3ULL};
+  ebsdlib::FloatArrayType::Pointer eulers = ebsdlib::FloatArrayType::FromStdVector(eulerVec, 1ULL, 3ULL, "Eulers");
+  ebsdlib::FloatArrayType::Pointer xyz0001 = ebsdlib::FloatArrayType::CreateArray(2ULL, dims, "f0", true);
+  ebsdlib::FloatArrayType::Pointer xyz1010_aStar = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f1aStar", true);
+  ebsdlib::FloatArrayType::Pointer xyz1010_a = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f1a", true);
+  ebsdlib::FloatArrayType::Pointer xyz1120 = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f2", true);
+
+  // Default X||a*: family-1 first member matches the expected canonical value.
+  ops.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get());
+  CHECK(xyz1010_aStar->getValue(0) == Approx(expectedFamily1FirstAStar[0]).margin(1e-5));
+  CHECK(xyz1010_aStar->getValue(1) == Approx(expectedFamily1FirstAStar[1]).margin(1e-5));
+  CHECK(xyz1010_aStar->getValue(2) == Approx(expectedFamily1FirstAStar[2]).margin(1e-5));
+
+  // X||a: family-1 first member is the canonical rotated by R_z(+30°).
+  // (cos30, -sin30; sin30, cos30) applied to (x, y, 0).
+  const double c30 = std::cos(30.0 * ebsdlib::constants::k_PiOver180D);
+  const double s30 = std::sin(30.0 * ebsdlib::constants::k_PiOver180D);
+  const double expA_x = c30 * expectedFamily1FirstAStar[0] - s30 * expectedFamily1FirstAStar[1];
+  const double expA_y = s30 * expectedFamily1FirstAStar[0] + c30 * expectedFamily1FirstAStar[1];
+
+  ops.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_a.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelA);
+  CHECK(xyz1010_a->getValue(0) == Approx(expA_x).margin(1e-5));
+  CHECK(xyz1010_a->getValue(1) == Approx(expA_y).margin(1e-5));
+  CHECK(xyz1010_a->getValue(2) == Approx(0.0).margin(1e-5));
+}
+} // namespace
+
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateSphereCoords_HexConvention_HexagonalLowOps", "[EbsdLib][LaueOpsTest]")
+{
+  // HexagonalLow family-1 ({10-10}) canonical first member: (1, 0, 0).
+  checkSphereCoordsConvention<HexagonalLowOps>(ebsdlib::Matrix3X1D(1.0, 0.0, 0.0));
+}
+
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateSphereCoords_HexConvention_TrigonalOps", "[EbsdLib][LaueOpsTest]")
+{
+  // TrigonalOps family-1 (<0-110>-style) canonical first member: (-0.5, -sqrt(3)/2, 0).
+  checkSphereCoordsConvention<TrigonalOps>(ebsdlib::Matrix3X1D(-0.5, -ebsdlib::constants::k_Root3Over2D, 0.0));
+}
+
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateSphereCoords_HexConvention_TrigonalLowOps", "[EbsdLib][LaueOpsTest]")
+{
+  // TrigonalLowOps family-1 (<-1-120>-style) canonical first member: (-sqrt(3)/2, -0.5, 0).
+  checkSphereCoordsConvention<TrigonalLowOps>(ebsdlib::Matrix3X1D(-ebsdlib::constants::k_Root3Over2D, -0.5, 0.0));
+}
+
+// -----------------------------------------------------------------------------
 // PR 2b regression test: confirm that generateSphereCoordsFromEulers honors
 // the HexConvention parameter for HexagonalOps. For an identity orientation,
 // the {10-10} family-1 first member sits at:
