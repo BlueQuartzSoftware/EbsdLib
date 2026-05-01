@@ -822,7 +822,7 @@ bool MonoclinicOps::mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, st
 
 // -----------------------------------------------------------------------------
 void MonoclinicOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin,
-                                       std::array<float, 2> figureCenter, bool drawFullCircle) const
+                                       std::array<float, 2> figureCenter, bool drawFullCircle, ebsdlib::HexConvention conv) const
 {
   int legendHeight = canvasDim - margins[0] - margins[2];
   int legendWidth = canvasDim - margins[1] - margins[3];

@@ -996,7 +996,8 @@ std::array<float, 2> LaueOps::adjustFigureOrigin(std::array<float, 2> figureOrig
 }
 
 // -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar) const
+UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar,
+                                                  ebsdlib::HexConvention conv) const
 {
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
   // When a color bar will be drawn, use a wider right margin to make room
@@ -1062,7 +1063,7 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
 
   // Draw per-subclass annotations (Miller indices, SST boundary lines)
   context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
-  drawIPFAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane);
+  drawIPFAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane, conv);
 
   // Extract rendered pixels and remove alpha channel
   ebsdlib::UInt8ArrayType::Pointer rgbaCanvasImage = ebsdlib::UInt8ArrayType::CreateArray(canvasDim * canvasDim, {4ULL}, "Annotated IPF", true);

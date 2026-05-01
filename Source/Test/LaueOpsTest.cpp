@@ -24,6 +24,68 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
+// PR 2h regression test: confirm that generateIPFTriangleLegend honors the
+// HexConvention parameter for HexagonalOps. The colored SST region is
+// convention-invariant for 6/mmm (the inversion fold + c-axis rotations
+// reach the SST regardless of basal-plane sym-op choice — see the
+// GenerateIPFColor_HexConvention_HexagonalOps comment below). What MUST
+// differ between conventions is the Miller-index labels drawn around the
+// unit circle: under X||a the cartesian +X axis is the a-vector
+// ([2-1-10]); under X||a* it is the a*-vector ([10-10]). The legend
+// rasters must therefore differ byte-for-byte. If they don't, the
+// HexConvention parameter is being silently dropped through
+// annotateIPFImage / drawIPFAnnotations.
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFTriangleLegend_HexConvention_HexagonalOps", "[EbsdLib][LaueOpsTest]")
+{
+  HexagonalOps ops;
+  constexpr int k_LegendDim = 256;
+  auto legendAStar = ops.generateIPFTriangleLegend(k_LegendDim, false, ebsdlib::HexConvention::XParallelAStar);
+  auto legendA = ops.generateIPFTriangleLegend(k_LegendDim, false, ebsdlib::HexConvention::XParallelA);
+
+  REQUIRE(legendAStar != nullptr);
+  REQUIRE(legendA != nullptr);
+  REQUIRE(legendAStar->getSize() == legendA->getSize());
+
+  // Sanity: both legends are non-trivial (not all-white) so we know the
+  // SST coloring actually rendered.
+  bool aStarHasContent = false;
+  bool aHasContent = false;
+  const size_t total = legendAStar->getSize();
+  for(size_t i = 0; i < total; ++i)
+  {
+    if(legendAStar->getValue(i) != 0xFF)
+    {
+      aStarHasContent = true;
+    }
+    if(legendA->getValue(i) != 0xFF)
+    {
+      aHasContent = true;
+    }
+    if(aStarHasContent && aHasContent)
+    {
+      break;
+    }
+  }
+  REQUIRE(aStarHasContent);
+  REQUIRE(aHasContent);
+
+  // The two legends must differ somewhere — the corner labels at angles 0°
+  // and 330° (the SST eta=0 and eta=30° corners for 6/mmm) carry different
+  // Miller-index strings under the two conventions, so the rasterized text
+  // pixels must differ.
+  bool different = false;
+  for(size_t i = 0; i < total; ++i)
+  {
+    if(legendAStar->getValue(i) != legendA->getValue(i))
+    {
+      different = true;
+      break;
+    }
+  }
+  CHECK(different);
+}
+
+// -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::LaueOpsTest::GetAllOrientationOps", "[EbsdLib][LaueOpsTest]")
 {
   auto ops = LaueOps::GetAllOrientationOps();

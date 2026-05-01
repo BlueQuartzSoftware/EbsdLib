@@ -2011,7 +2011,7 @@ std::array<float, 2> CubicOps::adjustFigureOrigin(std::array<float, 2> figureOri
 
 // -----------------------------------------------------------------------------
 void CubicOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                                  bool drawFullCircle) const
+                                  bool drawFullCircle, ebsdlib::HexConvention conv) const
 {
   if(!drawFullCircle)
   {
