@@ -172,23 +172,34 @@ constexpr double k_ChiMax = 90.0;
 // ---------------------------------------------------------------------------
 // SymOps: convention-aware bundle of symmetry operations.
 //
-// The canonical k_QuatSym, k_RodSym, k_MatSym arrays above hold the hex 6/mmm
-// symmetry rotations expressed in the X||a* (MTEX / Oxford) basis -- the v3
-// internal default. For the X||a (TSL/EDAX/legacy DREAM3D) convention, the
-// SAME twelve physical rotations are expressed in a basis rotated by 30°
-// about the c-axis, which in quaternion form is a similarity transform:
+// CANONICAL = X||a*. The hand-typed k_QuatSym, k_RodSym, k_MatSym arrays
+// above hold the hex 6/mmm symmetry rotations expressed in the X||a*
+// (MTEX / Oxford) basis -- the v3 internal default. These values are the
+// MTEX-validated source of truth (see the 1752-bucket regression at
+// Data/Pole_Figure_Validation/).
+//
+// For the X||a (TSL/EDAX/legacy DREAM3D) convention, the SAME twelve
+// physical rotations are expressed in a basis rotated by 30° about the
+// c-axis, which in quaternion form is a similarity transform:
 //
 //     S_X||a = q_30 * S_X||a* * conj(q_30)        where q_30 = R_z(+30°)
 //
-// Two static instances of SymOps live below (one per convention) so any
-// caller that has selected a convention can read sym ops directly via a
-// pointer flip rather than computing the conjugation per-call.
+// The X||a side is therefore *derived by construction* from the validated
+// X||a* canonical, with the per-direction-table entries similarly rotated
+// by R_z(+30°). Two static instances of SymOps live below (one per
+// convention) so any caller that has selected a convention can read sym
+// ops directly via a pointer flip rather than computing the conjugation
+// per-call.
 //
-// PR 2a scope: this struct + the two static instances are added but no
-// rendering method consults them yet -- pure plumbing. Subsequent PRs wire
-// the rendering methods to dispatch on the caller's HexConvention.
+// Note on sym op ordering: the order of entries in k_QuatSym (and the per-
+// family direction lists below) originates from the EMsoftOO project,
+// hand-derived for loop efficiency in EMsoftOO's inner loops. There is no
+// expected mathematical relationship between consecutive entries -- two
+// hand-typed tables encoding the same orbit can legitimately disagree by
+// index. Validation is therefore by *orbit equality*, not table equality.
 //
-// See Code_Review/v3_phase0_design_notes.md for the full design.
+// See Code_Review/v3_phase0_design_notes.md §16 for the canonical-direction
+// reasoning and the v2 → v3 enumeration-mismatch finding that informed it.
 // ---------------------------------------------------------------------------
 struct SymOps
 {
