@@ -127,6 +127,92 @@ static const std::vector<Matrix3X3D> k_MatSym = {
 constexpr double k_EtaMin = -90.0;
 constexpr double k_EtaMax = -30.0;
 constexpr double k_ChiMax = 90.0;
+
+// ---------------------------------------------------------------------------
+// SymOps: convention-aware bundle of symmetry operations + plane-family
+// direction tables. Mirrors the pattern in HexagonalOps. For TrigonalHigh
+// (Laue class -3m), the canonical k_QuatSym contains 3 c-axis rotations
+// + 3 basal-plane 180° flips; the 180°s are basis-dependent so the X||a
+// derivation via 30°-about-c similarity transform yields different sym
+// op values for the basal entries. The plane-family direction tables
+// also rotate by 30° between bases.
+//
+// See Code_Review/v3_phase0_design_notes.md §5 for the full design.
+// ---------------------------------------------------------------------------
+struct SymOps
+{
+  std::vector<QuatD> quat;
+  std::vector<RodriguesDType> rod;
+  std::vector<Matrix3X3D> mat;
+
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily0; // {0001} c-axis
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily1; // <0-110>-style family
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily2; // <1-100>-style family
+
+  template <ebsdlib::HexConvention Conv>
+  static SymOps build()
+  {
+    // Canonical (X||a*) plane-family direction sets. Values are taken from
+    // the previous inline-hardcoded blocks of TrigonalOps' GenerateSphereCoordsImpl.
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {
+        {0.0, 0.0, 1.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {
+        {-0.5, -ebsdlib::constants::k_Root3Over2D, 0.0},
+        {1.0, 0.0, 0.0},
+        {-0.5, ebsdlib::constants::k_Root3Over2D, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {
+        {0.5, -ebsdlib::constants::k_Root3Over2D, 0.0},
+        {0.5, ebsdlib::constants::k_Root3Over2D, 0.0},
+        {-1.0, 0.0, 0.0}};
+
+    if constexpr (Conv == ebsdlib::HexConvention::XParallelAStar)
+    {
+      return SymOps{k_QuatSym, k_RodSym, k_MatSym, canonicalDirsFamily0, canonicalDirsFamily1, canonicalDirsFamily2};
+    }
+    else // XParallelA -- derive by 30°-about-c similarity transform.
+    {
+      const double sin15 = std::sin(15.0 * ebsdlib::constants::k_PiOver180D);
+      const double cos15 = std::cos(15.0 * ebsdlib::constants::k_PiOver180D);
+      const QuatD q30(0.0, 0.0, sin15, cos15);
+      const QuatD q30Inv = q30.conjugate();
+
+      const double c30 = ebsdlib::constants::k_Root3Over2D;
+      const double s30 = 0.5;
+      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0,
+                                     s30, c30, 0.0,
+                                     0.0, 0.0, 1.0);
+
+      SymOps out;
+      out.quat.reserve(k_QuatSym.size());
+      out.rod.reserve(k_QuatSym.size());
+      out.mat.reserve(k_QuatSym.size());
+      for (const auto& qStar : k_QuatSym)
+      {
+        const QuatD qA = q30 * qStar * q30Inv;
+        out.quat.push_back(qA);
+        out.mat.push_back(qA.toOrientationMatrix().toGMatrix());
+        out.rod.push_back(qA.toRodrigues());
+      }
+
+      out.dirsFamily0 = canonicalDirsFamily0; // c-axis: invariant
+      out.dirsFamily1.reserve(canonicalDirsFamily1.size());
+      out.dirsFamily2.reserve(canonicalDirsFamily2.size());
+      for (const auto& d : canonicalDirsFamily1)
+      {
+        out.dirsFamily1.push_back(rz30 * d);
+      }
+      for (const auto& d : canonicalDirsFamily2)
+      {
+        out.dirsFamily2.push_back(rz30 * d);
+      }
+      return out;
+    }
+  }
+};
+
+static const SymOps k_SymOps_XParallelAStar = SymOps::build<ebsdlib::HexConvention::XParallelAStar>();
+static const SymOps k_SymOps_XParallelA = SymOps::build<ebsdlib::HexConvention::XParallelA>();
+
 } // namespace TrigonalHigh
 
 // -----------------------------------------------------------------------------
@@ -500,74 +586,50 @@ class GenerateSphereCoordsImpl
   ebsdlib::FloatArrayType* m_xyz001;
   ebsdlib::FloatArrayType* m_xyz011;
   ebsdlib::FloatArrayType* m_xyz111;
+  const SymOps* m_Sym;
 
 public:
-  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz001Coords, ebsdlib::FloatArrayType* xyz011Coords, ebsdlib::FloatArrayType* xyz111Coords)
+  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz001Coords, ebsdlib::FloatArrayType* xyz011Coords, ebsdlib::FloatArrayType* xyz111Coords, const SymOps* sym)
   : m_Eulers(eulerAngles)
   , m_xyz001(xyz001Coords)
   , m_xyz011(xyz011Coords)
   , m_xyz111(xyz111Coords)
+  , m_Sym(sym)
   {
   }
   virtual ~GenerateSphereCoordsImpl() = default;
 
+  static inline void emitDirAndAntipode(const ebsdlib::Matrix3X3D& gTranspose, const ebsdlib::Matrix3X1D& dir, ebsdlib::FloatArrayType* dest, size_t pairOffsetTuples)
+  {
+    const size_t plus = pairOffsetTuples * 3;
+    const size_t minus = plus + 3;
+    (gTranspose * dir).copyInto<float>(dest->getPointer(plus));
+    std::transform(dest->getPointer(plus), dest->getPointer(plus + 3), dest->getPointer(minus), [](float v) { return v * -1.0F; });
+  }
+
   void generate(size_t start, size_t end) const
   {
-    ebsdlib::Matrix3X1D direction(0.0, 0.0, 0.0);
+    const size_t f0Stride = m_Sym->dirsFamily0.size() * 2;
+    const size_t f1Stride = m_Sym->dirsFamily1.size() * 2;
+    const size_t f2Stride = m_Sym->dirsFamily2.size() * 2;
 
-    // Generate all the Coordinates
     for(size_t i = start; i < end; ++i)
     {
       EulerDType euler(m_Eulers->getValue(i * 3), m_Eulers->getValue(i * 3 + 1), m_Eulers->getValue(i * 3 + 2));
       ebsdlib::Matrix3X3D gTranspose = euler.toOrientationMatrix().toGMatrix().transpose();
 
-      // -----------------------------------------------------------------------------
-      // [0001] Family
-      direction[0] = 0.0;
-      direction[1] = 0.0;
-      direction[2] = 1.0;
-      (gTranspose * direction).copyInto<float>(m_xyz001->getPointer(i * 6));
-      std::transform(m_xyz001->getPointer(i * 6), m_xyz001->getPointer(i * 6 + 3),
-                     m_xyz001->getPointer(i * 6 + 3),            // write to the next triplet in memory
-                     [](float value) { return value * -1.0F; }); // Multiply each value by -1.0
-
-      // -----------------------------------------------------------------------------
-      // <0-110> direction family under 3-fold rotation about c (MTEX X||a*:
-      // -a2 + a3 at 240°, plus 120°-rotated siblings at 0° and 120°) + antipodes = 6 poles.
-      direction[0] = -0.5;
-      direction[1] = -ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18));
-      std::transform(m_xyz011->getPointer(i * 18), m_xyz011->getPointer(i * 18 + 3), m_xyz011->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
-      direction[0] = 1.0;
-      direction[1] = 0.0;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 6));
-      std::transform(m_xyz011->getPointer(i * 18 + 6), m_xyz011->getPointer(i * 18 + 9), m_xyz011->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
-      direction[0] = -0.5;
-      direction[1] = ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz011->getPointer(i * 18 + 12));
-      std::transform(m_xyz011->getPointer(i * 18 + 12), m_xyz011->getPointer(i * 18 + 15), m_xyz011->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
-
-      // -----------------------------------------------------------------------------
-      // <1-100> direction family under 3-fold (MTEX X||a*: a1 - a2 at -60°/300°,
-      // plus 120°-rotated siblings at 60° and 180°) + antipodes = 6 poles.
-      direction[0] = 0.5;
-      direction[1] = -ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18));
-      std::transform(m_xyz111->getPointer(i * 18), m_xyz111->getPointer(i * 18 + 3), m_xyz111->getPointer(i * 18 + 3), [](float value) { return value * -1.0F; });
-      direction[0] = 0.5;
-      direction[1] = ebsdlib::constants::k_Root3Over2D;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 6));
-      std::transform(m_xyz111->getPointer(i * 18 + 6), m_xyz111->getPointer(i * 18 + 9), m_xyz111->getPointer(i * 18 + 9), [](float value) { return value * -1.0F; });
-      direction[0] = -1.0;
-      direction[1] = 0.0;
-      direction[2] = 0.0;
-      (gTranspose * direction).copyInto<float>(m_xyz111->getPointer(i * 18 + 12));
-      std::transform(m_xyz111->getPointer(i * 18 + 12), m_xyz111->getPointer(i * 18 + 15), m_xyz111->getPointer(i * 18 + 15), [](float value) { return value * -1.0F; });
+      for(size_t k = 0; k < m_Sym->dirsFamily0.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily0[k], m_xyz001, i * f0Stride + k * 2);
+      }
+      for(size_t k = 0; k < m_Sym->dirsFamily1.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily1[k], m_xyz011, i * f1Stride + k * 2);
+      }
+      for(size_t k = 0; k < m_Sym->dirsFamily2.size(); ++k)
+      {
+        emitDirAndAntipode(gTranspose, m_Sym->dirsFamily2[k], m_xyz111, i * f2Stride + k * 2);
+      }
     }
   }
 
@@ -599,16 +661,19 @@ void TrigonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers
     xyz111->resizeTuples(nOrientations * TrigonalHigh::k_SymSize2 * 3);
   }
 
+  // Pick the convention-appropriate SymOps once.
+  const TrigonalHigh::SymOps* sym = (conv == ebsdlib::HexConvention::XParallelAStar) ? &TrigonalHigh::k_SymOps_XParallelAStar : &TrigonalHigh::k_SymOps_XParallelA;
+
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
   bool doParallel = true;
   if(doParallel)
   {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TrigonalHigh::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111), tbb::auto_partitioner());
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, nOrientations), TrigonalHigh::GenerateSphereCoordsImpl(eulers, xyz001, xyz011, xyz111, sym), tbb::auto_partitioner());
   }
   else
 #endif
   {
-    TrigonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111);
+    TrigonalHigh::GenerateSphereCoordsImpl serial(eulers, xyz001, xyz011, xyz111, sym);
     serial.generate(0, nOrientations);
   }
 }
@@ -627,9 +692,89 @@ bool TrigonalOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
+ebsdlib::Rgb TrigonalOps::generateIPFColorImpl(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
+{
+  // Convention-aware mirror of LaueOps::computeIPFColor; the FZ-reduction
+  // loop reads sym->quat[j] selected by conv instead of getQuatSymOp(j).
+  const TrigonalHigh::SymOps* sym = (conv == ebsdlib::HexConvention::XParallelAStar) ? &TrigonalHigh::k_SymOps_XParallelAStar : &TrigonalHigh::k_SymOps_XParallelA;
+
+  const ebsdlib::Matrix3X1D refDirection(refDir);
+  double chi = 0.0;
+  double eta = 0.0;
+  double rgb[3] = {0.0, 0.0, 0.0};
+
+  EulerDType eu(eulers[0], eulers[1], eulers[2]);
+  if(degToRad)
+  {
+    eu[0] *= ebsdlib::constants::k_DegToRadD;
+    eu[1] *= ebsdlib::constants::k_DegToRadD;
+    eu[2] *= ebsdlib::constants::k_DegToRadD;
+  }
+  OrientationMatrixDType om;
+  QuatD q1 = eu.toQuaternion();
+
+  for(size_t j = 0; j < sym->quat.size(); j++)
+  {
+    QuaternionDType qu(sym->quat[j] * q1);
+    om = qu.toOrientationMatrix();
+    ebsdlib::Matrix3X3D g(om.data());
+    ebsdlib::Matrix3X1D p = (g * refDirection).normalize();
+
+    if(!getHasInversion() && p[2] < 0)
+    {
+      continue;
+    }
+    if(getHasInversion() && p[2] < 0)
+    {
+      p = p * -1.0;
+    }
+    chi = std::acos(p[2]);
+    eta = std::atan2(p[1], p[0]);
+    if(!inUnitTriangle(eta, chi))
+    {
+      continue;
+    }
+    break;
+  }
+
+  const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
+
+  if(m_ColorKey)
+  {
+    auto [r, g, b] = m_ColorKey->direction2Color(eta, chi, angleLimits);
+    rgb[0] = r;
+    rgb[1] = g;
+    rgb[2] = b;
+    return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
+  }
+
+  rgb[0] = 1.0 - chi / angleLimits[2];
+  rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);
+  rgb[1] = 1 - rgb[2];
+  rgb[1] *= chi / angleLimits[2];
+  rgb[2] *= chi / angleLimits[2];
+  rgb[0] = std::sqrt(rgb[0]);
+  rgb[1] = std::sqrt(rgb[1]);
+  rgb[2] = std::sqrt(rgb[2]);
+  double max = rgb[0];
+  if(rgb[1] > max)
+  {
+    max = rgb[1];
+  }
+  if(rgb[2] > max)
+  {
+    max = rgb[2];
+  }
+  rgb[0] /= max;
+  rgb[1] /= max;
+  rgb[2] /= max;
+  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
+}
+
+// -----------------------------------------------------------------------------
 ebsdlib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
 {
-  return computeIPFColor(eulers, refDir, degToRad);
+  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
 }
 
 // -----------------------------------------------------------------------------
@@ -637,7 +782,7 @@ ebsdlib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2,
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
-  return computeIPFColor(eulers, refDir, degToRad);
+  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
 }
 
 // -----------------------------------------------------------------------------
@@ -697,7 +842,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
   config.sphereRadius = 1.0f;
 
   // Generate the coords on the sphere **** Parallelized
-  generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get());
+  generateSphereCoordsFromEulers(config.eulers, xyz001.get(), xyz011.get(), xyz111.get(), config.hexConvention);
 
   // These arrays hold the "intensity" images which eventually get converted to an actual Color RGB image
   // Generate the modified Lambert projection images (Squares, 2 of them, 1 for Northern Hemisphere, 1 for Southern Hemisphere
@@ -820,7 +965,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
 namespace
 {
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
@@ -868,7 +1013,7 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
       }
       else
       {
-        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
+        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false, conv);
       }
 
       pixelPtr[idx] = color;
@@ -1034,7 +1179,7 @@ ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
   }
 
   // Generate the colored SST triangle image (ARGB)
-  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, conv);
 
   // Annotate with title and Miller index labels
   return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);

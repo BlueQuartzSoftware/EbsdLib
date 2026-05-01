@@ -287,6 +287,14 @@ public:
   bool isInsideFZ(const RodriguesDType& rod) const override;
 
 protected:
+  /**
+   * @brief Convention-aware IPF color computation. Mirrors the base-class
+   * computeIPFColor() exactly except that the FZ-reduction loop uses the
+   * SymOps quat table selected by `conv` instead of the canonical
+   * getQuatSymOp(j). Both generateIPFColor overloads route through here.
+   */
+  ebsdlib::Rgb generateIPFColorImpl(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const;
+
 public:
   TrigonalLowOps(const TrigonalLowOps&) = delete;            // Copy Constructor Not Implemented
   TrigonalLowOps(TrigonalLowOps&&) = delete;                 // Move Constructor Not Implemented
