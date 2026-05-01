@@ -111,6 +111,12 @@ const std::string QuatsWXYZ_29791_File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFi
 const std::string QuatsWXYZ_10_File   ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_10.csv");
 } // namespace DirectionalStatsTest
 
+namespace RenderEbsdTest
+{
+const std::string AllLaueClassesAng("@EbsdLibProj_SOURCE_DIR@/Data/ipf_color_tests/AllLaueClasses_RandO.ang");
+const std::string OutputDir("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/RenderEbsdTest/");
+} // namespace RenderEbsdTest
+
 namespace IPFLegendTest
 {
 const std::string CubicLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Cubic_Low_m3(Tetrahedral).png");

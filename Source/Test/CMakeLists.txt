@@ -51,6 +51,8 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureCompositorTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureLaueComparisonTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigurePositionTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/RenderEbsdSmokeTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Apps/render_ebsd.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/InversePoleFigureTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TiffWriterTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/DirectionalStatsTest.cpp
@@ -111,6 +113,7 @@ target_link_libraries(${UNIT_TEST_TARGET}
 target_include_directories(${UNIT_TEST_TARGET}
   PRIVATE
     "${EbsdLibProj_SOURCE_DIR}/3rdParty/canvas_ity/src"
+    "${EbsdLibProj_SOURCE_DIR}/Source"
 )
 
 
