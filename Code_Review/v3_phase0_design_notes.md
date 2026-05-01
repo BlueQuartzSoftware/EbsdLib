@@ -205,14 +205,24 @@ These describe symmetry rotations in the crystal frame, and the
 basal-plane axes are convention-dependent — so the numerical values
 differ between X‖a and X‖a*.
 
-### 5.1 — Approach: canonical X‖a + derived X‖a* via templated factory
+### 5.1 — Approach: canonical + derived via templated factory
 
-Hand-maintain *one* set of constants in the canonical X‖a form
-(matching the v2/legacy values). Derive the X‖a* version
-algorithmically at TU static-init via a `SymOps` helper struct with
-an `if constexpr` factory. Both static instances exist in the
-binary; the rendering methods pick one based on the `HexConvention`
-parameter.
+> **Note:** This section captures the design *pattern* (single
+> canonical hand-maintained set + derived alternate via templated
+> factory + two static instances + pointer-flip dispatch). The
+> *direction* of canonical-to-derived was revised during PR 2e —
+> see §16 for the implemented choice (canonical = X‖a*, derived =
+> X‖a) and the reasoning behind it. The pseudocode below uses the
+> originally-planned direction (canonical = X‖a, derived = X‖a*)
+> for narrative continuity with the rest of this document; the real
+> code in `Source/EbsdLib/LaueOps/HexagonalOps.cpp` and the three
+> peer files is in the §16 direction.
+
+Hand-maintain *one* set of constants in the canonical form. Derive
+the alternate-convention version algorithmically at TU static-init
+via a `SymOps` helper struct with an `if constexpr` factory. Both
+static instances exist in the binary; the rendering methods pick
+one based on the `HexConvention` parameter.
 
 ```cpp
 namespace HexagonalHigh
@@ -604,28 +614,41 @@ So a more accurate sequencing:
   internal behavior).
 - No internal change. Output bit-identical to current v3.
 
-### PR 2 — Internal architecture: SymOps struct + canonical X‖a flip
+### PR 2 — Internal architecture: SymOps struct + per-class dispatch
+
+> **Revised during execution.** The original sketch below assumed
+> the canonical hand-maintained tables would be hand-flipped back
+> to X‖a (v2-style) values. PR 2e revealed that v2 → v3 was not a
+> uniform basis rotation — see §16. The implemented sequencing
+> kept canonical = X‖a* (current v3 hand-typed, MTEX-validated) and
+> derived X‖a via the conjugation transform.
 
 - For the four hex/trig Ops files: introduce the `SymOps` struct,
   the templated `build<>` factory, the two static instances.
-- Hand-flip the canonical tables back to X‖a (use git history to
-  recover the v2 values).
 - Replace internal `HexagonalHigh::k_QuatSym[i]` references with
   `sym->quat[i]` where `sym` is picked at the top of each rendering
-  method from `config.hexConvention`.
-- Add the transient phi2 shift to the local Euler copy in rendering
-  methods when `conv == XParallelAStar`.
-- Flip `getDefaultPoleFigureNames` to return X‖a strings by default.
-- Validate: with `XParallelA` (default), output matches v2 / OIM
-  Analysis. With `XParallelAStar`, output matches MTEX.
+  method from `config.hexConvention` / the per-method `conv` arg.
+- *(Originally planned, dropped per §16:)* Hand-flip the canonical
+  tables to X‖a using git-history-recovered v2 values.
+- *(Originally planned, dropped per §16:)* Flip
+  `getDefaultPoleFigureNames` to return X‖a strings by default.
+- Validate: with `XParallelAStar` (current default), output is
+  bit-identical to current v3 / matches MTEX. With `XParallelA`,
+  the conjugation-derived path produces a self-consistent X‖a
+  rendering (basal-plane content rotated 30° about c on the disk).
 
-### PR 3 — Default flip on rendering APIs
+### PR 3 — Remove default values; force simplnx audit
 
-- Change defaults from `XParallelAStar` → `XParallelA` on every
-  rendering API.
-- simplnx filters that use the default now produce X‖a (legacy)
-  output. Filters that want MTEX form pass `XParallelAStar`
-  explicitly.
+- Remove the `= XParallelAStar` default from every rendering API
+  (config-struct fields and per-method args).
+- Every `LaueOps` construction site and every rendering call site
+  in simplnx (and any other consumer) becomes a compile error
+  until the caller explicitly supplies a `HexConvention`.
+- This forces a deliberate, audited choice at every call site
+  rather than letting filters quietly inherit a default.
+- The eventual long-term default (X‖a, per §2.2) is then enforced
+  at the *filter UI* level (PR 4), not at the LaueOps API. The
+  LaueOps API itself stays default-free.
 
 ### PR 4 — simplnx UI: per-filter dropdowns
 
@@ -677,17 +700,27 @@ The MTEX-side processing for the comparison is in
 
 The position-space validation (1752 buckets, 12 canonical orientations
 × 11 Laue classes × 3 plane families, max distance 6×10⁻⁸ vs MTEX) at
-`Data/Pole_Figure_Validation/` is the regression guard. Currently runs
-under v3's X‖a* internal default. PR 2 needs to:
+`Data/Pole_Figure_Validation/` is the regression guard. It runs under
+v3's X‖a* internal default and continues to pass after PR 2 because:
 
-1. Update the test to invoke LaueOps with explicit `XParallelAStar`
-   convention so the comparison against MTEX continues to be
-   apples-to-apples.
-2. Add a parallel run with `XParallelA` to check that the
-   X‖a-internal computation passes its own consistency checks
-   (orientations stay orientations; symmetry orbits are still
-   complete; FZ reduction works). The X‖a side won't match MTEX
-   (different convention), but should be self-consistent.
+1. The current default convention is still `XParallelAStar`, so the
+   regression test is unchanged in its calling convention.
+2. The canonical sym op + direction tables are unchanged — they're
+   still the v3 hand-typed values. (The implementation chose
+   canonical = X‖a*, see §16.) The MTEX-side numbers therefore
+   match bit-for-bit what they did before PR 2 landed.
+
+When PR 3 removes the default values, the 1752-bucket harness will
+be updated to pass `XParallelAStar` explicitly so the regression
+remains apples-to-apples against MTEX.
+
+The X‖a (derived) path is exercised by `LaueOpsTest`'s convention
+regression suite (see PR 2b/2d): for each of the four hex/trig Ops
+classes, `generateSphereCoordsFromEulers` is invoked under both
+conventions with a zero-Euler input, and the X‖a output is asserted
+to be `R_z(+30°)` applied to the X‖a* canonical first-family entry.
+That gives a self-consistency guard on the conjugation transform
+without requiring a second MTEX validation pass.
 
 ---
 
@@ -719,17 +752,142 @@ strings.
 ## 15. Open questions
 
 - Confirm `QuatD` and `Matrix3X3D` work in static-init context
-  (smoke test during PR 2).
+  (smoke test during PR 2). **Resolved during PR 2a:** they do —
+  the two static `SymOps` instances build cleanly at TU init.
 - Confirm `phi2` sign empirically during PR 2 (closed form vs
   empirical-from-`make_pole_figure` discrepancy described in §7).
 - Confirm sym op conjugation direction during PR 2 (couples with
-  the phi2 sign).
+  the phi2 sign). **Resolved during PR 2b:** `q_30 * S * q_30Inv`
+  (with `q_30 = R_z(+30°)`) maps canonical X‖a* → X‖a; verified
+  by the `LaueOpsTest` convention regression suite which checks
+  that the derived first-family entry is `R_z(+30°)` applied to
+  the canonical first-family entry.
 - Decide whether `SymOps` derivation can move to `constexpr`
   (depends on `QuatD`'s API). Optional, follow-up work.
 - Decide whether `WritePoleFigure` filter UI auto-defaults the
   three plot labels from `getDefaultPoleFigureNames(conv)` when
   the user changes the convention dropdown. Strong recommendation
   yes.
+
+---
+
+## 16. PR 2e finding: canonical-source-of-truth direction
+
+§5.1 originally proposed making X‖a the canonical hand-maintained
+set and deriving X‖a* via the templated `SymOps::build<>` factory.
+The reasoning was: X‖a is the legacy v2 form, the v2 hand-typed
+sym op tables are recoverable from git history, and the templated
+factory then generates the X‖a* tables algorithmically by
+`q_30 * S * q_30Inv` with matching `R_z(+30°)` rotation of the
+direction-family lists.
+
+**PR 2e investigated this hand-flip and chose the opposite
+direction.** Canonical = X‖a* (current v3 hand-typed values),
+derived = X‖a (via the conjugation transform). This subsection
+captures why.
+
+### 16.1 — What was discovered
+
+Before hand-flipping, the natural sanity check is: does
+`R_z(-30°)` applied member-by-member to the v3 X‖a* sym op /
+direction tables actually reproduce the v2 X‖a values pulled
+from git history?
+
+It does not. F1 (the {10-10}-style family) and F2 (the
+{2-1-10}-style family) shift by *different* signs of 30° between
+v2 and v3 in the hand-typed tables — i.e. the v2 → v3 transition
+was not a uniform 30°-about-c rotation of the entire table. The
+v3 author chose different orbit members as the "first" entry per
+family than the v2 author did. The sym op table itself (the
+twelve quaternions describing the rotation group) shows similar
+per-entry mismatch when compared by index.
+
+### 16.2 — Why this isn't a bug, and why hand-flipping doesn't help
+
+The user supplied the missing context: the sym op ordering used
+across the EbsdLib hex/trig classes originates from the
+**EMsoftOO** project. The order was hand-derived for
+**loop-efficiency** in EMsoftOO's inner loops, not to encode any
+mathematical relationship between consecutive entries. Two
+authors writing the "same" sym op table can legitimately ship
+different orderings, and they will disagree by index even when
+the orbits they describe are physically identical.
+
+The same is true of the per-family direction lists: a hex 6/mmm
+{10-10} family has six members (three unique up to the inversion
+center). Picking which one to call "first" is a stylistic choice;
+the orbit is complete and physically correct either way.
+
+So the v3 hand-typed tables do not encode a different physical
+group from the v2 tables — they encode the *same* rotation group
+and the *same* plane-normal orbits, just enumerated in a different
+order. Hand-flipping v3 X‖a* to v2 X‖a values would not produce a
+"more correct" library; it would produce a stylistically v2-looking
+library at the cost of:
+
+- breaking the existing `LaueOpsTest::*Test` regression baselines
+  that have been validated against MTEX bucket-position output
+  (see §13.2 — the 1752-bucket cross-check at
+  `Data/Pole_Figure_Validation/`),
+- forcing every internal use of `k_QuatSym[i]` to be re-blessed
+  against the new ordering, and
+- introducing a numerical-output diff in the X‖a* derived path
+  that's purely an enumeration artifact, not a physics change.
+
+### 16.3 — Decision: keep canonical = X‖a*
+
+PR 2a–2d landed with canonical = X‖a* and derived = X‖a, on the
+reasoning that:
+
+1. The X‖a* canonical tables are the ones validated by the
+   1752-bucket MTEX regression. They are known-good.
+2. The conjugation transform `q_30 * S * q_30Inv` plus
+   `R_z(+30°) · d` for direction tables is a closed-form, easily
+   audited derivation. The X‖a side is correct *by construction*
+   from the validated X‖a* side.
+3. The eventual X‖a output (via the derived path) lands on the
+   same physical orbits as v2/OIM-Analysis, just not necessarily
+   the same per-index numerical values. Because all rendering
+   methods iterate the full orbit, the visible PF / IPF output is
+   indistinguishable from v2 output. The only difference is which
+   orbit member happens to be `sym->dirsFamily1[0]` internally,
+   and that's not user-visible.
+
+PR 2e is therefore a **documentation-only commit**: this
+subsection plus §5.1 / §12 cross-references, plus comment
+tightening in `HexagonalOps.cpp` / `HexagonalLowOps.cpp` /
+`TrigonalOps.cpp` / `TrigonalLowOps.cpp` to reflect the chosen
+direction.
+
+### 16.4 — What this means for downstream work
+
+- **PR 3 (default removal):** unchanged. Strip the
+  `= XParallelAStar` defaults from every rendering API; force
+  every caller to make the choice explicitly.
+- **simplnx UI default (PR 4):** still X‖a, per §2.2. The fact
+  that EbsdLib's *internal* canonical happens to be X‖a* doesn't
+  change the user-facing default. simplnx filters pass
+  `XParallelA` explicitly to LaueOps, which then does its
+  conjugation-derive-on-the-fly via the X‖a static instance, and
+  produces the legacy-OIM-style PF.
+- **MTEX validation harness:** continues to use `XParallelAStar`
+  explicitly, comparing against the canonical (not derived) path.
+  No regression update needed.
+- **v2-style auditing:** if a future user reports "the X‖a output
+  doesn't match what I had in v2 at index N of the sym op table",
+  the answer is "the orbit is the same, the indexing differs by
+  EMsoftOO loop ordering — compare by orbit membership, not by
+  index". Document this in the filter help text alongside the
+  PF-rendering workflow.
+
+### 16.5 — Lesson for future Phase-N convention work
+
+When introducing a second convention to a Laue-class library,
+**don't assume** that two existing hand-typed tables related by
+"the same" basis rotation will agree member-by-member after
+applying that rotation. Per-entry hand-typing inherits the
+author's enumeration choice. The right validation is *orbit
+equality*, not *table equality*.
 
 ---
 

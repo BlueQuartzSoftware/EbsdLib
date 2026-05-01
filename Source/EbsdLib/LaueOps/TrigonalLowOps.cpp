@@ -113,12 +113,21 @@ constexpr double k_ChiMax = 90.0;
 
 // ---------------------------------------------------------------------------
 // SymOps: convention-aware bundle of symmetry operations + plane-family
-// direction tables. Mirrors the pattern in HexagonalOps. For TrigonalLow
-// (Laue class -3), the canonical k_QuatSym contains only c-axis rotations
-// (no basal-plane 180° flips), so the conjugation is a no-op for the sym
-// ops; the convention only changes the direction tables.
+// direction tables. Mirrors the pattern in HexagonalOps.
 //
-// See Code_Review/v3_phase0_design_notes.md §5 for the full design.
+// CANONICAL = X||a* (the v3 hand-typed values above are the MTEX-validated
+// source of truth). X||a is derived via 30°-about-c similarity transform.
+//
+// For TrigonalLow (Laue class -3), the canonical k_QuatSym contains only
+// c-axis rotations (no basal-plane 180° flips), so the conjugation is a
+// no-op for the sym ops; the convention only changes the direction tables.
+//
+// Note on sym op ordering: the order of entries in k_QuatSym originates
+// from the EMsoftOO project, hand-derived for loop efficiency. There is
+// no expected mathematical relationship between consecutive entries.
+//
+// See Code_Review/v3_phase0_design_notes.md §5 for the design pattern and
+// §16 for the canonical-direction reasoning.
 // ---------------------------------------------------------------------------
 struct SymOps
 {
