@@ -60,17 +60,17 @@ private:
   // is just a switch.
   enum class Group : int
   {
-    Triclinic,    // -1   hemiIpf
-    Monoclinic,   // 2/m  cyclicIpf<2>
-    Orthorhombic, // mmm  dihedralIpf<2>
-    TrigonalLow,  // -3   cyclicIpf<3>
-    TrigonalHigh, // -3m  dihedralIpf<3>
+    Triclinic,      // -1   hemiIpf
+    Monoclinic,     // 2/m  cyclicIpf<2>
+    Orthorhombic,   // mmm  dihedralIpf<2>
+    TrigonalLow,    // -3   cyclicIpf<3>
+    TrigonalHigh,   // -3m  dihedralIpf<3>
     TetragonalLow,  // 4/m   cyclicIpf<4>
     TetragonalHigh, // 4/mmm dihedralIpf<4>
-    HexagonalLow,  // 6/m   cyclicIpf<6>
-    HexagonalHigh, // 6/mmm dihedralIpf<6>
-    CubicLow,      // m-3   cubicLowIpf
-    CubicHigh      // m-3m  cubicIpf
+    HexagonalLow,   // 6/m   cyclicIpf<6>
+    HexagonalHigh,  // 6/mmm dihedralIpf<6>
+    CubicLow,       // m-3   cubicLowIpf
+    CubicHigh       // m-3m  cubicIpf
   };
 
   Group m_Group;

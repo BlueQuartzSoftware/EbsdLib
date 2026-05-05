@@ -12,8 +12,8 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
-#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 
 #include <fmt/format.h>
 

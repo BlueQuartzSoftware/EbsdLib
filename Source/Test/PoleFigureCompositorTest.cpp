@@ -68,8 +68,8 @@ Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
-#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "UnitTestCommon.hpp"
 #include "UnitTestSupport.hpp"
 
@@ -86,7 +86,6 @@ Test result: 39 mismatched pixels in Debug mode (confirmed Release passes).
 #include <set>
 #include <sstream>
 #include <string>
-
 
 using namespace ebsdlib;
 

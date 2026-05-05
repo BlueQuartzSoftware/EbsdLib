@@ -41,8 +41,8 @@
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/PUCMColorKey.hpp"
-#include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "UnitTestSupport.hpp"
@@ -421,7 +421,6 @@ TEST_CASE("ebsdlib::IPFLegendTest::PUCM_Compare_MTEX_IPF_Legends", "[EbsdLib][IP
 
     std::string dir = baseDir + "/" + safe;
     std::filesystem::create_directories(dir);
-
 
     // PUCM legend (per-pixel). Compare against EDAX's perceptually uniform
     // IPF palette. Constructed per Laue class so the wlenthe dispatch

@@ -40,8 +40,8 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 #include "EbsdLib/Texture/StatsGen.hpp"
 #include "EbsdLib/Texture/Texture.hpp"
-#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "UnitTestCommon.hpp"
 #include "UnitTestSupport.hpp"
 
@@ -134,7 +134,6 @@ TEST_CASE("ebsdlib::ODFTest", "[EbsdLib][ODFTest]")
 
   PoleFigureCompositor compositor;
   CompositePoleFigureResult result = compositor.generateCompositeImage(config);
-
 
   std::string outputPath = fmt::format("{}/ODFTest/Pole_Figure_{}.png", ebsdlib::unit_test::k_TestTempDir, op->getRotationPointGroup());
 

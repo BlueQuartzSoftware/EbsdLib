@@ -171,6 +171,12 @@ public:
   virtual std::array<size_t, 3> getOdfNumBins() const = 0;
 
   /**
+   * @breif Returns the ODF Bin step size, which is 5 degrees.
+   * @return
+   */
+  virtual std::array<float, 3> getOdfBinStepSize() const;
+
+  /**
    * @brief calculateMisorientation Finds the misorientation between 2 quaternions and returns the result as an Axis Angle value
    * @param q1 Input Quaternion
    * @param q2 Input Quaternion

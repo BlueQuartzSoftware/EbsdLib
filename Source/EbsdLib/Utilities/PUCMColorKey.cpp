@@ -76,17 +76,28 @@ PUCMColorKey::Vec3 dispatchPucm(int group, const PUCMColorKey::Vec3& direction)
 
 int groupFromRotationPointGroup(const std::string& rpg)
 {
-  if(rpg == "1") return 0;
-  if(rpg == "2") return 1;
-  if(rpg == "222") return 2;
-  if(rpg == "3") return 3;
-  if(rpg == "32") return 4;
-  if(rpg == "4") return 5;
-  if(rpg == "422") return 6;
-  if(rpg == "6") return 7;
-  if(rpg == "622") return 8;
-  if(rpg == "23") return 9;
-  if(rpg == "432") return 10;
+  if(rpg == "1")
+    return 0;
+  if(rpg == "2")
+    return 1;
+  if(rpg == "222")
+    return 2;
+  if(rpg == "3")
+    return 3;
+  if(rpg == "32")
+    return 4;
+  if(rpg == "4")
+    return 5;
+  if(rpg == "422")
+    return 6;
+  if(rpg == "6")
+    return 7;
+  if(rpg == "622")
+    return 8;
+  if(rpg == "23")
+    return 9;
+  if(rpg == "432")
+    return 10;
   throw std::invalid_argument("PUCMColorKey: unsupported rotation point group '" + rpg + "'");
 }
 } // namespace

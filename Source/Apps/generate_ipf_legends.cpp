@@ -20,8 +20,8 @@
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
-#include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include "EbsdLib/Apps/EbsdLibFileLocations.h"
 

@@ -45,7 +45,7 @@ void runOneCell(ebsdlib::HexConvention conv, ebsdlib::render_ebsd::ColorKeyKind 
   opts.colorKey = colorKey;
   opts.phaseFilter = k_HexagonalHighPhase;
   opts.refDir = {0.0F, 0.0F, 1.0F};
-  opts.imageDim = 256;     // small for fast smoke run
+  opts.imageDim = 256; // small for fast smoke run
   opts.lambertDim = 32;
   opts.legendImageDim = 256;
 

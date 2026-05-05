@@ -51,9 +51,8 @@ struct CanonicalOrientation
 // Reference Bunge angles (degrees) — centers of the EMsoftSO3Sampler clouds
 // in Data/Pole_Figure_Inputs/pole_figure_euler_data.dream3d.
 const std::vector<CanonicalOrientation> k_CanonicalOrientations = {
-    {"Cube", 0.0, 0.0, 0.0},      {"Goss", 0.0, 45.0, 0.0},     {"Brass", 35.0, 45.0, 0.0},   {"Copper", 90.0, 35.0, 45.0},
-    {"S", 59.0, 37.0, 63.0},      {"S1", 55.0, 30.0, 65.0},     {"S2", 45.0, 35.0, 65.0},     {"R", 55.0, 75.0, 25.0},
-    {"RC_rd1", 0.0, 20.0, 0.0},   {"RC_rd2", 0.0, 35.0, 0.0},   {"RC_nd1", 20.0, 0.0, 0.0},   {"RC_nd2", 35.0, 0.0, 0.0},
+    {"Cube", 0.0, 0.0, 0.0},  {"Goss", 0.0, 45.0, 0.0}, {"Brass", 35.0, 45.0, 0.0}, {"Copper", 90.0, 35.0, 45.0}, {"S", 59.0, 37.0, 63.0},    {"S1", 55.0, 30.0, 65.0},
+    {"S2", 45.0, 35.0, 65.0}, {"R", 55.0, 75.0, 25.0},  {"RC_rd1", 0.0, 20.0, 0.0}, {"RC_rd2", 0.0, 35.0, 0.0},   {"RC_nd1", 20.0, 0.0, 0.0}, {"RC_nd2", 35.0, 0.0, 0.0},
 };
 
 // Stereographic projection of a unit-sphere direction onto the unit disk.
@@ -356,7 +355,8 @@ TEST_CASE("ebsdlib::PoleFigurePositionTest::EmitCsv", "[EbsdLib][PoleFigurePosit
     INFO("Bucket point-count mismatch: orient_id=" << std::get<0>(key) << ", rpg=" << std::get<1>(key) << ", family=" << std::get<2>(key) << ", ebsdlib=" << ebPts.size() << ", mtex=" << mtPts.size());
     REQUIRE_FALSE(m.sizeMismatch);
 
-    INFO("Bucket exceeds tolerance: orient_id=" << std::get<0>(key) << ", rpg=" << std::get<1>(key) << ", family=" << std::get<2>(key) << ", max_d=" << m.maxDistance << ", worst pair: ebsdlib=(" << m.ebPoint.first << ", " << m.ebPoint.second << ") -> mtex=(" << m.mtPoint.first << ", " << m.mtPoint.second << ")");
+    INFO("Bucket exceeds tolerance: orient_id=" << std::get<0>(key) << ", rpg=" << std::get<1>(key) << ", family=" << std::get<2>(key) << ", max_d=" << m.maxDistance << ", worst pair: ebsdlib=("
+                                                << m.ebPoint.first << ", " << m.ebPoint.second << ") -> mtex=(" << m.mtPoint.first << ", " << m.mtPoint.second << ")");
     REQUIRE(m.maxDistance < k_BucketTol);
 
     if(m.maxDistance > globalMax)
