@@ -56,7 +56,7 @@ using namespace ebsdlib;
 
 namespace TetragonalLow
 {
-constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 18}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 18}; // Represents a 5Deg bin in homochoric space
 
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
                                                         std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
@@ -519,7 +519,8 @@ public:
 } // namespace TetragonalLow
 
 // -----------------------------------------------------------------------------
-void TetragonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111, ebsdlib::HexConvention conv) const
+void TetragonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111,
+                                                      ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 

@@ -60,7 +60,7 @@ using namespace ebsdlib;
 namespace CubicHigh
 {
 
-constexpr std::array<size_t, 3> k_OdfNumBins = {18, 18, 18}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {18, 18, 18}; // Represents a 5Deg bin in homochoric space
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (ebsdlib::constants::k_PiOver4D - std::sin(ebsdlib::constants::k_PiOver4D))), (1.0 / 3.0))};
@@ -1457,7 +1457,8 @@ public:
 } // namespace CubicHigh
 
 // -----------------------------------------------------------------------------
-void CubicOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111, ebsdlib::HexConvention conv) const
+void CubicOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111,
+                                              ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 

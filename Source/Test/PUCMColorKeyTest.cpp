@@ -76,9 +76,7 @@ TEST_CASE("ebsdlib::PUCMColorKey::DistinctFZVerticesHaveDistinctColors", "[EbsdL
   IColorKey::Vec3 c011 = key.direction2Color(IColorKey::Vec3{0.0, 1.0 / r2, 1.0 / r2});
   IColorKey::Vec3 c111 = key.direction2Color(IColorKey::Vec3{1.0 / r3, 1.0 / r3, 1.0 / r3});
 
-  auto distance = [](const IColorKey::Vec3& a, const IColorKey::Vec3& b) {
-    return std::abs(a[0] - b[0]) + std::abs(a[1] - b[1]) + std::abs(a[2] - b[2]);
-  };
+  auto distance = [](const IColorKey::Vec3& a, const IColorKey::Vec3& b) { return std::abs(a[0] - b[0]) + std::abs(a[1] - b[1]) + std::abs(a[2] - b[2]); };
 
   INFO("[001] -> (" << c001[0] << ", " << c001[1] << ", " << c001[2] << ")");
   INFO("[011] -> (" << c011[0] << ", " << c011[1] << ", " << c011[2] << ")");
@@ -96,8 +94,9 @@ TEST_CASE("ebsdlib::PUCMColorKey::AllLaueClassesProduceFiniteColors", "[EbsdLib]
 {
   // A non-canonical direction so we exercise non-trivial dispatch paths.
   IColorKey::Vec3 dir{0.4, 0.6, 0.7};
-  const double mag = std::sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
-  for(auto& v : dir) v /= mag;
+  const double mag = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+  for(auto& v : dir)
+    v /= mag;
 
   for(const std::string rpg : {"1", "2", "222", "3", "32", "4", "422", "6", "622", "23", "432"})
   {
@@ -107,9 +106,12 @@ TEST_CASE("ebsdlib::PUCMColorKey::AllLaueClassesProduceFiniteColors", "[EbsdLib]
     CHECK(std::isfinite(c[0]));
     CHECK(std::isfinite(c[1]));
     CHECK(std::isfinite(c[2]));
-    CHECK(c[0] >= 0.0); CHECK(c[0] <= 1.0);
-    CHECK(c[1] >= 0.0); CHECK(c[1] <= 1.0);
-    CHECK(c[2] >= 0.0); CHECK(c[2] <= 1.0);
+    CHECK(c[0] >= 0.0);
+    CHECK(c[0] <= 1.0);
+    CHECK(c[1] >= 0.0);
+    CHECK(c[1] <= 1.0);
+    CHECK(c[2] >= 0.0);
+    CHECK(c[2] <= 1.0);
   }
 }
 

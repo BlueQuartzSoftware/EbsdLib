@@ -97,6 +97,8 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
   return static_cast<std::underlying_type_t<Enum>>(e);
 }
 
+constexpr float k_OdfBinStepSize = 5.0f;
+
 } // namespace
 
 // -----------------------------------------------------------------------------
@@ -107,6 +109,12 @@ LaueOps::LaueOps()
 
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
+
+// -----------------------------------------------------------------------------
+std::array<float, 3> LaueOps::getOdfBinStepSize() const
+{
+  return {k_OdfBinStepSize, k_OdfBinStepSize, k_OdfBinStepSize};
+}
 
 // -----------------------------------------------------------------------------
 void LaueOps::setColorKey(ebsdlib::IColorKey::Pointer colorKey)

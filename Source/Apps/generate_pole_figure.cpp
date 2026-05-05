@@ -52,8 +52,8 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
-#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
 #include <algorithm>
 #include <cmath>

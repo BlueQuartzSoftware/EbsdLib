@@ -41,7 +41,6 @@
 
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -49,7 +48,6 @@
 #include <string>
 
 #include <fstream>
-
 
 using namespace ebsdlib;
 

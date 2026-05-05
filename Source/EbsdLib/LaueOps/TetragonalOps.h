@@ -200,7 +200,8 @@ public:
   double getF1spt(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
-  void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3,
+                                      ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief
@@ -228,7 +229,8 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees,
+                                ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
