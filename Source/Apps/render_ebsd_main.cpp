@@ -55,8 +55,7 @@ bool parseRefDir(const std::string& s, std::array<float, 3>& out)
     out[0] = std::stof(parts[0]);
     out[1] = std::stof(parts[1]);
     out[2] = std::stof(parts[2]);
-  }
-  catch(...)
+  } catch(...)
   {
     return false;
   }
@@ -66,8 +65,38 @@ bool parseRefDir(const std::string& s, std::array<float, 3>& out)
 
 int main(int argc, char* argv[])
 {
+  // Allow `render_ebsd --help` / `-h` with no positional args.
+  if(argc >= 2)
+  {
+    std::string a1 = argv[1];
+    if(a1 == "--help" || a1 == "-h")
+    {
+      printUsage();
+      return 0;
+    }
+  }
+
   if(argc < 3)
   {
+    std::cerr << "ERROR: missing positional arguments. Need <input.ang|input.ctf> <output_dir>." << std::endl;
+    printUsage();
+    return 1;
+  }
+
+  // Catch the common mistake of forgetting <output_dir>: argv[2] then ends up
+  // being a flag like "--convention", and the rest of argv would be parsed
+  // out of position. Reject up front with a clear message.
+  auto looksLikeFlag = [](const char* s) { return s != nullptr && s[0] == '-' && s[1] == '-'; };
+  if(looksLikeFlag(argv[1]))
+  {
+    std::cerr << "ERROR: first positional argument must be the input .ang/.ctf file, got flag '" << argv[1] << "'." << std::endl;
+    printUsage();
+    return 1;
+  }
+  if(looksLikeFlag(argv[2]))
+  {
+    std::cerr << "ERROR: second positional argument must be the output directory, got flag '" << argv[2] << "'." << std::endl;
+    std::cerr << "       It looks like <output_dir> was omitted. Insert it before any --flag." << std::endl;
     printUsage();
     return 1;
   }
@@ -129,8 +158,7 @@ int main(int argc, char* argv[])
       try
       {
         opts.phaseFilter = std::stoi(next());
-      }
-      catch(...)
+      } catch(...)
       {
         std::cerr << "ERROR: --phase requires an integer" << std::endl;
         return 1;
