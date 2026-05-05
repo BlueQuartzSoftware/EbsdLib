@@ -33,7 +33,7 @@
 % Usage: edit the two paths below, then run in MATLAB with MTEX on the path.
 
 inputFile = '/Users/Shared/Data/MTR_Data/RR_MTR_Examples/12.ang';
-outputDir = '/Users/Shared/Data/MTR_Data/RR_MTR_Examples/Output/12/PoleFigures/';
+outputDir = '/Users/mjackson/Workspace7/DREAM3D-Build/NX-Com-Qt69-Vtk95-Rel-EbsdLib/Bin/render_ebsd_output/';
 
 ciThreshold = 0.1;
 
@@ -95,9 +95,9 @@ fprintf('After CI > %g filter: %d points remain\n', ciThreshold, length(ebsd));
 % invisible (sym-equivalent under the 6-fold), so the +90° here is
 % functionally a no-op for hex/trig phases, included to mirror
 % make_pole_figure's intent for non-hex phases.
-phi1All = ebsd.rotations.phi1 + 90 * degree;
+phi1All = ebsd.rotations.phi1;
 PhiAll  = ebsd.rotations.Phi;
-phi2All = ebsd.rotations.phi2 + 30 * degree;   % flipped from -30° -- see note above
+phi2All = ebsd.rotations.phi2 - 30 * degree;   % flipped from -30° -- see note above
 
 % Per-Laue-class plane-family map. The keys are the Hermann-Mauguin Laue
 % class strings as returned by MTEX (cs.LaueName); the labels and Miller
@@ -106,7 +106,7 @@ phi2All = ebsd.rotations.phi2 + 30 * degree;   % flipped from -30° -- see note 
 laueMap = containers.Map();
 laueMap('m-3m')  = struct('h', {{[0 0 1], [0 1 1], [1 1 1]}}, 'labels', {{'<001>', '<011>', '<111>'}});
 laueMap('m-3')   = struct('h', {{[0 0 1], [0 1 1], [1 1 1]}}, 'labels', {{'<001>', '<011>', '<111>'}});
-laueMap('6/mmm') = struct('h', {{[0 0 0 1], [1 0 -1 0], [2 -1 -1 0]}}, 'labels', {{'<0001>', '<10-10>', '<2-1-10>'}});
+laueMap('6/mmm') = struct('h', {{[0 0 0 1], [1 0 -1 0], [1 1 -2 0]}}, 'labels', {{'<0001>', '<10-10>', '<11-20>'}});
 laueMap('6/m')   = struct('h', {{[0 0 0 1], [1 0 -1 0], [1 1 -2 0]}}, 'labels', {{'<0001>', '<10-10>', '<11-20>'}});
 laueMap('-3m1')  = struct('h', {{[0 0 0 1], [0 -1 1 0], [1 -1 0 0]}}, 'labels', {{'<0001>', '<0-110>', '<1-100>'}});
 laueMap('-3m')   = struct('h', {{[0 0 0 1], [0 -1 1 0], [1 -1 0 0]}}, 'labels', {{'<0001>', '<0-110>', '<1-100>'}});

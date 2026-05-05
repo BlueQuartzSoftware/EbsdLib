@@ -59,7 +59,7 @@ using namespace ebsdlib;
 
 namespace HexagonalHigh
 {
-constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin in homochoric space
 
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
@@ -224,18 +224,11 @@ struct SymOps
   {
     // Canonical (X||a*) plane-family direction sets. Each entry is one
     // unique direction; antipodes are emitted by the rendering loop.
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {
-        {0.0, 0.0, 1.0}};
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {
-        {1.0, 0.0, 0.0},
-        {0.5, ebsdlib::constants::k_Root3Over2D, 0.0},
-        {-0.5, ebsdlib::constants::k_Root3Over2D, 0.0}};
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {
-        {ebsdlib::constants::k_Root3Over2D, 0.5, 0.0},
-        {0.0, 1.0, 0.0},
-        {-ebsdlib::constants::k_Root3Over2D, 0.5, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {{0.0, 0.0, 1.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {{1.0, 0.0, 0.0}, {0.5, ebsdlib::constants::k_Root3Over2D, 0.0}, {-0.5, ebsdlib::constants::k_Root3Over2D, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {{ebsdlib::constants::k_Root3Over2D, 0.5, 0.0}, {0.0, 1.0, 0.0}, {-ebsdlib::constants::k_Root3Over2D, 0.5, 0.0}};
 
-    if constexpr (Conv == ebsdlib::HexConvention::XParallelAStar)
+    if constexpr(Conv == ebsdlib::HexConvention::XParallelAStar)
     {
       // Trivial copy of the canonical (v3) tables.
       return SymOps{k_QuatSym, k_RodSym, k_MatSym, canonicalDirsFamily0, canonicalDirsFamily1, canonicalDirsFamily2};
@@ -251,15 +244,13 @@ struct SymOps
       // R_z(+30°) as a 3x3 matrix for rotating the cartesian direction tables.
       const double c30 = ebsdlib::constants::k_Root3Over2D; // cos(30°)
       const double s30 = 0.5;                               // sin(30°)
-      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0,
-                                     s30, c30, 0.0,
-                                     0.0, 0.0, 1.0);
+      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0, s30, c30, 0.0, 0.0, 0.0, 1.0);
 
       SymOps out;
       out.quat.reserve(k_QuatSym.size());
       out.rod.reserve(k_QuatSym.size());
       out.mat.reserve(k_QuatSym.size());
-      for (const auto& qStar : k_QuatSym)
+      for(const auto& qStar : k_QuatSym)
       {
         const QuatD qA = q30 * qStar * q30Inv;
         out.quat.push_back(qA);
@@ -274,11 +265,11 @@ struct SymOps
       out.dirsFamily0 = canonicalDirsFamily0; // c-axis: same in both bases
       out.dirsFamily1.reserve(canonicalDirsFamily1.size());
       out.dirsFamily2.reserve(canonicalDirsFamily2.size());
-      for (const auto& d : canonicalDirsFamily1)
+      for(const auto& d : canonicalDirsFamily1)
       {
         out.dirsFamily1.push_back(rz30 * d);
       }
-      for (const auto& d : canonicalDirsFamily2)
+      for(const auto& d : canonicalDirsFamily2)
       {
         out.dirsFamily2.push_back(rz30 * d);
       }
@@ -1216,7 +1207,8 @@ class GenerateSphereCoordsImpl
   const SymOps* m_Sym;
 
 public:
-  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz0001Coords, ebsdlib::FloatArrayType* xyz1010Coords, ebsdlib::FloatArrayType* xyz1120Coords, const SymOps* sym)
+  GenerateSphereCoordsImpl(ebsdlib::FloatArrayType* eulerAngles, ebsdlib::FloatArrayType* xyz0001Coords, ebsdlib::FloatArrayType* xyz1010Coords, ebsdlib::FloatArrayType* xyz1120Coords,
+                           const SymOps* sym)
   : m_Eulers(eulerAngles)
   , m_xyz001(xyz0001Coords)
   , m_xyz011(xyz1010Coords)
@@ -1278,7 +1270,8 @@ public:
 } // namespace HexagonalHigh
 
 // -----------------------------------------------------------------------------
-void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120, ebsdlib::HexConvention conv) const
+void HexagonalOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz0001, ebsdlib::FloatArrayType* xyz1010, ebsdlib::FloatArrayType* xyz1120,
+                                                  ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -1450,13 +1443,24 @@ ebsdlib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  return {"<0001>", "<10-10>", "<2-1-10>"};
+  // The a-family slot is sym-equivalent under the 6-fold; <2-1-10> and
+  // <11-20> are different orbit members of the same physical family.
+  // Different software ecosystems pick different representatives:
+  //   X||a (OIM / EDAX / legacy DREAM3D): <2-1-10>  (the a-vector itself)
+  //   X||a* (MTEX / Oxford):              <11-20>
+  // Match the user's expected toolchain so the printed labels line up
+  // with what they see in OIM Analysis or MTEX side-by-side.
+  if(conv == ebsdlib::HexConvention::XParallelA)
+  {
+    return {"<0001>", "<10-10>", "<2-1-10>"};
+  }
+  return {"<0001>", "<10-10>", "<11-20>"};
 }
 
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> HexagonalOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames(config.hexConvention);
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];
