@@ -80,8 +80,8 @@ laue(end).labels = {'<001>', '<011>', '<111>'};
 laue(end+1).rpg = '622';
 laue(end).symName = 'Hexagonal_High 6/mmm';
 laue(end).cs = crystalSymmetry('6/mmm', [1 1 1.6], 'X||a*');
-laue(end).h = {[0 0 0 1], [1 0 -1 0], [2 -1 -1 0]};
-laue(end).labels = {'<0001>', '<10-10>', '<2-1-10>'};
+laue(end).h = {[0 0 0 1], [1 0 -1 0], [1 1 -2 0]};
+laue(end).labels = {'<0001>', '<10-10>', '<11-20>'};
 
 laue(end+1).rpg = '6';
 laue(end).symName = 'Hexagonal_Low 6/m';

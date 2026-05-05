@@ -24,6 +24,112 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
+// PR 2i regression tests: getDefaultPoleFigureNames must honor HexConvention.
+// Under X||a we follow the OIM/EDAX naming convention for the a-family
+// ({"<2-1-10>"}); under X||a* we follow MTEX's choice ({"<11-20>"}). The
+// labels are sym-equivalent representatives of the same orbit, but they're
+// what the corresponding software ecosystem prints, and a user reading
+// EbsdLib output expects to see what their toolchain (OIM vs MTEX) labels.
+//
+// Trigonal classes have two distinct prism families and the OIM/MTEX label
+// dichotomy doesn't apply cleanly there — we don't assert difference between
+// conventions for those, only that the conv parameter is plumbed (no crash,
+// returns three non-empty strings).
+TEST_CASE("ebsdlib::LaueOpsTest::GetDefaultPoleFigureNames_HexConvention", "[EbsdLib][LaueOpsTest]")
+{
+  SECTION("HexagonalHigh: a-family label flips between conventions")
+  {
+    HexagonalOps ops;
+    auto labelsA = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
+    auto labelsAStar = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
+    CHECK(labelsA[0] == "<0001>");
+    CHECK(labelsAStar[0] == "<0001>");
+    CHECK(labelsA[1] == labelsAStar[1]); // prism slot identical
+    CHECK(labelsA[2] != labelsAStar[2]); // a-family slot differs
+    CHECK(labelsA[2] == "<2-1-10>");
+    CHECK(labelsAStar[2] == "<11-20>");
+  }
+
+  SECTION("HexagonalLow: same a-family flip as HexagonalHigh")
+  {
+    HexagonalLowOps ops;
+    auto labelsA = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
+    auto labelsAStar = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
+    CHECK(labelsA[0] == "<0001>");
+    CHECK(labelsA[1] == labelsAStar[1]);
+    CHECK(labelsA[2] != labelsAStar[2]);
+    CHECK(labelsA[2] == "<2-1-10>");
+    CHECK(labelsAStar[2] == "<11-20>");
+  }
+
+  SECTION("Trigonal classes: conv parameter is plumbed without crash")
+  {
+    TrigonalOps tHigh;
+    auto tHighA = tHigh.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
+    auto tHighAStar = tHigh.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
+    CHECK(tHighA.size() == 3ULL);
+    for(const auto& s : tHighA)
+    {
+      CHECK_FALSE(s.empty());
+    }
+    for(const auto& s : tHighAStar)
+    {
+      CHECK_FALSE(s.empty());
+    }
+
+    TrigonalLowOps tLow;
+    auto tLowA = tLow.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
+    auto tLowAStar = tLow.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
+    for(const auto& s : tLowA)
+    {
+      CHECK_FALSE(s.empty());
+    }
+    for(const auto& s : tLowAStar)
+    {
+      CHECK_FALSE(s.empty());
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PR 2i regression test: HexagonalOps::generatePoleFigure must propagate
+// config.hexConvention into its internal getDefaultPoleFigureNames() call.
+// Without this, the rendered PF panel labels are stuck on whatever the
+// no-arg default returns regardless of caller intent.
+TEST_CASE("ebsdlib::LaueOpsTest::GeneratePoleFigure_PropagatesHexConvention", "[EbsdLib][LaueOpsTest]")
+{
+  HexagonalOps ops;
+
+  // One-orientation Euler array (identity); we don't care about the rendered
+  // intensity, only about the labels assigned to the three returned figures.
+  std::vector<float> eulerVec = {0.0F, 0.0F, 0.0F};
+  std::vector<size_t> compDims = {3ULL};
+  auto eulers = ebsdlib::FloatArrayType::FromStdVector(eulerVec, 1ULL, 3ULL, "Eulers");
+
+  PoleFigureConfiguration_t cfgA;
+  cfgA.eulers = eulers.get();
+  cfgA.imageDim = 64;
+  cfgA.lambertDim = 16;
+  cfgA.numColors = 16;
+  cfgA.discrete = false;
+  cfgA.discreteHeatMap = false;
+  cfgA.hexConvention = ebsdlib::HexConvention::XParallelA;
+
+  PoleFigureConfiguration_t cfgAStar = cfgA;
+  cfgAStar.hexConvention = ebsdlib::HexConvention::XParallelAStar;
+
+  auto figuresA = ops.generatePoleFigure(cfgA);
+  auto figuresAStar = ops.generatePoleFigure(cfgAStar);
+
+  // The renderer assigns the names array to figuresA[i]->getName(); we use
+  // those to verify the convention-aware string is what made it through.
+  REQUIRE(figuresA.size() == 3ULL);
+  REQUIRE(figuresAStar.size() == 3ULL);
+  CHECK(figuresA[2]->getName() == "<2-1-10>");
+  CHECK(figuresAStar[2]->getName() == "<11-20>");
+}
+
+// -----------------------------------------------------------------------------
 // PR 2h regression test: confirm that generateIPFTriangleLegend honors the
 // HexConvention parameter for HexagonalOps. The colored SST region is
 // convention-invariant for 6/mmm (the inversion fold + c-axis rotations

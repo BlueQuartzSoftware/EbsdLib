@@ -58,7 +58,7 @@ using namespace ebsdlib;
 
 namespace TrigonalLow
 {
-constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin
+constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 24}; // Represents a 5Deg bin in homochoric space
 
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (ebsdlib::constants::k_PiD - std::sin(ebsdlib::constants::k_PiD))), (1.0 / 3.0)),
@@ -143,18 +143,11 @@ struct SymOps
   static SymOps build()
   {
     // Canonical (X||a*) plane-family direction sets.
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {
-        {0.0, 0.0, 1.0}};
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {
-        {-ebsdlib::constants::k_Root3Over2D, -0.5, 0.0},
-        {ebsdlib::constants::k_Root3Over2D, -0.5, 0.0},
-        {0.0, 1.0, 0.0}};
-    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {
-        {ebsdlib::constants::k_Root3Over2D, -0.5, 0.0},
-        {0.0, 1.0, 0.0},
-        {-ebsdlib::constants::k_Root3Over2D, -0.5, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily0 = {{0.0, 0.0, 1.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily1 = {{-ebsdlib::constants::k_Root3Over2D, -0.5, 0.0}, {ebsdlib::constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 1.0, 0.0}};
+    const std::vector<ebsdlib::Matrix3X1D> canonicalDirsFamily2 = {{ebsdlib::constants::k_Root3Over2D, -0.5, 0.0}, {0.0, 1.0, 0.0}, {-ebsdlib::constants::k_Root3Over2D, -0.5, 0.0}};
 
-    if constexpr (Conv == ebsdlib::HexConvention::XParallelAStar)
+    if constexpr(Conv == ebsdlib::HexConvention::XParallelAStar)
     {
       return SymOps{k_QuatSym, k_RodSym, k_MatSym, canonicalDirsFamily0, canonicalDirsFamily1, canonicalDirsFamily2};
     }
@@ -167,15 +160,13 @@ struct SymOps
 
       const double c30 = ebsdlib::constants::k_Root3Over2D;
       const double s30 = 0.5;
-      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0,
-                                     s30, c30, 0.0,
-                                     0.0, 0.0, 1.0);
+      const ebsdlib::Matrix3X3D rz30(c30, -s30, 0.0, s30, c30, 0.0, 0.0, 0.0, 1.0);
 
       SymOps out;
       out.quat.reserve(k_QuatSym.size());
       out.rod.reserve(k_QuatSym.size());
       out.mat.reserve(k_QuatSym.size());
-      for (const auto& qStar : k_QuatSym)
+      for(const auto& qStar : k_QuatSym)
       {
         const QuatD qA = q30 * qStar * q30Inv;
         out.quat.push_back(qA);
@@ -186,11 +177,11 @@ struct SymOps
       out.dirsFamily0 = canonicalDirsFamily0; // c-axis: invariant
       out.dirsFamily1.reserve(canonicalDirsFamily1.size());
       out.dirsFamily2.reserve(canonicalDirsFamily2.size());
-      for (const auto& d : canonicalDirsFamily1)
+      for(const auto& d : canonicalDirsFamily1)
       {
         out.dirsFamily1.push_back(rz30 * d);
       }
-      for (const auto& d : canonicalDirsFamily2)
+      for(const auto& d : canonicalDirsFamily2)
       {
         out.dirsFamily2.push_back(rz30 * d);
       }
@@ -628,7 +619,8 @@ public:
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
-void TrigonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111, ebsdlib::HexConvention conv) const
+void TrigonalLowOps::generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111,
+                                                    ebsdlib::HexConvention conv) const
 {
   size_t nOrientations = eulers->getNumberOfTuples();
 
@@ -797,13 +789,16 @@ ebsdlib::Rgb TrigonalLowOps::generateRodriguesColor(double r1, double r2, double
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TrigonalLowOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
+  // See TrigonalOps::getDefaultPoleFigureNames for the rationale on why the
+  // conv parameter is plumbed but does not change the returned strings here.
+  (void)conv;
   return {"<0001>", "<-1-120>", "<2-1-10>"};
 }
 
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalLowOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames(config.hexConvention);
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];

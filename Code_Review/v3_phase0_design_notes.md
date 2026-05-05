@@ -319,22 +319,41 @@ incoming `HexConvention`. Same `SymOps`-style helper applies.
 
 ### 5.4 — `getDefaultPoleFigureNames()`
 
-Returns string labels for the three default plane families. The labels
-must match the convention of the data being rendered:
+Returns string labels for the three default plane families. The slot
+*order* (c-axis / prism / a-family) is the same under both conventions
+— the rendering pipeline always emits family-0 / family-1 / family-2
+in that fixed order. What changes between conventions is only the
+*string* the third slot prints, because OIM and MTEX pick different
+orbit-member representatives for the `{2-1-10}` a-family:
 
-- X‖a returns `<0001>`, `<2-1-10>`, `<10-10>` (or whatever the
-  legacy v2 strings were — needs verification by checking git
-  history before the v3 swap)
-- X‖a* returns `<0001>`, `<10-10>`, `<2-1-10>` (current v3 strings)
+| Slot | X‖a (OIM-style) | X‖a* (MTEX-style) |
+|------|-----------------|--------------------|
+| 0    | `<0001>`        | `<0001>`           |
+| 1    | `<10-10>`       | `<10-10>`          |
+| 2    | `<2-1-10>`      | `<11-20>`          |
 
-This becomes a method that takes the `HexConvention`:
+`<2-1-10>` and `<11-20>` are sym-equivalent under the 6-fold about c
+— they describe the same physical family, just with different
+"first orbit member" choices that match each tribe's tooling.
 
 ```cpp
 virtual std::array<std::string, 3>
-getDefaultPoleFigureNames(ebsdlib::HexConvention conv = HexConvention::XParallelA) const = 0;
+getDefaultPoleFigureNames(ebsdlib::HexConvention conv = HexConvention::XParallelAStar) const = 0;
 ```
 
-Same default-preserves-current-behavior pattern.
+> **PR 2i implementation note:** Earlier drafts of this section
+> proposed swapping slot order between conventions (e.g. X‖a returns
+> `{<0001>, <2-1-10>, <10-10>}`). That was wrong — the renderer
+> doesn't reorder families, so swapping the labels in the array would
+> have misaligned labels with rendered content. The implementation
+> only swaps the string in slot 2; slot order is fixed.
+
+> **Trigonal classes (-3m, -3):** TrigonalHigh has two distinct prism
+> families; the OIM/MTEX label-tradition split that hex 6/mmm has
+> doesn't apply cleanly. Both `TrigonalOps` and `TrigonalLowOps`
+> accept the `conv` parameter for API uniformity but currently return
+> the same strings under both conventions. Revisit if a user reports
+> a specific OIM/MTEX label divergence for trigonal phases.
 
 ### 5.5 — Caveats to verify before committing
 
