@@ -33,6 +33,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/GriddedColorKey.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PUCMColorKey.hpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/wlenthe_orientation_coloring.hpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ImageCrop.hpp
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
@@ -56,6 +57,7 @@ set(EbsdLib_${DIR_NAME}_SRCS
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/NolzeHielscherColorKey.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/GriddedColorKey.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PUCMColorKey.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ImageCrop.cpp
 )
 # # QT5_WRAP_CPP( EbsdLib_Generated_MOC_SRCS ${EbsdLib_Utilities_MOC_HDRS} )
 # set_source_files_properties( ${EbsdLib_Generated_MOC_SRCS} PROPERTIES HEADER_FILE_ONLY TRUE)

@@ -52,6 +52,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureLaueComparisonTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigurePositionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/RenderEbsdSmokeTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ImageCropTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Apps/render_ebsd.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/InversePoleFigureTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TiffWriterTest.cpp

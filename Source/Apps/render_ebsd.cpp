@@ -34,6 +34,7 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/ImageCrop.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/PUCMColorKey.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
@@ -420,7 +421,17 @@ bool writeLegend(const Options& opts, LaueOps::Pointer op, const std::string& ou
   {
     return false;
   }
-  auto wr = PngWriter::WriteColorImage(outPath, opts.legendImageDim, opts.legendImageDim, 3, legend->getPointer(0));
+  // The legend renderer paints a small SST + label band onto a much larger
+  // square canvas (canvasDim x canvasDim). Trim the surrounding whitespace
+  // so the output PNG fills with content the way MTEX's legend export does.
+  // Padding is a small fixed margin around the painted region.
+  constexpr int k_LegendPadding = 12;
+  auto cropped = ebsdlib::CropImageToContent(legend.get(), opts.legendImageDim, opts.legendImageDim, /*channels*/ 3, k_LegendPadding);
+  if(cropped.image == nullptr)
+  {
+    return false;
+  }
+  auto wr = PngWriter::WriteColorImage(outPath, cropped.width, cropped.height, 3, cropped.image->getPointer(0));
   return wr.first >= 0;
 }
 
