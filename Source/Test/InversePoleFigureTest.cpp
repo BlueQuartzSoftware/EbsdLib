@@ -364,3 +364,65 @@ TEST_CASE("ebsdlib::InversePoleFigureTest::ImageDimensions", "[EbsdLib][InverseP
     REQUIRE(img->getNumberOfTuples() == static_cast<size_t>(testWidth * testHeight));
   }
 }
+
+// -----------------------------------------------------------------------------
+// PR 2k regression test: InversePoleFigureConfiguration_t carries a
+// HexConvention field, and generateAnnotatedIPFDensity threads it down into
+// each per-figure annotateIPFImage call. The annotated density images include
+// rendered Miller-index labels around the SST, and PR 2h made those labels
+// convention-dependent — under X||a the +X corner reads <2-1-10>; under X||a*
+// it reads <11-20>. Output bytes for a hex/trig phase MUST therefore differ
+// between conventions; if they don't, conv is being silently dropped through
+// the IPF density path the same way the PoleFigureCompositor was dropping it
+// before PR 2g.
+TEST_CASE("ebsdlib::InversePoleFigureTest::AnnotatedIPFDensity_PropagatesHexConvention", "[EbsdLib][InversePoleFigureTest]")
+{
+  // Need a hex/trig phase for the convention to matter. HexagonalOps is
+  // CrystalStructure::Hexagonal_High = index 0.
+  auto ops = LaueOps::GetAllOrientationOps();
+  auto& hexOps = *ops[ebsdlib::CrystalStructure::Hexagonal_High];
+
+  auto eulers = generateRandomEulers(64);
+
+  InversePoleFigureConfiguration_t configAStar;
+  configAStar.eulers = eulers.get();
+  configAStar.sampleDirections = {Matrix3X1D(1.0, 0.0, 0.0), Matrix3X1D(0.0, 1.0, 0.0), Matrix3X1D(0.0, 0.0, 1.0)};
+  configAStar.imageWidth = 64;
+  configAStar.imageHeight = 64;
+  configAStar.lambertDim = 16;
+  configAStar.numColors = 16;
+  configAStar.colorMap = "Default";
+  configAStar.normalizeMRD = false;
+  configAStar.labels = {"RD", "TD", "ND"};
+  configAStar.phaseName = "TestHex";
+  configAStar.FlipFinalImage = false;
+  configAStar.hexConvention = ebsdlib::HexConvention::XParallelAStar;
+
+  InversePoleFigureConfiguration_t configA = configAStar;
+  configA.hexConvention = ebsdlib::HexConvention::XParallelA;
+
+  auto imagesAStar = hexOps.generateAnnotatedIPFDensity(configAStar);
+  auto imagesA = hexOps.generateAnnotatedIPFDensity(configA);
+
+  REQUIRE(imagesAStar.size() == 3);
+  REQUIRE(imagesA.size() == 3);
+  REQUIRE(imagesAStar[0] != nullptr);
+  REQUIRE(imagesA[0] != nullptr);
+  REQUIRE(imagesAStar[0]->getNumberOfTuples() == imagesA[0]->getNumberOfTuples());
+
+  // The annotated images must differ somewhere — the rendered Miller-index
+  // text pixels are different between conventions.
+  bool different = false;
+  const size_t total = imagesAStar[0]->getSize();
+  const uint8_t* pAStar = imagesAStar[0]->getPointer(0);
+  const uint8_t* pA = imagesA[0]->getPointer(0);
+  for(size_t i = 0; i < total; ++i)
+  {
+    if(pAStar[i] != pA[i])
+    {
+      different = true;
+      break;
+    }
+  }
+  CHECK(different);
+}

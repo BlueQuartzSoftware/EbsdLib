@@ -1274,10 +1274,13 @@ std::vector<UInt8ArrayType::Pointer> LaueOps::generateAnnotatedIPFDensity(Invers
   // Step 5: Build title strings
   std::string titlePrefix = config.phaseName.empty() ? "" : config.phaseName + " - ";
 
-  // Step 6: Annotate each image
-  UInt8ArrayType::Pointer annotated0 = annotateIPFImage(image0, imageDim, canvasDim, titlePrefix + label0, false, true);
-  UInt8ArrayType::Pointer annotated1 = annotateIPFImage(image1, imageDim, canvasDim, titlePrefix + label1, false, true);
-  UInt8ArrayType::Pointer annotated2 = annotateIPFImage(image2, imageDim, canvasDim, titlePrefix + label2, false, true);
+  // Step 6: Annotate each image. Forward config.hexConvention so the
+  // Miller-index labels drawn around each SST honor the caller's choice
+  // (PR 2k); without this, hex/trig IPF density images silently render
+  // labels under the default convention regardless of caller intent.
+  UInt8ArrayType::Pointer annotated0 = annotateIPFImage(image0, imageDim, canvasDim, titlePrefix + label0, false, true, config.hexConvention);
+  UInt8ArrayType::Pointer annotated1 = annotateIPFImage(image1, imageDim, canvasDim, titlePrefix + label1, false, true, config.hexConvention);
+  UInt8ArrayType::Pointer annotated2 = annotateIPFImage(image2, imageDim, canvasDim, titlePrefix + label2, false, true, config.hexConvention);
 
   // Step 7: Add color bars
   annotated0 = drawColorBar(annotated0, canvasDim, config.numColors, globalMin, globalMax, config.normalizeMRD);
