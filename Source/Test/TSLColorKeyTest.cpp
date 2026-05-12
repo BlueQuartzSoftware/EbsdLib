@@ -199,32 +199,14 @@ TEST_CASE("ebsdlib::LaueOps::ColorKeyIntegration", "[EbsdLib][ColorKeyIntegratio
 
   auto allOps = LaueOps::GetAllOrientationOps();
 
-  SECTION("Default color key is TSL")
-  {
-    for(size_t i = 0; i < 11; i++)
-    {
-      REQUIRE(allOps[i]->getColorKey()->name() == "TSL");
-    }
-  }
-
-  SECTION("Can switch to NolzeHielscher")
-  {
-    auto& cubicOps = *allOps[1]; // Cubic_High
-    auto nhKey = std::make_shared<NolzeHielscherColorKey>(FundamentalSectorGeometry::cubicHigh());
-    cubicOps.setColorKey(nhKey);
-    REQUIRE(cubicOps.getColorKey()->name() == "NolzeHielscher");
-    // Reset back to TSL for other tests
-    cubicOps.setColorKey(std::make_shared<TSLColorKey>());
-  }
-
-  SECTION("TSL backward compatibility: same output after refactor")
+  SECTION("Per-Laue-class TSL output is non-black for a tilted ref direction")
   {
     double refDir[3] = {0.0, 0.0, 1.0};
     double eulers[3] = {0.5, 0.3, 0.2};
 
     for(size_t i = 0; i < 11; i++)
     {
-      auto color = allOps[i]->generateIPFColor(eulers, refDir, false);
+      auto color = allOps[i]->generateIPFColor(eulers, refDir, false, ColorKeyKind::TSL);
       int r = RgbColor::dRed(color);
       int g = RgbColor::dGreen(color);
       int b = RgbColor::dBlue(color);

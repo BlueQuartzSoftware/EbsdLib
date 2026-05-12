@@ -196,7 +196,7 @@ void PoleFigureUtilities::GenerateHexPoleFigures(ebsdlib::FloatArrayType* eulers
 
   // Generate the coords on the sphere
   HexagonalOps ops;
-  ops.generateSphereCoordsFromEulers(eulers, xyz0001.get(), xyz1010.get(), xyz1120.get());
+  ops.generateSphereCoordsFromEulers(eulers, xyz0001.get(), xyz1010.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelAStar);
 #if WRITE_XYZ_SPHERE_COORD_VTK
   writeVtkFile(xyz0001.get(), "c:/Users/GroebeMA/Desktop/Sphere_XYZ_FROM_EULER_0001.vtk");
   writeVtkFile(xyz1010.get(), "c:/Users/GroebeMA/Desktop/Sphere_XYZ_FROM_EULER_1010.vtk");

@@ -137,15 +137,15 @@ int main(int argc, char* argv[])
       std::string v = next();
       if(v == "tsl")
       {
-        opts.colorKey = ebsdlib::render_ebsd::ColorKeyKind::TSL;
+        opts.colorKey = ebsdlib::ColorKeyKind::TSL;
       }
       else if(v == "pucm")
       {
-        opts.colorKey = ebsdlib::render_ebsd::ColorKeyKind::PUCM;
+        opts.colorKey = ebsdlib::ColorKeyKind::PUCM;
       }
       else if(v == "nh")
       {
-        opts.colorKey = ebsdlib::render_ebsd::ColorKeyKind::NolzeHielscher;
+        opts.colorKey = ebsdlib::ColorKeyKind::NolzeHielscher;
       }
       else
       {
@@ -204,13 +204,13 @@ int main(int argc, char* argv[])
   std::cout << "  Color key:  ";
   switch(opts.colorKey)
   {
-  case ebsdlib::render_ebsd::ColorKeyKind::TSL:
+  case ebsdlib::ColorKeyKind::TSL:
     std::cout << "TSL" << std::endl;
     break;
-  case ebsdlib::render_ebsd::ColorKeyKind::PUCM:
+  case ebsdlib::ColorKeyKind::PUCM:
     std::cout << "PUCM" << std::endl;
     break;
-  case ebsdlib::render_ebsd::ColorKeyKind::NolzeHielscher:
+  case ebsdlib::ColorKeyKind::NolzeHielscher:
     std::cout << "Nolze-Hielscher" << std::endl;
     break;
   }

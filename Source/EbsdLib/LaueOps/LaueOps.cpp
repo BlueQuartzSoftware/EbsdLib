@@ -53,8 +53,6 @@
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/Fonts.hpp"
-#include "EbsdLib/Utilities/GriddedColorKey.hpp"
-#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #include <canvas_ity.hpp>
 
@@ -102,10 +100,7 @@ constexpr float k_OdfBinStepSize = 5.0f;
 } // namespace
 
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps()
-: m_ColorKey(std::make_shared<ebsdlib::TSLColorKey>())
-{
-}
+LaueOps::LaueOps() = default;
 
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
@@ -114,44 +109,6 @@ LaueOps::~LaueOps() = default;
 std::array<float, 3> LaueOps::getOdfBinStepSize() const
 {
   return {k_OdfBinStepSize, k_OdfBinStepSize, k_OdfBinStepSize};
-}
-
-// -----------------------------------------------------------------------------
-void LaueOps::setColorKey(ebsdlib::IColorKey::Pointer colorKey)
-{
-  m_ColorKey = colorKey;
-}
-
-// -----------------------------------------------------------------------------
-ebsdlib::IColorKey::Pointer LaueOps::getColorKey() const
-{
-  return m_ColorKey;
-}
-
-// -----------------------------------------------------------------------------
-void LaueOps::setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg)
-{
-  if(mode == ebsdlib::LegendRenderMode::GridInterpolated)
-  {
-    // Wrap the current color key with a GriddedColorKey if not already wrapped
-    auto currentKey = m_ColorKey;
-    // If already gridded, unwrap first to avoid double-wrapping
-    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(currentKey);
-    if(griddedKey)
-    {
-      currentKey = griddedKey->innerKey();
-    }
-    m_ColorKey = std::make_shared<ebsdlib::GriddedColorKey>(currentKey, gridResolutionDeg);
-  }
-  else
-  {
-    // PerPixel mode: unwrap if currently gridded
-    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(m_ColorKey);
-    if(griddedKey)
-    {
-      m_ColorKey = griddedKey->innerKey();
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -213,7 +170,7 @@ LaueOps::AxisOrderingType LaueOps::getAxisOrderingType() const
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad) const
+ebsdlib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degToRad, const ebsdlib::IColorKey* key) const
 {
 
   const ebsdlib::Matrix3X1D refDirection(refDir);
@@ -258,9 +215,9 @@ ebsdlib::Rgb LaueOps::computeIPFColor(double* eulers, double* refDir, bool degTo
 
   const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
 
-  if(m_ColorKey)
+  if(key != nullptr)
   {
-    auto [r, g, b] = m_ColorKey->direction2Color(eta, chi, angleLimits);
+    auto [r, g, b] = key->direction2Color(eta, chi, angleLimits);
     _rgb[0] = r;
     _rgb[1] = g;
     _rgb[2] = b;

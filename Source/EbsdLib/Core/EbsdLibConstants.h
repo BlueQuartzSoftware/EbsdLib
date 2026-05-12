@@ -190,8 +190,26 @@ enum class OEM : EnumType
  */
 enum class HexConvention : uint8_t
 {
-  XParallelA = 0,
-  XParallelAStar = 1
+  NotApplicable = 0,
+  XParallelA = 1,
+  XParallelAStar = 2
+};
+
+/**
+ * @brief Identifies which IPF coloring scheme a LaueOps subclass should use
+ * for generateIPFColor / generateIPFTriangleLegend dispatch.
+ *
+ * Each LaueOps subclass owns a per-class singleton for each kind (a TSL
+ * singleton, a PUCM singleton parameterized by its rotation point group,
+ * and a Nolze-Hielscher singleton parameterized by its fundamental sector).
+ * Callers select among them by passing the kind enum at the call site
+ * instead of mutating a long-lived color-key member on the LaueOps object.
+ */
+enum class ColorKeyKind : uint8_t
+{
+  TSL = 0,
+  PUCM = 1,
+  NolzeHielscher = 2
 };
 
 namespace CellData

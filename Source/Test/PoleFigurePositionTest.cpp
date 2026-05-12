@@ -250,14 +250,14 @@ TEST_CASE("ebsdlib::PoleFigurePositionTest::EmitCsv", "[EbsdLib][PoleFigurePosit
       const std::string rpg = op->getRotationPointGroup();
       const std::string symName = op->getSymmetryName();
       const std::array<int32_t, 3> symSizes = op->getNumSymmetry();
-      const std::array<std::string, 3> familyNames = op->getDefaultPoleFigureNames();
+      const std::array<std::string, 3> familyNames = op->getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
 
       // The three output buffers grow to 1 * symSize_i tuples each.
       std::vector<size_t> dims = {3ULL};
       ebsdlib::FloatArrayType::Pointer xyz0 = ebsdlib::FloatArrayType::CreateArray(static_cast<size_t>(symSizes[0]), dims, "xyz0", true);
       ebsdlib::FloatArrayType::Pointer xyz1 = ebsdlib::FloatArrayType::CreateArray(static_cast<size_t>(symSizes[1]), dims, "xyz1", true);
       ebsdlib::FloatArrayType::Pointer xyz2 = ebsdlib::FloatArrayType::CreateArray(static_cast<size_t>(symSizes[2]), dims, "xyz2", true);
-      op->generateSphereCoordsFromEulers(eulersArr.get(), xyz0.get(), xyz1.get(), xyz2.get());
+      op->generateSphereCoordsFromEulers(eulersArr.get(), xyz0.get(), xyz1.get(), xyz2.get(), ebsdlib::HexConvention::XParallelAStar);
 
       ebsdlib::FloatArrayType* buffers[3] = {xyz0.get(), xyz1.get(), xyz2.get()};
       for(int family = 0; family < 3; ++family)

@@ -272,12 +272,13 @@ public:
 
   /**
    * @brief Generate the sphere-coordinate sets for the three default plane families
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior. Ignored for non-hex/trig
-   *             Laue classes.
+   * @param conv Cartesian basis convention. Hex/trig overrides require an
+   *             explicit XParallelA or XParallelAStar; non-hex/trig overrides
+   *             default this to NotApplicable and ignore it internally. The
+   *             base virtual has no default, so polymorphic callers must
+   *             choose deliberately.
    */
-  virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3,
-                                              ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+  virtual void generateSphereCoordsFromEulers(FloatArrayType* eulers, FloatArrayType* c1, FloatArrayType* c2, FloatArrayType* c3, ebsdlib::HexConvention conv) const = 0;
 
   static void RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod);
 
@@ -289,66 +290,34 @@ public:
   virtual std::array<double, 3> getIpfColorAngleLimits(double eta) const = 0;
 
   /**
-   * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction
+   * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction.
+   *
+   * IPF color is convention-invariant for all 11 Laue classes — both
+   * X||a and X||a* hex/trig bases produce identical SST colors because the
+   * standard stereographic triangle is invariant under the basis rotation
+   * between them. The hex/trig SymOps tables that drive the FZ reduction are
+   * chosen internally; callers don't pass a HexConvention here.
+   *
    * @param eulers Pointer to the 3 component Euler Angle
    * @param refDir Pointer to the 3 Component Reference Direction
    * @param convertDegrees Are the input angles in Degrees
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
-   *             Ignored for non-hex/trig Laue classes.
-   * @return rgb [output] The pointer to store the RGB value
+   * @param kind Which per-class color key to use (TSL / PUCM / Nolze-Hielscher).
+   *             Defaults to TSL.
    */
-  virtual Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+  virtual Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const = 0;
 
   /**
-   * @brief generateIPFColor Generates an ARGB Color from an Euler Angle and Reference Direction
-   * @param e0 First component of the Euler Angle
-   * @param e1 Second component of the Euler Angle
-   * @param e2 Third component of the Euler Angle
-   * @param dir0 First component of the Reference Direction
-   * @param dir1 Second component of the Reference Direction
-   * @param dir2 Third component of the Reference Direction
-   * @param convertDegrees Are the input angles in Degrees
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
-   *             Ignored for non-hex/trig Laue classes.
-   * @return rgb [output] The pointer to store the RGB value
+   * @brief generateIPFColor scalar overload. See pointer overload for semantics.
    */
   virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees,
-                               ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+                               ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const = 0;
 
   /**
-   * @brief Sets the color key strategy used for IPF coloring.
-   * @param colorKey The color key to use
+   * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector.
+   *
+   * Convention-invariant for the same reason generateIPFColor is.
    */
-  void setColorKey(ebsdlib::IColorKey::Pointer colorKey);
-
-  /**
-   * @brief Returns the current color key strategy used for IPF coloring.
-   * @return The current color key
-   */
-  ebsdlib::IColorKey::Pointer getColorKey() const;
-
-  /**
-   * @brief Set the legend rendering mode.
-   * PerPixel: exact color at every pixel (default, current behavior)
-   * GridInterpolated: MTEX-style flat-shaded grid cells at the given resolution
-   * @param mode The rendering mode to use
-   * @param gridResolutionDeg Grid cell size in degrees (only used for GridInterpolated mode)
-   */
-  void setLegendRenderMode(ebsdlib::LegendRenderMode mode, double gridResolutionDeg = 1.0);
-
-  /**
-   * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
-   * @param r1 First component of the Rodrigues Vector
-   * @param r2 Second component of the Rodrigues Vector
-   * @param r3 Third component of the Rodrigues Vector
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
-   *             Ignored for non-hex/trig Laue classes.
-   * @return rgb [output] The pointer to store the RGB value
-   */
-  virtual Rgb generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+  virtual Rgb generateRodriguesColor(double r1, double r2, double r3) const = 0;
 
   /**
    * @brief generateMisorientationColor Generates a color based on the method developed by C. Schuh and S. Patala.
@@ -368,29 +337,52 @@ public:
   virtual std::vector<UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const = 0;
 
   /**
-   * @brief Returns the names for each of the three standard pole figures that are generated. For example
-   *<001>, <011> and <111> for a cubic system
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
-   *             Ignored for non-hex/trig Laue classes.
+   * @brief Returns the names for each of the three standard pole figures that
+   * are generated. For example <001>, <011> and <111> for a cubic system.
+   *
+   * Hex/trig overrides require an explicit convention. Non-hex/trig overrides
+   * default this argument to NotApplicable.
    */
-  virtual std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+  virtual std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const = 0;
 
   /**
-   * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
-   * @param conv Cartesian basis convention for hex/trig phases. Default
-   *             preserves current EbsdLib v3 behavior; will flip in PR 3.
-   *             Ignored for non-hex/trig Laue classes.
-   * @return
+   * @brief Generate the colored, labeled IPF triangle legend.
+   *
+   * @param imageDim Square canvas size in pixels.
+   * @param generateEntirePlane true => full unit circle; false => SST only.
+   * @param conv Cartesian basis convention. Hex/trig overrides require an
+   *             explicit convention; non-hex/trig overrides default to
+   *             NotApplicable. The base virtual has no default, so polymorphic
+   *             callers must choose deliberately.
+   * @param kind Which per-class color key to use. Defaults to TSL.
+   * @param gridded If true, wrap the selected key in a GriddedColorKey
+   *                (~1° resolution) for MTEX-style flat-shaded cells. Only
+   *                meaningful for legends; the per-pixel generateIPFColor
+   *                path does not expose this knob.
    */
-  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL,
+                                                            bool gridded = false) const = 0;
+
+  /**
+   * @brief Computes the SST color for a Euler-rotated reference direction
+   * using the supplied color key. Runs the FZ symmetry-reduction loop common
+   * to every Laue class, then queries the key.
+   *
+   * @param key Color key to use (TSL/PUCM/NH/GriddedColorKey wrapper, etc.).
+   *            If null, a built-in fallback coloring is used.
+   *
+   * Public so that the per-class CreateIPFLegend renderers can call it
+   * directly with a (possibly gridded-wrapped) key without going through
+   * generateIPFColor's kind enum.
+   */
+  Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad, const ebsdlib::IColorKey* key) const;
 
   /**
    * @brief Per-subclass hook that draws Miller index labels and SST boundary
    * annotations onto a canvas. Called by annotateIPFImage().
    */
   virtual void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                                  bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const = 0;
+                                  bool drawFullCircle, ebsdlib::HexConvention conv) const = 0;
 
   /**
    * @brief Maps a pixel coordinate to a unit sphere direction using the same
@@ -552,8 +544,8 @@ protected:
    * @param generateEntirePlane true = full circle view, false = SST only
    * @return RGB image (canvasDim x canvasDim, 3 components)
    */
-  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar = false,
-                                           ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const;
+  UInt8ArrayType::Pointer annotateIPFImage(UInt8ArrayType::Pointer triangleImage, int imageDim, int canvasDim, const std::string& title, bool generateEntirePlane, bool hasColorBar,
+                                           ebsdlib::HexConvention conv) const;
 
   /**
    * @brief Draws a color bar with min/max labels onto an existing RGB image.
@@ -618,17 +610,6 @@ protected:
    */
   int _calcODFBin(double dim[3], double bins[3], double step[3], const HomochoricDType& homochoric) const;
 
-  /**
-   * @brief Generates an IPF Color for a given Euler and Reference Direction. This should be called from the subclass so the
-   * specific etaMin, etaMax and ChiMax can be passed in.
-   * @param eulers
-   * @param refDir
-   * @param deg2Rad
-   * @return
-   */
-  Rgb computeIPFColor(double* eulers, double* refDir, bool degToRad) const;
-
-  ebsdlib::IColorKey::Pointer m_ColorKey;
 
   /**
    * @brief Converts in input Quaternion into a version that is inside the fundamental zone.

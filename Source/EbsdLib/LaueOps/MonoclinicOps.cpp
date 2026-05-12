@@ -46,6 +46,11 @@
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/PUCMColorKey.hpp"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -53,6 +58,27 @@
 #include <tbb/task_group.h>
 #endif
 using namespace ebsdlib;
+
+
+namespace
+{
+ebsdlib::IColorKey::Pointer keyForKind(ebsdlib::ColorKeyKind kind)
+{
+  static const auto k_TSL = std::make_shared<ebsdlib::TSLColorKey>();
+  static const auto k_PUCM = std::make_shared<ebsdlib::PUCMColorKey>("2");
+  static const auto k_NH = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::monoclinic());
+  switch(kind)
+  {
+  case ebsdlib::ColorKeyKind::PUCM:
+    return k_PUCM;
+  case ebsdlib::ColorKeyKind::NolzeHielscher:
+    return k_NH;
+  case ebsdlib::ColorKeyKind::TSL:
+    break;
+  }
+  return k_TSL;
+}
+} // namespace
 
 namespace Monoclinic
 {
@@ -545,21 +571,21 @@ bool MonoclinicOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb MonoclinicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb MonoclinicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
-  return computeIPFColor(eulers, refDir, degToRad);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb MonoclinicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
-  return computeIPFColor(eulers, refDir, degToRad);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb MonoclinicOps::generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb MonoclinicOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
   double range1 = 2.0f * Monoclinic::k_OdfDimInitValue[0];
   double range2 = 2.0f * Monoclinic::k_OdfDimInitValue[1];
@@ -744,7 +770,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> MonoclinicOps::generatePoleFigure(
 namespace
 {
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const MonoclinicOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const MonoclinicOps* ops, int imageDim, bool generateEntirePlane, const ebsdlib::IColorKey* key)
 {
   std::vector<size_t> dims = {4ULL}; // ARGB
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
@@ -780,7 +806,7 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const MonoclinicOps* ops, int i
       else
       {
         auto sphericalCoords = stereographic::utils::StereoToSpherical(x, y).normalize();
-        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false);
+        color = ops->computeIPFColor(k_Orientation.data(), sphericalCoords.data(), false, key);
       }
 
       pixelPtr[idx] = color;
@@ -935,7 +961,7 @@ void MonoclinicOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDi
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv) const
+ebsdlib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind, bool gridded) const
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
@@ -952,10 +978,15 @@ ebsdlib::UInt8ArrayType::Pointer MonoclinicOps::generateIPFTriangleLegend(int ca
   }
 
   // Generate the colored SST triangle image (ARGB)
-  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::IColorKey::Pointer key = keyForKind(kind);
+  if(gridded)
+  {
+    key = std::make_shared<ebsdlib::GriddedColorKey>(key, 1.0);
+  }
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, key.get());
 
   // Annotate with title and Miller index labels
-  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);
+  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane, /*hasColorBar=*/false, ebsdlib::HexConvention::NotApplicable);
 }
 
 // -----------------------------------------------------------------------------

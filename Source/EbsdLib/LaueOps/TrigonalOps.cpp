@@ -46,7 +46,12 @@
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/PUCMColorKey.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -54,6 +59,26 @@
 #include <tbb/task_group.h>
 #endif
 using namespace ebsdlib;
+
+namespace
+{
+ebsdlib::IColorKey::Pointer keyForKind(ebsdlib::ColorKeyKind kind)
+{
+  static const auto k_TSL = std::make_shared<ebsdlib::TSLColorKey>();
+  static const auto k_PUCM = std::make_shared<ebsdlib::PUCMColorKey>("32");
+  static const auto k_NH = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::trigonalHigh());
+  switch(kind)
+  {
+  case ebsdlib::ColorKeyKind::PUCM:
+    return k_PUCM;
+  case ebsdlib::ColorKeyKind::NolzeHielscher:
+    return k_NH;
+  case ebsdlib::ColorKeyKind::TSL:
+    break;
+  }
+  return k_TSL;
+}
+} // namespace
 
 namespace TrigonalHigh
 {
@@ -693,101 +718,21 @@ bool TrigonalOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb TrigonalOps::generateIPFColorImpl(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
-  // Convention-aware mirror of LaueOps::computeIPFColor; the FZ-reduction
-  // loop reads sym->quat[j] selected by conv instead of getQuatSymOp(j).
-  const TrigonalHigh::SymOps* sym = (conv == ebsdlib::HexConvention::XParallelAStar) ? &TrigonalHigh::k_SymOps_XParallelAStar : &TrigonalHigh::k_SymOps_XParallelA;
-
-  const ebsdlib::Matrix3X1D refDirection(refDir);
-  double chi = 0.0;
-  double eta = 0.0;
-  double rgb[3] = {0.0, 0.0, 0.0};
-
-  EulerDType eu(eulers[0], eulers[1], eulers[2]);
-  if(degToRad)
-  {
-    eu[0] *= ebsdlib::constants::k_DegToRadD;
-    eu[1] *= ebsdlib::constants::k_DegToRadD;
-    eu[2] *= ebsdlib::constants::k_DegToRadD;
-  }
-  OrientationMatrixDType om;
-  QuatD q1 = eu.toQuaternion();
-
-  for(size_t j = 0; j < sym->quat.size(); j++)
-  {
-    QuaternionDType qu(sym->quat[j] * q1);
-    om = qu.toOrientationMatrix();
-    ebsdlib::Matrix3X3D g(om.data());
-    ebsdlib::Matrix3X1D p = (g * refDirection).normalize();
-
-    if(!getHasInversion() && p[2] < 0)
-    {
-      continue;
-    }
-    if(getHasInversion() && p[2] < 0)
-    {
-      p = p * -1.0;
-    }
-    chi = std::acos(p[2]);
-    eta = std::atan2(p[1], p[0]);
-    if(!inUnitTriangle(eta, chi))
-    {
-      continue;
-    }
-    break;
-  }
-
-  const std::array<double, 3> angleLimits = getIpfColorAngleLimits(eta);
-
-  if(m_ColorKey)
-  {
-    auto [r, g, b] = m_ColorKey->direction2Color(eta, chi, angleLimits);
-    rgb[0] = r;
-    rgb[1] = g;
-    rgb[2] = b;
-    return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
-  }
-
-  rgb[0] = 1.0 - chi / angleLimits[2];
-  rgb[2] = std::fabs(eta - angleLimits[0]) / (angleLimits[1] - angleLimits[0]);
-  rgb[1] = 1 - rgb[2];
-  rgb[1] *= chi / angleLimits[2];
-  rgb[2] *= chi / angleLimits[2];
-  rgb[0] = std::sqrt(rgb[0]);
-  rgb[1] = std::sqrt(rgb[1]);
-  rgb[2] = std::sqrt(rgb[2]);
-  double max = rgb[0];
-  if(rgb[1] > max)
-  {
-    max = rgb[1];
-  }
-  if(rgb[2] > max)
-  {
-    max = rgb[2];
-  }
-  rgb[0] /= max;
-  rgb[1] /= max;
-  rgb[2] /= max;
-  return ebsdlib::RgbColor::dRgb(static_cast<int32_t>(rgb[0] * 255), static_cast<int32_t>(rgb[1] * 255), static_cast<int32_t>(rgb[2] * 255), 255);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb TrigonalOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
-{
-  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
-}
-
-// -----------------------------------------------------------------------------
-ebsdlib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb TrigonalOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
-  return generateIPFColorImpl(eulers, refDir, degToRad, conv);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb TrigonalOps::generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb TrigonalOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
   double range1 = 2.0f * TrigonalHigh::k_OdfDimInitValue[0];
   double range2 = 2.0f * TrigonalHigh::k_OdfDimInitValue[1];
@@ -972,7 +917,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> TrigonalOps::generatePoleFigure(Po
 namespace
 {
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int imageDim, bool generateEntirePlane, const ebsdlib::IColorKey* key)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
@@ -1020,7 +965,7 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const TrigonalOps* ops, int ima
       }
       else
       {
-        color = ops->generateIPFColor(k_Orientation.data(), sphericalCoords.data(), false, conv);
+        color = ops->computeIPFColor(k_Orientation.data(), sphericalCoords.data(), false, key);
       }
 
       pixelPtr[idx] = color;
@@ -1173,7 +1118,7 @@ void TrigonalOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim,
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv) const
+ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind, bool gridded) const
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
@@ -1189,8 +1134,14 @@ ebsdlib::UInt8ArrayType::Pointer TrigonalOps::generateIPFTriangleLegend(int canv
     legendWidth = legendHeight;
   }
 
+  ebsdlib::IColorKey::Pointer key = keyForKind(kind);
+  if(gridded)
+  {
+    key = std::make_shared<ebsdlib::GriddedColorKey>(key, 1.0);
+  }
+
   // Generate the colored SST triangle image (ARGB)
-  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, conv);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, key.get());
 
   // Annotate with title and Miller index labels
   return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane, false, conv);

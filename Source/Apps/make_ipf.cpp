@@ -31,7 +31,7 @@ class GenerateIPFColorsImpl
 {
 public:
   GenerateIPFColorsImpl(Matrix3X1F& referenceDir, const std::vector<float>& eulers, int32_t* phases, const std::vector<size_t>& laueOpsIndices, bool* goodVoxels, uint8_t* colors,
-                        std::vector<LaueOps::Pointer> ops)
+                        std::vector<LaueOps::Pointer> ops, ebsdlib::ColorKeyKind kind)
   : m_ReferenceDir(referenceDir)
   , m_CellEulerAngles(eulers)
   , m_CellPhases(phases)
@@ -39,6 +39,7 @@ public:
   , m_GoodVoxels(goodVoxels)
   , m_CellIPFColors(colors)
   , m_Ops(std::move(ops))
+  , m_Kind(kind)
   {
   }
 
@@ -81,7 +82,7 @@ public:
 
       if(phase < numPhases && calcIPF && currentLaueOpsIndex < ebsdlib::CrystalStructure::LaueGroupEnd)
       {
-        argb = ops[currentLaueOpsIndex]->generateIPFColor(dEuler, refDir, false);
+        argb = ops[currentLaueOpsIndex]->generateIPFColor(dEuler, refDir, false, m_Kind);
         m_CellIPFColors[index] = static_cast<uint8_t>(ebsdlib::RgbColor::dRed(argb));
         m_CellIPFColors[index + 1] = static_cast<uint8_t>(ebsdlib::RgbColor::dGreen(argb));
         m_CellIPFColors[index + 2] = static_cast<uint8_t>(ebsdlib::RgbColor::dBlue(argb));
@@ -98,12 +99,13 @@ private:
   bool* m_GoodVoxels;
   uint8_t* m_CellIPFColors;
   std::vector<LaueOps::Pointer> m_Ops;
+  ebsdlib::ColorKeyKind m_Kind;
 };
 
 // -----------------------------------------------------------------------------
 // Reads a .ang file and generates an IPF color map image.
 // -----------------------------------------------------------------------------
-int32_t executeAng(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops)
+int32_t executeAng(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops, ebsdlib::ColorKeyKind kind)
 {
   AngReader reader;
   reader.setFileName(filepath);
@@ -153,7 +155,7 @@ int32_t executeAng(const std::string& filepath, const std::string& outputFile, M
 
   bool* goodVoxels = nullptr;
   std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data(), ops);
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phaseData, laueOpsIndices, goodVoxels, ipfColors.data(), ops, kind);
   generateIPF.run();
 
   auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
@@ -168,7 +170,7 @@ int32_t executeAng(const std::string& filepath, const std::string& outputFile, M
 // Reads a .ctf file and generates an IPF color map image.
 // CTF Euler angles are in degrees and must be converted to radians.
 // -----------------------------------------------------------------------------
-int32_t executeCtf(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops)
+int32_t executeCtf(const std::string& filepath, const std::string& outputFile, Matrix3X1F& refDir, const std::vector<LaueOps::Pointer>& ops, ebsdlib::ColorKeyKind kind)
 {
   CtfReader reader;
   reader.setFileName(filepath);
@@ -217,7 +219,7 @@ int32_t executeCtf(const std::string& filepath, const std::string& outputFile, M
 
   bool* goodVoxels = nullptr;
   std::vector<uint8_t> ipfColors(totalPoints * 3, 0);
-  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data(), ops);
+  GenerateIPFColorsImpl generateIPF(normRefDir, eulers, phases.data(), laueOpsIndices, goodVoxels, ipfColors.data(), ops, kind);
   generateIPF.run();
 
   auto error = PngWriter::WriteColorImage(outputFile, dims[0], dims[1], 3, ipfColors.data());
@@ -252,25 +254,8 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  // Configure each LaueOps with the requested color key. PUCM needs the
-  // rotation point group string for dispatch; TSL is identical for every
-  // class so we use a single shared instance.
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
-  if(colorKeyName == "pucm")
-  {
-    for(auto& op : ops)
-    {
-      op->setColorKey(std::make_shared<ebsdlib::PUCMColorKey>(op->getRotationPointGroup()));
-    }
-  }
-  else
-  {
-    auto sharedKey = std::make_shared<ebsdlib::TSLColorKey>();
-    for(auto& op : ops)
-    {
-      op->setColorKey(sharedKey);
-    }
-  }
+  const ebsdlib::ColorKeyKind kind = (colorKeyName == "pucm") ? ebsdlib::ColorKeyKind::PUCM : ebsdlib::ColorKeyKind::TSL;
 
   // Determine file type from extension
   std::string ext = std::filesystem::path(filePath).extension().string();
@@ -283,11 +268,11 @@ int main(int argc, char* argv[])
   int32_t result = -1;
   if(ext == ".ang")
   {
-    result = executeAng(filePath, outPath, referenceDir, ops);
+    result = executeAng(filePath, outPath, referenceDir, ops, kind);
   }
   else if(ext == ".ctf")
   {
-    result = executeCtf(filePath, outPath, referenceDir, ops);
+    result = executeCtf(filePath, outPath, referenceDir, ops, kind);
   }
   else
   {

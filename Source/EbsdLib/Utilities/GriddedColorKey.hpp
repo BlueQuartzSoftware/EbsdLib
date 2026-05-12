@@ -11,15 +11,6 @@ namespace ebsdlib
 {
 
 /**
- * @brief Rendering mode for IPF legend generation.
- */
-enum class LegendRenderMode
-{
-  PerPixel,        ///< Compute exact color at every pixel (EbsdLib default)
-  GridInterpolated ///< Sample at grid points, flat-shade cells (MTEX-style)
-};
-
-/**
  * @brief Decorator that wraps any IColorKey with grid-based flat shading.
  *
  * On construction, precomputes colors at a regular grid of (eta, chi) sample
@@ -31,10 +22,9 @@ enum class LegendRenderMode
  * This replicates the MTEX rendering approach where colors are sampled at
  * ~1-degree intervals and rendered as flat-colored quadrilateral patches.
  *
- * Usage:
- *   auto nhKey = std::make_shared<NolzeHielscherColorKey>(sector);
- *   auto gridKey = std::make_shared<GriddedColorKey>(nhKey, 1.0);
- *   ops.setColorKey(gridKey);
+ * Usage: pass `gridded = true` to LaueOps::generateIPFTriangleLegend(), which
+ * will wrap the kind-selected key in a GriddedColorKey internally. Direct
+ * construction is only needed for tests or custom pipelines.
  */
 class EbsdLib_EXPORT GriddedColorKey : public IColorKey
 {
