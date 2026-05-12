@@ -309,8 +309,7 @@ public:
   /**
    * @brief generateIPFColor scalar overload. See pointer overload for semantics.
    */
-  virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees,
-                               ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const = 0;
+  virtual Rgb generateIPFColor(double e0, double e1, double e2, double dir0, double dir1, double dir2, bool convertDegrees, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const = 0;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector.
@@ -609,7 +608,6 @@ protected:
    * @return
    */
   int _calcODFBin(double dim[3], double bins[3], double step[3], const HomochoricDType& homochoric) const;
-
 
   /**
    * @brief Converts in input Quaternion into a version that is inside the fundamental zone.

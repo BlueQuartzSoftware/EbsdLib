@@ -49,8 +49,8 @@
 #include "EbsdLib/Utilities/GriddedColorKey.hpp"
 #include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
 #include "EbsdLib/Utilities/PUCMColorKey.hpp"
-#include "EbsdLib/Utilities/TSLColorKey.hpp"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -58,7 +58,6 @@
 #include <tbb/task_group.h>
 #endif
 using namespace ebsdlib;
-
 
 namespace
 {

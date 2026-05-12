@@ -117,6 +117,8 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::ConfigDefaults", "[EbsdLib][PoleFi
   REQUIRE(config.title.empty());
 }
 
+#define WRITE_EXEMPLAR_IMAGES 0
+
 void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t exemplarFileId)
 {
   constexpr size_t k_NumSamplingGroups = 8;
@@ -137,10 +139,12 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
   std::vector<LaueOps::Pointer> ops = LaueOps::GetAllOrientationOps();
   LaueOps::Pointer op = ops[opsIndex];
 
-  std::vector<PoleFigureLayoutType> layoutTypes = {PoleFigureLayoutType::Horizontal, PoleFigureLayoutType::Vertical, PoleFigureLayoutType::Square};
-  for(const auto& layoutType : layoutTypes)
+  std::vector<PoleFigureLayoutType> layoutTypes = {PoleFigureLayoutType::Horizontal, PoleFigureLayoutType::Square, PoleFigureLayoutType::Vertical};
+  std::vector<ebsdlib::HexConvention> hexConventions = {ebsdlib::HexConvention::XParallelAStar, ebsdlib::HexConvention::XParallelA, ebsdlib::HexConvention::XParallelAStar};
+  std::vector<bool> discretes = {false, false, true};
+  for(size_t idx = 0; idx < layoutTypes.size(); idx++)
   {
-    std::string layoutStr = (layoutType == PoleFigureLayoutType::Horizontal) ? "Horz" : (layoutType == PoleFigureLayoutType::Vertical) ? "Vert" : "Sqr";
+    std::string layoutStr = (layoutTypes[idx] == PoleFigureLayoutType::Horizontal) ? "Horz" : (layoutTypes[idx] == PoleFigureLayoutType::Vertical) ? "Vert" : "Sqr";
     hid_t layoutGroupId = H5Support::H5Utilities::createGroup(exemplarFileId, layoutStr);
     REQUIRE(layoutGroupId > 0);
     H5Support::H5ScopedGroupSentinel layoutGroupSentinel(layoutGroupId, true);
@@ -170,14 +174,15 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       config.imageDim = 512;
       config.lambertDim = 32;
       config.numColors = 16;
-      config.discrete = true;
+      config.discrete = discretes[idx];
       config.discreteHeatMap = false;
       config.flipFinalImage = true;
       config.laueOpsIndex = opsIndex;
-      config.layoutType = layoutType;
+      config.layoutType = layoutTypes[idx];
       config.phaseName = "TestPhase";
       config.phaseNumber = 1;
       config.title = fmt::format("Laue Symmetry:{} Rotation Point Group: {}", op->getSymmetryName(), op->getRotationPointGroup());
+      config.hexConvention = hexConventions[idx];
 
       PoleFigureCompositor compositor;
       CompositePoleFigureResult result = compositor.generateCompositeImage(config);
@@ -195,7 +200,7 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       UInt8ArrayType::Pointer image = result.image;
       std::string datasetName = fmt::format("{}", sampleId);
 #if WRITE_EXEMPLAR_IMAGES
-      std::string outputPath = fmt::format("{}/Pole_Figure_Images/Pole_Figure_{}_{}_{}.png", ebsdlib::unit_test::k_TestFilesDir, layoutStr, op->getRotationPointGroup(), sampleId);
+      std::string outputPath = fmt::format("{}/Pole_Figure_Images/{}_Pole_Figure_{}_{}.png", ebsdlib::unit_test::k_TestFilesDir, op->getRotationPointGroup(), layoutStr, sampleId);
       auto writerResult = PngWriter::WriteColorImage(outputPath, result.width, result.height, 4, result.image->data());
       REQUIRE(writerResult.first == 0);
       //
@@ -227,14 +232,14 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
 TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][PoleFigureCompositorTest]")
 {
   const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
-  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images.tar.gz", "Pole_Figure_Images"
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images_v2.tar.gz", "Pole_Figure_Images_v2"
 #if WRITE_EXEMPLAR_IMAGES
                                                                ,
                                                                false, false
 #endif
   );
 
-  const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
+  const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images_v2/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
   hid_t fileId = -1;
 #if WRITE_EXEMPLAR_IMAGES
   if(!std::filesystem::exists(hdfInputFile))

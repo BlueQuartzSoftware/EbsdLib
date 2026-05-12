@@ -48,8 +48,7 @@ CroppedImage CropImageToContent(const UInt8ArrayType* src, int canvasWidth, int 
   {
     out.width = canvasWidth;
     out.height = canvasHeight;
-    out.image = UInt8ArrayType::CreateArray(static_cast<size_t>(canvasWidth) * static_cast<size_t>(canvasHeight),
-                                            std::vector<size_t>{static_cast<size_t>(channels)}, src->getName(), true);
+    out.image = UInt8ArrayType::CreateArray(static_cast<size_t>(canvasWidth) * static_cast<size_t>(canvasHeight), std::vector<size_t>{static_cast<size_t>(channels)}, src->getName(), true);
     std::memcpy(out.image->getPointer(0), p, static_cast<size_t>(canvasWidth) * static_cast<size_t>(canvasHeight) * static_cast<size_t>(channels));
     return out;
   }
@@ -62,8 +61,7 @@ CroppedImage CropImageToContent(const UInt8ArrayType* src, int canvasWidth, int 
 
   out.width = maxX - minX + 1;
   out.height = maxY - minY + 1;
-  out.image = UInt8ArrayType::CreateArray(static_cast<size_t>(out.width) * static_cast<size_t>(out.height),
-                                          std::vector<size_t>{static_cast<size_t>(channels)}, src->getName() + "_cropped", true);
+  out.image = UInt8ArrayType::CreateArray(static_cast<size_t>(out.width) * static_cast<size_t>(out.height), std::vector<size_t>{static_cast<size_t>(channels)}, src->getName() + "_cropped", true);
   uint8_t* dst = out.image->getPointer(0);
   for(int y = 0; y < out.height; ++y)
   {
