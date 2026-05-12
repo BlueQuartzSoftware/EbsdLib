@@ -61,7 +61,6 @@
 #include <cmath>
 using namespace ebsdlib;
 
-
 namespace
 {
 ebsdlib::IColorKey::Pointer keyForKind(ebsdlib::ColorKeyKind kind)

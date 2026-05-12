@@ -66,8 +66,8 @@ void runOneCell(ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind colorKey)
 
 TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionColorKeyMatrix", "[EbsdLib][RenderEbsdSmokeTest]")
 {
-  using ebsdlib::HexConvention;
   using ebsdlib::ColorKeyKind;
+  using ebsdlib::HexConvention;
 
   SECTION("X||a* + TSL")
   {
@@ -94,8 +94,8 @@ TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionColorKeyMatrix", "[EbsdLib][R
 // -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionsDifferOnHexagonalHigh", "[EbsdLib][RenderEbsdSmokeTest]")
 {
-  using ebsdlib::HexConvention;
   using ebsdlib::ColorKeyKind;
+  using ebsdlib::HexConvention;
 
   ebsdlib::render_ebsd::Options optsAStar;
   optsAStar.inputFile = ebsdlib::unit_test::RenderEbsdTest::AllLaueClassesAng;
