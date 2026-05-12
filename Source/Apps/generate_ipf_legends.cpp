@@ -280,7 +280,7 @@ void GeneratePoleFigures(LaueOps& ops, int symType)
   // Read in the Quats File
   ConvertOrientations convertor;
   auto outputOrientations = convertor.execute(k_QuatsFilePath, "eulers_000_1_deg.csv", ",", "qu2eu", true);
-  auto poleFigureNames = ops.getDefaultPoleFigureNames();
+  auto poleFigureNames = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
 
   PoleFigureConfiguration_t config;
   config.eulers = outputOrientations.get();
@@ -351,50 +351,40 @@ void GenerateNolzeHielscherLegends(int imageDim)
       ebsdlib::FundamentalSectorGeometry::trigonalHigh,   // 10: Trigonal_High
   };
 
+  (void)sectorFactories; // Per-class NH sectors are now baked into each LaueOps subclass.
+
   for(size_t i = 0; i < allOps.size(); i++)
   {
     auto& ops = *allOps[i];
     std::string symName = EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_");
 
-    // Set NH color key
-    auto sector = sectorFactories[i]();
-    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(sector);
-    ops.setColorKey(nhKey);
-
-    // Generate full-circle legend
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    // Generate full-circle NH legend
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/false);
     std::stringstream ss;
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Full Result: " << result.first << ": " << result.second << std::endl;
 
-    // Generate triangle-only legend
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    // Generate triangle-only NH legend
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/false);
     ss.str("");
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH.png";
     result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
 
-    // Set to grid-interpolated mode (MTEX-style rendering, 0.5 degree grid)
-    ops.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 0.5);
-
-    // Generate gridded legends at higher resolution (2000x2000)
+    // Generate gridded NH legends (MTEX-style flat shading, 2000x2000)
     constexpr int k_GriddedImageDim = 2000;
-    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, true);
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, true, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/true);
     ss.str("");
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED_FULL.png";
     result = PngWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Gridded Full Result: " << result.first << ": " << result.second << std::endl;
 
-    // Generate gridded triangle-only legend
-    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, false);
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/true);
     ss.str("");
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED.png";
     result = PngWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
-
-    // Reset to TSL for subsequent operations
-    ops.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
   }
 }
 
@@ -415,13 +405,13 @@ int main(int argc, char* argv[])
   int imageDim = 1500;
   {
     TrigonalOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int xStart = imageDim * 0.05F;
     int yStart = 0;
     int numCols = imageDim * 0.75F;
@@ -449,13 +439,13 @@ int main(int argc, char* argv[])
 
   {
     TriclinicOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".png";
     result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
@@ -478,13 +468,13 @@ int main(int argc, char* argv[])
 
   {
     MonoclinicOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int yCropped = imageDim * 0.6F;
     legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, 0, 0, imageDim, yCropped);
     ss.str("");
@@ -510,13 +500,13 @@ int main(int argc, char* argv[])
   {
     CubicLowOps ops;
 
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".png";
     result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
@@ -539,13 +529,13 @@ int main(int argc, char* argv[])
 
   {
     CubicOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
 
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".png";
     result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
@@ -568,7 +558,7 @@ int main(int argc, char* argv[])
 
   {
     OrthoRhombicOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
@@ -578,7 +568,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.78F;
     int numRows = imageDim * 0.6F;
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".png";
@@ -602,7 +592,7 @@ int main(int argc, char* argv[])
 
   {
     TetragonalOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
 
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
@@ -613,7 +603,7 @@ int main(int argc, char* argv[])
     int yStart = 0;
     int numCols = imageDim * 0.78F;
     int numRows = imageDim * 0.6F;
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, numCols, numRows);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << ".png";
@@ -637,13 +627,13 @@ int main(int argc, char* argv[])
 
   {
     TetragonalLowOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int xStart = imageDim * 0.10F;
     int yStart = 0;
     int numCols = imageDim * 0.70F;
@@ -671,13 +661,13 @@ int main(int argc, char* argv[])
 
   {
     HexagonalOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int xStart = imageDim * 0.10F;
     int yStart = 0;
     int numCols = imageDim * 0.80F;
@@ -705,13 +695,13 @@ int main(int argc, char* argv[])
 
   {
     HexagonalLowOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int xStart = imageDim * 0.10F;
     int yStart = 0;
     int numCols = imageDim * 0.70F;
@@ -739,13 +729,13 @@ int main(int argc, char* argv[])
 
   {
     TrigonalLowOps ops;
-    auto legend = ops.generateIPFTriangleLegend(imageDim, true);
+    auto legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar);
     ss.str("");
     ss << k_Output_Dir << ops.getSymmetryName() << "/" << EbsdStringUtils::replace(ops.getSymmetryName(), "/", "_") << "_FULL.png";
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " Result: " << result.first << ": " << result.second << std::endl;
 
-    legend = ops.generateIPFTriangleLegend(imageDim, false);
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar);
     int xStart = imageDim * 0.00F;
     int yStart = 0;
     int numCols = imageDim * 0.90F;

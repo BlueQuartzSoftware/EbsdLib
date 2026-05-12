@@ -49,6 +49,11 @@
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Utilities/GriddedColorKey.hpp"
+#include "EbsdLib/Utilities/NolzeHielscherColorKey.hpp"
+#include "EbsdLib/Utilities/PUCMColorKey.hpp"
+#include "EbsdLib/Utilities/TSLColorKey.hpp"
 
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -56,6 +61,29 @@
 #include <tbb/task_group.h>
 #endif
 using namespace ebsdlib;
+
+namespace
+{
+// Per-class color-key singletons. Each LaueOps subclass uses its own point group
+// for PUCM and its own FundamentalSectorGeometry for Nolze-Hielscher; CubicOps
+// is 432 / cubicHigh.
+ebsdlib::IColorKey::Pointer keyForKind(ebsdlib::ColorKeyKind kind)
+{
+  static const auto k_TSL = std::make_shared<ebsdlib::TSLColorKey>();
+  static const auto k_PUCM = std::make_shared<ebsdlib::PUCMColorKey>("432");
+  static const auto k_NH = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::cubicHigh());
+  switch(kind)
+  {
+  case ebsdlib::ColorKeyKind::PUCM:
+    return k_PUCM;
+  case ebsdlib::ColorKeyKind::NolzeHielscher:
+    return k_NH;
+  case ebsdlib::ColorKeyKind::TSL:
+    break;
+  }
+  return k_TSL;
+}
+} // namespace
 
 namespace CubicHigh
 {
@@ -1665,21 +1693,21 @@ bool CubicOps::inUnitTriangle(double eta, double chi) const
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb CubicOps::generateIPFColor(double* eulers, double* refDir, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
-  return computeIPFColor(eulers, refDir, degToRad);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb CubicOps::generateIPFColor(double phi1, double phi, double phi2, double refDir0, double refDir1, double refDir2, bool degToRad, ebsdlib::ColorKeyKind kind) const
 {
   double eulers[3] = {phi1, phi, phi2};
   double refDir[3] = {refDir0, refDir1, refDir2};
-  return computeIPFColor(eulers, refDir, degToRad);
+  return computeIPFColor(eulers, refDir, degToRad, keyForKind(kind).get());
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::Rgb CubicOps::generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv) const
+ebsdlib::Rgb CubicOps::generateRodriguesColor(double r1, double r2, double r3) const
 {
   double range1 = 2.0f * CubicHigh::k_OdfDimInitValue[0];
   double range2 = 2.0f * CubicHigh::k_OdfDimInitValue[1];
@@ -1703,7 +1731,7 @@ std::array<std::string, 3> CubicOps::getDefaultPoleFigureNames(ebsdlib::HexConve
 // -----------------------------------------------------------------------------
 std::vector<ebsdlib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleFigureConfiguration_t& config) const
 {
-  std::array<std::string, 3> labels = getDefaultPoleFigureNames();
+  std::array<std::string, 3> labels = getDefaultPoleFigureNames(ebsdlib::HexConvention::NotApplicable);
   std::string label0 = labels[0];
   std::string label1 = labels[1];
   std::string label2 = labels[2];
@@ -1869,7 +1897,7 @@ std::vector<ebsdlib::UInt8ArrayType::Pointer> CubicOps::generatePoleFigure(PoleF
 
 namespace
 {
-ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageDim, bool generateEntirePlane)
+ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageDim, bool generateEntirePlane, const ebsdlib::IColorKey* key)
 {
   std::vector<size_t> dims(1, 4);
   std::string arrayName = EbsdStringUtils::replace(ops->getSymmetryName(), "/", "_");
@@ -1942,7 +1970,7 @@ ebsdlib::UInt8ArrayType::Pointer CreateIPFLegend(const CubicOps* ops, int imageD
         // Sort the cd array from smallest to largest
         sphericalCoords = TripletSort(sphericalCoords);
 
-        color = ops->generateIPFColor(orientation.data(), sphericalCoords.data(), false);
+        color = ops->computeIPFColor(orientation.data(), sphericalCoords.data(), false, key);
       }
       pixelPtr[idx] = color;
     }
@@ -2136,7 +2164,7 @@ void CubicOps::drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, fl
 }
 
 // -----------------------------------------------------------------------------
-ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv) const
+ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind, bool gridded) const
 {
   // Compute legend dimensions (same formula as annotateIPFImage uses)
   const float fontPtSize = static_cast<float>(canvasDim) / 24.0f;
@@ -2152,11 +2180,17 @@ ebsdlib::UInt8ArrayType::Pointer CubicOps::generateIPFTriangleLegend(int canvasD
     legendWidth = legendHeight;
   }
 
+  ebsdlib::IColorKey::Pointer key = keyForKind(kind);
+  if(gridded)
+  {
+    key = std::make_shared<ebsdlib::GriddedColorKey>(key, 1.0);
+  }
+
   // Generate the colored SST triangle image (ARGB)
-  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane);
+  ebsdlib::UInt8ArrayType::Pointer image = CreateIPFLegend(this, legendHeight, generateEntirePlane, key.get());
 
   // Annotate with title and Miller index labels
-  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane);
+  return annotateIPFImage(image, legendHeight, canvasDim, getSymmetryName(), generateEntirePlane, /*hasColorBar=*/false, ebsdlib::HexConvention::NotApplicable);
 }
 
 std::vector<std::pair<double, double>> CubicOps::rodri2pair(std::vector<double> x, std::vector<double> y, std::vector<double> z)

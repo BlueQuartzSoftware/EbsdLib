@@ -132,7 +132,7 @@ TEST_CASE("ebsdlib::PoleFigureLaueComparisonTest::GenerateAllLaueClasses", "[Ebs
     auto writeResult = PngWriter::WriteColorImage(tifPath, result.width, result.height, 4, result.image->data());
     REQUIRE(writeResult.first == 0);
 
-    auto pfNames = op->getDefaultPoleFigureNames();
+    auto pfNames = op->getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
     master << fmt::format("{},{},{},\"{} / {} / {}\"\n", opsIndex, safe, op->getSymmetryName(), pfNames[0], pfNames[1], pfNames[2]);
     std::cout << fmt::format("Wrote {} -> {}/ (sym={}, PFs={}/{}/{})\n", rpg, dir, op->getSymmetryName(), pfNames[0], pfNames[1], pfNames[2]);
   }

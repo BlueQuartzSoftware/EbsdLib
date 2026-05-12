@@ -200,7 +200,7 @@ public:
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
   void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* c1, ebsdlib::FloatArrayType* c2, ebsdlib::FloatArrayType* c3,
-                                      ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+                                      ebsdlib::HexConvention conv) const override;
   /**
    * @brief
    * @param eta Optional input value only needed for the "Cubic" Laue classes
@@ -214,7 +214,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const override;
 
   /**
    * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
@@ -227,8 +227,7 @@ public:
    * @param convertDegrees Are the input angles in Degrees
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees,
-                                ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateIPFColor(double e0, double e1, double phi2, double dir0, double dir1, double dir2, bool convertDegrees, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const override;
 
   /**
    * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
@@ -237,7 +236,7 @@ public:
    * @param r3 Third component of the Rodrigues Vector
    * @return Returns the ARGB Quadruplet ebsdlib::Rgb
    */
-  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
 
   /**
    * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
@@ -254,18 +253,18 @@ public:
    * @brief Returns the names for each of the three standard pole figures that are generated. For example
    *<001>, <011> and <111> for a cubic system
    */
-  std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const override;
 
   /**
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL, bool gridded = false) const override;
 
   bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const override;
 
   void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                          bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+                          bool drawFullCircle, ebsdlib::HexConvention conv) const override;
 
   std::array<float, 2> adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
                                           bool generateEntirePlane) const override;
@@ -284,16 +283,6 @@ public:
    */
   bool isInsideFZ(const RodriguesDType& rod) const override;
 
-protected:
-  /**
-   * @brief Convention-aware IPF color computation. Mirrors the base-class
-   * computeIPFColor() exactly except that the FZ-reduction loop uses the
-   * SymOps quat table selected by `conv` instead of the canonical
-   * getQuatSymOp(j). Both generateIPFColor overloads route through here.
-   */
-  ebsdlib::Rgb generateIPFColorImpl(double* eulers, double* refDir, bool degToRad, ebsdlib::HexConvention conv) const;
-
-public:
   HexagonalLowOps(const HexagonalLowOps&) = delete;            // Copy Constructor Not Implemented
   HexagonalLowOps(HexagonalLowOps&&) = delete;                 // Move Constructor Not Implemented
   HexagonalLowOps& operator=(const HexagonalLowOps&) = delete; // Copy Assignment Not Implemented

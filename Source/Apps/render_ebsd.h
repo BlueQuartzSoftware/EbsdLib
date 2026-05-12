@@ -14,19 +14,12 @@
 namespace ebsdlib::render_ebsd
 {
 
-enum class ColorKeyKind
-{
-  TSL,           ///< TSLColorKey -- legacy primary-corner SST coloring (EDAX/OIM Analysis)
-  PUCM,          ///< PUCMColorKey -- perceptually uniform map (Patala / MTEX-style)
-  NolzeHielscher ///< NolzeHielscherColorKey -- MTEX-style Nolze-Hielscher rendering
-};
-
 struct Options
 {
   std::string inputFile; ///< .ang or .ctf path
   std::string outputDir; ///< directory to write PNGs into (created if missing)
   ebsdlib::HexConvention convention = ebsdlib::HexConvention::XParallelAStar;
-  ColorKeyKind colorKey = ColorKeyKind::TSL;
+  ebsdlib::ColorKeyKind colorKey = ebsdlib::ColorKeyKind::TSL;
   int phaseFilter = -1;                             ///< -1 = render every indexed phase; otherwise only this phase index
   std::array<float, 3> refDir = {0.0F, 0.0F, 1.0F}; ///< Sample-frame reference direction for IPF map (default = +Z)
   int imageDim = 512;                               ///< Per-pole-figure pixel side

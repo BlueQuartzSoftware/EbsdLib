@@ -246,72 +246,31 @@ public:
   double getF7(const QuatD& q1, const QuatD& q2, double LD[3], bool maxSF) const override;
 
   void generateSphereCoordsFromEulers(ebsdlib::FloatArrayType* eulers, ebsdlib::FloatArrayType* xyz001, ebsdlib::FloatArrayType* xyz011, ebsdlib::FloatArrayType* xyz111,
-                                      ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+                                      ebsdlib::HexConvention conv = ebsdlib::HexConvention::NotApplicable) const override;
   /**
    * @brief
    * @param eta Optional input value only needed for the "Cubic" Laue classes
    * @return Triplet of etaMin, etaMax, chiMax
    */
   std::array<double, 3> getIpfColorAngleLimits(double eta) const override;
-  /**
-   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
-   * @param eulers Pointer to the 3 component Euler Angle
-   * @param refDir Pointer to the 3 Component Reference Direction
-   * @param convertDegrees Are the input angles in Degrees
-   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
-   */
-  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
 
-  /**
-   * @brief generateIPFColor Generates an ARGB Color from a Euler Angle and Reference Direction
-   * @param e0 First component of the Euler Angle
-   * @param e1 Second component of the Euler Angle
-   * @param e2 Third component of the Euler Angle
-   * @param dir0 First component of the Reference Direction
-   * @param dir1 Second component of the Reference Direction
-   * @param dir2 Third component of the Reference Direction
-   * @param convertDegrees Are the input angles in Degrees
-   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
-   */
-  ebsdlib::Rgb generateIPFColor(double phi1, double phi, double phi2, double dir0, double dir1, double dir2, bool degToRad,
-                                ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateIPFColor(double* eulers, double* refDir, bool convertDegrees, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const override;
 
-  /**
-   * @brief generateRodriguesColor Generates an RGB Color from a Rodrigues Vector
-   * @param r1 First component of the Rodrigues Vector
-   * @param r2 Second component of the Rodrigues Vector
-   * @param r3 Third component of the Rodrigues Vector
-   * @return Returns the ARGB Quadruplet ebsdlib::Rgb
-   */
-  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::Rgb generateIPFColor(double phi1, double phi, double phi2, double dir0, double dir1, double dir2, bool degToRad, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL) const override;
 
-  /**
-   * @brief generatePoleFigure This method will generate a number of pole figures for this crystal symmetry and the Euler
-   * angles that are passed in.
-   * @param eulers The Euler Angles to generate the pole figure from.
-   * @param imageSize The size in Pixels of the final RGB Image.
-   * @param numColors The number of colors to use in the RGB Image. Less colors can give the effect of contouring.
-   * @return A std::vector of ebsdlib::UInt8ArrayType pointers where each one represents a 2D RGB array that can be used to initialize
-   * an image object from other libraries and written out to disk.
-   */
+  ebsdlib::Rgb generateRodriguesColor(double r1, double r2, double r3) const override;
+
   std::vector<ebsdlib::UInt8ArrayType::Pointer> generatePoleFigure(PoleFigureConfiguration_t& config) const override;
 
-  /**
-   * @brief Returns the names for each of the three standard pole figures that are generated. For example
-   *<001>, <011> and <111> for a cubic system
-   */
-  std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  std::array<std::string, 3> getDefaultPoleFigureNames(ebsdlib::HexConvention conv = ebsdlib::HexConvention::NotApplicable) const override;
 
-  /**
-   * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
-   * @return
-   */
-  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::NotApplicable,
+                                                             ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL, bool gridded = false) const override;
 
   bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const override;
 
   void drawIPFAnnotations(canvas_ity::canvas& context, int canvasDim, float fontPtSize, const std::vector<float>& margins, std::array<float, 2> figureOrigin, std::array<float, 2> figureCenter,
-                          bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelAStar) const override;
+                          bool drawFullCircle, ebsdlib::HexConvention conv = ebsdlib::HexConvention::NotApplicable) const override;
 
   std::array<float, 2> adjustFigureOrigin(std::array<float, 2> figureOrigin, int legendWidth, int legendHeight, const std::vector<float>& margins, float fontPtSize,
                                           bool generateEntirePlane) const override;

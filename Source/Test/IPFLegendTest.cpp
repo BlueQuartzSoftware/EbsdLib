@@ -75,7 +75,7 @@ TEST_CASE("ebsdlib::IPFLegendTest", "[EbsdLib][IPFLegendTest]")
   {
     SECTION(ops[index]->getSymmetryName())
     {
-      ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false);
+      ebsdlib::UInt8ArrayType::Pointer image = ops[index]->generateIPFTriangleLegend(IMAGE_WIDTH, false, ebsdlib::HexConvention::XParallelAStar);
 
       std::string outputFilePath = fmt::format("{}/IPFLegendTest/{}.png", ebsdlib::unit_test::k_TestTempDir, ops[index]->getNameOfClass());
       EnsureParentDirectoryExists(outputFilePath);
@@ -93,15 +93,9 @@ TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTe
   {
     SECTION(ops[index]->getSymmetryName() + " NH Legend")
     {
-      // Switch to NH color key for this operator
-      // Use the cubicHigh sector as a simple stand-in for now
-      // (the legend generation doesn't use the sector geometry directly --
-      //  it goes through generateIPFColor which uses the color key's
-      //  direction2Color(eta, chi, angleLimits) overload)
-      auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::cubicHigh());
-      ops[index]->setColorKey(nhKey);
-
-      auto legend = ops[index]->generateIPFTriangleLegend(64, false);
+      // Request the per-class NolzeHielscher legend (each LaueOps subclass owns
+      // its own NH singleton built from its FundamentalSectorGeometry).
+      auto legend = ops[index]->generateIPFTriangleLegend(64, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher);
       REQUIRE(legend != nullptr);
       REQUIRE(legend->getNumberOfTuples() > 0);
 
@@ -112,15 +106,7 @@ TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTe
       {
         uint8_t* pixel = legend->getTuplePointer(i);
         // Legend is RGB (3 components after alpha removal)
-        if(legend->getNumberOfComponents() == 3)
-        {
-          if(pixel[0] != 255 || pixel[1] != 255 || pixel[2] != 255)
-          {
-            hasNonWhitePixel = true;
-            break;
-          }
-        }
-        else if(legend->getNumberOfComponents() == 4)
+        if(legend->getNumberOfComponents() == 3 || legend->getNumberOfComponents() == 4)
         {
           if(pixel[0] != 255 || pixel[1] != 255 || pixel[2] != 255)
           {
@@ -130,9 +116,6 @@ TEST_CASE("ebsdlib::IPFLegendTest::NolzeHielscherLegend", "[EbsdLib][IPFLegendTe
         }
       }
       REQUIRE(hasNonWhitePixel);
-
-      // Reset to TSL for other tests
-      ops[index]->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
     }
   }
 }
@@ -165,7 +148,7 @@ TEST_CASE("ebsdlib::IPFLegendTest::CAxisIsRed", "[EbsdLib][IPFLegendTest]")
     }
     seen.insert(rpg);
 
-    Rgb color = op->generateIPFColor(identityEuler, cAxisSampleDir, false);
+    Rgb color = op->generateIPFColor(identityEuler, cAxisSampleDir, false, ebsdlib::ColorKeyKind::TSL);
     int r = RgbColor::dRed(color);
     int g = RgbColor::dGreen(color);
     int b = RgbColor::dBlue(color);
@@ -274,10 +257,8 @@ TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPF
     std::filesystem::create_directories(dir);
 
     // TSL legend (per-pixel sampling, EbsdLib default).
-    auto tslKey = std::make_shared<ebsdlib::TSLColorKey>();
-    op->setColorKey(tslKey);
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::TSL, /*gridded=*/false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/tsl_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
@@ -287,18 +268,13 @@ TEST_CASE("ebsdlib::IPFLegendTest::TSL_Compare_MTEX_IPF_Legends", "[EbsdLib][IPF
     // Gridded TSL legend. MTEX renders all its color keys via 1-degree grid
     // sampling; this is the apples-to-apples render style for comparison
     // against MTEX ipfTSLKey output.
-    auto griddedTslKey = std::make_shared<ebsdlib::GriddedColorKey>(tslKey, 1.0);
-    op->setColorKey(griddedTslKey);
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::TSL, /*gridded=*/true);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/tsl_gridded_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
-
-    // Restore TSL default for any test that runs after this one
-    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 
     master << rpg << "," << op->getSymmetryName() << "\n";
   }
@@ -348,32 +324,24 @@ TEST_CASE("ebsdlib::IPFLegendTest::NH_Compare_MTEX_IPF_Legends", "[EbsdLib][IPFL
     std::filesystem::create_directories(dir);
 
     // Nolze-Hielscher legend (per-pixel sampling). Compare against MTEX ipfHSVKey.
-    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(SectorForRotationPointGroup(rpg));
-    op->setColorKey(nhKey);
+    // Each LaueOps subclass owns its own per-class NH singleton built from the
+    // corresponding FundamentalSectorGeometry; we just pick the kind here.
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/nh_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
 
-    // Gridded Nolze-Hielscher legend. Wraps the NH key in a GriddedColorKey
-    // decorator that snaps every pixel to a 1-degree grid sample, producing
-    // flat-shaded color patches that match MTEX's coarse-sampling/triangle-mesh
-    // rendering style.
-    auto griddedNhKey = std::make_shared<ebsdlib::GriddedColorKey>(nhKey, 1.0);
-    op->setColorKey(griddedNhKey);
+    // Gridded Nolze-Hielscher legend (1-degree flat-shaded cells, MTEX-style).
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/true);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/nh_gridded_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
-
-    // Restore TSL default for any test that runs after this one
-    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 
     master << rpg << "," << op->getSymmetryName() << "\n";
   }
@@ -422,13 +390,10 @@ TEST_CASE("ebsdlib::IPFLegendTest::PUCM_Compare_MTEX_IPF_Legends", "[EbsdLib][IP
     std::string dir = baseDir + "/" + safe;
     std::filesystem::create_directories(dir);
 
-    // PUCM legend (per-pixel). Compare against EDAX's perceptually uniform
-    // IPF palette. Constructed per Laue class so the wlenthe dispatch
-    // selects the correct cyclic / dihedral / cubic / hemispheric path.
-    auto pucmKey = std::make_shared<ebsdlib::PUCMColorKey>(rpg);
-    op->setColorKey(pucmKey);
+    // PUCM legend (per-pixel). Each LaueOps subclass owns its own per-class
+    // PUCM singleton (rotation point group baked in).
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/false);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/pucm_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
@@ -436,18 +401,13 @@ TEST_CASE("ebsdlib::IPFLegendTest::PUCM_Compare_MTEX_IPF_Legends", "[EbsdLib][IP
     }
 
     // Gridded PUCM legend (1-degree flat-shaded cells, MTEX-style).
-    auto griddedPucmKey = std::make_shared<ebsdlib::GriddedColorKey>(pucmKey, 1.0);
-    op->setColorKey(griddedPucmKey);
     {
-      auto legend = op->generateIPFTriangleLegend(1024, false);
+      auto legend = op->generateIPFTriangleLegend(1024, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/true);
       REQUIRE(legend != nullptr);
       std::string tifPath = dir + "/pucm_gridded_ebsdlib_ipf_legend.png";
       auto result = PngWriter::WriteColorImage(tifPath, 1024, 1024, 3, legend->data());
       REQUIRE(result.first == 0);
     }
-
-    // Restore TSL default for any test that runs after this one
-    op->setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 
     master << rpg << "," << op->getSymmetryName() << "\n";
   }

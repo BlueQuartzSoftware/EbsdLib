@@ -257,15 +257,15 @@ const char* conventionToken(ebsdlib::HexConvention conv)
   return conv == ebsdlib::HexConvention::XParallelA ? "x_a" : "x_astar";
 }
 
-const char* colorKeyToken(ColorKeyKind k)
+const char* colorKeyToken(ebsdlib::ColorKeyKind k)
 {
   switch(k)
   {
-  case ColorKeyKind::TSL:
+  case ebsdlib::ColorKeyKind::TSL:
     return "tsl";
-  case ColorKeyKind::PUCM:
+  case ebsdlib::ColorKeyKind::PUCM:
     return "pucm";
-  case ColorKeyKind::NolzeHielscher:
+  case ebsdlib::ColorKeyKind::NolzeHielscher:
     return "nh";
   }
   return "tsl";
@@ -303,45 +303,6 @@ std::string makePath(const Options& opts, const PhaseScan& s, const char* kind)
   std::ostringstream ss;
   ss << opts.outputDir << "/" << sanitize(s.phaseName) << "_phase" << s.phaseIndex << "_" << conventionToken(opts.convention) << "_" << colorKeyToken(opts.colorKey) << "_" << kind << ".png";
   return ss.str();
-}
-
-// Install the requested color key on a LaueOps. PUCM and NH need per-Laue-class
-// configuration; TSL is universal. Returns true on success.
-bool installColorKey(LaueOps& ops, ColorKeyKind k, unsigned int laueOpsIndex)
-{
-  if(k == ColorKeyKind::TSL)
-  {
-    ops.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
-    return true;
-  }
-  if(k == ColorKeyKind::PUCM)
-  {
-    ops.setColorKey(std::make_shared<ebsdlib::PUCMColorKey>(ops.getRotationPointGroup()));
-    return true;
-  }
-  // NolzeHielscher
-  using SectorFn = ebsdlib::FundamentalSectorGeometry (*)();
-  // LaueOps order matches ebsdlib::CrystalStructure::* indices (0..10).
-  static const SectorFn k_SectorByLaue[11] = {
-      ebsdlib::FundamentalSectorGeometry::hexagonalHigh,  // 0
-      ebsdlib::FundamentalSectorGeometry::cubicHigh,      // 1
-      ebsdlib::FundamentalSectorGeometry::hexagonalLow,   // 2
-      ebsdlib::FundamentalSectorGeometry::cubicLow,       // 3
-      ebsdlib::FundamentalSectorGeometry::triclinic,      // 4
-      ebsdlib::FundamentalSectorGeometry::monoclinic,     // 5
-      ebsdlib::FundamentalSectorGeometry::orthorhombic,   // 6
-      ebsdlib::FundamentalSectorGeometry::tetragonalLow,  // 7
-      ebsdlib::FundamentalSectorGeometry::tetragonalHigh, // 8
-      ebsdlib::FundamentalSectorGeometry::trigonalLow,    // 9
-      ebsdlib::FundamentalSectorGeometry::trigonalHigh,   // 10
-  };
-  if(laueOpsIndex >= 11)
-  {
-    return false;
-  }
-  auto sector = k_SectorByLaue[laueOpsIndex]();
-  ops.setColorKey(std::make_shared<ebsdlib::NolzeHielscherColorKey>(sector));
-  return true;
 }
 
 bool writePoleFigure(const Options& opts, PhaseScan& s, LaueOps::Pointer op, const std::string& outPath)
@@ -405,7 +366,7 @@ bool writeIpfMap(const Options& opts, const PhaseScan& s, LaueOps::Pointer op, c
     euler[0] = s.rasterEulers[i * 3];
     euler[1] = s.rasterEulers[i * 3 + 1];
     euler[2] = s.rasterEulers[i * 3 + 2];
-    Rgb argb = op->generateIPFColor(euler, refDir, false, opts.convention);
+    Rgb argb = op->generateIPFColor(euler, refDir, false, opts.colorKey);
     rgb[i * 3] = static_cast<uint8_t>(RgbColor::dRed(argb));
     rgb[i * 3 + 1] = static_cast<uint8_t>(RgbColor::dGreen(argb));
     rgb[i * 3 + 2] = static_cast<uint8_t>(RgbColor::dBlue(argb));
@@ -416,7 +377,7 @@ bool writeIpfMap(const Options& opts, const PhaseScan& s, LaueOps::Pointer op, c
 
 bool writeLegend(const Options& opts, LaueOps::Pointer op, const std::string& outPath)
 {
-  auto legend = op->generateIPFTriangleLegend(opts.legendImageDim, false, opts.convention);
+  auto legend = op->generateIPFTriangleLegend(opts.legendImageDim, false, opts.convention, opts.colorKey);
   if(legend == nullptr)
   {
     return false;
@@ -487,11 +448,6 @@ Result run(const Options& opts)
       continue;
     }
     LaueOps::Pointer op = ops[s.laueOpsIndex];
-    if(!installColorKey(*op, opts.colorKey, s.laueOpsIndex))
-    {
-      std::cerr << "WARNING: Could not install color key for phase '" << s.phaseName << "'" << std::endl;
-      continue;
-    }
 
     PhaseOutput po;
     po.phaseIndex = s.phaseIndex;

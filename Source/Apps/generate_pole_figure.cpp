@@ -103,7 +103,7 @@ void generatePoleFiguresForPhase(const LaueOps& ops, unsigned int laueOpsIndex, 
   std::string className = ops.getSymmetryName();
   std::cout << "Generating pole figures for phase: " << phaseLabel << " (" << className << ", " << eulers->getNumberOfTuples() << " orientations)" << std::endl;
 
-  auto poleFigureNames = ops.getDefaultPoleFigureNames();
+  auto poleFigureNames = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
 
   PoleFigureConfiguration_t config;
   config.eulers = eulers;

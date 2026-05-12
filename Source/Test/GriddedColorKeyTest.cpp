@@ -95,80 +95,28 @@ TEST_CASE("ebsdlib::GriddedColorKey::FlatShading", "[EbsdLib][GriddedColorKey]")
   }
 }
 
-TEST_CASE("ebsdlib::GriddedColorKey::LaueOpsIntegration", "[EbsdLib][GriddedColorKey]")
+TEST_CASE("ebsdlib::GriddedColorKey::LaueOpsLegendIntegration", "[EbsdLib][GriddedColorKey]")
 {
   auto allOps = ebsdlib::LaueOps::GetAllOrientationOps();
   auto& cubicOps = *allOps[1]; // Cubic_High
 
-  SECTION("Can set gridded color key on LaueOps")
+  SECTION("generateIPFTriangleLegend(gridded=true) returns a valid image")
   {
-    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::cubicHigh());
-    auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(nhKey, 1.0);
-    cubicOps.setColorKey(gridKey);
-    REQUIRE(cubicOps.getColorKey()->name() == "NolzeHielscher (gridded)");
-
-    // Generate a legend with the gridded key
-    auto legend = cubicOps.generateIPFTriangleLegend(64, false);
+    auto legend = cubicOps.generateIPFTriangleLegend(64, false, ebsdlib::HexConvention::NotApplicable, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/true);
     REQUIRE(legend != nullptr);
     REQUIRE(legend->getNumberOfTuples() > 0);
-
-    // Reset
-    cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
   }
 
-  SECTION("IPF colors work with gridded key")
+  SECTION("Gridded vs non-gridded legends both render for each kind")
   {
-    auto nhKey = std::make_shared<ebsdlib::NolzeHielscherColorKey>(ebsdlib::FundamentalSectorGeometry::cubicHigh());
-    auto gridKey = std::make_shared<ebsdlib::GriddedColorKey>(nhKey, 1.0);
-    cubicOps.setColorKey(gridKey);
-
-    double eulers[3] = {0.5, 0.3, 0.2};
-    double refDir[3] = {0.0, 0.0, 1.0};
-    ebsdlib::Rgb color = cubicOps.generateIPFColor(eulers, refDir, false);
-    int r = ebsdlib::RgbColor::dRed(color);
-    int g = ebsdlib::RgbColor::dGreen(color);
-    int b = ebsdlib::RgbColor::dBlue(color);
-    REQUIRE((r + g + b) > 0);
-
-    cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
+    for(const auto kind : {ebsdlib::ColorKeyKind::TSL, ebsdlib::ColorKeyKind::PUCM, ebsdlib::ColorKeyKind::NolzeHielscher})
+    {
+      auto perPixel = cubicOps.generateIPFTriangleLegend(64, false, ebsdlib::HexConvention::NotApplicable, kind, /*gridded=*/false);
+      auto gridded = cubicOps.generateIPFTriangleLegend(64, false, ebsdlib::HexConvention::NotApplicable, kind, /*gridded=*/true);
+      REQUIRE(perPixel != nullptr);
+      REQUIRE(gridded != nullptr);
+    }
   }
-}
-
-TEST_CASE("ebsdlib::GriddedColorKey::SetLegendRenderMode", "[EbsdLib][GriddedColorKey]")
-{
-  auto allOps = ebsdlib::LaueOps::GetAllOrientationOps();
-  auto& cubicOps = *allOps[1]; // Cubic_High
-
-  SECTION("Switch to GridInterpolated mode wraps the color key")
-  {
-    cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
-    cubicOps.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 2.0);
-    REQUIRE(cubicOps.getColorKey()->name() == "TSL (gridded)");
-  }
-
-  SECTION("Switch back to PerPixel mode unwraps the color key")
-  {
-    cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
-    cubicOps.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 2.0);
-    cubicOps.setLegendRenderMode(ebsdlib::LegendRenderMode::PerPixel);
-    REQUIRE(cubicOps.getColorKey()->name() == "TSL");
-  }
-
-  SECTION("Double-wrapping is prevented")
-  {
-    cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
-    cubicOps.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 2.0);
-    cubicOps.setLegendRenderMode(ebsdlib::LegendRenderMode::GridInterpolated, 1.0);
-    // Should still have only one layer of wrapping
-    REQUIRE(cubicOps.getColorKey()->name() == "TSL (gridded)");
-    auto griddedKey = std::dynamic_pointer_cast<ebsdlib::GriddedColorKey>(cubicOps.getColorKey());
-    REQUIRE(griddedKey != nullptr);
-    REQUIRE(griddedKey->resolutionDeg() == Approx(1.0));
-    REQUIRE(griddedKey->innerKey()->name() == "TSL");
-  }
-
-  // Reset to default
-  cubicOps.setColorKey(std::make_shared<ebsdlib::TSLColorKey>());
 }
 
 // -----------------------------------------------------------------------------

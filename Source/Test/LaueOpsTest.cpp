@@ -325,7 +325,11 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexagonalOps", "[EbsdLib][Laue
 // TrigonalLowOps where the SST geometry is different and the convention
 // parameter MAY produce different IPF colors; that's where any color-shift
 // regression would manifest.
-TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexConvention_HexagonalOps", "[EbsdLib][LaueOpsTest]")
+// HexagonalOps::generateIPFColor is convention-invariant (the SST is invariant
+// under the X||a ↔ X||a* basis rotation). The new API no longer takes a
+// HexConvention argument; this test confirms the call returns a non-trivial
+// color and behaves identically whether kind is default-omitted or TSL-explicit.
+TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_TSL_HexagonalOps", "[EbsdLib][LaueOpsTest]")
 {
   HexagonalOps hexOps;
   // Phi=90° tilts the c-axis into the basal plane, putting a basal-plane
@@ -334,20 +338,14 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFColor_HexConvention_HexagonalOps", "
   double eulers[3] = {0.0, 90.0 * ebsdlib::constants::k_PiOver180D, 0.0};
   double refDir[3] = {0.0, 0.0, 1.0};
 
-  Rgb colorAStar = hexOps.generateIPFColor(eulers, refDir, false);
-  Rgb colorA = hexOps.generateIPFColor(eulers, refDir, false, ebsdlib::HexConvention::XParallelA);
-  Rgb colorAStarExplicit = hexOps.generateIPFColor(eulers, refDir, false, ebsdlib::HexConvention::XParallelAStar);
+  Rgb colorDefault = hexOps.generateIPFColor(eulers, refDir, false);
+  Rgb colorTslExplicit = hexOps.generateIPFColor(eulers, refDir, false, ebsdlib::ColorKeyKind::TSL);
 
-  // 6/mmm is convention-invariant for IPF color (see comment above).
-  CHECK(colorAStar == colorA);
-  CHECK(colorAStar == colorAStarExplicit);
+  CHECK(colorDefault == colorTslExplicit);
 
-  // Sanity: the color must be non-trivial (not pure black, not all-channel
-  // zero) -- guards against the convention dispatch silently returning the
-  // wrong sym-op-zero result.
-  const int r = RgbColor::dRed(colorAStar);
-  const int g = RgbColor::dGreen(colorAStar);
-  const int b = RgbColor::dBlue(colorAStar);
+  const int r = RgbColor::dRed(colorDefault);
+  const int g = RgbColor::dGreen(colorDefault);
+  const int b = RgbColor::dBlue(colorDefault);
   CHECK((r + g + b) > 0);
 }
 
@@ -377,7 +375,7 @@ void checkSphereCoordsConvention(const ebsdlib::Matrix3X1D& expectedFamily1First
   ebsdlib::FloatArrayType::Pointer xyz1120 = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f2", true);
 
   // Default X||a*: family-1 first member matches the expected canonical value.
-  ops.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get());
+  ops.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelAStar);
   CHECK(xyz1010_aStar->getValue(0) == Approx(expectedFamily1FirstAStar[0]).margin(1e-5));
   CHECK(xyz1010_aStar->getValue(1) == Approx(expectedFamily1FirstAStar[1]).margin(1e-5));
   CHECK(xyz1010_aStar->getValue(2) == Approx(expectedFamily1FirstAStar[2]).margin(1e-5));
@@ -434,7 +432,7 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateSphereCoords_HexConvention_HexagonalOps
   ebsdlib::FloatArrayType::Pointer xyz1120 = ebsdlib::FloatArrayType::CreateArray(6ULL, dims, "f2", true);
 
   // Default (X||a*) path: family-1 first member should be (1, 0, 0).
-  hexOps.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get());
+  hexOps.generateSphereCoordsFromEulers(eulers.get(), xyz0001.get(), xyz1010_aStar.get(), xyz1120.get(), ebsdlib::HexConvention::XParallelAStar);
   CHECK(xyz1010_aStar->getValue(0) == Approx(1.0F).margin(1e-5));
   CHECK(xyz1010_aStar->getValue(1) == Approx(0.0F).margin(1e-5));
   CHECK(xyz1010_aStar->getValue(2) == Approx(0.0F).margin(1e-5));

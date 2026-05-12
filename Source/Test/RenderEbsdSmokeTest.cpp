@@ -36,7 +36,7 @@ void requirePngExists(const std::string& path)
   REQUIRE(std::filesystem::file_size(path) > 256ULL); // a real PNG header alone is ~100 bytes; 256 is a sanity lower bound
 }
 
-void runOneCell(ebsdlib::HexConvention conv, ebsdlib::render_ebsd::ColorKeyKind colorKey)
+void runOneCell(ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind colorKey)
 {
   ebsdlib::render_ebsd::Options opts;
   opts.inputFile = ebsdlib::unit_test::RenderEbsdTest::AllLaueClassesAng;
@@ -67,7 +67,7 @@ void runOneCell(ebsdlib::HexConvention conv, ebsdlib::render_ebsd::ColorKeyKind 
 TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionColorKeyMatrix", "[EbsdLib][RenderEbsdSmokeTest]")
 {
   using ebsdlib::HexConvention;
-  using ebsdlib::render_ebsd::ColorKeyKind;
+  using ebsdlib::ColorKeyKind;
 
   SECTION("X||a* + TSL")
   {
@@ -95,7 +95,7 @@ TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionColorKeyMatrix", "[EbsdLib][R
 TEST_CASE("ebsdlib::RenderEbsdSmokeTest::ConventionsDifferOnHexagonalHigh", "[EbsdLib][RenderEbsdSmokeTest]")
 {
   using ebsdlib::HexConvention;
-  using ebsdlib::render_ebsd::ColorKeyKind;
+  using ebsdlib::ColorKeyKind;
 
   ebsdlib::render_ebsd::Options optsAStar;
   optsAStar.inputFile = ebsdlib::unit_test::RenderEbsdTest::AllLaueClassesAng;
