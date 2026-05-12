@@ -106,6 +106,16 @@ PUCMColorKey::PUCMColorKey(const std::string& rotationPointGroup)
 : m_Group(static_cast<Group>(groupFromRotationPointGroup(rotationPointGroup)))
 , m_RotationPointGroup(rotationPointGroup)
 {
+  // The wlenthe coloring routines lazily populate static lookup tables
+  // (cubicToHemi / cubicLowToHemi) on first call. Under ParallelDataAlgorithm
+  // multiple worker threads race that init and corrupt the table, producing a
+  // free_small_botch crash. Warm the per-group dispatch path once here so the
+  // tables are fully populated before any concurrent reader can see them --
+  // PUCMColorKey instances are themselves constructed under C++11
+  // magic-statics locks (one per LaueOps subclass singleton), so this
+  // construction-time warmup is serialized.
+  const Vec3 k_WarmupDir = {0.5, 0.3, 0.7};
+  (void)dispatchPucm(static_cast<int>(m_Group), k_WarmupDir);
 }
 
 PUCMColorKey::Vec3 PUCMColorKey::direction2Color(const Vec3& direction) const
