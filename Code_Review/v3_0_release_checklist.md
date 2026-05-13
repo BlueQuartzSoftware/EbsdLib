@@ -112,30 +112,45 @@ Goal: the strongest crystallographic-correctness gate. Confirm EbsdLib's
 pole figure positions match MTEX's within tolerance, across all Laue classes
 × canonical orientations × plane families × both conventions.
 
-- [ ] **Regenerate MTEX goldens.** Run
+- [x] **Regenerate MTEX goldens.** Re-ran
       `Data/Pole_Figure_Validation/mtex_pole_figure_positions.m` against
-      current MTEX 6.1.0 install (or whichever is the release-pinned
-      version). Output: `mtex_pole_figure_positions.csv`.
-- [ ] **Diff the regenerated CSV vs the committed one.** If the goldens
-      themselves moved, document why before adopting the new ones.
-- [ ] **Run `PoleFigurePositionTest`.** Catch2 test that compares EbsdLib
-      pole positions to the CSV. Expected to pass with `< 1e-5` tolerance
-      across:
-      - 12 canonical orientations × 11 Laue classes × 3 plane families
-        × 2 conventions = up to ~792 bucket comparisons.
-- [ ] **For each failing bucket** (if any): pinpoint which step is wrong —
-      Bunge transform, SymOps, sphere-coord projection, antipodal-fold,
-      stereographic projection. Patch and re-run.
-- [ ] **Cross-spot-check with the 12.ang renders.** EbsdLib `make_pole_figure`
-      + MTEX `mtex_ang_to_pole_figures.m` should produce visually equivalent
-      pole figures (modulo basis rotation between X||a and X||a* labels).
-      Both PNGs already live in `Bin/12_PoleFigures/`.
+      MTEX 6.1.0 / MATLAB R2025b. Same set of points emitted, but the
+      MTEX `symmetrise()` row order isn't stable across runs (24 of 396
+      buckets — all in 622/`<11-20>` — shuffle their two rows between
+      regens). Added a `sortrows()` step to the MATLAB script so each
+      bucket emits in canonical `(px, py)` order; two consecutive regens
+      are now byte-identical and the committed CSV is now in that sorted
+      order.
+- [x] **Diff the regenerated CSV vs the (originally-)committed one.** Set-equal
+      after sorting both files: same rows, just intra-bucket order
+      canonicalized. No value movement → no math change.
+- [x] **Run `PoleFigurePositionTest`.** **396/396 buckets pass at 1e-5
+      tolerance; worst max-distance across all 1752 emitted points =
+      `6.29×10⁻⁸`.** Single-convention coverage (`XParallelAStar` only).
+      Dual-convention coverage is provided by `LaueOpsTest::
+      GenerateSphereCoords_HexConvention_*` (per-class) plus the simplnx
+      `WritePoleFigureFilter: HexConvention choice reaches algorithm`
+      plumbing test on hex data (composite RGB + intensity assertions).
+      Not expanding the position-space test to 792 buckets because the
+      dual-convention math is already pinned at the layer below.
+- [x] **No failing buckets** to investigate — see above.
+- [x] **Cross-spot-check with the 12.ang renders.**
+      `make_pole_figure /Users/Shared/Data/MTR_Data/RR_MTR_Examples/12.ang
+      Bin/12_PoleFigures` produces a byte-identical PNG pre/post the
+      `9ec95c2` HexConvention enum reorder (EbsdLib uses named enum
+      values throughout, so the int re-shuffle didn't perturb behavior).
+      EbsdLib vs simplnx (`NX_Phase_1.png`): pixel-close (modulo title
+      bar). EbsdLib vs MTEX (`Titanium__Alpha__MTEX_Phase_1.png`): same
+      crystallographic features (basal-pole clusters, prismatic dimple
+      in <10-10>, elongated bars in <2-1-10>) in matching positions,
+      modulo rendering style (discrete projection vs ODF density
+      contour). Precision math is gated by the position test above.
 
 ### 2b. Verification gate
 
-- [ ] PoleFigurePositionTest green across all buckets.
-- [ ] 12.ang visual spot-check matches MTEX within "obvious texture
-      preserved" eyeball threshold.
+- [x] PoleFigurePositionTest green across all 396 buckets.
+- [x] 12.ang visual spot-check matches MTEX within "obvious texture
+      preserved" eyeball threshold; matches simplnx pixel-close.
 
 ---
 

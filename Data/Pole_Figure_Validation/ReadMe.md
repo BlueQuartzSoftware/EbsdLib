@@ -22,7 +22,14 @@ The validation is checked at every test run via
 `Source/Test/PoleFigurePositionTest.cpp`. The current state of the world:
 
 > 396 buckets compared, 396 within tolerance `1e-5`, worst max-distance
-> across all 1752 emitted points: `6.08 × 10⁻⁸`.
+> across all 1752 emitted points: `6.29 × 10⁻⁸`.
+
+The MATLAB script sorts each bucket's `(px, py)` rows lexicographically
+before writing, so two consecutive regenerations of the CSV are
+byte-identical. This is purely to make `git diff` on the golden a clean
+"the goldens moved" signal — the comparator in
+`PoleFigurePositionTest.cpp` is order-independent, so the math is
+unaffected by the ordering choice.
 
 ## What's in this directory
 

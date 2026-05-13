@@ -184,20 +184,31 @@ for oi = 1:size(canonical, 1)
             [~, ia] = unique(xyzKey, 'rows', 'stable');
             xs = xs(ia); ys = ys(ia); zs = zs(ia);
 
+            % Project all directions in this bucket, then emit in sorted
+            % (px, py) order so the CSV is byte-stable across MTEX runs.
+            % MTEX's symmetrise() emission order isn't guaranteed stable when
+            % multiple symmetry-equivalent directions hash-collide (we hit
+            % this in the 622/<11-20> bucket -- same 12 points emitted, but
+            % the two halves of an antipodal pair swap order between runs).
+            % The PoleFigurePositionTest comparator is order-independent so
+            % the math is unaffected, but sorting here means `git diff` on a
+            % regenerated golden is a clean signal of "the goldens moved"
+            % rather than "MTEX shuffled the rows".
+            bucketRows = zeros(numel(xs), 2);
             for k = 1:numel(xs)
                 x = xs(k); y = ys(k); z = zs(k);
-
-                % Match EbsdLib's antipodal-fold rule
                 if z < 0.0
                     x = -x; y = -y; z = -z;
                 end
+                bucketRows(k, 1) = x / (1.0 + z);
+                bucketRows(k, 2) = y / (1.0 + z);
+            end
+            bucketRows = sortrows(round(bucketRows * 1e8) / 1e8);
 
-                % Stereographic projection from the south pole
-                px = x / (1.0 + z);
-                py = y / (1.0 + z);
-
+            for k = 1:size(bucketRows, 1)
                 fprintf(fid, '%d,%s,%s,%s,%s,%.8f,%.8f\n', ...
-                    orientId, name, info.rpg, info.symName, info.labels{fi}, px, py);
+                    orientId, name, info.rpg, info.symName, info.labels{fi}, ...
+                    bucketRows(k, 1), bucketRows(k, 2));
             end
         end
     end
