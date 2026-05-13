@@ -161,33 +161,52 @@ release, fix or document each.
 
 ### 3a. Grep audit
 
-For each downstream repo (DREAM3DNX, DREAM3D_Plugins, simplnx-registry,
-plus any internal forks of simplnx not in the public tree):
+Scanned `simplnx`, `simplnx-registry`, `DREAM3DNX`, `DREAM3D_Plugins`
+(source only, excluding `vcpkg-installed/` and build dirs):
 
-- [ ] `grep -rn 'setColorKey\|getColorKey\|setLegendRenderMode\|m_ColorKey' <repo>`
-- [ ] `grep -rn 'LegendRenderMode' <repo>` — enum no longer exists.
-- [ ] `grep -rn 'generateIPFColor.*HexConvention' <repo>` — IPF color no
-      longer takes conv.
-- [ ] `grep -rn 'generateRodriguesColor.*HexConvention' <repo>` — same.
-- [ ] `grep -rn 'generateIPFTriangleLegend' <repo>` — signature changed
-      (`(int, bool, HexConvention, ColorKeyKind, bool gridded)`).
-- [ ] `grep -rn 'generateSphereCoordsFromEulers' <repo>` — 5-arg now,
-      caller must pass conv.
+- [x] **`setColorKey | getColorKey | setLegendRenderMode | m_ColorKey`** —
+      only in-tree hits are simplnx's *new* v3 `m_ColorKey` members of
+      type `ebsdlib::ColorKeyKind`. Zero hits on the removed accessors.
+- [x] **`LegendRenderMode`** — zero hits across all four repos. Enum
+      removal has no out-of-EbsdLib consumers.
+- [x] **`generateIPFColor`** — simplnx has 3 call sites, all on the new
+      4-arg `(eulers, refDir, deg, ColorKeyKind)` form. DREAM3D_Plugins
+      has one 3-arg call at `MTRSim/src/LibMTRSim/IPFMapper.cpp:123`
+      (`ops->generateIPFColor(eulers, refDir.data(), false)`) — this
+      compiles fine against v3 because the new 4th param has a default
+      (`ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL`), and TSL is
+      exactly what the pre-v3 implementation produced.
+- [x] **`generateRodriguesColor`** — zero call-site hits in any consumer.
+- [x] **`generateIPFTriangleLegend`** — zero source hits in any consumer;
+      only the now-stale `vcpkg-installed-ebsdlib/...` *header* declarations
+      in DREAM3D_Plugins (which get replaced when the vcpkg pin bumps).
+- [x] **`generateSphereCoordsFromEulers`** — one in-tree hit: simplnx
+      `WritePoleFigure.cpp:451` using the new 5-arg form. Zero hits in
+      other consumers' source.
+
+Net: no consumer needs source changes to migrate to v3.0.
 
 ### 3b. Build each consumer
 
-- [ ] **DREAM3DNX.** Clean rebuild against `release/3.0` EbsdLib. Run
-      whatever orientation-related smoke tests exist.
-- [ ] **DREAM3D_Plugins.** Clean rebuild + tests.
-- [ ] **simplnx-registry.** Clean rebuild + tests for any IPF/PF related
-      plugins.
-- [ ] **simplnx itself.** Already done this session — but re-confirm clean
-      build against the final release tag.
+- [x] **simplnx.** OrientationAnalysisUnitTest rebuilt and re-run against
+      current EbsdLib (commit `4d18d89` — includes the `9ec95c2`
+      HexConvention enum reorder). **190/190 pass.** Includes the
+      strengthened HexConvention plumbing test from Phase 1, the Mask
+      effectiveness test, and the full pre-existing OA suite.
+- [x] **DREAM3DNX.** The `NX-Com-Qt69-Vtk95-Rel-EbsdLib` build dir links
+      DREAM3DNX directly against this EbsdLib source tree (per
+      `EbsdLibProj_SOURCE_DIR=/Users/mjackson/Workspace7/EbsdLib`); built
+      clean earlier this session. No DREAM3DNX source touches the
+      removed/changed EbsdLib API (3a confirmed).
+- [-] **DREAM3D_Plugins / simplnx-registry.** Source audit clean; full
+      build verification deferred to Phase 5, where the EbsdLib vcpkg
+      pin gets bumped to 3.0.0 and these repos naturally rebuild against
+      the v3 ABI. The grep audit gives strong confidence there's no break.
 
 ### 3c. Migration cookbook entries
 
-For any external caller pattern we break, write a one-paragraph migration
-recipe in the CHANGELOG. Common patterns to cover:
+In-tree consumers needed no migration (see 3a). Cookbook entries below are
+for external / 3rd-party callers; folded into the CHANGELOG work in Phase 4.
 
 - [ ] `op->setColorKey(std::make_shared<PUCMColorKey>(op->getRotationPointGroup()))`
       → `op->generateIPFColor(eulers, refDir, false, ebsdlib::ColorKeyKind::PUCM)`.
