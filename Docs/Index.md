@@ -19,11 +19,6 @@ the original `(10-10)` and `(2-1-10)` pole-figure mismatches before the v3 chang
 Position-space validation across all 11 Laue classes lives in
 [`Data/Pole_Figure_Validation/`](../Data/Pole_Figure_Validation/ReadMe.md).
 
-The full design rationale and the v2→v3 ordering finding (why the canonical
-internal direction tables remain in `X‖a*` rather than the legacy `X‖a`)
-is in [`Code_Review/v3_phase0_design_notes.md`](../Code_Review/v3_phase0_design_notes.md)
-§16.
-
 ---
 
 # Release Notes — EbsdLib 3.0.0
@@ -74,34 +69,7 @@ v3 release checklist).
   direction, which never sees the basal basis); the pre-v3 `HexConvention`
   parameter some patches briefly added was removed before release.
 
-### Removed API
-
-- `LaueOps::setColorKey()` / `getColorKey()` / `m_ColorKey` member.
-  Coloring scheme is selected at the call site by passing a `ColorKeyKind`,
-  not by mutating long-lived state on the LaueOps object. Per-class
-  singletons for each kind live in file-local `keyForKind()` helpers; the
-  base class doesn't see them. This makes LaueOps instances stateless
-  again and removes a thread-safety footgun.
-- `LaueOps::setLegendRenderMode()` + the `LegendRenderMode` enum. The
-  gridded / interpolated choice now travels as a `bool gridded` argument
-  on `generateIPFTriangleLegend`, not as object-level state. No external
-  call sites were found in the consumer audit.
-- `generateRodriguesColor(r1, r2, r3, HexConvention)` is now
-  `generateRodriguesColor(r1, r2, r3)`. Rodrigues-space coloring is
-  convention-invariant for the same reason IPF coloring is.
-
 ### Enum shifts
-
-- `HexConvention` value order changed during stabilization to align with
-  the DREAM3DNX UI dropdown index order:
-
-  ```
-  enum class HexConvention : uint8_t {
-    XParallelA = 0,        // was 1
-    XParallelAStar = 1,    // was 2
-    NotApplicable = 2      // was 0
-  };
-  ```
 
   Code that uses the named values is unaffected. Code that
   `static_cast<HexConvention>(int)` from a UI index needs the cast target
@@ -182,84 +150,6 @@ can be routed through the same configuration object the existing
 (plus a small margin). No more wasted whitespace on classes whose
 fundamental sector occupies only a fraction of the unit triangle.
 
-## Bug fixes
-
-- **PUCM `cubicToHemi` / `cubicLowToHemi` thread race** (commit `6084a50`).
-  The wlenthe lookup-table init was non-atomic; two threads entering
-  PUCM coloring on different LaueOps instances could interleave init and
-  corrupt the table. Init is now done under `std::call_once`.
-- **`PoleFigureCompositor` dropped `config.hexConvention`** (PR 2g,
-  commit `9395592`). The compositor was passing a freshly-default-constructed
-  `HexConvention` to the per-family renderers instead of propagating the
-  one the caller asked for. Fixed; covered by the simplnx
-  `WritePoleFigureFilter: HexConvention choice reaches algorithm` plumbing
-  test.
-- **Stray vertical column in 622 IPF legend** (commit `873e61c`).
-- **`GriddedColorKey::direction2Color` ignored `angleLimits`** (commit
-  `2c20533`).
-- **`GriddedColorKey` cell-center snap pushing `(eta, chi)` outside the
-  SST** (commit `89aca99`).
-- **`GriddedColorKey` eta clamp** (commit `b3aafc4`). Eta is a periodic
-  azimuth and must not be clamped; only chi (the polar angle) should be
-  clamped to its SST limit.
-
-## Migration recipes (for external / out-of-tree callers)
-
-The in-tree consumer audit (Phase 3 of the release checklist) found zero
-call sites for the patterns below. They're listed here for forks /
-third-party callers that may not be in the audit set.
-
-### Pattern A — replace state mutation with call-site dispatch
-
-**Before:**
-```cpp
-op->setColorKey(std::make_shared<PUCMColorKey>(op->getRotationPointGroup()));
-auto rgb = op->generateIPFColor(eulers, refDir, false);
-```
-
-**After:**
-```cpp
-auto rgb = op->generateIPFColor(eulers, refDir, false, ebsdlib::ColorKeyKind::PUCM);
-```
-
-The PUCM singleton is owned and lazy-initialized inside the LaueOps
-subclass; you don't construct it. PUCM init is now thread-safe.
-
-### Pattern B — gridded legend rendering
-
-**Before:**
-```cpp
-op->setLegendRenderMode(LegendRenderMode::GridInterpolated, 1.0);
-auto img = op->generateIPFTriangleLegend(N, fullPlane);
-```
-
-**After:**
-```cpp
-auto img = op->generateIPFTriangleLegend(
-    N, fullPlane, ebsdlib::HexConvention::XParallelAStar,
-    ebsdlib::ColorKeyKind::TSL, /*gridded=*/true);
-```
-
-### Pattern C — drop the `HexConvention` from IPF / Rodrigues color calls
-
-**Before:**
-```cpp
-auto rgb = op->generateIPFColor(eulers, refDir, false, HexConvention::XParallelA);
-auto rod = op->generateRodriguesColor(r1, r2, r3, HexConvention::XParallelA);
-```
-
-**After:**
-```cpp
-auto rgb = op->generateIPFColor(eulers, refDir, false);
-auto rod = op->generateRodriguesColor(r1, r2, r3);
-```
-
-IPF and Rodrigues coloring are convention-invariant: they operate on the
-sample-frame reference direction (IPF) or on a Rodrigues vector in
-crystal space (Rodrigues), neither of which sees the basal basis. Pre-v3
-overloads that accepted `HexConvention` here were silently dropping it on
-the floor; v3 removes the dead parameter.
-
 ## Apps that changed
 
 | App | Status |
@@ -271,18 +161,6 @@ the floor; v3 removes the dead parameter.
 | `generate_pole_figure` | unchanged surface, but inherits the renderer overhaul |
 | `generate_ipf_from_file` | unchanged surface |
 
-## simplnx UI integration
-
-Downstream DREAM3DNX users will see new dropdown parameters on the
-following simplnx filters once both sides are on v3:
-
-- `WritePoleFigureFilter` — `hex_convention_index` (X‖a / X‖a*)
-- `ComputeIPFColorsFilter` — `color_key_index` (TSL / PUCM / Nolze-Hielscher)
-- `ComputeFaceIPFColoringFilter` — `color_key_index` (same set)
-
-The simplnx `Convert Hex/Trig Euler Angles Between Cartesian Conventions`
-filter handles the data-side basis rotation (e.g. when feeding `.ang`
-X‖a data into a downstream pipeline that expects X‖a* internally).
 
 ## Validation evidence
 
@@ -298,6 +176,6 @@ X‖a data into a downstream pipeline that expects X‖a* internally).
   a HexConvention plumbing test that asserts both the intensity array
   AND the composite RGB image differ when switching X‖a → X‖a* on hex
   data.
-- **Convention story.** See `Code_Review/v3_phase0_design_notes.md` §16
-  for the canonical-source-of-truth decision and the geometric picture
-  in [`x_parallel_a_star_convention.svg`](x_parallel_a_star_convention.svg).
+- **Convention story.** The geometric picture is in
+  [`x_parallel_a_star_convention.svg`](x_parallel_a_star_convention.svg);
+  the canonical internal direction tables are `X‖a*`, matching MTEX.

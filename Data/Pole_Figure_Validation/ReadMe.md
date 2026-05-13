@@ -11,8 +11,8 @@ the underlying sphere-coordinate generation changed for every Laue class.
 
 A pixel-level pole-figure comparison would not survive the planned
 follow-on rewrite of the renderer (Lambert-square → MTEX-style direct
-projection, see `Code_Review/v3_stabilization_plan.md` §F1). Instead this
-directory holds a **position-space** validation: for every `(canonical
+projection). Instead this directory holds a **position-space**
+validation: for every `(canonical
 orientation × Laue class × default plane family)` bucket, the projected
 `(x, y)` positions of the symmetry-equivalent poles on the unit disk are
 compared against MTEX, which we treat as crystallographic ground truth.
@@ -224,5 +224,5 @@ the post-`ori * mSym` vector and that `xs ./ mag` etc. are stored back.
 
 That's a real convention disagreement — most likely the Bunge convention
 or the sample reference frame. Use the diagnostic comparator to confirm
-it's systematic across all orientations, then the prior conversation
-in `Code_Review/coloring_schemes_vs_mtex.md` is a starting point.
+it's systematic across all orientations before going looking for the
+underlying convention mismatch.
