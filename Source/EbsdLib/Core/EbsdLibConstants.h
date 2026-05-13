@@ -190,9 +190,9 @@ enum class OEM : EnumType
  */
 enum class HexConvention : uint8_t
 {
-  NotApplicable = 0,
-  XParallelA = 1,
-  XParallelAStar = 2
+  XParallelA = 0,
+  XParallelAStar = 1,
+  NotApplicable = 2
 };
 
 /**
