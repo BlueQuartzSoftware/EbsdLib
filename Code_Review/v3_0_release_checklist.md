@@ -224,28 +224,34 @@ for external / 3rd-party callers; folded into the CHANGELOG work in Phase 4.
 Goal: external users (vcpkg consumers, fork maintainers) can read one file
 and know what changed and how to adapt.
 
-- [ ] **Update `Docs/Index.md`** (or wherever the project changelog lives)
-      with the v3.0.0 section. Sections:
-      - Breaking changes (removed API, changed signatures, enum shifts).
-      - New features (ColorKeyKind dispatch, HexConvention::NotApplicable,
-        gridded legend, per-class static color-key singletons).
-      - Bug fixes (PUCM thread race, NH SST boundary fixes if any).
-      - Migration recipes (from phase 3c).
-- [ ] **Cross-link the convention story.** Reference
-      `Code_Review/v3_phase0_design_notes.md §16` and
-      `Docs/x_parallel_a_star_convention.svg` from the release notes.
-- [ ] **API reference snapshot.** Doxygen / hand-written reference for the
-      new public LaueOps surface. Include `ColorKeyKind`, the
-      `computeIPFColor(eulers, refDir, deg, key)` helper now being public,
-      and the per-class `keyForKind` pattern (even though it's file-local,
-      explain it so users understand why instances are stateless).
-- [ ] **Mark which Apps changed.** `make_ipf`, `make_pole_figure`,
-      `generate_ipf_legends`, `render_ebsd` all took non-trivial edits.
-- [ ] **Tag the convention-dependent UI knobs.** For simplnx-side filters
-      (already done): `WritePoleFigureFilter` exposes `hex_convention_index`;
-      `ComputeIPFColorsFilter` and `ComputeFaceIPFColoringFilter` expose
-      `color_key_index`. Mention these in the release notes so dream3dnx
-      users find them.
+- [x] **`Docs/Index.md` v3.0.0 section.** Added: breaking changes
+      (signature changes + removed API + enum shifts + sym-op orbit
+      expansion + PNG-output format), new features (ColorKeyKind, PUCM,
+      gridded legends, render_ebsd CLI, IPF/PF config struct
+      hexConvention fields, cropped legends), bug fixes (PUCM thread
+      race, hexConvention drop in compositor, GriddedColorKey clamping
+      issues, 622 vertical-column bug), and three migration recipes
+      (folded in from 3c).
+- [x] **Convention cross-links.** New §"Hexagonal Cartesian Conventions"
+      in `Docs/Index.md` references `v3_phase0_design_notes.md §16` and
+      embeds `x_parallel_a_star_convention.svg`. Position-validation
+      `ReadMe.md` is also linked.
+- [x] **API reference snapshot.** New file
+      `Docs/v3_api_reference.md` documents `HexConvention`,
+      `ColorKeyKind`, the four changed `LaueOps` virtuals
+      (`generateIPFColor`, `generateRodriguesColor`,
+      `generateIPFTriangleLegend`, `generateSphereCoordsFromEulers`,
+      `getDefaultPoleFigureNames`), the now-public `computeIPFColor`
+      helper, the three configuration structs that gained
+      `hexConvention` fields, and the per-class file-local `keyForKind`
+      singleton pattern.
+- [x] **Apps that changed.** Documented in `Docs/Index.md` — table of
+      `make_ipf`, `make_pole_figure`, `generate_ipf_legends`,
+      `render_ebsd` (new), `generate_pole_figure`, `generate_ipf_from_file`.
+- [x] **simplnx UI knobs.** `WritePoleFigureFilter.hex_convention_index`,
+      `ComputeIPFColorsFilter.color_key_index`,
+      `ComputeFaceIPFColoringFilter.color_key_index` documented in the
+      simplnx UI integration section of `Docs/Index.md`.
 
 ---
 
