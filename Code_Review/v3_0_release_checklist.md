@@ -62,30 +62,42 @@ blocked.
 - [x] **Hypothesis check.** Same single byte mismatch (index 972772) across
       all 4 simplnx variants — exemplar drift, not a math bug.
 
-### 1b. Regenerate baselines
-
-For each failing exemplar set, regenerate against the v3 rendering pipeline,
-review, and re-upload to the Data_Archive release.
+### 1b. Regenerate baselines (and prune redundant byte-compare tests)
 
 - [x] **EbsdLib `Pole_Figure_Images.tar.gz` (used by
-      `PoleFigureCompositorTest::All_Laue_Classes`).** Regenerated and the
-      EbsdLib test is now green (commit `d930916`).
-- [ ] **simplnx `PoleFigure_Exemplars_v5.tar.gz` (used by
-      `WritePoleFigureTest`).** Still on v5 baseline; 4 tests still red.
-      - [ ] Regenerate via the test with `WRITE_EXEMPLAR_IMAGES=ON`.
-      - [ ] Diff a representative `_v5` vs `_v6` image visually.
-      - [ ] Tar + SHA512 + upload to the GitHub Data_Archive release.
-      - [ ] Update SHA512 + filename in
-            `simplnx/.../OrientationAnalysis/test/CMakeLists.txt`.
-- [ ] **Any other baseline archives that depend on EbsdLib rendering output**
-      (IPF legend reference TIFs, etc.) — grep for `_v\d+\.tar\.gz` across
-      both repos and audit each.
+      `PoleFigureCompositorTest::All_Laue_Classes`).** Regenerated; EbsdLib
+      test now green (commit `d930916`).
+- [x] **simplnx exemplar archive — rebuilt as `Pole_Figure_Exemplars_v6.tar.gz`
+      with a deliberately different test design.** The old `_v5` archive
+      drove four byte-compare tests (Discrete / Discrete-Masked / Color /
+      Color-Masked) that were re-running EbsdLib's own renderer at the
+      byte level — testing the wrong layer, since the simplnx filter is
+      mostly a parameter translator. Replaced with:
+      - One **mask-effectiveness test** (502 hex-Ti orientations, 251/251
+        mask): asserts the rendered RGB array differs by ≥1% bytes between
+        `use_mask=false` and `use_mask=true`. Catches a "mask ignored" bug
+        like the 12.ang trap.
+      - One **HexConvention plumbing test**: asserts the second-family
+        intensity array (hex `<10-10>`) differs between X||a and X||a*
+        renderings by ≥1% pixels. Catches a switch off-by-one in the
+        executeImpl HexConvention dispatch.
+      Both use the new `Pole_Figure_Exemplars_v6` archive. The archive is
+      tar.gz'd, SHA512'd, and wired into
+      `simplnx/.../OrientationAnalysis/test/CMakeLists.txt`.
+      Rationale (test pyramid): EbsdLib's `PoleFigureCompositorTest` owns
+      byte-level renderer reproducibility; the simplnx tests now cover
+      only what simplnx *adds* to EbsdLib — mask filtering + parameter
+      translation — so EbsdLib rendering drift no longer breaks simplnx CI.
+- [ ] **Any other baseline archives that depend on EbsdLib rendering
+      output** (IPF legend reference TIFs, etc.) — grep for `_v\d+\.tar\.gz`
+      across both repos and audit each.
 
 ### 1c. Verification gate
 
 - [x] **EbsdLib ctest clean.** `ctest -R "EbsdLib::"` — **380/380 pass.**
-- [ ] **simplnx OrientationAnalysis ctest clean.** Currently 160/164;
-      blocked on the simplnx-side exemplar regen above.
+- [x] **simplnx OrientationAnalysis ctest clean.** **161/161 pass.**
+      (Net -1 case: dropped 4 byte-compare WritePoleFigure tests, added
+      mask + HexConvention plumbing.)
 - [ ] **Document any tests intentionally skipped.** If something stays
       `[!shouldfail]` or `[.disabled]`, write why in the release notes.
 
