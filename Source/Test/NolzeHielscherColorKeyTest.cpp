@@ -406,6 +406,54 @@ TEST_CASE("ebsdlib::NolzeHielscherColorKey::ImpossibleMode_Triclinic", "[EbsdLib
     double brightness = (r + g + b) / 3.0;
     REQUIRE(brightness > 0.8);
   }
+
+  SECTION("Legend has non-uniform coloring (regression: triclinic was flat gray)")
+  {
+    // Before the polarCoordinates fix for empty-boundary sectors, every
+    // direction in triclinic returned radius=1.0, which mapped to a flat
+    // light gray (saturation=0, lightness=0.9). The earlier RGB-in-range
+    // and brightness>0.8 checks passed on that gray, so the regression
+    // shipped. This section asserts the legend is actually a legend --
+    // different directions in the SST produce different colors.
+
+    auto chroma = [](double r, double g, double b) { return std::max({r, g, b}) - std::min({r, g, b}); };
+
+    // Center [001] should be near-white (low chroma -- already covered above)
+    auto [rc, gc, bc] = nhKey.direction2Color({0.0, 0.0, 1.0});
+    REQUIRE(chroma(rc, gc, bc) < 0.1);
+
+    // Four cardinal equator directions should all be saturated and distinct
+    const std::array<std::array<double, 3>, 4> equatorDirs = {{
+        {1.0, 0.0, 0.0},  // [100], rho=0
+        {0.0, 1.0, 0.0},  // [010], rho=pi/2
+        {-1.0, 0.0, 0.0}, // [-100], rho=pi
+        {0.0, -1.0, 0.0}, // [0-10], rho=3pi/2
+    }};
+    std::array<std::array<double, 3>, 4> equatorColors{};
+    for(size_t k = 0; k < equatorDirs.size(); ++k)
+    {
+      const auto& dir = equatorDirs[k];
+      auto [r, g, b] = nhKey.direction2Color(dir);
+      INFO("Equator dir (" << dir[0] << "," << dir[1] << "," << dir[2] << ") -> rgb (" << r << "," << g << "," << b << ") chroma=" << chroma(r, g, b));
+      REQUIRE(chroma(r, g, b) > 0.3);
+      equatorColors[k] = {r, g, b};
+    }
+
+    // Each pair of cardinal equator colors should differ in at least one
+    // channel by >0.2 (i.e., they are visibly different hues).
+    for(size_t i = 0; i < equatorColors.size(); ++i)
+    {
+      for(size_t j = i + 1; j < equatorColors.size(); ++j)
+      {
+        double dr = std::abs(equatorColors[i][0] - equatorColors[j][0]);
+        double dg = std::abs(equatorColors[i][1] - equatorColors[j][1]);
+        double db = std::abs(equatorColors[i][2] - equatorColors[j][2]);
+        double maxDelta = std::max({dr, dg, db});
+        INFO("Pair (" << i << "," << j << ") max channel delta = " << maxDelta);
+        REQUIRE(maxDelta > 0.2);
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

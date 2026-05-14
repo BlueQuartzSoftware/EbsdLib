@@ -189,7 +189,14 @@ std::pair<double, double> FundamentalSectorGeometry::polarCoordinates(const Vec3
 
   if(std::isinf(radius))
   {
-    radius = 1.0;
+    // Empty m_BoundaryNormals -- triclinic case. The SST is the full upper
+    // hemisphere with no symmetry-imposed boundaries, so the for-loop above
+    // never ran. Derive radius from the polar angle from the barycenter
+    // ([001]) instead: radius=1 at center, 0 at the equator. Matches the
+    // convention the boundary-distance algorithm produces for other Laue
+    // classes (radius=1 at center, decreasing toward 0 at the boundary).
+    constexpr double k_PiOver2 = 1.5707963267948966;
+    radius = 1.0 - angleToCenter / k_PiOver2;
   }
   radius = std::clamp(radius, 0.0, 1.0);
 
