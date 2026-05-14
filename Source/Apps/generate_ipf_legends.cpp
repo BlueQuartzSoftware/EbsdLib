@@ -41,6 +41,70 @@ using namespace ebsdlib;
 // const std::string k_Output_Dir(ebsdlib::unit_test::DataDir + "/IPF_Legend/");
 const std::string k_Output_Dir(ebsdlib::unit_test::k_TestTempDir + "/IPF_Legend/");
 
+// Per-rotation-point-group SST crop region (as fractions of imageDim). The
+// per-class TSL smooth emission blocks below crop their imageDim x imageDim
+// canvases to tighter rectangles that fit the SST shape (e.g. hex 6/mmm gets
+// a wide-flat kite at 0.80 x 0.50). These same fractions are used by the
+// NH/PUCM emission loop above so PUCM/NH legend pixel dimensions match the
+// TSL legends class-by-class.
+//
+// Classes that omit a crop (432 cubic m-3m, 23 cubic m-3, 1 triclinic) have
+// SSTs whose bounding rectangle already fills the imageDim x imageDim canvas
+// at the layout the renderer uses, so no crop is necessary.
+struct SstCropRect
+{
+  float xFrac;
+  float yFrac;
+  float wFrac;
+  float hFrac;
+};
+
+bool sstSmoothCropFor(const std::string& rotationPointGroup, SstCropRect& out)
+{
+  if(rotationPointGroup == "622") // Hexagonal 6/mmm
+  {
+    out = {0.10F, 0.00F, 0.80F, 0.50F};
+    return true;
+  }
+  if(rotationPointGroup == "6") // Hexagonal 6/m
+  {
+    out = {0.10F, 0.00F, 0.70F, 0.50F};
+    return true;
+  }
+  if(rotationPointGroup == "32") // Trigonal -3m
+  {
+    out = {0.05F, 0.00F, 0.75F, 0.65F};
+    return true;
+  }
+  if(rotationPointGroup == "3") // Trigonal -3
+  {
+    out = {0.00F, 0.00F, 0.90F, 0.65F};
+    return true;
+  }
+  if(rotationPointGroup == "422") // Tetragonal 4/mmm
+  {
+    out = {0.10F, 0.00F, 0.78F, 0.60F};
+    return true;
+  }
+  if(rotationPointGroup == "4") // Tetragonal 4/m
+  {
+    out = {0.10F, 0.00F, 0.70F, 0.60F};
+    return true;
+  }
+  if(rotationPointGroup == "222") // OrthoRhombic mmm
+  {
+    out = {0.10F, 0.00F, 0.78F, 0.60F};
+    return true;
+  }
+  if(rotationPointGroup == "2") // Monoclinic 2/m
+  {
+    out = {0.00F, 0.00F, 1.00F, 0.60F};
+    return true;
+  }
+  // 432, 23, 1: no crop
+  return false;
+}
+
 using EbsdDoubleArrayType = EbsdDataArray<float>;
 using EbsdDoubleArrayPointerType = EbsdDoubleArrayType::Pointer;
 using OCType = OrientationConverter<ebsdlib::DoubleArrayType, float>;
@@ -365,12 +429,26 @@ void GenerateNolzeHielscherLegends(int imageDim)
     auto result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Full Result: " << result.first << ": " << result.second << std::endl;
 
-    // Generate triangle-only NH legend
+    // Generate triangle-only NH legend, cropped per-class to match the TSL
+    // smooth output dimensions (see sstSmoothCropFor() at the top of this file).
     legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::NolzeHielscher, /*gridded=*/false);
-    ss.str("");
-    ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH.png";
-    result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
-    std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
+    {
+      SstCropRect crop{};
+      int outW = imageDim;
+      int outH = imageDim;
+      if(sstSmoothCropFor(ops.getRotationPointGroup(), crop))
+      {
+        const int xStart = static_cast<int>(imageDim * crop.xFrac);
+        const int yStart = static_cast<int>(imageDim * crop.yFrac);
+        outW = static_cast<int>(imageDim * crop.wFrac);
+        outH = static_cast<int>(imageDim * crop.hFrac);
+        legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, outW, outH);
+      }
+      ss.str("");
+      ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH.png";
+      result = PngWriter::WriteColorImage(ss.str(), outW, outH, 3, legend->getPointer(0));
+      std::cout << ops.getSymmetryName() << " NH Triangle Result: " << result.first << ": " << result.second << std::endl;
+    }
 
     // Generate gridded NH legends (MTEX-style flat shading, 2000x2000)
     constexpr int k_GriddedImageDim = 2000;
@@ -385,6 +463,49 @@ void GenerateNolzeHielscherLegends(int imageDim)
     ss << k_Output_Dir << "/" << symName << "/" << symName << "_NH_GRIDDED.png";
     result = PngWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
     std::cout << ops.getSymmetryName() << " NH Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
+
+    // PUCM (Nolze 2017 perceptually uniform color mapping): 4 variants per
+    // Laue class (full + triangle) x (smooth + gridded). Mirrors the NH
+    // block above. Validation is internal-only; MTEX does not ship a PUCM
+    // key, so there's no external apples-to-apples reference. The Edax
+    // exemplars at /Users/Shared/Data/Edax_IPF_Test/IPF\ PUCM.bmp are the
+    // only third-party PUCM reference we know of.
+    legend = ops.generateIPFTriangleLegend(imageDim, true, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/false);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_PUCM_FULL.png";
+    result = PngWriter::WriteColorImage(ss.str(), imageDim, imageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " PUCM Full Result: " << result.first << ": " << result.second << std::endl;
+
+    legend = ops.generateIPFTriangleLegend(imageDim, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/false);
+    {
+      SstCropRect crop{};
+      int outW = imageDim;
+      int outH = imageDim;
+      if(sstSmoothCropFor(ops.getRotationPointGroup(), crop))
+      {
+        const int xStart = static_cast<int>(imageDim * crop.xFrac);
+        const int yStart = static_cast<int>(imageDim * crop.yFrac);
+        outW = static_cast<int>(imageDim * crop.wFrac);
+        outH = static_cast<int>(imageDim * crop.hFrac);
+        legend = ebsdlib::CropRGBImage<uint8_t>(legend, imageDim, imageDim, xStart, yStart, outW, outH);
+      }
+      ss.str("");
+      ss << k_Output_Dir << "/" << symName << "/" << symName << "_PUCM.png";
+      result = PngWriter::WriteColorImage(ss.str(), outW, outH, 3, legend->getPointer(0));
+      std::cout << ops.getSymmetryName() << " PUCM Triangle Result: " << result.first << ": " << result.second << std::endl;
+    }
+
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, true, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/true);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_PUCM_GRIDDED_FULL.png";
+    result = PngWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " PUCM Gridded Full Result: " << result.first << ": " << result.second << std::endl;
+
+    legend = ops.generateIPFTriangleLegend(k_GriddedImageDim, false, ebsdlib::HexConvention::XParallelAStar, ebsdlib::ColorKeyKind::PUCM, /*gridded=*/true);
+    ss.str("");
+    ss << k_Output_Dir << "/" << symName << "/" << symName << "_PUCM_GRIDDED.png";
+    result = PngWriter::WriteColorImage(ss.str(), k_GriddedImageDim, k_GriddedImageDim, 3, legend->getPointer(0));
+    std::cout << ops.getSymmetryName() << " PUCM Gridded Triangle Result: " << result.first << ": " << result.second << std::endl;
   }
 }
 
