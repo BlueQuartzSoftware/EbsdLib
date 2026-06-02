@@ -38,6 +38,7 @@ debug
 Test/ProjectTest/Build
 CMakeUserPresets.json
 .claude
+Docs/superpowers
 
 # Python build-related files
 pyebsd/build/
