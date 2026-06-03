@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 
 using namespace ebsdlib;
 

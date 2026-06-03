@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
+#include "EbsdLib/Math/EbsdLibMath.h"
 
 #include <cmath>
 
@@ -88,7 +89,7 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::PolarCoordinates", "[EbsdLib][Fun
     Vec3 interior = normalize({0.3, 0.1, 1.0});
     auto [radius, rho] = sector.polarCoordinates(interior);
     REQUIRE(rho >= 0.0);
-    REQUIRE(rho < 2.0 * M_PI);
+    REQUIRE(rho < ebsdlib::constants::k_2PiD);
   }
 }
 
@@ -166,7 +167,7 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::CorrectAzimuthalAngle", "[EbsdLib
   {
     // The corrected angle should increase monotonically with input angle
     double prev = 0.0;
-    for(double rho = 0.01; rho < 2.0 * M_PI - 0.01; rho += 0.05)
+    for(double rho = 0.01; rho < ebsdlib::constants::k_2PiD - 0.01; rho += 0.05)
     {
       double corrected = sector.correctAzimuthalAngle(rho);
       REQUIRE(corrected >= prev - 0.01); // monotonic (with small tolerance)
@@ -178,7 +179,7 @@ TEST_CASE("ebsdlib::FundamentalSectorGeometry::CorrectAzimuthalAngle", "[EbsdLib
   {
     double corrected = sector.correctAzimuthalAngle(-0.5);
     REQUIRE(corrected >= 0.0);
-    REQUIRE(corrected < 2.0 * M_PI + 0.01);
+    REQUIRE(corrected < ebsdlib::constants::k_2PiD + 0.01);
   }
 }
 
