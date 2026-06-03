@@ -330,23 +330,23 @@ void dihedralToHemi(T const* const n, T& theta, T& rho)
     for(size_t i = 0; i < omega.size() - 1; i++)
     {
       // create vector normal to center at angle irho[i]
-      T n[3];
+      T nn[3];
       T sn = std::sin(Constants<T>::pi2 * irho[i]);
       T cs = std::cos(Constants<T>::pi2 * irho[i]);
-      std::transform(rx, rx + 3, ry, n, [sn, cs](T i, T j) { return i * sn - j * cs; });
+      std::transform(rx, rx + 3, ry, nn, [sn, cs](T i, T j) { return i * sn - j * cs; });
 
       if(irho[i] < rhoG)
       { // bottom is closest edge (+y cutting plane)
-        omega[i + 1] = std::acos((n[2] * center[0] - n[0] * center[2]) / std::hypot(n[0], n[2]));
+        omega[i + 1] = std::acos((nn[2] * center[0] - nn[0] * center[2]) / std::hypot(nn[0], nn[2]));
       }
       else if(irho[i] < rhoB)
       { // right is cosest edge (+z cutting plane)
-        omega[i + 1] = std::acos((-n[1] * center[0] + n[0] * center[1]) / std::hypot(n[1], n[0]));
+        omega[i + 1] = std::acos((-nn[1] * center[0] + nn[0] * center[1]) / std::hypot(nn[1], nn[0]));
       }
       else
       {
         T normxn[3];
-        cross(normals[2], n, normxn);
+        cross(normals[2], nn, normxn);
         T mag = std::sqrt(std::inner_product(normxn, normxn + 3, normxn, T(0)));
         omega[i + 1] = std::acos(std::inner_product(normxn, normxn + 3, center, T(0)) / mag);
       }
@@ -401,25 +401,25 @@ void cubicToHemi(T const* const n, T& theta, T& rho)
     for(size_t i = 0; i < omega.size() - 1; i++)
     {
       // create vector normal to center at angle irho[i]
-      T n[3];
+      T nn[3];
       T s = std::sin(Constants<T>::pi2 * irho[i]);
       T c = std::cos(Constants<T>::pi2 * irho[i]);
-      std::transform(rx, rx + 3, ry, n, [s, c](T i, T j) { return i * s - j * c; });
+      std::transform(rx, rx + 3, ry, nn, [s, c](T i, T j) { return i * s - j * c; });
 
       if(irho[i] < rhoG)
       { // bottom is closest edge
-        T mag = std::hypot(n[2], n[0]);
-        omega[i + 1] = std::acos((center[0] * n[2] - center[2] * n[0]) / mag);
+        T mag = std::hypot(nn[2], nn[0]);
+        omega[i + 1] = std::acos((center[0] * nn[2] - center[2] * nn[0]) / mag);
       }
       else if(irho[i] < rhoB)
       { // right is cosest edge)
-        T mag = std::hypot(n[1], (n[0] + n[2]) / Constants<T>::r2) * Constants<T>::r2;
-        omega[i + 1] = std::acos(-((center[0] + center[2]) * n[1] - center[1] * (n[0] + n[2])) / mag);
+        T mag = std::hypot(nn[1], (nn[0] + nn[2]) / Constants<T>::r2) * Constants<T>::r2;
+        omega[i + 1] = std::acos(-((center[0] + center[2]) * nn[1] - center[1] * (nn[0] + nn[2])) / mag);
       }
       else
       { // left is closest edge
-        T mag = std::hypot(n[2], (n[1] + n[0]) / Constants<T>::r2) * Constants<T>::r2;
-        omega[i + 1] = std::acos(-((center[1] + center[0]) * n[2] - center[2] * (n[1] + n[0])) / mag);
+        T mag = std::hypot(nn[2], (nn[1] + nn[0]) / Constants<T>::r2) * Constants<T>::r2;
+        omega[i + 1] = std::acos(-((center[1] + center[0]) * nn[2] - center[2] * (nn[1] + nn[0])) / mag);
       }
     }
 
