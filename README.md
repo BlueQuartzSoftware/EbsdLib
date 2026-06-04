@@ -1,16 +1,112 @@
-# EbsdLib #
+<h1 align="center">EbsdLib</h1>
 
-EBSDLib is a C++ Library that can read EBSD Files from OEMs and perform basic EBSD processing such as orientation conversion and IPF Color generation. Another important aspect of the 
-library is to be able to convert between the seven orientation representations that
-are typically used through out materials science and engineering domains.
+<p align="center">
+  <b>A modern C++20 library for reading, processing, and visualizing Electron Backscatter Diffraction (EBSD) data.</b>
+</p>
 
-The [DREAM.3D](https://dream3d.bluequartz.net) project and [DREAM3D-NX](https://www.dream3d.io) uses this library for all the EBSD processing.
+<p align="center">
+  <a href="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/windows.yml"><img alt="Windows" src="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/windows.yml/badge.svg"></a>
+  <a href="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/linux.yml"><img alt="Linux" src="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/linux.yml/badge.svg"></a>
+  <a href="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/macos.yml"><img alt="macOS" src="https://github.com/BlueQuartzSoftware/EbsdLib/actions/workflows/macos.yml/badge.svg"></a>
+  <br>
+  <img alt="C++20" src="https://img.shields.io/badge/C%2B%2B-20-blue.svg">
+  <img alt="Version" src="https://img.shields.io/badge/release-3.0-brightgreen.svg">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-BSD--3--Clause-orange.svg"></a>
+</p>
+
+---
+
+EbsdLib reads EBSD files from all major OEM instruments and performs the core
+crystallographic processing used throughout materials science:
+conversion between the seven orientation representations, Laue-class–aware
+fundamental-zone reduction, **Inverse Pole Figure (IPF) coloring**,
+**IPF color-key legends**, and **pole figure** generation.
+
+It is the crystallographic engine behind the
+[DREAM.3D](https://dream3d.bluequartz.net) and
+[DREAM3D-NX](https://www.dream3d.io) projects.
+
+## Features
+
+- **Read every major OEM format** — EDAX/AMETEK (`.ang`, HDF5), Oxford Instruments (`.ctf`, `.h5oina`), and Bruker (HDF5).
+- **All 32 crystallographic point groups**, dispatched through the 11 Laue classes.
+- **Seven orientation representations** with direct, mathematically exact conversions between them.
+- **IPF color maps** rendered directly from a scan, with three selectable color keys — **TSL** (EDAX/AMETEK), **PUCM** (Perceptual unique-color mapping), and **Nolze–Hielscher** (MTEX-compatible HSV).
+- **Publication-ready IPF legends** for every Laue class, in standard or gridded styles.
+- **Composite pole figures** with color-intensity rendering, RD/TD framing, and a quantitative intensity scale.
+- **MTEX-validated** pole figure positions — agreement to better than 1×10⁻⁷ across all Laue classes (see below).
+- **Lean dependencies** — the core requires only Eigen; HDF5 and Qt are optional, enabled when you need the file readers or GUI integration.
+- A suite of **command-line tools** (`render_ebsd`, `make_ipf`, `make_pole_figure`, `generate_ipf_legends`, …) that double as worked examples.
+
+## 🎨 IPF Color Maps & Pole Figures
+
+A single scan, processed end-to-end — the IPF orientation map and its pole
+figures, both produced by EbsdLib from the same Ni-superalloy `.ctf` file
+(a cube-textured cubic *m*3̄*m* microstructure):
+
+<table>
+  <tr>
+    <td align="center" width="46%">
+      <img src="Docs/readme_images/ipf_map_ni_superalloy.jpg" width="100%"><br>
+      <sub><b>IPF orientation map</b> · reference direction Z, TSL color key</sub>
+    </td>
+    <td align="center" width="54%">
+      <img src="Docs/readme_images/example_pole_figure/Phase_1.png" width="100%"><br>
+      <sub><b>Composite pole figure</b> · (001), (011), (111) with intensity scale</sub>
+    </td>
+  </tr>
+</table>
+
+## IPF Color Keys
+
+Every Laue class ships with a labeled standard-stereographic-triangle legend.
+EbsdLib provides three independent color keys so output can match whichever
+convention your downstream tools expect:
+
+<table>
+  <tr>
+    <td align="center"><img src="Docs/readme_images/ipf_legend_cubic_tsl.png" width="240"></td>
+    <td align="center"><img src="Docs/readme_images/ipf_legend_cubic_nh.png" width="240"></td>
+    <td align="center"><img src="Docs/readme_images/ipf_legend_cubic_pucm.png" width="240"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>TSL</b> — EDAX/AMETEK OIM</sub></td>
+    <td align="center"><sub><b>Nolze–Hielscher</b> — MTEX-compatible HSV</sub></td>
+    <td align="center"><sub><b>PUCM</b> — Perceptual unique-color mapping</sub></td>
+  </tr>
+</table>
+
+Legends are available for all 11 Laue classes — hexagonal, for example:
+
+<p align="center">
+  <img src="Docs/readme_images/ipf_legend_hexagonal.png" width="360">
+</p>
+
+> Pre-made IPF legends for every Laue class are also checked in under [`Data/IPF_Legend`](Data/IPF_Legend).
+
+## MTEX Compatibility
+
+EbsdLib's pole figure mathematics are validated directly against
+[MTEX](https://mtex-toolbox.github.io/)
+
+- **Pole figure positions** are checked against MTEX 6.1.0 goldens across every
+  Laue class × canonical orientation × plane family × Cartesian convention.
+  All **396 / 396** test buckets agree, with a worst-case point deviation of
+  **6.29 × 10⁻⁸** over 1,752 emitted poles.
+- The **Nolze–Hielscher** color key reproduces MTEX's default `ipfHSVKey`
+  coloring, so IPF maps can be compared 1:1 with an MTEX workflow.
+- Both the **X‖a** and **X‖a\*** hexagonal/trigonal Cartesian conventions are
+  supported and selectable — see [`Docs/Index.md`](Docs/Index.md) for the
+  convention notes and the
+  [`x_parallel_a_star_convention.svg`](Docs/x_parallel_a_star_convention.svg) diagram.
 
 ## Supported EBSD OEM Data Files
 
-+ EDAX/AMETEK: .ang and HDF5 based file formats
-+ Oxford Instruments: .ctf and .h5oina file formats
-+ Bruker: HDF5 based file format
+| Vendor | Formats |
+|--------|---------|
+| EDAX / AMETEK | `.ang`, HDF5-based |
+| Oxford Instruments | `.ctf`, `.h5oina` |
+| Bruker | HDF5-based |
 
 Please have a look at the unit tests for examples on using the various readers.
 
@@ -51,6 +147,11 @@ Please have a look at the unit tests for examples on using the various readers.
 | 31          | (\bar{4}3m) | 23                   | 215–220            | T(_d)         | Cubic          | m(\bar{3})m |                  |
 | 32          | m(\bar{3})m | 432                  | 221–230            | O(_h)         | Cubic          | m(\bar{3})m | CubicOps         |
 
+Each Laue class is exposed as a `LaueOps` subclass that performs class-specific
+calculations, including the generation of IPF colors. Note that each vendor uses
+a slightly different coloring algorithm; the default TSL key aligns with
+AMETEK/EDAX output, and the PUCM and Nolze–Hielscher keys are available as
+alternatives.
 
 ## Orientation Transformations
 
@@ -65,62 +166,73 @@ Please have a look at the unit tests for examples on using the various readers.
 | Cubochoric         | hao   | ha                 | h          | ha        | ha         | X          | --         | q             |
 | Stereographic      | a     | a                  | X          | X         | a          | X          | hc         | --            |
 
-**LEGEND**: X = Direct mathematical conversion between the representations
-lower case letters denote the conversion uses other more basic conversions. For
-example to go from Euler->Homochoric the conversion process calls the Euler->AxisAngle->OrientationMatrix->Homochoric functions.
+**LEGEND**: `X` = a direct mathematical conversion between the two representations.
+Lower-case letters denote a conversion that is composed from more basic conversions.
+For example, Euler → Homochoric internally calls
+Euler → AxisAngle → OrientationMatrix → Homochoric.
 
-In addition to the Orientation class there are also classes that represent
-the 11 Laue classes that allow a user to perform Laue class specific calculations
-including the generation of an IPF Color which is a prevalent visualization scheme within
-the EBSD community. Note that each vendor has slightly different algorithms and this
-library has selected to align with the AMETEK/EDAX output.
+## Conventions
 
-The folder Data/IPF_Legend has premade IPF Legends for all the Laue classes.
+- **Quaternions** are organized Vector–Scalar `(X, Y, Z, W)` by default. If your
+  quaternions are laid out Scalar–Vector `(W, X, Y, Z)`, reorder them before use.
+- **Rotations** are **passive** by convention.
 
-## Quaternion Convention
+## Dependencies
 
-Please also note that by default EbsdLib organizes Quaternions as Vector-Scalar (X,Y,Z,W). If your quaternions
-are laid out as Scalar-Vector (w,x,y,z) you will need to reorder your data before
-using this library.
+**Required**
 
-## Dependent Libraries
+- [Eigen](https://eigen.tuxfamily.org) 3.4
 
-EbsdLib is dependent on:
+**Optional**
 
-+ Eigen 3.4
+- HDF5 1.10.4 (only required for the HDF5-based file readers/writers)
 
-
-## Optional Libraries
-
-+ HDF5 1.10.4 (HDF5 is optional only if you want the HDF5 functionality)
-+ Qt5 5.15.x (minimum: Optional)
-
-## Rotation Convention
-
-By convention this library uses **Passive** rotations
-
-## Citations
-
-D Rowenhorst, A D Rollett, G S Rohrer, M Groeber, M Jackson, P J Konijnenberg and M De Graef  _et al_ 2015 _Modelling Simul. Mater. Sci. Eng._ **23** 083501
-
-[DOI: https://doi.org/10.1088/0965-0393/23/8/083501](https://doi.org/10.1088/0965-0393/23/8/083501)
+EbsdLib uses [vcpkg](https://vcpkg.io) for dependency management and a
+CMake-based build system.
 
 ## Examples
 
-If you want to transform an Euler angle into any other representation the following works:
+Transform an Euler angle into any of the other six representations:
 
-```
-// Note use of Radians for angles
+```cpp
+// Note: angles are in radians
 ebsdlib::EulerDType euler(0.707, 1.23, 0.45);
-OrientationMatrix om = euler.toOrientationMatrix();
-AxisAngle ax = euler.toAxisAngle();
-Rodrigues rod = euler.toRodrigues();
-Quaternion quat = euler.toQuaternion();
-Homochoric ho = euler.toHomochoric();
-Cubochoric cu = euler.toCubochoric();
-Stereographic stereo = euler.toStereographic();
 
-// To print out any representation, just use the C++ std::out or std::ostream
+OrientationMatrix om     = euler.toOrientationMatrix();
+AxisAngle      ax        = euler.toAxisAngle();
+Rodrigues      rod       = euler.toRodrigues();
+Quaternion     quat      = euler.toQuaternion();
+Homochoric     ho        = euler.toHomochoric();
+Cubochoric     cu        = euler.toCubochoric();
+Stereographic  stereo    = euler.toStereographic();
+
+// Any representation streams to std::ostream
 std::cout << euler << std::endl;
-
 ```
+
+Render a full IPF map, pole figure, and legend from a scan with the bundled CLI:
+
+```bash
+render_ebsd  my_scan.ang  ./output  --color-key tsl  --ref-dir 0,0,1
+```
+
+The images at the top of this README were produced with exactly this tool.
+
+## Citation
+
+> D. Rowenhorst, A. D. Rollett, G. S. Rohrer, M. Groeber, M. Jackson,
+> P. J. Konijnenberg and M. De Graef *et al* 2015
+> *Modelling Simul. Mater. Sci. Eng.* **23** 083501
+>
+> DOI: [10.1088/0965-0393/23/8/083501](https://doi.org/10.1088/0965-0393/23/8/083501)
+
+## License
+
+EbsdLib is distributed under the BSD 3-Clause License. See [LICENSE](LICENSE) for details.
+
+## Other Open-Source Projects
+
+EbsdLib incorporates a few other open-source projects directly into its own source code:
+
+- [https://github.com/a-e-k/canvas_ity](https://github.com/a-e-k/canvas_ity)
+- [https://github.com/wlenthe/crystallography](https://github.com/wlenthe/crystallography)
