@@ -115,7 +115,7 @@ function(ebsdlib_download_test_data)
     return()
   endif()
 
-  get_property(FETCH_FILE_PATH GLOBAL PROPERTY FETCH_FILE_PATH)
+  get_property(EBSD_FETCH_FILE_PATH GLOBAL PROPERTY EBSD_FETCH_FILE_PATH)
 
   get_filename_component(archive_base_name ${ARGS_ARCHIVE_NAME} NAME_WE)
   file(TO_CMAKE_PATH "${EbsdLibProj_BINARY_DIR}/TestFiles" test_files_dir)
@@ -138,9 +138,9 @@ function(ebsdlib_download_test_data)
   #----------------------------------------------------------------------------
   # This section will sequentially number the downloads
   #----------------------------------------------------------------------------
-  get_property(FETCH_FILE_INDEX GLOBAL PROPERTY FETCH_FILE_INDEX)
-  math(EXPR FETCH_FILE_INDEX "${FETCH_FILE_INDEX} + 1")
-  set_property(GLOBAL PROPERTY FETCH_FILE_INDEX ${FETCH_FILE_INDEX})
+  get_property(EBSD_FETCH_FILE_INDEX GLOBAL PROPERTY EBSD_FETCH_FILE_INDEX)
+  math(EXPR EBSD_FETCH_FILE_INDEX "${EBSD_FETCH_FILE_INDEX} + 1")
+  set_property(GLOBAL PROPERTY EBSD_FETCH_FILE_INDEX ${EBSD_FETCH_FILE_INDEX})
 
   #----------------------------------------------------------------------------
   # This section configures the bit of CMake code for the specific data file
@@ -153,7 +153,7 @@ function(ebsdlib_download_test_data)
   # Read the file back into a string 
   file(READ "${fetch_data_file}" FETCH_FILE_CONTENTS)
   # Append the string to the master file
-  file(APPEND "${FETCH_FILE_PATH}" "${FETCH_FILE_CONTENTS}")
+  file(APPEND "${EBSD_FETCH_FILE_PATH}" "${FETCH_FILE_CONTENTS}")
   file(REMOVE "${fetch_data_file}") # Remove the temporary file
 
   #-----

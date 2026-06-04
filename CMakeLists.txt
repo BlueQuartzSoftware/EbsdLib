@@ -186,10 +186,10 @@ file(TO_CMAKE_PATH "${EBSDLIB_DATA_DIR}" EBSDLIB_DATA_DIR_NORM)
 # files, test data files, pipelines into a single cmake file that gets
 # generated. This reduces the many copy targets to a single target.
 # -----------------------------------------------------------------------
-set_property(GLOBAL PROPERTY FETCH_FILE_INDEX 0)
-set(FETCH_FILE_PATH "${EbsdLibProj_BINARY_DIR}/EbsdLibProj_fetch_remote_files.cmake")
-set_property(GLOBAL PROPERTY FETCH_FILE_PATH "${FETCH_FILE_PATH}")
-file(WRITE ${FETCH_FILE_PATH} "# -----------------------------------------------------------------------
+set_property(GLOBAL PROPERTY EBSD_FETCH_FILE_INDEX 0)
+set(EBSD_FETCH_FILE_PATH "${EbsdLibProj_BINARY_DIR}/EbsdLibProj_fetch_remote_files.cmake")
+set_property(GLOBAL PROPERTY EBSD_FETCH_FILE_PATH "${EBSD_FETCH_FILE_PATH}")
+file(WRITE ${EBSD_FETCH_FILE_PATH} "# -----------------------------------------------------------------------
 # This file is programmatically generated from the CMake file ${CMAKE_CURRENT_LIST_FILE}
 # This file has the commands to download each of the test files.
 # The WORKING_DIRECTORY is set to the following CMake code:
@@ -210,7 +210,7 @@ set(LOG_FILE \"${EbsdLibProj_BINARY_DIR}/EbsdLibProj_fetch_remote_files.log\")\n
 FILE(WRITE \"\${LOG_FILE}\" \"Featch File Log Start\n\")\n
 ")
 
-message(STATUS "FETCH_FILE_PATH: ${FETCH_FILE_PATH}")
+message(STATUS "EBSD_FETCH_FILE_PATH: ${EBSD_FETCH_FILE_PATH}")
 
 set(TEST_WORKING_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -219,7 +219,7 @@ endif()
 
 if(EBSDLIB_DOWNLOAD_TEST_FILES)
   add_custom_target(EbsdLib_Fetch_Remote_Data_Files ALL
-    COMMAND "${CMAKE_COMMAND}" -DCMAKE_CONFIG=$<CONFIG> -P "${FETCH_FILE_PATH}"
+    COMMAND "${CMAKE_COMMAND}" -DCMAKE_CONFIG=$<CONFIG> -P "${EBSD_FETCH_FILE_PATH}"
     COMMENT "Downloading EbsdLib Test Data Files"
   #  WORKING_DIRECTORY "${TEST_WORKING_DIR}"
   )
