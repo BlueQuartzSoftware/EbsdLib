@@ -119,6 +119,16 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::ConfigDefaults", "[EbsdLib][PoleFi
 
 #define WRITE_EXEMPLAR_IMAGES 0
 
+// Maximum fraction of image bytes that may differ from the exemplar by more than
+// the +/-1 per-byte tolerance below. The pole-figure raster is not bit-reproducible
+// across compilers/platforms: MSVC, Clang and GCC differ in the last ULP of the
+// transcendental functions used in the quat->Euler step and the canvas_ity render
+// pipeline (see the file header comment), and where such a value straddles one of
+// the numColors color-bin boundaries a single pixel snaps to an adjacent bin and its
+// byte jumps well past +/-1. These are isolated boundary pixels (observed <0.06% of
+// bytes on MSVC); a genuine rendering regression moves orders of magnitude more.
+constexpr double k_PixelMismatchTolerance = 0.005; // 0.5%
+
 void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t exemplarFileId)
 {
   constexpr size_t k_NumSamplingGroups = 8;
@@ -222,7 +232,13 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
           misMatchCount++;
         }
       }
-      REQUIRE(misMatchCount == 0);
+      const double misMatchFraction = static_cast<double>(misMatchCount) / static_cast<double>(exemplarData.size());
+      if(misMatchCount > 0)
+      {
+        std::cout << phaseName << " [" << datasetName << "]: byte mismatches (>1) = " << misMatchCount << " / " << exemplarData.size() << " (" << std::setprecision(4)
+                  << (misMatchFraction * 100.0) << "%)" << std::endl;
+      }
+      REQUIRE(misMatchFraction <= k_PixelMismatchTolerance);
 #endif
     }
   }
