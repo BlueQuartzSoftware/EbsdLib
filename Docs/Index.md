@@ -1,6 +1,6 @@
 # Various Bits of Documentation for EbsdLib
 
-EbsdLib is primarily used in the [DREAM3D](https://www.dream3d.io) family of applications and libraries.
+EbsdLib is primarily used in the [DREAM3D](https://www.bluequartz.net) family of applications and libraries.
 
 ## Rotation Point Groups
 

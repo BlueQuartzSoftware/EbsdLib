@@ -24,7 +24,7 @@ fundamental-zone reduction, **Inverse Pole Figure (IPF) coloring**,
 
 It is the crystallographic engine behind the
 [DREAM.3D](https://dream3d.bluequartz.net) and
-[DREAM3D-NX](https://www.dream3d.io) projects.
+[DREAM3D-NX](https://www.bluequartz.net) projects.
 
 ## Features
 
