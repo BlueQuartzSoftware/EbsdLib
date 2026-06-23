@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
     config.title = pd.phaseName + " (" + op->getSymmetryName() + ")";
 
     auto pfNames = op->getDefaultPoleFigureNames(config.hexConvention);
-    config.labels = {pfNames[0], pfNames[1], pfNames[2]};
+    config.poleFigureNames = {pfNames[0], pfNames[1], pfNames[2]};
     config.order = {0, 1, 2};
 
     std::cout << std::endl;

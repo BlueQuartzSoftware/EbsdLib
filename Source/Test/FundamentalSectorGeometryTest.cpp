@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 
-#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Utilities/FundamentalSectorGeometry.hpp"
 
 #include <cmath>
 

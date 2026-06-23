@@ -63,20 +63,21 @@ namespace ebsdlib
  */
 struct PoleFigureConfiguration_t
 {
-  ebsdlib::FloatArrayType* eulers; ///<* The Euler Angles (in Radians) to use for the pole figure
-  int imageDim;                    ///<* The height/width of the generated pole figure
-  int lambertDim;                  ///<* The dimensions in voxels of the Lambert Square used for interpolation
-  int numColors;                   ///<* The number of colors to use in the Pole figure
-  double minScale;                 ///<* The minimum scale of the Pole Figure
-  double maxScale;                 ///<* The maximum scale of the Pole Figure
-  float sphereRadius;              ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
-  bool discrete;                   ///<* Should the Pole Figure be generated as a discrete plot
-  bool discreteHeatMap;            ///<* Should the discrete be colored via a heat map style coloring
-  std::string colorMap;            ///<* Name of the ColorMap to use
-  std::vector<std::string> labels; ///<* The labels for each of the 3 Pole Figures
-  std::vector<unsigned int> order; ///<* The order that the pole figures should appear in.
-  std::string phaseName;           ///<* The Names of the phase
-  bool FlipFinalImage;             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+  ebsdlib::FloatArrayType* eulers;                         ///<* The Euler Angles (in Radians) to use for the pole figure
+  int imageDim;                                            ///<* The height/width of the generated pole figure
+  int lambertDim;                                          ///<* The dimensions in voxels of the Lambert Square used for interpolation
+  int numColors;                                           ///<* The number of colors to use in the Pole figure
+  double minScale;                                         ///<* The minimum scale of the Pole Figure
+  double maxScale;                                         ///<* The maximum scale of the Pole Figure
+  float sphereRadius;                                      ///<* The radius of the Sphere to compute XYZ coords. Should ALWAYS be 1.0
+  bool discrete;                                           ///<* Should the Pole Figure be generated as a discrete plot
+  bool discreteHeatMap;                                    ///<* Should the discrete be colored via a heat map style coloring
+  std::string colorMap;                                    ///<* Name of the ColorMap to use
+  std::vector<std::string> labels;                         ///<* The labels for each of the 3 Pole Figures
+  std::vector<unsigned int> order;                         ///<* The order that the pole figures should appear in.
+  std::string phaseName;                                   ///<* The Names of the phase
+  bool flipFinalImage = false;                             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+  std::vector<std::string> axisNames = {"A1", "A2", "A3"}; ///< The string to use for each axis of the pole figure
 
   ///<* Cartesian basis convention for hex/trig phases. Default preserves
   /// current EbsdLib v3 behavior (X||a*) while plumbing is being added;

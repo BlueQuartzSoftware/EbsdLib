@@ -2,8 +2,10 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include <cmath>
+#include <string>
 #include <vector>
 
 using namespace ebsdlib;
@@ -34,6 +36,69 @@ TEST_CASE("ebsdlib::CanvasUtilitiesTest::MirrorImage", "[EbsdLib][CanvasUtilitie
   uint8_t* bottomPixel = result->getTuplePointer((dim - 1) * dim);
   REQUIRE(bottomPixel[0] == 255); // R
   REQUIRE(bottomPixel[2] == 0);   // B
+}
+
+// -----------------------------------------------------------------------------
+// Pins down EXACTLY what MirrorImage() does to known pixel data. This is the
+// "rotate 180 degrees about the horizontal (X) axis" operation used by
+// PoleFigureCompositor when flipFinalImage is set.
+//
+// Each source pixel encodes its own coordinates: R = x (column), G = y (row).
+// After the transform we read each destination pixel and recover which source
+// pixel landed there. A 180-degree rotation about the X axis is a vertical
+// flip: column x is preserved, row y is reversed (y -> dim-1-y).
+//
+//   For comparison, the alternatives this test distinguishes:
+//     * vertical flip   (about X):  dest(x,y) == src(x, dim-1-y)   <-- expected
+//     * horizontal flip (about Y):  dest(x,y) == src(dim-1-x, y)
+//     * 180 in-plane    (about Z):  dest(x,y) == src(dim-1-x, dim-1-y)
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::CanvasUtilitiesTest::MirrorImageCoordinateMapping", "[EbsdLib][CanvasUtilitiesTest]")
+{
+  const int dim = 4;
+  std::vector<size_t> cDims = {4}; // RGBA
+  auto src = EbsdDataArray<uint8_t>::CreateArray(static_cast<size_t>(dim) * dim, cDims, "MirrorCoordSrc", true);
+
+  // Encode each pixel's coordinates into its color so the mapping is observable.
+  for(int y = 0; y < dim; y++)
+  {
+    for(int x = 0; x < dim; x++)
+    {
+      uint8_t tuple[4] = {static_cast<uint8_t>(x), static_cast<uint8_t>(y), 0, 255};
+      src->setTuple(static_cast<size_t>(y) * dim + x, tuple);
+    }
+  }
+
+  auto result = MirrorImage<uint8_t>(src.get(), dim);
+  REQUIRE(result != nullptr);
+  REQUIRE(result->getNumberOfTuples() == static_cast<size_t>(dim) * dim);
+  REQUIRE(result->getNumberOfComponents() == 4);
+
+  // Every destination pixel must hold the source pixel from the vertically
+  // mirrored row: dest(x,y) == src(x, dim-1-y).
+  for(int y = 0; y < dim; y++)
+  {
+    for(int x = 0; x < dim; x++)
+    {
+      uint8_t* destPixel = result->getTuplePointer(static_cast<size_t>(y) * dim + x);
+      const int recoveredSrcX = destPixel[0];
+      const int recoveredSrcY = destPixel[1];
+      REQUIRE(recoveredSrcX == x);             // column preserved
+      REQUIRE(recoveredSrcY == (dim - 1 - y)); // row reversed
+      REQUIRE(destPixel[3] == 255);            // alpha preserved
+    }
+  }
+
+  // Explicit corner checks make the handedness unambiguous:
+  //   top-left  dest(0,0)     <- src(0, dim-1)     (bottom-left)
+  //   top-right dest(dim-1,0) <- src(dim-1, dim-1) (bottom-right)
+  uint8_t* topLeft = result->getTuplePointer(0);
+  REQUIRE(topLeft[0] == 0);
+  REQUIRE(topLeft[1] == dim - 1);
+
+  uint8_t* topRight = result->getTuplePointer(static_cast<size_t>(dim) - 1);
+  REQUIRE(topRight[0] == dim - 1);
+  REQUIRE(topRight[1] == dim - 1);
 }
 
 // -----------------------------------------------------------------------------
@@ -148,4 +213,71 @@ TEST_CASE("ebsdlib::CanvasUtilitiesTest::GeneratePointsOnUnitCircle", "[EbsdLib]
     double dot = pt[0] * direction[0] + pt[1] * direction[1] + pt[2] * direction[2];
     REQUIRE(dot == Approx(0.0).margin(1e-10));
   }
+}
+
+// -----------------------------------------------------------------------------
+// Hidden test (note the leading '.' in the tag): does NOT run as part of the
+// normal suite. Run explicitly with:
+//   ./Bin/EbsdLibUnitTest "[MirrorVisual]"
+//
+// Renders a recognizable, deliberately asymmetric RGBA image, applies
+// MirrorImage() (the "rotate 180 about X" / vertical-flip used by the pole
+// figure compositor), and writes both the input and output as PNG files so the
+// flip can be inspected by eye.
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::CanvasUtilitiesTest::MirrorImageVisualExport", "[.][MirrorVisual]")
+{
+  const int dim = 256;
+  const std::string outDir = "/private/tmp/claude-501/-Users-mjackson-Workspace9-DREAM3DNX/485763c8-b0c7-48d6-aa56-f82ab8220d1b/scratchpad";
+
+  std::vector<size_t> cDims = {4}; // RGBA
+  auto src = EbsdDataArray<uint8_t>::CreateArray(static_cast<size_t>(dim) * dim, cDims, "MirrorVisualSrc", true);
+
+  // Base pattern: a gradient that is unmistakable about orientation.
+  //   R increases left -> right (encodes column x)
+  //   G increases top  -> bottom (encodes row y)
+  for(int y = 0; y < dim; y++)
+  {
+    for(int x = 0; x < dim; x++)
+    {
+      uint8_t r = static_cast<uint8_t>((x * 255) / (dim - 1));
+      uint8_t g = static_cast<uint8_t>((y * 255) / (dim - 1));
+      uint8_t tuple[4] = {r, g, 0, 255};
+      src->setTuple(static_cast<size_t>(y) * dim + x, tuple);
+    }
+  }
+
+  // Solid BLUE horizontal bar across the TOP 1/8 of the image.
+  for(int y = 0; y < dim / 8; y++)
+  {
+    for(int x = 0; x < dim; x++)
+    {
+      uint8_t tuple[4] = {0, 0, 255, 255};
+      src->setTuple(static_cast<size_t>(y) * dim + x, tuple);
+    }
+  }
+
+  // Solid WHITE square marker in the TOP-LEFT corner.
+  for(int y = 0; y < dim / 8; y++)
+  {
+    for(int x = 0; x < dim / 8; x++)
+    {
+      uint8_t tuple[4] = {255, 255, 255, 255};
+      src->setTuple(static_cast<size_t>(y) * dim + x, tuple);
+    }
+  }
+
+  auto result = MirrorImage<uint8_t>(src.get(), dim);
+  REQUIRE(result != nullptr);
+
+  auto inResult = PngWriter::WriteColorImage(outDir + "/mirror_input.png", dim, dim, 4, src->data());
+  auto outResult = PngWriter::WriteColorImage(outDir + "/mirror_output.png", dim, dim, 4, result->data());
+  REQUIRE(inResult.first == 0);
+  REQUIRE(outResult.first == 0);
+
+  // After a vertical flip, the BLUE bar and WHITE marker should be at the BOTTOM.
+  uint8_t* bottomLeft = result->getTuplePointer(static_cast<size_t>(dim - 1) * dim);
+  REQUIRE(bottomLeft[0] == 255); // white marker now bottom-left
+  REQUIRE(bottomLeft[1] == 255);
+  REQUIRE(bottomLeft[2] == 255);
 }

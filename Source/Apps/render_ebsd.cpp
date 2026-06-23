@@ -331,7 +331,7 @@ bool writePoleFigure(const Options& opts, PhaseScan& s, LaueOps::Pointer op, con
   config.hexConvention = opts.convention;
 
   auto names = op->getDefaultPoleFigureNames(opts.convention);
-  config.labels = {names[0], names[1], names[2]};
+  config.poleFigureNames = {names[0], names[1], names[2]};
   config.order = {0, 1, 2};
 
   PoleFigureCompositor compositor;

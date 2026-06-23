@@ -174,7 +174,7 @@ void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers
   config.numColors = 64;
   config.colorMap = "Default";
   config.normalizeMRD = true;
-  config.labels = {"RD", "TD", "ND"};
+  config.labels = {"A1", "A2", "A3"};
   config.phaseName = className;
   config.FlipFinalImage = false;
 
@@ -191,11 +191,10 @@ void generateIPFForLaueClass(const LaueOps& ops, ebsdlib::FloatArrayType* eulers
   }
 
   int canvasDim = static_cast<int>(static_cast<float>(imageWidth) * 1.5f);
-  std::array<std::string, 3> dirLabels = {"RD", "TD", "ND"};
   for(size_t i = 0; i < images.size(); i++)
   {
     std::ostringstream filePath;
-    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << "_" << textureLabel << ".png";
+    filePath << outputDir << "/" << safeName << "_IPF_" << config.labels[i] << "_" << textureLabel << ".png";
     auto result = PngWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
     if(result.first < 0)
     {

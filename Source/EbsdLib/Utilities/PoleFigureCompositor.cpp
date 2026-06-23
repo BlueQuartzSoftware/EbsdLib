@@ -119,11 +119,12 @@ std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(C
   pfConfig.discrete = config.discrete;
   pfConfig.discreteHeatMap = config.discreteHeatMap;
   pfConfig.colorMap = config.colorMap;
-  pfConfig.labels = config.labels;
+  pfConfig.labels = config.poleFigureNames;
   pfConfig.order = config.order;
   pfConfig.phaseName = config.phaseName;
-  pfConfig.FlipFinalImage = config.flipFinalImage;
+  pfConfig.flipFinalImage = config.flipFinalImage;
   pfConfig.hexConvention = config.hexConvention;
+  pfConfig.axisNames = config.axisNames;
 
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
   if(config.laueOpsIndex >= orientationOps.size())
@@ -134,7 +135,7 @@ std::vector<UInt8ArrayType::Pointer> PoleFigureCompositor::generatePoleFigures(C
   auto result = orientationOps[config.laueOpsIndex]->generatePoleFigure(pfConfig);
 
   // LaueOps::generatePoleFigure updates minScale/maxScale to reflect the actual
-  // data range. Propagate these back so the scalar bar shows correct values.
+  // data range. Propagate these back so the scalar bar shows the correct values.
   config.minScale = pfConfig.minScale;
   config.maxScale = pfConfig.maxScale;
 
@@ -151,7 +152,8 @@ void PoleFigureCompositor::preprocessImages(std::vector<UInt8ArrayType::Pointer>
     g.run([&image, imageDim, flip]() {
       if(flip)
       {
-        image = flipAndMirror(image.get(), imageDim);
+        // Rotate 180 degrees about the horizontal (X) axis, i.e. a vertical flip.
+        image = MirrorImage<uint8_t>(image.get(), imageDim);
       }
       image = convertColorOrder(image.get(), imageDim);
     });
@@ -162,7 +164,8 @@ void PoleFigureCompositor::preprocessImages(std::vector<UInt8ArrayType::Pointer>
   {
     if(flip)
     {
-      image = flipAndMirror(image.get(), imageDim);
+      // Rotate 180 degrees about the horizontal (X) axis, i.e. a vertical flip.
+      image = MirrorImage<uint8_t>(image.get(), imageDim);
     }
     image = convertColorOrder(image.get(), imageDim);
   }
@@ -195,8 +198,8 @@ UInt8ArrayType::Pointer PoleFigureCompositor::compositeToCanvas(const CompositeP
   // Draw each of the 3 pole figures
   for(int i = 0; i < 3 && i < static_cast<int>(images.size()); i++)
   {
-    std::string directionLabel = images[i]->getName();
-    drawPoleFigure(context, *images[i], layout.origins[i], config.imageDim, directionLabel, layout.fontPtSize, layout.margins, latoBold, firaSans);
+    std::string poleFigureName = images[i]->getName();
+    drawPoleFigure(context, config, *images[i], layout.origins[i], poleFigureName, layout.fontPtSize, layout.margins, latoBold, firaSans);
   }
 
   // Title
@@ -221,19 +224,19 @@ UInt8ArrayType::Pointer PoleFigureCompositor::compositeToCanvas(const CompositeP
 }
 
 // -----------------------------------------------------------------------------
-void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UInt8ArrayType& image, std::array<float, 2> origin, int imageDim, const std::string& directionLabel, float fontPtSize,
-                                          float margins, const std::vector<unsigned char>& latoBold, const std::vector<unsigned char>& firaSans)
+void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, const UInt8ArrayType& image, std::array<float, 2> origin,
+                                          const std::string& poleFigureName, float fontPtSize, float margins, const std::vector<unsigned char>& latoBold, const std::vector<unsigned char>& firaSans)
 {
-  const auto imageSize = static_cast<float>(imageDim);
+  const auto imageSize = static_cast<float>(config.imageDim);
 
   // Draw the pole figure image
-  context.draw_image(const_cast<uint8_t*>(image.getPointer(0)), imageDim, imageDim, imageDim * static_cast<int>(image.getNumberOfComponents()), origin[0] + margins,
+  context.draw_image(const_cast<uint8_t*>(image.getPointer(0)), config.imageDim, config.imageDim, config.imageDim * static_cast<int>(image.getNumberOfComponents()), origin[0] + margins,
                      origin[1] + fontPtSize * 2.0f + margins * 2.0f, imageSize, imageSize);
 
   // Circle outline
   context.begin_path();
   context.line_cap = canvas_ity::circle;
-  context.set_line_width(3.0f);
+  context.set_line_width(1.0f);
   context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.arc(origin[0] + margins + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize / 2.0f, imageSize / 2.0f, 0, ebsdlib::constants::k_2PiF);
   context.stroke();
@@ -242,7 +245,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   // X axis line
   context.begin_path();
   context.line_cap = canvas_ity::square;
-  context.set_line_width(2.0f);
+  context.set_line_width(1.0f);
   context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.move_to(origin[0] + margins, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize / 2.0f);
   context.line_to(origin[0] + margins + imageSize, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize / 2.0f);
@@ -252,7 +255,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   // Y axis line
   context.begin_path();
   context.line_cap = canvas_ity::square;
-  context.set_line_width(2.0f);
+  context.set_line_width(1.0f);
   context.set_color(canvas_ity::stroke_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.move_to(origin[0] + margins + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f);
   context.line_to(origin[0] + margins + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f + imageSize);
@@ -264,7 +267,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
-  context.fill_text("TD", origin[0] + margins * 1.5f + imageSize, origin[1] + fontPtSize * 2.25f + margins * 2.0f + imageSize / 2.0f);
+  context.fill_text(config.axisNames[0].c_str(), origin[0] + margins * 1.5f + imageSize, origin[1] + fontPtSize * 2.25f + margins * 2.0f + imageSize / 2.0f);
   context.close_path();
 
   // "Y" axis label
@@ -272,12 +275,20 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const UIn
   context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
-  const float yFontWidth = context.measure_text("RD");
-  context.fill_text("RD", origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins);
+  const float yFontWidth = context.measure_text(config.axisNames[1].c_str());
+  if(config.flipFinalImage)
+  {
+    context.fill_text(config.axisNames[1].c_str(), origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f);
+  }
+  else
+  {
+    context.fill_text(config.axisNames[1].c_str(), origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 3.0f + margins * 2.0f + imageSize);
+  }
+
   context.close_path();
 
   // Direction label (e.g., "<001>" displayed as "(001)")
-  std::string subtitle = EbsdStringUtils::replace(directionLabel, "<", "(");
+  std::string subtitle = EbsdStringUtils::replace(poleFigureName, "<", "(");
   subtitle = EbsdStringUtils::replace(subtitle, ">", ")");
 
   std::string bottomPart;
@@ -397,13 +408,16 @@ void PoleFigureCompositor::drawInfoBlock(canvas_ity::canvas& context, const Comp
     laueGroupName = laueNames[config.laueOpsIndex];
   }
 
-  const std::vector<std::string> labels = {fmt::format("Phase Num: {}", config.phaseNumber),
-                                           fmt::format("Material Name: {}", config.phaseName),
-                                           fmt::format("Laue Group: {}", laueGroupName),
-                                           fmt::format("Upper & Lower:"),
-                                           fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
-                                           fmt::format("Lambert Sq. Dim: {}", config.lambertDim),
-                                           fmt::format("Hex/Trig Convention: {}", config.hexConvention == ebsdlib::HexConvention::XParallelAStar ? "x||a*" : "x||a")};
+  const std::vector<std::string> labels = {
+      fmt::format("Phase Num: {}", config.phaseNumber),
+      fmt::format("Material Name: {}", config.phaseName),
+      fmt::format("Laue Group: {}", laueGroupName),
+      fmt::format("Upper & Lower:"),
+      fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
+      fmt::format("Lambert Sq. Dim: {}", config.lambertDim),
+      fmt::format("Hex/Trig Convention: {}", config.hexConvention == ebsdlib::HexConvention::XParallelAStar ? "x||a*" : "x||a"),
+      // fmt::format("{} Right, {} Up", config.axisNames[0], config.axisNames[1])
+  };
 
   float heightInc = 1.0f;
   for(const auto& label : labels)
@@ -431,24 +445,6 @@ void PoleFigureCompositor::drawTitle(canvas_ity::canvas& context, const std::str
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(title.c_str(), margins, margins + fontPtSize);
   context.close_path();
-}
-
-// -----------------------------------------------------------------------------
-UInt8ArrayType::Pointer PoleFigureCompositor::flipAndMirror(UInt8ArrayType* src, int imageDim)
-{
-  UInt8ArrayType::Pointer converted = UInt8ArrayType::CreateArray(static_cast<size_t>(imageDim) * imageDim, src->getComponentDimensions(), src->getName(), true);
-  for(int y = 0; y < imageDim; y++)
-  {
-    const int destY = imageDim - 1 - y;
-    for(int x = 0; x < imageDim; x++)
-    {
-      const size_t indexSrc = static_cast<size_t>(y) * imageDim + x;
-      const size_t indexDest = static_cast<size_t>(destY) * imageDim + x;
-      uint8_t* srcPtr = src->getTuplePointer(indexSrc);
-      converted->setTuple(indexDest, srcPtr);
-    }
-  }
-  return converted;
 }
 
 // -----------------------------------------------------------------------------

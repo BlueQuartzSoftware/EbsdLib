@@ -84,7 +84,7 @@ void generateIPFForPhase(const LaueOps& ops, ebsdlib::FloatArrayType* eulers, co
   config.numColors = 64;
   config.colorMap = "Default";
   config.normalizeMRD = true;
-  config.labels = {"RD", "TD", "ND"};
+  config.labels = {"A1", "A2", "A3"};
   config.phaseName = phaseLabel;
   config.FlipFinalImage = false;
 
@@ -102,11 +102,10 @@ void generateIPFForPhase(const LaueOps& ops, ebsdlib::FloatArrayType* eulers, co
 
   // Images are RGB (3 components), canvasDim x canvasDim
   int canvasDim = static_cast<int>(static_cast<float>(imageWidth) * 1.5f);
-  std::array<std::string, 3> dirLabels = {"RD", "TD", "ND"};
   for(size_t i = 0; i < images.size(); i++)
   {
     std::ostringstream filePath;
-    filePath << outputDir << "/" << safeName << "_IPF_" << dirLabels[i] << ".png";
+    filePath << outputDir << "/" << safeName << "_IPF_" << config.labels[i] << ".png";
     auto result = PngWriter::WriteColorImage(filePath.str(), canvasDim, canvasDim, 3, images[i]->data());
     if(result.first < 0)
     {

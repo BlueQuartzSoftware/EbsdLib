@@ -12,9 +12,9 @@
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/ImageCrop.hpp"
 
+#include <array>
 #include <cstdint>
 #include <vector>
-#include <array>
 
 using namespace ebsdlib;
 

@@ -25,7 +25,7 @@ TEST_CASE("ebsdlib::PoleFigureUtilitiesTest::PoleFigureConfiguration_t_Fields", 
   config.labels = {"A", "B", "C"};
   config.order = {0, 1, 2};
   config.phaseName = "Phase1";
-  config.FlipFinalImage = true;
+  config.flipFinalImage = true;
 
   REQUIRE(config.imageDim == 256);
   REQUIRE(config.lambertDim == 64);
@@ -39,7 +39,7 @@ TEST_CASE("ebsdlib::PoleFigureUtilitiesTest::PoleFigureConfiguration_t_Fields", 
   REQUIRE(config.labels.size() == 3);
   REQUIRE(config.order.size() == 3);
   REQUIRE(config.phaseName == "Phase1");
-  REQUIRE(config.FlipFinalImage == true);
+  REQUIRE(config.flipFinalImage == true);
 }
 
 // -----------------------------------------------------------------------------

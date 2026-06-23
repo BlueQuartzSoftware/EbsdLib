@@ -85,7 +85,7 @@ ebsdlib::FloatArrayType::Pointer generateSingleCrystalEulers(size_t numOrientati
   return eulers;
 }
 
-// Standard orthogonal sample directions: RD=[1,0,0], TD=[0,1,0], ND=[0,0,1]
+// Standard orthogonal sample directions: A1=[1,0,0], A2=[0,1,0], A3=[0,0,1]
 InversePoleFigureConfiguration_t createDefaultConfig(ebsdlib::FloatArrayType* eulers)
 {
   InversePoleFigureConfiguration_t config;
@@ -97,7 +97,7 @@ InversePoleFigureConfiguration_t createDefaultConfig(ebsdlib::FloatArrayType* eu
   config.numColors = 32;
   config.colorMap = "Default";
   config.normalizeMRD = true;
-  config.labels = {"RD", "TD", "ND"};
+  config.labels = {"A1", "A2", "A3"};
   config.phaseName = "TestPhase";
   config.FlipFinalImage = false;
   return config;
@@ -117,7 +117,7 @@ TEST_CASE("ebsdlib::InversePoleFigureTest::Configuration_Fields", "[EbsdLib][Inv
   config.numColors = 32;
   config.colorMap = "Default";
   config.normalizeMRD = true;
-  config.labels = {"RD", "TD", "ND"};
+  config.labels = {"A1", "A2", "A3"};
   config.phaseName = "Phase1";
   config.FlipFinalImage = false;
 
@@ -321,7 +321,7 @@ TEST_CASE("ebsdlib::InversePoleFigureTest::GenerateInversePoleFigure_MRD_vs_Coun
 TEST_CASE("ebsdlib::InversePoleFigureTest::SingleCrystalTexture_Cubic", "[EbsdLib][InversePoleFigureTest]")
 {
   // All orientations are identity (0, 0, 0 Euler angles)
-  // For ND=[0,0,1], the crystal direction in the SST should be [001]
+  // For A3=[0,0,1], the crystal direction in the SST should be [001]
   auto eulers = generateSingleCrystalEulers(500, 0.0f, 0.0f, 0.0f);
   auto ops = LaueOps::GetAllOrientationOps();
   auto& cubicOps = *ops[1];
@@ -393,7 +393,7 @@ TEST_CASE("ebsdlib::InversePoleFigureTest::AnnotatedIPFDensity_PropagatesHexConv
   configAStar.numColors = 16;
   configAStar.colorMap = "Default";
   configAStar.normalizeMRD = false;
-  configAStar.labels = {"RD", "TD", "ND"};
+  configAStar.labels = {"A1", "A2", "A3"};
   configAStar.phaseName = "TestHex";
   configAStar.FlipFinalImage = false;
   configAStar.hexConvention = ebsdlib::HexConvention::XParallelAStar;

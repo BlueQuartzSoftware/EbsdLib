@@ -67,19 +67,20 @@ enum class PoleFigureLayoutType : uint32_t
 struct EbsdLib_EXPORT CompositePoleFigureConfiguration_t
 {
   // --- Pole figure generation parameters ---
-  ebsdlib::FloatArrayType* eulers = nullptr;   ///< Euler angles in radians (3-component tuples)
-  int imageDim = 512;                          ///< Height/width of each individual pole figure in pixels
-  int lambertDim = 256;                        ///< Lambert square dimension for interpolation
-  int numColors = 32;                          ///< Number of colors in the color table
-  double minScale = 0.0;                       ///< Minimum intensity scale value
-  double maxScale = 1.0;                       ///< Maximum intensity scale value
-  float sphereRadius = 1.0f;                   ///< Sphere radius (should always be 1.0)
-  bool discrete = false;                       ///< Use discrete point sampling instead of Lambert projection
-  bool discreteHeatMap = false;                ///< Use heat map coloring for discrete mode
-  std::string colorMap;                        ///< Name of the color map to use
-  std::vector<std::string> labels;             ///< Labels for the 3 pole figures (e.g., "<001>", "<011>", "<111>")
-  std::vector<unsigned int> order = {0, 1, 2}; ///< Display order of the 3 pole figures
-  bool flipFinalImage = true;                  ///< Flip individual images so +Y points up
+  ebsdlib::FloatArrayType* eulers = nullptr;               ///< Euler angles in radians (3-component tuples)
+  int imageDim = 512;                                      ///< Height/width of each individual pole figure in pixels
+  int lambertDim = 256;                                    ///< Lambert square dimension for interpolation
+  int numColors = 32;                                      ///< Number of colors in the color table
+  double minScale = 0.0;                                   ///< Minimum intensity scale value
+  double maxScale = 1.0;                                   ///< Maximum intensity scale value
+  float sphereRadius = 1.0f;                               ///< Sphere radius (should always be 1.0)
+  bool discrete = false;                                   ///< Use discrete point sampling instead of Lambert projection
+  bool discreteHeatMap = false;                            ///< Use heat map coloring for discrete mode
+  std::string colorMap;                                    ///< Name of the color map to use
+  std::vector<std::string> poleFigureNames;                ///< Labels for the 3 pole figures (e.g., "<001>", "<011>", "<111>")
+  std::vector<unsigned int> order = {0, 1, 2};             ///< Display order of the 3 pole figures
+  bool flipFinalImage = false;                             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+  std::vector<std::string> axisNames = {"A1", "A2", "A3"}; ///< The string to use for each axis of the pole figure
 
   // --- Composition parameters ---
   PoleFigureLayoutType layoutType = PoleFigureLayoutType::Horizontal; ///< How to arrange figures and legend
@@ -190,14 +191,13 @@ private:
   void preprocessImages(std::vector<UInt8ArrayType::Pointer>& images, int imageDim, bool flipFinalImage);
   UInt8ArrayType::Pointer compositeToCanvas(const CompositePoleFigureConfiguration_t& config, const std::vector<UInt8ArrayType::Pointer>& images, const LayoutMetrics& layout);
 
-  static void drawPoleFigure(canvas_ity::canvas& context, const UInt8ArrayType& image, std::array<float, 2> origin, int imageDim, const std::string& directionLabel, float fontPtSize, float margins,
-                             const std::vector<unsigned char>& latoBold, const std::vector<unsigned char>& firaSans);
+  static void drawPoleFigure(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, const UInt8ArrayType& image, std::array<float, 2> origin, const std::string& directionLabel,
+                             float fontPtSize, float margins, const std::vector<unsigned char>& latoBold, const std::vector<unsigned char>& firaSans);
   static void drawScalarBar(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, std::array<float, 2> position, float margins, float fontPtSize,
                             const std::vector<unsigned char>& latoRegular);
   static void drawInfoBlock(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, std::array<float, 2> position, float margins, float fontPtSize,
                             const std::vector<unsigned char>& latoRegular);
   static void drawTitle(canvas_ity::canvas& context, const std::string& title, float pageWidth, float fontPtSize, float margins, const std::vector<unsigned char>& latoBold);
-  static UInt8ArrayType::Pointer flipAndMirror(UInt8ArrayType* src, int imageDim);
   static UInt8ArrayType::Pointer convertColorOrder(UInt8ArrayType* src, int imageDim);
 };
 

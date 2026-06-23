@@ -104,7 +104,7 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::ConfigDefaults", "[EbsdLib][PoleFi
   REQUIRE(config.discrete == false);
   REQUIRE(config.discreteHeatMap == false);
   REQUIRE(config.colorMap.empty());
-  REQUIRE(config.labels.empty());
+  REQUIRE(config.poleFigureNames.empty());
   REQUIRE(config.order.size() == 3);
   REQUIRE(config.order[0] == 0);
   REQUIRE(config.order[1] == 1);
@@ -235,8 +235,8 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       const double misMatchFraction = static_cast<double>(misMatchCount) / static_cast<double>(exemplarData.size());
       if(misMatchCount > 0)
       {
-        std::cout << phaseName << " [" << datasetName << "]: byte mismatches (>1) = " << misMatchCount << " / " << exemplarData.size() << " (" << std::setprecision(4)
-                  << (misMatchFraction * 100.0) << "%)" << std::endl;
+        std::cout << phaseName << " [" << datasetName << "]: byte mismatches (>1) = " << misMatchCount << " / " << exemplarData.size() << " (" << std::setprecision(4) << (misMatchFraction * 100.0)
+                  << "%)" << std::endl;
       }
       REQUIRE(misMatchFraction <= k_PixelMismatchTolerance);
 #endif
@@ -409,6 +409,188 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Square", "[EbsdLib][
 
   // Bottom row Y is one subCanvasHeight below top row Y
   REQUIRE(metrics.origins[2][1] == Approx(metrics.origins[0][1] + metrics.subCanvasHeight));
+}
+
+// -----------------------------------------------------------------------------
+// Repeatedly generating the same composite from identical inputs must produce a
+// byte-for-byte identical image. The pipeline (sphere coords, Lambert binning,
+// stereographic projection, canvas_ity render, flip + color convert) has no RNG,
+// no time-seeding, and every parallel boundary writes to DISJOINT outputs, so the
+// result must not vary run-to-run within a single binary.
+// -----------------------------------------------------------------------------
+// Hidden cross-process determinism probe. Run explicitly (twice, to different
+// files) to confirm separate process invocations are byte-identical:
+//   ./Bin/EbsdLibUnitTest "[PFDeterminism]"   (writes scratchpad/pf_run.png)
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::CrossProcessDeterminismProbe", "[.][PFDeterminism]")
+{
+  const size_t numOrientations = 250;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  CompositePoleFigureConfiguration_t config;
+  config.eulers = eulers.get();
+  config.imageDim = 256;
+  config.lambertDim = 32;
+  config.numColors = 16;
+  config.laueOpsIndex = 1;
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+  config.phaseName = "TestPhase";
+  config.phaseNumber = 1;
+  config.title = "Determinism Probe";
+
+  PoleFigureCompositor compositor;
+  CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+  REQUIRE(result.image != nullptr);
+
+  const std::string outDir = "/private/tmp/claude-501/-Users-mjackson-Workspace9-DREAM3DNX/485763c8-b0c7-48d6-aa56-f82ab8220d1b/scratchpad";
+  auto writeResult = PngWriter::WriteColorImage(outDir + "/pf_run.png", result.width, result.height, 4, result.image->data());
+  REQUIRE(writeResult.first == 0);
+}
+
+// -----------------------------------------------------------------------------
+// Same determinism requirement, but for the DISCRETE pole figure path
+// (config.discrete = true), which uses the direct intensity[index]++ accumulation
+// in ComputeStereographicProjection rather than the Lambert/MRD path.
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::RepeatedDiscreteGenerationIsDeterministic", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const size_t numOrientations = 2600;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  auto makeConfig = [&]() {
+    CompositePoleFigureConfiguration_t config;
+    config.eulers = eulers.get();
+    config.imageDim = 256;
+    config.lambertDim = 64;
+    config.numColors = 16;
+    config.discrete = true;  // <-- exercise the discrete accumulation path
+    config.laueOpsIndex = 0; // Hexagonal-High (6/mmm) to match the reported data
+    config.layoutType = PoleFigureLayoutType::Horizontal;
+    config.phaseName = "TestPhase";
+    config.phaseNumber = 1;
+    config.title = "Discrete Determinism Test";
+    return config;
+  };
+
+  const int numRuns = 25;
+  UInt8ArrayType::Pointer reference;
+  size_t worstMismatch = 0;
+  for(int run = 0; run < numRuns; run++)
+  {
+    CompositePoleFigureConfiguration_t config = makeConfig();
+    PoleFigureCompositor compositor;
+    CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+    REQUIRE(result.image != nullptr);
+
+    if(run == 0)
+    {
+      reference = result.image;
+      continue;
+    }
+
+    REQUIRE(result.image->getNumberOfTuples() == reference->getNumberOfTuples());
+    size_t mismatches = 0;
+    const size_t total = reference->getSize();
+    for(size_t i = 0; i < total; i++)
+    {
+      if((*reference)[i] != (*result.image)[i])
+      {
+        mismatches++;
+      }
+    }
+    if(mismatches > worstMismatch)
+    {
+      worstMismatch = mismatches;
+    }
+    if(mismatches > 0)
+    {
+      std::cout << "DISCRETE run " << run << ": " << mismatches << " / " << total << " bytes differ from run 0" << std::endl;
+    }
+  }
+  std::cout << "DISCRETE worst-case mismatch across " << numRuns << " runs: " << worstMismatch << " bytes" << std::endl;
+  REQUIRE(worstMismatch == 0);
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::RepeatedGenerationIsDeterministic", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  const size_t numOrientations = 250;
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(numOrientations, compDims, "TestEulers", true);
+  for(size_t i = 0; i < numOrientations; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+
+  auto makeConfig = [&]() {
+    CompositePoleFigureConfiguration_t config;
+    config.eulers = eulers.get();
+    config.imageDim = 128;
+    config.lambertDim = 32;
+    config.numColors = 16;
+    config.laueOpsIndex = 1; // CubicOps
+    config.layoutType = PoleFigureLayoutType::Horizontal;
+    config.phaseName = "TestPhase";
+    config.phaseNumber = 1;
+    config.title = "Determinism Test";
+    return config;
+  };
+
+  const int numRuns = 5;
+  UInt8ArrayType::Pointer reference;
+  for(int run = 0; run < numRuns; run++)
+  {
+    CompositePoleFigureConfiguration_t config = makeConfig();
+    PoleFigureCompositor compositor;
+    CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+    REQUIRE(result.image != nullptr);
+
+    if(run == 0)
+    {
+      reference = result.image;
+      continue;
+    }
+
+    REQUIRE(result.image->getNumberOfTuples() == reference->getNumberOfTuples());
+    size_t mismatches = 0;
+    size_t firstMismatch = 0;
+    const size_t total = reference->getSize();
+    for(size_t i = 0; i < total; i++)
+    {
+      if((*reference)[i] != (*result.image)[i])
+      {
+        if(mismatches == 0)
+        {
+          firstMismatch = i;
+        }
+        mismatches++;
+      }
+    }
+    if(mismatches > 0)
+    {
+      std::cout << "Run " << run << ": " << mismatches << " / " << total << " bytes differ from run 0 (first at byte " << firstMismatch << ")" << std::endl;
+    }
+    REQUIRE(mismatches == 0);
+  }
 }
 
 // -----------------------------------------------------------------------------
