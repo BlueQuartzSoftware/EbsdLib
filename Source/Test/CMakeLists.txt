@@ -49,6 +49,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionArrayTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureUtilitiesTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureCompositorTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/DiscretePoleFigureCompositorTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureProjectionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigureLaueComparisonTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PoleFigurePositionTest.cpp
