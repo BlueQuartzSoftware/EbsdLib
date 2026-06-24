@@ -67,6 +67,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/GriddedColorKeyTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PUCMColorKeyTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ColorKeyKindTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/MarkerOccupancyGridTest.cpp
 )
 
 
