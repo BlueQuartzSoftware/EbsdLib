@@ -3,6 +3,7 @@
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/DiscretePoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
+#include "EbsdLib/Utilities/PngWriter.h"
 
 #include <array>
 #include <chrono>
@@ -159,4 +160,19 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::LargePointCountPerformance
   // Generous regression guard: decimation+sprite must keep this well under a minute.
   // A per-point arc+fill regression would take many minutes and trip this.
   REQUIRE(seconds < 60.0);
+}
+
+// Hidden manual-validation aid. Run explicitly:
+//   ./Bin/EbsdLibUnitTest "[DiscreteVisual]"
+// Writes discrete_markers.png in the current directory for eyeballing vs MTEX/OIM.
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::VisualExport", "[.][DiscreteVisual]")
+{
+  auto eulers = MakeEulers(2600);
+  CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+  config.imageDim = 512;
+
+  CompositePoleFigureResult result = GeneratePoleFigureComposite(config);
+  REQUIRE(result.image != nullptr);
+  auto r = PngWriter::WriteColorImage("./discrete_markers.png", result.width, result.height, 4, result.image->data());
+  REQUIRE(r.first == 0);
 }
