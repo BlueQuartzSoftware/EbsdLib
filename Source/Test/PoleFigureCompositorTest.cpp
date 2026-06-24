@@ -194,8 +194,7 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
       config.title = fmt::format("Laue Symmetry:{} Rotation Point Group: {}", op->getSymmetryName(), op->getRotationPointGroup());
       config.hexConvention = hexConventions[idx];
 
-      PoleFigureCompositor compositor;
-      CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+      CompositePoleFigureResult result = GeneratePoleFigureComposite(config);
 
       REQUIRE(result.image != nullptr);
       REQUIRE(result.width > 0);
