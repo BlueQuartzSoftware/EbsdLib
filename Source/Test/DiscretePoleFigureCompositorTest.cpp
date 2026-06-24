@@ -2,10 +2,44 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/DiscretePoleFigureCompositor.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 
 #include <array>
+#include <vector>
 
 using namespace ebsdlib;
+
+namespace
+{
+FloatArrayType::Pointer MakeEulers(size_t n)
+{
+  std::vector<size_t> compDims = {3};
+  auto eulers = FloatArrayType::CreateArray(n, compDims, "TestEulers", true);
+  for(size_t i = 0; i < n; i++)
+  {
+    float* ptr = eulers->getTuplePointer(i);
+    ptr[0] = static_cast<float>((i * 7 + 3) % 360) * 0.0174533f;
+    ptr[1] = static_cast<float>((i * 13 + 5) % 180) * 0.0174533f;
+    ptr[2] = static_cast<float>((i * 19 + 11) % 360) * 0.0174533f;
+  }
+  return eulers;
+}
+
+CompositePoleFigureConfiguration_t MakeConfig(FloatArrayType* eulers)
+{
+  CompositePoleFigureConfiguration_t config;
+  config.eulers = eulers;
+  config.imageDim = 256;
+  config.discrete = true;
+  config.discreteHeatMap = false;
+  config.laueOpsIndex = 0; // Hexagonal-High (6/mmm)
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+  config.phaseName = "TestPhase";
+  config.phaseNumber = 1;
+  config.title = "Discrete Vector Test";
+  return config;
+}
+} // namespace
 
 TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::MarkerSprite", "[EbsdLib][DiscretePoleFigureCompositorTest]")
 {
@@ -28,4 +62,58 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::MarkerSprite", "[EbsdLib][
   // Corner pixel is fully transparent (outside the circle).
   uint8_t* corner = sprite->getTuplePointer(0);
   REQUIRE(corner[3] == 0);
+}
+
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::ProducesImage", "[EbsdLib][DiscretePoleFigureCompositorTest]")
+{
+  auto eulers = MakeEulers(500);
+  CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+
+  DiscretePoleFigureCompositor compositor;
+  CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+
+  REQUIRE(result.image != nullptr);
+  REQUIRE(result.width > 0);
+  REQUIRE(result.height > 0);
+  REQUIRE(result.image->getNumberOfComponents() == 4);
+  REQUIRE(result.image->getNumberOfTuples() == static_cast<size_t>(result.width) * result.height);
+
+  bool hasNonWhite = false;
+  for(size_t i = 0; i < result.image->getNumberOfTuples() && !hasNonWhite; i++)
+  {
+    uint8_t* px = result.image->getTuplePointer(i);
+    if(px[0] != 255 || px[1] != 255 || px[2] != 255)
+    {
+      hasNonWhite = true;
+    }
+  }
+  REQUIRE(hasNonWhite);
+}
+
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::IsDeterministic", "[EbsdLib][DiscretePoleFigureCompositorTest]")
+{
+  auto eulers = MakeEulers(800);
+  UInt8ArrayType::Pointer reference;
+  for(int run = 0; run < 10; run++)
+  {
+    CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+    DiscretePoleFigureCompositor compositor;
+    CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+    REQUIRE(result.image != nullptr);
+    if(run == 0)
+    {
+      reference = result.image;
+      continue;
+    }
+    REQUIRE(result.image->getSize() == reference->getSize());
+    size_t mismatches = 0;
+    for(size_t i = 0; i < reference->getSize(); i++)
+    {
+      if((*reference)[i] != (*result.image)[i])
+      {
+        mismatches++;
+      }
+    }
+    REQUIRE(mismatches == 0);
+  }
 }
