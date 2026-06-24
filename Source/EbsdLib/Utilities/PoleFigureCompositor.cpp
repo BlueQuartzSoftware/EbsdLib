@@ -278,7 +278,7 @@ void PoleFigureCompositor::drawPoleFigure(canvas_ity::canvas& context, const Com
   const float yFontWidth = context.measure_text(config.axisNames[1].c_str());
   if(config.flipFinalImage)
   {
-    context.fill_text(config.axisNames[1].c_str(), origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 2.0f + margins * 2.0f);
+    context.fill_text(config.axisNames[1].c_str(), origin[0] + margins - (0.5f * yFontWidth) + imageSize / 2.0f, origin[1] + fontPtSize * 1.9f + margins * 2.0f);
   }
   else
   {
