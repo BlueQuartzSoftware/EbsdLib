@@ -247,14 +247,14 @@ void GeneratePoleFigures(const std::string& phaseName, size_t opsIndex, hid_t ex
 TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][PoleFigureCompositorTest]")
 {
   const ebsdlib::unit_test::TestFileSentinel testDataSentinel(ebsdlib::unit_test::k_TestFilesDir, "Laue_Orientation_Clusters_v6.tar.gz", "Laue_Orientation_Clusters_v6", true, true);
-  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images_v2.tar.gz", "Pole_Figure_Images_v2"
+  const ebsdlib::unit_test::TestFileSentinel testDataSentinel1(ebsdlib::unit_test::k_TestFilesDir, "Pole_Figure_Images_v3.tar.gz", "Pole_Figure_Images_v3"
 #if WRITE_EXEMPLAR_IMAGES
                                                                ,
                                                                false, false
 #endif
   );
 
-  const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images_v2/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
+  const std::string hdfInputFile = fmt::format("{}/Pole_Figure_Images_v3/Exemplar_Data.h5", ebsdlib::unit_test::k_TestFilesDir);
   hid_t fileId = -1;
 #if WRITE_EXEMPLAR_IMAGES
   if(!std::filesystem::exists(hdfInputFile))
