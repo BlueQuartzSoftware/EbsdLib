@@ -114,7 +114,9 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
         continue; // outside the unit disk
       }
       const float cx = x0 + halfSize + disk[0] * halfSize;
-      const float cy = y0 + halfSize - disk[1] * halfSize; // -dy => +Y up
+      // flipFinalImage=true => +Y up (mirror of raw projection, matching the raster path's flip);
+      // flipFinalImage=false => +Y down (raw projection orientation, matching the unflipped raster path).
+      const float cy = config.flipFinalImage ? (y0 + halfSize - disk[1] * halfSize) : (y0 + halfSize + disk[1] * halfSize);
       if(!grid.shouldDraw(cx, cy))
       {
         continue; // decimated: a marker already occupies this cell

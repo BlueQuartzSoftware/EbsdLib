@@ -162,6 +162,49 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::LargePointCountPerformance
   REQUIRE(seconds < 60.0);
 }
 
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::HonorsFlipFinalImage", "[EbsdLib][DiscretePoleFigureCompositorTest]")
+{
+  auto eulers = MakeEulers(1500);
+
+  auto render = [&](bool flip) {
+    CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+    config.flipFinalImage = flip;
+    return GeneratePoleFigureComposite(config);
+  };
+  CompositePoleFigureResult up = render(true);
+  CompositePoleFigureResult down = render(false);
+  REQUIRE(up.image != nullptr);
+  REQUIRE(down.image != nullptr);
+  REQUIRE(up.width == down.width);
+
+  // Figure box for family 1 (default order {0,1,2} => display slot 1).
+  CompositePoleFigureConfiguration_t cfg = MakeConfig(eulers.get());
+  LayoutMetrics layout = PoleFigureCompositor::computeLayoutMetrics(cfg);
+  const auto origin = layout.origins[1];
+  const int x0 = static_cast<int>(origin[0] + layout.margins);
+  const int y0 = static_cast<int>(origin[1] + layout.fontPtSize * 2.0f + layout.margins * 2.0f);
+  const int dim = cfg.imageDim;
+  const int W = up.width;
+
+  // Count bytes that differ within the figure-1 box; the marker layer must move.
+  size_t boxDiffs = 0;
+  for(int y = y0; y < y0 + dim; y++)
+  {
+    for(int x = x0; x < x0 + dim; x++)
+    {
+      const size_t idx = (static_cast<size_t>(y) * W + x) * 4;
+      for(int c = 0; c < 4; c++)
+      {
+        if((*up.image)[idx + c] != (*down.image)[idx + c])
+        {
+          boxDiffs++;
+        }
+      }
+    }
+  }
+  REQUIRE(boxDiffs > 0); // markers are vertically mirrored by the flag
+}
+
 // Hidden manual-validation aid. Run explicitly:
 //   ./Bin/EbsdLibUnitTest "[DiscreteVisual]"
 // Writes discrete_markers.png in the current directory for eyeballing vs MTEX/OIM.
