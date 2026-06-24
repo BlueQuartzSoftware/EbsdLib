@@ -4,7 +4,6 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PoleFigureChrome.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
