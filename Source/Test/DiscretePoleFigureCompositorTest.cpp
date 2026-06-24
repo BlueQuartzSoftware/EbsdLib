@@ -5,6 +5,8 @@
 #include "EbsdLib/Utilities/PoleFigureCompositor.h"
 
 #include <array>
+#include <chrono>
+#include <iostream>
 #include <vector>
 
 using namespace ebsdlib;
@@ -138,4 +140,23 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::DispatchRoutesByConfig", "
     REQUIRE(result.image != nullptr);
     REQUIRE(result.width > 0);
   }
+}
+
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::LargePointCountPerformance", "[EbsdLib][DiscretePoleFigureCompositorTest]")
+{
+  // 250k orientations * (hex symmetry multiplicities up to 6) => >1M poles per figure.
+  auto eulers = MakeEulers(250000);
+  CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+  config.imageDim = 512;
+
+  const auto start = std::chrono::steady_clock::now();
+  CompositePoleFigureResult result = GeneratePoleFigureComposite(config);
+  const auto elapsed = std::chrono::steady_clock::now() - start;
+  const double seconds = std::chrono::duration<double>(elapsed).count();
+  std::cout << "Discrete >1M-pole render: " << seconds << " s" << std::endl;
+
+  REQUIRE(result.image != nullptr);
+  // Generous regression guard: decimation+sprite must keep this well under a minute.
+  // A per-point arc+fill regression would take many minutes and trip this.
+  REQUIRE(seconds < 60.0);
 }
