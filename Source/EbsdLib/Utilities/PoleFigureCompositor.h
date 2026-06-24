@@ -88,7 +88,7 @@ struct EbsdLib_EXPORT CompositePoleFigureConfiguration_t
   std::string colorMap;                                    ///< Name of the color map to use
   std::vector<std::string> poleFigureNames;                ///< Labels for the 3 pole figures (e.g., "<001>", "<011>", "<111>")
   std::vector<unsigned int> order = {0, 1, 2};             ///< Display order of the 3 pole figures
-  bool flipFinalImage = false;                             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
+  bool flipFinalImage = true;                              ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
   std::vector<std::string> axisNames = {"A1", "A2", "A3"}; ///< The string to use for each axis of the pole figure
   DiscreteMarkerStyle markerStyle;                         ///< Marker style for the discrete (non-heatmap) vector path
 
