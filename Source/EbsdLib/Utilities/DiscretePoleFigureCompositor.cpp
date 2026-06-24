@@ -5,6 +5,7 @@
 #include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/MarkerOccupancyGrid.h"
 #include "EbsdLib/Utilities/PoleFigureChrome.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PoleFigureProjection.h"
 
 #include <canvas_ity.hpp>
@@ -134,5 +135,17 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
   result.width = layout.pageWidth;
   result.height = layout.pageHeight;
   return result;
+}
+
+// -----------------------------------------------------------------------------
+CompositePoleFigureResult GeneratePoleFigureComposite(CompositePoleFigureConfiguration_t& config)
+{
+  if(config.discrete && !config.discreteHeatMap)
+  {
+    DiscretePoleFigureCompositor compositor;
+    return compositor.generateCompositeImage(config);
+  }
+  PoleFigureCompositor compositor;
+  return compositor.generateCompositeImage(config);
 }
 } // namespace ebsdlib

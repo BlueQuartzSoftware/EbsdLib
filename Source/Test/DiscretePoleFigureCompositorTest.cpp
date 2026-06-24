@@ -117,3 +117,25 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::IsDeterministic", "[EbsdLi
     REQUIRE(mismatches == 0);
   }
 }
+
+TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::DispatchRoutesByConfig", "[EbsdLib][DiscretePoleFigureCompositorTest]")
+{
+  auto eulers = MakeEulers(400);
+
+  {
+    CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+    config.discrete = true;
+    config.discreteHeatMap = false;
+    CompositePoleFigureResult result = GeneratePoleFigureComposite(config);
+    REQUIRE(result.image != nullptr);
+    REQUIRE(result.width > 0);
+  }
+  {
+    CompositePoleFigureConfiguration_t config = MakeConfig(eulers.get());
+    config.discrete = false;
+    config.discreteHeatMap = false;
+    CompositePoleFigureResult result = GeneratePoleFigureComposite(config);
+    REQUIRE(result.image != nullptr);
+    REQUIRE(result.width > 0);
+  }
+}

@@ -208,4 +208,11 @@ private:
   static UInt8ArrayType::Pointer convertColorOrder(UInt8ArrayType* src, int imageDim);
 };
 
+/**
+ * @brief Generates a composite pole figure, routing to the correct compositor:
+ * discrete && !discreteHeatMap -> DiscretePoleFigureCompositor (vector markers),
+ * otherwise -> PoleFigureCompositor (raster).
+ */
+EbsdLib_EXPORT CompositePoleFigureResult GeneratePoleFigureComposite(CompositePoleFigureConfiguration_t& config);
+
 } // namespace ebsdlib
