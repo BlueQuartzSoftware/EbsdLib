@@ -195,9 +195,6 @@ private:
                              float fontPtSize, float margins, const std::vector<unsigned char>& latoBold, const std::vector<unsigned char>& firaSans);
   static void drawScalarBar(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, std::array<float, 2> position, float margins, float fontPtSize,
                             const std::vector<unsigned char>& latoRegular);
-  static void drawInfoBlock(canvas_ity::canvas& context, const CompositePoleFigureConfiguration_t& config, std::array<float, 2> position, float margins, float fontPtSize,
-                            const std::vector<unsigned char>& latoRegular);
-  static void drawTitle(canvas_ity::canvas& context, const std::string& title, float pageWidth, float fontPtSize, float margins, const std::vector<unsigned char>& latoBold);
   static UInt8ArrayType::Pointer convertColorOrder(UInt8ArrayType* src, int imageDim);
 };
 
