@@ -58,6 +58,15 @@ enum class PoleFigureLayoutType : uint32_t
 };
 
 /**
+ * @brief Visual style for discrete pole figure markers (fully opaque filled circles).
+ */
+struct EbsdLib_EXPORT DiscreteMarkerStyle
+{
+  std::array<float, 3> color = {0.0f, 0.0f, 0.0f}; ///< Marker RGB color, default black (markers are opaque)
+  float radiusFraction = 0.006f;                   ///< Marker radius as a fraction of the figure diameter (imageDim)
+};
+
+/**
  * @brief Configuration for generating a complete composite pole figure image.
  *
  * Contains both the parameters needed to generate individual pole figures
@@ -81,6 +90,7 @@ struct EbsdLib_EXPORT CompositePoleFigureConfiguration_t
   std::vector<unsigned int> order = {0, 1, 2};             ///< Display order of the 3 pole figures
   bool flipFinalImage = false;                             ///<* If TRUE, the final image will be flipped across the X Axis so that +Y axis points UP
   std::vector<std::string> axisNames = {"A1", "A2", "A3"}; ///< The string to use for each axis of the pole figure
+  DiscreteMarkerStyle markerStyle;                         ///< Marker style for the discrete (non-heatmap) vector path
 
   // --- Composition parameters ---
   PoleFigureLayoutType layoutType = PoleFigureLayoutType::Horizontal; ///< How to arrange figures and legend
