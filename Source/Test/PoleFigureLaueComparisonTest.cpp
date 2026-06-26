@@ -118,14 +118,18 @@ TEST_CASE("ebsdlib::PoleFigureLaueComparisonTest::GenerateAllLaueClasses", "[Ebs
     config.numColors = 16;
     config.discrete = true;
     config.discreteHeatMap = false;
+    // This test is compared side-by-side against MTEX (compare_pole_figures_all_laue.m),
+    // which uses the X||a* basis, so pin X||a* here even though the library default is X||a.
+    config.hexConvention = ebsdlib::HexConvention::XParallelAStar;
     config.laueOpsIndex = static_cast<uint32_t>(opsIndex);
     config.layoutType = ebsdlib::PoleFigureLayoutType::Horizontal;
     config.phaseName = rpg;
     config.phaseNumber = 1;
     config.title = fmt::format("{} <{}, {}, {}>", op->getSymmetryName(), k_RefPhi1Deg, k_RefPhiDeg, k_RefPhi2Deg);
 
-    PoleFigureCompositor compositor;
-    CompositePoleFigureResult result = compositor.generateCompositeImage(config);
+    // Use the routing entry point so discrete (non-heatmap) figures go through the
+    // vector marker renderer, matching WritePoleFigure / PoleFigureCompositorTest.
+    CompositePoleFigureResult result = ebsdlib::GeneratePoleFigureComposite(config);
     REQUIRE(result.image != nullptr);
 
     const std::string tifPath = fmt::format("{}/ebsdlib_pole_figure.png", dir);

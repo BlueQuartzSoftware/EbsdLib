@@ -359,8 +359,8 @@ public:
    *                meaningful for legends; the per-pixel generateIPFColor
    *                path does not expose this knob.
    */
-  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL,
-                                                            bool gridded = false) const = 0;
+  virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelA,
+                                                            ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL, bool gridded = false) const = 0;
 
   /**
    * @brief Computes the SST color for a Euler-rotated reference direction

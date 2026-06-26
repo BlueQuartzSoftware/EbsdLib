@@ -756,7 +756,7 @@ std::array<std::string, 3> TrigonalOps::getDefaultPoleFigureNames(ebsdlib::HexCo
   // strings are the same under both conventions for now; revisit if a
   // user reports a specific OIM/MTEX label divergence here.
   (void)conv;
-  return {"<0001>", "<0-110>", "<1-100>"};
+  return {"{0001}", "{0-110}", "{1-100}"};
 }
 
 // -----------------------------------------------------------------------------

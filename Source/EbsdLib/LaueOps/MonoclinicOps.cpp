@@ -607,7 +607,7 @@ ebsdlib::Rgb MonoclinicOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> MonoclinicOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  return {"<001>", "<100>", "<010>"};
+  return {"{001}", "{100}", "{010}"};
 }
 
 // -----------------------------------------------------------------------------

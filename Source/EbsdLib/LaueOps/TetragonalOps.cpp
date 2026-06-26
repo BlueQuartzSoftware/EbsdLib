@@ -663,7 +663,7 @@ ebsdlib::Rgb TetragonalOps::generateRodriguesColor(double r1, double r2, double 
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TetragonalOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  return {"<001>", "<100>", "<110>"};
+  return {"{001}", "{100}", "{110}"};
 }
 
 // -----------------------------------------------------------------------------

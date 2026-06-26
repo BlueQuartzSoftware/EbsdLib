@@ -262,8 +262,8 @@ public:
    * @brief generateStandardTriangle Generates an RGBA array that is a color "Standard" IPF Triangle Legend used for IPF Color Maps.
    * @return
    */
-  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv, ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL,
-                                                             bool gridded = false) const override;
+  ebsdlib::UInt8ArrayType::Pointer generateIPFTriangleLegend(int imageDim, bool generateEntirePlane, ebsdlib::HexConvention conv = ebsdlib::HexConvention::XParallelA,
+                                                             ebsdlib::ColorKeyKind kind = ebsdlib::ColorKeyKind::TSL, bool gridded = false) const override;
 
   bool mapPixelToSphereSST(int xPixel, int yPixel, int imageDim, std::array<float, 3>& sphereDir) const override;
 

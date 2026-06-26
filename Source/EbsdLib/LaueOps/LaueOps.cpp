@@ -1022,9 +1022,28 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
   context.draw_image(image->getPointer(0), imageDim, imageDim, imageDim * image->getNumberOfComponents(), figureOrigin[0], figureOrigin[1], static_cast<float>(legendWidth),
                      static_cast<float>(legendHeight));
 
-  // Draw title
+  // Draw title at the large font.
   context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
   ebsdlib::WriteText(context, title, {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
+
+  // Hex/trig basis convention on a small sub-line just under the title (smaller
+  // than the Miller-index annotation font) so it fits the cropped width and does
+  // not collide with the triangle labels.
+  std::string convLine;
+  if(conv == ebsdlib::HexConvention::XParallelA)
+  {
+    convLine = "Convention: X||a (TSL)";
+  }
+  else if(conv == ebsdlib::HexConvention::XParallelAStar)
+  {
+    convLine = "Convention: X||a* (MTEX/Oxford)";
+  }
+  if(!convLine.empty())
+  {
+    const float subFontSize = fontPtSize * 0.7F;
+    context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), subFontSize);
+    ebsdlib::WriteText(context, convLine, {margins[0], static_cast<float>(fontPtSize * 2.6F)}, static_cast<int>(subFontSize));
+  }
 
   // Draw per-subclass annotations (Miller indices, SST boundary lines)
   context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);

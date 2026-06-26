@@ -56,10 +56,9 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
   const std::array<int32_t, 3> symSizes = op->getNumSymmetry();
   const size_t numOrientations = (config.eulers != nullptr) ? config.eulers->getNumberOfTuples() : 0;
   std::vector<size_t> dims(1, 3);
-  std::array<FloatArrayType::Pointer, 3> families = {
-      FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[0]), dims, "family0", true),
-      FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[1]), dims, "family1", true),
-      FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[2]), dims, "family2", true)};
+  std::array<FloatArrayType::Pointer, 3> families = {FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[0]), dims, "family0", true),
+                                                     FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[1]), dims, "family1", true),
+                                                     FloatArrayType::CreateArray(numOrientations * static_cast<size_t>(symSizes[2]), dims, "family2", true)};
   if(numOrientations > 0)
   {
     op->generateSphereCoordsFromEulers(config.eulers, families[0].get(), families[1].get(), families[2].get(), config.hexConvention);
@@ -85,7 +84,7 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
   // --- Marker sprite (single color => render once) ---
   const float halfSize = static_cast<float>(config.imageDim) / 2.0f;
   const float markerR = std::max(0.5f, config.markerStyle.radiusFraction * static_cast<float>(config.imageDim));
-  const float cellSize = std::max(1.0f, 2.0f * markerR);
+  const float cellSize = 1.0f; // std::max(1.0f, 2.0f * markerR);
   int spriteSize = 0;
   UInt8ArrayType::Pointer sprite = RenderDiscreteMarkerSprite(config.markerStyle.color, markerR, spriteSize);
   const float spriteHalf = static_cast<float>(spriteSize) / 2.0f;
@@ -108,6 +107,11 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
     const size_t numPoles = fam->getNumberOfTuples();
     for(size_t t = 0; t < numPoles; t++)
     {
+      // Do Not Draw Negative Hemisphere.
+      if((*fam)[t * 3 + 2] < 0)
+      {
+        continue;
+      }
       const std::array<float, 2> disk = StereographicProjectUpperHemisphere((*fam)[t * 3 + 0], (*fam)[t * 3 + 1], (*fam)[t * 3 + 2]);
       if(disk[0] * disk[0] + disk[1] * disk[1] > 1.0f)
       {
