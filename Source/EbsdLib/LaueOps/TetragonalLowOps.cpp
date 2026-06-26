@@ -622,7 +622,7 @@ ebsdlib::Rgb TetragonalLowOps::generateRodriguesColor(double r1, double r2, doub
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> TetragonalLowOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  return {"<001>", "<100>", "<110>"};
+  return {"{001}", "{100}", "{110}"};
 }
 
 // -----------------------------------------------------------------------------

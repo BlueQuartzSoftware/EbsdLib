@@ -69,67 +69,67 @@ laue(end+1).rpg = '432';
 laue(end).symName = 'Cubic_High m-3m';
 laue(end).cs = crystalSymmetry('m-3m');
 laue(end).h = {[0 0 1], [0 1 1], [1 1 1]};
-laue(end).labels = {'<001>', '<011>', '<111>'};
+laue(end).labels = {'{001}', '{011}', '{111}'};
 
 laue(end+1).rpg = '23';
 laue(end).symName = 'Cubic_Low m-3';
 laue(end).cs = crystalSymmetry('m-3');
 laue(end).h = {[0 0 1], [0 1 1], [1 1 1]};
-laue(end).labels = {'<001>', '<011>', '<111>'};
+laue(end).labels = {'{001}', '{011}', '{111}'};
 
 laue(end+1).rpg = '622';
 laue(end).symName = 'Hexagonal_High 6/mmm';
 laue(end).cs = crystalSymmetry('6/mmm', [1 1 1.6], 'X||a*');
 laue(end).h = {[0 0 0 1], [1 0 -1 0], [1 1 -2 0]};
-laue(end).labels = {'<0001>', '<10-10>', '<11-20>'};
+laue(end).labels = {'{0001}', '{10-10}', '{11-20}'};
 
 laue(end+1).rpg = '6';
 laue(end).symName = 'Hexagonal_Low 6/m';
 laue(end).cs = crystalSymmetry('6/m', [1 1 1.6], 'X||a*');
 laue(end).h = {[0 0 0 1], [1 0 -1 0], [1 1 -2 0]};
-laue(end).labels = {'<0001>', '<10-10>', '<11-20>'};
+laue(end).labels = {'{0001}', '{10-10}', '{11-20}'};
 
 laue(end+1).rpg = '32';
 laue(end).symName = 'Trigonal_High -3m';
 laue(end).cs = crystalSymmetry('-3m', [1 1 1.6], 'X||a*');
 laue(end).h = {[0 0 0 1], [0 -1 1 0], [1 -1 0 0]};
-laue(end).labels = {'<0001>', '<0-110>', '<1-100>'};
+laue(end).labels = {'{0001}', '{0-110}', '{1-100}'};
 
 laue(end+1).rpg = '3';
 laue(end).symName = 'Trigonal_Low -3';
 laue(end).cs = crystalSymmetry('-3', [1 1 1.6], 'X||a*');
 laue(end).h = {[0 0 0 1], [-1 -1 2 0], [2 -1 -1 0]};
-laue(end).labels = {'<0001>', '<-1-120>', '<2-1-10>'};
+laue(end).labels = {'{0001}', '{-1-120}', '{2-1-10}'};
 
 laue(end+1).rpg = '422';
 laue(end).symName = 'Tetragonal_High 4/mmm';
 laue(end).cs = crystalSymmetry('4/mmm');
 laue(end).h = {[0 0 1], [1 0 0], [1 1 0]};
-laue(end).labels = {'<001>', '<100>', '<110>'};
+laue(end).labels = {'{001}', '{100}', '{110}'};
 
 laue(end+1).rpg = '4';
 laue(end).symName = 'Tetragonal_Low 4/m';
 laue(end).cs = crystalSymmetry('4/m');
 laue(end).h = {[0 0 1], [1 0 0], [1 1 0]};
-laue(end).labels = {'<001>', '<100>', '<110>'};
+laue(end).labels = {'{001}', '{100}', '{110}'};
 
 laue(end+1).rpg = '222';
 laue(end).symName = 'OrthoRhombic mmm';
 laue(end).cs = crystalSymmetry('mmm');
 laue(end).h = {[0 0 1], [1 0 0], [0 1 0]};
-laue(end).labels = {'<001>', '<100>', '<010>'};
+laue(end).labels = {'{001}', '{100}', '{010}'};
 
 laue(end+1).rpg = '2';
 laue(end).symName = 'Monoclinic 2/m';
 laue(end).cs = crystalSymmetry('2/m');
 laue(end).h = {[0 0 1], [1 0 0], [0 1 0]};
-laue(end).labels = {'<001>', '<100>', '<010>'};
+laue(end).labels = {'{001}', '{100}', '{010}'};
 
 laue(end+1).rpg = '1';
 laue(end).symName = 'Triclinic -1';
 laue(end).cs = crystalSymmetry('-1');
 laue(end).h = {[0 0 1], [1 0 0], [0 1 0]};
-laue(end).labels = {'<001>', '<100>', '<010>'};
+laue(end).labels = {'{001}', '{100}', '{010}'};
 
 % -----------------------------------------------------------------------------
 % Open CSV and write header
@@ -188,7 +188,7 @@ for oi = 1:size(canonical, 1)
             % (px, py) order so the CSV is byte-stable across MTEX runs.
             % MTEX's symmetrise() emission order isn't guaranteed stable when
             % multiple symmetry-equivalent directions hash-collide (we hit
-            % this in the 622/<11-20> bucket -- same 12 points emitted, but
+            % this in the 622/{11-20} bucket -- same 12 points emitted, but
             % the two halves of an antipodal pair swap order between runs).
             % The PoleFigurePositionTest comparator is order-independent so
             % the math is unaffected, but sorting here means `git diff` on a

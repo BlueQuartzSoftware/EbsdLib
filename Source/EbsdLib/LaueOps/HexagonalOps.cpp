@@ -238,11 +238,12 @@ struct SymOps
   //
   // Under X||a*, family-1's first member at (1, 0, 0) is the {10-10}
   // plane normal a*1, and family-2's first member at (cos30, sin30, 0)
-  // is the {2-1-10} direction. Under X||a, those Cartesian numbers
-  // change because the basis rotates 30° about c.
+  // is the {11-20} plane normal (the a-axis direction). Under X||a, those
+  // Cartesian numbers change because the basis rotates 30° about c, but the
+  // families themselves are unchanged.
   std::vector<ebsdlib::Matrix3X1D> dirsFamily0; // {0001} family
   std::vector<ebsdlib::Matrix3X1D> dirsFamily1; // {10-10} family
-  std::vector<ebsdlib::Matrix3X1D> dirsFamily2; // {2-1-10} family
+  std::vector<ebsdlib::Matrix3X1D> dirsFamily2; // {11-20} family (a-axis normals; == {2-1-10})
 
   template <ebsdlib::HexConvention Conv>
   static SymOps build()
@@ -1277,7 +1278,7 @@ public:
       {
         emitDirAndAntipode(gTranspose, m_Sym->dirsFamily1[k], m_xyz011, i * f1Stride + k * 2);
       }
-      // {2-1-10} plane-normal family (3 unique under hex 6/mmm), offset 30° from {10-10}.
+      // {11-20} plane-normal family (3 unique under hex 6/mmm), offset 30° from {10-10}.
       for(size_t k = 0; k < m_Sym->dirsFamily2.size(); ++k)
       {
         emitDirAndAntipode(gTranspose, m_Sym->dirsFamily2[k], m_xyz111, i * f2Stride + k * 2);
@@ -1384,18 +1385,16 @@ ebsdlib::Rgb HexagonalOps::generateRodriguesColor(double r1, double r2, double r
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  // The a-family slot is sym-equivalent under the 6-fold; <2-1-10> and
-  // <11-20> are different orbit members of the same physical family.
-  // Different software ecosystems pick different representatives:
-  //   X||a (OIM / EDAX / legacy DREAM3D): <2-1-10>  (the a-vector itself)
-  //   X||a* (MTEX / Oxford):              <11-20>
-  // Match the user's expected toolchain so the printed labels line up
-  // with what they see in OIM Analysis or MTEX side-by-side.
-  if(conv == ebsdlib::HexConvention::XParallelA)
-  {
-    return {"<0001>", "<10-10>", "<2-1-10>"};
-  }
-  return {"<0001>", "<10-10>", "<11-20>"};
+  // The three pole figures plot whole plane-normal families, so they are named
+  // with brace (plane-family) notation. The family identity does NOT depend on
+  // the X||a vs X||a* convention: that choice is a 30 deg rotation of the
+  // Cartesian basis about c, which only rotates where the poles land in the
+  // figure (handled in the direction tables / generateSphereCoordsFromEulers).
+  // The third family is the a-axis family; {2-1-10} and {11-20} are synonyms for
+  // it ((2-1-10) is a member of {11-20}), so we use the standard {11-20} for both
+  // conventions rather than switching the title. conv is unused for the labels.
+  (void)conv;
+  return {"{0001}", "{10-10}", "{11-20}"};
 }
 
 // -----------------------------------------------------------------------------

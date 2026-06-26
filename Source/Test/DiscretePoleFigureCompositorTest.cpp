@@ -2,8 +2,8 @@
 
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/DiscretePoleFigureCompositor.h"
-#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 #include "EbsdLib/Utilities/PngWriter.h"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 
 #include <array>
 #include <chrono>
@@ -51,8 +51,8 @@ TEST_CASE("ebsdlib::DiscretePoleFigureCompositorTest::MarkerSprite", "[EbsdLib][
   UInt8ArrayType::Pointer sprite = RenderDiscreteMarkerSprite(red, 6.0f, size);
 
   REQUIRE(sprite != nullptr);
-  REQUIRE(size >= 12);                            // diameter ~ 2*r + padding
-  REQUIRE(size % 2 == 0);                          // even for centered blits
+  REQUIRE(size >= 12);    // diameter ~ 2*r + padding
+  REQUIRE(size % 2 == 0); // even for centered blits
   REQUIRE(sprite->getNumberOfTuples() == static_cast<size_t>(size) * size);
   REQUIRE(sprite->getNumberOfComponents() == 4);
 

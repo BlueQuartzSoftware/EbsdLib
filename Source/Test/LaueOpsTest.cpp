@@ -24,42 +24,38 @@
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
-// PR 2i regression tests: getDefaultPoleFigureNames must honor HexConvention.
-// Under X||a we follow the OIM/EDAX naming convention for the a-family
-// ({"<2-1-10>"}); under X||a* we follow MTEX's choice ({"<11-20>"}). The
-// labels are sym-equivalent representatives of the same orbit, but they're
-// what the corresponding software ecosystem prints, and a user reading
-// EbsdLib output expects to see what their toolchain (OIM vs MTEX) labels.
+// getDefaultPoleFigureNames returns the plotted plane-normal families in brace
+// (plane-family) notation. The family identity does NOT depend on HexConvention:
+// X||a vs X||a* is a 30 deg rotation of the Cartesian basis about c, which only
+// moves where the poles land in the figure (handled in the direction tables),
+// not which family is plotted. So the labels are identical for both conventions:
+// {0001}, {10-10}, {11-20}. ({2-1-10} is a synonym for the a-axis family {11-20};
+// we use the standard {11-20} for both conventions rather than switching titles.)
 //
-// Trigonal classes have two distinct prism families and the OIM/MTEX label
-// dichotomy doesn't apply cleanly there — we don't assert difference between
-// conventions for those, only that the conv parameter is plumbed (no crash,
-// returns three non-empty strings).
+// Trigonal classes have their own prism-family structure; we only assert that the
+// conv parameter is plumbed (no crash, three non-empty strings).
 TEST_CASE("ebsdlib::LaueOpsTest::GetDefaultPoleFigureNames_HexConvention", "[EbsdLib][LaueOpsTest]")
 {
-  SECTION("HexagonalHigh: a-family label flips between conventions")
+  SECTION("HexagonalHigh: family labels are convention-independent")
   {
     HexagonalOps ops;
     auto labelsA = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
     auto labelsAStar = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
-    CHECK(labelsA[0] == "<0001>");
-    CHECK(labelsAStar[0] == "<0001>");
-    CHECK(labelsA[1] == labelsAStar[1]); // prism slot identical
-    CHECK(labelsA[2] != labelsAStar[2]); // a-family slot differs
-    CHECK(labelsA[2] == "<2-1-10>");
-    CHECK(labelsAStar[2] == "<11-20>");
+    CHECK(labelsA == labelsAStar); // family identity is convention-independent
+    CHECK(labelsA[0] == "{0001}");
+    CHECK(labelsA[1] == "{10-10}");
+    CHECK(labelsA[2] == "{11-20}");
   }
 
-  SECTION("HexagonalLow: same a-family flip as HexagonalHigh")
+  SECTION("HexagonalLow: same convention-independent labels as HexagonalHigh")
   {
     HexagonalLowOps ops;
     auto labelsA = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelA);
     auto labelsAStar = ops.getDefaultPoleFigureNames(ebsdlib::HexConvention::XParallelAStar);
-    CHECK(labelsA[0] == "<0001>");
-    CHECK(labelsA[1] == labelsAStar[1]);
-    CHECK(labelsA[2] != labelsAStar[2]);
-    CHECK(labelsA[2] == "<2-1-10>");
-    CHECK(labelsAStar[2] == "<11-20>");
+    CHECK(labelsA == labelsAStar);
+    CHECK(labelsA[0] == "{0001}");
+    CHECK(labelsA[1] == "{10-10}");
+    CHECK(labelsA[2] == "{11-20}");
   }
 
   SECTION("Trigonal classes: conv parameter is plumbed without crash")
@@ -92,11 +88,11 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetDefaultPoleFigureNames_HexConvention", "[Ebs
 }
 
 // -----------------------------------------------------------------------------
-// PR 2i regression test: HexagonalOps::generatePoleFigure must propagate
-// config.hexConvention into its internal getDefaultPoleFigureNames() call.
-// Without this, the rendered PF panel labels are stuck on whatever the
-// no-arg default returns regardless of caller intent.
-TEST_CASE("ebsdlib::LaueOpsTest::GeneratePoleFigure_PropagatesHexConvention", "[EbsdLib][LaueOpsTest]")
+// HexagonalOps::generatePoleFigure must assign the correct family labels to the
+// three rendered figures. Family labels are convention-independent (the X||a vs
+// X||a* choice only rotates pole positions, not family identity), so both
+// conventions must yield the standard {0001}/{10-10}/{11-20} titles.
+TEST_CASE("ebsdlib::LaueOpsTest::GeneratePoleFigure_AssignsFamilyLabels", "[EbsdLib][LaueOpsTest]")
 {
   HexagonalOps ops;
 
@@ -121,12 +117,12 @@ TEST_CASE("ebsdlib::LaueOpsTest::GeneratePoleFigure_PropagatesHexConvention", "[
   auto figuresA = ops.generatePoleFigure(cfgA);
   auto figuresAStar = ops.generatePoleFigure(cfgAStar);
 
-  // The renderer assigns the names array to figuresA[i]->getName(); we use
-  // those to verify the convention-aware string is what made it through.
+  // The renderer assigns the names array to figuresA[i]->getName(); the family
+  // labels are convention-independent, so both conventions yield {11-20}.
   REQUIRE(figuresA.size() == 3ULL);
   REQUIRE(figuresAStar.size() == 3ULL);
-  CHECK(figuresA[2]->getName() == "<2-1-10>");
-  CHECK(figuresAStar[2]->getName() == "<11-20>");
+  CHECK(figuresA[2]->getName() == "{11-20}");
+  CHECK(figuresAStar[2]->getName() == "{11-20}");
 }
 
 // -----------------------------------------------------------------------------
@@ -688,5 +684,138 @@ TEST_CASE("ebsdlib::LaueOpsTest::SymOpGroupClosure", "[EbsdLib][LaueOpsTest]")
         }
       }
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Strict IPF-color assertions for the standard-stereographic-triangle (SST)
+// corners of EVERY Laue class. At the identity orientation the crystal frame
+// equals the sample frame, so a reference direction maps directly onto that
+// crystal direction; the IPF color key then paints the three SST corners as the
+// pure primaries. The mapping is universal:
+//
+//   IPF legend corner -> color (TSL key)
+//   -------------------------------------------------------------------------
+//   SST apex (principal axis, chi = 0)        -> RED   (255,  0,  0)
+//   eta = etaMin edge corner (chi = chiMax)   -> GREEN (  0,255,  0)
+//   eta = etaMax edge corner (chi = chiMax)   -> BLUE  (  0,  0,255)
+//
+//   Laue class            eta[min,max] deg   apex    green(etaMin)  blue(etaMax)
+//   Cubic       m-3m       [   0,  45]        [001]   [101]          [111]
+//   Cubic-Low   m-3        [   0,  90]        [001]   [011]          eta-max edge
+//   Hexagonal   6/mmm      [   0,  30]        [0001]  [2-1-10]       [10-10]
+//   Hexagonal-L 6/m        [   0,  60]        [0001]  [2-1-10]       [11-20]
+//   Tetragonal  4/mmm      [   0,  45]        [001]   [100]          [110]
+//   Tetragonal-L 4/m       [   0,  90]        [001]   [100]          [010]
+//   Trigonal    -3m        [ -90, -30]        [0001]  eta-min edge   eta-max edge
+//   Trigonal-L  -3         [-120,   0]        [0001]  eta-min edge   eta-max edge
+//   Orthorhombic mmm       [   0,  90]        [001]   [100]          [010]
+//   Monoclinic  2/m        [   0, 180]        [001]   eta-min edge   eta-max edge
+//   Triclinic   -1         [   0, 180]        [001]   eta-min edge   eta-max edge
+//
+// The all-class section below derives each class's eta range and chiMax from
+// getIpfColorAngleLimits() and asserts the universal mapping. Exact pure-primary
+// values are additionally asserted at the canonical corners of the high-symmetry
+// cubic (m-3m) and hexagonal (6/mmm) triangles. (The exact corners lie on a
+// symmetry fold boundary, so the all-class checks sample a hair inside each edge
+// and assert the expected primary strictly dominates.) Confirmed against the
+// built library; the IPF color is independent of the X||a / X||a* convention.
+namespace
+{
+ebsdlib::Rgb ipfColorAtDir(const ebsdlib::LaueOps& ops, double x, double y, double z)
+{
+  double e[3] = {0.0, 0.0, 0.0}; // identity orientation
+  const double n = std::sqrt(x * x + y * y + z * z);
+  double d[3] = {x / n, y / n, z / n};
+  return ops.generateIPFColor(e, d, false); // default TSL color key
+}
+
+// Direction at azimuth eta and polar angle chi from the c-axis (radians).
+ebsdlib::Rgb ipfColorAtEtaChi(const ebsdlib::LaueOps& ops, double eta, double chi)
+{
+  return ipfColorAtDir(ops, std::sin(chi) * std::cos(eta), std::sin(chi) * std::sin(eta), std::cos(chi));
+}
+
+void checkExact(ebsdlib::Rgb c, int r, int g, int b, const std::string& what)
+{
+  INFO(what << " -> R=" << RgbColor::dRed(c) << " G=" << RgbColor::dGreen(c) << " B=" << RgbColor::dBlue(c));
+  CHECK(RgbColor::dRed(c) == r);
+  CHECK(RgbColor::dGreen(c) == g);
+  CHECK(RgbColor::dBlue(c) == b);
+}
+
+// Assert channel `ch` (0=R, 1=G, 2=B) is the strong, strict dominant.
+void checkDominant(ebsdlib::Rgb c, int ch, const std::string& what)
+{
+  const int v[3] = {RgbColor::dRed(c), RgbColor::dGreen(c), RgbColor::dBlue(c)};
+  INFO(what << " -> R=" << v[0] << " G=" << v[1] << " B=" << v[2]);
+  CHECK(v[ch] >= 200);
+  CHECK(v[ch] > v[(ch + 1) % 3]);
+  CHECK(v[ch] > v[(ch + 2) % 3]);
+}
+} // namespace
+
+TEST_CASE("ebsdlib::LaueOpsTest::IPFColor_SSTCorners", "[EbsdLib][LaueOpsTest]")
+{
+  const double c30 = std::sqrt(3.0) / 2.0; // cos(30) == sin(60)
+
+  SECTION("All Laue classes: SST apex=red, eta-min edge=green, eta-max edge=blue")
+  {
+    std::vector<LaueOps::Pointer> allOps = LaueOps::GetAllOrientationOps();
+    int checked = 0;
+    for(const auto& op : allOps)
+    {
+      if(op == nullptr)
+      {
+        continue;
+      }
+      const std::string name = op->getNameOfClass();
+      const std::array<double, 3> lim = op->getIpfColorAngleLimits(0.0);
+      const double etaMin = lim[0];
+      const double etaMax = lim[1];
+      if(!(etaMax > etaMin))
+      {
+        continue; // class has no eta-parameterized SST (skip)
+      }
+      // Sample a hair inside each edge to avoid the fold-boundary ambiguity.
+      const double d = (etaMax - etaMin) * 0.03;
+      const double gEta = etaMin + d;
+      const double bEta = etaMax - d;
+      const double gChi = op->getIpfColorAngleLimits(gEta)[2] * 0.97;
+      const double bChi = op->getIpfColorAngleLimits(bEta)[2] * 0.97;
+
+      checkExact(ipfColorAtEtaChi(*op, 0.0, 0.0), 255, 0, 0, name + " apex");
+      checkDominant(ipfColorAtEtaChi(*op, gEta, gChi), 1, name + " eta-min edge (green)");
+      checkDominant(ipfColorAtEtaChi(*op, bEta, bChi), 2, name + " eta-max edge (blue)");
+      ++checked;
+    }
+    INFO("Laue classes checked: " << checked);
+    CHECK(checked >= 11); // every Laue class must be exercised
+  }
+
+  SECTION("Cubic m-3m canonical corners are exact primaries: [001]=R, [011]=G, [111]=B")
+  {
+    CubicOps ops;
+    checkExact(ipfColorAtDir(ops, 0, 0, 1), 255, 0, 0, "[001]");
+    checkExact(ipfColorAtDir(ops, 0, 1, 1), 0, 255, 0, "[011]");
+    checkExact(ipfColorAtDir(ops, 1, 1, 1), 0, 0, 255, "[111]");
+  }
+
+  SECTION("Hexagonal 6/mmm canonical corners are exact primaries: [0001]=R, [2-1-10]=G, [10-10]=B")
+  {
+    HexagonalOps ops;
+    checkExact(ipfColorAtDir(ops, 0, 0, 1), 255, 0, 0, "[0001]");
+    checkExact(ipfColorAtDir(ops, 1, 0, 0), 0, 255, 0, "[2-1-10] eta=0");
+    checkExact(ipfColorAtDir(ops, c30, 0.5, 0), 0, 0, 255, "[10-10] eta=30");
+  }
+
+  // Cross-class contrast: a basal direction near eta=0 is the GREEN side of the
+  // 6/m wedge [0,60] but the BLUE side of the -3 wedge [-120,0].
+  SECTION("Same eta region, different class -> different color")
+  {
+    const double oneDeg = ebsdlib::constants::k_PiOver180D;
+    const double chi90 = ebsdlib::constants::k_PiOver2D;
+    checkDominant(ipfColorAtEtaChi(HexagonalLowOps(), 1.0 * oneDeg, chi90), 1, "HexLow eta~0 (green)");
+    checkDominant(ipfColorAtEtaChi(TrigonalLowOps(), -1.0 * oneDeg, chi90), 2, "TrigLow eta~0 (blue)");
   }
 }

@@ -9,15 +9,121 @@ URL is [http://pajarito.materials.cmu.edu/lectures/L3-OD_symmetry-21Jan16-slide_
 
 ## Hexagonal Cartesian Conventions: X‖a vs X‖a*
 
-EbsdLib v3 aligned its hexagonal and trigonal direction conventions to `X‖a*`, matching
+EbsdLib v3.0 aligned its hexagonal and trigonal direction conventions to `X‖a*`, matching
 MTEX and Oxford Instruments / HKL acquisition systems. (EDAX/TSL/OIM Analysis use the
 other convention, `X‖a`.) The 30° rotation between the two conventions is what caused
 the original `(10-10)` and `(2-1-10)` pole-figure mismatches before the v3 changes.
+
+**As of 3.1.0 the public default is `X‖a` (TSL/EDAX)**, matching legacy DREAM3D and the
+rest of EbsdLib. The internal canonical SymOps tables remain `X‖a*` (MTEX-validated); only
+the *default* selected by the IPF/pole-figure APIs and config structs changed. IPF colors
+are convention-invariant — only pole-figure positions and the legend / pole-figure family
+labels follow the basis.
 
 ![X parallel a-star convention](x_parallel_a_star_convention.svg)
 
 Position-space validation across all 11 Laue classes lives in
 [`Data/Pole_Figure_Validation/`](../Data/Pole_Figure_Validation/ReadMe.md).
+
+---
+
+# Release Notes — EbsdLib 3.1.0
+
+EbsdLib 3.1 is the "discrete pole figures + TSL-by-default" release. It builds
+on the 3.0 MTEX-correctness work with a new vector-marker pole-figure renderer
+and a switch of the public default hexagonal/trigonal basis back to `X‖a`
+(TSL/EDAX). The two themes:
+
+1. **Discrete (vector-marker) pole figures.** A new renderer draws each pole as
+   a crisp, decimated vector marker instead of rasterizing it as pixels —
+   sharper figures, controllable marker size, and a hard cap on overdraw for
+   million-pole datasets.
+2. **`X‖a` (TSL) is the default convention again.** 3.0 shipped `X‖a*` (MTEX) as
+   the public default; 3.1 returns the default to `X‖a` to match legacy DREAM3D
+   and the rest of EbsdLib. The internal canonical tables are unchanged
+   (`X‖a*`); only the default the public APIs/structs select changed.
+
+Detailed API reference: [`v3_api_reference.md`](v3_api_reference.md).
+
+## Breaking changes
+
+### Default hexagonal/trigonal convention is now `X‖a` (TSL)
+
+The default value of `HexConvention` flipped from `XParallelAStar` (3.0) to
+`XParallelA` (3.1) in every public surface that selects it:
+
+- `LaueOps::generateIPFTriangleLegend(...)` — the `conv` parameter, which was
+  **required** in 3.0, now defaults to `ebsdlib::HexConvention::XParallelA`.
+- `PoleFigureConfiguration_t::hexConvention` — now defaults to `XParallelA`.
+- `CompositePoleFigureConfiguration_t::hexConvention` — now defaults to `XParallelA`.
+
+Effect: hexagonal/trigonal **pole-figure positions** and **legend/family labels**
+render in the TSL basis by default. IPF *colors* are unaffected (convention-
+invariant). Callers that want the 3.0 behavior must now pass
+`HexConvention::XParallelAStar` explicitly (e.g. to compare side-by-side with
+MTEX). Cubic / tetragonal / orthorhombic / monoclinic / triclinic are unaffected.
+
+### Pole-figure family labels: brace notation, convention-independent
+
+`getDefaultPoleFigureNames()` now returns **plane-family brace notation** —
+`{0001}`, `{10-10}`, `{11-20}`, `{001}`, `{011}`, `{111}`, etc. — for every
+Laue class, and the labels are **identical under both conventions**. The 3.0
+behavior of switching the hexagonal a-family label (`<10-10>` ↔ `<2-1-10>`) with
+the convention is removed; both conventions now report `{11-20}` for that family
+(the family identity is convention-independent; only the on-figure dot positions
+rotate by 30°). Downstream code that parsed the old angle-bracket strings, or
+that relied on the per-convention label switch, must update.
+
+### Rendered-figure differences
+
+Pole figures now render **+Y-up** by default (`flipFinalImage`), and discrete
+figures use the vector-marker renderer rather than per-pixel stamping. Output is
+not byte-identical to 3.0. Any pixel-level exemplars pinned against 3.0 pole
+figures must be regenerated.
+
+## New features
+
+### Discrete vector-marker pole figure renderer
+
+- `DiscretePoleFigureCompositor` renders discrete pole figures by stamping
+  opaque marker sprites, with a `MarkerOccupancyGrid` that decimates
+  overlapping markers (bounded overdraw for >1M-pole inputs).
+- `ebsdlib::GeneratePoleFigureComposite(config)` is the dispatch entry point:
+  it routes `discrete && !discreteHeatMap` figures to the vector-marker
+  renderer and everything else to the raster `PoleFigureCompositor`. Prefer
+  this over calling a compositor directly.
+- `CompositePoleFigureConfiguration_t` gained a `DiscreteMarkerStyle`
+  (`markerStyle.radiusFraction`) to control marker size.
+- `StereographicProjectUpperHemisphere(...)` projection helper.
+- Shared title / axis / info-block chrome extracted into a reusable
+  `PoleFigureChrome` module.
+
+### IPF legends annotate their convention
+
+Hexagonal and trigonal IPF triangle legends now print a small
+`Convention: X||a (TSL)` (or `X||a* (MTEX/Oxford)`) sub-line under the title,
+so a legend is self-documenting. Non-hex/trig classes are unchanged.
+
+## Apps that changed
+
+| App | Status |
+| --- | ------ |
+| `generate_ipf_legends` | defaults to `X‖a`; prints the absolute output directory at start/finish; regenerates the per-class legend + pole-figure matrix as PNG |
+| `render_ebsd` | `--convention` now defaults to `x_a` (TSL) |
+
+## Validation evidence
+
+- **Strict IPF-color corners.** `LaueOpsTest::IPFColor_SSTCorners` asserts the
+  standard-stereographic-triangle corners render as pure primaries for **every**
+  Laue class: apex (`[0001]`/`[001]`) = red, η-min edge = green, η-max edge =
+  blue (exact primaries for cubic and hex 6/mmm; dominant-channel just inside the
+  edge for the wider-wedge classes, which sit on a fold boundary).
+- **Discrete-render performance guard.** A hidden test renders a >1M-pole
+  discrete figure to bound decimation cost.
+- **MTEX positions still validated.** `PoleFigurePositionTest` continues to pass
+  against the MTEX golden (`X‖a*`). `PoleFigureLaueComparisonTest` now routes
+  through `GeneratePoleFigureComposite` (vector markers) and pins `X‖a*` locally
+  to stay aligned with its MTEX comparison script.
 
 ---
 

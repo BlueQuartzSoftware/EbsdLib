@@ -1315,12 +1315,10 @@ ebsdlib::Rgb HexagonalLowOps::generateRodriguesColor(double r1, double r2, doubl
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> HexagonalLowOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  // See HexagonalOps::getDefaultPoleFigureNames for the OIM/MTEX label rationale.
-  if(conv == ebsdlib::HexConvention::XParallelA)
-  {
-    return {"<0001>", "<10-10>", "<2-1-10>"};
-  }
-  return {"<0001>", "<10-10>", "<11-20>"};
+  // See HexagonalOps::getDefaultPoleFigureNames: the family identity does not
+  // depend on the X||a vs X||a* convention, so the labels are the same for both.
+  (void)conv;
+  return {"{0001}", "{10-10}", "{11-20}"};
 }
 
 // -----------------------------------------------------------------------------

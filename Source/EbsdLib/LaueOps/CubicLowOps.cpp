@@ -805,7 +805,7 @@ ebsdlib::Rgb CubicLowOps::generateRodriguesColor(double r1, double r2, double r3
 // -----------------------------------------------------------------------------
 std::array<std::string, 3> CubicLowOps::getDefaultPoleFigureNames(ebsdlib::HexConvention conv) const
 {
-  return {"<001>", "<011>", "<111>"};
+  return {"{001}", "{011}", "{111}"};
 }
 
 // -----------------------------------------------------------------------------

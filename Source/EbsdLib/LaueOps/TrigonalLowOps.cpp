@@ -734,7 +734,7 @@ std::array<std::string, 3> TrigonalLowOps::getDefaultPoleFigureNames(ebsdlib::He
   // See TrigonalOps::getDefaultPoleFigureNames for the rationale on why the
   // conv parameter is plumbed but does not change the returned strings here.
   (void)conv;
-  return {"<0001>", "<-1-120>", "<2-1-10>"};
+  return {"{0001}", "{-1-120}", "{2-1-10}"};
 }
 
 // -----------------------------------------------------------------------------

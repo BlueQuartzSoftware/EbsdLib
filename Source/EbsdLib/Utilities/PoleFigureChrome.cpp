@@ -85,16 +85,19 @@ void DrawPoleFigureInfoBlock(canvas_ity::canvas& context, const CompositePoleFig
     laueGroupName = laueNames[config.laueOpsIndex];
   }
 
-  const std::vector<std::string> labels = {
+  std::vector<std::string> labels = {
       fmt::format("Phase Num: {}", config.phaseNumber),
       fmt::format("Material Name: {}", config.phaseName),
       fmt::format("Laue Group: {}", laueGroupName),
-      fmt::format("Upper & Lower:"),
       fmt::format("Samples: {}", config.eulers != nullptr ? config.eulers->getNumberOfTuples() : 0),
-      fmt::format("Lambert Sq. Dim: {}", config.lambertDim),
       fmt::format("Hex/Trig Convention: {}", config.hexConvention == ebsdlib::HexConvention::XParallelAStar ? "x||a*" : "x||a"),
       // fmt::format("{} Right, {} Up", config.axisNames[0], config.axisNames[1])
   };
+
+  if(!config.discrete)
+  {
+    labels.push_back(fmt::format("Lambert Sq. Dim: {}", config.lambertDim));
+  }
 
   float heightInc = 1.0f;
   for(const auto& label : labels)
@@ -169,8 +172,11 @@ void DrawPoleFigureFrame(canvas_ity::canvas& context, const CompositePoleFigureC
 
   context.close_path();
 
-  // Direction label (e.g., "<001>" displayed as "(001)")
-  std::string subtitle = EbsdStringUtils::replace(poleFigureName, "<", "(");
+  // Family label rendered as a parenthesized title, e.g. brace-notation
+  // "{0001}" (and any legacy angle-bracket "<0001>") is shown as "(0001)".
+  std::string subtitle = EbsdStringUtils::replace(poleFigureName, "{", "(");
+  subtitle = EbsdStringUtils::replace(subtitle, "}", ")");
+  subtitle = EbsdStringUtils::replace(subtitle, "<", "(");
   subtitle = EbsdStringUtils::replace(subtitle, ">", ")");
 
   std::string bottomPart;
