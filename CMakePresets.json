@@ -158,6 +158,10 @@
         "generator": "Ninja",
         "inherits": "ci",
         "cacheVariables": {
+          "CMAKE_BUILD_TYPE": {
+            "type": "STRING",
+            "value": "Release"
+          },
           "VCPKG_TARGET_TRIPLET": {
             "type": "STRING",
             "value": "x64-linux-dynamic"
