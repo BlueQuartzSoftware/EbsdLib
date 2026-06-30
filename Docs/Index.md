@@ -56,6 +56,8 @@ The default value of `HexConvention` flipped from `XParallelAStar` (3.0) to
   **required** in 3.0, now defaults to `ebsdlib::HexConvention::XParallelA`.
 - `PoleFigureConfiguration_t::hexConvention` — now defaults to `XParallelA`.
 - `CompositePoleFigureConfiguration_t::hexConvention` — now defaults to `XParallelA`.
+- `InversePoleFigureConfiguration_t::hexConvention` — now defaults to `XParallelA`
+  (affects only the SST label annotation; IPF colors are convention-invariant).
 
 Effect: hexagonal/trigonal **pole-figure positions** and **legend/family labels**
 render in the TSL basis by default. IPF *colors* are unaffected (convention-

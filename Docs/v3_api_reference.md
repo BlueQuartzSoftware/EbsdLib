@@ -1,10 +1,17 @@
 # EbsdLib v3 API Reference (LaueOps + supporting types)
 
-This is a hand-written reference for the public LaueOps surface as of
-v3.0.0, focused on the symbols that changed in v3. The full Doxygen
-header documentation is the source of truth for the per-parameter
-contracts; this file gives the high-level picture and the cross-references
-between symbols.
+This is a hand-written reference for the public LaueOps surface and the
+pole-figure rendering API as of v3.1.0, focused on the symbols that changed
+across the v3 line. The full Doxygen header documentation is the source of
+truth for the per-parameter contracts; this file gives the high-level
+picture and the cross-references between symbols.
+
+**v3.1.0 deltas** (called out inline below): the public default hex/trig
+convention flipped from `XParallelAStar` back to `XParallelA` (TSL);
+`getDefaultPoleFigureNames` now returns convention-independent brace-notation
+labels; `generateIPFTriangleLegend`'s base-virtual `conv` parameter gained a
+default; and a discrete vector-marker pole-figure renderer
+(`GeneratePoleFigureComposite` + `DiscretePoleFigureCompositor`) was added.
 
 For the release-notes view (what changed, why, and migration recipes), see
 [`Index.md`](Index.md).
@@ -130,7 +137,7 @@ virtual UInt8ArrayType::Pointer generateIPFTriangleLegend(
 
 - `imageDim` — square canvas size in pixels.
 - `generateEntirePlane=true` renders the full unit circle; `false` renders just the SST (the standard view).
-- `conv` — no default on the base virtual. Hex/trig overrides honor it (legend labels and basal-plane direction tables shuffle); non-hex/trig overrides ignore it.
+- `conv` — **v3.1.0:** the base virtual now defaults this to `XParallelA` (it had no default in v3.0). Hex/trig overrides default to `XParallelA`; non-hex/trig overrides default to `NotApplicable` and ignore the parameter. Hex/trig overrides honor it (basal-plane direction tables shuffle, and the legend draws a convention sub-line under the title).
 - `kind` — picks the per-class color key. Defaults to TSL.
 - `gridded=true` wraps the selected key in a `GriddedColorKey` (~1° eta × chi resolution) to produce MTEX-style flat-shaded cells. Only meaningful for legends.
 
@@ -149,7 +156,7 @@ virtual void generateSphereCoordsFromEulers(
 
 - `c1`, `c2`, `c3` receive one normalized direction per orientation per symmetry-equivalent pole, for plane families 0, 1, 2 respectively.
 - For cubic/tet/ortho/mono/triclinic, the three families are convention-invariant and `conv` is ignored.
-- For hex 6/mmm and 6/m, `conv` selects whether plane families 1 and 2 are the `X‖a*` basis (`<10-10>` and `<11-20>`) or the `X‖a` basis (the same families rotated 30°).
+- For hex 6/mmm and 6/m, `conv` selects whether plane families 1 and 2 are the `X‖a*` basis (`{10-10}` and `{11-20}` sitting at azimuths 0/60/… and 30/90/…) or the `X‖a` basis (the same families rotated 30° about c). Both bases are position-validated against MTEX in `PoleFigurePositionTest` (one golden CSV per convention).
 
 ### Default pole-figure family labels
 
@@ -159,10 +166,16 @@ virtual std::array<std::string, 3> getDefaultPoleFigureNames(
 ```
 
 Returns the labels for the three default plane families EbsdLib renders.
-Hex/trig classes return *different* labels per convention; non-hex/trig
-classes return the same labels regardless. Always paired with a matching
-call to `generateSphereCoordsFromEulers(..., conv)` so the labels and the
-data agree.
+
+**v3.1.0:** labels are now **convention-independent** — the same
+brace-notation strings are returned for both conventions (e.g. hex returns
+`{0001}`, `{10-10}`, `{11-20}` regardless of `conv`). Previously the hex/trig
+classes returned *different* angle-bracket labels per convention; the
+brace-notation values were chosen because they are unambiguous in either
+basis. Only the rendered *positions* (from `generateSphereCoordsFromEulers`)
+differ between conventions, not the labels. The `conv` parameter is retained
+for API symmetry but no longer changes the returned strings. Still paired
+with `generateSphereCoordsFromEulers(..., conv)` so labels and data agree.
 
 ### Misorientation coloring (unchanged signature)
 
@@ -185,15 +198,115 @@ SymOps refactor.
   `LaueOps::generatePoleFigure()` and by the standalone family-emission
   renderer.
 - `ebsdlib::CompositePoleFigureConfiguration_t::hexConvention` — picked
-  up by `PoleFigureCompositor::generateCompositeImage()`. The simplnx
-  `WritePoleFigureFilter` learned to set this in v3.0; pre-v3 it was
-  silently default-constructed (PR 2g, commit `9395592`).
-- `ebsdlib::InversePoleFigureConfiguration_t::hexConvention` — added in
-  PR 2k.
+  up by `PoleFigureCompositor::generateCompositeImage()` and by the
+  discrete path. The simplnx `WritePoleFigureFilter` sets this for both the
+  intensity and composite configs.
+- `ebsdlib::InversePoleFigureConfiguration_t::hexConvention` — affects only
+  the SST label annotation (IPF colors are convention-invariant).
 
-All three default to `XParallelAStar`. Callers that don't care should
-leave the default; the simplnx side exposes the choice as the
-`hex_convention_index` UI parameter.
+**v3.1.0 default flip:** all three now default to **`XParallelA`** (TSL),
+down from `XParallelAStar` in v3.0. This is a behavioral change for any
+caller that default-constructed the config and rendered a hex/trig phase.
+The simplnx side exposes the choice as the `hex_convention_index` UI
+parameter and sets it explicitly, so it is unaffected.
+
+> **Migration:** to keep v3.0 (MTEX / `X‖a*`) pole figures, set
+> `config.hexConvention = ebsdlib::HexConvention::XParallelAStar` explicitly.
+> Colors and IPF maps are convention-invariant and need no change.
+
+---
+
+## Discrete vector-marker pole figures (new in v3.1.0)
+
+```cpp
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
+#include "EbsdLib/Utilities/DiscretePoleFigureCompositor.h"
+#include "EbsdLib/Utilities/PoleFigureProjection.h"
+```
+
+v3.0 rendered discrete pole figures by painting individual pixels, which
+aliased badly at the per-pole level. v3.1 adds a vector-marker renderer that
+draws each pole as a fully-opaque filled circle (anti-aliased sprite), plus a
+single dispatch entry point that routes a config to the right renderer.
+
+### Dispatch entry point
+
+```cpp
+EbsdLib_EXPORT CompositePoleFigureResult
+GeneratePoleFigureComposite(CompositePoleFigureConfiguration_t& config);
+```
+
+The function callers should prefer. It inspects `config.discrete` /
+`config.discreteHeatMap` and dispatches:
+
+| `discrete` | `discreteHeatMap` | Renderer |
+| ---------- | ----------------- | -------- |
+| `false` | — | `PoleFigureCompositor` (Lambert-interpolated intensity heatmap) |
+| `true` | `false` | `DiscretePoleFigureCompositor` (vector markers) |
+| `true` | `true` | discrete heatmap (per-pole binned color) |
+
+Returns a `CompositePoleFigureResult { UInt8ArrayType::Pointer image; int32_t height; int32_t width; }`
+holding an RGBA image. `WritePoleFigure` (simplnx) and the `make_pole_figure`
+app both route through this.
+
+### `DiscretePoleFigureCompositor`
+
+```cpp
+class EbsdLib_EXPORT DiscretePoleFigureCompositor
+{
+public:
+  CompositePoleFigureResult generateCompositeImage(CompositePoleFigureConfiguration_t& config);
+};
+```
+
+Non-copyable, non-movable, stateless per call. Reads
+`config.hexConvention` (via `generateSphereCoordsFromEulers`) and
+`config.markerStyle`, and uses a `MarkerOccupancyGrid` to decimate
+overlapping markers so dense clusters stay legible.
+
+### `DiscreteMarkerStyle`
+
+```cpp
+struct EbsdLib_EXPORT DiscreteMarkerStyle
+{
+  std::array<float, 3> color = {0.0f, 0.0f, 0.0f}; ///< marker RGB, default black (opaque)
+  float radiusFraction = 0.006f;                   ///< radius as a fraction of figure diameter (imageDim)
+};
+```
+
+A field on `CompositePoleFigureConfiguration_t` (`markerStyle`). simplnx
+exposes `radiusFraction` as a user parameter.
+
+### `StereographicProjectUpperHemisphere`
+
+```cpp
+EbsdLib_EXPORT std::array<float, 2>
+StereographicProjectUpperHemisphere(float x, float y, float z);
+```
+
+Upper-hemisphere stereographic projection helper (antipodal fold for `z<0`,
+then `x/(1+z)`, `y/(1+z)`) — the same rule the MTEX validation goldens use.
+Factored out so the discrete and raster paths project identically.
+
+### `PoleFigureChrome`
+
+```cpp
+#include "EbsdLib/Utilities/PoleFigureChrome.h"
+```
+
+Free functions that draw the shared chrome (background, title, info block,
+circular frame + axis labels) for both the raster and discrete paths, so the
+two renderers are visually consistent:
+
+```cpp
+void DrawPoleFigureBackground(canvas_ity::canvas&, const LayoutMetrics&);
+void DrawPoleFigureTitle(canvas_ity::canvas&, const std::string& title, ...);
+void DrawPoleFigureInfoBlock(canvas_ity::canvas&, const CompositePoleFigureConfiguration_t&, ...);
+void DrawPoleFigureFrame(canvas_ity::canvas&, const CompositePoleFigureConfiguration_t&, ...);
+```
+
+The subtitle/info block converts brace-notation family labels (`{10-10}`) to
+parenthesized form for display.
 
 ---
 

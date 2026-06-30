@@ -70,8 +70,10 @@ struct InversePoleFigureConfiguration_t
   /// Cartesian basis convention for hex/trig phases. Affects the Miller-
   /// index labels drawn around the SST in generateAnnotatedIPFDensity.
   /// Ignored for cubic / tetragonal / orthorhombic / monoclinic / triclinic.
+  /// Defaults to X||a (TSL) to match the pole-figure config structs (3.1).
+  /// IPF colors are convention-invariant; this only affects the SST labels.
   /// See ebsdlib::HexConvention.
-  ebsdlib::HexConvention hexConvention = ebsdlib::HexConvention::XParallelAStar;
+  ebsdlib::HexConvention hexConvention = ebsdlib::HexConvention::XParallelA;
 };
 
 /**
