@@ -348,7 +348,7 @@ RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   float denom = static_cast<float>(std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]));
   ax[0] = ax[0] / denom;
   ax[1] = ax[1] / denom;
-  ax[1] = ax[2] / denom;
+  ax[2] = ax[2] / denom;
   if(ax[2] < 0)
   {
     ax[0] = -ax[0], ax[1] = -ax[1], ax[2] = -ax[2];
