@@ -316,48 +316,26 @@ RodriguesDType CubicLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   double n1 = ax[0];
   double n2 = ax[1], n3 = ax[2], w = ax[3];
 
-  double FZn1 = w, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
+  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
+  double FZw = w;
 
   n1 = fabs(n1);
   n2 = fabs(n2);
   n3 = fabs(n3);
-  if(n1 > n2)
+  // The tetrahedral rotation group only provides the <111> 3-fold axes, so only
+  // cyclic permutations of the axis components are symmetry-equivalent. Rotate
+  // cyclically so the largest component is first; n2/n3 must NOT be sorted.
+  if(n2 >= n1 && n2 >= n3)
   {
-    if(n1 > n3)
-    {
-      FZn1 = n1;
-      if(n2 > n3)
-      {
-        FZn2 = n2, FZn3 = n3;
-      }
-      else
-      {
-        FZn2 = n3, FZn3 = n2;
-      }
-    }
-    else
-    {
-      FZn1 = n3, FZn2 = n1, FZn3 = n2;
-    }
+    FZn1 = n2, FZn2 = n3, FZn3 = n1;
+  }
+  else if(n3 >= n1 && n3 >= n2)
+  {
+    FZn1 = n3, FZn2 = n1, FZn3 = n2;
   }
   else
   {
-    if(n2 > n3)
-    {
-      FZn1 = n2;
-      if(n1 > n3)
-      {
-        FZn2 = n1, FZn3 = n3;
-      }
-      else
-      {
-        FZn2 = n3, FZn3 = n1;
-      }
-    }
-    else
-    {
-      FZn1 = n3, FZn2 = n2, FZn3 = n1;
-    }
+    FZn1 = n1, FZn2 = n2, FZn3 = n3;
   }
 
   return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();

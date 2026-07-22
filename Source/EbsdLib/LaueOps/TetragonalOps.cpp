@@ -297,6 +297,12 @@ RodriguesDType TetragonalOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn2 = std::fabs(ax[1]);
   FZn3 = std::fabs(ax[2]);
   FZw = ax[3];
+  // The 422 rotation group's <110> 2-fold axes make (n1, n2) and (n2, n1) equivalent,
+  // so the octant folds further to the sector where n1 >= n2
+  if(FZn2 > FZn1)
+  {
+    std::swap(FZn1, FZn2);
+  }
 
   return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }

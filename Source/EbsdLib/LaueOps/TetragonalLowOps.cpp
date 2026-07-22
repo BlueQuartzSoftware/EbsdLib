@@ -259,17 +259,35 @@ RodriguesDType TetragonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
-
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
 
-  FZn1 = std::fabs(ax[0]);
-  FZn2 = std::fabs(ax[1]);
-  FZn3 = std::fabs(ax[2]);
-  FZw = ax[3];
+  double n1 = ax[0];
+  double n2 = ax[1];
+  double n3 = ax[2];
+  double w = ax[3];
 
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The 4/m rotation group is only the 4-fold about c (no in-plane 2-folds), so the
+  // axis folds to n3 >= 0 (via -C2z, which leaves the azimuth unchanged) and the
+  // azimuth into a plain 90 degree wedge with no mirror alternation
+  if(n3 < 0)
+  {
+    n3 = -n3;
+  }
+  double angle = 180.0 * std::atan2(n2, n1) * ebsdlib::constants::k_1OverPiD;
+  if(angle < 0)
+  {
+    angle = angle + 360.0;
+  }
+  if(angle > 90.0)
+  {
+    double n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
+    double azimuth = (angle - (90.0 * static_cast<int>(angle / 90.0))) * ebsdlib::constants::k_PiOver180D;
+    n1 = n1n2mag * std::cos(azimuth);
+    n2 = n1n2mag * std::sin(azimuth);
+  }
+
+  return AxisAngleDType(n1, n2, n3, w).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------

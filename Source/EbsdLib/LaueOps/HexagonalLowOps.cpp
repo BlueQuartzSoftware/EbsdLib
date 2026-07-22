@@ -386,24 +386,15 @@ RodriguesDType HexagonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn1 = n1;
   FZn2 = n2;
   FZn3 = n3;
-  if(angle > 30.0)
+  // The 6/m rotation group is only the 6-fold about c (no in-plane 2-folds), so the
+  // axis azimuth folds into a plain 60 degree wedge with no mirror alternation
+  if(angle > 60.0)
   {
     n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
-    if(int(angle / 30) % 2 == 0)
-    {
-      FZw = angle - (30.0 * int(angle / 30.0));
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
-    else
-    {
-      FZw = angle - (30.0 * int(angle / 30.0));
-      FZw = 30.0f - FZw;
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
+    FZw = angle - (60.0 * int(angle / 60.0));
+    FZw = FZw * ebsdlib::constants::k_PiOver180D;
+    FZn1 = n1n2mag * std::cos(FZw);
+    FZn2 = n1n2mag * std::sin(FZw);
   }
 
   return AxisAngleDType(FZn1, FZn2, FZn3, w).toRodrigues();
