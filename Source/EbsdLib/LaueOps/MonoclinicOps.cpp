@@ -247,19 +247,31 @@ RodriguesDType MonoclinicOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType MonoclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  throw ebsdlib::method_not_implemented("MonoclinicOps::getMDFFZRod not implemented");
-  //  /// FIXME: Are we missing code for MonoclinicOps MDF FZ Rodrigues calculation?
+  RodriguesDType rod = LaueOps::_calcRodNearestOrigin(inRod);
+  AxisAngleDType ax = rod.toAxisAngle();
 
-  //  double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
-  //  double FZw = 0.0, FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
-  //
-  //  OrientationType rod = LaueOps::_calcRodNearestOrigin(inRod);
-  //  AxisAngleDType ax = rod.toAxisAngle();
-  //  n1 = ax[0];
-  //  n2 = ax[1], n3 = ax[2], w = ax[3];
-  //
-  //
-  //  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The 2/m rotation group is the single 2-fold about b (Y). Conjugation maps the
+  // misorientation axis (n1, n2, n3) to (-n1, n2, -n3) and switching symmetry
+  // negates it, so the fundamental sector is n2 >= 0 and n3 >= 0 with n1 free.
+  if(ax[1] < 0.0)
+  {
+    // combined 2-fold conjugation + switching: flips n2 only
+    ax[1] = -ax[1];
+  }
+  if(ax[2] < 0.0)
+  {
+    // 2-fold conjugation: flips n1 and n3, leaves n2
+    ax[0] = -ax[0];
+    ax[2] = -ax[2];
+  }
+  else if(ax[2] == 0.0 && ax[0] < 0.0)
+  {
+    // Equator tie-break: the 2-fold conjugation still relates (n1, n2, 0) and
+    // (-n1, n2, 0); pick the half-plane with n1 >= 0
+    ax[0] = -ax[0];
+  }
+
+  return AxisAngleDType(ax[0], ax[1], ax[2], ax[3]).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------

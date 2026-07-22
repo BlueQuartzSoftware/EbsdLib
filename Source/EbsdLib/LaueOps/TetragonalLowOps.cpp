@@ -279,10 +279,9 @@ RodriguesDType TetragonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   {
     angle = angle + 360.0;
   }
-  if(angle > 90.0)
   {
-    double n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
-    double azimuth = (angle - (90.0 * static_cast<int>(angle / 90.0))) * ebsdlib::constants::k_PiOver180D;
+    const double n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
+    const double azimuth = std::fmod(angle, 90.0) * ebsdlib::constants::k_PiOver180D;
     n1 = n1n2mag * std::cos(azimuth);
     n2 = n1n2mag * std::sin(azimuth);
   }

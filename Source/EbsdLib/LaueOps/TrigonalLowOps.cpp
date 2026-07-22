@@ -364,11 +364,13 @@ RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn2 = ax[1];
   FZn3 = ax[2];
   // The -3 rotation group is only the 3-fold about c (no in-plane 2-folds), so the
-  // axis azimuth folds into a plain 120 degree wedge with no mirror alternation
-  if(angle > 120.0)
+  // axis azimuth folds into a plain 120 degree wedge with no mirror alternation.
+  // On the equator (n3 == 0) switching symmetry acts within the plane and combines
+  // with the 3-fold into a 60 degree identification.
   {
+    const double sector = (ax[2] == 0.0) ? 60.0 : 120.0;
+    double azimuth = std::fmod(angle, sector);
     n1n2mag = std::sqrt(ax[0] * ax[0] + ax[1] * ax[1]);
-    double azimuth = angle - (120.0 * static_cast<int>(angle / 120.0));
     azimuth = azimuth * ebsdlib::constants::k_PiOver180D;
     FZn1 = n1n2mag * std::cos(azimuth);
     FZn2 = n1n2mag * std::sin(azimuth);

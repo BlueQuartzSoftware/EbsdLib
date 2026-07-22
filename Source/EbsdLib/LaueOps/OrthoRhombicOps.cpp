@@ -258,20 +258,13 @@ RodriguesDType OrthoRhombicOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  throw ebsdlib::method_not_implemented("OrthoRhombicOps::getMDFFZRod not implemented");
-
-  double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
-
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
-  //  double n1 = ax[0];
-  //  double n2 = ax[1];
-  //  double n3 = ax[2];
-  //  double w = ax[3];
 
-  /// FIXME: Are we missing code for OrthoRhombic MDF FZ Rodrigues calculation?
-
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The 222 rotation group's three orthogonal 2-folds combined with switching
+  // symmetry generate every sign combination of the misorientation axis, so the
+  // fundamental sector is the first octant.
+  return AxisAngleDType(std::fabs(ax[0]), std::fabs(ax[1]), std::fabs(ax[2]), ax[3]).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------

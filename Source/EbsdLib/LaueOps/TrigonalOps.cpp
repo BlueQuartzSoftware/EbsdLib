@@ -399,6 +399,12 @@ RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
     {
       azimuth = 180.0 - azimuth;
     }
+    if(n3 == 0.0 && azimuth > 60.0)
+    {
+      // Equator tie-break: on the equator the 2-fold conjugations act within the
+      // plane, adding mirror lines every 30 degrees; the sector shrinks to [30, 60]
+      azimuth = 120.0 - azimuth;
+    }
     n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
     azimuth = azimuth * ebsdlib::constants::k_PiOver180D;
     FZn1 = n1n2mag * std::cos(azimuth);

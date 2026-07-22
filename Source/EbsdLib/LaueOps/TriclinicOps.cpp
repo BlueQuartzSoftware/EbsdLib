@@ -244,14 +244,27 @@ RodriguesDType TriclinicOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType TriclinicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  throw ebsdlib::method_not_implemented("TriclinicOps::getMDFFZRod not implemented");
-
   RodriguesDType rod = LaueOps::_calcRodNearestOrigin(inRod);
-
   AxisAngleDType ax = rod.toAxisAngle();
-  /// FIXME: Are we missing code for TriclinicOps MDF FZ Rodrigues calculation?
 
-  return ax.toRodrigues();
+  // The -1 Laue class has no rotational symmetry, so the only misorientation axis
+  // equivalence is switching symmetry (a misorientation and its inverse describe the
+  // same boundary and have negated axes). Fold to the upper hemisphere n3 >= 0.
+  if(ax[2] < 0.0)
+  {
+    ax[0] = -ax[0];
+    ax[1] = -ax[1];
+    ax[2] = -ax[2];
+  }
+  else if(ax[2] == 0.0 && (ax[1] < 0.0 || (ax[1] == 0.0 && ax[0] < 0.0)))
+  {
+    // Equator tie-break: switching still relates (n1, n2, 0) and (-n1, -n2, 0);
+    // pick the half-plane with n2 > 0, or n1 >= 0 along the n2 == 0 line
+    ax[0] = -ax[0];
+    ax[1] = -ax[1];
+  }
+
+  return AxisAngleDType(ax[0], ax[1], ax[2], ax[3]).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
