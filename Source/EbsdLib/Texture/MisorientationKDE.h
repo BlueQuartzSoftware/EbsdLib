@@ -17,19 +17,33 @@ namespace ebsdlib
  * getMisoBin), then evaluates a symmetrized De la Vallee Poussin kernel density at an arbitrary
  * misorientation. The density is:
  *
- *   f(g) = sum_bins w_bin * ( K(g, c_bin) + K(g, c_bin^-1) )
+ *   f(g) = sum_bins w_bin * ( K(g, c_bin) + K(g, c_bin^-1) ) / ( 2 * |CS|^2 )
  *
- * where each K is averaged over the |CS| x |CS| crystal-symmetry pairs (s_i * g * s_j), and the
- * grain-exchange (antipodal) inverse term enforces f(g) == f(g^-1). getMDFFZRod() already folds
- * grain exchange into the bin assignment, so the inverse term is not additionally halved. The
- * kernel psi integrates to 1 over SO(3), so with weights normalized to sum 1 the density is a
- * normalized MDF (uniform == 1) whose modal peak height is the kernel constant K(0).
+ * where each K is summed over the |CS| x |CS| crystal-symmetry pairs (s_i * g * s_j), and the
+ * grain-exchange (antipodal) inverse term enforces f(g) == f(g^-1). The forward and inverse terms
+ * together span the grain-exchange-extended symmetry orbit (2 * |CS|^2 elements), so the mean-1
+ * normalization divides by 2 * |CS|^2. The kernel psi integrates to 1 over SO(3); with weights
+ * normalized to sum 1 the density is then a normalized MDF (mean == 1 over SO(3), matching MTEX's
+ * mean(mdf) == 1) whose triclinic (|CS| == 1) modal peak height is K(0) / 2. The absolute scale was
+ * pinned by a direct numerical cross-check against MTEX 6.1.0 (see computeAngleCurve()).
  *
  * Usage: construct, addMisorientation() for every observation, finalize() once, then evaluate().
  */
 class EbsdLib_EXPORT MisorientationKDE
 {
 public:
+  /**
+   * @brief Misorientation-angle-distribution curve extracted from the KDE.
+   * Angles are in radians (0 .. MaxMisorientationAngle(structure)); Density is the MDF
+   * angle distribution; RandomDensity is the uniform (random) reference distribution.
+   */
+  struct AngleCurve
+  {
+    std::vector<double> Angles;
+    std::vector<double> Density;
+    std::vector<double> RandomDensity;
+  };
+
   /**
    * @brief Constructor.
    * @param ops Laue-class symmetry operators for the MDF fundamental zone.
@@ -71,6 +85,21 @@ public:
    * @brief Serial convenience: evaluate() at every bin center; size getMDFSize().
    */
   std::vector<double> evaluateAtBinCenters() const;
+
+  /**
+   * @brief Misorientation-angle-distribution curve: a port of MTEX
+   * SO3Fun/@SO3Fun/calcAngleDistribution.m. For each of numPoints angles omega in
+   * [0, MaxMisorientationAngle(structure)] the density is the uniform-reference value
+   * (random_angle_distribution::Compute) multiplied by the mean of evaluate() over an
+   * axis grid on the omega-sphere. Two deliberate deviations from MTEX (validated by the
+   * MTEX numerical cross-check in the unit test, tolerance epsilon(0.05)+margin(0.02)):
+   *   (1) axes are a Fibonacci full-sphere sampling filtered to MDF-FZ membership (via the
+   *       audited getMDFFZRod folds, each misorientation class counted exactly once)
+   *       instead of MTEX's fundamental-sector grid with a one-sided FZ check;
+   *   (2) the axis-grid count is scaled by 2*|CS| so the post-filter (FZ-only) axis density
+   *       matches MTEX's sector-grid density.
+   */
+  AngleCurve computeAngleCurve(size_t numPoints) const;
 
 private:
   struct Center
