@@ -3,13 +3,16 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Texture/MisorientationKDE.h"
 #include "EbsdLib/Texture/RandomAngleDistribution.h"
 #include "EbsdLib/Texture/SO3DeLaValleePoussinKernel.h"
 
 #include <array>
 #include <cmath>
+#include <random>
 #include <vector>
 
 using namespace ebsdlib;
@@ -234,4 +237,90 @@ TEST_CASE("ebsdlib::MisorientationKDE::CubicAngleCurveVsMTEX", "[EbsdLib][Misori
     CHECK(curve.Angles[idx] == Approx(mtexOmega).margin(1.0e-6));
     CHECK(curve.Density[idx] == Approx(mtexDensity).epsilon(0.20).margin(0.10));
   }
+}
+
+// -----------------------------------------------------------------------------
+// Regression guard for a correlated MDF whose true peak is at a KNOWN non-45-degree
+// angle. A tight cluster of Sigma3 (60 degree / <111>) misorientations on top of a
+// random background must produce an MDF whose bin-array peak folds to a 60/<111>
+// misorientation AND whose angle-distribution curve peaks near 60 degrees -- clearly
+// distinct from the ~45 degree cubic Mackenzie (random-reference) maximum. This is the
+// discriminating case the earlier 45-degree bicrystal cross-check could not catch: a
+// density that collapsed to the random distribution would still peak at ~45 and pass a
+// weaker test, but fails here.
+TEST_CASE("ebsdlib::MisorientationKDE::CorrelatedTwinPeaksAtSixty", "[EbsdLib][MisorientationKDE]")
+{
+  auto ops = ebsdlib::LaueOps::GetAllOrientationOps()[ebsdlib::CrystalStructure::Cubic_High];
+  const double hw = 10.0 * k_DegToRad;
+  ebsdlib::MisorientationKDE kde(ops, ebsdlib::CrystalStructure::Cubic_High, hw);
+
+  // Tight cluster of 60 degree / <111> Sigma3 twins.
+  const size_t numTwins = 600;
+  for(size_t i = 0; i < numTwins; i++)
+  {
+    kde.addMisorientation(quatFromAxisAngle(1.0, 1.0, 1.0, 60.0 * k_DegToRad), 1.0);
+  }
+  // Uniform-ish random background (deterministic) via Shoemake's method.
+  std::mt19937 gen(12345);
+  std::uniform_real_distribution<double> uni(0.0, 1.0);
+  const size_t numRandom = 400;
+  for(size_t i = 0; i < numRandom; i++)
+  {
+    const double u1 = uni(gen);
+    const double u2 = uni(gen);
+    const double u3 = uni(gen);
+    const double s1 = std::sqrt(1.0 - u1);
+    const double s2 = std::sqrt(u1);
+    ebsdlib::QuatD q(s1 * std::sin(2.0 * constants::k_PiD * u2), s1 * std::cos(2.0 * constants::k_PiD * u2), s2 * std::sin(2.0 * constants::k_PiD * u3), s2 * std::cos(2.0 * constants::k_PiD * u3));
+    kde.addMisorientation(q, 1.0);
+  }
+  kde.finalize();
+
+  // 1. The MDF bin-array peak folds to a 60 degree / <111> misorientation.
+  std::vector<double> densities = kde.evaluateAtBinCenters();
+  size_t argMax = 0;
+  for(size_t i = 1; i < densities.size(); i++)
+  {
+    if(densities[i] > densities[argMax])
+    {
+      argMax = i;
+    }
+  }
+  double seed[3] = {0.5, 0.5, 0.5};
+  ebsdlib::RodriguesDType peakRod = ops->determineRodriguesVector(seed, static_cast<int>(argMax));
+  ebsdlib::AxisAngleDType peakAxisAngle = peakRod.toAxisAngle();
+  const double peakAngleDeg = peakAxisAngle[3] / k_DegToRad;
+  INFO("MDF peak angle (deg) = " << peakAngleDeg << " axis (" << peakAxisAngle[0] << ", " << peakAxisAngle[1] << ", " << peakAxisAngle[2] << ")");
+  CHECK(peakAngleDeg > 56.0);
+  CHECK(peakAngleDeg < 63.0);
+  const double invSqrt3 = 1.0 / std::sqrt(3.0);
+  CHECK(std::fabs(std::fabs(peakAxisAngle[0]) - invSqrt3) < 0.1);
+  CHECK(std::fabs(std::fabs(peakAxisAngle[1]) - invSqrt3) < 0.1);
+  CHECK(std::fabs(std::fabs(peakAxisAngle[2]) - invSqrt3) < 0.1);
+
+  // 2. The angle-distribution curve peaks near 60 degrees, not at the ~45 degree random peak.
+  ebsdlib::MisorientationKDE::AngleCurve curve = kde.computeAngleCurve(200);
+  size_t curveArgMax = 0;
+  for(size_t i = 1; i < curve.Density.size(); i++)
+  {
+    if(curve.Density[i] > curve.Density[curveArgMax])
+    {
+      curveArgMax = i;
+    }
+  }
+  size_t randomArgMax = 0;
+  for(size_t i = 1; i < curve.RandomDensity.size(); i++)
+  {
+    if(curve.RandomDensity[i] > curve.RandomDensity[randomArgMax])
+    {
+      randomArgMax = i;
+    }
+  }
+  const double curvePeakDeg = curve.Angles[curveArgMax] / k_DegToRad;
+  const double randomPeakDeg = curve.Angles[randomArgMax] / k_DegToRad;
+  INFO("angle-curve peak (deg) = " << curvePeakDeg << ", random-reference peak (deg) = " << randomPeakDeg);
+  CHECK(curvePeakDeg > 53.0);
+  CHECK(curvePeakDeg < 63.0);
+  // The random reference itself peaks near 45 degrees; the measured curve must be well above it.
+  CHECK(curvePeakDeg - randomPeakDeg > 5.0);
 }
