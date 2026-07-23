@@ -32,7 +32,6 @@ QuatD quatFromAxisAngle(double ax, double ay, double az, double angleRadians)
   return QuatD(nx * s, ny * s, nz * s, std::cos(angleRadians / 2.0));
 }
 
-// Disorientation-style similarity of two densities.
 } // namespace
 
 // -----------------------------------------------------------------------------
