@@ -56,21 +56,21 @@ TEST_CASE("ebsdlib::MisorientationKDE::SingleCenterTriclinic", "[EbsdLib][Misori
 
   ebsdlib::SO3DeLaValleePoussinKernel psi(hw);
 
-  // The gridify step snaps the center to its bin center, so evaluate the *bin
-  // center*, not the original quat.
-  const int bin = ops->getMisoBin(ops->getMDFFZRod(c.toRodrigues()));
-  ebsdlib::QuatD snapped = kde.binCenter(bin);
+  // The KDE center is the bin's weighted circular-mean misorientation, which for a single
+  // observation is the (FZ-folded) input misorientation itself, so the modal peak sits at that
+  // misorientation rather than at the geometric bin center.
+  ebsdlib::QuatD center = ops->getMDFFZRod(c.toRodrigues()).toQuaternion();
 
-  // Modal peak: density at the snapped center equals K(0) / 2 (the 0.5 antipodal factor).
-  REQUIRE(kde.evaluate(snapped) == Approx(psi.evaluate(1.0) / 2.0).epsilon(0.01));
+  // Modal peak: density at the center equals K(0) / 2 (the 0.5 antipodal factor).
+  REQUIRE(kde.evaluate(center) == Approx(psi.evaluate(1.0) / 2.0).epsilon(0.01));
 
-  // Rotate the snapped center by hw about an orthogonal axis -> quarter peak (half of K(0)/2).
+  // Rotate the center by hw about an orthogonal axis -> quarter peak (half of K(0)/2).
   ebsdlib::QuatD dq(std::sin(hw / 2.0), 0.0, 0.0, std::cos(hw / 2.0));
-  REQUIRE(kde.evaluate(dq * snapped) == Approx(psi.evaluate(1.0) / 4.0).epsilon(0.02));
+  REQUIRE(kde.evaluate(dq * center) == Approx(psi.evaluate(1.0) / 4.0).epsilon(0.02));
 
   // Beyond the cutoff -> exactly zero.
   ebsdlib::QuatD far(0.0, std::sin(60.0 * k_DegToRad), 0.0, std::cos(60.0 * k_DegToRad));
-  REQUIRE(kde.evaluate(far * snapped) == 0.0);
+  REQUIRE(kde.evaluate(far * center) == 0.0);
 }
 
 // -----------------------------------------------------------------------------
@@ -236,6 +236,116 @@ TEST_CASE("ebsdlib::MisorientationKDE::CubicAngleCurveVsMTEX", "[EbsdLib][Misori
     CHECK(curve.Angles[idx] == Approx(mtexOmega).margin(1.0e-6));
     CHECK(curve.Density[idx] == Approx(mtexDensity).epsilon(0.20).margin(0.10));
   }
+}
+
+// -----------------------------------------------------------------------------
+// Numerical cross-check against MTEX 6.1.0 for HEXAGONAL (6/mmm). This is the
+// hexagonal analogue of CubicAngleCurveVsMTEX and closes the gap where the hex
+// angle-curve extraction had never been pinned to MTEX (only the Mackenzie random
+// reference had been). A 3-center hex KDE (weights 1,2,3) is built and
+// computeAngleCurve(200) is compared against MTEX's calcDensity(...,'exact') ->
+// calcAngleDistribution reference at 20 sampled angles. It also pins the hex
+// MaxMisorientationAngle and the random-density reference against MTEX.
+//
+// MTEX reference generated with:
+//   cs=crystalSymmetry('6/mmm');
+//   ax=[vector3d(0,0,1), vector3d(1,0,0), vector3d(1,1,1)/norm(vector3d(1,1,1))];
+//   om=[20 50 80]*degree; mori=orientation('axis',ax,'angle',om,cs,cs); w=[1 2 3];
+//   mdf=calcDensity(mori,'weights',w,'halfwidth',10*degree,'exact');
+//   [d,omega]=calcAngleDistribution(mdf);
+// MTEX omega(k) == maxAngle*(k-1)/199, so MTEX index k maps to C++ curve index k-1.
+// The axes are cartesian vector3d in the crystal frame (x=a1, z=c), matching how
+// the NX KDE builds the misorientation quaternion directly from a cartesian axis.
+TEST_CASE("ebsdlib::MisorientationKDE::HexagonalAngleCurveVsMTEX", "[EbsdLib][MisorientationKDE]")
+{
+  auto ops = ebsdlib::LaueOps::GetAllOrientationOps()[ebsdlib::CrystalStructure::Hexagonal_High];
+  ebsdlib::MisorientationKDE kde(ops, ebsdlib::CrystalStructure::Hexagonal_High, 10.0 * k_DegToRad);
+  const double invSqrt3 = 1.0 / std::sqrt(3.0);
+  kde.addMisorientation(quatFromAxisAngle(0.0, 0.0, 1.0, 20.0 * k_DegToRad), 1.0);
+  kde.addMisorientation(quatFromAxisAngle(1.0, 0.0, 0.0, 50.0 * k_DegToRad), 2.0);
+  kde.addMisorientation(quatFromAxisAngle(invSqrt3, invSqrt3, invSqrt3, 80.0 * k_DegToRad), 3.0);
+  kde.finalize();
+
+  const size_t numPoints = 200;
+  ebsdlib::MisorientationKDE::AngleCurve curve = kde.computeAngleCurve(numPoints);
+
+  REQUIRE(curve.Angles.size() == numPoints);
+  REQUIRE(curve.Density.size() == numPoints);
+  REQUIRE(curve.RandomDensity.size() == numPoints);
+
+  // Angle grid endpoints. The hex 6/mmm maximum misorientation angle is 93.84 degrees,
+  // which matches MTEX fundamentalRegion('6/mmm','6/mmm').maxAngle == 1.637833825 rad.
+  const double maxAngle = ebsdlib::random_angle_distribution::MaxMisorientationAngle(ebsdlib::CrystalStructure::Hexagonal_High);
+  REQUIRE(maxAngle == Approx(1.637833825).margin(1.0e-9));
+  REQUIRE(curve.Angles.front() == Approx(0.0).margin(1.0e-12));
+  REQUIRE(curve.Angles.back() == Approx(maxAngle));
+
+  // RandomDensity must match the analytic (Mackenzie) reference exactly; that reference
+  // was independently cross-checked against MTEX calcAngleDistribution('6/mmm') to 1e-12.
+  std::vector<double> expectedRandom = ebsdlib::random_angle_distribution::Compute(ebsdlib::CrystalStructure::Hexagonal_High, curve.Angles);
+  REQUIRE(expectedRandom.size() == numPoints);
+  for(size_t i = 0; i < numPoints; i++)
+  {
+    INFO("RandomDensity mismatch at index " << i);
+    CHECK(curve.RandomDensity[i] == Approx(expectedRandom[i]).margin(1.0e-12));
+  }
+
+  // 20 sampled MTEX (1-based index k, omega, density) reference pairs.
+  const std::array<std::array<double, 3>, 20> mtexRef = {{{{1, 0.0000000000, 0.0000000000}},
+                                                          {{11, 0.0823032073, 0.0352621130}},
+                                                          {{21, 0.1646064146, 0.1636836591}},
+                                                          {{31, 0.2469096219, 0.4222072865}},
+                                                          {{41, 0.3292128291, 0.7709140872}},
+                                                          {{51, 0.4115160364, 0.8567685815}},
+                                                          {{61, 0.4938192437, 0.9308375971}},
+                                                          {{71, 0.5761224510, 0.3756435243}},
+                                                          {{81, 0.6584256583, 0.4738874020}},
+                                                          {{91, 0.7407288656, 0.9702940778}},
+                                                          {{101, 0.8230320729, 1.5630454079}},
+                                                          {{111, 0.9053352802, 2.2704391764}},
+                                                          {{121, 0.9876384874, 2.7324230182}},
+                                                          {{131, 1.0699416947, 3.0542566503}},
+                                                          {{141, 1.1522449020, 2.6611603119}},
+                                                          {{151, 1.2345481093, 1.8815474011}},
+                                                          {{161, 1.3168513166, 1.0179783863}},
+                                                          {{171, 1.3991545239, 0.4290641078}},
+                                                          {{181, 1.4814577312, 0.1270194532}},
+                                                          {{191, 1.5637609384, 0.0338470058}}}};
+
+  // Tolerance mirrors CubicAngleCurveVsMTEX. Because the KDE centers each bin on the
+  // weighted circular mean of the misorientations that fell in it (not the geometric
+  // ~5-degree bin center), these three isolated hex misorientations are represented at
+  // essentially their exact positions, so the curve tracks MTEX's 'exact' reference
+  // closely across the whole angle range -- including the low-to-mid-angle band (14/19/38
+  // degrees) that the earlier geometric-bin-center snap under-estimated by 23-32%. The
+  // band below (20% relative + 0.10 absolute floor) covers the residual axis-grid
+  // sampling noise and the modal peak angle matches MTEX exactly (curve index 131,
+  // ~61.3 degrees).
+  for(const std::array<double, 3>& ref : mtexRef)
+  {
+    const size_t idx = static_cast<size_t>(std::lround(ref[0])) - 1; // 1-based -> 0-based
+    const double mtexOmega = ref[1];
+    const double mtexDensity = ref[2];
+    INFO("MTEX k=" << ref[0] << " omega=" << mtexOmega << " -> curve index " << idx << " angle=" << curve.Angles[idx] << " density=" << curve.Density[idx]);
+    CHECK(curve.Angles[idx] == Approx(mtexOmega).margin(1.0e-6));
+    CHECK(curve.Density[idx] == Approx(mtexDensity).epsilon(0.20).margin(0.10));
+  }
+
+  // The modal peak of the measured hex MDF curve sits at ~61 degrees (MTEX index 131),
+  // well away from the hex random-reference (Mackenzie) maximum, confirming the curve
+  // carries the correlated-misorientation signal rather than collapsing to the reference.
+  size_t curveArgMax = 0;
+  for(size_t i = 1; i < curve.Density.size(); i++)
+  {
+    if(curve.Density[i] > curve.Density[curveArgMax])
+    {
+      curveArgMax = i;
+    }
+  }
+  const double curvePeakDeg = curve.Angles[curveArgMax] / k_DegToRad;
+  INFO("hex angle-curve peak (deg) = " << curvePeakDeg);
+  CHECK(curvePeakDeg > 58.0);
+  CHECK(curvePeakDeg < 64.0);
 }
 
 // -----------------------------------------------------------------------------

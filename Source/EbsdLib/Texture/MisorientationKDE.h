@@ -40,6 +40,7 @@
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Texture/SO3DeLaValleePoussinKernel.h"
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -149,6 +150,12 @@ private:
   SO3DeLaValleePoussinKernel m_Kernel;
   std::vector<QuatD> m_SymQuats;
   std::vector<double> m_BinWeights;
+  // Per-bin weight-weighted running sum of the (sign-aligned) fundamental-zone misorientation
+  // quaternions {x,y,z,w}. finalize() normalizes each non-empty bin's sum to obtain the bin's
+  // representative center. This is the weighted circular mean of the misorientations that fell
+  // in the bin, which is far closer to the true data than the geometric bin center and removes
+  // the ~5-degree MDF-bin quantization bias from the extracted angle-distribution curve.
+  std::vector<std::array<double, 4>> m_BinQuatSum;
   double m_TotalWeight = 0.0;
   std::vector<Center> m_Centers;
 };

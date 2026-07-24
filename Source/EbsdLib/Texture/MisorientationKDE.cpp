@@ -50,6 +50,7 @@ MisorientationKDE::MisorientationKDE(LaueOps::Pointer ops, uint32_t crystalStruc
 , m_CrystalStructure(crystalStructure)
 , m_Kernel(halfwidthRadians)
 , m_BinWeights(m_Ops->getMDFSize(), 0.0)
+, m_BinQuatSum(m_Ops->getMDFSize(), std::array<double, 4>{0.0, 0.0, 0.0, 0.0})
 {
   size_t numSymOps = m_Ops->getNumSymOps();
   m_SymQuats.reserve(numSymOps);
@@ -63,8 +64,24 @@ void MisorientationKDE::addMisorientation(const QuatD& misoQuat, double weight)
 {
   RodriguesDType rod = m_Ops->getMDFFZRod(misoQuat.toRodrigues());
   int binIndex = m_Ops->getMisoBin(rod);
-  m_BinWeights[static_cast<size_t>(binIndex)] += weight;
+  const size_t bin = static_cast<size_t>(binIndex);
+  m_BinWeights[bin] += weight;
   m_TotalWeight += weight;
+
+  // Accumulate the weighted circular mean of the FZ misorientation quaternion within its bin.
+  // All misorientations sharing a bin lie within one ~5-degree cell, so a sign-aligned linear
+  // sum (aligned to the bin's running accumulator, or to itself when the bin is first seen) and
+  // a final renormalization is an accurate mean on that small patch of SO(3). Using this mean as
+  // the KDE center (in finalize) instead of the geometric bin center removes the bin-quantization
+  // bias without storing the individual misorientations (memory stays bounded by getMDFSize).
+  const QuatD fzQuat = rod.toQuaternion();
+  std::array<double, 4>& acc = m_BinQuatSum[bin];
+  const double alignDot = fzQuat.x() * acc[0] + fzQuat.y() * acc[1] + fzQuat.z() * acc[2] + fzQuat.w() * acc[3];
+  const double sign = (alignDot < 0.0) ? -1.0 : 1.0;
+  acc[0] += weight * sign * fzQuat.x();
+  acc[1] += weight * sign * fzQuat.y();
+  acc[2] += weight * sign * fzQuat.z();
+  acc[3] += weight * sign * fzQuat.w();
 }
 
 void MisorientationKDE::finalize()
@@ -78,7 +95,12 @@ void MisorientationKDE::finalize()
   {
     if(m_BinWeights[binIndex] > 0.0)
     {
-      QuatD quat = binCenter(static_cast<int>(binIndex));
+      // Use the bin's weighted circular-mean quaternion (accumulated in addMisorientation) as the
+      // representative center rather than the geometric bin center. This eliminates the ~5-degree
+      // MDF-bin quantization bias that otherwise shifts the extracted angle-distribution curve.
+      const std::array<double, 4>& acc = m_BinQuatSum[binIndex];
+      const double norm = std::sqrt(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2] + acc[3] * acc[3]);
+      QuatD quat = (norm > 0.0) ? QuatD(acc[0] / norm, acc[1] / norm, acc[2] / norm, acc[3] / norm) : binCenter(static_cast<int>(binIndex));
       m_Centers.push_back({quat, quat.conjugate(), m_BinWeights[binIndex] / m_TotalWeight});
     }
   }
