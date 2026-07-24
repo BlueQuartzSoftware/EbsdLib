@@ -192,7 +192,7 @@ MisorientationKDE::AngleCurve MisorientationKDE::computeAngleCurve(size_t numPoi
   curve.RandomDensity = random_angle_distribution::Compute(structure, curve.Angles);
   curve.Density = curve.RandomDensity; // start from the uniform reference, MTEX-style
 
-  const double resolution = 0.5 * constants::k_DegToRadD; // MTEX default 'resolution'
+  const double resolution = 0.5 * constants::k_DegToRadD;                // MTEX default 'resolution'
   const double gridScale = 2.0 * static_cast<double>(m_SymQuats.size()); // full-sphere grid vs MTEX sector grid
   const size_t maxAxes = 20000;
   constexpr double k_GoldenAngle = 2.399963229728653;

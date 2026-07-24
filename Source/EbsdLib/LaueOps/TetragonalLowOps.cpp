@@ -83,9 +83,14 @@ namespace TetragonalLow
 {
 constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 18}; // Represents a 5Deg bin in homochoric space
 
+// NOTE: the third dimension previously computed pow(0.75*(pi/4 - sin(pi/2)), 1/3),
+// which is the cube root of a NEGATIVE number (NaN) -- a mismatched-angle bug
+// inherited from legacy DREAM3D 6.5 OrientationLib. The homochoric half-width
+// formula is 0.75*(theta - sin(theta)) with a single theta; for the 4-fold
+// c-axis of 4/m that theta is pi/2, matching TetragonalOps (4/mmm).
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
                                                         std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
-                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver4D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
 static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 

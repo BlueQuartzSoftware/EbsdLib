@@ -120,7 +120,8 @@ void checkDistinct(const LaueOps& ops, const std::array<double, 3>& axisA, const
   RodriguesDType foldB = ops.getMDFFZRod(rodFromAxisAngle(axisB, angle));
   AxisAngleDType axA = foldA.toAxisAngle();
   AxisAngleDType axB = foldB.toAxisAngle();
-  INFO(what << " foldA=(" << axA[0] << ", " << axA[1] << ", " << axA[2] << ")" << " foldB=(" << axB[0] << ", " << axB[1] << ", " << axB[2] << ")");
+  INFO(what << " foldA=(" << axA[0] << ", " << axA[1] << ", " << axA[2] << ")"
+            << " foldB=(" << axB[0] << ", " << axB[1] << ", " << axB[2] << ")");
   CHECK(rodsDiffer(foldA, foldB));
 }
 } // namespace
