@@ -332,7 +332,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
       if(nullptr == dataPtr)
       {
         assert(false);
-      }                                            // We are going to crash here. I would rather crash than have bad data
+      } // We are going to crash here. I would rather crash than have bad data
       dataPtr = dataPtr + (actualSlice * dims[0]); // Put the pointer at the proper offset into the larger array
       WRITE_EBSD_DATA_ARRAY(reader, int, gid, name);
     }
@@ -342,7 +342,7 @@ int H5CtfImporter::writeSliceData(hid_t fileId, CtfReader& reader, int z, int ac
       if(nullptr == dataPtr)
       {
         assert(false);
-      }                                            // We are going to crash here. I would rather crash than have bad data
+      } // We are going to crash here. I would rather crash than have bad data
       dataPtr = dataPtr + (actualSlice * dims[0]); // Put the pointer at the proper offset into the larger array
       WRITE_EBSD_DATA_ARRAY(reader, float, gid, name);
     }

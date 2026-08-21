@@ -197,9 +197,9 @@ public:
   static const int max_interpolation_depth = 10;
 
   Ini()
-  : format(std::make_shared<Format<CharT>>()){};
+  : format(std::make_shared<Format<CharT>>()) {};
   Ini(std::shared_ptr<Format<CharT>> fmt)
-  : format(fmt){};
+  : format(fmt) {};
 
   void generate(std::basic_ostream<CharT>& os) const
   {

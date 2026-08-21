@@ -86,8 +86,8 @@ namespace HexagonalHigh
 {
 constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin in homochoric space
 
-static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
-                                                        std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D))-std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D))-std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
                                                         std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};

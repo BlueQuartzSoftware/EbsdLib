@@ -59,13 +59,13 @@ building on Windows.
 #if defined(EbsdLib_EXPORTS) /* Compiling the EbsdLib DLL/Dylib */
 #if defined(_MSC_VER)        /* MSVC Compiler Case */
 #define EbsdLib_EXPORT __declspec(dllexport)
-#elif(__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
+#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
 #define EbsdLib_EXPORT __attribute__((visibility("default")))
 #endif
 #else                 /* Importing the DLL into another project */
 #if defined(_MSC_VER) /* MSVC Compiler Case */
 #define EbsdLib_EXPORT __declspec(dllimport)
-#elif(__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
+#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
 #define EbsdLib_EXPORT __attribute__((visibility("default")))
 #endif
 #endif
