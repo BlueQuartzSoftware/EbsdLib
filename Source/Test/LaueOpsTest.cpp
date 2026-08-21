@@ -819,3 +819,29 @@ TEST_CASE("ebsdlib::LaueOpsTest::IPFColor_SSTCorners", "[EbsdLib][LaueOpsTest]")
     checkDominant(ipfColorAtEtaChi(TrigonalLowOps(), -1.0 * oneDeg, chi90), 2, "TrigLow eta~0 (blue)");
   }
 }
+
+// -----------------------------------------------------------------------------
+// The seven Laue classes that enumerate no slip systems used to set schmidfactor and
+// slipsys but leave angleComps UNTOUCHED. That is silent: a caller which hoists one
+// angleComps[2] buffer outside a per-Feature loop -- the natural way to write the loop --
+// got the PREVIOUS Feature's angle components attributed to a Feature of one of these
+// classes, while schmidfactor correctly read 0. Pre-poisoning the buffer is what makes it
+// observable: an overload that does not write angleComps leaves the poison in place.
+TEST_CASE("ebsdlib::LaueOpsTest::SchmidFactorStubClassesDefineEveryOutput", "[EbsdLib][LaueOpsTest]")
+{
+  const std::vector<LaueOps::Pointer> stubOps = {TrigonalOps::New(),     TrigonalLowOps::New(), TetragonalOps::New(), TetragonalLowOps::New(),
+                                                 OrthoRhombicOps::New(), MonoclinicOps::New(),  TriclinicOps::New()};
+  for(const auto& op : stubOps)
+  {
+    double load[3] = {1.0, 2.0, 3.0};
+    double schmidFactor = 7.0;
+    double angleComps[2] = {7.0, 9.0};
+    int slipSystem = 7;
+    op->getSchmidFactorAndSS(load, schmidFactor, angleComps, slipSystem);
+    INFO(op->getNameOfClass());
+    CHECK(schmidFactor == 0.0);
+    CHECK(slipSystem == 0);
+    CHECK(angleComps[0] == 0.0);
+    CHECK(angleComps[1] == 0.0);
+  }
+}
