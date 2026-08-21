@@ -610,7 +610,14 @@ int HexagonalOps::getOdfBin(const RodriguesDType& rod) const
 
 void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // schmidfactor was already seeded here, but slipsys and angleComps were not: the comparison chain
+  // below only assigns to them when a candidate beats the incumbent, so a load direction for which
+  // every candidate is 0 left both outputs holding whatever the caller passed in.
   schmidfactor = 0.0;
+  slipsys = 0;
+  angleComps[0] = 0.0;
+  angleComps[1] = 0.0;
+
   double theta1, theta2, theta3, theta4, theta5, theta6, theta7, theta8, theta9;
   double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, lambda8, lambda9, lambda10;
   double schmid1, schmid2, schmid3, schmid4, schmid5, schmid6;

@@ -522,6 +522,15 @@ int HexagonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
 void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // Every output must be defined before the schmid comparison chain below, which only assigns to
+  // them when a candidate beats the incumbent. Without these, schmidfactor was READ uninitialized
+  // by the first `if(schmid1 > schmidfactor)`, and slipsys/angleComps were left untouched whenever
+  // no candidate won.
+  schmidfactor = 0.0;
+  slipsys = 0;
+  angleComps[0] = 0.0;
+  angleComps[1] = 0.0;
+
   double theta1, theta2, theta3, theta4, theta5, theta6, theta7, theta8, theta9;
   double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, lambda8, lambda9, lambda10;
   double schmid1, schmid2, schmid3, schmid4, schmid5, schmid6;
