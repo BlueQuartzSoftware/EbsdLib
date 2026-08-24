@@ -221,22 +221,20 @@ int H5OINAReader::readFile()
   int err = -1;
   if(m_HDF5Path.empty())
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: HDF5 Path is empty.";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: HDF5 Path is empty.";
     setErrorCode(-1);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
 
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open HDF5 file '" << getFileName() << "'";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-2);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
 
@@ -249,11 +247,10 @@ int H5OINAReader::readFile()
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open path '" << m_HDF5Path << "'";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     setErrorCode(-90020);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -261,11 +258,10 @@ int H5OINAReader::readFile()
   hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5OINA::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open 'EBSD' Group";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open 'EBSD' Group";
     setErrorCode(-90007);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(ebsdGid);
@@ -274,11 +270,10 @@ int H5OINAReader::readFile()
   err = readHeader(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not read header";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read the header of scan '" << m_HDF5Path << "'. " << getErrorMessage();
     setErrorCode(-900021);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -286,11 +281,10 @@ int H5OINAReader::readFile()
   err = readData(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not read data. Internal Error code " << err << " generated.";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read the data of scan '" << m_HDF5Path << "'. Internal error code " << err << ". " << getErrorMessage();
     setErrorCode(-900022);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -333,11 +327,10 @@ int H5OINAReader::readHeaderOnly()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open HDF5 file '" << getFileName() << "'";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-10);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   H5ScopedFileSentinel sentinel(fileId, false);
@@ -347,9 +340,8 @@ int H5OINAReader::readHeaderOnly()
     std::list<std::string> names;
     err = H5Utilities::getGroupObjects(fileId, H5Utilities::CustomHDFDataTypes::Group, names);
 
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error (Internal HDF5 Path is empty): The name of the scan was not specified. There are " << names.size() << " scans available. ";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error (Internal HDF5 Path is empty): The name of the scan was not specified. There are " << names.size() << " scans available. ";
     int nameCount = static_cast<int>(names.size());
     if(nameCount < 10)
     {
@@ -365,7 +357,7 @@ int H5OINAReader::readHeaderOnly()
       ss << name << "\n";
     }
     setErrorCode(-11);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -378,11 +370,10 @@ int H5OINAReader::readHeaderOnly()
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open path '" << m_HDF5Path << "'";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     setErrorCode(-12);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -408,11 +399,10 @@ int H5OINAReader::readScanNames(std::list<std::string>& names)
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: Could not open HDF5 file '" << getFileName() << "'";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-20);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     names.clear();
     return getErrorCode();
   }
@@ -669,8 +659,6 @@ int H5OINAReader::readData(hid_t parId)
   }
   setNumberOfElements(totalDataRows);
   size_t numBytes = totalDataRows * sizeof(float);
-  std::string sBuf;
-  std::stringstream ss(sBuf);
 
   if(m_ArrayNames.empty() && !m_ReadAllArrays)
   {
