@@ -543,7 +543,7 @@ int H5OINAReader::readHeader(hid_t parId)
     std::vector<float> latticeAngles;
     err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeAngles, latticeAngles);
 
-    currentPhase->setLatticeConstants({latticeConstants[0], latticeConstants[1], latticeConstants[2], latticeAngles[0], latticeAngles[1], latticeAngles[1]});
+    currentPhase->setLatticeConstants({latticeConstants[0], latticeConstants[1], latticeConstants[2], latticeAngles[0], latticeAngles[1], latticeAngles[2]});
 
     int laueGroup = 0;
     err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::LaueGroup, laueGroup);
