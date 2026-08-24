@@ -540,17 +540,40 @@ int H5OINAReader::readHeader(hid_t parId)
   for(const auto& phaseGroupName : names)
   {
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
+    if(pid < 0)
+    {
+      setErrorCode(-90030);
+      setErrorMessage("H5OINAReader Error: Could not open the '" + ebsdlib::H5OINA::Phases + "/" + phaseGroupName + "' HDF group.");
+      return getErrorCode();
+    }
 
     CtfPhase::Pointer currentPhase = CtfPhase::New();
     currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
 
     READ_PHASE_STRING_DATA("H5OINAReader", pid, ebsdlib::H5OINA::PhaseName, PhaseName, currentPhase)
 
+    // Each dataset below is required to build the phase. Reading them without checking
+    // the error code left the vectors empty when a dataset was missing, and the indexing
+    // that follows was then undefined behaviour instead of a reported error.
     std::vector<float> latticeConstants;
     err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeDimensions, latticeConstants);
+    if(err < 0 || latticeConstants.size() < 3)
+    {
+      setErrorCode(-90031);
+      setErrorMessage("H5OINAReader Error: Phase '" + phaseGroupName + "' has no readable 3 element '" + ebsdlib::H5OINA::LatticeDimensions + "' dataset.");
+      H5Gclose(pid);
+      return getErrorCode();
+    }
 
     std::vector<float> latticeAngles;
     err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeAngles, latticeAngles);
+    if(err < 0 || latticeAngles.size() < 3)
+    {
+      setErrorCode(-90032);
+      setErrorMessage("H5OINAReader Error: Phase '" + phaseGroupName + "' has no readable 3 element '" + ebsdlib::H5OINA::LatticeAngles + "' dataset.");
+      H5Gclose(pid);
+      return getErrorCode();
+    }
 
     // An H5OINA file stores its lattice angles in radians, which is correct for that
     // format. The angle slots of CtfPhase's lattice constants are degrees-valued for
@@ -562,11 +585,22 @@ int H5OINAReader::readHeader(hid_t parId)
 
     int laueGroup = 0;
     err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::LaueGroup, laueGroup);
+    if(err < 0)
+    {
+      setErrorCode(-90033);
+      setErrorMessage("H5OINAReader Error: Phase '" + phaseGroupName + "' has no readable '" + ebsdlib::H5OINA::LaueGroup + "' dataset, so its crystal symmetry cannot be determined.");
+      H5Gclose(pid);
+      return getErrorCode();
+    }
     currentPhase->setLaueGroup(static_cast<ebsdlib::Ctf::LaueGroupTable>(laueGroup));
 
+    // Space Group is informational for this reader, so a file without it still parses.
     int spaceGroup = 0;
     err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::SpaceGroup, spaceGroup);
-    currentPhase->setSpaceGroup(spaceGroup);
+    if(err >= 0)
+    {
+      currentPhase->setSpaceGroup(spaceGroup);
+    }
 
     phaseVector.push_back(currentPhase);
     err = H5Gclose(pid);
