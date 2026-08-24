@@ -41,6 +41,7 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #include <cstdint>
@@ -422,6 +423,14 @@ int H5OINAReader::readScanNames(std::list<std::string>& names)
   return err;
 }
 
+/**
+ * @brief Converts an angle from radians to degrees, rounding the result once.
+ */
+float RadiansToDegrees(float radians)
+{
+  return static_cast<float>(static_cast<double>(radians) * ebsdlib::constants::k_180OverPiD);
+}
+
 template <typename T>
 int32_t ReadH5OINAHeaderScalarValue(H5OINAReader* c, const std::string& key, hid_t gid, T& value)
 {
@@ -543,7 +552,13 @@ int H5OINAReader::readHeader(hid_t parId)
     std::vector<float> latticeAngles;
     err = H5Support::H5Lite::readVectorDataset(pid, ebsdlib::H5OINA::LatticeAngles, latticeAngles);
 
-    currentPhase->setLatticeConstants({latticeConstants[0], latticeConstants[1], latticeConstants[2], latticeAngles[0], latticeAngles[1], latticeAngles[2]});
+    // An H5OINA file stores its lattice angles in radians, which is correct for that
+    // format. The angle slots of CtfPhase's lattice constants are degrees-valued for
+    // every other importer (.ang, .ctf and their HDF5 variants), so convert here to keep
+    // the phase model consistent no matter which format it was parsed from. The
+    // conversion runs on a double intermediate so the stored float is correctly rounded.
+    currentPhase->setLatticeConstants(
+        {latticeConstants[0], latticeConstants[1], latticeConstants[2], RadiansToDegrees(latticeAngles[0]), RadiansToDegrees(latticeAngles[1]), RadiansToDegrees(latticeAngles[2])});
 
     int laueGroup = 0;
     err = H5Support::H5Lite::readScalarDataset(pid, ebsdlib::H5OINA::LaueGroup, laueGroup);
