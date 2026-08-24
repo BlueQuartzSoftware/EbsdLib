@@ -415,8 +415,12 @@ int H5OINAReader::readScanNames(std::list<std::string>& names)
 
 /**
  * @brief Converts an angle from radians to degrees, rounding the result once.
+ *
+ * This translation unit has no namespace block, so the helper is given internal
+ * linkage: a generically named function at global scope in a shared library would
+ * collide with any same-signature definition in another translation unit.
  */
-float RadiansToDegrees(float radians)
+static float RadiansToDegrees(float radians)
 {
   return static_cast<float>(static_cast<double>(radians) * ebsdlib::constants::k_180OverPiD);
 }
