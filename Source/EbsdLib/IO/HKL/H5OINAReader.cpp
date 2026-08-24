@@ -627,28 +627,29 @@ int H5OINAReader::readData(hid_t parId)
 {
   int err = -1;
 
-  // Initialize new pointers
-  size_t totalDataRows = 0;
+  // The header cell counts are signed, so they are validated before being widened:
+  // a negative count turns into an enormous size_t and the product below becomes
+  // meaningless.
+  const int xCells = getXCells();
+  const int yCells = getYCells();
 
-  size_t nColumns = getXCells();
-  size_t nRows = getYCells();
-
-  if(nRows < 1)
+  if(yCells < 1)
   {
-    err = -200;
-    setErrorMessage("H5OINAReader Error: The number of Rows was < 1.");
-    setErrorCode(err);
-    return err;
+    setErrorCode(-200);
+    setErrorMessage("H5OINAReader Error: The number of rows ('" + ebsdlib::H5OINA::YCells + "') was " + std::to_string(yCells) + ", which must be at least 1.");
+    return getErrorCode();
   }
 
-  totalDataRows = nRows * nColumns; /* nCols = nOddCols;*/
-
-  if(totalDataRows == 0)
+  if(xCells < 1)
   {
     setErrorCode(-90301);
-    setErrorMessage("There is no data to read. NumRows or NumColumns is Zero (0)");
-    return -301;
+    setErrorMessage("H5OINAReader Error: The number of columns ('" + ebsdlib::H5OINA::XCells + "') was " + std::to_string(xCells) + ", which must be at least 1.");
+    return getErrorCode();
   }
+
+  const size_t nColumns = static_cast<size_t>(xCells);
+  const size_t nRows = static_cast<size_t>(yCells);
+  size_t totalDataRows = nRows * nColumns;
 
   hid_t gid = H5Gopen(parId, ebsdlib::H5OINA::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
