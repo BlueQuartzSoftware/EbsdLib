@@ -83,9 +83,14 @@ namespace TetragonalLow
 {
 constexpr std::array<size_t, 3> k_OdfNumBins = {72, 72, 18}; // Represents a 5Deg bin in homochoric space
 
+// NOTE: the third dimension previously computed pow(0.75*(pi/4 - sin(pi/2)), 1/3),
+// which is the cube root of a NEGATIVE number (NaN) -- a mismatched-angle bug
+// inherited from legacy DREAM3D 6.5 OrientationLib. The homochoric half-width
+// formula is 0.75*(theta - sin(theta)) with a single theta; for the 4-fold
+// c-axis of 4/m that theta is pi/2, matching TetragonalOps (4/mmm).
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
                                                         std::pow((0.75 * ((ebsdlib::constants::k_PiD)-std::sin((ebsdlib::constants::k_PiD)))), (1.0 / 3.0)),
-                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver4D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
+                                                        std::pow((0.75 * ((ebsdlib::constants::k_PiOver2D)-std::sin((ebsdlib::constants::k_PiOver2D)))), (1.0 / 3.0))};
 static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
@@ -259,17 +264,34 @@ RodriguesDType TetragonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType TetragonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
-
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
 
-  FZn1 = std::fabs(ax[0]);
-  FZn2 = std::fabs(ax[1]);
-  FZn3 = std::fabs(ax[2]);
-  FZw = ax[3];
+  double n1 = ax[0];
+  double n2 = ax[1];
+  double n3 = ax[2];
+  double w = ax[3];
 
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The 4/m rotation group is only the 4-fold about c (no in-plane 2-folds), so the
+  // axis folds to n3 >= 0 (via -C2z, which leaves the azimuth unchanged) and the
+  // azimuth into a plain 90 degree wedge with no mirror alternation
+  if(n3 < 0)
+  {
+    n3 = -n3;
+  }
+  double angle = 180.0 * std::atan2(n2, n1) * ebsdlib::constants::k_1OverPiD;
+  if(angle < 0)
+  {
+    angle = angle + 360.0;
+  }
+  {
+    const double n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
+    const double azimuth = std::fmod(angle, 90.0) * ebsdlib::constants::k_PiOver180D;
+    n1 = n1n2mag * std::cos(azimuth);
+    n2 = n1n2mag * std::sin(azimuth);
+  }
+
+  return AxisAngleDType(n1, n2, n3, w).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -395,8 +417,13 @@ int TetragonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
 void TetragonalLowOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // No slip systems are enumerated for this Laue class. Zero EVERY output, angleComps
+  // included: leaving them untouched handed the caller back whatever it passed in, which for
+  // a caller that reuses one angleComps buffer across a loop is the PREVIOUS entry's angles.
   schmidfactor = 0;
   slipsys = 0;
+  angleComps[0] = 0;
+  angleComps[1] = 0;
 }
 
 void TetragonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const

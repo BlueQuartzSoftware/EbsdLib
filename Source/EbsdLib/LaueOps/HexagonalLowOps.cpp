@@ -386,24 +386,14 @@ RodriguesDType HexagonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn1 = n1;
   FZn2 = n2;
   FZn3 = n3;
-  if(angle > 30.0)
+  // The 6/m rotation group is only the 6-fold about c (no in-plane 2-folds), so the
+  // axis azimuth folds into a plain 60 degree wedge with no mirror alternation
   {
     n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
-    if(int(angle / 30) % 2 == 0)
-    {
-      FZw = angle - (30.0 * int(angle / 30.0));
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
-    else
-    {
-      FZw = angle - (30.0 * int(angle / 30.0));
-      FZw = 30.0f - FZw;
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
+    FZw = std::fmod(static_cast<double>(angle), 60.0);
+    FZw = FZw * ebsdlib::constants::k_PiOver180D;
+    FZn1 = n1n2mag * std::cos(FZw);
+    FZn2 = n1n2mag * std::sin(FZw);
   }
 
   return AxisAngleDType(FZn1, FZn2, FZn3, w).toRodrigues();
@@ -532,6 +522,15 @@ int HexagonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
 void HexagonalLowOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // Every output must be defined before the schmid comparison chain below, which only assigns to
+  // them when a candidate beats the incumbent. Without these, schmidfactor was READ uninitialized
+  // by the first `if(schmid1 > schmidfactor)`, and slipsys/angleComps were left untouched whenever
+  // no candidate won.
+  schmidfactor = 0.0;
+  slipsys = 0;
+  angleComps[0] = 0.0;
+  angleComps[1] = 0.0;
+
   double theta1, theta2, theta3, theta4, theta5, theta6, theta7, theta8, theta9;
   double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, lambda8, lambda9, lambda10;
   double schmid1, schmid2, schmid3, schmid4, schmid5, schmid6;

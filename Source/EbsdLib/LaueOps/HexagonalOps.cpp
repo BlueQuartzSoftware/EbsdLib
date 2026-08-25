@@ -86,8 +86,8 @@ namespace HexagonalHigh
 {
 constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 12}; // Represents a 5Deg bin in homochoric space
 
-static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
-                                                        std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D)) - std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D))-std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
+                                                        std::pow((0.75 * (((ebsdlib::constants::k_PiOver2D))-std::sin(((ebsdlib::constants::k_PiOver2D))))), (1.0 / 3.0)),
                                                         std::pow((0.75 * ((ebsdlib::constants::k_PiD / 6.0) - std::sin(ebsdlib::constants::k_PiD / 6.0))), (1.0 / 3.0))};
 static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
                                                         k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
@@ -610,7 +610,14 @@ int HexagonalOps::getOdfBin(const RodriguesDType& rod) const
 
 void HexagonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // schmidfactor was already seeded here, but slipsys and angleComps were not: the comparison chain
+  // below only assigns to them when a candidate beats the incumbent, so a load direction for which
+  // every candidate is 0 left both outputs holding whatever the caller passed in.
   schmidfactor = 0.0;
+  slipsys = 0;
+  angleComps[0] = 0.0;
+  angleComps[1] = 0.0;
+
   double theta1, theta2, theta3, theta4, theta5, theta6, theta7, theta8, theta9;
   double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, lambda8, lambda9, lambda10;
   double schmid1, schmid2, schmid3, schmid4, schmid5, schmid6;

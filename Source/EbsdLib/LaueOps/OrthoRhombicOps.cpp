@@ -258,20 +258,13 @@ RodriguesDType OrthoRhombicOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType OrthoRhombicOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  throw ebsdlib::method_not_implemented("OrthoRhombicOps::getMDFFZRod not implemented");
-
-  double FZn1 = 0.0f, FZn2 = 0.0f, FZn3 = 0.0f, FZw = 0.0f;
-
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
-  //  double n1 = ax[0];
-  //  double n2 = ax[1];
-  //  double n3 = ax[2];
-  //  double w = ax[3];
 
-  /// FIXME: Are we missing code for OrthoRhombic MDF FZ Rodrigues calculation?
-
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The 222 rotation group's three orthogonal 2-folds combined with switching
+  // symmetry generate every sign combination of the misorientation axis, so the
+  // fundamental sector is the first octant.
+  return AxisAngleDType(std::fabs(ax[0]), std::fabs(ax[1]), std::fabs(ax[2]), ax[3]).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -397,8 +390,13 @@ int OrthoRhombicOps::getOdfBin(const RodriguesDType& rod) const
 
 void OrthoRhombicOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // No slip systems are enumerated for this Laue class. Zero EVERY output, angleComps
+  // included: leaving them untouched handed the caller back whatever it passed in, which for
+  // a caller that reuses one angleComps buffer across a loop is the PREVIOUS entry's angles.
   schmidfactor = 0;
   slipsys = 0;
+  angleComps[0] = 0;
+  angleComps[1] = 0;
 }
 
 void OrthoRhombicOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const

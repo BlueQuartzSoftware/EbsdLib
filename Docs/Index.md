@@ -1,4 +1,4 @@
-# Various Bits of Documentation for EbsdLib
+# Documentation for EbsdLib
 
 EbsdLib is primarily used in the [DREAM3D](https://www.bluequartz.net) family of applications and libraries.
 
@@ -24,6 +24,81 @@ labels follow the basis.
 
 Position-space validation across all 11 Laue classes lives in
 [`Data/Pole_Figure_Validation/`](../Data/Pole_Figure_Validation/ReadMe.md).
+
+---
+
+# Release Notes — EbsdLib 3.1.1
+
+EbsdLib 3.1.1 is the "misorientation analysis + correctness" release. It adds
+tools for calculating and evaluating misorientation distribution functions
+(MDFs), and fixes several long-standing Laue-class fundamental-zone and Schmid
+factor defects inherited from the legacy OrientationLib implementation.
+
+## New features
+
+### Misorientation kernel density estimation
+
+- `MisorientationKDE` accumulates weighted misorientations on the Laue-class MDF
+  fundamental-zone grid and evaluates the resulting density at arbitrary
+  misorientation quaternions.
+- KDE evaluation is symmetrized over the crystal symmetry operators and grain
+  exchange, and is normalized to a mean density of one over SO(3).
+- `computeAngleCurve()` extracts a misorientation-angle distribution together
+  with the corresponding random-reference distribution.
+- Each occupied bin retains the weighted circular mean of its observations as
+  its kernel center. This avoids the low-angle bias caused by snapping narrow
+  kernels to geometric bin centers, particularly for hexagonal phases.
+
+### SO(3) kernel and random-angle reference
+
+- `SO3DeLaValleePoussinKernel` implements the de la Vallée Poussin orientation
+  kernel, including half-width conversion, normalization, and finite support.
+- `random_angle_distribution::Compute()` and `MaxMisorientationAngle()` provide
+  analytical random misorientation-angle distributions and limits for the
+  supported Laue classes.
+
+## Correctness fixes
+
+### Misorientation fundamental-zone folds
+
+- Corrected `getMDFFZRod()` for cubic-low, trigonal, trigonal-low,
+  hexagonal-low, tetragonal, and tetragonal-low symmetry. The corrected folds
+  preserve the misorientation angle and use the proper rotational-symmetry
+  sector for each Laue class.
+- Implemented the previously stubbed triclinic, monoclinic, and orthorhombic
+  folds, so MDF calculations for those phases no longer abort with
+  `method_not_implemented`.
+- Corrected equatorial boundary handling in the hexagonal, trigonal, and
+  tetragonal folds.
+
+### ODF and Schmid-factor calculations
+
+- Fixed the tetragonal-low ODF dimension constant that caused
+  `determineEulerAngles()` to return NaN Euler angles for all sampled bins.
+- Replaced truncated cubic slip-system normalizers with the full-precision
+  `sqrt(3)` and `sqrt(2)` constants, preventing Schmid factors from exceeding
+  the physical maximum of 0.5 because of rounding bias.
+- Initialized every output of the automatic `getSchmidFactorAndSS()` overloads
+  on all code paths. Unsupported Laue classes now return defined zero values
+  instead of stale or indeterminate angle components.
+
+## Validation evidence
+
+- Fundamental-zone tests cover all 11 Laue classes, including symmetry
+  equivalence, angle preservation, idempotence, boundary behavior, and guards
+  against over-folding.
+- Kernel constants and random-angle distributions are checked against MTEX
+  6.1.0 reference values.
+- Cubic and hexagonal MDF angle curves are cross-checked against MTEX, and a
+  correlated 60° about `<111>` (Σ3) distribution guards against regressions
+  that flatten a textured MDF toward the random reference.
+- Schmid-factor tests pre-poison output values to ensure the stub Laue classes
+  explicitly reset every output.
+
+## Maintenance
+
+- Updated the formatting workflows to run for both pull requests and pushes,
+  using clang-format 19.
 
 ---
 

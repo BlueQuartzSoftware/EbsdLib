@@ -35,52 +35,27 @@
 
 #pragma once
 
-#if defined(_MSC_VER)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4710)
-#pragma warning(disable : 4820)
-#pragma warning(disable : 4668)
-#pragma warning(disable : 4265)
-#pragma warning(disable : 4189)
-#pragma warning(disable : 4640)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4548)
-#endif
+#include "EbsdLib/EbsdLib.h"
 
-/* Cmake will define EbsdLib_EXPORTS on Windows when it
-configures to build a shared library. If you are going to use
-another build system on windows or create the visual studio
-projects by hand you need to define EbsdLib_EXPORTS when
-building on Windows.
-*/
+#include <cstdint>
+#include <vector>
 
-#if defined(EbsdLib_BUILT_AS_DYNAMIC_LIB)
+namespace ebsdlib
+{
+namespace random_angle_distribution
+{
+/**
+ * @brief Maximum rotation angle (radians) of the fundamental region for the Laue group.
+ * Values generated from MTEX 6.1.0 fundamentalRegion(cs).maxAngle.
+ */
+EbsdLib_EXPORT double MaxMisorientationAngle(uint32_t crystalStructure);
 
-#if defined(EbsdLib_EXPORTS) /* Compiling the EbsdLib DLL/Dylib */
-#if defined(_MSC_VER)        /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllexport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#else                 /* Importing the DLL into another project */
-#if defined(_MSC_VER) /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllimport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#endif
-
-#if !defined(EbsdLib_macOS_NO_EXPORT)
-#if defined(__APPLE__)
-#define EbsdLib_macOS_NO_EXPORT __attribute__((visibility("hidden")))
-#else
-#define EbsdLib_macOS_NO_EXPORT
-#endif
-#endif
-
-#endif
-
-/* If EbsdLib_EXPORT was never defined, define it here */
-#ifndef EbsdLib_EXPORT
-#define EbsdLib_EXPORT
-#endif
+/**
+ * @brief Misorientation-angle distribution of the uniform (random) ODF.
+ * Port of MTEX geometry/@symmetry/calcAngleDistribution.m. Result is normalized
+ * to unit mean and zero-clamped. omega values beyond MaxMisorientationAngle get 0.
+ * Throws std::invalid_argument for UnknownCrystalStructure.
+ */
+EbsdLib_EXPORT std::vector<double> Compute(uint32_t crystalStructure, const std::vector<double>& omega);
+} // namespace random_angle_distribution
+} // namespace ebsdlib

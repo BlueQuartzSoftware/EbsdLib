@@ -339,49 +339,44 @@ RodriguesDType TrigonalLowOps::getODFFZRod(const RodriguesDType& rod) const
 // -----------------------------------------------------------------------------
 RodriguesDType TrigonalLowOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
-  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
-  float n1n2mag = 0.0f;
+  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
+  double n1n2mag = 0.0;
 
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
   AxisAngleDType ax = rod.toAxisAngle();
 
-  float denom = static_cast<float>(std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]));
+  double w = ax[3];
+
+  double denom = std::sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]);
   ax[0] = ax[0] / denom;
   ax[1] = ax[1] / denom;
-  ax[1] = ax[2] / denom;
+  ax[2] = ax[2] / denom;
   if(ax[2] < 0)
   {
     ax[0] = -ax[0], ax[1] = -ax[1], ax[2] = -ax[2];
   }
-  float angle = static_cast<float>(180.0 * std::atan2(ax[1], ax[0]) * ebsdlib::constants::k_1OverPiD);
+  double angle = 180.0 * std::atan2(ax[1], ax[0]) * ebsdlib::constants::k_1OverPiD;
   if(angle < 0)
   {
-    angle = angle + 360.0f;
+    angle = angle + 360.0;
   }
   FZn1 = ax[0];
   FZn2 = ax[1];
   FZn3 = ax[2];
-  if(angle > 60.0f)
+  // The -3 rotation group is only the 3-fold about c (no in-plane 2-folds), so the
+  // axis azimuth folds into a plain 120 degree wedge with no mirror alternation.
+  // On the equator (n3 == 0) switching symmetry acts within the plane and combines
+  // with the 3-fold into a 60 degree identification.
   {
-    n1n2mag = static_cast<float>(std::sqrt(ax[0] * ax[0] + ax[1] * ax[1]));
-    if(int(angle / 60) % 2 == 0)
-    {
-      FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
-    else
-    {
-      FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = 60.0f - FZw;
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
+    const double sector = (ax[2] == 0.0) ? 60.0 : 120.0;
+    double azimuth = std::fmod(angle, sector);
+    n1n2mag = std::sqrt(ax[0] * ax[0] + ax[1] * ax[1]);
+    azimuth = azimuth * ebsdlib::constants::k_PiOver180D;
+    FZn1 = n1n2mag * std::cos(azimuth);
+    FZn2 = n1n2mag * std::sin(azimuth);
   }
 
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  return AxisAngleDType(FZn1, FZn2, FZn3, w).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -507,8 +502,13 @@ int TrigonalLowOps::getOdfBin(const RodriguesDType& rod) const
 
 void TrigonalLowOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // No slip systems are enumerated for this Laue class. Zero EVERY output, angleComps
+  // included: leaving them untouched handed the caller back whatever it passed in, which for
+  // a caller that reuses one angleComps buffer across a loop is the PREVIOUS entry's angles.
   schmidfactor = 0;
   slipsys = 0;
+  angleComps[0] = 0;
+  angleComps[1] = 0;
 }
 
 void TrigonalLowOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const

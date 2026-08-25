@@ -360,8 +360,8 @@ RodriguesDType TrigonalOps::getODFFZRod(const RodriguesDType& rod) const
 RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
 {
   double w = 0.0, n1 = 0.0, n2 = 0.0, n3 = 0.0;
-  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0, FZw = 0.0;
-  double n1n2mag = 0.0f;
+  double FZn1 = 0.0, FZn2 = 0.0, FZn3 = 0.0;
+  double n1n2mag = 0.0;
 
   RodriguesDType rod = _calcRodNearestOrigin(inRod);
 
@@ -386,27 +386,33 @@ RodriguesDType TrigonalOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn1 = n1;
   FZn2 = n2;
   FZn3 = n3;
-  if(angle > 60.0f)
+  // The 32 rotation group's in-plane 2-folds lie at azimuths 0/60/120 degrees, which
+  // places the mirror lines of the misorientation axis group at 30 + 60k degrees. The
+  // fundamental azimuth sector is therefore [30, 90] degrees.
   {
+    double azimuth = angle - (120.0 * static_cast<int>(angle / 120.0));
+    if(azimuth < 30.0)
+    {
+      azimuth = 60.0 - azimuth;
+    }
+    else if(azimuth > 90.0)
+    {
+      azimuth = 180.0 - azimuth;
+    }
+    if(n3 == 0.0 && azimuth > 60.0)
+    {
+      // Equator tie-break: on the equator the 2-fold conjugations act within the
+      // plane, adding mirror lines every 30 degrees; the sector shrinks to [30, 60]
+      azimuth = 120.0 - azimuth;
+    }
     n1n2mag = std::sqrt(n1 * n1 + n2 * n2);
-    if(int(angle / 60) % 2 == 0)
-    {
-      FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
-    else
-    {
-      FZw = angle - (60.0f * int(angle / 60.0f));
-      FZw = 60.0f - FZw;
-      FZw = FZw * ebsdlib::constants::k_PiOver180D;
-      FZn1 = n1n2mag * std::cos(FZw);
-      FZn2 = n1n2mag * std::sin(FZw);
-    }
+    azimuth = azimuth * ebsdlib::constants::k_PiOver180D;
+    FZn1 = n1n2mag * std::cos(azimuth);
+    FZn2 = n1n2mag * std::sin(azimuth);
   }
 
-  return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
+  // The misorientation angle w is unchanged by the axis fold and must be preserved
+  return AxisAngleDType(FZn1, FZn2, FZn3, w).toRodrigues();
 }
 
 // -----------------------------------------------------------------------------
@@ -531,8 +537,13 @@ int TrigonalOps::getOdfBin(const RodriguesDType& rod) const
 
 void TrigonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // No slip systems are enumerated for this Laue class. Zero EVERY output, angleComps
+  // included: leaving them untouched handed the caller back whatever it passed in, which for
+  // a caller that reuses one angleComps buffer across a loop is the PREVIOUS entry's angles.
   schmidfactor = 0;
   slipsys = 0;
+  angleComps[0] = 0;
+  angleComps[1] = 0;
 }
 
 void TrigonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const

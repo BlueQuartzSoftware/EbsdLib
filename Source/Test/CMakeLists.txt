@@ -40,6 +40,10 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/TexturePresetTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PhaseTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/LaueOpsTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/MdfFZRodTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/DeLaValleePoussinKernelTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/RandomAngleDistributionTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/MisorientationKDETest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjection3DTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ModifiedLambertProjectionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationTransformationTest.cpp

@@ -35,52 +35,42 @@
 
 #pragma once
 
-#if defined(_MSC_VER)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4710)
-#pragma warning(disable : 4820)
-#pragma warning(disable : 4668)
-#pragma warning(disable : 4265)
-#pragma warning(disable : 4189)
-#pragma warning(disable : 4640)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4548)
-#endif
+#include "EbsdLib/EbsdLib.h"
 
-/* Cmake will define EbsdLib_EXPORTS on Windows when it
-configures to build a shared library. If you are going to use
-another build system on windows or create the visual studio
-projects by hand you need to define EbsdLib_EXPORTS when
-building on Windows.
-*/
+namespace ebsdlib
+{
+/**
+ * @brief De la Vallee Poussin kernel on SO(3). Port of MTEX SO3DeLaValleePoussinKernel.
+ *
+ * K(omega) = C * cos(omega/2)^(2*kappa) with
+ *   kappa = ln(0.5) / (2 * ln(cos(halfwidth/2)))
+ *   C     = B(1.5, 0.5) / B(1.5, kappa + 0.5)
+ * The kernel integrates to 1 over SO(3) with normalized Haar measure, so a
+ * weights-sum-to-one mixture of kernels is a normalized density (uniform == 1).
+ */
+class EbsdLib_EXPORT SO3DeLaValleePoussinKernel
+{
+public:
+  explicit SO3DeLaValleePoussinKernel(double halfwidthRadians);
 
-#if defined(EbsdLib_BUILT_AS_DYNAMIC_LIB)
+  double kappa() const;
+  double constant() const;
+  double halfwidth() const;
 
-#if defined(EbsdLib_EXPORTS) /* Compiling the EbsdLib DLL/Dylib */
-#if defined(_MSC_VER)        /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllexport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#else                 /* Importing the DLL into another project */
-#if defined(_MSC_VER) /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllimport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#endif
+  /**
+   * @brief Evaluate the kernel.
+   * @param cosHalfOmega cos(omega/2); pass the absolute quaternion dot product.
+   */
+  double evaluate(double cosHalfOmega) const;
 
-#if !defined(EbsdLib_macOS_NO_EXPORT)
-#if defined(__APPLE__)
-#define EbsdLib_macOS_NO_EXPORT __attribute__((visibility("hidden")))
-#else
-#define EbsdLib_macOS_NO_EXPORT
-#endif
-#endif
+  /**
+   * @brief Angle beyond which the kernel is treated as zero: min(pi, 3.5*halfwidth).
+   */
+  double cutoffAngle() const;
 
-#endif
-
-/* If EbsdLib_EXPORT was never defined, define it here */
-#ifndef EbsdLib_EXPORT
-#define EbsdLib_EXPORT
-#endif
+private:
+  double m_Halfwidth = 0.0;
+  double m_Kappa = 90.0;
+  double m_C = 0.0;
+};
+} // namespace ebsdlib

@@ -215,7 +215,7 @@ void dihedralTriangle(T const* const n, T* const nTri)
 template <typename T>
 bool cubicLowTriangle(T const* const n, T* const nTri)
 {
-  std::transform(n, n + 3, nTri, (T(*)(T)) & std::fabs);
+  std::transform(n, n + 3, nTri, (T(*)(T))&std::fabs);
   if(nTri[0] >= nTri[1])
   {
     if(nTri[0] > nTri[2])
@@ -237,7 +237,7 @@ bool cubicLowTriangle(T const* const n, T* const nTri)
 template <typename T>
 void cubicTriangle(T const* const n, T* const nTri)
 {
-  std::transform(n, n + 3, nTri, (T(*)(T)) & std::fabs);
+  std::transform(n, n + 3, nTri, (T(*)(T))&std::fabs);
   std::sort(nTri, nTri + 3);
   std::swap(nTri[0], nTri[1]);
 }

@@ -33,54 +33,53 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#pragma once
+#include "SO3DeLaValleePoussinKernel.h"
 
-#if defined(_MSC_VER)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4710)
-#pragma warning(disable : 4820)
-#pragma warning(disable : 4668)
-#pragma warning(disable : 4265)
-#pragma warning(disable : 4189)
-#pragma warning(disable : 4640)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4548)
-#endif
+#include "EbsdLib/Math/EbsdLibMath.h"
 
-/* Cmake will define EbsdLib_EXPORTS on Windows when it
-configures to build a shared library. If you are going to use
-another build system on windows or create the visual studio
-projects by hand you need to define EbsdLib_EXPORTS when
-building on Windows.
-*/
+#include <algorithm>
+#include <cmath>
 
-#if defined(EbsdLib_BUILT_AS_DYNAMIC_LIB)
+namespace
+{
+// std::beta is unavailable on libc++; use lgamma
+double BetaFunction(double a, double b)
+{
+  return std::exp(std::lgamma(a) + std::lgamma(b) - std::lgamma(a + b));
+}
+} // namespace
 
-#if defined(EbsdLib_EXPORTS) /* Compiling the EbsdLib DLL/Dylib */
-#if defined(_MSC_VER)        /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllexport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#else                 /* Importing the DLL into another project */
-#if defined(_MSC_VER) /* MSVC Compiler Case */
-#define EbsdLib_EXPORT __declspec(dllimport)
-#elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define EbsdLib_EXPORT __attribute__((visibility("default")))
-#endif
-#endif
+namespace ebsdlib
+{
+SO3DeLaValleePoussinKernel::SO3DeLaValleePoussinKernel(double halfwidthRadians)
+: m_Halfwidth(halfwidthRadians)
+{
+  m_Kappa = 0.5 * std::log(0.5) / std::log(std::cos(halfwidthRadians / 2.0));
+  m_C = BetaFunction(1.5, 0.5) / BetaFunction(1.5, m_Kappa + 0.5);
+}
 
-#if !defined(EbsdLib_macOS_NO_EXPORT)
-#if defined(__APPLE__)
-#define EbsdLib_macOS_NO_EXPORT __attribute__((visibility("hidden")))
-#else
-#define EbsdLib_macOS_NO_EXPORT
-#endif
-#endif
+double SO3DeLaValleePoussinKernel::kappa() const
+{
+  return m_Kappa;
+}
 
-#endif
+double SO3DeLaValleePoussinKernel::constant() const
+{
+  return m_C;
+}
 
-/* If EbsdLib_EXPORT was never defined, define it here */
-#ifndef EbsdLib_EXPORT
-#define EbsdLib_EXPORT
-#endif
+double SO3DeLaValleePoussinKernel::halfwidth() const
+{
+  return m_Halfwidth;
+}
+
+double SO3DeLaValleePoussinKernel::evaluate(double cosHalfOmega) const
+{
+  return m_C * std::pow(cosHalfOmega, 2.0 * m_Kappa);
+}
+
+double SO3DeLaValleePoussinKernel::cutoffAngle() const
+{
+  return std::min(constants::k_PiD, 3.5 * m_Halfwidth);
+}
+} // namespace ebsdlib

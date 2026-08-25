@@ -297,6 +297,12 @@ RodriguesDType TetragonalOps::getMDFFZRod(const RodriguesDType& inRod) const
   FZn2 = std::fabs(ax[1]);
   FZn3 = std::fabs(ax[2]);
   FZw = ax[3];
+  // The 422 rotation group's <110> 2-fold axes make (n1, n2) and (n2, n1) equivalent,
+  // so the octant folds further to the sector where n1 >= n2
+  if(FZn2 > FZn1)
+  {
+    std::swap(FZn1, FZn2);
+  }
 
   return AxisAngleDType(FZn1, FZn2, FZn3, FZw).toRodrigues();
 }
@@ -424,8 +430,13 @@ int TetragonalOps::getOdfBin(const RodriguesDType& rod) const
 
 void TetragonalOps::getSchmidFactorAndSS(double load[3], double& schmidfactor, double angleComps[2], int& slipsys) const
 {
+  // No slip systems are enumerated for this Laue class. Zero EVERY output, angleComps
+  // included: leaving them untouched handed the caller back whatever it passed in, which for
+  // a caller that reuses one angleComps buffer across a loop is the PREVIOUS entry's angles.
   schmidfactor = 0;
   slipsys = 0;
+  angleComps[0] = 0;
+  angleComps[1] = 0;
 }
 
 void TetragonalOps::getSchmidFactorAndSS(double load[3], double plane[3], double direction[3], double& schmidfactor, double angleComps[2], int& slipsys) const
