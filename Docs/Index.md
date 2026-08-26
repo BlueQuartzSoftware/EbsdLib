@@ -27,6 +27,59 @@ Position-space validation across all 11 Laue classes lives in
 
 ---
 
+# Release Notes — EbsdLib 3.1.2
+
+EbsdLib 3.1.2 is a patch release for the H5OINA (Oxford Instruments) reader.
+These fixes were developed alongside the 3.1.1 work but were left out of that
+release; no other component changed.
+
+## Correctness fixes
+
+### Lattice parameters
+
+- `H5OINAReader::readHeader()` stored the *second* lattice angle in both the
+  beta and gamma slots, so the gamma angle of every H5OINA phase was wrong for
+  any non-cubic cell. The third angle is now stored in the gamma slot.
+- H5OINA files record lattice angles in radians, but the angle slots of
+  `CtfPhase`'s lattice constants are degrees-valued for every other importer
+  (`.ang`, `.ctf`, and their HDF5 variants). The reader now converts on import
+  so the phase model is consistent regardless of source format. The conversion
+  runs through a `double` intermediate so the stored `float` is correctly
+  rounded.
+
+### Unvalidated reads
+
+- The phase datasets (`LatticeDimensions`, `LatticeAngles`, `LaueGroup`) were
+  read without checking the returned error code. A missing or short dataset
+  left the vectors empty, and the indexing that followed was undefined
+  behavior rather than a reported error. Each read is now checked for both a
+  successful status and a sufficient element count, and returns a distinct
+  error code. `SpaceGroup` remains optional.
+- A failed `H5Gopen()` on a phase group is now detected instead of being passed
+  to subsequent calls as a negative handle.
+- `H5OINAReader::readData()` widened the signed `XCells`/`YCells` header counts
+  to `size_t` before validating them, so a negative count became an enormous
+  unsigned value and the row-times-column product was meaningless. Both counts
+  are now validated while still signed, and the column count is checked
+  independently of the row count.
+
+### Error reporting
+
+- Every `setErrorMessage()` call in the reader constructed a `std::stringstream`
+  from an empty `std::string`, filled the stream, and then passed the still-empty
+  original string to `setErrorMessage()`. Every error the reader produced was
+  therefore blank. The composed message is now what gets reported.
+- Header and data failures propagate the underlying message and name the scan
+  that failed, instead of reporting only a generic top-level code.
+
+## Maintenance
+
+- `RadiansToDegrees` is declared `static`. This translation unit has no
+  namespace block, and a generically named function at global scope in a shared
+  library would collide with any same-signature definition elsewhere.
+
+---
+
 # Release Notes — EbsdLib 3.1.1
 
 EbsdLib 3.1.1 is the "misorientation analysis + correctness" release. It adds

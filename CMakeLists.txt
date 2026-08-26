@@ -37,7 +37,7 @@ option(EbsdLib_BUILD_H5SUPPORT "Build H5Support Library" OFF)
 
 
 # set project's name
-project(EbsdLibProj VERSION 3.1.1)
+project(EbsdLibProj VERSION 3.1.2)
 
 
 # Request C++17 standard, using new CMake variables.
