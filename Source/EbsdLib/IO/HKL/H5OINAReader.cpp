@@ -44,6 +44,7 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
+#include <charconv>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -533,6 +534,15 @@ int H5OINAReader::readHeader(hid_t parId)
 
   for(const auto& phaseGroupName : names)
   {
+    int phaseIndex = 0;
+    const auto [parseEnd, parseError] = std::from_chars(phaseGroupName.data(), phaseGroupName.data() + phaseGroupName.size(), phaseIndex);
+    if(parseError != std::errc{} || parseEnd != phaseGroupName.data() + phaseGroupName.size() || phaseIndex < 1 || std::to_string(phaseIndex) != phaseGroupName)
+    {
+      setErrorCode(-90034);
+      setErrorMessage("H5OINAReader Error: Phase group name '" + phaseGroupName + "' is invalid. Phase group names must be positive integers without leading zeros.");
+      return getErrorCode();
+    }
+
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
     if(pid < 0)
     {
@@ -542,7 +552,7 @@ int H5OINAReader::readHeader(hid_t parId)
     }
 
     CtfPhase::Pointer currentPhase = CtfPhase::New();
-    currentPhase->setPhaseIndex(std::stoi(phaseGroupName));
+    currentPhase->setPhaseIndex(phaseIndex);
 
     READ_PHASE_STRING_DATA("H5OINAReader", pid, ebsdlib::H5OINA::PhaseName, PhaseName, currentPhase)
 
