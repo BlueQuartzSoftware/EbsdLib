@@ -7,6 +7,7 @@ file(MAKE_DIRECTORY ${EbsdLibProj_BINARY_DIR}/Testing/Temporary/)
 #------------------------------------------------------------------------------
 # Find the Catch2 unit testing package
 find_package(Catch2 CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
 include(Catch)
 
 

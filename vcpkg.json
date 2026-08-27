@@ -14,16 +14,17 @@
       "features": [
         "cpp",
         "zlib"
-      ]
-    },
-    {
-      "name": "h5support"
+      ],
+      "version>=": "2.2.0"
     },
     {
       "name": "tiff"
     },
     {
       "name": "stb"
+    },
+    {
+      "name": "libaec"
     }
   ],
   "features": {
@@ -43,5 +44,11 @@
         }
       ]
     }
-  }
+  },
+  "overrides": [
+    {
+      "name": "catch2",
+      "version-semver": "2.13.9"
+    }
+  ]
 }
