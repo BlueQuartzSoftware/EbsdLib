@@ -34,7 +34,9 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <catch2/catch.hpp>
 
+#include <algorithm>
 #include <iostream>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -215,3 +217,79 @@ TEST_CASE("ebsdlib::TextureTest::DirectStructureMatrix", "[EbsdLib][DirectStruct
 }
 
 #endif
+
+namespace
+{
+constexpr float k_Sigma3Angle = 60.0f * ebsdlib::constants::k_PiOver180F;
+constexpr std::array<float, 3> k_Sigma3Axis = {1.0f, 1.0f, 1.0f};
+
+std::vector<float> createUniformCubicOdf()
+{
+  const Texture::ODFTableEntries entries;
+  return Texture::CalculateODFData<float, CubicOps, std::vector<float>>(entries, true);
+}
+
+int sigma3MdfBin()
+{
+  CubicOps ops;
+  RodriguesDType rod = AxisAngleDType(k_Sigma3Axis[0], k_Sigma3Axis[1], k_Sigma3Axis[2], k_Sigma3Angle).toRodrigues();
+  rod = ops.getMDFFZRod(rod);
+  return ops.getMisoBin(rod);
+}
+
+std::vector<float> calculateCubicMdf(const std::vector<float>& inputWeights)
+{
+  std::vector<float> angles(inputWeights.size(), k_Sigma3Angle);
+  std::vector<float> axes(inputWeights.size() * 3);
+  for(size_t index = 0; index < inputWeights.size(); index++)
+  {
+    axes[index * 3] = k_Sigma3Axis[0];
+    axes[index * 3 + 1] = k_Sigma3Axis[1];
+    axes[index * 3 + 2] = k_Sigma3Axis[2];
+  }
+
+  std::vector<float> weights = inputWeights;
+  const std::vector<float> odf = createUniformCubicOdf();
+  std::vector<float> mdf;
+  Texture::CalculateMDFData<float, CubicOps>(angles, axes, weights, odf, mdf, angles.size());
+  return mdf;
+}
+
+float sumMdf(const std::vector<float>& mdf)
+{
+  return std::accumulate(mdf.cbegin(), mdf.cend(), 0.0f);
+}
+} // namespace
+
+TEST_CASE("ebsdlib::TextureTest::CalculateMDFData normalizes weighted targets", "[EbsdLib][TextureTest]")
+{
+  const int targetBin = sigma3MdfBin();
+
+  SECTION("One row reserves half of a cubic MDF")
+  {
+    const std::vector<float> mdf = calculateCubicMdf({2916.0f});
+    REQUIRE(mdf[targetBin] == Approx(0.5f).margin(1.0e-6f));
+    REQUIRE(sumMdf(mdf) == Approx(1.0f).margin(1.0e-5f));
+  }
+
+  SECTION("An overflowing row clamps the reserved mass")
+  {
+    const std::vector<float> mdf = calculateCubicMdf({500000.0f});
+    REQUIRE(mdf[targetBin] == Approx(1.0f).margin(1.0e-6f));
+    REQUIRE(sumMdf(mdf) == Approx(1.0f).margin(1.0e-5f));
+    REQUIRE(std::none_of(mdf.cbegin(), mdf.cend(), [](float value) { return value < 0.0f; }));
+  }
+
+  SECTION("Duplicate rows accumulate in the folded bin")
+  {
+    const std::vector<float> mdf = calculateCubicMdf({1458.0f, 1458.0f});
+    REQUIRE(mdf[targetBin] == Approx(0.5f).margin(1.0e-6f));
+    REQUIRE(sumMdf(mdf) == Approx(1.0f).margin(1.0e-5f));
+  }
+
+  SECTION("Empty weights produce a random normalized MDF")
+  {
+    const std::vector<float> mdf = calculateCubicMdf({});
+    REQUIRE(sumMdf(mdf) == Approx(1.0f).margin(1.0e-5f));
+  }
+}
