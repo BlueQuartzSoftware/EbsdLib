@@ -35,7 +35,9 @@
 
 #pragma once
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <random>
 #include <vector>
@@ -219,15 +221,18 @@ public:
   }
 
   /**
-   * @brief CalculateMDFData Calculates MDF (Misorientation Distribution Function) data
-   * @param angles The angles
-   * @param axes The axes
-   * @param weights The weights
-   * @param odf The ODF which has been already computed and sized correctly in another function
-   * @param mdf [output] The MDF array to store the data which has been preallocated already
-   * @param numEntries The number of elemnts in teh Angles/Axes/Weights arrays which should all the be same size or at least
-   * the value passed here is the minium size of all the arrays. The sizes of the ODF and MDF arrays are
-   * determined by calling the getODFSize and getMDFSize functions of the parameterized LaueOps class.
+   * @brief Calculates Misorientation Distribution Function (MDF) data.
+   * @tparam T MDF value type.
+   * @tparam LaueOps Symmetry operations for the selected crystal structure.
+   * @tparam Container Random-access container type for the input and output arrays.
+   * @param angles Misorientation angles in radians.
+   * @param axes Misorientation axes with three components for each angle.
+   * @param weights Multiples-of-random weights. A weight of w reserves w divided by the MDF bin count of the output mass.
+   * @param odf Precomputed ODF data for the selected Laue class.
+   * @param mdf Receives the normalized MDF data. The values always sum to 1 within floating-point rounding.
+   * @param numEntries Number of rows to read from angles, axes, and weights.
+   *
+   * If the reserved mass exceeds the 10,000-sample budget, the function scales all reserved counts proportionally. The scaled counts use the complete budget.
    */
   template <typename T, class LaueOps, class Container>
   static void CalculateMDFData(Container& angles, Container& axes, Container& weights, const Container& odf, Container& mdf, size_t numEntries)
@@ -238,9 +243,9 @@ public:
     const int mdfsize = orientationOps.getMDFSize();
     mdf.resize(orientationOps.getMDFSize());
 
-    // Create a Random Number generator
-    std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
-    std::mt19937_64 generator(randomDevice()); // Standard mersenne_twister_engine seeded with rd()
+    // Create a random-number generator.
+    std::random_device randomDevice;
+    std::mt19937_64 generator(randomDevice());
     std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
     generator.seed(seed);
     std::uniform_real_distribution<> distribution(0.0, 1.0);
@@ -250,22 +255,66 @@ public:
     float totaldensity;
     float random1, random2, density;
 
-    for(int i = 0; i < mdfsize; i++)
-    {
-      mdf[i] = 0.0;
-    }
-    int remainingcount = 10000;
-    int aSize = static_cast<int>(numEntries);
+    constexpr int64_t k_SampleCount = 10000;
+    std::vector<int64_t> reservedCounts(static_cast<size_t>(mdfsize), 0);
+    int64_t totalReservedCount = 0;
+    const int aSize = static_cast<int>(numEntries);
     for(int i = 0; i < aSize; i++)
     {
       RodriguesDType rod = AxisAngleDType(axes[3 * i], axes[3 * i + 1], axes[3 * i + 2], angles[i]).toRodrigues();
 
       rod = orientationOps.getMDFFZRod(rod);
       mbin = orientationOps.getMisoBin(rod);
-      mdf[mbin] = static_cast<T>(-1 * static_cast<int>((weights[i] / static_cast<float>(mdfsize)) * 10000.0));
-      remainingcount = static_cast<int>(remainingcount + mdf[mbin]);
+      const int64_t rowReservedCount = std::max<int64_t>(0, static_cast<int64_t>((weights[i] / static_cast<float>(mdfsize)) * static_cast<float>(k_SampleCount)));
+      reservedCounts[mbin] += rowReservedCount;
+      totalReservedCount += rowReservedCount;
     }
 
+    if(totalReservedCount > k_SampleCount)
+    {
+      struct ScaledRemainder
+      {
+        size_t binIndex = 0;
+        double remainder = 0.0;
+      };
+
+      const double scale = static_cast<double>(k_SampleCount) / static_cast<double>(totalReservedCount);
+      std::vector<ScaledRemainder> scaledRemainders;
+      int64_t scaledTotal = 0;
+      for(size_t binIndex = 0; binIndex < reservedCounts.size(); binIndex++)
+      {
+        if(reservedCounts[binIndex] == 0)
+        {
+          continue;
+        }
+
+        const double scaledCount = static_cast<double>(reservedCounts[binIndex]) * scale;
+        const int64_t integralCount = static_cast<int64_t>(scaledCount);
+        reservedCounts[binIndex] = integralCount;
+        scaledTotal += integralCount;
+        scaledRemainders.push_back({binIndex, scaledCount - static_cast<double>(integralCount)});
+      }
+
+      std::sort(scaledRemainders.begin(), scaledRemainders.end(), [](const ScaledRemainder& lhs, const ScaledRemainder& rhs) {
+        if(lhs.remainder == rhs.remainder)
+        {
+          return lhs.binIndex < rhs.binIndex;
+        }
+        return lhs.remainder > rhs.remainder;
+      });
+      for(int64_t index = 0; index < k_SampleCount - scaledTotal; index++)
+      {
+        reservedCounts[scaledRemainders[static_cast<size_t>(index)].binIndex]++;
+      }
+      totalReservedCount = k_SampleCount;
+    }
+
+    for(int i = 0; i < mdfsize; i++)
+    {
+      mdf[i] = static_cast<T>(-reservedCounts[static_cast<size_t>(i)]);
+    }
+
+    const int remainingcount = static_cast<int>(k_SampleCount - totalReservedCount);
     for(int i = 0; i < remainingcount; i++)
     {
       random1 = static_cast<float>(distribution(generator));
@@ -297,7 +346,7 @@ public:
       QuatD q2 = eu.toQuaternion();
       RodriguesDType ro = orientationOps.calculateMisorientation(q1, q2).toRodrigues();
 
-      ro = orientationOps.getMDFFZRod(ro); // <==== THIS IS NOT IMPELMENTED FOR ALL LAUE CLASSES
+      ro = orientationOps.getMDFFZRod(ro); // This operation is not implemented for all Laue classes.
       mbin = orientationOps.getMisoBin(ro);
       if(mdf[mbin] >= 0)
       {
@@ -308,13 +357,18 @@ public:
         i = i - 1;
       }
     }
+    double actualTotal = 0.0;
     for(int i = 0; i < mdfsize; i++)
     {
       if(mdf[i] < 0)
       {
         mdf[i] = -mdf[i];
       }
-      mdf[i] = mdf[i] / static_cast<T>(10000.0);
+      actualTotal += static_cast<double>(mdf[i]);
+    }
+    for(int i = 0; i < mdfsize; i++)
+    {
+      mdf[i] = mdf[i] / static_cast<T>(actualTotal);
     }
   }
 
