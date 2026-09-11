@@ -325,7 +325,7 @@ EulerDType OrthoRhombicOps::determineEulerAngles(double random[3], int choose) c
   phi[1] = static_cast<int32_t>((choose / OrthoRhombic::k_OdfNumBins[0]) % OrthoRhombic::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (OrthoRhombic::k_OdfNumBins[0] * OrthoRhombic::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

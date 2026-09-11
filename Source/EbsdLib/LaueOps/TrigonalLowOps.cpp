@@ -437,7 +437,7 @@ EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) co
   phi[1] = static_cast<int32_t>((choose / TrigonalLow::k_OdfNumBins[0]) % TrigonalLow::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (TrigonalLow::k_OdfNumBins[0] * TrigonalLow::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);
