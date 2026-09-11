@@ -600,6 +600,19 @@ protected:
   void _calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
 
   /**
+   * @brief Samples a homochoric point in the selected ODF bin and restricts the result to the homochoric ball.
+   * @param random Initial offsets in the selected bin.
+   * @param init Half-width of each ODF grid dimension.
+   * @param step Width of one bin in each ODF grid dimension.
+   * @param phi Three-dimensional index of the selected bin.
+   * @param r1 Receives the first homochoric coordinate.
+   * @param r2 Receives the second homochoric coordinate.
+   * @param r3 Receives the third homochoric coordinate.
+   * @return True if the initial point or a redrawn point is in the homochoric ball. False if the function clamps the final point.
+   */
+  bool _calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
+
+  /**
    * @brief
    * @param dim
    * @param bins
