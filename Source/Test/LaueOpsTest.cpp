@@ -12,12 +12,17 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Homochoric.hpp"
 #include "EbsdLib/Orientation/OrientationMatrix.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -197,6 +202,94 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetAllOrientationOps", "[EbsdLib][LaueOpsTest]"
   for(size_t i = 0; i < ops.size(); i++)
   {
     REQUIRE(ops[i] != nullptr);
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::DetermineEulerAnglesSamplesValidOrientations", "[EbsdLib][LaueOpsTest]")
+{
+  constexpr double k_MaxRotationAngle = ebsdlib::constants::k_PiD + 1.0e-9;
+  constexpr double k_MinimumBinAgreement = 0.15;
+  constexpr size_t k_TargetRoundTripSamples = 4000;
+  uint64_t randomState = 0x4D595DF4D0F33173ULL;
+
+  auto nextRandom = [&randomState]() {
+    randomState += 0x9E3779B97F4A7C15ULL;
+    uint64_t value = randomState;
+    value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
+    value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
+    value ^= value >> 31U;
+    return static_cast<double>(value >> 11U) * 0x1.0p-53;
+  };
+
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  for(const auto& ops : allOps)
+  {
+    const size_t roundTripStride = std::max<size_t>(1, (ops->getODFSize() + k_TargetRoundTripSamples - 1) / k_TargetRoundTripSamples);
+    size_t matchingBinCount = 0;
+    size_t roundTripSampleCount = 0;
+    for(size_t bin = 0; bin < ops->getODFSize(); bin++)
+    {
+      double random[3] = {nextRandom(), nextRandom(), nextRandom()};
+      const EulerDType first = ops->determineEulerAngles(random, static_cast<int>(bin));
+      const EulerDType second = ops->determineEulerAngles(random, static_cast<int>(bin));
+
+      for(size_t component = 0; component < 3; component++)
+      {
+        if(!std::isfinite(first[component]))
+        {
+          FAIL("Non-finite Euler component for " << ops->getNameOfClass() << " at ODF bin " << bin << ", component " << component);
+        }
+        if(first[component] != second[component])
+        {
+          FAIL("Non-deterministic Euler component for " << ops->getNameOfClass() << " at ODF bin " << bin << ", component " << component);
+        }
+      }
+
+      const AxisAngleDType axisAngle = first.toAxisAngle();
+      if(!std::isfinite(axisAngle[3]) || axisAngle[3] > k_MaxRotationAngle)
+      {
+        FAIL("Invalid rotation angle for " << ops->getNameOfClass() << " at ODF bin " << bin << ": " << axisAngle[3]);
+      }
+
+      if(bin % roundTripStride == 0)
+      {
+        const int roundTripBin = ops->getOdfBin(first.toRodrigues());
+        matchingBinCount += roundTripBin == static_cast<int>(bin) ? 1 : 0;
+        roundTripSampleCount++;
+      }
+    }
+
+    const double binAgreement = static_cast<double>(matchingBinCount) / static_cast<double>(roundTripSampleCount);
+    // The threshold separates a consistent grid from an inconsistent grid. It is not a measure of folding accuracy.
+    INFO(ops->getNameOfClass() << " sampled ODF bin agreement: " << binAgreement);
+    CHECK(binAgreement >= k_MinimumBinAgreement);
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::HomochoricToAxisAngleClampsOutsideDomain", "[EbsdLib][LaueOpsTest]")
+{
+  constexpr size_t k_NumSteps = 4096;
+  constexpr double k_MaxRotationAngle = ebsdlib::constants::k_PiD + 1.0e-9;
+
+  for(size_t step = 0; step <= k_NumSteps; step++)
+  {
+    const double magnitude = 2.5 * LPs::R1 * static_cast<double>(step) / static_cast<double>(k_NumSteps);
+    const HomochoricDType homochoric(LPs::isrt * magnitude, LPs::isrt * magnitude, LPs::isrt * magnitude);
+    const AxisAngleDType axisAngle = homochoric.toAxisAngle();
+
+    for(size_t component = 0; component < 4; component++)
+    {
+      if(!std::isfinite(axisAngle[component]))
+      {
+        FAIL("Non-finite axis-angle component at homochoric magnitude " << magnitude << ", component " << component);
+      }
+    }
+    if(axisAngle[3] > k_MaxRotationAngle)
+    {
+      FAIL("Rotation angle exceeds pi at homochoric magnitude " << magnitude << ": " << axisAngle[3]);
+    }
   }
 }
 

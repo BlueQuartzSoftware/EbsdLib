@@ -545,7 +545,7 @@ EulerDType HexagonalOps::determineEulerAngles(double random[3], int choose) cons
   phi[1] = static_cast<int32_t>((choose / HexagonalHigh::k_OdfNumBins[0]) % HexagonalHigh::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (HexagonalHigh::k_OdfNumBins[0] * HexagonalHigh::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

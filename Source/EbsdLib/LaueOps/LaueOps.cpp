@@ -58,6 +58,9 @@
 
 #include <algorithm> // for std::max
 #include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
 #include <exception>
 #include <iomanip>
 #include <limits>
@@ -96,6 +99,32 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 }
 
 constexpr float k_OdfBinStepSize = 5.0f;
+
+uint64_t MixBits(uint64_t value)
+{
+  value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
+  value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
+  return value ^ (value >> 31U);
+}
+
+uint64_t NextSplitMix64(uint64_t& state)
+{
+  state += 0x9E3779B97F4A7C15ULL;
+  return MixBits(state);
+}
+
+double NextUnitInterval(uint64_t& state)
+{
+  return static_cast<double>(NextSplitMix64(state) >> 11U) * 0x1.0p-53;
+}
+
+uint64_t DoubleBits(double value)
+{
+  static_assert(sizeof(uint64_t) == sizeof(double));
+  uint64_t bits = 0;
+  std::memcpy(&bits, &value, sizeof(value));
+  return bits;
+}
 
 } // namespace
 
@@ -688,6 +717,43 @@ void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], d
   r1 = (step[0] * phi[0]) + (step[0] * random[0]) - (init[0]);
   r2 = (step[1] * phi[1]) + (step[1] * random[1]) - (init[1]);
   r3 = (step[2] * phi[2]) + (step[2] * random[2]) - (init[2]);
+}
+
+// -----------------------------------------------------------------------------
+bool LaueOps::_calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const
+{
+  constexpr double k_RadiusSquared = LPs::R1 * LPs::R1;
+  constexpr int32_t k_MaxRedraws = 64;
+
+  _calcDetermineHomochoricValues(random, init, step, phi, r1, r2, r3);
+  auto isInBall = [&r1, &r2, &r3, k_RadiusSquared]() { return r1 * r1 + r2 * r2 + r3 * r3 <= k_RadiusSquared; };
+  if(isInBall())
+  {
+    return true;
+  }
+
+  uint64_t state = 0x243F6A8885A308D3ULL;
+  for(size_t index = 0; index < 3; index++)
+  {
+    state = MixBits(state ^ DoubleBits(random[index]));
+    state = MixBits(state ^ static_cast<uint64_t>(static_cast<int64_t>(phi[index])));
+  }
+
+  for(int32_t redraw = 0; redraw < k_MaxRedraws; redraw++)
+  {
+    double redrawnRandom[3] = {NextUnitInterval(state), NextUnitInterval(state), NextUnitInterval(state)};
+    _calcDetermineHomochoricValues(redrawnRandom, init, step, phi, r1, r2, r3);
+    if(isInBall())
+    {
+      return true;
+    }
+  }
+
+  const double scale = LPs::R1 / std::sqrt(r1 * r1 + r2 * r2 + r3 * r3);
+  r1 *= scale;
+  r2 *= scale;
+  r3 *= scale;
+  return false;
 }
 
 // -----------------------------------------------------------------------------
