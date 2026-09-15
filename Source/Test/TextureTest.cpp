@@ -35,8 +35,11 @@
 #include <catch2/catch.hpp>
 
 #include <algorithm>
+#include <bit>
+#include <cstdint>
 #include <iostream>
 #include <numeric>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -255,6 +258,35 @@ std::vector<float> calculateCubicMdf(const std::vector<float>& inputWeights)
   return mdf;
 }
 
+std::vector<float> calculateSeededCubicMdf(const std::vector<float>& inputWeights, uint64_t seed)
+{
+  std::vector<float> angles(inputWeights.size(), k_Sigma3Angle);
+  std::vector<float> axes(inputWeights.size() * 3);
+  for(size_t index = 0; index < inputWeights.size(); index++)
+  {
+    axes[index * 3] = k_Sigma3Axis[0];
+    axes[index * 3 + 1] = k_Sigma3Axis[1];
+    axes[index * 3 + 2] = k_Sigma3Axis[2];
+  }
+
+  std::vector<float> weights = inputWeights;
+  const std::vector<float> odf = createUniformCubicOdf();
+  std::vector<float> mdf;
+  std::mt19937_64 generator(seed);
+  Texture::CalculateMDFData<float, CubicOps>(angles, axes, weights, odf, mdf, angles.size(), generator);
+  return mdf;
+}
+
+void requireBitwiseEqual(const std::vector<float>& first, const std::vector<float>& second)
+{
+  REQUIRE(first.size() == second.size());
+  for(size_t index = 0; index < first.size(); index++)
+  {
+    CAPTURE(index);
+    REQUIRE(std::bit_cast<uint32_t>(first[index]) == std::bit_cast<uint32_t>(second[index]));
+  }
+}
+
 float sumMdf(const std::vector<float>& mdf)
 {
   return std::accumulate(mdf.cbegin(), mdf.cend(), 0.0f);
@@ -291,5 +323,49 @@ TEST_CASE("ebsdlib::TextureTest::CalculateMDFData normalizes weighted targets", 
   {
     const std::vector<float> mdf = calculateCubicMdf({});
     REQUIRE(sumMdf(mdf) == Approx(1.0f).margin(1.0e-5f));
+  }
+}
+
+TEST_CASE("ebsdlib::TextureTest::CalculateMDFData seeded generator is reproducible", "[EbsdLib][TextureTest]")
+{
+  constexpr uint64_t k_Seed = 0x5EED1234ULL;
+
+  SECTION("Empty weights")
+  {
+    const std::vector<float> first = calculateSeededCubicMdf({}, k_Seed);
+    const std::vector<float> second = calculateSeededCubicMdf({}, k_Seed);
+    requireBitwiseEqual(first, second);
+    REQUIRE(sumMdf(first) == Approx(1.0f).margin(1.0e-5f));
+  }
+
+  SECTION("Weighted target")
+  {
+    const std::vector<float> first = calculateSeededCubicMdf({2916.0f}, k_Seed);
+    const std::vector<float> second = calculateSeededCubicMdf({2916.0f}, k_Seed);
+    requireBitwiseEqual(first, second);
+    REQUIRE(sumMdf(first) == Approx(1.0f).margin(1.0e-5f));
+  }
+
+  SECTION("Legacy overload")
+  {
+    const std::vector<float> legacy = calculateCubicMdf({});
+    REQUIRE_FALSE(legacy.empty());
+    REQUIRE(sumMdf(legacy) == Approx(1.0f).margin(1.0e-5f));
+  }
+
+  SECTION("Seeded plot data")
+  {
+    std::vector<float> firstMdf = calculateSeededCubicMdf({}, k_Seed);
+    std::vector<float> secondMdf = firstMdf;
+    std::vector<float> firstAngles;
+    std::vector<float> firstFrequencies;
+    std::vector<float> secondAngles;
+    std::vector<float> secondFrequencies;
+    std::mt19937_64 firstGenerator(k_Seed);
+    std::mt19937_64 secondGenerator(k_Seed);
+    REQUIRE(StatsGen::GenMDFPlotData<float, CubicOps>(firstMdf, firstAngles, firstFrequencies, 100000, firstGenerator) == 0);
+    REQUIRE(StatsGen::GenMDFPlotData<float, CubicOps>(secondMdf, secondAngles, secondFrequencies, 100000, secondGenerator) == 0);
+    requireBitwiseEqual(firstAngles, secondAngles);
+    requireBitwiseEqual(firstFrequencies, secondFrequencies);
   }
 }

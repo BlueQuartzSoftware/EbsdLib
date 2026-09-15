@@ -23,10 +23,26 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+#include <random>
 #include <string>
 #include <vector>
 
 using namespace ebsdlib;
+
+template <typename OpsType>
+concept HasGeneratorRandomizeEulerAngles = requires(OpsType ops, const EulerDType& euler, std::mt19937_64& generator) { ops.randomizeEulerAngles(euler, generator); };
+
+static_assert(HasGeneratorRandomizeEulerAngles<CubicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<CubicLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<HexagonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<HexagonalLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<MonoclinicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<OrthoRhombicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TetragonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TetragonalLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TriclinicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TrigonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TrigonalLowOps>);
 
 // -----------------------------------------------------------------------------
 // getDefaultPoleFigureNames returns the plotted plane-normal families in brace
@@ -639,6 +655,56 @@ bool quatsSameRotation(const QuatD& a, const QuatD& b, double tol)
   return std::min(diff1, diff2) < tol;
 }
 } // namespace
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::SeededRandomSymmetry", "[EbsdLib][LaueOpsTest]")
+{
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  const EulerDType inputEuler(0.37, 0.91, 1.42);
+  const QuatD inputQuat = inputEuler.toQuaternion();
+  constexpr uint64_t k_Seed = 0x5EED1234ULL;
+  constexpr double k_QuaternionTolerance = 1.0e-12;
+
+  for(const auto& ops : allOps)
+  {
+    INFO(ops->getNameOfClass());
+    std::mt19937_64 firstGenerator(k_Seed);
+    std::mt19937_64 secondGenerator(k_Seed);
+
+    for(size_t draw = 0; draw < 100; draw++)
+    {
+      const EulerDType firstEuler = ops->randomizeEulerAngles(inputEuler, firstGenerator);
+      const EulerDType secondEuler = ops->randomizeEulerAngles(inputEuler, secondGenerator);
+      for(size_t component = 0; component < 3; component++)
+      {
+        CHECK(firstEuler[component] == secondEuler[component]);
+      }
+
+      const QuatD randomizedQuat = firstEuler.toQuaternion();
+      bool foundEquivalentOperator = false;
+      for(size_t symOp = 0; symOp < ops->getNumSymOps(); symOp++)
+      {
+        const QuatD expectedQuat = ops->getQuatSymOp(symOp) * inputQuat;
+        if(quatsSameRotation(randomizedQuat, expectedQuat, k_QuaternionTolerance))
+        {
+          foundEquivalentOperator = true;
+          break;
+        }
+      }
+      CHECK(foundEquivalentOperator);
+    }
+
+    std::vector<bool> operatorWasSelected(ops->getNumSymOps(), false);
+    std::mt19937_64 indexGenerator(k_Seed);
+    for(size_t draw = 0; draw < 10000; draw++)
+    {
+      const size_t symOp = ops->getRandomSymmetryOperatorIndex(static_cast<int>(ops->getNumSymOps()), indexGenerator);
+      REQUIRE(symOp < operatorWasSelected.size());
+      operatorWasSelected[symOp] = true;
+    }
+    CHECK(std::all_of(operatorWasSelected.cbegin(), operatorWasSelected.cend(), [](bool selected) { return selected; }));
+  }
+}
 
 // -----------------------------------------------------------------------------
 // Validates that all three symmetry operator representations (quaternion,

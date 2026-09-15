@@ -221,7 +221,7 @@ public:
   }
 
   /**
-   * @brief Calculates Misorientation Distribution Function (MDF) data.
+   * @brief Calculates Misorientation Distribution Function (MDF) data with a clock-seeded generator.
    * @tparam T MDF value type.
    * @tparam LaueOps Symmetry operations for the selected crystal structure.
    * @tparam Container Random-access container type for the input and output arrays.
@@ -231,11 +231,35 @@ public:
    * @param odf Precomputed ODF data for the selected Laue class.
    * @param mdf Receives the normalized MDF data. The values always sum to 1 within floating-point rounding.
    * @param numEntries Number of rows to read from angles, axes, and weights.
+   * @note This overload seeds a generator from the clock for each call. Use the generator-taking overload for reproducible results.
+   */
+  template <typename T, class LaueOps, class Container>
+  static void CalculateMDFData(Container& angles, Container& axes, Container& weights, const Container& odf, Container& mdf, size_t numEntries)
+  {
+    std::random_device randomDevice;
+    std::mt19937_64 generator(randomDevice());
+    std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
+    generator.seed(seed);
+    CalculateMDFData<T, LaueOps, Container>(angles, axes, weights, odf, mdf, numEntries, generator);
+  }
+
+  /**
+   * @brief Calculates Misorientation Distribution Function (MDF) data with the specified generator.
+   * @tparam T MDF value type.
+   * @tparam LaueOps Symmetry operations for the selected crystal structure.
+   * @tparam Container Random-access container type for the input and output arrays.
+   * @param angles Misorientation angles in radians.
+   * @param axes Misorientation axes with three components for each angle.
+   * @param weights Multiples-of-random weights. A weight of w reserves w divided by the MDF bin count of the output mass.
+   * @param odf Precomputed ODF data for the selected Laue class.
+   * @param mdf Receives the normalized MDF data. The values always sum to 1 within floating-point rounding.
+   * @param numEntries Number of rows to read from angles, axes, and weights.
+   * @param generator Generator that supplies the random sampling stream.
    *
    * If the reserved mass exceeds the 10,000-sample budget, the function scales all reserved counts proportionally. The scaled counts use the complete budget.
    */
   template <typename T, class LaueOps, class Container>
-  static void CalculateMDFData(Container& angles, Container& axes, Container& weights, const Container& odf, Container& mdf, size_t numEntries)
+  static void CalculateMDFData(Container& angles, Container& axes, Container& weights, const Container& odf, Container& mdf, size_t numEntries, std::mt19937_64& generator)
   {
 
     LaueOps orientationOps;
@@ -243,11 +267,6 @@ public:
     const int mdfsize = orientationOps.getMDFSize();
     mdf.resize(orientationOps.getMDFSize());
 
-    // Create a random-number generator.
-    std::random_device randomDevice;
-    std::mt19937_64 generator(randomDevice());
-    std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
-    generator.seed(seed);
     std::uniform_real_distribution<> distribution(0.0, 1.0);
 
     int mbin;
@@ -336,7 +355,7 @@ public:
           choose2 = static_cast<int>(j);
         }
       }
-      // This is used to create a random Homochoric vector
+      // The random values define a homochoric vector.
       std::array<double, 3> randx3 = {distribution(generator), distribution(generator), distribution(generator)};
       EulerDType eu = orientationOps.determineEulerAngles(randx3.data(), choose1);
       QuatD q1 = eu.toQuaternion();

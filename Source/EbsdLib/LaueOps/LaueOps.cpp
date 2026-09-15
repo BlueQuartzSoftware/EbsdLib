@@ -906,6 +906,21 @@ size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps) const
 }
 
 // -----------------------------------------------------------------------------
+size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps, std::mt19937_64& generator) const
+{
+  std::uniform_int_distribution<size_t> distribution(0, static_cast<size_t>(numSymOps - 1));
+  return distribution(generator);
+}
+
+// -----------------------------------------------------------------------------
+EulerDType LaueOps::randomizeEulerAngles(const EulerDType& euler, std::mt19937_64& generator) const
+{
+  const size_t symOp = getRandomSymmetryOperatorIndex(static_cast<int>(getNumSymOps()), generator);
+  const QuatD qc = getQuatSymOp(symOp) * euler.toQuaternion();
+  return QuaternionDType(qc).toEuler();
+}
+
+// -----------------------------------------------------------------------------
 LaueOps::Pointer LaueOps::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
