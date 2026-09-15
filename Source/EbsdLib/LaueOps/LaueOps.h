@@ -36,6 +36,7 @@
 
 #include <array>
 #include <memory>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -252,7 +253,29 @@ public:
 
   virtual EulerDType randomizeEulerAngles(const EulerDType& euler) const = 0;
 
+  /**
+   * @brief Selects a random symmetry operator with a clock-seeded generator.
+   * @param numSymOps Number of symmetry operators in the selection range.
+   * @return Zero-based symmetry operator index.
+   * @note This overload seeds a generator from the clock for each call. Use the generator-taking overload for reproducible results.
+   */
   virtual size_t getRandomSymmetryOperatorIndex(int numSymOps) const;
+
+  /**
+   * @brief Selects a random symmetry operator with the specified generator.
+   * @param numSymOps Number of symmetry operators in the selection range.
+   * @param generator Generator that supplies the random stream.
+   * @return Zero-based symmetry operator index.
+   */
+  size_t getRandomSymmetryOperatorIndex(int numSymOps, std::mt19937_64& generator) const;
+
+  /**
+   * @brief Applies a random symmetry-equivalent rotation with the specified generator.
+   * @param euler Source Euler angles.
+   * @param generator Generator that selects the symmetry operator.
+   * @return Symmetry-equivalent Euler angles.
+   */
+  EulerDType randomizeEulerAngles(const EulerDType& euler, std::mt19937_64& generator) const;
 
   virtual RodriguesDType determineRodriguesVector(double random[3], int choose) const = 0;
 
