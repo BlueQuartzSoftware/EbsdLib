@@ -65,6 +65,31 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::CountDensityToMUD", "[EbsdLib][ODFSecti
   REQUIRE(result.sections.mudValues.front() == Approx(expected));
 }
 
+TEST_CASE("ebsdlib::ODFSectionUtilities::Phi2FastestSourceLinearization", "[EbsdLib][ODFSectionUtilities]")
+{
+  constexpr size_t k_Phi1Count = 4;
+  constexpr size_t k_PhiCount = 2;
+  constexpr size_t k_Phi2Count = 4;
+  auto values = DoubleArrayType::CreateArray(k_Phi1Count * k_PhiCount * k_Phi2Count, "Phi2FastestSentinel", true);
+  for(size_t phi1Index = 0; phi1Index < k_Phi1Count; phi1Index++)
+  {
+    for(size_t phiIndex = 0; phiIndex < k_PhiCount; phiIndex++)
+    {
+      for(size_t phi2Index = 0; phi2Index < k_Phi2Count; phi2Index++)
+      {
+        const size_t flatIndex = (phi1Index * k_PhiCount + phiIndex) * k_Phi2Count + phi2Index;
+        values->setValue(flatIndex, 100.0 * static_cast<double>(phi1Index) + 10.0 * static_cast<double>(phiIndex) + static_cast<double>(phi2Index));
+      }
+    }
+  }
+
+  const ODFGridView grid{values.get(), {k_Phi1Count, k_PhiCount, k_Phi2Count}, {0.0, 0.0, 0.0}, {90.0, 90.0, 90.0}, ODFValueUnits::MUD, CrystalStructure::Triclinic};
+  const auto result = PrepareODFSections(grid, 4);
+  REQUIRE(result);
+  REQUIRE(result.sections.mudValues == std::vector<double>{1.5, 101.5, 201.5, 301.5, 11.5, 111.5, 211.5, 311.5, 0.5, 100.5, 200.5, 300.5, 10.5, 110.5, 210.5, 310.5,
+                                                           1.5, 101.5, 201.5, 301.5, 11.5, 111.5, 211.5, 311.5, 2.5, 102.5, 202.5, 302.5, 12.5, 112.5, 212.5, 312.5});
+}
+
 TEST_CASE("ebsdlib::ODFSectionUtilities::AllLaueLimits", "[EbsdLib][ODFSectionUtilities]")
 {
   struct LimitsCase
@@ -97,11 +122,15 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::AllLaueLimits", "[EbsdLib][ODFSectionUt
 TEST_CASE("ebsdlib::ODFSectionUtilities::PeriodicPhi2Interpolation", "[EbsdLib][ODFSectionUtilities]")
 {
   auto values = DoubleArrayType::CreateArray(32, "FourPlanes", true);
-  for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
   {
-    for(size_t valueIndex = phi2Index * 8; valueIndex < (phi2Index + 1) * 8; valueIndex++)
+    for(size_t phiIndex = 0; phiIndex < 2; phiIndex++)
     {
-      values->setValue(valueIndex, static_cast<double>(phi2Index + 1));
+      for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+      {
+        const size_t flatIndex = (phi1Index * 2 + phiIndex) * 4 + phi2Index;
+        values->setValue(flatIndex, static_cast<double>(phi2Index + 1));
+      }
     }
   }
 
@@ -120,17 +149,16 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::PeriodicPhi2Interpolation", "[EbsdLib][
 TEST_CASE("ebsdlib::ODFSectionUtilities::HexagonalHighCrop", "[EbsdLib][ODFSectionUtilities]")
 {
   auto values = DoubleArrayType::CreateArray(32, "HexagonalHighCrop", true);
-  for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
   {
-    const size_t planeOffset = phi2Index * 8;
-    values->setValue(planeOffset, 1.0);
-    values->setValue(planeOffset + 1, 2.0);
-    values->setValue(planeOffset + 2, 3.0);
-    values->setValue(planeOffset + 3, 4.0);
-    values->setValue(planeOffset + 4, 101.0);
-    values->setValue(planeOffset + 5, 102.0);
-    values->setValue(planeOffset + 6, 103.0);
-    values->setValue(planeOffset + 7, 104.0);
+    for(size_t phiIndex = 0; phiIndex < 2; phiIndex++)
+    {
+      for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+      {
+        const size_t flatIndex = (phi1Index * 2 + phiIndex) * 4 + phi2Index;
+        values->setValue(flatIndex, static_cast<double>(phi1Index + 1 + phiIndex * 100));
+      }
+    }
   }
 
   const ODFGridView grid{values.get(), {4, 2, 4}, {0.0, 0.0, 0.0}, {90.0, 90.0, 90.0}, ODFValueUnits::MUD, CrystalStructure::Hexagonal_High};
