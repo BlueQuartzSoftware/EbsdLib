@@ -176,9 +176,13 @@ TEST_CASE("ebsdlib::ODFSectionCompositor::RgbaPanelsAndChrome", "[EbsdLib][ODFSe
 {
   auto values = DoubleArrayType::CreateArray(32, "Planes", true);
   values->initializeWithValue(0.0);
-  for(size_t index = 16; index < 24; index++)
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
   {
-    values->setValue(index, 8.0);
+    for(size_t phiIndex = 0; phiIndex < 2; phiIndex++)
+    {
+      const size_t flatIndex = (phi1Index * 2 + phiIndex) * 4 + 2;
+      values->setValue(flatIndex, 8.0);
+    }
   }
   const auto config = RenderConfiguration(values.get());
   const auto layout = ComputeODFSectionLayout(config);
@@ -257,11 +261,12 @@ TEST_CASE("ebsdlib::ODFSectionCompositor::AutomaticUsesCropAndInterpolation", "[
 {
   auto values = DoubleArrayType::CreateArray(32, "Cropped", true);
   values->initializeWithValue(100.0);
-  for(size_t plane = 0; plane < 4; plane++)
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
   {
-    for(size_t index = 0; index < 4; index++)
+    for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
     {
-      values->setValue(plane * 8 + index, static_cast<double>(plane + 1));
+      const size_t flatIndex = phi1Index * 8 + phi2Index;
+      values->setValue(flatIndex, static_cast<double>(phi2Index + 1));
     }
   }
   auto config = RenderConfiguration(values.get());
@@ -276,13 +281,14 @@ TEST_CASE("ebsdlib::ODFSectionCompositor::AutomaticUsesCropAndInterpolation", "[
 TEST_CASE("ebsdlib::ODFSectionCompositor::SpatialOrderAndUnusedSlot", "[EbsdLib][ODFSectionCompositor]")
 {
   auto values = DoubleArrayType::CreateArray(32, "SpatialRamp", true);
-  for(size_t plane = 0; plane < 4; plane++)
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
   {
-    for(size_t row = 0; row < 2; row++)
+    for(size_t phiIndex = 0; phiIndex < 2; phiIndex++)
     {
-      for(size_t column = 0; column < 4; column++)
+      for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
       {
-        values->setValue(plane * 8 + row * 4 + column, static_cast<double>(row + column));
+        const size_t flatIndex = (phi1Index * 2 + phiIndex) * 4 + phi2Index;
+        values->setValue(flatIndex, static_cast<double>(phiIndex + phi1Index));
       }
     }
   }
