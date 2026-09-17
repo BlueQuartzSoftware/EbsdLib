@@ -153,6 +153,14 @@ ODFSectionPreparationResult PrepareODFSections(const ODFGridView& grid, size_t s
   {
     return MakeError(k_NullValues, "The ODF values pointer is null. Provide a valid scalar DoubleArrayType.");
   }
+  switch(grid.units)
+  {
+  case ODFValueUnits::MUD:
+  case ODFValueUnits::CountDensity:
+    break;
+  default:
+    return MakeError(k_InvalidGrid, fmt::format("The ODF value-units code ({}) is not supported. Use MUD (0) or CountDensity (1).", static_cast<uint32_t>(grid.units)));
+  }
   if(grid.laueOpsIndex >= k_Limits.size())
   {
     return MakeError(k_InvalidLaueClass, fmt::format("The Laue class index ({}) is not supported. Use an EbsdLib crystal-structure index from 0 through 10.", grid.laueOpsIndex));

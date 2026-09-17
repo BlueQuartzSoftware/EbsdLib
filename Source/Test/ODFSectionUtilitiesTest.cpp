@@ -117,6 +117,32 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::PeriodicPhi2Interpolation", "[EbsdLib][
   REQUIRE(result.sections.maximumDisplayedMUD == Approx(3.5));
 }
 
+TEST_CASE("ebsdlib::ODFSectionUtilities::HexagonalHighCrop", "[EbsdLib][ODFSectionUtilities]")
+{
+  auto values = DoubleArrayType::CreateArray(32, "HexagonalHighCrop", true);
+  for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+  {
+    const size_t planeOffset = phi2Index * 8;
+    values->setValue(planeOffset, 1.0);
+    values->setValue(planeOffset + 1, 2.0);
+    values->setValue(planeOffset + 2, 3.0);
+    values->setValue(planeOffset + 3, 4.0);
+    values->setValue(planeOffset + 4, 101.0);
+    values->setValue(planeOffset + 5, 102.0);
+    values->setValue(planeOffset + 6, 103.0);
+    values->setValue(planeOffset + 7, 104.0);
+  }
+
+  const ODFGridView grid{values.get(), {4, 2, 4}, {0.0, 0.0, 0.0}, {90.0, 90.0, 90.0}, ODFValueUnits::MUD, CrystalStructure::Hexagonal_High};
+  const auto result = PrepareODFSections(grid, 4);
+  REQUIRE(result);
+  REQUIRE(result.sections.sectionAnglesDeg == std::vector<double>{0.0, 15.0, 30.0, 45.0});
+  REQUIRE(result.sections.phi1Count == 4);
+  REQUIRE(result.sections.phiCount == 1);
+  REQUIRE(result.sections.mudValues == std::vector<double>{1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0});
+  REQUIRE(result.sections.maximumDisplayedMUD == Approx(4.0));
+}
+
 TEST_CASE("ebsdlib::ODFSectionUtilities::InvalidInput", "[EbsdLib][ODFSectionUtilities]")
 {
   auto values = DoubleArrayType::CreateArray(32, "ValidValues", true);
@@ -139,6 +165,17 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::InvalidInput", "[EbsdLib][ODFSectionUti
     const auto result = PrepareODFSections(grid, 4);
     REQUIRE_FALSE(result);
     REQUIRE(result.errorCode == -7501);
+  }
+
+  SECTION("Unsupported value units")
+  {
+    auto grid = validGrid;
+    grid.units = static_cast<ODFValueUnits>(2);
+    const auto result = PrepareODFSections(grid, 4);
+    REQUIRE_FALSE(result);
+    REQUIRE(result.errorCode == -7502);
+    REQUIRE(result.errorMessage.find("(2)") != std::string::npos);
+    REQUIRE(result.errorMessage.find("MUD (0) or CountDensity (1)") != std::string::npos);
   }
 
   SECTION("Transposed dimensions")
