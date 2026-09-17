@@ -94,7 +94,7 @@ bool CoversEulerCube(const ODFGridView& grid)
 
 size_t FullIndex(size_t phi1Index, size_t phiIndex, size_t phi2Index, const std::array<size_t, 3>& dimensions)
 {
-  return (phi2Index * dimensions[1] + phiIndex) * dimensions[0] + phi1Index;
+  return (phi1Index * dimensions[1] + phiIndex) * dimensions[2] + phi2Index;
 }
 
 size_t SectionIndex(size_t sectionIndex, size_t phiIndex, size_t phi1Index, size_t phi1Count, size_t phiCount)

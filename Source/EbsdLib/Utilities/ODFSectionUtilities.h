@@ -62,12 +62,13 @@ enum class ODFValueUnits : uint8_t
  * @brief Describes a borrowed full-cube orientation distribution function grid.
  *
  * The caller owns the values array and must keep it valid during section preparation.
+ * Flat source values use phi2-fastest row-major storage: `(phi1 * nPHI + PHI) * nphi2 + phi2`.
  */
 struct EbsdLib_EXPORT ODFGridView
 {
-  /** @brief Source scalar values. The function does not take ownership. */
+  /** @brief Source scalar values in phi2-fastest row-major order. The function does not take ownership. */
   DoubleArrayType* values = nullptr;
-  /** @brief Cell counts in phi1, PHI, and phi2 order. */
+  /** @brief Cell counts listed in phi1, PHI, and phi2 order. */
   std::array<size_t, 3> dimensions = {0, 0, 0};
   /** @brief Grid origin in degrees for phi1, PHI, and phi2. */
   std::array<double, 3> originDeg = {0.0, 0.0, 0.0};
