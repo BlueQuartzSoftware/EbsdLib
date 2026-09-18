@@ -171,6 +171,40 @@ TEST_CASE("ebsdlib::ODFSectionUtilities::HexagonalHighCrop", "[EbsdLib][ODFSecti
   REQUIRE(result.sections.maximumDisplayedMUD == Approx(4.0));
 }
 
+TEST_CASE("ebsdlib::ODFSectionUtilities::EmptyDisplayedCrop", "[EbsdLib][ODFSectionUtilities]")
+{
+  auto values = DoubleArrayType::CreateArray(4, "CoarseGrid", true);
+  values->initializeWithValue(1.0);
+  const ODFGridView grid{values.get(), {2, 1, 2}, {0.0, 0.0, 0.0}, {180.0, 180.0, 180.0}, ODFValueUnits::MUD, CrystalStructure::Hexagonal_High};
+  const auto result = PrepareODFSections(grid, 6);
+  REQUIRE_FALSE(result);
+  REQUIRE(result.errorCode == -7502);
+  REQUIRE(result.errorMessage.find("(2, 1, 2)") != std::string::npos);
+  REQUIRE(result.errorMessage.find("180") != std::string::npos);
+  REQUIRE(result.errorMessage.find("PHI=0") != std::string::npos);
+}
+
+TEST_CASE("ebsdlib::ODFSectionUtilities::Float32FractionalSpacing", "[EbsdLib][ODFSectionUtilities]")
+{
+  const size_t phiCount = GENERATE(size_t{7}, size_t{53});
+  const double spacing = static_cast<float>(180.0 / static_cast<double>(phiCount));
+  auto values = DoubleArrayType::CreateArray(4 * phiCount * phiCount * phiCount, "FractionalSpacing", true);
+  values->initializeWithValue(1.0);
+  ODFGridView grid{values.get(), {2 * phiCount, phiCount, 2 * phiCount}, {0.0, 0.0, 0.0}, {spacing, spacing, spacing}, ODFValueUnits::MUD, CrystalStructure::Hexagonal_High};
+  const auto result = PrepareODFSections(grid, 6);
+  INFO(result.errorMessage);
+  REQUIRE(result);
+  REQUIRE_FALSE(result.sections.mudValues.empty());
+  for(const double value : result.sections.mudValues)
+  {
+    REQUIRE(value == Approx(1.0));
+  }
+  grid.spacingDeg = {spacing * 1.000001, spacing * 1.000001, spacing * 1.000001};
+  const auto invalid = PrepareODFSections(grid, 6);
+  REQUIRE_FALSE(invalid);
+  REQUIRE(invalid.errorCode == -7502);
+}
+
 TEST_CASE("ebsdlib::ODFSectionUtilities::InvalidInput", "[EbsdLib][ODFSectionUtilities]")
 {
   auto values = DoubleArrayType::CreateArray(32, "ValidValues", true);

@@ -81,10 +81,11 @@ ODFSectionPreparationResult MakeError(int32_t code, std::string message)
 bool CoversEulerCube(const ODFGridView& grid)
 {
   constexpr std::array<double, 3> k_FullExtentsDeg = {360.0, 180.0, 360.0};
+  constexpr double k_BinCountTolerance = 1.0e-6;
   for(size_t axis = 0; axis < grid.dimensions.size(); axis++)
   {
-    const double extentDeg = static_cast<double>(grid.dimensions[axis]) * grid.spacingDeg[axis];
-    if(std::abs(extentDeg - k_FullExtentsDeg[axis]) > std::numeric_limits<double>::epsilon() * k_FullExtentsDeg[axis])
+    const double binCount = k_FullExtentsDeg[axis] / grid.spacingDeg[axis];
+    if(grid.dimensions[axis] == 0 || std::abs(binCount - static_cast<double>(grid.dimensions[axis])) > k_BinCountTolerance)
     {
       return false;
     }
@@ -234,6 +235,13 @@ ODFSectionPreparationResult PrepareODFSections(const ODFGridView& grid, size_t s
   prepared.sectionAnglesDeg = GenerateODFSectionAngles(grid.laueOpsIndex, sectionCount);
   prepared.phi1Count = CountCellCentersBelow(grid.dimensions[0], grid.spacingDeg[0], prepared.limits.phi1MaxDeg);
   prepared.phiCount = CountCellCentersBelow(grid.dimensions[1], grid.spacingDeg[0], prepared.limits.phiMaxDeg);
+  if(prepared.phi1Count == 0 || prepared.phiCount == 0)
+  {
+    return MakeError(k_InvalidGrid, fmt::format("The ODF grid dimensions ({}, {}, {}) with spacing ({}, {}, {}) degrees contain no usable displayed cells for Laue class index {} "
+                                                "and plotting limits (phi1={}, PHI={}, phi2={}) degrees: displayed counts phi1={}, PHI={}. Use a finer full Euler grid.",
+                                                grid.dimensions[0], grid.dimensions[1], grid.dimensions[2], grid.spacingDeg[0], grid.spacingDeg[1], grid.spacingDeg[2], grid.laueOpsIndex,
+                                                prepared.limits.phi1MaxDeg, prepared.limits.phiMaxDeg, prepared.limits.phi2MaxDeg, prepared.phi1Count, prepared.phiCount));
+  }
   prepared.mudValues.resize(sectionCount * prepared.phiCount * prepared.phi1Count, 0.0);
 
   for(size_t sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++)
