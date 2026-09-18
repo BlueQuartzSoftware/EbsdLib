@@ -78,6 +78,24 @@ TEST_CASE("ebsdlib::ODFSectionCompositor::DefaultsAndLayout", "[EbsdLib][ODFSect
   REQUIRE(layout.pageHeight == 550);
 }
 
+TEST_CASE("ebsdlib::ODFSectionCompositor::EmptyDisplayedCrop", "[EbsdLib][ODFSectionCompositor]")
+{
+  auto values = DoubleArrayType::CreateArray(4, "CoarseGrid", true);
+  values->initializeWithValue(1.0);
+  auto config = RenderConfiguration(values.get());
+  config.grid = {values.get(), {2, 1, 2}, {0, 0, 0}, {180, 180, 180}, ODFValueUnits::MUD, CrystalStructure::Hexagonal_High};
+  config.sectionCount = 6;
+  config.sectionsPerRow = 3;
+  config.manualMaximumMUD = 1.0;
+  config.scaleMode = GENERATE(ODFScaleMode::Manual, ODFScaleMode::Automatic);
+  // Preparation must reject the empty crop before the renderer can read its values.
+  REQUIRE_FALSE(PrepareODFSections(config.grid, config.sectionCount));
+  const auto result = ODFSectionCompositor{}.generateCompositeImage(config);
+  REQUIRE_FALSE(result);
+  REQUIRE(result.errorCode == -7502);
+  REQUIRE(result.image == nullptr);
+}
+
 TEST_CASE("ebsdlib::ODFSectionCompositor::InvalidConfiguration", "[EbsdLib][ODFSectionCompositor]")
 {
   auto values = DoubleArrayType::CreateArray(32, "Uniform", true);
