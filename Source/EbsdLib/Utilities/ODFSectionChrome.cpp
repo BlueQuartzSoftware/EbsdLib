@@ -4,6 +4,7 @@
 #include "EbsdLib/Utilities/Fonts.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include <canvas_ity.hpp>
 #include <fmt/format.h>
@@ -46,17 +47,36 @@ std::vector<double> GenerateODFAxisTicks(double maximumDeg, int32_t pixelLength)
   return ticks;
 }
 
-std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength)
+std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength, float fontSize)
 {
+  if(fontSize <= 0.0f)
+  {
+    fontSize = std::min(std::max(10.0f, pixelLength / 24.0f) * 0.7f, std::max(8.0f, pixelLength / 32.0f) * 0.8f);
+  }
+  const auto font = fonts::GetFiraSansRegular();
+  canvas_ity::canvas context(1, 1);
+  context.set_font(font.data(), static_cast<int>(font.size()), fontSize);
   const auto ticks = GenerateODFAxisTicks(maximumDeg, pixelLength);
   std::vector<double> labels = {ticks.front()};
-  const double minimumSeparationDeg = 24.0 * maximumDeg / static_cast<double>(pixelLength);
+  float previousRight = context.measure_text("0");
+  const float endpointLeft = pixelLength - context.measure_text(fmt::format("{:g}", maximumDeg).c_str());
+  constexpr float padding = 4.0f;
+  if(endpointLeft < previousRight + padding)
+  {
+    return labels;
+  }
   for(size_t tickIndex = 1; tickIndex + 1 < ticks.size(); tickIndex++)
   {
     const double angleDeg = ticks[tickIndex];
-    if(angleDeg - labels.back() >= minimumSeparationDeg && ticks.back() - angleDeg >= minimumSeparationDeg)
+    // Fira's numeric advance widths include the side bearings of each rendered digit.
+    const float width = context.measure_text(fmt::format("{:g}", angleDeg).c_str());
+    const float center = static_cast<float>(angleDeg / maximumDeg * pixelLength);
+    const float left = center - width / 2;
+    const float right = center + width / 2;
+    if(left >= previousRight + padding && right + padding <= endpointLeft)
     {
       labels.push_back(angleDeg);
+      previousRight = right;
     }
   }
   if(ticks.back() != labels.back())
@@ -66,6 +86,40 @@ std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLe
   return labels;
 }
 
+float ComputeODFLeftAxisGutter(float fontSize, float tickSize)
+{
+  // Measure ink at a fixed font size so layout checks cannot allocate an oversized canvas.
+  const auto font = fonts::GetFiraSansRegular();
+  canvas_ity::canvas context(640, 192);
+  context.set_font(font.data(), static_cast<int>(font.size()), 64.0f);
+  context.set_color(canvas_ity::fill_style, 0, 0, 0, 1);
+  context.fill_text("\xCE\xA6", 16, 96);
+  context.fill_text("0123456789", 128, 96);
+  std::vector<uint8_t> pixels(640 * 192 * 4);
+  context.get_image_data(pixels.data(), 640, 192, 640 * 4, 0, 0);
+  int32_t titleBottom = 96;
+  int32_t tickTop = 96;
+  for(int32_t y = 0; y < 192; ++y)
+  {
+    for(int32_t x = 0; x < 640; ++x)
+    {
+      if(pixels[(y * 640 + x) * 4 + 3] != 0)
+      {
+        if(x < 128)
+        {
+          titleBottom = std::max(titleBottom, y + 1);
+        }
+        else
+        {
+          tickTop = std::min(tickTop, y);
+        }
+      }
+    }
+  }
+  // Rotation maps font ascent to the left of each baseline. Padding also covers pixel rounding.
+  return std::ceil(fontSize + (titleBottom - 96) * fontSize / 64.0f + (96 - tickTop) * tickSize / 64.0f + 10.0f);
+}
+
 std::string GetODFColorBarTitle(ODFValueUnits sourceUnits)
 {
   return sourceUnits == ODFValueUnits::MUD ? "MUD" : "MUD (from Count-Density)";
@@ -73,7 +127,7 @@ std::string GetODFColorBarTitle(ODFValueUnits sourceUnits)
 
 std::array<float, 2> GetODFSectionPanelOrigin(const ODFSectionLayoutMetrics& layout, size_t sectionIndex)
 {
-  return {static_cast<float>(sectionIndex % static_cast<size_t>(layout.columns)) * layout.panelSlotWidth + layout.margin,
+  return {static_cast<float>(sectionIndex % static_cast<size_t>(layout.columns)) * layout.panelSlotWidth + layout.margin + layout.leftAxisGutter,
           layout.titleHeight + static_cast<float>(sectionIndex / static_cast<size_t>(layout.columns)) * layout.panelSlotHeight + layout.fontPtSize + layout.margin};
 }
 
@@ -105,10 +159,10 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
     context.fill_rectangle(x, y + panelHeight, panelWidth, 1);
 
     // PHI increases down the page, matching the prepared section row order.
-    const float tickSize = std::min(fontSize * 0.7f, margin * 0.8f);
+    const float tickSize = layout.tickFontSize;
     context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), tickSize);
     const auto phi1Ticks = GenerateODFAxisTicks(sections.limits.phi1MaxDeg, layout.panelWidth);
-    const auto phi1LabelTicks = GenerateODFAxisLabelTicks(sections.limits.phi1MaxDeg, layout.panelWidth);
+    const auto phi1LabelTicks = GenerateODFAxisLabelTicks(sections.limits.phi1MaxDeg, layout.panelWidth, tickSize);
     for(const double tickDeg : phi1Ticks)
     {
       const float fraction = static_cast<float>(tickDeg / sections.limits.phi1MaxDeg);
@@ -121,7 +175,7 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
       }
     }
     const auto phiTicks = GenerateODFAxisTicks(sections.limits.phiMaxDeg, layout.panelHeight);
-    const auto phiLabelTicks = GenerateODFAxisLabelTicks(sections.limits.phiMaxDeg, layout.panelHeight);
+    const auto phiLabelTicks = GenerateODFAxisLabelTicks(sections.limits.phiMaxDeg, layout.panelHeight, tickSize);
     for(const double tickDeg : phiTicks)
     {
       const float fraction = static_cast<float>(tickDeg / sections.limits.phiMaxDeg);
@@ -132,7 +186,7 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
         continue;
       }
       context.save();
-      context.translate(x - 1, tickY);
+      context.translate(x - 4, tickY);
       context.rotate(-1.5707963267948966f);
       context.text_align = tickDeg == 0.0 ? canvas_ity::rightward : (tickDeg == sections.limits.phiMaxDeg ? canvas_ity::start : canvas_ity::center);
       context.fill_text(fmt::format("{:g}", tickDeg).c_str(), 0, 0, panelHeight / 3);
@@ -142,7 +196,7 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
     context.text_align = canvas_ity::center;
     context.fill_text(GetODFHorizontalAxisTitle().c_str(), x + panelWidth / 2, y + panelHeight + 2 * fontSize + margin / 2, panelWidth);
     context.save();
-    context.translate(x - margin / 2, y + panelHeight / 2);
+    context.translate(std::round(x - layout.leftAxisGutter + fontSize), std::round(y + panelHeight / 2));
     context.rotate(-1.5707963267948966f);
     context.fill_text(GetODFVerticalAxisTitle().c_str(), 0, 0, panelHeight);
     context.restore();
