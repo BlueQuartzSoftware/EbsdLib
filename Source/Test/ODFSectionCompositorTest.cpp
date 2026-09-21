@@ -1,9 +1,11 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/Utilities/ODFSectionChrome.h"
 #include "EbsdLib/Utilities/ODFSectionCompositor.h"
 
 #include <array>
 #include <cmath>
+#include <fmt/format.h>
 #include <limits>
 
 using namespace ebsdlib;
@@ -49,7 +51,42 @@ bool HasInk(const ODFSectionResult& result, int32_t x, int32_t y, int32_t width,
   }
   return false;
 }
+
+bool HasPixelDifference(const ODFSectionResult& first, const ODFSectionResult& second, int32_t x, int32_t y, int32_t width, int32_t height)
+{
+  for(int32_t row = y; row < y + height; row++)
+  {
+    for(int32_t column = x; column < x + width; column++)
+    {
+      const size_t pixelOffset = (static_cast<size_t>(row) * first.width + column) * 4;
+      for(size_t componentIndex = 0; componentIndex < 4; componentIndex++)
+      {
+        if(first.image->getValue(pixelOffset + componentIndex) != second.image->getValue(pixelOffset + componentIndex))
+        {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 } // namespace
+
+TEST_CASE("ebsdlib::ODFSectionCompositor::ChromeTextAndTicks", "[EbsdLib][ODFSectionCompositor]")
+{
+  REQUIRE(FormatODFSectionTitle(10.0) == "φ₂ = 10°");
+  REQUIRE(SelectODFAxisTickInterval(360.0, 900) == Approx(10.0));
+  REQUIRE(SelectODFAxisTickInterval(360.0, 512) == Approx(20.0));
+  REQUIRE(GenerateODFAxisTicks(90.0, 128) == std::vector<double>{0.0, 20.0, 40.0, 60.0, 80.0, 90.0});
+  REQUIRE(GetODFColorBarTitle(ODFValueUnits::MUD) == "MUD");
+  REQUIRE(GetODFColorBarTitle(ODFValueUnits::CountDensity) == "MUD (from Count-Density)");
+  for(const double tick : GenerateODFAxisTicks(90.0, 128))
+  {
+    const std::string label = fmt::format("{:g}", tick);
+    REQUIRE(label.find("deg") == std::string::npos);
+    REQUIRE(label.find("°") == std::string::npos);
+  }
+}
 
 TEST_CASE("ebsdlib::ODFSectionCompositor::DefaultsAndLayout", "[EbsdLib][ODFSectionCompositor]")
 {
@@ -231,6 +268,60 @@ TEST_CASE("ebsdlib::ODFSectionCompositor::RgbaPanelsAndChrome", "[EbsdLib][ODFSe
   {
     REQUIRE(result.image->getValue(pixelIndex * 4 + 3) == 255);
   }
+}
+
+TEST_CASE("ebsdlib::ODFSectionCompositor::SourceUnitsAndDenseChrome", "[EbsdLib][ODFSectionCompositor]")
+{
+  auto mudValues = DoubleArrayType::CreateArray(32, "MudValues", true);
+  mudValues->initializeWithValue(1.5);
+  auto densityValues = DoubleArrayType::CreateArray(32, "DensityValues", true);
+  const double stepRad = std::acos(-1.0) / 2.0;
+  for(size_t phi1Index = 0; phi1Index < 4; phi1Index++)
+  {
+    for(size_t phiIndex = 0; phiIndex < 2; phiIndex++)
+    {
+      for(size_t phi2Index = 0; phi2Index < 4; phi2Index++)
+      {
+        const size_t flatIndex = (phi1Index * 2 + phiIndex) * 4 + phi2Index;
+        densityValues->setValue(flatIndex, 1.5 * stepRad * stepRad * stepRad * std::sin((phiIndex + 0.5) * stepRad) / (8.0 * std::acos(-1.0) * std::acos(-1.0)));
+      }
+    }
+  }
+  const auto mudConfig = RenderConfiguration(mudValues.get());
+  auto densityConfig = RenderConfiguration(densityValues.get());
+  densityConfig.grid.units = ODFValueUnits::CountDensity;
+  const auto layout = ComputeODFSectionLayout(mudConfig);
+  const auto mudResult = ODFSectionCompositor{}.generateCompositeImage(mudConfig);
+  const auto densityResult = ODFSectionCompositor{}.generateCompositeImage(densityConfig);
+  REQUIRE(mudResult);
+  REQUIRE(densityResult);
+  REQUIRE(mudResult.width == densityResult.width);
+  REQUIRE(mudResult.height == densityResult.height);
+  REQUIRE(mudResult.width == layout.pageWidth);
+  REQUIRE(mudResult.height == layout.pageHeight);
+  REQUIRE(mudResult.appliedMinimumMUD == Approx(densityResult.appliedMinimumMUD));
+  REQUIRE(mudResult.appliedMaximumMUD == Approx(densityResult.appliedMaximumMUD));
+  for(size_t sectionIndex = 0; sectionIndex < mudConfig.sectionCount; sectionIndex++)
+  {
+    const auto origin = GetODFSectionPanelOrigin(layout, sectionIndex);
+    for(int32_t row = 0; row < layout.panelHeight; row++)
+    {
+      for(int32_t column = 0; column < layout.panelWidth; column++)
+      {
+        const size_t offset = (static_cast<size_t>(static_cast<int32_t>(origin[1]) + row) * mudResult.width + static_cast<int32_t>(origin[0]) + column) * 4;
+        for(size_t componentIndex = 0; componentIndex < 4; componentIndex++)
+        {
+          REQUIRE(mudResult.image->getValue(offset + componentIndex) == densityResult.image->getValue(offset + componentIndex));
+        }
+      }
+    }
+  }
+  REQUIRE_FALSE(HasInk(mudResult, 350, 28, 80, 16));
+  REQUIRE(HasInk(densityResult, 350, 28, 80, 16));
+  REQUIRE(HasPixelDifference(mudResult, densityResult, 328, 84, 148, 17));
+  REQUIRE(HasInk(mudResult, 40, 108, 7, 6));
+  REQUIRE(HasInk(mudResult, 61, 125, 20, 13));
+  REQUIRE(HasInk(mudResult, 0, 69, 7, 15));
 }
 
 TEST_CASE("ebsdlib::ODFSectionCompositor::AppliedScaleAndColorInterpolation", "[EbsdLib][ODFSectionCompositor]")
