@@ -12,7 +12,17 @@ namespace ebsdlib
 {
 std::string FormatODFSectionTitle(double angleDeg)
 {
-  return fmt::format("φ₂ = {:g}°", angleDeg);
+  return fmt::format("\xCF\x86\xE2\x82\x82 = {:g}\xC2\xB0", angleDeg);
+}
+
+std::string GetODFHorizontalAxisTitle()
+{
+  return "\xCF\x86\xE2\x82\x81";
+}
+
+std::string GetODFVerticalAxisTitle()
+{
+  return "\xCE\xA6";
 }
 
 double SelectODFAxisTickInterval(double maximumDeg, int32_t pixelLength)
@@ -34,6 +44,26 @@ std::vector<double> GenerateODFAxisTicks(double maximumDeg, int32_t pixelLength)
     ticks.push_back(maximumDeg);
   }
   return ticks;
+}
+
+std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength)
+{
+  const auto ticks = GenerateODFAxisTicks(maximumDeg, pixelLength);
+  std::vector<double> labels = {ticks.front()};
+  const double minimumSeparationDeg = 24.0 * maximumDeg / static_cast<double>(pixelLength);
+  for(size_t tickIndex = 1; tickIndex + 1 < ticks.size(); tickIndex++)
+  {
+    const double angleDeg = ticks[tickIndex];
+    if(angleDeg - labels.back() >= minimumSeparationDeg && ticks.back() - angleDeg >= minimumSeparationDeg)
+    {
+      labels.push_back(angleDeg);
+    }
+  }
+  if(ticks.back() != labels.back())
+  {
+    labels.push_back(ticks.back());
+  }
+  return labels;
 }
 
 std::string GetODFColorBarTitle(ODFValueUnits sourceUnits)
@@ -78,20 +108,29 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
     const float tickSize = std::min(fontSize * 0.7f, margin * 0.8f);
     context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), tickSize);
     const auto phi1Ticks = GenerateODFAxisTicks(sections.limits.phi1MaxDeg, layout.panelWidth);
+    const auto phi1LabelTicks = GenerateODFAxisLabelTicks(sections.limits.phi1MaxDeg, layout.panelWidth);
     for(const double tickDeg : phi1Ticks)
     {
       const float fraction = static_cast<float>(tickDeg / sections.limits.phi1MaxDeg);
       const float tickX = x + panelWidth * fraction;
       context.fill_rectangle(tickX - 1, y + panelHeight, 1, 3);
-      context.text_align = tickDeg == 0.0 ? canvas_ity::start : (tickDeg == sections.limits.phi1MaxDeg ? canvas_ity::rightward : canvas_ity::center);
-      context.fill_text(fmt::format("{:g}", tickDeg).c_str(), tickX, y + panelHeight + tickSize + 3, panelWidth / 3);
+      if(std::binary_search(phi1LabelTicks.begin(), phi1LabelTicks.end(), tickDeg))
+      {
+        context.text_align = tickDeg == 0.0 ? canvas_ity::start : (tickDeg == sections.limits.phi1MaxDeg ? canvas_ity::rightward : canvas_ity::center);
+        context.fill_text(fmt::format("{:g}", tickDeg).c_str(), tickX, y + panelHeight + tickSize + 3, panelWidth / 3);
+      }
     }
     const auto phiTicks = GenerateODFAxisTicks(sections.limits.phiMaxDeg, layout.panelHeight);
+    const auto phiLabelTicks = GenerateODFAxisLabelTicks(sections.limits.phiMaxDeg, layout.panelHeight);
     for(const double tickDeg : phiTicks)
     {
       const float fraction = static_cast<float>(tickDeg / sections.limits.phiMaxDeg);
       const float tickY = y + panelHeight * fraction;
       context.fill_rectangle(x - 3, tickY, 3, 1);
+      if(!std::binary_search(phiLabelTicks.begin(), phiLabelTicks.end(), tickDeg))
+      {
+        continue;
+      }
       context.save();
       context.translate(x - 1, tickY);
       context.rotate(-1.5707963267948966f);
@@ -101,11 +140,11 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
     }
     context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), fontSize);
     context.text_align = canvas_ity::center;
-    context.fill_text("φ₁", x + panelWidth / 2, y + panelHeight + 2 * fontSize + margin / 2, panelWidth);
+    context.fill_text(GetODFHorizontalAxisTitle().c_str(), x + panelWidth / 2, y + panelHeight + 2 * fontSize + margin / 2, panelWidth);
     context.save();
     context.translate(x - margin / 2, y + panelHeight / 2);
     context.rotate(-1.5707963267948966f);
-    context.fill_text("Φ", 0, 0, panelHeight);
+    context.fill_text(GetODFVerticalAxisTitle().c_str(), 0, 0, panelHeight);
     context.restore();
   }
 
