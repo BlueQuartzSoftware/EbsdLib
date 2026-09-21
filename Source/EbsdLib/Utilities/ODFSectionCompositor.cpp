@@ -54,7 +54,9 @@ ODFSectionLayoutMetrics ComputeODFSectionLayout(const ODFSectionConfiguration& c
   metrics.rows = static_cast<int32_t>((config.sectionCount + config.sectionsPerRow - 1) / config.sectionsPerRow);
   metrics.fontPtSize = std::max(10.0f, static_cast<float>(config.sectionWidth) / 24.0f);
   metrics.margin = std::max(8.0f, static_cast<float>(config.sectionWidth) / 32.0f);
-  metrics.panelSlotWidth = static_cast<float>(metrics.panelWidth) + 2.0f * metrics.margin;
+  metrics.tickFontSize = std::min(metrics.fontPtSize * 0.7f, metrics.margin * 0.8f);
+  metrics.leftAxisGutter = ComputeODFLeftAxisGutter(metrics.fontPtSize, metrics.tickFontSize);
+  metrics.panelSlotWidth = static_cast<float>(metrics.panelWidth) + metrics.leftAxisGutter + 2.0f * metrics.margin;
   metrics.panelSlotHeight = static_cast<float>(metrics.panelHeight) + 3.0f * metrics.fontPtSize + 3.0f * metrics.margin;
   metrics.titleHeight = metrics.fontPtSize + 2.0f * metrics.margin;
   metrics.legendWidth = std::max(static_cast<float>(config.sectionWidth) / 3.0f, 180.0f);
