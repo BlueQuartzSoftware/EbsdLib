@@ -1,8 +1,12 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/ODFSectionChrome.h"
 #include "EbsdLib/Utilities/ODFSectionCompositor.h"
 
+#include <canvas_ity.hpp>
+
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <fmt/format.h>
@@ -70,21 +74,59 @@ bool HasPixelDifference(const ODFSectionResult& first, const ODFSectionResult& s
   }
   return false;
 }
+
+std::vector<uint8_t> RenderFiraGlyph(const std::vector<unsigned char>& font, const std::string& glyph)
+{
+  canvas_ity::canvas context(48, 48);
+  context.set_color(canvas_ity::fill_style, 1, 1, 1, 1);
+  context.fill_rectangle(0, 0, 48, 48);
+  context.set_color(canvas_ity::fill_style, 0, 0, 0, 1);
+  context.set_font(font.data(), static_cast<int>(font.size()), 24);
+  context.fill_text(glyph.c_str(), 4, 32);
+  std::vector<uint8_t> pixels(48 * 48 * 4);
+  context.get_image_data(pixels.data(), 48, 48, 48 * 4, 0, 0);
+  return pixels;
+}
 } // namespace
 
 TEST_CASE("ebsdlib::ODFSectionCompositor::ChromeTextAndTicks", "[EbsdLib][ODFSectionCompositor]")
 {
-  REQUIRE(FormatODFSectionTitle(10.0) == "φ₂ = 10°");
+  const std::string title = FormatODFSectionTitle(10.0);
+  REQUIRE(std::vector<uint8_t>(title.begin(), title.end()) == std::vector<uint8_t>{0xCF, 0x86, 0xE2, 0x82, 0x82, 0x20, 0x3D, 0x20, 0x31, 0x30, 0xC2, 0xB0});
+  const std::string horizontalAxisTitle = GetODFHorizontalAxisTitle();
+  REQUIRE(std::vector<uint8_t>(horizontalAxisTitle.begin(), horizontalAxisTitle.end()) == std::vector<uint8_t>{0xCF, 0x86, 0xE2, 0x82, 0x81});
+  const std::string verticalAxisTitle = GetODFVerticalAxisTitle();
+  REQUIRE(std::vector<uint8_t>(verticalAxisTitle.begin(), verticalAxisTitle.end()) == std::vector<uint8_t>{0xCE, 0xA6});
   REQUIRE(SelectODFAxisTickInterval(360.0, 900) == Approx(10.0));
+  REQUIRE(SelectODFAxisTickInterval(360.0, 864) == Approx(10.0));
   REQUIRE(SelectODFAxisTickInterval(360.0, 512) == Approx(20.0));
   REQUIRE(GenerateODFAxisTicks(90.0, 128) == std::vector<double>{0.0, 20.0, 40.0, 60.0, 80.0, 90.0});
+  REQUIRE(GenerateODFAxisTicks(360.0, 128) == std::vector<double>{0.0, 20.0, 40.0, 60.0, 80.0, 100.0, 120.0, 140.0, 160.0, 180.0, 200.0, 220.0, 240.0, 260.0, 280.0, 300.0, 320.0, 340.0, 360.0});
+  REQUIRE(GenerateODFAxisLabelTicks(360.0, 128) == std::vector<double>{0.0, 80.0, 160.0, 240.0, 360.0});
+  REQUIRE(GenerateODFAxisLabelTicks(360.0, 864).size() == 37);
   REQUIRE(GetODFColorBarTitle(ODFValueUnits::MUD) == "MUD");
   REQUIRE(GetODFColorBarTitle(ODFValueUnits::CountDensity) == "MUD (from Count-Density)");
   for(const double tick : GenerateODFAxisTicks(90.0, 128))
   {
     const std::string label = fmt::format("{:g}", tick);
     REQUIRE(label.find("deg") == std::string::npos);
-    REQUIRE(label.find("°") == std::string::npos);
+    for(const unsigned char value : label)
+    {
+      REQUIRE(value < 0x80);
+    }
+  }
+}
+
+TEST_CASE("ebsdlib::ODFSectionCompositor::FiraGreekGlyphs", "[EbsdLib][ODFSectionCompositor]")
+{
+  const auto font = fonts::GetFiraSansRegular();
+  const auto missingGlyph = RenderFiraGlyph(font, "\xF4\x8F\xBF\xBF");
+  const std::array<std::string, 5> requiredGlyphs = {"\xCF\x86", "\xE2\x82\x81", "\xE2\x82\x82", "\xCE\xA6", "\xC2\xB0"};
+  for(const auto& glyph : requiredGlyphs)
+  {
+    const auto pixels = RenderFiraGlyph(font, glyph);
+    REQUIRE(pixels != missingGlyph);
+    REQUIRE(std::any_of(pixels.begin(), pixels.end(), [](uint8_t value) { return value < 128; }));
   }
 }
 

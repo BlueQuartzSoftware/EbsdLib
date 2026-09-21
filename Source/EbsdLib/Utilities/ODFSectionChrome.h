@@ -17,6 +17,18 @@ namespace ebsdlib
 EbsdLib_EXPORT std::string FormatODFSectionTitle(double angleDeg);
 
 /**
+ * @brief Returns the horizontal Euler-axis title as UTF-8 bytes.
+ * @return The φ₁ title.
+ */
+EbsdLib_EXPORT std::string GetODFHorizontalAxisTitle();
+
+/**
+ * @brief Returns the vertical Euler-axis title as UTF-8 bytes.
+ * @return The Φ title.
+ */
+EbsdLib_EXPORT std::string GetODFVerticalAxisTitle();
+
+/**
  * @brief Selects a tick interval from the angular range and axis length.
  * @param maximumDeg Positive axis maximum in degrees.
  * @param pixelLength Positive axis length in pixels.
@@ -31,6 +43,15 @@ EbsdLib_EXPORT double SelectODFAxisTickInterval(double maximumDeg, int32_t pixel
  * @return Tick angles in degrees, in increasing order.
  */
 EbsdLib_EXPORT std::vector<double> GenerateODFAxisTicks(double maximumDeg, int32_t pixelLength);
+
+/**
+ * @brief Selects numeric labels from all axis ticks with at least 24 pixels between labels.
+ * @param maximumDeg Positive axis maximum in degrees.
+ * @param pixelLength Positive axis length in pixels.
+ * @return Labeled tick angles, including zero and the maximum.
+ * @note Both endpoints remain labeled when the axis is shorter than 24 pixels.
+ */
+EbsdLib_EXPORT std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength);
 
 /**
  * @brief Names the rendered MUD scale and identifies Count-Density sources.
