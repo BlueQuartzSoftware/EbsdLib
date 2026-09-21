@@ -10,6 +10,37 @@
 
 namespace ebsdlib
 {
+std::string FormatODFSectionTitle(double angleDeg)
+{
+  return fmt::format("φ₂ = {:g}°", angleDeg);
+}
+
+double SelectODFAxisTickInterval(double maximumDeg, int32_t pixelLength)
+{
+  const double tenDegreePixelSpacing = static_cast<double>(pixelLength) / (maximumDeg / 10.0);
+  return tenDegreePixelSpacing >= 24.0 ? 10.0 : 20.0;
+}
+
+std::vector<double> GenerateODFAxisTicks(double maximumDeg, int32_t pixelLength)
+{
+  const double intervalDeg = SelectODFAxisTickInterval(maximumDeg, pixelLength);
+  std::vector<double> ticks;
+  for(double angleDeg = 0.0; angleDeg < maximumDeg; angleDeg += intervalDeg)
+  {
+    ticks.push_back(angleDeg);
+  }
+  if(ticks.empty() || ticks.back() != maximumDeg)
+  {
+    ticks.push_back(maximumDeg);
+  }
+  return ticks;
+}
+
+std::string GetODFColorBarTitle(ODFValueUnits sourceUnits)
+{
+  return sourceUnits == ODFValueUnits::MUD ? "MUD" : "MUD (from Count-Density)";
+}
+
 std::array<float, 2> GetODFSectionPanelOrigin(const ODFSectionLayoutMetrics& layout, size_t sectionIndex)
 {
   return {static_cast<float>(sectionIndex % static_cast<size_t>(layout.columns)) * layout.panelSlotWidth + layout.margin,
@@ -31,41 +62,51 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
   context.set_font(boldFont.data(), static_cast<int>(boldFont.size()), fontSize);
   context.fill_text(config.title.c_str(), margin, margin + fontSize, static_cast<float>(layout.pageWidth) - 2 * margin);
 
+  // Fira Sans contains the Greek letters and subscripts that the embedded Lato fonts lack.
   for(size_t sectionIndex = 0; sectionIndex < sections.sectionAnglesDeg.size(); sectionIndex++)
   {
     const auto origin = GetODFSectionPanelOrigin(layout, sectionIndex);
     const float x = origin[0];
     const float y = origin[1];
-    context.set_font(boldFont.data(), static_cast<int>(boldFont.size()), fontSize);
+    context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), fontSize);
     context.text_align = canvas_ity::start;
-    context.fill_text(fmt::format("phi2 = {:g} degrees", sections.sectionAnglesDeg[sectionIndex]).c_str(), x, y - margin, panelWidth);
+    context.fill_text(FormatODFSectionTitle(sections.sectionAnglesDeg[sectionIndex]).c_str(), x, y - margin, panelWidth);
     context.fill_rectangle(x - 1, y, 1, panelHeight + 1);
     context.fill_rectangle(x, y + panelHeight, panelWidth, 1);
 
     // PHI increases down the page, matching the prepared section row order.
     const float tickSize = std::min(fontSize * 0.7f, margin * 0.8f);
     context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), tickSize);
-    for(int tick = 0; tick <= 2; tick++)
+    const auto phi1Ticks = GenerateODFAxisTicks(sections.limits.phi1MaxDeg, layout.panelWidth);
+    for(const double tickDeg : phi1Ticks)
     {
-      const float fraction = static_cast<float>(tick) / 2;
+      const float fraction = static_cast<float>(tickDeg / sections.limits.phi1MaxDeg);
       const float tickX = x + panelWidth * fraction;
-      const float tickY = y + panelHeight * fraction;
       context.fill_rectangle(tickX - 1, y + panelHeight, 1, 3);
-      context.text_align = tick == 0 ? canvas_ity::start : (tick == 2 ? canvas_ity::rightward : canvas_ity::center);
-      context.fill_text(fmt::format("{:g} deg", sections.limits.phi1MaxDeg * fraction).c_str(), tickX, y + panelHeight + tickSize + 3, panelWidth / 3);
+      context.text_align = tickDeg == 0.0 ? canvas_ity::start : (tickDeg == sections.limits.phi1MaxDeg ? canvas_ity::rightward : canvas_ity::center);
+      context.fill_text(fmt::format("{:g}", tickDeg).c_str(), tickX, y + panelHeight + tickSize + 3, panelWidth / 3);
+    }
+    const auto phiTicks = GenerateODFAxisTicks(sections.limits.phiMaxDeg, layout.panelHeight);
+    for(const double tickDeg : phiTicks)
+    {
+      const float fraction = static_cast<float>(tickDeg / sections.limits.phiMaxDeg);
+      const float tickY = y + panelHeight * fraction;
       context.fill_rectangle(x - 3, tickY, 3, 1);
       context.save();
       context.translate(x - 1, tickY);
       context.rotate(-1.5707963267948966f);
-      context.text_align = tick == 0 ? canvas_ity::rightward : (tick == 2 ? canvas_ity::start : canvas_ity::center);
-      context.fill_text(fmt::format("{:g} deg", sections.limits.phiMaxDeg * fraction).c_str(), 0, 0, panelHeight / 3);
+      context.text_align = tickDeg == 0.0 ? canvas_ity::rightward : (tickDeg == sections.limits.phiMaxDeg ? canvas_ity::start : canvas_ity::center);
+      context.fill_text(fmt::format("{:g}", tickDeg).c_str(), 0, 0, panelHeight / 3);
       context.restore();
     }
-    context.set_font(regularFont.data(), static_cast<int>(regularFont.size()), fontSize);
+    context.set_font(tickFont.data(), static_cast<int>(tickFont.size()), fontSize);
     context.text_align = canvas_ity::center;
-    context.fill_text("phi1", x + panelWidth / 2, y + panelHeight + 2 * fontSize + margin / 2, panelWidth);
-    context.text_align = canvas_ity::start;
-    context.fill_text("PHI", x, y + panelHeight + 2 * fontSize + margin / 2, panelWidth / 4);
+    context.fill_text("φ₁", x + panelWidth / 2, y + panelHeight + 2 * fontSize + margin / 2, panelWidth);
+    context.save();
+    context.translate(x - margin / 2, y + panelHeight / 2);
+    context.rotate(-1.5707963267948966f);
+    context.fill_text("Φ", 0, 0, panelHeight);
+    context.restore();
   }
 
   const float legendX = static_cast<float>(layout.columns) * layout.panelSlotWidth + 2 * margin;
@@ -73,7 +114,8 @@ void DrawODFSectionChrome(canvas_ity::canvas& context, const ODFSectionConfigura
   const float barWidth = 2 * margin;
   context.draw_image(colorBar.data(), 1, layout.panelHeight, 4, legendX, legendY, barWidth, panelHeight);
   context.set_font(boldFont.data(), static_cast<int>(boldFont.size()), fontSize);
-  context.fill_text("MUD", legendX, legendY - margin, layout.legendWidth - margin);
+  context.text_align = canvas_ity::start;
+  context.fill_text(GetODFColorBarTitle(config.grid.units).c_str(), legendX, legendY - margin, layout.legendWidth - margin);
   const float textX = legendX + barWidth + margin;
   const float textWidth = static_cast<float>(layout.pageWidth) - textX - margin;
   context.set_font(regularFont.data(), static_cast<int>(regularFont.size()), fontSize);
