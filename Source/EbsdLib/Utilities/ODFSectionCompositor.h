@@ -53,6 +53,8 @@ struct EbsdLib_EXPORT ODFSectionLayoutMetrics
   int32_t rows = 0;
   float fontPtSize = 0.0f;
   float margin = 0.0f;
+  float tickFontSize = 0.0f;
+  float leftAxisGutter = 0.0f;
   float panelSlotWidth = 0.0f;
   float panelSlotHeight = 0.0f;
   float titleHeight = 0.0f;

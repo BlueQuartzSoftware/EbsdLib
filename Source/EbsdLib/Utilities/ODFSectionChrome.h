@@ -45,13 +45,21 @@ EbsdLib_EXPORT double SelectODFAxisTickInterval(double maximumDeg, int32_t pixel
 EbsdLib_EXPORT std::vector<double> GenerateODFAxisTicks(double maximumDeg, int32_t pixelLength);
 
 /**
- * @brief Selects numeric labels from all axis ticks with at least 24 pixels between labels.
+ * @brief Selects numeric labels with measured text widths and four pixels of padding.
  * @param maximumDeg Positive axis maximum in degrees.
  * @param pixelLength Positive axis length in pixels.
- * @return Labeled tick angles, including zero and the maximum.
- * @note Both endpoints remain labeled when the axis is shorter than 24 pixels.
+ * @param fontSize Tick font size in pixels, or zero to derive it from the axis length.
+ * @return Labeled tick angles, including both endpoints when their text fits without overlap.
  */
-EbsdLib_EXPORT std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength);
+EbsdLib_EXPORT std::vector<double> GenerateODFAxisLabelTicks(double maximumDeg, int32_t pixelLength, float fontSize = 0.0f);
+
+/**
+ * @brief Measures the gutter needed for separate vertical title and numeric-label regions.
+ * @param fontSize Axis-title font size in pixels.
+ * @param tickSize Numeric-label font size in pixels.
+ * @return Gutter width in pixels, including space for tick hashes and text padding.
+ */
+EbsdLib_EXPORT float ComputeODFLeftAxisGutter(float fontSize, float tickSize);
 
 /**
  * @brief Names the rendered MUD scale and identifies Count-Density sources.
