@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -212,8 +213,7 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFTriangleLegend_HexConvention_Hexagon
 TEST_CASE("ebsdlib::LaueOpsTest::GetAllOrientationOps", "[EbsdLib][LaueOpsTest]")
 {
   auto ops = LaueOps::GetAllOrientationOps();
-  // Should return exactly 12 entries (one for each Laue group index 0-11)
-  REQUIRE(ops.size() == 12);
+  REQUIRE(ops.size() == CrystalStructure::LaueGroupEnd);
 
   for(size_t i = 0; i < ops.size(); i++)
   {
@@ -348,7 +348,7 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetSymmetryName", "[EbsdLib][LaueOpsTest]")
 TEST_CASE("ebsdlib::LaueOpsTest::GetLaueNames", "[EbsdLib][LaueOpsTest]")
 {
   auto names = LaueOps::GetLaueNames();
-  REQUIRE(names.size() == 12);
+  REQUIRE(names.size() == CrystalStructure::LaueGroupEnd);
 
   for(const auto& name : names)
   {
