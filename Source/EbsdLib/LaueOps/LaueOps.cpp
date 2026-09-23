@@ -811,8 +811,6 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
   /*[9]*/ m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
   /*[10]*/ m_OrientationOps.push_back(TrigonalOps::New());   // Trigonal-High
 
-  /*[11]*/ m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
-
   return m_OrientationOps;
 }
 

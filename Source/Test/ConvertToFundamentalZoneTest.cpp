@@ -82,8 +82,9 @@ static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
 TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest", "[EbsdLib][ConvertToFundamentalZoneTest]")
 {
   auto ops = LaueOps::GetAllOrientationOps();
+  REQUIRE(ops.size() == detail::k_FZValues.size());
   std::cout << "############################################################\n";
-  for(size_t opsIdx = 0; opsIdx < ops.size() - 1; ++opsIdx) // We ONLY want Cubic 432 rotation group
+  for(size_t opsIdx = 0; opsIdx < ops.size(); ++opsIdx)
   {
     std::cout << "OpsIndex: " << opsIdx << "  " << ops[opsIdx]->getRotationPointGroup() << ", " << ops[opsIdx]->getSymmetryName() << ", " << ops[opsIdx]->getPointGroup() << ", "
               << ops[opsIdx]->FZTypeToString(ops[opsIdx]->getFZType()) << ", " << ops[opsIdx]->AxisOrderingTypeToString(ops[opsIdx]->getAxisOrderingType()) << std::endl;
