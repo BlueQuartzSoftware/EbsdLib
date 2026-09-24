@@ -221,7 +221,10 @@ static const SymOps k_SymOps_XParallelA = SymOps::build<ebsdlib::HexConvention::
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
-TrigonalLowOps::TrigonalLowOps() = default;
+TrigonalLowOps::TrigonalLowOps()
+: LaueOps(TrigonalLow::k_OdfDimInitValue, TrigonalLow::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TrigonalLowOps::~TrigonalLowOps() = default;

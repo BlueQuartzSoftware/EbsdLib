@@ -35,6 +35,7 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <memory>
 #include <random>
 #include <string>
@@ -110,6 +111,35 @@ public:
    * @return
    */
   virtual size_t getODFSize() const = 0;
+
+  /**
+   * @brief Estimates the fraction of an ODF bin inside the homochoric ball.
+   * @param bin Linear ODF bin index.
+   * @return Fraction in [0, 1], or zero for an invalid index.
+   * @note Boundary bins use 216 cell centers on a fixed 6-by-6-by-6 grid.
+   * Fully inside and fully outside boxes use exact corner bounds. A sub-grid can miss a thin intersection.
+   */
+  double odfBinInBallFraction(int bin) const;
+
+  /**
+   * @brief Tests whether the bin has a positive estimated in-ball volume.
+   * @param bin Linear ODF bin index.
+   * @return True if odfBinInBallFraction(bin) is greater than zero.
+   */
+  bool isOdfBinReachable(int bin) const;
+
+  /**
+   * @brief Returns this instance's cumulative homochoric clamp fallback count.
+   * @return Number of exhausted rejection-sampling attempts since the last reset.
+   * @note Concurrent samplers update the counter atomically.
+   */
+  uint64_t clampFallbackCount() const;
+
+  /**
+   * @brief Resets this instance's diagnostic count of homochoric clamp fallbacks.
+   * @note Call before sampling begins to measure a complete batch.
+   */
+  void resetClampFallbackCount() const;
 
   /**
    * @brief getNumSymmetry Returns the internal variables for k_SymSize0, k_SymSize1, k_SymSize2
@@ -554,7 +584,12 @@ public:
   virtual bool isInsideFZ(const RodriguesDType& rod) const = 0;
 
 protected:
-  LaueOps();
+  /**
+   * @brief Stores the same homochoric grid dimensions used by the derived sampler.
+   * @param odfDimInit Half-width of the ODF grid along each axis.
+   * @param odfDimStep Width of a bin along each axis.
+   */
+  LaueOps(const std::array<double, 3>& odfDimInit, const std::array<double, 3>& odfDimStep);
 
   /**
    * @brief Shared annotation scaffolding for IPF images. Creates a canvas,
@@ -632,6 +667,8 @@ protected:
    * @param r2 Receives the second homochoric coordinate.
    * @param r3 Receives the third homochoric coordinate.
    * @return True if the initial point or a redrawn point is in the homochoric ball. False if the function clamps the final point.
+   * @note The sampler permits 4096 redraws. The clamp is a numerical last resort that a fraction-weighted ODF should never trigger.
+   * Each fallback increments clampFallbackCount().
    */
   bool _calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
 
@@ -658,6 +695,11 @@ protected:
    * @return
    */
   static QuatD ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order);
+
+private:
+  const std::array<double, 3> m_OdfDimInit;
+  const std::array<double, 3> m_OdfDimStep;
+  mutable std::atomic<uint64_t> m_ClampFallbackCount = 0;
 
 public:
   LaueOps(const LaueOps&) = delete;            // Copy Constructor Not Implemented

@@ -129,7 +129,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace Monoclinic
 
 // -----------------------------------------------------------------------------
-MonoclinicOps::MonoclinicOps() = default;
+MonoclinicOps::MonoclinicOps()
+: LaueOps(Monoclinic::k_OdfDimInitValue, Monoclinic::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 MonoclinicOps::~MonoclinicOps() = default;
