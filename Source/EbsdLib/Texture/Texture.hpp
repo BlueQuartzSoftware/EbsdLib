@@ -75,20 +75,16 @@ public:
   using ODFTableEntries = std::vector<ODFTableEntry>;
 
   /**
-   * @brief This will calculate ODF data based on an array of weights that are
-   * passed in and a Crystal Structure. This is templated on the container
-   * type, LaueOps, and type of data. Containers that adhere to the STL Vector API
-   * should be usable. std::vector falls into this category. The input data for the
-   * euler angles is in Columnar fashion instead of row major format.
-   * @param e1s The first euler angles
-   * @param e2s The second euler angles
-   * @param e3s The third euler angles
-   * @param weights Array of weights values.
-   * @param sigmas Array of sigma values.
-   * @param normalize Should the ODF data be normalized by the totalWeight value
-   * before returning.
-   * @param odf (OUT) The ODF data that is generated from this function.
-   * @param numEntries (OUT) The TotalWeight value that is also calculated
+   * @brief Calculates an ODF from weighted orientation entries and a random-texture baseline.
+   * @tparam T Scalar type used for weights and normalization.
+   * @tparam LaueOps Symmetry operations for the selected crystal structure.
+   * @tparam Container Random-access output container with an STL vector interface.
+   * @param odfTableEntries Euler angles in radians, weights, and Gaussian spread widths in bins.
+   * @param normalize If true, normalizes the ODF to unit total weight.
+   * @return ODF bin weights in the selected crystal structure's homochoric grid.
+   *
+   * The random baseline is proportional to each bin's estimated volume inside the homochoric ball.
+   * Weighted entries retain their Gaussian spread. Grids entirely inside the ball retain their existing arithmetic.
    */
   template <typename T, class LaueOps, class Container>
   static Container CalculateODFData(const ODFTableEntries& odfTableEntries, bool normalize)
@@ -202,10 +198,30 @@ public:
     else
     {
       float remainingWeight = totalWeight - totalAddWeight;
-      float background = remainingWeight / static_cast<float>(ops.getODFSize());
-      for(int i = 0; i < ops.getODFSize(); i++)
+      std::vector<double> inBallFractions(ops.getODFSize());
+      double totalFraction = 0.0;
+      for(size_t binIndex = 0; binIndex < inBallFractions.size(); ++binIndex)
       {
-        odf[i] += background;
+        inBallFractions[binIndex] = ops.odfBinInBallFraction(static_cast<int>(binIndex));
+        totalFraction += inBallFractions[binIndex];
+      }
+      if(totalFraction == static_cast<double>(ops.getODFSize()))
+      {
+        // Preserve the arithmetic for grids entirely inside the ball.
+        float background = remainingWeight / static_cast<float>(ops.getODFSize());
+        for(int i = 0; i < ops.getODFSize(); i++)
+        {
+          odf[i] += background;
+        }
+      }
+      else if(totalFraction > 0.0)
+      {
+        // Equal homochoric volumes have equal random-orientation probability.
+        const double background = static_cast<double>(remainingWeight) / totalFraction;
+        for(size_t binIndex = 0; binIndex < inBallFractions.size(); ++binIndex)
+        {
+          odf[binIndex] += background * inBallFractions[binIndex];
+        }
       }
     }
     if(normalize)
