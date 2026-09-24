@@ -278,7 +278,10 @@ constexpr double k_EtaMax = 45.0;
 } // namespace CubicHigh
 
 // -----------------------------------------------------------------------------
-CubicOps::CubicOps() = default;
+CubicOps::CubicOps()
+: LaueOps(CubicHigh::k_OdfDimInitValue, CubicHigh::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 CubicOps::~CubicOps() = default;

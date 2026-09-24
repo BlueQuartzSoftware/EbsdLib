@@ -241,7 +241,10 @@ static const SymOps k_SymOps_XParallelA = SymOps::build<ebsdlib::HexConvention::
 } // namespace HexagonalLow
 
 // -----------------------------------------------------------------------------
-HexagonalLowOps::HexagonalLowOps() = default;
+HexagonalLowOps::HexagonalLowOps()
+: LaueOps(HexagonalLow::k_OdfDimInitValue, HexagonalLow::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 HexagonalLowOps::~HexagonalLowOps() = default;

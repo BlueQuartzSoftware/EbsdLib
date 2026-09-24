@@ -125,7 +125,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace Triclinic
 
 // -----------------------------------------------------------------------------
-TriclinicOps::TriclinicOps() = default;
+TriclinicOps::TriclinicOps()
+: LaueOps(Triclinic::k_OdfDimInitValue, Triclinic::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TriclinicOps::~TriclinicOps() = default;

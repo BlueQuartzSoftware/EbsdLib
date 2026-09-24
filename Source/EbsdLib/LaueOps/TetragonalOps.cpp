@@ -167,7 +167,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace TetragonalHigh
 
 // -----------------------------------------------------------------------------
-TetragonalOps::TetragonalOps() = default;
+TetragonalOps::TetragonalOps()
+: LaueOps(TetragonalHigh::k_OdfDimInitValue, TetragonalHigh::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TetragonalOps::~TetragonalOps() = default;
