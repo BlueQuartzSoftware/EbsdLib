@@ -140,7 +140,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace OrthoRhombic
 
 // -----------------------------------------------------------------------------
-OrthoRhombicOps::OrthoRhombicOps() = default;
+OrthoRhombicOps::OrthoRhombicOps()
+: LaueOps(OrthoRhombic::k_OdfDimInitValue, OrthoRhombic::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 OrthoRhombicOps::~OrthoRhombicOps() = default;
