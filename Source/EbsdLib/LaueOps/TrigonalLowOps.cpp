@@ -221,7 +221,10 @@ static const SymOps k_SymOps_XParallelA = SymOps::build<ebsdlib::HexConvention::
 } // namespace TrigonalLow
 
 // -----------------------------------------------------------------------------
-TrigonalLowOps::TrigonalLowOps() = default;
+TrigonalLowOps::TrigonalLowOps()
+: LaueOps(TrigonalLow::k_OdfDimInitValue, TrigonalLow::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TrigonalLowOps::~TrigonalLowOps() = default;
@@ -437,7 +440,7 @@ EulerDType TrigonalLowOps::determineEulerAngles(double random[3], int choose) co
   phi[1] = static_cast<int32_t>((choose / TrigonalLow::k_OdfNumBins[0]) % TrigonalLow::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (TrigonalLow::k_OdfNumBins[0] * TrigonalLow::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

@@ -279,7 +279,7 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][Pole
   {
     LaueOps::Pointer op = ops[opsIdx];
     const std::string rpg = op->getRotationPointGroup();
-    // Skip Triclinic (no FZ boundary) and duplicates (OrthoRhombicOps appears twice)
+    // Skip Triclinic (no FZ boundary) and rotation point groups already tested.
     if(rpg == "1" || tested.count(rpg) > 0)
     {
       continue;

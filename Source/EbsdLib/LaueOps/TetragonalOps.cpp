@@ -167,7 +167,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace TetragonalHigh
 
 // -----------------------------------------------------------------------------
-TetragonalOps::TetragonalOps() = default;
+TetragonalOps::TetragonalOps()
+: LaueOps(TetragonalHigh::k_OdfDimInitValue, TetragonalHigh::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TetragonalOps::~TetragonalOps() = default;
@@ -365,7 +368,7 @@ EulerDType TetragonalOps::determineEulerAngles(double random[3], int choose) con
   phi[1] = static_cast<int32_t>((choose / TetragonalHigh::k_OdfNumBins[0]) % TetragonalHigh::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (TetragonalHigh::k_OdfNumBins[0] * TetragonalHigh::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

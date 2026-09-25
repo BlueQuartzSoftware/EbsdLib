@@ -125,7 +125,10 @@ constexpr double k_ChiMax = 90.0;
 } // namespace Triclinic
 
 // -----------------------------------------------------------------------------
-TriclinicOps::TriclinicOps() = default;
+TriclinicOps::TriclinicOps()
+: LaueOps(Triclinic::k_OdfDimInitValue, Triclinic::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 TriclinicOps::~TriclinicOps() = default;
@@ -325,7 +328,7 @@ EulerDType TriclinicOps::determineEulerAngles(double random[3], int choose) cons
   phi[1] = static_cast<int32_t>((choose / Triclinic::k_OdfNumBins[0]) % Triclinic::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (Triclinic::k_OdfNumBins[0] * Triclinic::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

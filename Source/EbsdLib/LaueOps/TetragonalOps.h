@@ -190,6 +190,7 @@ public:
   int getMisoBin(const RodriguesDType& rod) const override;
   bool inUnitTriangle(double eta, double chi) const override;
   EulerDType determineEulerAngles(double random[3], int choose) const override;
+  using LaueOps::randomizeEulerAngles; /* Required due to C++ name hiding rules. Keeps base class 2 argument version visible */
   EulerDType randomizeEulerAngles(const EulerDType& euler) const override;
   RodriguesDType determineRodriguesVector(double random[3], int choose) const override;
   int getOdfBin(const RodriguesDType& rod) const override;

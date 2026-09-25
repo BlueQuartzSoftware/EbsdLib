@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -12,16 +13,37 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Homochoric.hpp"
 #include "EbsdLib/Orientation/OrientationMatrix.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
+#include <limits>
+#include <random>
 #include <string>
 #include <vector>
 
 using namespace ebsdlib;
+
+template <typename OpsType>
+concept HasGeneratorRandomizeEulerAngles = requires(OpsType ops, const EulerDType& euler, std::mt19937_64& generator) { ops.randomizeEulerAngles(euler, generator); };
+
+static_assert(HasGeneratorRandomizeEulerAngles<CubicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<CubicLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<HexagonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<HexagonalLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<MonoclinicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<OrthoRhombicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TetragonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TetragonalLowOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TriclinicOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TrigonalOps>);
+static_assert(HasGeneratorRandomizeEulerAngles<TrigonalLowOps>);
 
 // -----------------------------------------------------------------------------
 // getDefaultPoleFigureNames returns the plotted plane-normal families in brace
@@ -191,12 +213,99 @@ TEST_CASE("ebsdlib::LaueOpsTest::GenerateIPFTriangleLegend_HexConvention_Hexagon
 TEST_CASE("ebsdlib::LaueOpsTest::GetAllOrientationOps", "[EbsdLib][LaueOpsTest]")
 {
   auto ops = LaueOps::GetAllOrientationOps();
-  // Should return exactly 12 entries (one for each Laue group index 0-11)
-  REQUIRE(ops.size() == 12);
+  REQUIRE(ops.size() == CrystalStructure::LaueGroupEnd);
 
   for(size_t i = 0; i < ops.size(); i++)
   {
     REQUIRE(ops[i] != nullptr);
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::DetermineEulerAnglesSamplesValidOrientations", "[EbsdLib][LaueOpsTest]")
+{
+  constexpr double k_MaxRotationAngle = ebsdlib::constants::k_PiD + 1.0e-9;
+  constexpr double k_MinimumBinAgreement = 0.15;
+  constexpr size_t k_TargetRoundTripSamples = 4000;
+  uint64_t randomState = 0x4D595DF4D0F33173ULL;
+
+  auto nextRandom = [&randomState]() {
+    randomState += 0x9E3779B97F4A7C15ULL;
+    uint64_t value = randomState;
+    value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
+    value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
+    value ^= value >> 31U;
+    return static_cast<double>(value >> 11U) * 0x1.0p-53;
+  };
+
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  for(const auto& ops : allOps)
+  {
+    const size_t roundTripStride = std::max<size_t>(1, (ops->getODFSize() + k_TargetRoundTripSamples - 1) / k_TargetRoundTripSamples);
+    size_t matchingBinCount = 0;
+    size_t roundTripSampleCount = 0;
+    for(size_t bin = 0; bin < ops->getODFSize(); bin++)
+    {
+      double random[3] = {nextRandom(), nextRandom(), nextRandom()};
+      const EulerDType first = ops->determineEulerAngles(random, static_cast<int>(bin));
+      const EulerDType second = ops->determineEulerAngles(random, static_cast<int>(bin));
+
+      for(size_t component = 0; component < 3; component++)
+      {
+        if(!std::isfinite(first[component]))
+        {
+          FAIL("Non-finite Euler component for " << ops->getNameOfClass() << " at ODF bin " << bin << ", component " << component);
+        }
+        if(first[component] != second[component])
+        {
+          FAIL("Non-deterministic Euler component for " << ops->getNameOfClass() << " at ODF bin " << bin << ", component " << component);
+        }
+      }
+
+      const AxisAngleDType axisAngle = first.toAxisAngle();
+      if(!std::isfinite(axisAngle[3]) || axisAngle[3] > k_MaxRotationAngle)
+      {
+        FAIL("Invalid rotation angle for " << ops->getNameOfClass() << " at ODF bin " << bin << ": " << axisAngle[3]);
+      }
+
+      if(bin % roundTripStride == 0)
+      {
+        const int roundTripBin = ops->getOdfBin(first.toRodrigues());
+        matchingBinCount += roundTripBin == static_cast<int>(bin) ? 1 : 0;
+        roundTripSampleCount++;
+      }
+    }
+
+    const double binAgreement = static_cast<double>(matchingBinCount) / static_cast<double>(roundTripSampleCount);
+    // The threshold separates a consistent grid from an inconsistent grid. It is not a measure of folding accuracy.
+    INFO(ops->getNameOfClass() << " sampled ODF bin agreement: " << binAgreement);
+    CHECK(binAgreement >= k_MinimumBinAgreement);
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::HomochoricToAxisAngleClampsOutsideDomain", "[EbsdLib][LaueOpsTest]")
+{
+  constexpr size_t k_NumSteps = 4096;
+  constexpr double k_MaxRotationAngle = ebsdlib::constants::k_PiD + 1.0e-9;
+
+  for(size_t step = 0; step <= k_NumSteps; step++)
+  {
+    const double magnitude = 2.5 * LPs::R1 * static_cast<double>(step) / static_cast<double>(k_NumSteps);
+    const HomochoricDType homochoric(LPs::isrt * magnitude, LPs::isrt * magnitude, LPs::isrt * magnitude);
+    const AxisAngleDType axisAngle = homochoric.toAxisAngle();
+
+    for(size_t component = 0; component < 4; component++)
+    {
+      if(!std::isfinite(axisAngle[component]))
+      {
+        FAIL("Non-finite axis-angle component at homochoric magnitude " << magnitude << ", component " << component);
+      }
+    }
+    if(axisAngle[3] > k_MaxRotationAngle)
+    {
+      FAIL("Rotation angle exceeds pi at homochoric magnitude " << magnitude << ": " << axisAngle[3]);
+    }
   }
 }
 
@@ -239,7 +348,7 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetSymmetryName", "[EbsdLib][LaueOpsTest]")
 TEST_CASE("ebsdlib::LaueOpsTest::GetLaueNames", "[EbsdLib][LaueOpsTest]")
 {
   auto names = LaueOps::GetLaueNames();
-  REQUIRE(names.size() == 12);
+  REQUIRE(names.size() == CrystalStructure::LaueGroupEnd);
 
   for(const auto& name : names)
   {
@@ -546,6 +655,56 @@ bool quatsSameRotation(const QuatD& a, const QuatD& b, double tol)
   return std::min(diff1, diff2) < tol;
 }
 } // namespace
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::SeededRandomSymmetry", "[EbsdLib][LaueOpsTest]")
+{
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  const EulerDType inputEuler(0.37, 0.91, 1.42);
+  const QuatD inputQuat = inputEuler.toQuaternion();
+  constexpr uint64_t k_Seed = 0x5EED1234ULL;
+  constexpr double k_QuaternionTolerance = 1.0e-12;
+
+  for(const auto& ops : allOps)
+  {
+    INFO(ops->getNameOfClass());
+    std::mt19937_64 firstGenerator(k_Seed);
+    std::mt19937_64 secondGenerator(k_Seed);
+
+    for(size_t draw = 0; draw < 100; draw++)
+    {
+      const EulerDType firstEuler = ops->randomizeEulerAngles(inputEuler, firstGenerator);
+      const EulerDType secondEuler = ops->randomizeEulerAngles(inputEuler, secondGenerator);
+      for(size_t component = 0; component < 3; component++)
+      {
+        CHECK(firstEuler[component] == secondEuler[component]);
+      }
+
+      const QuatD randomizedQuat = firstEuler.toQuaternion();
+      bool foundEquivalentOperator = false;
+      for(size_t symOp = 0; symOp < ops->getNumSymOps(); symOp++)
+      {
+        const QuatD expectedQuat = ops->getQuatSymOp(symOp) * inputQuat;
+        if(quatsSameRotation(randomizedQuat, expectedQuat, k_QuaternionTolerance))
+        {
+          foundEquivalentOperator = true;
+          break;
+        }
+      }
+      CHECK(foundEquivalentOperator);
+    }
+
+    std::vector<bool> operatorWasSelected(ops->getNumSymOps(), false);
+    std::mt19937_64 indexGenerator(k_Seed);
+    for(size_t draw = 0; draw < 10000; draw++)
+    {
+      const size_t symOp = ops->getRandomSymmetryOperatorIndex(static_cast<int>(ops->getNumSymOps()), indexGenerator);
+      REQUIRE(symOp < operatorWasSelected.size());
+      operatorWasSelected[symOp] = true;
+    }
+    CHECK(std::all_of(operatorWasSelected.cbegin(), operatorWasSelected.cend(), [](bool selected) { return selected; }));
+  }
+}
 
 // -----------------------------------------------------------------------------
 // Validates that all three symmetry operator representations (quaternion,
