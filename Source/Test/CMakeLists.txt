@@ -13,6 +13,7 @@ include(Catch)
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(EbsdLib_UnitTest_SRCS
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/CanvasItyImplementation.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFSectionCompositorTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFSectionUtilitiesTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/AngImportTest.cpp
