@@ -11,6 +11,8 @@
 
 #include "UnitTestSupport.hpp"
 
+#include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -197,4 +199,113 @@ TEST_CASE("ebsdlib::H5EspritReaderTest::TestH5EspritReader", "[EbsdLib][H5Esprit
       }
       DREAM3D_REQUIRED(err, >=, 0)
 #endif
+}
+
+TEST_CASE("ebsdlib::H5EspritReaderTest::TuplesArePlacedByBeamCoordinates", "[EbsdLib][H5EspritReaderTest]")
+{
+  // The Section_435 scan stores 11,146 of its 360,000 tuples out of raster order
+  // (simplnx issue #1804). After reading, every tuple must sit at Y BEAM * 600 + X BEAM.
+  H5EspritReader::Pointer reader = H5EspritReader::New();
+  reader->setFileName(ebsdlib::unit_test::H5EspritReaderTest::InputFile);
+  reader->setHDF5Path("Section_435");
+  reader->setReadPatternData(false);
+  int err = reader->readFile();
+  DREAM3D_REQUIRED(err, >=, 0)
+
+  const size_t numCols = 600;
+  const size_t numTuples = 360000;
+  DREAM3D_REQUIRED(reader->getNumberOfElements(), ==, numTuples)
+
+  const auto* xBeam = static_cast<const int32_t*>(reader->getPointerByName(ebsdlib::H5Esprit::XBEAM));
+  const auto* yBeam = static_cast<const int32_t*>(reader->getPointerByName(ebsdlib::H5Esprit::YBEAM));
+  DREAM3D_REQUIRE_VALID_POINTER(xBeam)
+  DREAM3D_REQUIRE_VALID_POINTER(yBeam)
+
+  size_t misplaced = 0;
+  for(size_t i = 0; i < numTuples; i++)
+  {
+    if(xBeam[i] != static_cast<int32_t>(i % numCols) || yBeam[i] != static_cast<int32_t>(i / numCols))
+    {
+      misplaced++;
+    }
+  }
+  DREAM3D_REQUIRED(misplaced, ==, 0)
+
+  // File tuples 30 and 31 are swapped in the raw file: file tuple 30 carries X BEAM 31 with
+  // MAD 0.6622782 / phi1 -156.33928, file tuple 31 carries X BEAM 30 with MAD 0.9863951 / phi1 -104.250725.
+  // After placement the measurement for cell 30 must be the second one.
+  const auto* mad = static_cast<const float*>(reader->getPointerByName(ebsdlib::H5Esprit::MAD));
+  const auto* phi1 = static_cast<const float*>(reader->getPointerByName(ebsdlib::H5Esprit::phi1));
+  DREAM3D_REQUIRE_VALID_POINTER(mad)
+  DREAM3D_REQUIRE_VALID_POINTER(phi1)
+  DREAM3D_REQUIRE(std::abs(mad[30] - 0.9863951f) < 1.0e-5f)
+  DREAM3D_REQUIRE(std::abs(mad[31] - 0.6622782f) < 1.0e-5f)
+  DREAM3D_REQUIRE(std::abs(phi1[30] - (-104.250725f)) < 1.0e-3f)
+  DREAM3D_REQUIRE(std::abs(phi1[31] - (-156.33928f)) < 1.0e-3f)
+}
+
+TEST_CASE("ebsdlib::H5EspritReaderTest::BeamCoordinatesAreReadEvenWhenNotRequested", "[EbsdLib][H5EspritReaderTest]")
+{
+  H5EspritReader::Pointer reader = H5EspritReader::New();
+  reader->setFileName(ebsdlib::unit_test::H5EspritReaderTest::InputFile);
+  reader->setHDF5Path("Section_435");
+  reader->setReadPatternData(false);
+  reader->setArraysToRead({ebsdlib::H5Esprit::MAD});
+  int err = reader->readFile();
+  DREAM3D_REQUIRED(err, >=, 0)
+  const auto* mad = static_cast<const float*>(reader->getPointerByName(ebsdlib::H5Esprit::MAD));
+  DREAM3D_REQUIRE_VALID_POINTER(mad)
+  DREAM3D_REQUIRE(std::abs(mad[30] - 0.9863951f) < 1.0e-5f)
+  DREAM3D_REQUIRE(std::abs(mad[31] - 0.6622782f) < 1.0e-5f)
+}
+
+TEST_CASE("ebsdlib::H5EspritReaderTest::ReportsInvalidBeamDatasets", "[EbsdLib][H5EspritReaderTest]")
+{
+  // Mutate a disposable copy so the checked-in scan remains unchanged.
+  const std::filesystem::path outputPath = ebsdlib::unit_test::H5EspritReaderTest::OutputFile;
+  std::filesystem::create_directories(outputPath.parent_path());
+  std::filesystem::copy_file(ebsdlib::unit_test::H5EspritReaderTest::InputFile, outputPath, std::filesystem::copy_options::overwrite_existing);
+  const hid_t fileId = H5Fopen(outputPath.string().c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+  REQUIRE(fileId >= 0);
+  int expectedError = -90320;
+  {
+    H5Support::H5ScopedFileSentinel sentinel(fileId, true);
+    SECTION("Missing X BEAM")
+    {
+      REQUIRE(H5Ldelete(fileId, "Section_435/EBSD/Data/X BEAM", H5P_DEFAULT) >= 0);
+    }
+    SECTION("Missing Y BEAM")
+    {
+      REQUIRE(H5Ldelete(fileId, "Section_435/EBSD/Data/Y BEAM", H5P_DEFAULT) >= 0);
+    }
+    SECTION("Duplicate beam coordinate")
+    {
+      std::vector<int32_t> xBeam(360000);
+      REQUIRE(H5Support::H5Lite::readPointerDataset(fileId, "Section_435/EBSD/Data/X BEAM", xBeam.data()) >= 0);
+      xBeam[1] = xBeam[0];
+      const hid_t datasetId = H5Dopen2(fileId, "Section_435/EBSD/Data/X BEAM", H5P_DEFAULT);
+      REQUIRE(datasetId >= 0);
+      const herr_t writeError = H5Dwrite(datasetId, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL, H5P_DEFAULT, xBeam.data());
+      REQUIRE(H5Dclose(datasetId) >= 0);
+      REQUIRE(writeError >= 0);
+      expectedError = -101103;
+    }
+  }
+
+  H5EspritReader::Pointer reader = H5EspritReader::New();
+  reader->setFileName(outputPath.string());
+  reader->setHDF5Path("Section_435");
+  reader->setArraysToRead({ebsdlib::H5Esprit::MAD});
+  REQUIRE(reader->readFile() == expectedError);
+  REQUIRE(reader->getErrorCode() == expectedError);
+  const std::string message = reader->getErrorMessage();
+  REQUIRE(message.find("H5EspritReader Error:") == 0);
+  REQUIRE(message.find("X BEAM") != std::string::npos);
+  REQUIRE(message.find("Y BEAM") != std::string::npos);
+  REQUIRE(message.find("600 x 600") != std::string::npos);
+  if(expectedError == -101103)
+  {
+    REQUIRE(message.find("tuple 1") != std::string::npos);
+  }
+  std::filesystem::remove(outputPath);
 }

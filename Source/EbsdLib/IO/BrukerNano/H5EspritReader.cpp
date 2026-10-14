@@ -41,6 +41,7 @@
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/BrukerNano/EspritPhase.h"
+#include "EbsdLib/IO/ScanGridOrder.h"
 
 using namespace ebsdlib;
 
@@ -568,7 +569,24 @@ int H5EspritReader::readData(hid_t parId)
     return err;
   }
 
+  if(H5Lexists(gid, ebsdlib::H5Esprit::XBEAM.c_str(), H5P_DEFAULT) <= 0 || H5Lexists(gid, ebsdlib::H5Esprit::YBEAM.c_str(), H5P_DEFAULT) <= 0)
+  {
+    H5Gclose(gid);
+    setErrorCode(-90320);
+    setErrorMessage("H5EspritReader Error: The 'X BEAM' and 'Y BEAM' datasets are required to place each measurement on the " + std::to_string(nColumns) + " x " + std::to_string(nRows) +
+                    " raster grid but could not be found.");
+    return getErrorCode();
+  }
+
   //  ANG_READER_ALLOCATE_AND_READ(DD, ebsdlib::H5Esprit::DD, ebsdlib::H5Esprit::DD_t);
+  // The beam coordinates are required to place every tuple on the raster grid, so read them
+  // even when the caller asked for a subset of arrays.
+  if(!m_ReadAllArrays)
+  {
+    m_ArrayNames.insert(ebsdlib::H5Esprit::XBEAM);
+    m_ArrayNames.insert(ebsdlib::H5Esprit::YBEAM);
+  }
+
   ANG_READER_ALLOCATE_AND_READ(MAD, ebsdlib::H5Esprit::MAD, ebsdlib::H5Esprit::MAD_t);
   // ANG_READER_ALLOCATE_AND_READ(MADPhase, ebsdlib::H5Esprit::MADPhase, ebsdlib::H5Esprit::MADPhase_t);
   ANG_READER_ALLOCATE_AND_READ(NIndexedBands, ebsdlib::H5Esprit::NIndexedBands, ebsdlib::H5Esprit::NIndexedBands_t);
@@ -604,8 +622,63 @@ int H5EspritReader::readData(hid_t parId)
     }
   }
   err = H5Gclose(gid);
+  if(err < 0)
+  {
+    setErrorCode(-90014);
+    setErrorMessage("H5EspritReader Error: Could not close the 'Data' Group");
+    return err;
+  }
+  return applyRasterOrder();
+}
 
-  return err;
+// -----------------------------------------------------------------------------
+int H5EspritReader::applyRasterOrder()
+{
+  const size_t numTuples = getNumberOfElements();
+  const auto numCols = static_cast<size_t>(getNumColumns());
+  const auto numRows = static_cast<size_t>(getNumRows());
+
+  const auto* xBeam = static_cast<const int32_t*>(getPointerByName(ebsdlib::H5Esprit::XBEAM));
+  const auto* yBeam = static_cast<const int32_t*>(getPointerByName(ebsdlib::H5Esprit::YBEAM));
+  if(xBeam == nullptr || yBeam == nullptr)
+  {
+    setErrorCode(-90320);
+    setErrorMessage("H5EspritReader Error: The 'X BEAM' and 'Y BEAM' datasets are required to place each measurement on the " + std::to_string(numCols) + " x " + std::to_string(numRows) +
+                    " raster grid but could not be read.");
+    return getErrorCode();
+  }
+
+  const ScanGridOrder order = BuildScanGridOrderFromIndices(xBeam, yBeam, numTuples, numCols, numRows);
+  if(!order.isValid())
+  {
+    setErrorCode(order.errorCode);
+    setErrorMessage("H5EspritReader Error: The 'X BEAM'/'Y BEAM' datasets of scan '" + m_HDF5Path + "' do not describe a complete " + std::to_string(numCols) + " x " + std::to_string(numRows) +
+                    " raster grid: " + order.errorMessage);
+    return getErrorCode();
+  }
+  if(order.isIdentity)
+  {
+    return 0;
+  }
+
+  ReorderScanTuples<ebsdlib::H5Esprit::MAD_t>(static_cast<ebsdlib::H5Esprit::MAD_t*>(getPointerByName(ebsdlib::H5Esprit::MAD)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::NIndexedBands_t>(static_cast<ebsdlib::H5Esprit::NIndexedBands_t*>(getPointerByName(ebsdlib::H5Esprit::NIndexedBands)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::PHI_t>(static_cast<ebsdlib::H5Esprit::PHI_t*>(getPointerByName(ebsdlib::H5Esprit::PHI)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::Phase_t>(static_cast<ebsdlib::H5Esprit::Phase_t*>(getPointerByName(ebsdlib::H5Esprit::Phase)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::RadonBandCount_t>(static_cast<ebsdlib::H5Esprit::RadonBandCount_t*>(getPointerByName(ebsdlib::H5Esprit::RadonBandCount)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::RadonQuality_t>(static_cast<ebsdlib::H5Esprit::RadonQuality_t*>(getPointerByName(ebsdlib::H5Esprit::RadonQuality)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::phi1_t>(static_cast<ebsdlib::H5Esprit::phi1_t*>(getPointerByName(ebsdlib::H5Esprit::phi1)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::phi2_t>(static_cast<ebsdlib::H5Esprit::phi2_t*>(getPointerByName(ebsdlib::H5Esprit::phi2)), numTuples, 1, order.indexMap);
+  // The beam coordinates move last so that the map above was built from the file order.
+  ReorderScanTuples<ebsdlib::H5Esprit::XBEAM_t>(static_cast<ebsdlib::H5Esprit::XBEAM_t*>(getPointerByName(ebsdlib::H5Esprit::XBEAM)), numTuples, 1, order.indexMap);
+  ReorderScanTuples<ebsdlib::H5Esprit::YBEAM_t>(static_cast<ebsdlib::H5Esprit::YBEAM_t*>(getPointerByName(ebsdlib::H5Esprit::YBEAM)), numTuples, 1, order.indexMap);
+
+  if(m_PatternData != nullptr)
+  {
+    const auto patternComponents = static_cast<size_t>(m_PatternDims[0]) * static_cast<size_t>(m_PatternDims[1]);
+    ReorderScanTuples<uint8_t>(m_PatternData, numTuples, patternComponents, order.indexMap);
+  }
+  return 0;
 }
 
 // -----------------------------------------------------------------------------

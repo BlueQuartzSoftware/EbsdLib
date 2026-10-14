@@ -232,6 +232,12 @@ protected:
   int sanityCheckForOpening();
 
 private:
+  /**
+   * @brief Places every per-point array (and the pattern block) at the raster cell named by its X BEAM / Y BEAM values.
+   * @return 0 on success, a negative error code when the beam coordinates do not describe a complete grid.
+   */
+  int applyRasterOrder();
+
   std::string m_HDF5Path = {};
 
   std::set<std::string> m_ArrayNames;
