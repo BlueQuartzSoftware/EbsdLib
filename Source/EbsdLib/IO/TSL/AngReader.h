@@ -174,27 +174,12 @@ public:
 
   std::pair<int, std::string> fixOrderOfData(std::vector<int64_t>& indexMap);
 
+protected:
   /**
-   * @brief Copys Tuples based on an index mapping
-   *
-   * @tparam T Primitive type.
-   * @param oldArray The array that holds the values from the file that need to be repositioned within the grid
-   * @param indexMap The index mapping
+   * @brief Moves every per-point array to the raster cell given by indexMap (see fixOrderOfData).
+   * @return 0 on success or when the map is the identity, negative on an unexpected array type.
    */
-  template <typename T>
-  void CopyTupleUsingIndexList(void* oldArray, std::vector<int64_t>& indexMap)
-  {
-    T* oldArr = reinterpret_cast<T*>(oldArray);
-    std::vector<T> buffer(indexMap.size(), static_cast<T>(0));
-
-    for(int i = 0; i < indexMap.size(); i++)
-    {
-      int m_NewIndex = indexMap[i];
-
-      buffer[m_NewIndex] = oldArr[i];
-    }
-    std::copy(buffer.begin(), buffer.end(), oldArr);
-  }
+  int applyRasterOrder(const std::vector<int64_t>& indexMap);
 
 private:
   AngPhase::Pointer m_CurrentPhase;

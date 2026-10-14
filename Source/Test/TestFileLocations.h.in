@@ -54,7 +54,6 @@ const std::string k_TestTempDir("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/");
 const std::string EbsdLibProjDir("@EbsdLibProj_SOURCE_DIR@");
 const std::string k_TestFilesDir = "@EBSDLIB_DATA_DIR_NORM@/TestFiles";
 
-
 namespace AngImportTest
 {
 const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
@@ -69,11 +68,12 @@ const std::string HexHeader("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/HexHead
 const std::string ShortFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/ShortFile.ang");
 const std::string EdaxOIMH5File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/EdaxAngOnly.h5");
 const std::string OutOfOrderPhase("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/out_of_order_phase.ang");
+const std::string OutOfOrderGrid("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Out_Of_Order.ang");
 } // namespace AngImportTest
 
 namespace AngleFileLoaderTest
 {
-    const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/AngleFileLoaderTest/output_file.csv");
+const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/AngleFileLoaderTest/output_file.csv");
 }
 
 namespace CtfReaderTest
@@ -106,9 +106,9 @@ const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/H5Espri
 
 namespace DirectionalStatsTest
 {
-const std::string QuatsWXYZ_9260_File ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_9260.csv");
+const std::string QuatsWXYZ_9260_File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_9260.csv");
 const std::string QuatsWXYZ_29791_File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_29791.csv");
-const std::string QuatsWXYZ_10_File   ("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_10.csv");
+const std::string QuatsWXYZ_10_File("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/quats_wxyz_10.csv");
 } // namespace DirectionalStatsTest
 
 namespace RenderEbsdTest
@@ -132,6 +132,6 @@ const std::string TrignonalLowFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/I
 const std::string TrignonalHighFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/IPFLegendTest/Trigonal_high-3m.png");
 } // namespace IPFLegendTest
 
-} // namespace UnitTest
+} // namespace ebsdlib::unit_test
 
 #endif

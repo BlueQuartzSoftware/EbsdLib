@@ -38,60 +38,15 @@
 
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/EbsdReader.h"
+#include "EbsdLib/IO/ScanGridOrder.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 
 #include <algorithm>
 #include <fstream>
-#include <optional>
 #include <sstream>
 #include <utility>
 
 using namespace ebsdlib;
-
-namespace
-{
-
-using Vec3Type = std::array<float, 3>;
-using Size3Type = std::array<size_t, 3>;
-
-std::optional<size_t> GetGridIndex(Vec3Type& coords, Vec3Type& m_Origin, Vec3Type& m_Spacing, Size3Type& m_Dimensions)
-{
-  if(coords[0] < m_Origin[0] || coords[0] > (static_cast<float>(m_Dimensions[0]) * m_Spacing[0] + m_Origin[0]))
-  {
-    return {};
-  }
-
-  if(coords[1] < m_Origin[1] || coords[1] > (static_cast<float>(m_Dimensions[1]) * m_Spacing[1] + m_Origin[1]))
-  {
-    return {};
-  }
-
-  if(coords[2] < m_Origin[2] || coords[2] > (static_cast<float>(m_Dimensions[2]) * m_Spacing[2] + m_Origin[2]))
-  {
-    return {};
-  }
-
-  size_t x = static_cast<size_t>(std::floor((coords[0] - m_Origin[0]) / m_Spacing[0]));
-  if(x >= m_Dimensions[0])
-  {
-    return {};
-  }
-
-  size_t y = static_cast<size_t>(std::floor((coords[1] - m_Origin[1]) / m_Spacing[1]));
-  if(y >= m_Dimensions[1])
-  {
-    return {};
-  }
-
-  size_t z = static_cast<size_t>(std::floor((coords[2] - m_Origin[2]) / m_Spacing[2]));
-  if(z >= m_Dimensions[2])
-  {
-    return {};
-  }
-
-  return (m_Dimensions[1] * m_Dimensions[0] * z) + (m_Dimensions[0] * y) + x;
-}
-} // namespace
 
 // -----------------------------------------------------------------------------
 AngReader::AngReader()
@@ -420,23 +375,10 @@ int AngReader::readFile()
       return result.first;
     }
 
-    std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
-    for(const auto& arrayName : arrayNames)
+    const int applyErr = applyRasterOrder(indexMap);
+    if(applyErr < 0)
     {
-      void* oldArray = getPointerByName(arrayName);
-
-      if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Float)
-      {
-        CopyTupleUsingIndexList<float>(oldArray, indexMap);
-      }
-      else if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Int32)
-      {
-        CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
-      }
-      else
-      {
-        std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
-      }
+      return applyErr;
     }
   }
   return getErrorCode();
@@ -974,78 +916,56 @@ void AngReader::parseDataLine(std::string& line, size_t i)
 // -----------------------------------------------------------------------------
 std::pair<int, std::string> AngReader::fixOrderOfData(std::vector<int64_t>& indexMap)
 {
-  int64_t numCols = getNumOddCols();
-  int64_t numRows = getNumRows();
-  int64_t numElements = numCols * numRows;
-
-  float* xPosition = getXPositionPointer();
-  if(nullptr == xPosition)
+  const auto numCols = static_cast<size_t>(getNumOddCols());
+  const auto numRows = static_cast<size_t>(getNumRows());
+  const ScanGridOrder order = BuildScanGridOrderFromPositions(getXPositionPointer(), getYPositionPointer(), numCols * numRows, numCols, numRows, getXStep(), getYStep());
+  if(!order.isValid())
   {
-    std::stringstream message;
-    message << "Error: XPosition Pointer was NULL" << std::endl;
-    return {-110, message.str()};
+    return {order.errorCode,
+            "AngReader Error: The X/Y Position columns do not describe a complete " + std::to_string(numCols) + " x " + std::to_string(numRows) + " raster grid: " + order.errorMessage};
   }
-  float* yPosition = getYPositionPointer();
-  if(nullptr == yPosition)
-  {
-    std::stringstream message;
-    message << "Error: YPosition Pointer was NULL" << std::endl;
-    return {-111, message.str()};
-  }
-
-  float xStep = getXStep();
-  float yStep = getYStep();
-
-  auto resultX = std::minmax_element(xPosition, xPosition + numElements);
-  auto resultY = std::minmax_element(yPosition, yPosition + numElements);
-  float xMin = *resultX.first;
-  float xMax = *resultX.second;
-  float yMin = *resultY.first;
-  float yMax = *resultY.second;
-
-  std::array<float, 3> m_Origin = {xMin - 0.5f * xStep, yMin - 0.5f * yStep, 0.0f};
-  std::array<float, 3> m_Spacing = {xStep, yStep, 1.0f};
-  std::array<size_t, 3> m_Dimensions = {static_cast<size_t>(numCols), static_cast<size_t>(numRows), 1ULL};
-  std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
-
-  if(std::nearbyint((xMax - xMin) / xStep) + 1 != numCols)
-  {
-    std::stringstream message;
-    message << "Error: The calculated number of columns XMax: " << xMax << ", XMin: " << xMin << ", XStep: " << xStep << "  (" << ((xMax - xMin) / xStep) + 1
-            << ") does not match the actual number of columns (" << numCols + 1 << ")" << std::endl;
-    return {-101100, message.str()};
-  }
-  if(std::nearbyint((yMax - yMin) / yStep) + 1 != numRows)
-  {
-    std::stringstream message;
-    message << "Error: The calculated number of rows YMax: " << yMax << ", YMin: " << yMin << ", YStep: " << yStep << "  (" << ((yMax - yMin) / yStep) + 1
-            << ") does not match the actual number of rows (" << numRows + 1 << ")" << std::endl;
-    return {-101101, message.str()};
-  }
-
-  indexMap.resize(numElements);
-
-  for(int i = 0; i < numElements; i++)
-  {
-    coords[0] = xPosition[i];
-    coords[1] = yPosition[i];
-    auto result = ::GetGridIndex(coords, m_Origin, m_Spacing, m_Dimensions);
-    if(result.has_value())
-    {
-      indexMap[i] = *result;
-    }
-    else
-    {
-      std::stringstream message;
-      message << "AngReader Error: The calculated index for the X and Y Position " << coords[0] << ", " << coords[1] << " will fall outside of the calculated grid.\n  "
-              << "Origin: " << m_Origin[0] << ", " << m_Origin[1] << "\n  "
-              << "Spacing: " << m_Spacing[1] << ", " << m_Spacing[1] << "\n  "
-              << "Dimensions: " << m_Dimensions[0] << ", " << m_Dimensions[1] << "\n"
-              << std::endl;
-      return {-101111, message.str()};
-    }
-  }
+  indexMap = order.indexMap;
   return {0, ""};
+}
+
+// -----------------------------------------------------------------------------
+int AngReader::applyRasterOrder(const std::vector<int64_t>& indexMap)
+{
+  const size_t numTuples = static_cast<size_t>(getNumOddCols()) * static_cast<size_t>(getNumRows());
+  bool isIdentity = true;
+  for(size_t i = 0; i < indexMap.size() && isIdentity; i++)
+  {
+    isIdentity = (indexMap[i] == static_cast<int64_t>(i));
+  }
+  if(isIdentity)
+  {
+    return 0;
+  }
+  const std::vector<std::string> arrayNames = {
+      ebsdlib::Ang::Phi1,      ebsdlib::Ang::Phi,       ebsdlib::Ang::Phi2, ebsdlib::Ang::XPosition, ebsdlib::Ang::YPosition, ebsdlib::Ang::ImageQuality, ebsdlib::Ang::ConfidenceIndex,
+      ebsdlib::Ang::PhaseData, ebsdlib::Ang::SEMSignal, ebsdlib::Ang::Fit};
+  for(const auto& arrayName : arrayNames)
+  {
+    void* data = getPointerByName(arrayName);
+    if(data == nullptr)
+    {
+      continue;
+    }
+    switch(getPointerType(arrayName))
+    {
+    case ebsdlib::NumericTypes::Type::Float:
+      ReorderScanTuples<float>(static_cast<float*>(data), numTuples, 1, indexMap);
+      break;
+    case ebsdlib::NumericTypes::Type::Int32:
+      ReorderScanTuples<int32_t>(static_cast<int32_t*>(data), numTuples, 1, indexMap);
+      break;
+    default:
+      setErrorCode(-101120);
+      setErrorMessage("AngReader Error: Array '" + arrayName + "' has an unexpected element type and cannot be placed on the raster grid.");
+      return getErrorCode();
+    }
+  }
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
