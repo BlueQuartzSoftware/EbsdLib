@@ -21,7 +21,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/CtfReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/EdaxOIMReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5EspritReaderTest.cpp
-    # ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5OINAReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5OINAReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/IPFLegendTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/QuaternionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFTest.cpp

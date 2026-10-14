@@ -78,6 +78,8 @@ const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/AngleFi
 
 namespace CtfReaderTest
 {
+const std::string OutOfOrderFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2_OutOfOrder.ctf");
+const std::string DuplicatePointFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_2_DuplicatePoint.ctf");
 const std::string FileDir("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/");
 const std::string EuropeanInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_European_1.ctf");
 const std::string USInputFile1("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/Test_US_1.ctf");
@@ -103,6 +105,12 @@ namespace H5EspritReaderTest
 const std::string InputFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5EspritReaderTest.h5");
 const std::string OutputFile("@EbsdLibProj_BINARY_DIR@/Testing/Temporary/H5EspritReaderTest/H5Esprit_Output_File.h5");
 } // namespace H5EspritReaderTest
+
+namespace H5OINAReaderTest
+{
+const std::string OrderedFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5OINA_Ordered.h5oina");
+const std::string OutOfOrderFile("@EbsdLibProj_SOURCE_DIR@/Data/EbsdTestFiles/H5OINA_OutOfOrder.h5oina");
+} // namespace H5OINAReaderTest
 
 namespace DirectionalStatsTest
 {
