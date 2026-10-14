@@ -214,3 +214,66 @@ TEST_CASE("ebsdlib::CtfReaderTest::TestWriteCtfFile", "[EbsdLib][CtfReaderTest]"
     DREAM3D_REQUIRE(removed == true);
   }
 }
+
+namespace
+{
+template <typename T>
+void RequireArraysEqual(CtfReader& expected, CtfReader& actual, const std::string& name, size_t count)
+{
+  const auto* e = static_cast<const T*>(expected.getPointerByName(name));
+  const auto* a = static_cast<const T*>(actual.getPointerByName(name));
+  DREAM3D_REQUIRE(e != nullptr)
+  DREAM3D_REQUIRE(a != nullptr)
+  size_t mismatches = 0;
+  for(size_t i = 0; i < count; i++)
+  {
+    if(e[i] != a[i])
+    {
+      mismatches++;
+    }
+  }
+  DREAM3D_REQUIRED(mismatches, ==, 0)
+}
+} // namespace
+
+TEST_CASE("ebsdlib::CtfReaderTest::OutOfOrderRowsArePlacedByPosition", "[EbsdLib][CtfReaderTest]")
+{
+  CtfReader ordered;
+  ordered.setFileName(ebsdlib::unit_test::CtfReaderTest::USInputFile2);
+  DREAM3D_REQUIRED(ordered.readFile(), ==, 0)
+
+  CtfReader shuffled;
+  shuffled.setFileName(ebsdlib::unit_test::CtfReaderTest::OutOfOrderFile);
+  DREAM3D_REQUIRED(shuffled.readFile(), ==, 0)
+
+  const size_t count = static_cast<size_t>(ordered.getXCells()) * static_cast<size_t>(ordered.getYCells());
+  DREAM3D_REQUIRED(count, ==, 200)
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::X, count);
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::Y, count);
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::Euler1, count);
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::Euler2, count);
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::Euler3, count);
+  RequireArraysEqual<float>(ordered, shuffled, ebsdlib::Ctf::MAD, count);
+  RequireArraysEqual<int32_t>(ordered, shuffled, ebsdlib::Ctf::Phase, count);
+  RequireArraysEqual<int32_t>(ordered, shuffled, ebsdlib::Ctf::Bands, count);
+  RequireArraysEqual<int32_t>(ordered, shuffled, ebsdlib::Ctf::BC, count);
+}
+
+TEST_CASE("ebsdlib::CtfReaderTest::DuplicatePointIsRejected", "[EbsdLib][CtfReaderTest]")
+{
+  CtfReader reader;
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::DuplicatePointFile);
+  const int err = reader.readFile();
+  DREAM3D_REQUIRED(err, ==, -101103)
+  DREAM3D_REQUIRE(reader.getErrorMessage().find("both map to grid cell") != std::string::npos)
+}
+
+TEST_CASE("ebsdlib::CtfReaderTest::ThreeDimensionalFileIsNotReordered", "[EbsdLib][CtfReaderTest]")
+{
+  // Repeated X/Y positions across five slices must not be validated as a 2D grid.
+  CtfReader reader;
+  reader.setFileName(ebsdlib::unit_test::CtfReaderTest::EuropeanInputFile2);
+  DREAM3D_REQUIRED(reader.readFile(), ==, 0)
+  DREAM3D_REQUIRED(reader.getZCells(), ==, 5)
+  DREAM3D_REQUIRED(reader.getNumberOfElements(), ==, 125)
+}
