@@ -1,6 +1,7 @@
 set(DIR_NAME IO)
 
 set(EbsdLib_${DIR_NAME}_HDRS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ScanGridOrder.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdReader.h         
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdImporter.h       
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdHeaderEntry.h    
@@ -8,6 +9,7 @@ set(EbsdLib_${DIR_NAME}_HDRS
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ScanGridOrder.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/EbsdReader.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/AngleFileLoader.cpp
 )
