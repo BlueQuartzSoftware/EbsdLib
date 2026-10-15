@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <string>
 /**
  * The Orientation codes are written in such a way that the value of -1 indicates
