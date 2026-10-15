@@ -32,6 +32,8 @@
 
 #include "H5OINAReader.h"
 
+#include "EbsdLib/IO/ScanGridOrder.h"
+
 #include "CtfHeaderEntry.h"
 #include "CtfReader.h"
 
@@ -44,9 +46,12 @@
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
+#include <algorithm>
+#include <array>
 #include <charconv>
 #include <cstdint>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 using namespace H5Support;
@@ -282,40 +287,17 @@ int H5OINAReader::readFile()
   err = readData(ebsdGid);
   if(err < 0)
   {
+    // Preserve the shared grid-validation codes and their dataset/tuple diagnostics.
+    if(err <= -101100 && err >= -101105)
+    {
+      return err;
+    }
     std::stringstream ss;
     ss << getNameOfClass() << " Error: could not read the data of scan '" << m_HDF5Path << "'. Internal error code " << err << ". " << getErrorMessage();
     setErrorCode(-900022);
     setErrorMessage(ss.str());
     return getErrorCode();
   }
-
-  //  std::vector<int64_t> indexMap;
-  //  std::pair<int, std::string> result = fixOrderOfData(indexMap);
-  //
-  //  if(result.first < 0)
-  //  {
-  //    std::cout << result.second << std::endl;
-  //    return result.first;
-  //  }
-  //
-  //  std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
-  //  for(const auto& arrayName : arrayNames)
-  //  {
-  //    void* oldArray = getPointerByName(arrayName);
-  //
-  //    if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Float)
-  //    {
-  //      CopyTupleUsingIndexList<float>(oldArray, indexMap);
-  //    }
-  //    else if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Int32)
-  //    {
-  //      CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
-  //    }
-  //    else
-  //    {
-  //      std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
-  //    }
-  //  }
 
   return getErrorCode();
 }
@@ -751,8 +733,66 @@ int H5OINAReader::readData(hid_t parId)
   //    }
   //  }
   err = H5Gclose(gid);
+  if(err < 0)
+  {
+    return err;
+  }
+  return applyRasterOrder();
+}
 
-  return err;
+// -----------------------------------------------------------------------------
+int H5OINAReader::applyRasterOrder()
+{
+  const auto numCols = static_cast<size_t>(getXCells());
+  const auto numRows = static_cast<size_t>(getYCells());
+  const size_t numTuples = numCols * numRows;
+
+  // HDF5 datasets are independently sized; validate all buffers before indexing or moving any tuples.
+  const std::array<std::pair<std::string, size_t>, 9> datasetSizes = {{{ebsdlib::H5OINA::BandContrast, m_BandContrast.size()},
+                                                                       {ebsdlib::H5OINA::BandSlope, m_BandSlope.size()},
+                                                                       {ebsdlib::H5OINA::Bands, m_Bands.size()},
+                                                                       {ebsdlib::H5OINA::Error, m_Error.size()},
+                                                                       {ebsdlib::H5OINA::Euler, m_Euler.size()},
+                                                                       {ebsdlib::H5OINA::MeanAngularDeviation, m_MeanAngularDeviation.size()},
+                                                                       {ebsdlib::H5OINA::Phase, m_Phase.size()},
+                                                                       {ebsdlib::H5OINA::X, m_X.size()},
+                                                                       {ebsdlib::H5OINA::Y, m_Y.size()}}};
+  for(const auto& [name, size] : datasetSizes)
+  {
+    const size_t components = name == ebsdlib::H5OINA::Euler ? 3 : 1;
+    if(size != numTuples * components)
+    {
+      setErrorCode(-101100);
+      setErrorMessage("H5OINAReader Error: Dataset '" + name + "' of scan '" + m_HDF5Path + "' holds " + std::to_string(size) + " values but the " + std::to_string(numCols) + " x " +
+                      std::to_string(numRows) + " raster grid requires " + std::to_string(numTuples * components) + " values (" + std::to_string(components) +
+                      " per tuple); first inconsistent tuple " + std::to_string(std::min(size / components, numTuples)) + ".");
+      return getErrorCode();
+    }
+  }
+
+  const ScanGridOrder order = BuildScanGridOrderFromPositions(m_X.data(), m_Y.data(), numTuples, numCols, numRows, getXStep(), getYStep());
+  if(!order.isValid())
+  {
+    setErrorCode(order.errorCode);
+    setErrorMessage("H5OINAReader Error: The 'X'/'Y' datasets of scan '" + m_HDF5Path + "' do not describe a complete " + std::to_string(numCols) + " x " + std::to_string(numRows) +
+                    " raster grid: " + order.errorMessage);
+    return getErrorCode();
+  }
+  if(order.isIdentity)
+  {
+    return 0;
+  }
+
+  ReorderScanTuples<uint8_t>(m_BandContrast.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<uint8_t>(m_BandSlope.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<uint8_t>(m_Bands.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<uint8_t>(m_Error.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<float>(m_Euler.data(), numTuples, 3, order.indexMap);
+  ReorderScanTuples<float>(m_MeanAngularDeviation.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<uint8_t>(m_Phase.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<float>(m_X.data(), numTuples, 1, order.indexMap);
+  ReorderScanTuples<float>(m_Y.data(), numTuples, 1, order.indexMap);
+  return 0;
 }
 
 // -----------------------------------------------------------------------------

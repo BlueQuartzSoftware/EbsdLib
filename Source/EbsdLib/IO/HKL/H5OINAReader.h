@@ -246,6 +246,9 @@ protected:
   int readData(hid_t parId);
 
 private:
+  /** @brief Validates and places scan tuples by their X/Y datasets. */
+  int applyRasterOrder();
+
   std::string m_HDF5Path = {};
 
   bool m_ReadPatternData = false;

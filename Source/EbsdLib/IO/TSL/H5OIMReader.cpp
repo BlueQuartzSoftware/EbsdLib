@@ -35,6 +35,8 @@
 
 #include "H5OIMReader.h"
 
+#include <algorithm>
+#include <array>
 #include <vector>
 
 //<====== REPLACE std::list<std::string> with an Alias from a global header
@@ -50,6 +52,7 @@
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
+#include "EbsdLib/IO/ScanGridOrder.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 using namespace H5Support;
@@ -172,27 +175,25 @@ int H5OIMReader::readFile()
 
     if(result.first < 0)
     {
-      std::cout << result.second << std::endl;
+      setErrorCode(result.first);
+      setErrorMessage(result.second);
       return result.first;
     }
 
-    std::vector<std::string> arrayNames = {"Phi1", "Phi", "Phi2", "X Position", "Y Position", "Image Quality", "Confidence Index", "PhaseData", "SEM Signal", "Fit"};
-    for(const auto& arrayName : arrayNames)
+    const int applyErr = applyRasterOrder(indexMap);
+    if(applyErr < 0)
     {
-      void* oldArray = getPointerByName(arrayName);
-
-      if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Float)
-      {
-        CopyTupleUsingIndexList<float>(oldArray, indexMap);
-      }
-      else if(getPointerType(arrayName) == ebsdlib::NumericTypes::Type::Int32)
-      {
-        CopyTupleUsingIndexList<int32_t>(oldArray, indexMap);
-      }
-      else
-      {
-        std::cout << "Type returned was not of Float or int32. The Array name probably isn't correct." << std::endl;
-      }
+      setErrorCode(applyErr);
+      return applyErr;
+    }
+    // A validated permutation is sorted only when it is the identity.
+    if(getPatternData() != nullptr && !std::is_sorted(indexMap.begin(), indexMap.end()))
+    {
+      std::array<int32_t, 2> patternDims = {0, 0};
+      getPatternDims(patternDims);
+      const size_t patternComponents = static_cast<size_t>(patternDims[0]) * static_cast<size_t>(patternDims[1]);
+      const size_t numTuples = static_cast<size_t>(getNumOddCols()) * static_cast<size_t>(getNumRows());
+      ReorderScanTuples<uint8_t>(getPatternData(), numTuples, patternComponents, indexMap);
     }
   }
   return getErrorCode();

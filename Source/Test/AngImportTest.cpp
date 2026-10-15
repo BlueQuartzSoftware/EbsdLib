@@ -34,6 +34,8 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <catch2/catch.hpp>
 
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -144,4 +146,39 @@ TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderPhase", "[EbsdLib][AngImportTest
   {
     REQUIRE(phaseVector[i]->getPhaseIndex() == i + 1);
   }
+}
+
+TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderGrid", "[EbsdLib][AngImportTest]")
+{
+  // Out_Of_Order.ang is a 189 x 201 square-grid scan whose rows are not stored in raster order.
+  AngReader reader;
+  reader.setFileName(ebsdlib::unit_test::AngImportTest::OutOfOrderGrid);
+  int err = reader.readFile();
+  REQUIRE(err == 0);
+
+  const auto numCols = static_cast<size_t>(reader.getNumOddCols());
+  const auto numRows = static_cast<size_t>(reader.getNumRows());
+  REQUIRE(numCols == 189);
+  REQUIRE(numRows == 201);
+
+  const float* x = reader.getXPositionPointer();
+  const float* y = reader.getYPositionPointer();
+  REQUIRE(x != nullptr);
+  REQUIRE(y != nullptr);
+  const float xStep = reader.getXStep();
+  const float yStep = reader.getYStep();
+  const float xMin = *std::min_element(x, x + numCols * numRows);
+  const float yMin = *std::min_element(y, y + numCols * numRows);
+
+  size_t misplaced = 0;
+  for(size_t i = 0; i < numCols * numRows; i++)
+  {
+    const auto col = static_cast<size_t>(std::llround((x[i] - xMin) / xStep));
+    const auto row = static_cast<size_t>(std::llround((y[i] - yMin) / yStep));
+    if(col != i % numCols || row != i / numCols)
+    {
+      misplaced++;
+    }
+  }
+  REQUIRE(misplaced == 0);
 }

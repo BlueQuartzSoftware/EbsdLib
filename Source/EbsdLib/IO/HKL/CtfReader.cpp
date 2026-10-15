@@ -35,6 +35,8 @@
 
 #include "CtfReader.h"
 
+#include "EbsdLib/IO/ScanGridOrder.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -611,6 +613,61 @@ int CtfReader::readData(std::ifstream& in)
     setErrorMessage(ss.str());
     setErrorCode(-105);
     return -105;
+  }
+  return applyRasterOrder();
+}
+
+// -----------------------------------------------------------------------------
+int CtfReader::applyRasterOrder()
+{
+  if(getZCells() > 1)
+  {
+    return 0; // Preserve the existing multi-slice order; no 2D reorder is defined for it.
+  }
+  auto* x = static_cast<float*>(getPointerByName(ebsdlib::Ctf::X));
+  auto* y = static_cast<float*>(getPointerByName(ebsdlib::Ctf::Y));
+  if(x == nullptr || y == nullptr)
+  {
+    return 0; // without coordinates the file order is the only order available.
+  }
+  const auto numCols = static_cast<size_t>(getXCells());
+  const auto numRows = static_cast<size_t>(getYCells());
+  const size_t numTuples = numCols * numRows;
+
+  const ScanGridOrder order = BuildScanGridOrderFromPositions(x, y, numTuples, numCols, numRows, getXStep(), getYStep());
+  if(!order.isValid())
+  {
+    setErrorCode(order.errorCode);
+    setErrorMessage("CtfReader Error: The X/Y columns of '" + getFileName() + "' do not describe a complete " + std::to_string(numCols) + " x " + std::to_string(numRows) +
+                    " raster grid: " + order.errorMessage);
+    return getErrorCode();
+  }
+  if(order.isIdentity)
+  {
+    return 0;
+  }
+
+  for(const auto& entry : m_NamePointerMap)
+  {
+    const std::string& name = entry.first;
+    void* data = getPointerByName(name);
+    if(data == nullptr)
+    {
+      continue;
+    }
+    switch(getPointerType(name))
+    {
+    case ebsdlib::NumericTypes::Type::Float:
+      ReorderScanTuples<float>(static_cast<float*>(data), numTuples, 1, order.indexMap);
+      break;
+    case ebsdlib::NumericTypes::Type::Int32:
+      ReorderScanTuples<int32_t>(static_cast<int32_t*>(data), numTuples, 1, order.indexMap);
+      break;
+    default:
+      setErrorCode(-101120);
+      setErrorMessage("CtfReader Error: Column '" + name + "' has an unexpected element type and cannot be placed on the raster grid.");
+      return getErrorCode();
+    }
   }
   return 0;
 }

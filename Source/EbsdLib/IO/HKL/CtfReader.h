@@ -171,6 +171,9 @@ public:
   int writeFile(const std::string& filepath);
 
 private:
+  /** @brief Validates and places 2D scan tuples by their X/Y positions. */
+  int applyRasterOrder();
+
   int m_SingleSliceRead = -1;
 
   std::map<std::string, DataParser::Pointer> m_NamePointerMap;
