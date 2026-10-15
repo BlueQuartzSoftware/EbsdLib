@@ -58,6 +58,9 @@
 
 #include <algorithm> // for std::max
 #include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
 #include <exception>
 #include <iomanip>
 #include <limits>
@@ -97,13 +100,109 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 
 constexpr float k_OdfBinStepSize = 5.0f;
 
+uint64_t MixBits(uint64_t value)
+{
+  value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
+  value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
+  return value ^ (value >> 31U);
+}
+
+uint64_t NextSplitMix64(uint64_t& state)
+{
+  state += 0x9E3779B97F4A7C15ULL;
+  return MixBits(state);
+}
+
+double NextUnitInterval(uint64_t& state)
+{
+  return static_cast<double>(NextSplitMix64(state) >> 11U) * 0x1.0p-53;
+}
+
+uint64_t DoubleBits(double value)
+{
+  static_assert(sizeof(uint64_t) == sizeof(double));
+  uint64_t bits = 0;
+  std::memcpy(&bits, &value, sizeof(value));
+  return bits;
+}
+
 } // namespace
 
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps() = default;
+LaueOps::LaueOps(const std::array<double, 3>& odfDimInit, const std::array<double, 3>& odfDimStep)
+: m_OdfDimInit(odfDimInit)
+, m_OdfDimStep(odfDimStep)
+{
+}
 
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
+
+double LaueOps::odfBinInBallFraction(int bin) const
+{
+  if(bin < 0 || static_cast<size_t>(bin) >= getODFSize())
+  {
+    return 0.0;
+  }
+
+  const auto bins = getOdfNumBins();
+  const auto binIndex = static_cast<size_t>(bin);
+  const std::array<size_t, 3> phi = {binIndex % bins[0], (binIndex / bins[0]) % bins[1], binIndex / (bins[0] * bins[1])};
+  std::array<double, 3> origin;
+  double nearestSquared = 0.0;
+  double farthestSquared = 0.0;
+  for(size_t axis = 0; axis < 3; ++axis)
+  {
+    origin[axis] = m_OdfDimStep[axis] * static_cast<double>(phi[axis]);
+    const double lower = origin[axis] - m_OdfDimInit[axis];
+    const double upper = origin[axis] + m_OdfDimStep[axis] - m_OdfDimInit[axis];
+    const double nearest = std::max({lower, -upper, 0.0});
+    const double farthest = std::max(std::abs(lower), std::abs(upper));
+    nearestSquared += nearest * nearest;
+    farthestSquared += farthest * farthest;
+  }
+  constexpr double k_RadiusSquared = LPs::R1 * LPs::R1;
+  if(nearestSquared >= k_RadiusSquared)
+  {
+    return 0.0;
+  }
+  if(farthestSquared <= k_RadiusSquared)
+  {
+    return 1.0;
+  }
+
+  constexpr int k_Subdivisions = 6;
+  int insideCount = 0;
+  for(int z = 0; z < k_Subdivisions; ++z)
+  {
+    const double h3 = origin[2] + m_OdfDimStep[2] * ((z + 0.5) / k_Subdivisions) - m_OdfDimInit[2];
+    for(int y = 0; y < k_Subdivisions; ++y)
+    {
+      const double h2 = origin[1] + m_OdfDimStep[1] * ((y + 0.5) / k_Subdivisions) - m_OdfDimInit[1];
+      for(int x = 0; x < k_Subdivisions; ++x)
+      {
+        const double h1 = origin[0] + m_OdfDimStep[0] * ((x + 0.5) / k_Subdivisions) - m_OdfDimInit[0];
+        insideCount += h1 * h1 + h2 * h2 + h3 * h3 <= k_RadiusSquared;
+      }
+    }
+  }
+  return static_cast<double>(insideCount) / (k_Subdivisions * k_Subdivisions * k_Subdivisions);
+}
+
+bool LaueOps::isOdfBinReachable(int bin) const
+{
+  return odfBinInBallFraction(bin) > 0.0;
+}
+
+uint64_t LaueOps::clampFallbackCount() const
+{
+  return m_ClampFallbackCount.load(std::memory_order_relaxed);
+}
+
+void LaueOps::resetClampFallbackCount() const
+{
+  m_ClampFallbackCount.store(0, std::memory_order_relaxed);
+}
 
 // -----------------------------------------------------------------------------
 std::array<float, 3> LaueOps::getOdfBinStepSize() const
@@ -691,6 +790,44 @@ void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], d
 }
 
 // -----------------------------------------------------------------------------
+bool LaueOps::_calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const
+{
+  constexpr double k_RadiusSquared = LPs::R1 * LPs::R1;
+  constexpr int32_t k_MaxRedraws = 4096;
+
+  _calcDetermineHomochoricValues(random, init, step, phi, r1, r2, r3);
+  auto isInBall = [&r1, &r2, &r3, k_RadiusSquared]() { return r1 * r1 + r2 * r2 + r3 * r3 <= k_RadiusSquared; };
+  if(isInBall())
+  {
+    return true;
+  }
+
+  uint64_t state = 0x243F6A8885A308D3ULL;
+  for(size_t index = 0; index < 3; index++)
+  {
+    state = MixBits(state ^ DoubleBits(random[index]));
+    state = MixBits(state ^ static_cast<uint64_t>(static_cast<int64_t>(phi[index])));
+  }
+
+  for(int32_t redraw = 0; redraw < k_MaxRedraws; redraw++)
+  {
+    double redrawnRandom[3] = {NextUnitInterval(state), NextUnitInterval(state), NextUnitInterval(state)};
+    _calcDetermineHomochoricValues(redrawnRandom, init, step, phi, r1, r2, r3);
+    if(isInBall())
+    {
+      return true;
+    }
+  }
+
+  m_ClampFallbackCount.fetch_add(1, std::memory_order_relaxed);
+  const double scale = LPs::R1 / std::sqrt(r1 * r1 + r2 * r2 + r3 * r3);
+  r1 *= scale;
+  r2 *= scale;
+  r3 *= scale;
+  return false;
+}
+
+// -----------------------------------------------------------------------------
 int LaueOps::_calcODFBin(double dim[3], double bins[3], double step[3], const HomochoricDType& ho) const
 {
   int g1euler1bin = static_cast<int>((ho[0] + dim[0]) / step[0]);
@@ -744,8 +881,6 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 
   /*[9]*/ m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
   /*[10]*/ m_OrientationOps.push_back(TrigonalOps::New());   // Trigonal-High
-
-  /*[11]*/ m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
 
   return m_OrientationOps;
 }
@@ -837,6 +972,21 @@ size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps) const
 
   size_t symOp = distribution(generator); // Random remaining position.
   return symOp;
+}
+
+// -----------------------------------------------------------------------------
+size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps, std::mt19937_64& generator) const
+{
+  std::uniform_int_distribution<size_t> distribution(0, static_cast<size_t>(numSymOps - 1));
+  return distribution(generator);
+}
+
+// -----------------------------------------------------------------------------
+EulerDType LaueOps::randomizeEulerAngles(const EulerDType& euler, std::mt19937_64& generator) const
+{
+  const size_t symOp = getRandomSymmetryOperatorIndex(static_cast<int>(getNumSymOps()), generator);
+  const QuatD qc = getQuatSymOp(symOp) * euler.toQuaternion();
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
