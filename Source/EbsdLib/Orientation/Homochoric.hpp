@@ -8,6 +8,7 @@
 #include "EbsdLib/Orientation/OrientationMatrix.hpp"
 #include "EbsdLib/Utilities/ModifiedLambertProjection3D.hpp"
 
+#include <algorithm>
 #include <array>
 
 namespace ebsdlib
@@ -120,12 +121,19 @@ public:
       SelfType hn(*this);
       OutputValueType sqrRtHMag = static_cast<OutputValueType>(1.0 / sqrt(hmag));
       ArrayHelpers<SelfType, typename SelfType::value_type>::scalarMultiply(hn, sqrRtHMag); // In place scalar multiply
+      if(hmag > static_cast<OutputValueType>(LPs::R1 * LPs::R1))
+      {
+        hmag = static_cast<OutputValueType>(LPs::R1 * LPs::R1);
+        hm = hmag;
+      }
+      // The tfit series is valid only for 0 <= |h|^2 <= R1^2.
       OutputValueType s = static_cast<OutputValueType>(LambertParametersType::tfit[0] + LambertParametersType::tfit[1] * hmag);
       for(int i = 2; i < 16; i++)
       {
         hm = hm * hmag;
         s = static_cast<OutputValueType>(s + LPs::tfit[i] * hm);
       }
+      s = std::clamp(s, static_cast<OutputValueType>(-1.0), static_cast<OutputValueType>(1.0));
       s = static_cast<OutputValueType>(2.0 * acos(s));
       res[0] = hn[0];
       res[1] = hn[1];

@@ -87,8 +87,9 @@ constexpr std::array<size_t, 3> k_OdfNumBins = {36, 36, 36}; // Represents a 5De
 static const std::array<double, 3> k_OdfDimInitValue = {std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0)),
                                                         std::pow((0.75 * (ebsdlib::constants::k_PiOver2D - std::sin(ebsdlib::constants::k_PiOver2D))), (1.0 / 3.0))};
-static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0]) / 2.0, k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1]) / 2.0,
-                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2]) / 2.0};
+// Dividing by half the bin count makes the inverse grid span from -init to +init, as required by the forward ODF map.
+static const std::array<double, 3> k_OdfDimStepValue = {k_OdfDimInitValue[0] / static_cast<double>(k_OdfNumBins[0] / 2), k_OdfDimInitValue[1] / static_cast<double>(k_OdfNumBins[1] / 2),
+                                                        k_OdfDimInitValue[2] / static_cast<double>(k_OdfNumBins[2] / 2)};
 
 constexpr int k_SymSize0 = 6;
 constexpr int k_SymSize1 = 12;
@@ -191,7 +192,10 @@ constexpr double k_EtaMax = 90.0;
 } // namespace CubicLow
 
 // -----------------------------------------------------------------------------
-CubicLowOps::CubicLowOps() = default;
+CubicLowOps::CubicLowOps()
+: LaueOps(CubicLow::k_OdfDimInitValue, CubicLow::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 CubicLowOps::~CubicLowOps() = default;
@@ -398,7 +402,7 @@ EulerDType CubicLowOps::determineEulerAngles(double random[3], int choose) const
   phi[1] = static_cast<int32_t>((choose / CubicLow::k_OdfNumBins[0]) % CubicLow::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (CubicLow::k_OdfNumBins[0] * CubicLow::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

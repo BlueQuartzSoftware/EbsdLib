@@ -485,23 +485,44 @@ public:
   }
 
   /**
-   * @brief  This method will generate MDF data for a Cubic material and
-   * generate 1 XY scatter plots.
-   * @param mdf [input] This is the input MDF data which is already computed and of lenght CubicOps::k_MdfSize
-   * @param x [output] X Values of the Scatter plot. This memory must already be preallocated.
-   * @param y [outout] Y Values of the Scatter plot. This memory must already be preallocated.
-   * @param npoints The number of XY points for the Scatter Plot
-   * @param size The number of samples of the MDF to take
+   * @brief Generates MDF plot data with a clock-seeded generator.
+   * @tparam T Plot value type.
+   * @tparam LaueOpsType Symmetry operations for the selected crystal structure.
+   * @tparam ContainerType Random-access container type for the input and output arrays.
+   * @param mdf Precomputed MDF data.
+   * @param xval Receives misorientation angles in degrees.
+   * @param yval Receives normalized frequencies.
+   * @param size Number of samples to draw from the MDF.
+   * @return Zero if the plot generation succeeds.
+   * @note This overload seeds a generator from the clock for each call. Use the generator-taking overload for reproducible results.
    */
   template <typename T, class LaueOpsType, class ContainerType>
   static int GenMDFPlotData(ContainerType& mdf, ContainerType& xval, ContainerType& yval, int size)
   {
-    float radtodeg = 180.0f / static_cast<float>(M_PI);
-
     std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
     std::mt19937_64 generator(randomDevice()); // Standard mersenne_twister_engine seeded with rd()
     std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
     generator.seed(seed);
+    return GenMDFPlotData<T, LaueOpsType, ContainerType>(mdf, xval, yval, size, generator);
+  }
+
+  /**
+   * @brief Generates MDF plot data with the specified generator.
+   * @tparam T Plot value type.
+   * @tparam LaueOpsType Symmetry operations for the selected crystal structure.
+   * @tparam ContainerType Random-access container type for the input and output arrays.
+   * @param mdf Precomputed MDF data.
+   * @param xval Receives misorientation angles in degrees.
+   * @param yval Receives normalized frequencies.
+   * @param size Number of samples to draw from the MDF.
+   * @param generator Generator that supplies the plot sampling stream.
+   * @return Zero if the plot generation succeeds.
+   */
+  template <typename T, class LaueOpsType, class ContainerType>
+  static int GenMDFPlotData(ContainerType& mdf, ContainerType& xval, ContainerType& yval, int size, std::mt19937_64& generator)
+  {
+    float radtodeg = 180.0f / static_cast<float>(M_PI);
+
     std::uniform_real_distribution<> distribution(0.0, 1.0);
 
     int err = 0;
