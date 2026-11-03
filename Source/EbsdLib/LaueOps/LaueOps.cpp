@@ -307,62 +307,29 @@ bool LaueOps::InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrder
   int32_t orderAsArrayIndex = to_underlying(order) - 1;
   auto x = rod; // Make a copy of the input Rodrigues vector .r_copyd();
 
-  // Case: finite x(4)
-  if(x[3] != std::numeric_limits<double>::infinity())
+  // Quaternion form avoids inf*0 and huge-length roundoff in the EMsoftOO insideCyclicFZ inequality.
+  const double c = std::isinf(x[3]) ? 0.0 : 1.0 / std::hypot(1.0, x[3]);
+  const double s = std::isinf(x[3]) ? 1.0 : x[3] * c;
+  if(doM)
   {
-    if(doM)
+    if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
     {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        // Check y-component vs tan(pi/2n)
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
-      }
-      else
-      {
-        // Check z-component vs tan(pi/2n)
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
-      }
+      res = std::abs(x[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
     }
     else
     {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
-      }
-      else
-      {
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
-      }
+      res = std::abs(x[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
     }
   }
-  // Case: infinite x(4)
   else
   {
-    if(doM)
+    if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
     {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        if(x[1] == 0.0)
-          res = true;
-      }
-      else
-      {
-        if(x[2] == 0.0)
-          res = true;
-      }
+      res = std::abs(x[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
     }
     else
     {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        if(x[1] == 0.0)
-          res = true;
-      }
-      else
-      {
-        if(x[2] == 0.0)
-          res = true;
-      }
+      res = std::abs(x[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
     }
   }
 
@@ -377,7 +344,7 @@ bool LaueOps::InsideDihedralFZ(const RodriguesDType& rod, const AxisOrderingType
   bool res = false;
   bool c1 = false;
 
-  if(rod[3] > LPs::rtt) // sqrt(3.0)
+  if(rod[3] > LPs::rtt + eps) // sqrt(3.0), including the 222 FZ corners.
   {
     return false;
   }
@@ -412,8 +379,8 @@ bool LaueOps::InsideDihedralFZ(const RodriguesDType& rod, const AxisOrderingType
       break;
 
     case AxisOrderingType::FourFold:
-      c2 = (std::fabs(r[0]) <= r1) && (std::fabs(r[1]) <= r1);
-      c2 &= (LPs::r22 * std::fabs(r[0] + r[1]) <= r1) && (LPs::r22 * std::fabs(r[0] - r[1]) <= r1);
+      c2 = (std::fabs(r[0]) <= r1 + eps) && (std::fabs(r[1]) <= r1 + eps);
+      c2 &= (LPs::r22 * std::fabs(r[0] + r[1]) <= r1 + eps) && (LPs::r22 * std::fabs(r[0] - r[1]) <= r1 + eps);
       break;
 
     case AxisOrderingType::SixFold:
@@ -511,7 +478,19 @@ bool LaueOps::IsInsideFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingT
 
 bool LaueOps::IsInsideFZ(const QuatD& quat, FZType fzType, AxisOrderingType order)
 {
-  const RodriguesDType rod = QuaternionDType(quat.getPositiveOrientation()).toRodrigues();
+  const QuatD positiveQuat = quat.getPositiveOrientation();
+  if(fzType == FZType::Cyclic)
+  {
+    // Preserve finite near-half-turns: Quaternion::toRodrigues clamps w < 1e-8 to infinity.
+    const double sine = std::hypot(positiveQuat.x(), positiveQuat.y(), positiveQuat.z());
+    if(sine == 0.0)
+    {
+      return true;
+    }
+    const double length = positiveQuat.w() == 0.0 ? std::numeric_limits<double>::infinity() : sine / positiveQuat.w();
+    return InsideCyclicFZ({positiveQuat.x() / sine, positiveQuat.y() / sine, positiveQuat.z() / sine, length}, fzType, order);
+  }
+  const RodriguesDType rod = QuaternionDType(positiveQuat).toRodrigues();
   return IsInsideFZ(rod, fzType, order);
 }
 
@@ -633,7 +612,8 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   QuatD normalizedQuat = qr.normalize().getPositiveOrientation();
   RodriguesDType rod = normalizedQuat.toRodrigues();
 
-  if(std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
+  // Cyclic slabs are unbounded: near-half-turn basal-axis images have radial margin despite boundary ties; searching <= 6 operators is cheap.
+  if(fzType != FZType::Cyclic && std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
   {
     rod[3] *= 1.0 + 1.0e-6;
     if(IsInsideFZ(rod, fzType, order))
@@ -648,7 +628,7 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   for(const QuatD& symmetry : quatsym)
   {
     normalizedQuat = (symmetry * qr).normalize().getPositiveOrientation();
-    if(!IsInsideFZ(normalizedQuat.toRodrigues(), fzType, order))
+    if(!IsInsideFZ(normalizedQuat, fzType, order))
     {
       continue;
     }

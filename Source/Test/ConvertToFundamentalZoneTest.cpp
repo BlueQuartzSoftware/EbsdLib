@@ -107,20 +107,41 @@ TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::CubicBoundaryUnique", "[EbsdLi
 TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
 {
   std::vector<QuatD> orientations = {{0.0, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.6, 0.8, 0.0, 0.0}, {0.0, 0.6, 0.8, 0.0}};
+  // Oracle harness failures: roundoff-bearing half-turns and a cubic image of 45 degrees - 1e-12 about [001].
+  orientations.emplace_back(0.86602540378443871, 0.50000000000000011, 3.0616169978683836e-17, 5.3028761936245346e-17);
+  orientations.emplace_back(0.70710678118654757, 5.5511151231257839e-17, 0.70710678118654757, 5.5511151231257839e-17);
+  orientations.emplace_back(0.65328148243805306, 0.27059805007342524, 0.65328148243805306, 0.27059805007342524);
+  const double faceDiagonal = 1.0 / std::sqrt(2.0);
   const double diagonal = 1.0 / std::sqrt(3.0);
-  const std::array<std::array<double, 4>, 5> axisAngles = {{{0.0, 0.0, 1.0, std::numbers::pi / 4.0},
-                                                            {diagonal, diagonal, diagonal, std::numbers::pi / 3.0},
-                                                            {0.0, 0.0, 1.0, std::numbers::pi / 6.0},
-                                                            {1.0, 0.0, 0.0, std::numbers::pi / 2.0},
-                                                            {diagonal, diagonal, diagonal, std::numbers::pi}}};
+  const std::array<std::array<double, 4>, 10> axisAngles = {{{0.0, 0.0, 1.0, std::numbers::pi / 4.0},
+                                                             {diagonal, diagonal, diagonal, std::numbers::pi / 3.0},
+                                                             {0.0, 0.0, 1.0, std::numbers::pi / 6.0},
+                                                             {1.0, 0.0, 0.0, std::numbers::pi / 2.0},
+                                                             {0.0, 0.0, 1.0, std::numbers::pi / 2.0},
+                                                             {diagonal, diagonal, diagonal, std::numbers::pi},
+                                                             {1.0, 0.0, 0.0, std::numbers::pi},
+                                                             {faceDiagonal, faceDiagonal, 0.0, std::numbers::pi},
+                                                             {faceDiagonal, 0.0, faceDiagonal, std::numbers::pi},
+                                                             {diagonal, diagonal, diagonal, 2.0 * std::numbers::pi / 3.0}}};
   for(const auto& axisAngle : axisAngles)
   {
-    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-9, 1.0e-9})
+    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
     {
       const double halfAngle = (axisAngle[3] + offset) / 2.0;
       const double sine = std::sin(halfAngle);
       orientations.emplace_back(axisAngle[0] * sine, axisAngle[1] * sine, axisAngle[2] * sine, std::cos(halfAngle));
     }
+  }
+
+  // Cross-class symmetry images retain small scalar and axis components near half-turns.
+  for(const double offset : {-1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
+  {
+    const double quarterTurn = (std::numbers::pi / 2.0 + offset) / 2.0;
+    orientations.push_back(QuatD(0.5, 0.5, 0.5, 0.5) * QuatD(0.0, 0.0, std::sin(quarterTurn), std::cos(quarterTurn)));
+    const double halfTurn = (std::numbers::pi + offset) / 2.0;
+    const QuatD hexagonalSymmetry(0.0, 0.0, 0.5, std::sqrt(3.0) / 2.0);
+    orientations.push_back(hexagonalSymmetry * QuatD(std::sin(halfTurn), 0.0, 0.0, std::cos(halfTurn)));
+    orientations.push_back(hexagonalSymmetry * QuatD(faceDiagonal * std::sin(halfTurn), faceDiagonal * std::sin(halfTurn), 0.0, std::cos(halfTurn)));
   }
 
   std::mt19937_64 generator(0x63F2);
@@ -153,6 +174,7 @@ TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLi
         for(const QuatD& input : {image, -image})
         {
           const QuatD actual = ops->getFZQuat(input);
+          REQUIRE(std::isfinite(actual.length()));
           CHECK(std::min((actual - expected).length(), (actual + expected).length()) < 1.0e-9);
           CHECK(LaueOps::IsInsideFZ(actual, ops->getFZType(), ops->getAxisOrderingType()));
         }
