@@ -35,6 +35,7 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
@@ -44,7 +45,11 @@
 
 #include <Eigen/Core>
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
+#include <numbers>
+#include <random>
 
 using namespace ebsdlib;
 
@@ -77,6 +82,84 @@ static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
 {
   const float length = sqrt(rod[0] * rod[0] + rod[1] * rod[1] + rod[2] * rod[2]);
   return {rod[0] / length, rod[1] / length, rod[2] / length, length};
+}
+
+TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::CubicBoundaryUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
+{
+  const auto ops = CubicOps::New();
+  const double halfAngle = std::numbers::pi / 8.0;
+  const QuatD positive(0.0, 0.0, std::sin(halfAngle), std::cos(halfAngle));
+  const QuatD negative(0.0, 0.0, -std::sin(halfAngle), std::cos(halfAngle));
+
+  bool equivalent = false;
+  for(size_t symIdx = 0; symIdx < ops->getNumSymOps(); ++symIdx)
+  {
+    const QuatD image = (ops->getQuatSymOp(symIdx) * positive).normalize();
+    equivalent |= std::min((image - negative).length(), (image + negative).length()) < 1.0e-12;
+  }
+  REQUIRE(equivalent);
+
+  const QuatD a = ops->getFZQuat(positive);
+  const QuatD b = ops->getFZQuat(negative);
+  CHECK(std::min((a - b).length(), (a + b).length()) < 1.0e-12);
+}
+
+TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
+{
+  std::vector<QuatD> orientations = {{0.0, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.6, 0.8, 0.0, 0.0}, {0.0, 0.6, 0.8, 0.0}};
+  const double diagonal = 1.0 / std::sqrt(3.0);
+  const std::array<std::array<double, 4>, 5> axisAngles = {{{0.0, 0.0, 1.0, std::numbers::pi / 4.0},
+                                                            {diagonal, diagonal, diagonal, std::numbers::pi / 3.0},
+                                                            {0.0, 0.0, 1.0, std::numbers::pi / 6.0},
+                                                            {1.0, 0.0, 0.0, std::numbers::pi / 2.0},
+                                                            {diagonal, diagonal, diagonal, std::numbers::pi}}};
+  for(const auto& axisAngle : axisAngles)
+  {
+    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-9, 1.0e-9})
+    {
+      const double halfAngle = (axisAngle[3] + offset) / 2.0;
+      const double sine = std::sin(halfAngle);
+      orientations.emplace_back(axisAngle[0] * sine, axisAngle[1] * sine, axisAngle[2] * sine, std::cos(halfAngle));
+    }
+  }
+
+  std::mt19937_64 generator(0x63F2);
+  std::normal_distribution<double> distribution(0.0, 1.0);
+  for(size_t i = 0; i < 128; ++i)
+  {
+    const double x = distribution(generator);
+    const double y = distribution(generator);
+    const double z = distribution(generator);
+    const double w = distribution(generator);
+    orientations.push_back(QuatD(x, y, z, w).normalize());
+  }
+
+  for(const auto& ops : LaueOps::GetAllOrientationOps())
+  {
+    INFO("Laue class: " << ops->getSymmetryName());
+    for(size_t orientationIdx = 0; orientationIdx < orientations.size(); ++orientationIdx)
+    {
+      CAPTURE(orientationIdx);
+      const QuatD q = orientations[orientationIdx];
+      const QuatD expected = ops->getFZQuat(q);
+      REQUIRE(std::isfinite(expected.length()));
+      CHECK(LaueOps::IsInsideFZ(expected, ops->getFZType(), ops->getAxisOrderingType()));
+      double orbitDistance = std::numeric_limits<double>::infinity();
+      for(size_t symIdx = 0; symIdx < ops->getNumSymOps(); ++symIdx)
+      {
+        CAPTURE(symIdx);
+        const QuatD image = (ops->getQuatSymOp(symIdx) * q).normalize();
+        orbitDistance = std::min({orbitDistance, (image - expected).length(), (image + expected).length()});
+        for(const QuatD& input : {image, -image})
+        {
+          const QuatD actual = ops->getFZQuat(input);
+          CHECK(std::min((actual - expected).length(), (actual + expected).length()) < 1.0e-9);
+          CHECK(LaueOps::IsInsideFZ(actual, ops->getFZType(), ops->getAxisOrderingType()));
+        }
+      }
+      CHECK(orbitDistance < 1.0e-9);
+    }
+  }
 }
 
 TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest", "[EbsdLib][ConvertToFundamentalZoneTest]")

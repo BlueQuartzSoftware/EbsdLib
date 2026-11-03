@@ -297,6 +297,7 @@ void LaueOps::RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod)
 // -----------------------------------------------------------------------------
 bool LaueOps::InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingType order)
 {
+  constexpr double eps = 1.0e-10; // Include boundary points despite quaternion-to-Rodrigues roundoff.
   bool res = false;
   bool doM = false;
 
@@ -314,23 +315,23 @@ bool LaueOps::InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrder
       if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
       {
         // Check y-component vs tan(pi/2n)
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
+        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
       }
       else
       {
         // Check z-component vs tan(pi/2n)
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
+        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
       }
     }
     else
     {
       if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
       {
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
+        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
       }
       else
       {
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
+        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex] + eps;
       }
     }
   }
@@ -624,28 +625,65 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
   return out;
 }
 
+// Interior points are unique; on a boundary choose the largest (w, x, y, z)
+// symmetry image, ignoring roundoff and fixing the sign of half-turns.
 QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order)
 {
   // Ensure the Quaternion is Normalized and the Scalar Part is positive
   QuatD normalizedQuat = qr.normalize().getPositiveOrientation();
   RodriguesDType rod = normalizedQuat.toRodrigues();
 
-  if(IsInsideFZ(rod, fzType, order))
+  if(std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
   {
-    return normalizedQuat;
-  }
-
-  size_t numsym = quatsym.size();
-  for(size_t i = 0; i < numsym; i++)
-  {
-    QuatD qc = (quatsym[i] * qr).normalize();
-    normalizedQuat = qc.getPositiveOrientation();
-    rod = normalizedQuat.toRodrigues();
-
-    if(normalizedQuat.w() < 1.0E5 && IsInsideFZ(rod, fzType, order))
+    rod[3] *= 1.0 + 1.0e-6;
+    if(IsInsideFZ(rod, fzType, order))
     {
       return normalizedQuat;
     }
+  }
+
+  constexpr double tolerance = 1.0e-10;
+  QuatD bestQuat;
+  bool found = false;
+  for(const QuatD& symmetry : quatsym)
+  {
+    normalizedQuat = (symmetry * qr).normalize().getPositiveOrientation();
+    if(!IsInsideFZ(normalizedQuat.toRodrigues(), fzType, order))
+    {
+      continue;
+    }
+    if(std::abs(normalizedQuat.w()) < tolerance)
+    {
+      for(size_t component = 0; component < 3; ++component)
+      {
+        if(std::abs(normalizedQuat[component]) > tolerance)
+        {
+          if(normalizedQuat[component] < 0.0)
+          {
+            normalizedQuat.negate();
+          }
+          break;
+        }
+      }
+    }
+    bool preferCandidate = !found;
+    for(const size_t component : std::array<size_t, 4>{3, 0, 1, 2})
+    {
+      if(!found || std::abs(normalizedQuat[component] - bestQuat[component]) > tolerance)
+      {
+        preferCandidate = !found || normalizedQuat[component] > bestQuat[component];
+        break;
+      }
+    }
+    if(preferCandidate)
+    {
+      bestQuat = normalizedQuat;
+      found = true;
+    }
+  }
+  if(found)
+  {
+    return bestQuat;
   }
   // This should never happen, so I guess returning a Quaternion with all Infinity values is _a_ way to do it?
   // Maybe we should throw an exception instead? Or return a std::optional() if we were using C++17
