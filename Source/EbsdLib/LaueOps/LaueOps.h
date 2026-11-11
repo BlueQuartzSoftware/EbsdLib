@@ -34,14 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <array>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <canvas_ity.hpp>
-
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
@@ -57,10 +49,18 @@
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 
+#include <canvas_ity.hpp>
+
+#include <array>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 namespace ebsdlib
 {
 /*
- * @class LaueOps LaueOps.h OrientationLib/LaueOps/LaueOps.h
+ * @class LaueOps
  * @brief
  */
 class EbsdLib_EXPORT LaueOps
@@ -92,11 +92,26 @@ public:
   static std::vector<LaueOps::Pointer> GetAllOrientationOps();
 
   /**
-   * @brief GetOrientationOpsFromSpaceGroupNumber
-   * @param sgNumber
-   * @return
+   * @brief Maps a space-group number to its Laue-class crystal structure.
+   * @param sgNumber Space-group number in the range 1 through 230.
+   * @return The ebsdlib::CrystalStructure constant, or UnknownCrystalStructure for 0 or values above 230.
+   * For valid space-group numbers, the value is also the index into GetAllOrientationOps().
+   * @note International Tables for Crystallography, Volume A: Space-group symmetry, defines the Laue-class ranges.
+   * The ranges are 1-2 (triclinic), 3-15 (monoclinic), and 16-74 (orthorhombic).
+   * The tetragonal ranges are 75-88 (low) and 89-142 (high).
+   * The trigonal ranges are 143-148 (low) and 149-167 (high).
+   * The hexagonal ranges are 168-176 (low) and 177-194 (high).
+   * The cubic ranges are 195-206 (low) and 207-230 (high).
    */
-  static Pointer GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber);
+  static uint32_t GetLaueOpsIndexFromSpaceGroupNumber(size_t sgNumber);
+
+  /**
+   * @brief Returns orientation operations for the Laue class of a space group.
+   * @param sgNumber Space-group number in the range 1 through 230.
+   * @return Orientation operations, or NullPointer() for 0 or values above 230.
+   * @see GetLaueOpsIndexFromSpaceGroupNumber
+   */
+  static Pointer GetLaueOpsFromSpaceGroupNumber(size_t sgNumber);
 
   /**
    * @brief GetLaueNames Returns the names of the Laue Classes

@@ -35,6 +35,8 @@
 
 #include "CtfPhase.h"
 
+#include "EbsdLib/IO/HKL/CtfConstants.h"
+
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
@@ -112,7 +114,8 @@ void CtfPhase::printSelf(std::ostream& stream)
          << m_LatticeConstants[4] << ", " << m_LatticeConstants[5] << std::endl;
   stream << ebsdlib::Ctf::PhaseName << " " << m_PhaseName << std::endl;
   stream << ebsdlib::Ctf::LaueGroup << " " << m_LaueGroup << std::endl;
-  stream << ebsdlib::Ctf::SpaceGroup << " " << m_SpaceGroup << "  " << LaueOps::GetOrientationOpsFromSpaceGroupNumber(m_SpaceGroup)->getSymmetryName() << std::endl;
+  const auto ops = LaueOps::GetLaueOpsFromSpaceGroupNumber(m_SpaceGroup);
+  stream << ebsdlib::Ctf::SpaceGroup << " " << m_SpaceGroup << "  " << (ops != nullptr ? ops->getSymmetryName() : "Unknown") << '\n';
   stream << ebsdlib::Ctf::Internal1 << " " << m_Internal1 << std::endl;
   stream << ebsdlib::Ctf::Internal2 << " " << m_Internal2 << std::endl;
   stream << ebsdlib::Ctf::Comment << " " << m_Comment << std::endl;
