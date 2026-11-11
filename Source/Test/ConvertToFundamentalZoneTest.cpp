@@ -107,7 +107,9 @@ TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::CubicBoundaryUnique", "[EbsdLi
 TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
 {
   std::vector<QuatD> orientations = {{0.0, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.6, 0.8, 0.0, 0.0}, {0.0, 0.6, 0.8, 0.0}};
-  // Oracle harness failures: roundoff-bearing half-turns and a cubic image of 45 degrees - 1e-12 about [001].
+  // A half-turn with a small positive w. The sign fix must not make w negative.
+  orientations.emplace_back(-1.0, 0.0, 0.0, 5.0e-13);
+  // Inputs that failed the MTEX 6.1.0 comparison: half-turns with roundoff, and a cubic image of a rotation of 45 degrees - 1e-12 rad about [001].
   orientations.emplace_back(0.86602540378443871, 0.50000000000000011, 3.0616169978683836e-17, 5.3028761936245346e-17);
   orientations.emplace_back(0.70710678118654757, 5.5511151231257839e-17, 0.70710678118654757, 5.5511151231257839e-17);
   orientations.emplace_back(0.65328148243805306, 0.27059805007342524, 0.65328148243805306, 0.27059805007342524);
@@ -125,7 +127,7 @@ TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLi
                                                              {diagonal, diagonal, diagonal, 2.0 * std::numbers::pi / 3.0}}};
   for(const auto& axisAngle : axisAngles)
   {
-    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
+    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-10, 1.0e-10, -1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
     {
       const double halfAngle = (axisAngle[3] + offset) / 2.0;
       const double sine = std::sin(halfAngle);
@@ -165,20 +167,25 @@ TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLi
       const QuatD expected = ops->getFZQuat(q);
       REQUIRE(std::isfinite(expected.length()));
       CHECK(LaueOps::IsInsideFZ(expected, ops->getFZType(), ops->getAxisOrderingType()));
+      CHECK(expected.w() >= 0.0);
+      double maxAbsW = 0.0;
       double orbitDistance = std::numeric_limits<double>::infinity();
       for(size_t symIdx = 0; symIdx < ops->getNumSymOps(); ++symIdx)
       {
         CAPTURE(symIdx);
         const QuatD image = (ops->getQuatSymOp(symIdx) * q).normalize();
+        maxAbsW = std::max(maxAbsW, std::abs(image.w()));
         orbitDistance = std::min({orbitDistance, (image - expected).length(), (image + expected).length()});
         for(const QuatD& input : {image, -image})
         {
           const QuatD actual = ops->getFZQuat(input);
           REQUIRE(std::isfinite(actual.length()));
+          CHECK(actual.w() >= 0.0);
           CHECK(std::min((actual - expected).length(), (actual + expected).length()) < 1.0e-9);
           CHECK(LaueOps::IsInsideFZ(actual, ops->getFZType(), ops->getAxisOrderingType()));
         }
       }
+      CHECK(std::abs(expected.w()) >= maxAbsW - 1.0e-9);
       CHECK(orbitDistance < 1.0e-9);
     }
   }

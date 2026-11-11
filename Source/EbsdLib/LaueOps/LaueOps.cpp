@@ -298,42 +298,16 @@ void LaueOps::RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod)
 bool LaueOps::InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingType order)
 {
   constexpr double eps = 1.0e-10; // Include boundary points despite quaternion-to-Rodrigues roundoff.
-  bool res = false;
-  bool doM = false;
-
-  // if (M.has_value() && *M)
-  //   doM = true;
-
-  int32_t orderAsArrayIndex = to_underlying(order) - 1;
-  auto x = rod; // Make a copy of the input Rodrigues vector .r_copyd();
+  const int32_t orderAsArrayIndex = to_underlying(order) - 1;
 
   // Quaternion form avoids inf*0 and huge-length roundoff in the EMsoftOO insideCyclicFZ inequality.
-  const double c = std::isinf(x[3]) ? 0.0 : 1.0 / std::hypot(1.0, x[3]);
-  const double s = std::isinf(x[3]) ? 1.0 : x[3] * c;
-  if(doM)
+  const double c = std::isinf(rod[3]) ? 0.0 : 1.0 / std::hypot(1.0, rod[3]);
+  const double s = std::isinf(rod[3]) ? 1.0 : rod[3] * c;
+  if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
   {
-    if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-    {
-      res = std::abs(x[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
-    }
-    else
-    {
-      res = std::abs(x[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
-    }
+    return std::abs(rod[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
   }
-  else
-  {
-    if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-    {
-      res = std::abs(x[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
-    }
-    else
-    {
-      res = std::abs(x[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
-    }
-  }
-
-  return res;
+  return std::abs(rod[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
 }
 
 // -----------------------------------------------------------------------------
@@ -612,10 +586,20 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   QuatD normalizedQuat = qr.normalize().getPositiveOrientation();
   RodriguesDType rod = normalizedQuat.toRodrigues();
 
-  // Cyclic slabs are unbounded: near-half-turn basal-axis images have radial margin despite boundary ties; searching <= 6 operators is cheap.
-  if(fzType != FZType::Cyclic && std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
+  constexpr double interiorMargin = 1.0e-6;
+  // A cyclic FZ is an unbounded slab. Near-180° images about different basal axes are all inside it
+  // with radial margin, so the margin test cannot find the tie. Cyclic groups have at most 6 operators.
+  if(fzType == FZType::Cyclic)
   {
-    rod[3] *= 1.0 + 1.0e-6;
+    const double axisComponent = order == AxisOrderingType::TwoFold ? normalizedQuat.y() : normalizedQuat.z();
+    if(std::abs(axisComponent) * (1.0 + interiorMargin) <= LPs::BP[to_underlying(order) - 1] * normalizedQuat.w() && std::hypot(normalizedQuat.w(), axisComponent) > interiorMargin)
+    {
+      return normalizedQuat;
+    }
+  }
+  else if(std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
+  {
+    rod[3] *= 1.0 + interiorMargin;
     if(IsInsideFZ(rod, fzType, order))
     {
       return normalizedQuat;
@@ -623,47 +607,57 @@ QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, F
   }
 
   constexpr double tolerance = 1.0e-10;
-  QuatD bestQuat;
-  bool found = false;
+  constexpr size_t candidateCapacity = 24; // CubicOps has the largest symmetry group.
+  std::array<QuatD, candidateCapacity> candidates;
+  size_t candidateCount = 0;
+  if(quatsym.size() > candidateCapacity)
+  {
+    return {std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
+  }
   for(const QuatD& symmetry : quatsym)
   {
-    normalizedQuat = (symmetry * qr).normalize().getPositiveOrientation();
-    if(!IsInsideFZ(normalizedQuat, fzType, order))
-    {
-      continue;
-    }
-    if(std::abs(normalizedQuat.w()) < tolerance)
+    QuatD candidate = (symmetry * qr).normalize().getPositiveOrientation();
+    if(std::abs(candidate.w()) < tolerance)
     {
       for(size_t component = 0; component < 3; ++component)
       {
-        if(std::abs(normalizedQuat[component]) > tolerance)
+        if(std::abs(candidate[component]) > tolerance)
         {
-          if(normalizedQuat[component] < 0.0)
+          if(candidate[component] < 0.0)
           {
-            normalizedQuat.negate();
+            candidate.negate();
           }
           break;
         }
       }
+      candidate.w() = std::abs(candidate.w());
     }
-    bool preferCandidate = !found;
-    for(const size_t component : std::array<size_t, 4>{3, 0, 1, 2})
+    if(IsInsideFZ(candidate, fzType, order))
     {
-      if(!found || std::abs(normalizedQuat[component] - bestQuat[component]) > tolerance)
-      {
-        preferCandidate = !found || normalizedQuat[component] > bestQuat[component];
-        break;
-      }
-    }
-    if(preferCandidate)
-    {
-      bestQuat = normalizedQuat;
-      found = true;
+      candidates[candidateCount++] = candidate;
     }
   }
-  if(found)
+  if(candidateCount > 0)
   {
-    return bestQuat;
+    // Each component uses a fixed maximum so tolerance comparisons do not depend on scan order.
+    for(const size_t component : std::array<size_t, 4>{3, 0, 1, 2})
+    {
+      double componentMax = candidates[0][component];
+      for(size_t i = 1; i < candidateCount; ++i)
+      {
+        componentMax = std::max(componentMax, candidates[i][component]);
+      }
+      size_t survivorCount = 0;
+      for(size_t i = 0; i < candidateCount; ++i)
+      {
+        if(candidates[i][component] >= componentMax - tolerance)
+        {
+          candidates[survivorCount++] = candidates[i];
+        }
+      }
+      candidateCount = survivorCount;
+    }
+    return candidates[0];
   }
   // This should never happen, so I guess returning a Quaternion with all Infinity values is _a_ way to do it?
   // Maybe we should throw an exception instead? Or return a std::optional() if we were using C++17
