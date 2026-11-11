@@ -16,8 +16,13 @@
 #include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
+
+#include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -478,17 +483,44 @@ TEST_CASE("ebsdlib::LaueOpsTest::AxisOrderingTypeToString", "[EbsdLib][LaueOpsTe
 }
 
 // -----------------------------------------------------------------------------
-TEST_CASE("ebsdlib::LaueOpsTest::GetOrientationOpsFromSpaceGroupNumber", "[EbsdLib][LaueOpsTest]")
+TEST_CASE("ebsdlib::LaueOpsTest::SpaceGroupToLaueClass", "[EbsdLib][LaueOpsTest]")
 {
-  // Cubic high: space groups 221-230
-  auto cubicHighOps = LaueOps::GetOrientationOpsFromSpaceGroupNumber(225);
-  REQUIRE(cubicHighOps != nullptr);
-  CHECK(cubicHighOps->getNumSymOps() == 24);
-
-  // Hexagonal high: space groups 191-194
-  auto hexHighOps = LaueOps::GetOrientationOpsFromSpaceGroupNumber(194);
-  REQUIRE(hexHighOps != nullptr);
-  CHECK(hexHighOps->getNumSymOps() == 12);
+  // Independent oracle: International Tables for Crystallography, Vol. A, Laue-class ranges.
+  struct LaueRange
+  {
+    size_t First;
+    size_t Last;
+    uint32_t CrystalStructure;
+  };
+  const std::array<LaueRange, 11> ranges = {{{.First = 1, .Last = 2, .CrystalStructure = CrystalStructure::Triclinic},
+                                             {.First = 3, .Last = 15, .CrystalStructure = CrystalStructure::Monoclinic},
+                                             {.First = 16, .Last = 74, .CrystalStructure = CrystalStructure::OrthoRhombic},
+                                             {.First = 75, .Last = 88, .CrystalStructure = CrystalStructure::Tetragonal_Low},
+                                             {.First = 89, .Last = 142, .CrystalStructure = CrystalStructure::Tetragonal_High},
+                                             {.First = 143, .Last = 148, .CrystalStructure = CrystalStructure::Trigonal_Low},
+                                             {.First = 149, .Last = 167, .CrystalStructure = CrystalStructure::Trigonal_High},
+                                             {.First = 168, .Last = 176, .CrystalStructure = CrystalStructure::Hexagonal_Low},
+                                             {.First = 177, .Last = 194, .CrystalStructure = CrystalStructure::Hexagonal_High},
+                                             {.First = 195, .Last = 206, .CrystalStructure = CrystalStructure::Cubic_Low},
+                                             {.First = 207, .Last = 230, .CrystalStructure = CrystalStructure::Cubic_High}}};
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  for(const auto& range : ranges)
+  {
+    for(size_t sgNumber = range.First; sgNumber <= range.Last; ++sgNumber)
+    {
+      CAPTURE(range.First, range.Last, sgNumber, range.CrystalStructure);
+      CHECK(LaueOps::GetLaueOpsIndexFromSpaceGroupNumber(sgNumber) == range.CrystalStructure);
+      const auto ops = LaueOps::GetLaueOpsFromSpaceGroupNumber(sgNumber);
+      REQUIRE(ops != nullptr);
+      CHECK(ops->getNameOfClass() == allOps[range.CrystalStructure]->getNameOfClass());
+    }
+  }
+  for(const size_t sgNumber : {size_t{0}, size_t{231}, std::numeric_limits<size_t>::max()})
+  {
+    CAPTURE(sgNumber);
+    CHECK(LaueOps::GetLaueOpsIndexFromSpaceGroupNumber(sgNumber) == CrystalStructure::UnknownCrystalStructure);
+    CHECK(LaueOps::GetLaueOpsFromSpaceGroupNumber(sgNumber) == nullptr);
+  }
 }
 
 // -----------------------------------------------------------------------------

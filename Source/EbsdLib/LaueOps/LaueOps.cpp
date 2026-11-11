@@ -58,6 +58,7 @@
 
 #include <algorithm> // for std::max
 #include <chrono>
+#include <cstdint>
 #include <exception>
 #include <iomanip>
 #include <limits>
@@ -751,17 +752,14 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 }
 
 // -----------------------------------------------------------------------------
-LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgNumber)
+uint32_t LaueOps::GetLaueOpsIndexFromSpaceGroupNumber(const size_t sgNumber)
 {
-  // There are only 230 Space Groups, so if the user asks for something outside of
-  // that range, then return a null pointer. If they are asking for this kind of
-  // value then there is something wrong in the calling code.
-  if(sgNumber > 230)
+  if(sgNumber == 0 || sgNumber > 230)
   {
-    return LaueOps::NullPointer();
+    return CrystalStructure::UnknownCrystalStructure;
   }
-  std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
-  std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
+  constexpr std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
+  constexpr std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
 
   size_t pgNumber = sgpg.size() - 1;
   size_t i = 0;
@@ -769,40 +767,49 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgN
   {
     if(sgpg[i] > sgNumber)
     {
-      pgNumber = i;
+      pgNumber = i - 1;
       break;
     }
   }
 
-  // std::cout << "Space Group: " << sgNumber << "   sgpg: " << i << "   sgpg[i]: " << sgpg[i] << "   pgNumber: " << pgNumber << "  pgLaue[pgNumber]: " << pgLaue[pgNumber] << std::endl;
-
   switch(pgLaue.at(pgNumber))
   {
   case 1:
-    return TriclinicOps::New();
+    return CrystalStructure::Triclinic;
   case 2:
-    return MonoclinicOps::New();
+    return CrystalStructure::Monoclinic;
   case 22:
-    return OrthoRhombicOps::New();
+    return CrystalStructure::OrthoRhombic;
   case 4:
-    return TetragonalLowOps::New();
+    return CrystalStructure::Tetragonal_Low;
   case 42:
-    return TetragonalOps::New();
+    return CrystalStructure::Tetragonal_High;
   case 3:
-    return TrigonalLowOps::New();
+    return CrystalStructure::Trigonal_Low;
   case 32:
-    return TrigonalOps::New();
+    return CrystalStructure::Trigonal_High;
   case 6:
-    return HexagonalLowOps::New();
+    return CrystalStructure::Hexagonal_Low;
   case 62:
-    return HexagonalOps::New();
+    return CrystalStructure::Hexagonal_High;
   case 23:
-    return CubicLowOps::New();
+    return CrystalStructure::Cubic_Low;
   case 43:
-    return CubicOps::New();
+    return CrystalStructure::Cubic_High;
   default:
+    return CrystalStructure::UnknownCrystalStructure;
+  }
+}
+
+// -----------------------------------------------------------------------------
+LaueOps::Pointer LaueOps::GetLaueOpsFromSpaceGroupNumber(const size_t sgNumber)
+{
+  const uint32_t crystalStructure = GetLaueOpsIndexFromSpaceGroupNumber(sgNumber);
+  if(crystalStructure == CrystalStructure::UnknownCrystalStructure)
+  {
     return LaueOps::NullPointer();
   }
+  return GetAllOrientationOps()[crystalStructure];
 }
 
 // -----------------------------------------------------------------------------
