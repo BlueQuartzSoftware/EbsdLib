@@ -1,11 +1,18 @@
-#include <catch2/catch.hpp>
-
-#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
+#include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PngWriter.h"
 
+#include <canvas_ity.hpp>
+#include <catch2/catch.hpp>
+
+#include <array>
+#include <barrier>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace ebsdlib;
@@ -280,4 +287,66 @@ TEST_CASE("ebsdlib::CanvasUtilitiesTest::MirrorImageVisualExport", "[.][MirrorVi
   REQUIRE(bottomLeft[0] == 255); // white marker now bottom-left
   REQUIRE(bottomLeft[1] == 255);
   REQUIRE(bottomLeft[2] == 255);
+}
+
+// Each CTest case runs in a fresh process, so this exercises first initialization.
+// This test checks one shared instance with identical bytes. Detection of the original race requires ThreadSanitizer.
+TEST_CASE("ebsdlib::CanvasUtilitiesTest::ConcurrentFontInitialization", "[EbsdLib][Fonts]")
+{
+  constexpr size_t threadCount = 8;
+  using GetterType = const std::vector<unsigned char>& (*)();
+  const std::array<GetterType, 3> getters = {fonts::GetFiraSansRegular, fonts::GetLatoRegular, fonts::GetLatoBold};
+  std::array<std::array<const std::vector<unsigned char>*, 3>, threadCount> addresses{};
+  std::array<std::array<std::vector<unsigned char>, 3>, threadCount> snapshots{};
+  std::array<std::thread, threadCount> workers;
+  std::barrier start(static_cast<std::ptrdiff_t>(threadCount));
+  for(size_t i = 0; i < threadCount; ++i)
+  {
+    workers.at(i) = std::thread([&, i] {
+      for(size_t font = 0; font < getters.size(); ++font)
+      {
+        start.arrive_and_wait();
+        const auto& bytes = getters.at(font)();
+        addresses.at(i).at(font) = &bytes;
+        snapshots.at(i).at(font) = bytes;
+      }
+    });
+  }
+  for(auto& worker : workers)
+  {
+    worker.join();
+  }
+  for(size_t font = 0; font < getters.size(); ++font)
+  {
+    REQUIRE_FALSE(snapshots.at(0).at(font).empty());
+    for(size_t i = 0; i < threadCount; ++i)
+    {
+      REQUIRE((addresses.at(i).at(font) == &getters.at(font)()));
+      REQUIRE((snapshots.at(i).at(font) == getters.at(font)()));
+    }
+  }
+}
+
+TEST_CASE("ebsdlib::CanvasUtilitiesTest::EmbeddedFontLoading", "[EbsdLib][Fonts]")
+{
+  using GetterType = const std::vector<unsigned char>& (*)();
+  const std::array<GetterType, 3> getters = {fonts::GetFiraSansRegular, fonts::GetLatoRegular, fonts::GetLatoBold};
+  for(const auto getterPtr : getters)
+  {
+    const auto& data = getterPtr();
+    REQUIRE_FALSE(data.empty());
+    canvas_ity::canvas context(1, 1);
+    REQUIRE(context.set_font(data.data(), static_cast<int>(data.size()), 16.0f));
+    REQUIRE((context.measure_text("X") > 0.0f));
+    REQUIRE(fonts::SetFont(context, data, 16.0f));
+    REQUIRE((context.measure_text("X") > 0.0f));
+  }
+  canvas_ity::canvas loadedContext(1, 1);
+  REQUIRE(fonts::SetFont(loadedContext, fonts::GetLatoRegular(), 16.0f));
+  REQUIRE_FALSE(fonts::SetFont(loadedContext, {}, 16.0f));
+
+  canvas_ity::canvas context(1, 1);
+  const std::vector<unsigned char> invalid = {0, 1, 2};
+  REQUIRE_FALSE(fonts::SetFont(context, invalid, 16.0f));
+  REQUIRE_FALSE(fonts::SetFont(context, {}, 16.0f));
 }

@@ -35,8 +35,8 @@
 
 #include "LaueOps.h"
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -48,22 +48,40 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+#include "EbsdLib/Math/Matrix3X3.hpp"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Euler.hpp"
+#include "EbsdLib/Orientation/Homochoric.hpp"
+#include "EbsdLib/Orientation/OrientationMatrix.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/IColorKey.hpp"
+#include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
 
 #include <canvas_ity.hpp>
 
 #include <algorithm> // for std::max
+#include <array>
 #include <chrono>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
+#include <cstdlib>
 #include <iomanip>
+#include <ios>
 #include <limits>
 #include <random>
 #include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 /**
 | Index | Verified | Class           | Rotation Point Group | Num Sym Ops |
@@ -1009,9 +1027,9 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
   // Create canvas
   canvas_ity::canvas context(canvasDim, canvasDim);
 
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
 
@@ -1030,7 +1048,7 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
                      static_cast<float>(legendHeight));
 
   // Draw title at the large font.
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize * 1.5F);
   ebsdlib::WriteText(context, title, {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
   // Hex/trig basis convention on a small sub-line just under the title (smaller
@@ -1048,12 +1066,12 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
   if(!convLine.empty())
   {
     const float subFontSize = fontPtSize * 0.7F;
-    context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), subFontSize);
+    ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, subFontSize);
     ebsdlib::WriteText(context, convLine, {margins[0], static_cast<float>(fontPtSize * 2.6F)}, static_cast<int>(subFontSize));
   }
 
   // Draw per-subclass annotations (Miller indices, SST boundary lines)
-  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize);
   drawIPFAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane, conv);
 
   // Extract rendered pixels and remove alpha channel
@@ -1142,8 +1160,8 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int
   context.stroke();
 
   // Draw min/max labels
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize * 0.8f);
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize * 0.8f);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
 
   // Format min/max values
@@ -1158,8 +1176,8 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int
 
   // Draw MRD or counts label
   std::string unitLabel = isMRD ? "MRD" : "Counts";
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 0.7f);
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize * 0.7f);
   ebsdlib::WriteText(context, unitLabel, {barLeft, barTop - fontPtSize * 0.5f}, fontPtSize * 0.7f);
 
   // Extract and remove alpha
