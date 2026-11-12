@@ -356,6 +356,28 @@ int AngReader::readFile()
     setErrorMessage("No phase was parsed in the header portion of the file. This possibly means that part of the header is missing.");
     return -150;
   }
+  if(getGrid().find(ebsdlib::Ang::SquareGrid) == 0)
+  {
+    const int oddCols = getNumOddCols();
+    const int evenCols = getNumEvenCols();
+    if(oddCols > 0 && evenCols > 0 && oddCols != evenCols)
+    {
+      setErrorCode(-120);
+      setErrorMessage("Ang file '" + getFileName() + "' has NCOLS_ODD=" + std::to_string(oddCols) + " and NCOLS_EVEN=" + std::to_string(evenCols) +
+                      ". A square grid needs equal NCOLS_ODD and NCOLS_EVEN. Correct the column counts in the header.");
+      return -120;
+    }
+    const int cols = oddCols > 0 ? oddCols : evenCols;
+    if(cols <= 0)
+    {
+      setErrorCode(-130);
+      setErrorMessage("Ang file '" + getFileName() + "' has NCOLS_ODD=" + std::to_string(oddCols) + " and NCOLS_EVEN=" + std::to_string(evenCols) +
+                      ". A square grid needs a positive column count. Set NCOLS_ODD or NCOLS_EVEN to the number of columns.");
+      return -130;
+    }
+    setNumOddCols(cols);
+    setNumEvenCols(cols);
+  }
   // We need to pass in the buffer because it has the first line of data
   readData(in, buf);
   if(getErrorCode() < 0)

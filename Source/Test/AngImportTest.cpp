@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -181,4 +182,80 @@ TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderGrid", "[EbsdLib][AngImportTest]
     }
   }
   REQUIRE(misplaced == 0);
+}
+
+namespace
+{
+void checkSquareGridColumns(const std::string& name, const std::string& columns, int expectedError)
+{
+  const auto path = std::filesystem::path(ebsdlib::unit_test::k_TestTempDir) / (name + ".ang");
+  std::ofstream out(path);
+  REQUIRE(out.is_open());
+  out << "# Phase 1\n# MaterialName Nickel\n# Symmetry 43\n# LatticeConstants 3.52 3.52 3.52 90 90 90\n"
+      << "# GRID: SqrGrid\n# XSTEP: 1\n# YSTEP: 1\n# NROWS: 2\n"
+      << columns;
+  for(int i = 0; i < 6; ++i)
+  {
+    out << i + 1 << " 0 0 " << i % 3 << " " << i / 3 << " 100 1 1 0 0\n";
+  }
+  out.close();
+  REQUIRE(out.good());
+
+  AngReader reader;
+  reader.setFileName(path.string());
+  const int error = reader.readFile();
+  INFO(reader.getErrorMessage());
+  REQUIRE(error == expectedError);
+  REQUIRE(reader.getErrorCode() == expectedError);
+  if(expectedError < 0)
+  {
+    REQUIRE(reader.getErrorMessage().find(path.string()) != std::string::npos);
+    if(expectedError == -120)
+    {
+      REQUIRE(reader.getErrorMessage().find("NCOLS_ODD=3") != std::string::npos);
+      REQUIRE(reader.getErrorMessage().find("NCOLS_EVEN=2") != std::string::npos);
+    }
+    else
+    {
+      REQUIRE(reader.getErrorMessage().find("NCOLS_ODD=0") != std::string::npos);
+      REQUIRE(reader.getErrorMessage().find("NCOLS_EVEN=0") != std::string::npos);
+    }
+    return;
+  }
+  REQUIRE(reader.getNumberOfElements() == 6);
+  REQUIRE(reader.getXDimension() == 3);
+  REQUIRE(reader.getNumOddCols() == 3);
+  REQUIRE(reader.getNumEvenCols() == 3);
+  const float* phi1Ptr = reader.getPhi1Pointer();
+  REQUIRE(phi1Ptr != nullptr);
+  for(size_t i = 0; i < 6; ++i)
+  {
+    REQUIRE(phi1Ptr[i] == static_cast<float>(i + 1));
+  }
+}
+} // namespace
+
+TEST_CASE("ebsdlib::AngImportTest-SquareGridColumnsEvenOnly", "[EbsdLib][AngImportTest]")
+{
+  checkSquareGridColumns("SquareGridColumnsEvenOnly", "# NCOLS_EVEN: 3\n", 0);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-SquareGridColumnsOddOnly", "[EbsdLib][AngImportTest]")
+{
+  checkSquareGridColumns("SquareGridColumnsOddOnly", "# NCOLS_ODD: 3\n", 0);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-SquareGridColumnsMismatch", "[EbsdLib][AngImportTest]")
+{
+  checkSquareGridColumns("SquareGridColumnsMismatch", "# NCOLS_ODD: 3\n# NCOLS_EVEN: 2\n", -120);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-SquareGridColumnsNonpositive", "[EbsdLib][AngImportTest]")
+{
+  checkSquareGridColumns("SquareGridColumnsNonpositive", "# NCOLS_ODD: 0\n# NCOLS_EVEN: 0\n", -130);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-SquareGridColumnsEqual", "[EbsdLib][AngImportTest]")
+{
+  checkSquareGridColumns("SquareGridColumnsEqual", "# NCOLS_ODD: 3\n# NCOLS_EVEN: 3\n", 0);
 }
