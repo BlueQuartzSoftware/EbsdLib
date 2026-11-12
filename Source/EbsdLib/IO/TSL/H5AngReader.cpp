@@ -66,60 +66,65 @@ H5AngReader::~H5AngReader() = default;
 // -----------------------------------------------------------------------------
 int H5AngReader::readFile()
 {
-  int err = -1;
   if(m_HDF5Path.empty())
   {
-    std::cout << "H5AngReader Error: HDF5 Path is empty.";
-    return err;
+    setErrorCode(-90040);
+    setErrorMessage("Cannot read HDF5 path '" + m_HDF5Path + "' in file '" + getFileName() + "': the slice path is empty. Select a slice group.");
+    return getErrorCode();
   }
 
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::cout << "H5AngReader Error: Could not open HDF5 file '" << getFileName() << "'";
-    return err;
+    setErrorCode(-90041);
+    setErrorMessage("Cannot open file '" + getFileName() + "' to read HDF5 path '" + m_HDF5Path + "'. Check that the file exists and is readable.");
+    return getErrorCode();
   }
 
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::cout << "H5AngReader Error: Could not open path '" << m_HDF5Path << "'";
-    err = H5Utilities::closeFile(fileId);
-    return -1;
+    setErrorCode(-90042);
+    setErrorMessage("Cannot open HDF5 slice path '" + m_HDF5Path + "' in file '" + getFileName() + "'. Select a slice range present in the file.");
+    H5Utilities::closeFile(fileId);
+    return getErrorCode();
   }
 
-  // Read all the header information
-  err = readHeader(gid);
+  int err = readHeader(gid);
   if(err < 0)
   {
-    std::cout << "H5AngReader Error: could not read header";
-    err = H5Utilities::closeFile(fileId);
-    return err;
+    setErrorCode(-90043);
+    setErrorMessage("Cannot read the header at HDF5 path '" + m_HDF5Path + "' in file '" + getFileName() + "'. " + getErrorMessage());
+    H5Gclose(gid);
+    H5Utilities::closeFile(fileId);
+    return getErrorCode();
   }
 
-  // Read and transform data
   err = readData(gid);
   if(err < 0)
   {
-    std::cout << "H5AngReader Error: could not read data";
-    err = H5Utilities::closeFile(fileId);
-    return err;
+    setErrorCode(-90044);
+    setErrorMessage("Cannot read data at HDF5 path '" + m_HDF5Path + "' in file '" + getFileName() + "'. " + getErrorMessage());
+    H5Gclose(gid);
+    H5Utilities::closeFile(fileId);
+    return getErrorCode();
   }
 
   err = H5Gclose(gid);
   if(err < 0)
   {
-    std::cout << "H5AngReader Error: could not close group id ";
-    err = H5Utilities::closeFile(fileId);
-    return err;
+    setErrorCode(-90045);
+    setErrorMessage("Cannot close HDF5 path '" + m_HDF5Path + "' in file '" + getFileName() + "'.");
+    H5Utilities::closeFile(fileId);
+    return getErrorCode();
   }
 
   err = H5Utilities::closeFile(fileId);
   if(err < 0)
   {
-    std::cout << "H5AngReader Error: could not close file";
-    err = H5Utilities::closeFile(fileId);
-    return err;
+    setErrorCode(-90046);
+    setErrorMessage("Cannot close file '" + getFileName() + "' after reading HDF5 path '" + m_HDF5Path + "'.");
+    return getErrorCode();
   }
 
   return getErrorCode();

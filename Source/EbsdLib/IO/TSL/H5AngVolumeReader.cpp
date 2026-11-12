@@ -233,7 +233,7 @@ std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
   if(err < 0)
   {
     setErrorMessage(reader->getErrorMessage());
-    setErrorCode(reader->getErrorCode());
+    setErrorCode(reader->getErrorCode() < 0 ? reader->getErrorCode() : err);
     err = H5Gclose(gid);
     err = H5Utilities::closeFile(fileId);
     return m_Phases;
@@ -321,7 +321,7 @@ int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
     err = reader->readFile();
     if(err < 0)
     {
-      setErrorCode(reader->getErrorCode());
+      setErrorCode(reader->getErrorCode() < 0 ? reader->getErrorCode() : err);
       setErrorMessage(reader->getErrorMessage());
       return getErrorCode();
     }
