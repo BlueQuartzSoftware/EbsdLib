@@ -188,21 +188,19 @@ int H5EspritReader::sanityCheckForOpening()
 
   if(m_HDF5Path.empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: HDF5 Path is empty.";
     setErrorCode(-1);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
 
   if(getFileName().empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Input filepath is empty";
     setErrorCode(-387);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
   return err;
@@ -220,23 +218,21 @@ int H5EspritReader::readFile()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-2);
-    setErrorMessage(str);
-    return err;
+    setErrorMessage(ss.str());
+    return getErrorCode();
   }
 
   H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     setErrorCode(-90020);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -244,11 +240,10 @@ int H5EspritReader::readFile()
   hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open 'EBSD' Group";
     setErrorCode(-90007);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(ebsdGid);
@@ -257,9 +252,9 @@ int H5EspritReader::readFile()
   err = readHeader(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read header";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read header. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -267,9 +262,9 @@ int H5EspritReader::readFile()
   err = readData(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read data. Internal Error code " << getErrorCode() << " generated.";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read data. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -287,24 +282,22 @@ int H5EspritReader::readHeaderOnly()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-2);
-    setErrorMessage(str);
-    return err;
+    setErrorMessage(ss.str());
+    return getErrorCode();
   }
 
   H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     err = H5Utilities::closeFile(fileId);
     setErrorCode(-90020);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -312,11 +305,10 @@ int H5EspritReader::readHeaderOnly()
   hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open 'EBSD' Group";
     setErrorCode(-90007);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(ebsdGid);
@@ -325,9 +317,9 @@ int H5EspritReader::readHeaderOnly()
   err = readHeader(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read header";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read header. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -339,22 +331,20 @@ int H5EspritReader::readScanNames(std::list<std::string>& names)
 {
   if(getFileName().empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Input filepath is empty";
     setErrorCode(-387);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-20);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     names.clear();
     return getErrorCode();
   }

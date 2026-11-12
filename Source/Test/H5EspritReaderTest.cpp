@@ -309,3 +309,44 @@ TEST_CASE("ebsdlib::H5EspritReaderTest::ReportsInvalidBeamDatasets", "[EbsdLib][
   }
   std::filesystem::remove(outputPath);
 }
+
+TEST_CASE("ebsdlib::H5EspritReaderTest::MissingFileHasError", "[EbsdLib][H5EspritReaderTest]")
+{
+  const std::string filePath = (std::filesystem::temp_directory_path() / "ebsdlib-issue69-nonexistent" / "missing.h5").string();
+  REQUIRE_FALSE(std::filesystem::exists(filePath));
+  H5EspritReader::Pointer reader = H5EspritReader::New();
+  reader->setFileName(filePath);
+  reader->setHDF5Path("Scan 1");
+
+  SECTION("readHeaderOnly")
+  {
+    CHECK(reader->readHeaderOnly() < 0);
+  }
+  SECTION("readFile")
+  {
+    CHECK(reader->readFile() < 0);
+  }
+  CHECK(reader->getErrorCode() == -2);
+  CHECK_FALSE(reader->getErrorMessage().empty());
+  CHECK(reader->getErrorMessage().find(filePath) != std::string::npos);
+}
+
+TEST_CASE("ebsdlib::H5EspritReaderTest::MissingScanHasMessage", "[EbsdLib][H5EspritReaderTest]")
+{
+  const std::string scanPath = "Issue69_NonexistentScan";
+  H5EspritReader::Pointer reader = H5EspritReader::New();
+  reader->setFileName(ebsdlib::unit_test::H5EspritReaderTest::InputFile);
+  reader->setHDF5Path(scanPath);
+
+  SECTION("readHeaderOnly")
+  {
+    CHECK(reader->readHeaderOnly() < 0);
+  }
+  SECTION("readFile")
+  {
+    CHECK(reader->readFile() < 0);
+  }
+  CHECK(reader->getErrorCode() == -90020);
+  CHECK_FALSE(reader->getErrorMessage().empty());
+  CHECK(reader->getErrorMessage().find(scanPath) != std::string::npos);
+}

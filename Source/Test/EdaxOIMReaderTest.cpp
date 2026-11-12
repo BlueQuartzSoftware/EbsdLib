@@ -42,6 +42,7 @@
 #include "UnitTestSupport.hpp"
 
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -100,4 +101,24 @@ TEST_CASE("ebsdlib::EdaxOIMReaderTest::TestH5OIMReader", "[EbsdLib][EdaxOIMReade
     DREAM3D_REQUIRED(patternDims[0], ==, 60)
     DREAM3D_REQUIRED(patternDims[1], ==, 60)
   }
+}
+
+TEST_CASE("ebsdlib::EdaxOIMReaderTest::HeaderErrorHasMessage", "[EbsdLib][EdaxOIMReaderTest]")
+{
+  const std::string filePath = (std::filesystem::temp_directory_path() / "ebsdlib-issue69-nonexistent" / "missing.h5").string();
+  REQUIRE_FALSE(std::filesystem::exists(filePath));
+  H5OIMReader::Pointer reader = H5OIMReader::New();
+  reader->setFileName(filePath);
+  reader->setHDF5Path("Scan 1");
+
+  SECTION("readHeaderOnly")
+  {
+    CHECK(reader->readHeaderOnly() < 0);
+  }
+  SECTION("readFile")
+  {
+    CHECK(reader->readFile() < 0);
+  }
+  CHECK_FALSE(reader->getErrorMessage().empty());
+  CHECK(reader->getErrorMessage().find(filePath) != std::string::npos);
 }
