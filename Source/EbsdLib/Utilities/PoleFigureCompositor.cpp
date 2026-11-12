@@ -54,11 +54,13 @@ LayoutMetrics PoleFigureCompositor::computeLayoutMetrics(const CompositePoleFigu
   metrics.fontPtSize = imageHeight / 16.0f;
   metrics.margins = imageHeight / 32.0f;
 
-  // Measure "X" character width using a temporary canvas
+  // Measure the "X" character width. A 1x1 canvas is enough: the measured width depends only
+  // on the font and the font size. A canvas allocates 16 bytes for each pixel, so an
+  // imageDim x imageDim canvas would use about 1 GB at imageDim 8000.
   float xCharWidth = 0.0f;
   {
     std::vector<unsigned char> latoBold = fonts::GetLatoBold();
-    canvas_ity::canvas tempContext(config.imageDim, config.imageDim);
+    canvas_ity::canvas tempContext(1, 1);
     tempContext.set_font(latoBold.data(), static_cast<int>(latoBold.size()), metrics.fontPtSize);
     const std::array<char, 2> buf = {'X', 0};
     xCharWidth = tempContext.measure_text(buf.data());

@@ -341,6 +341,22 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Horizontal", "[EbsdL
 }
 
 // -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_FontAdvanceOracle", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  CompositePoleFigureConfiguration_t config;
+  config.imageDim = 128;
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+
+  const LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
+
+  // Embedded Lato Bold: X advance 1358, units per em 2000. At size 8, X width is 5.432.
+  // Width: 4 + 128 + 4 + 5.432 + 4. Height: 4 + 8 + (4 + 8 + 128 + 16 + 8).
+  REQUIRE(metrics.subCanvasWidth == Approx(145.432f).epsilon(0.0).margin(0.00002));
+  REQUIRE(metrics.pageWidth == 580);
+  REQUIRE(metrics.pageHeight == 176);
+}
+
+// -----------------------------------------------------------------------------
 TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Vertical", "[EbsdLib][PoleFigureCompositorTest]")
 {
   CompositePoleFigureConfiguration_t config;
