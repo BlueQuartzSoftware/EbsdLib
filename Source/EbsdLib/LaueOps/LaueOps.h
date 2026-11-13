@@ -34,14 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <array>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <canvas_ity.hpp>
-
 #include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/EbsdLib.h"
@@ -57,10 +49,20 @@
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 #include "EbsdLib/Utilities/TSLColorKey.hpp"
 
+#include <canvas_ity.hpp>
+
+#include <array>
+#include <atomic>
+#include <memory>
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
+
 namespace ebsdlib
 {
 /*
- * @class LaueOps LaueOps.h OrientationLib/LaueOps/LaueOps.h
+ * @class LaueOps
  * @brief
  */
 class EbsdLib_EXPORT LaueOps
@@ -92,11 +94,39 @@ public:
   static std::vector<LaueOps::Pointer> GetAllOrientationOps();
 
   /**
-   * @brief GetOrientationOpsFromSpaceGroupNumber
-   * @param sgNumber
-   * @return
+   * @brief Returns the orientation operations for a crystal-structure value, with a range check.
+   *
+   * Use this instead of indexing GetAllOrientationOps() with a value that was read from a file or returned by a
+   * phase's determineOrientationOpsIndex(): those values can be UnknownCrystalStructure (999) or any other
+   * out-of-range number, and indexing the vector with them reads out of bounds.
+   * @param crystalStructure One of the ebsdlib::CrystalStructure Laue-class constants, 0 through LaueGroupEnd - 1.
+   * @return The same LaueOps subclass as GetAllOrientationOps()[crystalStructure], or NullPointer() for
+   * LaueGroupEnd (11), UnknownCrystalStructure (999) and every other value outside that range.
+   * @note Each call creates one new object; it does not build the whole vector that GetAllOrientationOps() builds.
    */
-  static Pointer GetOrientationOpsFromSpaceGroupNumber(size_t sgNumber);
+  static Pointer GetOrientationOpsFromCrystalStructure(uint32_t crystalStructure);
+
+  /**
+   * @brief Maps a space-group number to its Laue-class crystal structure.
+   * @param sgNumber Space-group number in the range 1 through 230.
+   * @return The ebsdlib::CrystalStructure constant, or UnknownCrystalStructure for 0 or values above 230.
+   * For valid space-group numbers, the value is also the index into GetAllOrientationOps().
+   * @note International Tables for Crystallography, Volume A: Space-group symmetry, defines the Laue-class ranges.
+   * The ranges are 1-2 (triclinic), 3-15 (monoclinic), and 16-74 (orthorhombic).
+   * The tetragonal ranges are 75-88 (low) and 89-142 (high).
+   * The trigonal ranges are 143-148 (low) and 149-167 (high).
+   * The hexagonal ranges are 168-176 (low) and 177-194 (high).
+   * The cubic ranges are 195-206 (low) and 207-230 (high).
+   */
+  static uint32_t GetLaueOpsIndexFromSpaceGroupNumber(size_t sgNumber);
+
+  /**
+   * @brief Returns orientation operations for the Laue class of a space group.
+   * @param sgNumber Space-group number in the range 1 through 230.
+   * @return Orientation operations, or NullPointer() for 0 or values above 230.
+   * @see GetLaueOpsIndexFromSpaceGroupNumber
+   */
+  static Pointer GetLaueOpsFromSpaceGroupNumber(size_t sgNumber);
 
   /**
    * @brief GetLaueNames Returns the names of the Laue Classes
@@ -109,6 +139,35 @@ public:
    * @return
    */
   virtual size_t getODFSize() const = 0;
+
+  /**
+   * @brief Estimates the fraction of an ODF bin inside the homochoric ball.
+   * @param bin Linear ODF bin index.
+   * @return Fraction in [0, 1], or zero for an invalid index.
+   * @note Boundary bins use 216 cell centers on a fixed 6-by-6-by-6 grid.
+   * Fully inside and fully outside boxes use exact corner bounds. A sub-grid can miss a thin intersection.
+   */
+  double odfBinInBallFraction(int bin) const;
+
+  /**
+   * @brief Tests whether the bin has a positive estimated in-ball volume.
+   * @param bin Linear ODF bin index.
+   * @return True if odfBinInBallFraction(bin) is greater than zero.
+   */
+  bool isOdfBinReachable(int bin) const;
+
+  /**
+   * @brief Returns this instance's cumulative homochoric clamp fallback count.
+   * @return Number of exhausted rejection-sampling attempts since the last reset.
+   * @note Concurrent samplers update the counter atomically.
+   */
+  uint64_t clampFallbackCount() const;
+
+  /**
+   * @brief Resets this instance's diagnostic count of homochoric clamp fallbacks.
+   * @note Call before sampling begins to measure a complete batch.
+   */
+  void resetClampFallbackCount() const;
 
   /**
    * @brief getNumSymmetry Returns the internal variables for k_SymSize0, k_SymSize1, k_SymSize2
@@ -252,7 +311,29 @@ public:
 
   virtual EulerDType randomizeEulerAngles(const EulerDType& euler) const = 0;
 
+  /**
+   * @brief Selects a random symmetry operator with a clock-seeded generator.
+   * @param numSymOps Number of symmetry operators in the selection range.
+   * @return Zero-based symmetry operator index.
+   * @note This overload seeds a generator from the clock for each call. Use the generator-taking overload for reproducible results.
+   */
   virtual size_t getRandomSymmetryOperatorIndex(int numSymOps) const;
+
+  /**
+   * @brief Selects a random symmetry operator with the specified generator.
+   * @param numSymOps Number of symmetry operators in the selection range.
+   * @param generator Generator that supplies the random stream.
+   * @return Zero-based symmetry operator index.
+   */
+  size_t getRandomSymmetryOperatorIndex(int numSymOps, std::mt19937_64& generator) const;
+
+  /**
+   * @brief Applies a random symmetry-equivalent rotation with the specified generator.
+   * @param euler Source Euler angles.
+   * @param generator Generator that selects the symmetry operator.
+   * @return Symmetry-equivalent Euler angles.
+   */
+  EulerDType randomizeEulerAngles(const EulerDType& euler, std::mt19937_64& generator) const;
 
   virtual RodriguesDType determineRodriguesVector(double random[3], int choose) const = 0;
 
@@ -531,7 +612,12 @@ public:
   virtual bool isInsideFZ(const RodriguesDType& rod) const = 0;
 
 protected:
-  LaueOps();
+  /**
+   * @brief Stores the same homochoric grid dimensions used by the derived sampler.
+   * @param odfDimInit Half-width of the ODF grid along each axis.
+   * @param odfDimStep Width of a bin along each axis.
+   */
+  LaueOps(const std::array<double, 3>& odfDimInit, const std::array<double, 3>& odfDimStep);
 
   /**
    * @brief Shared annotation scaffolding for IPF images. Creates a canvas,
@@ -600,6 +686,21 @@ protected:
   void _calcDetermineHomochoricValues(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
 
   /**
+   * @brief Samples a homochoric point in the selected ODF bin and restricts the result to the homochoric ball.
+   * @param random Initial offsets in the selected bin.
+   * @param init Half-width of each ODF grid dimension.
+   * @param step Width of one bin in each ODF grid dimension.
+   * @param phi Three-dimensional index of the selected bin.
+   * @param r1 Receives the first homochoric coordinate.
+   * @param r2 Receives the second homochoric coordinate.
+   * @param r3 Receives the third homochoric coordinate.
+   * @return True if the initial point or a redrawn point is in the homochoric ball. False if the function clamps the final point.
+   * @note The sampler permits 4096 redraws. The clamp is a numerical last resort that a fraction-weighted ODF should never trigger.
+   * Each fallback increments clampFallbackCount().
+   */
+  bool _calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const;
+
+  /**
    * @brief
    * @param dim
    * @param bins
@@ -622,6 +723,11 @@ protected:
    * @return
    */
   static QuatD ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order);
+
+private:
+  const std::array<double, 3> m_OdfDimInit;
+  const std::array<double, 3> m_OdfDimStep;
+  mutable std::atomic<uint64_t> m_ClampFallbackCount = 0;
 
 public:
   LaueOps(const LaueOps&) = delete;            // Copy Constructor Not Implemented

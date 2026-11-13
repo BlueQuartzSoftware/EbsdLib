@@ -140,7 +140,7 @@ TEST_CASE("DirectionalStatsTest:AverageOrientation", "[DirectionalStatsTest]")
   for(const auto& op : ops)
   {
     const std::string rpg = op->getRotationPointGroup();
-    // Skip Triclinic (no FZ boundary) and duplicates (OrthoRhombicOps appears twice)
+    // Skip Triclinic (no FZ boundary) and rotation point groups already tested.
     if(rpg == "1" || tested.count(rpg) > 0)
     {
       continue;

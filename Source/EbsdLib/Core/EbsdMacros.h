@@ -248,6 +248,25 @@ private:
     phase->set##key(t);                                                                                                                                                                                \
   }
 
+/**
+ * @brief Reads a phase's lattice constants dataset, which must hold exactly 6 values (a, b, c, alpha, beta, gamma).
+ * The enclosing function must declare 'err', 'phasesGid' and 'gid' like the other READ_PHASE_* macros.
+ */
+#define READ_PHASE_LATTICE_CONSTANTS(cname, pid, fqKey, phaseName, phase)                                                                                                                              \
+  READ_PHASE_HEADER_ARRAY(cname, pid, float, fqKey, LatticeConstants, phase)                                                                                                                           \
+  if(phase->getLatticeConstants().size() != 6)                                                                                                                                                         \
+  {                                                                                                                                                                                                    \
+    std::stringstream ssLattice;                                                                                                                                                                       \
+    ssLattice << cname << " Error: The '" << fqKey << "' dataset of phase '" << phaseName << "' in file '" << getFileName() << "' holds " << phase->getLatticeConstants().size()                       \
+              << " values but 6 (a, b, c, alpha, beta, gamma) are required.";                                                                                                                          \
+    setErrorCode(-90350);                                                                                                                                                                              \
+    setErrorMessage(ssLattice.str());                                                                                                                                                                  \
+    H5Gclose(pid);                                                                                                                                                                                     \
+    H5Gclose(phasesGid);                                                                                                                                                                               \
+    H5Gclose(gid);                                                                                                                                                                                     \
+    return -1;                                                                                                                                                                                         \
+  }
+
 #define SHUFFLE_ARRAY(name, var, Type)                                                                                                                                                                 \
   {                                                                                                                                                                                                    \
     Type* f = allocateArray<Type>(totalDataRows);                                                                                                                                                      \

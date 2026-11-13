@@ -5,6 +5,9 @@ set(EbsdLib_${DIR_NAME}_MOC_HDRS
 )
 
 set(EbsdLib_${DIR_NAME}_HDRS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionChrome.h
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionCompositor.h
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionUtilities.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/InversePoleFigureUtilities.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureUtilities.h
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjection.h
@@ -41,6 +44,9 @@ set(EbsdLib_${DIR_NAME}_HDRS
 )
 
 set(EbsdLib_${DIR_NAME}_SRCS
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionChrome.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionCompositor.cpp
+  ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ODFSectionUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/InversePoleFigureUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/PoleFigureUtilities.cpp
   ${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/${DIR_NAME}/ModifiedLambertProjection.cpp

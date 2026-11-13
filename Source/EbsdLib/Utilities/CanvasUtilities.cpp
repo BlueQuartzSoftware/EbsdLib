@@ -1,16 +1,19 @@
-
 #include "CanvasUtilities.hpp"
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
-#include "EbsdLib/Utilities/FiraSansRegular.hpp"
 #include "EbsdLib/Utilities/Fonts.hpp"
-#include "EbsdLib/Utilities/LatoBold.hpp"
-#include "EbsdLib/Utilities/LatoRegular.hpp"
 
 #define CANVAS_ITY_IMPLEMENTATION
 #include <canvas_ity.hpp>
+
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <string>
+#include <vector>
 
 namespace ebsdlib
 {
@@ -122,17 +125,14 @@ std::vector<Point3DType> GeneratePointsOnUnitCircle(const Point3DType& direction
 // -----------------------------------------------------------------------------
 ebsdlib::UInt8ArrayType::Pointer DrawStandardCubicProjection(ebsdlib::UInt8ArrayType::Pointer image, int pageWidth, int pageHeight)
 {
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  // Initialize our fonts
-  fonts::Base64Decode(fonts::k_LatoRegularBase64, latoRegular);
-  fonts::Base64Decode(fonts::k_LatoBoldBase64, latoBold);
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
   const float fontPtSize = static_cast<float>(pageWidth) / 24.0f;
 
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
   context.text_baseline = baselines[0];
@@ -156,7 +156,7 @@ ebsdlib::UInt8ArrayType::Pointer DrawStandardCubicProjection(ebsdlib::UInt8Array
   context.begin_path();
   context.line_cap = canvas_ity::square;
   context.move_to(pageWidth * 0.5F, pageHeight * 0.5F);
-  context.arc(pageWidth * 0.5F, pageHeight * 0.5F, pageWidth * 0.5F, 0.0, 2.0 * M_PI);
+  context.arc(pageWidth * 0.5F, pageHeight * 0.5F, pageWidth * 0.5F, 0.0, ebsdlib::constants::k_2PiD);
   context.stroke();
   context.close_path();
 
@@ -240,15 +240,14 @@ ebsdlib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(ebsdlib::UInt8A
   std::array<float, 2> figureOrigin = {0.0F, 0.0F};
   std::array<float, 2> figureCenter = {pageWidth * 0.5F, pageHeight * 0.5F};
 
-  // Initialize our fonts
   const float fontPtSize = static_cast<float>(pageWidth) / 24.0f;
 
   // Create a Canvas to draw into
   canvas_ity::canvas context(pageWidth, pageHeight);
 
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   canvas_ity::baseline_style const baselines[] = {canvas_ity::alphabetic, canvas_ity::top, canvas_ity::middle, canvas_ity::bottom, canvas_ity::hanging, canvas_ity::ideographic};
   context.text_baseline = baselines[0];
@@ -272,7 +271,7 @@ ebsdlib::UInt8ArrayType::Pointer DrawStandardHexagonalProjection(ebsdlib::UInt8A
   context.begin_path();
   context.line_cap = canvas_ity::square;
   context.move_to(pageWidth * 0.5F, pageHeight * 0.5F);
-  context.arc(pageWidth * 0.5F, pageHeight * 0.5F, pageWidth * 0.5F, 0.0, 2.0 * M_PI);
+  context.arc(pageWidth * 0.5F, pageHeight * 0.5F, pageWidth * 0.5F, 0.0, ebsdlib::constants::k_2PiD);
   context.stroke();
   context.close_path();
 

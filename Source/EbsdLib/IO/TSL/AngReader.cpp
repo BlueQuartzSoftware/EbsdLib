@@ -250,6 +250,8 @@ ebsdlib::NumericTypes::Type AngReader::getPointerType(const std::string& feature
 int AngReader::readHeaderOnly()
 {
   int err = 1;
+  setErrorCode(0);
+  setErrorMessage("");
   std::string buf;
   std::ifstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
@@ -287,6 +289,10 @@ int AngReader::readHeaderOnly()
   m_PhaseVector = phaseVector;
   // Update the Original Header variable
   setOriginalHeader(origHeader);
+  if(getErrorCode() < 0)
+  {
+    return getErrorCode();
+  }
   return err;
 }
 
@@ -355,6 +361,28 @@ int AngReader::readFile()
     setErrorCode(-150);
     setErrorMessage("No phase was parsed in the header portion of the file. This possibly means that part of the header is missing.");
     return -150;
+  }
+  if(getGrid().find(ebsdlib::Ang::SquareGrid) == 0)
+  {
+    const int oddCols = getNumOddCols();
+    const int evenCols = getNumEvenCols();
+    if(oddCols > 0 && evenCols > 0 && oddCols != evenCols)
+    {
+      setErrorCode(-120);
+      setErrorMessage("Ang file '" + getFileName() + "' has NCOLS_ODD=" + std::to_string(oddCols) + " and NCOLS_EVEN=" + std::to_string(evenCols) +
+                      ". A square grid needs equal NCOLS_ODD and NCOLS_EVEN. Correct the column counts in the header.");
+      return -120;
+    }
+    const int cols = oddCols > 0 ? oddCols : evenCols;
+    if(cols <= 0)
+    {
+      setErrorCode(-130);
+      setErrorMessage("Ang file '" + getFileName() + "' has NCOLS_ODD=" + std::to_string(oddCols) + " and NCOLS_EVEN=" + std::to_string(evenCols) +
+                      ". A square grid needs a positive column count. Set NCOLS_ODD or NCOLS_EVEN to the number of columns.");
+      return -130;
+    }
+    setNumOddCols(cols);
+    setNumEvenCols(cols);
   }
   // We need to pass in the buffer because it has the first line of data
   readData(in, buf);
@@ -694,6 +722,12 @@ void AngReader::parseHeaderLine(std::string& buf)
     if(tokens.size() > 1)
     {
       m_CurrentPhase->parseLatticeConstants(tokens);
+      if(m_CurrentPhase->getLatticeConstants().size() != 6 && getErrorCode() >= 0)
+      {
+        setErrorCode(-117);
+        setErrorMessage("Ang file '" + getFileName() + "' has a LatticeConstants line for phase " + std::to_string(m_CurrentPhase->getPhaseIndex()) + " that does not hold 6 numbers: '" + buf +
+                        "'. Correct the line in the header.");
+      }
     }
   }
   else if(word == ebsdlib::Ang::NumberFamilies && m_CurrentPhase.get() != nullptr)
@@ -717,7 +751,14 @@ void AngReader::parseHeaderLine(std::string& buf)
   {
     if(tokens.size() > 1)
     {
+      const size_t numFamilies = m_CurrentPhase->getHKLFamilies().size();
       m_CurrentPhase->parseHKLFamilies(tokens);
+      if(m_CurrentPhase->getHKLFamilies().size() == numFamilies && getErrorCode() >= 0)
+      {
+        setErrorCode(-118);
+        setErrorMessage("Ang file '" + getFileName() + "' has an hklFamilies line for phase " + std::to_string(m_CurrentPhase->getPhaseIndex()) +
+                        " that does not hold h, k, l, s1 and the diffraction intensity: '" + buf + "'. Correct the line in the header.");
+      }
     }
   }
   else if(word.find(ebsdlib::Ang::Categories) == 0 && m_CurrentPhase.get() != nullptr)
@@ -751,7 +792,13 @@ void AngReader::parseHeaderLine(std::string& buf)
     }
     if(tokens.size() > 1)
     {
+      const std::string rawValue = tokens[1];
       p->parseValue(tokens[1]);
+      if(p->hasParseError() && getErrorCode() >= 0)
+      {
+        setErrorCode(-115);
+        setErrorMessage("Ang file '" + getFileName() + "' has a header value that is not a valid number: " + p->getKey() + " = '" + rawValue + "'. Correct the value in the header.");
+      }
 #if 0
       std::cout << "<tr>\n    <td>" << p->getKey() << "</td>\n    <td>" << p->getHDFType() << "</td>\n";
       std::cout << "    <td colspan=\"2\"> Contains value for the header entry " << p->getKey() << "</td>\n</tr>" << std::endl;

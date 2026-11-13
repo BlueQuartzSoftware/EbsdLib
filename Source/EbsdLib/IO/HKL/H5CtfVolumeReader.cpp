@@ -217,18 +217,21 @@ std::vector<CtfPhase::Pointer> H5CtfVolumeReader::getPhases()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::cout << "Error" << std::endl;
+    setErrorMessage("Error: Could not open .h5ebsd file for reading.");
+    setErrorCode(-90000);
     return m_Phases;
   }
   herr_t err = 0;
 
   hid_t gid = H5Gopen(fileId, index.c_str(), H5P_DEFAULT);
   H5CtfReader::Pointer reader = H5CtfReader::New();
+  reader->setFileName(getFileName());
   reader->setHDF5Path(index);
   err = reader->readHeader(gid);
   if(err < 0)
   {
-    std::cout << "Error reading the header information from the .h5ebsd file" << std::endl;
+    setErrorMessage(reader->getErrorMessage());
+    setErrorCode(reader->getErrorCode() < 0 ? reader->getErrorCode() : err);
     err = H5Gclose(gid);
     err = H5Utilities::closeFile(fileId);
     return m_Phases;
@@ -337,6 +340,15 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
 
     xpointstemp = xpoints;
     ypointstemp = ypoints;
+    // A smaller slice is centered in the volume. A larger slice would be written outside its own slice of the volume.
+    if(xpointsslice > xpointstemp || ypointsslice > ypointstemp)
+    {
+      setErrorCode(-77001);
+      setErrorMessage("Slice " + EbsdStringUtils::number(slice + getSliceStart()) + " in file '" + getFileName() + "' has " + EbsdStringUtils::number(xpointsslice) + " x " +
+                      EbsdStringUtils::number(ypointsslice) + " cells, which is larger than the volume size of " + EbsdStringUtils::number(xpointstemp) + " x " + EbsdStringUtils::number(ypointstemp) +
+                      " cells. Each slice must fit inside the volume size.");
+      return getErrorCode();
+    }
     xstartspot = static_cast<int>((xpointstemp - xpointsslice) / 2);
     ystartspot = static_cast<int>((ypointstemp - ypointsslice) / 2);
 

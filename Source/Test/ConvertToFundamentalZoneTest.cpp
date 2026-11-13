@@ -35,6 +35,7 @@
 #include <catch2/catch.hpp>
 
 #include "EbsdLib/EbsdLib.h"
+#include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Orientation/Quaternion.hpp"
 #include "EbsdLib/Orientation/Rodrigues.hpp"
@@ -44,7 +45,11 @@
 
 #include <Eigen/Core>
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
+#include <numbers>
+#include <random>
 
 using namespace ebsdlib;
 
@@ -79,11 +84,119 @@ static RodriguesDType convertRodrigues(const std::array<double, 3>& rod)
   return {rod[0] / length, rod[1] / length, rod[2] / length, length};
 }
 
+TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::CubicBoundaryUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
+{
+  const auto ops = CubicOps::New();
+  const double halfAngle = std::numbers::pi / 8.0;
+  const QuatD positive(0.0, 0.0, std::sin(halfAngle), std::cos(halfAngle));
+  const QuatD negative(0.0, 0.0, -std::sin(halfAngle), std::cos(halfAngle));
+
+  bool equivalent = false;
+  for(size_t symIdx = 0; symIdx < ops->getNumSymOps(); ++symIdx)
+  {
+    const QuatD image = (ops->getQuatSymOp(symIdx) * positive).normalize();
+    equivalent |= std::min((image - negative).length(), (image + negative).length()) < 1.0e-12;
+  }
+  REQUIRE(equivalent);
+
+  const QuatD a = ops->getFZQuat(positive);
+  const QuatD b = ops->getFZQuat(negative);
+  CHECK(std::min((a - b).length(), (a + b).length()) < 1.0e-12);
+}
+
+TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest::SymmetryOrbitUnique", "[EbsdLib][ConvertToFundamentalZoneTest]")
+{
+  std::vector<QuatD> orientations = {{0.0, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.6, 0.8, 0.0, 0.0}, {0.0, 0.6, 0.8, 0.0}};
+  // A half-turn with a small positive w. The sign fix must not make w negative.
+  orientations.emplace_back(-1.0, 0.0, 0.0, 5.0e-13);
+  // Inputs that failed the MTEX 6.1.0 comparison: half-turns with roundoff, and a cubic image of a rotation of 45 degrees - 1e-12 rad about [001].
+  orientations.emplace_back(0.86602540378443871, 0.50000000000000011, 3.0616169978683836e-17, 5.3028761936245346e-17);
+  orientations.emplace_back(0.70710678118654757, 5.5511151231257839e-17, 0.70710678118654757, 5.5511151231257839e-17);
+  orientations.emplace_back(0.65328148243805306, 0.27059805007342524, 0.65328148243805306, 0.27059805007342524);
+  const double faceDiagonal = 1.0 / std::sqrt(2.0);
+  const double diagonal = 1.0 / std::sqrt(3.0);
+  const std::array<std::array<double, 4>, 10> axisAngles = {{{0.0, 0.0, 1.0, std::numbers::pi / 4.0},
+                                                             {diagonal, diagonal, diagonal, std::numbers::pi / 3.0},
+                                                             {0.0, 0.0, 1.0, std::numbers::pi / 6.0},
+                                                             {1.0, 0.0, 0.0, std::numbers::pi / 2.0},
+                                                             {0.0, 0.0, 1.0, std::numbers::pi / 2.0},
+                                                             {diagonal, diagonal, diagonal, std::numbers::pi},
+                                                             {1.0, 0.0, 0.0, std::numbers::pi},
+                                                             {faceDiagonal, faceDiagonal, 0.0, std::numbers::pi},
+                                                             {faceDiagonal, 0.0, faceDiagonal, std::numbers::pi},
+                                                             {diagonal, diagonal, diagonal, 2.0 * std::numbers::pi / 3.0}}};
+  for(const auto& axisAngle : axisAngles)
+  {
+    for(const double offset : {0.0, -1.0e-12, 1.0e-12, -1.0e-10, 1.0e-10, -1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
+    {
+      const double halfAngle = (axisAngle[3] + offset) / 2.0;
+      const double sine = std::sin(halfAngle);
+      orientations.emplace_back(axisAngle[0] * sine, axisAngle[1] * sine, axisAngle[2] * sine, std::cos(halfAngle));
+    }
+  }
+
+  // Cross-class symmetry images retain small scalar and axis components near half-turns.
+  for(const double offset : {-1.0e-9, 1.0e-9, -1.0e-6, 1.0e-6})
+  {
+    const double quarterTurn = (std::numbers::pi / 2.0 + offset) / 2.0;
+    orientations.push_back(QuatD(0.5, 0.5, 0.5, 0.5) * QuatD(0.0, 0.0, std::sin(quarterTurn), std::cos(quarterTurn)));
+    const double halfTurn = (std::numbers::pi + offset) / 2.0;
+    const QuatD hexagonalSymmetry(0.0, 0.0, 0.5, std::sqrt(3.0) / 2.0);
+    orientations.push_back(hexagonalSymmetry * QuatD(std::sin(halfTurn), 0.0, 0.0, std::cos(halfTurn)));
+    orientations.push_back(hexagonalSymmetry * QuatD(faceDiagonal * std::sin(halfTurn), faceDiagonal * std::sin(halfTurn), 0.0, std::cos(halfTurn)));
+  }
+
+  std::mt19937_64 generator(0x63F2);
+  std::normal_distribution<double> distribution(0.0, 1.0);
+  for(size_t i = 0; i < 128; ++i)
+  {
+    const double x = distribution(generator);
+    const double y = distribution(generator);
+    const double z = distribution(generator);
+    const double w = distribution(generator);
+    orientations.push_back(QuatD(x, y, z, w).normalize());
+  }
+
+  for(const auto& ops : LaueOps::GetAllOrientationOps())
+  {
+    INFO("Laue class: " << ops->getSymmetryName());
+    for(size_t orientationIdx = 0; orientationIdx < orientations.size(); ++orientationIdx)
+    {
+      CAPTURE(orientationIdx);
+      const QuatD q = orientations[orientationIdx];
+      const QuatD expected = ops->getFZQuat(q);
+      REQUIRE(std::isfinite(expected.length()));
+      CHECK(LaueOps::IsInsideFZ(expected, ops->getFZType(), ops->getAxisOrderingType()));
+      CHECK(expected.w() >= 0.0);
+      double maxAbsW = 0.0;
+      double orbitDistance = std::numeric_limits<double>::infinity();
+      for(size_t symIdx = 0; symIdx < ops->getNumSymOps(); ++symIdx)
+      {
+        CAPTURE(symIdx);
+        const QuatD image = (ops->getQuatSymOp(symIdx) * q).normalize();
+        maxAbsW = std::max(maxAbsW, std::abs(image.w()));
+        orbitDistance = std::min({orbitDistance, (image - expected).length(), (image + expected).length()});
+        for(const QuatD& input : {image, -image})
+        {
+          const QuatD actual = ops->getFZQuat(input);
+          REQUIRE(std::isfinite(actual.length()));
+          CHECK(actual.w() >= 0.0);
+          CHECK(std::min((actual - expected).length(), (actual + expected).length()) < 1.0e-9);
+          CHECK(LaueOps::IsInsideFZ(actual, ops->getFZType(), ops->getAxisOrderingType()));
+        }
+      }
+      CHECK(std::abs(expected.w()) >= maxAbsW - 1.0e-9);
+      CHECK(orbitDistance < 1.0e-9);
+    }
+  }
+}
+
 TEST_CASE("ebsdlib::ConvertToFundamentalZoneTest", "[EbsdLib][ConvertToFundamentalZoneTest]")
 {
   auto ops = LaueOps::GetAllOrientationOps();
+  REQUIRE(ops.size() == detail::k_FZValues.size());
   std::cout << "############################################################\n";
-  for(size_t opsIdx = 0; opsIdx < ops.size() - 1; ++opsIdx) // We ONLY want Cubic 432 rotation group
+  for(size_t opsIdx = 0; opsIdx < ops.size(); ++opsIdx)
   {
     std::cout << "OpsIndex: " << opsIdx << "  " << ops[opsIdx]->getRotationPointGroup() << ", " << ops[opsIdx]->getSymmetryName() << ", " << ops[opsIdx]->getPointGroup() << ", "
               << ops[opsIdx]->FZTypeToString(ops[opsIdx]->getFZType()) << ", " << ops[opsIdx]->AxisOrderingTypeToString(ops[opsIdx]->getAxisOrderingType()) << std::endl;

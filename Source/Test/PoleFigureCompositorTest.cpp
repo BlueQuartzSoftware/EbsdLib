@@ -279,7 +279,7 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::All_Laue_Classes", "[EbsdLib][Pole
   {
     LaueOps::Pointer op = ops[opsIdx];
     const std::string rpg = op->getRotationPointGroup();
-    // Skip Triclinic (no FZ boundary) and duplicates (OrthoRhombicOps appears twice)
+    // Skip Triclinic (no FZ boundary) and rotation point groups already tested.
     if(rpg == "1" || tested.count(rpg) > 0)
     {
       continue;
@@ -338,6 +338,22 @@ TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_Horizontal", "[EbsdL
   REQUIRE(metrics.origins[1][0] == Approx(metrics.subCanvasWidth));
   REQUIRE(metrics.origins[2][0] == Approx(metrics.subCanvasWidth * 2.0f));
   REQUIRE(metrics.origins[3][0] == Approx(metrics.subCanvasWidth * 3.0f));
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::PoleFigureCompositorTest::LayoutMetrics_FontAdvanceOracle", "[EbsdLib][PoleFigureCompositorTest]")
+{
+  CompositePoleFigureConfiguration_t config;
+  config.imageDim = 128;
+  config.layoutType = PoleFigureLayoutType::Horizontal;
+
+  const LayoutMetrics metrics = PoleFigureCompositor::computeLayoutMetrics(config);
+
+  // Embedded Lato Bold: X advance 1358, units per em 2000. At size 8, X width is 5.432.
+  // Width: 4 + 128 + 4 + 5.432 + 4. Height: 4 + 8 + (4 + 8 + 128 + 16 + 8).
+  REQUIRE(metrics.subCanvasWidth == Approx(145.432f).epsilon(0.0).margin(0.00002));
+  REQUIRE(metrics.pageWidth == 580);
+  REQUIRE(metrics.pageHeight == 176);
 }
 
 // -----------------------------------------------------------------------------

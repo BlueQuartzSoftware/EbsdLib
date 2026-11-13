@@ -37,7 +37,7 @@ option(EbsdLib_BUILD_H5SUPPORT "Build H5Support Library" OFF)
 
 
 # set project's name
-project(EbsdLibProj VERSION 3.1.3)
+project(EbsdLibProj VERSION 3.1.4)
 
 
 # Request C++17 standard, using new CMake variables.
@@ -170,12 +170,19 @@ include(${EbsdLibProj_SOURCE_DIR}/Source/EbsdLib/SourceList.cmake)
 
 
 # ------------------------------------------------------------------------------
-# Check if a different Data_Archive web site is being used.
-#   The alternate would be for the internal build bots that can download from a
-#   local webserver
+# The web site that the test data archives are downloaded from. Set
+# EBSDLIB_DATA_ARCHIVE_WEB_SITE to use another one, for example a local web
+# server on the build bots.
+#   DATA_ARCHIVE_WEB_SITE is used only when EbsdLib is the top-level project. A
+#   parent project that adds EbsdLib as a subdirectory (simplnx) sets it to its
+#   own archive site, which does not hold the EbsdLib archives.
 # ------------------------------------------------------------------------------
-if("${DATA_ARCHIVE_WEB_SITE}" STREQUAL "")
-  set(DATA_ARCHIVE_WEB_SITE "https://github.com/bluequartzsoftware/ebsdlib/releases/download/Data_Archive/")
+if("${EBSDLIB_DATA_ARCHIVE_WEB_SITE}" STREQUAL "")
+  if(PROJECT_IS_TOP_LEVEL AND NOT "${DATA_ARCHIVE_WEB_SITE}" STREQUAL "")
+    set(EBSDLIB_DATA_ARCHIVE_WEB_SITE "${DATA_ARCHIVE_WEB_SITE}")
+  else()
+    set(EBSDLIB_DATA_ARCHIVE_WEB_SITE "https://github.com/bluequartzsoftware/ebsdlib/releases/download/Data_Archive/")
+  endif()
 endif()
 
 file(TO_CMAKE_PATH "${EBSDLIB_DATA_DIR}" EBSDLIB_DATA_DIR_NORM)

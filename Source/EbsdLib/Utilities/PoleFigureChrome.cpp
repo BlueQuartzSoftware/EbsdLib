@@ -30,14 +30,20 @@
 
 #include "EbsdLib/Utilities/PoleFigureChrome.h"
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/EbsdStringUtils.hpp"
+#include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/PoleFigureCompositor.h"
 
 #include <canvas_ity.hpp>
-
 #include <fmt/format.h>
 
-#include "EbsdLib/LaueOps/LaueOps.h"
+#include <array>
+#include <cstddef>
+#include <string>
+#include <vector>
 
 namespace ebsdlib
 {
@@ -63,7 +69,7 @@ void DrawPoleFigureTitle(canvas_ity::canvas& context, const std::string& title, 
     return;
   }
   context.begin_path();
-  context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(title.c_str(), margins, margins + fontPtSize);
@@ -103,7 +109,7 @@ void DrawPoleFigureInfoBlock(canvas_ity::canvas& context, const CompositePoleFig
   for(const auto& label : labels)
   {
     context.begin_path();
-    context.set_font(const_cast<unsigned char*>(latoRegular.data()), static_cast<int>(latoRegular.size()), fontPtSize);
+    ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize);
     context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
     context.text_baseline = canvas_ity::alphabetic;
     context.fill_text(label.c_str(), position[0] + margins + rectWidth + margins, position[1] + margins + (static_cast<float>(config.imageDim) / 3.0f) + (heightInc * fontPtSize));
@@ -149,7 +155,7 @@ void DrawPoleFigureFrame(canvas_ity::canvas& context, const CompositePoleFigureC
 
   // "X" axis label
   context.begin_path();
-  context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(config.axisNames[0].c_str(), origin[0] + margins * 1.5f + imageSize, origin[1] + fontPtSize * 2.25f + margins * 2.0f + imageSize / 2.0f);
@@ -157,7 +163,7 @@ void DrawPoleFigureFrame(canvas_ity::canvas& context, const CompositePoleFigureC
 
   // "Y" axis label
   context.begin_path();
-  context.set_font(const_cast<unsigned char*>(latoBold.data()), static_cast<int>(latoBold.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   const float yFontWidth = context.measure_text(config.axisNames[1].c_str());
@@ -188,7 +194,7 @@ void DrawPoleFigureFrame(canvas_ity::canvas& context, const CompositePoleFigureC
     if(subtitle.at(idx) == '-' && idx + 1 < subtitle.size())
     {
       const char charBuf[] = {subtitle[idx + 1], 0};
-      context.set_font(const_cast<unsigned char*>(firaSans.data()), static_cast<int>(firaSans.size()), fontPtSize);
+      ebsdlib::fonts::LoadEmbeddedFont(context, firaSans, fontPtSize);
       float tw = 0.0f;
       if(!bottomPart.empty())
       {
@@ -215,7 +221,7 @@ void DrawPoleFigureFrame(canvas_ity::canvas& context, const CompositePoleFigureC
 
   // Draw the direction subtitle text
   context.begin_path();
-  context.set_font(const_cast<unsigned char*>(firaSans.data()), static_cast<int>(firaSans.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, firaSans, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(bottomPart.c_str(), textOrigin[0], textOrigin[1]);

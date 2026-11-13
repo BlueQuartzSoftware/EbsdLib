@@ -147,7 +147,8 @@ ebsdlib::DoubleArrayType::Pointer InversePoleFigureUtilities::computeIPFIntensit
   // We normalize manually to avoid division by zero in the south square
   ebsdlib::DoubleArrayType::Pointer northSquare = lambert->getNorthSquare();
   double* north = northSquare->getPointer(0);
-  size_t nBins = static_cast<size_t>(lambertDim) * static_cast<size_t>(lambertDim);
+  // Use the bins the projection allocated: a lambertDim of 0 or less leaves the projection empty.
+  const size_t nBins = northSquare->getNumberOfTuples();
 
   double northTotal = 0.0;
   for(size_t i = 0; i < nBins; i++)
