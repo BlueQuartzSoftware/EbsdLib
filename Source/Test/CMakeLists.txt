@@ -19,6 +19,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ConvertToFundamentalZoneTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/CtfReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/CprReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/EdaxOIMReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5EspritReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5OINAReaderTest.cpp

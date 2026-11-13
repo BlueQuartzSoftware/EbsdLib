@@ -350,7 +350,20 @@ int CprReader::readHeaderOnly()
   {
     const std::string sectionName("Phases");
     int phaseCount = -1;
-    inipp::get_value(ini.sections[sectionName], "Count", phaseCount);
+    const bool foundPhaseCount = inipp::get_value(ini.sections[sectionName], "Count", phaseCount);
+    if(!foundPhaseCount || phaseCount <= 0)
+    {
+      std::stringstream ss;
+      ss << "The .cpr file '" << getFileName() << "' does not define any phases. The [" << sectionName << "] section must have an integer 'Count' value of at least 1";
+      if(foundPhaseCount)
+      {
+        ss << " but the value is " << phaseCount;
+      }
+      ss << ".";
+      setErrorMessage(ss.str());
+      setErrorCode(-102300);
+      return getErrorCode();
+    }
     EbsdHeaderEntry::Pointer p1 = m_HeaderMap[ebsdlib::Ctf::NumPhases];
     auto value = getFieldValue<std::string>(ini, sectionName, ebsdlib::Ctf::Count);
     p1->parseValue(value);
