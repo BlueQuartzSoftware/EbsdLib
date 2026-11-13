@@ -611,14 +611,48 @@ int H5EspritReader::readData(hid_t parId)
     err = H5Lite::getDatasetInfo(gid, ebsdlib::H5Esprit::RawPatterns, dims, type_class, type_size);
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
-      totalDataRows = std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>());
+      // The pattern dataset must hold one 2D pattern of integer pixels for each scan point.
+      int patternErr = 0;
+      std::stringstream patternMsg;
+      patternMsg << getNameOfClass() << " Error: The '" << ebsdlib::H5Esprit::RawPatterns << "' dataset of scan '" << m_HDF5Path << "' in file '" << getFileName() << "'";
+      if(dims.size() != 3)
+      {
+        patternErr = -90330;
+        patternMsg << " has " << dims.size() << " dimensions but 3 (points x pattern height x pattern width) are required.";
+      }
+      else if(dims[0] != totalDataRows)
+      {
+        patternErr = -90331;
+        patternMsg << " holds " << dims[0] << " patterns but the scan has " << totalDataRows << " points (" << nColumns << " x " << nRows << ").";
+      }
+      else if(type_class != H5T_INTEGER)
+      {
+        patternErr = -90332;
+        patternMsg << " does not hold integer pixel values.";
+      }
+      if(patternErr < 0)
+      {
+        H5Gclose(gid);
+        setErrorCode(patternErr);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
 
       // Set the pattern dimensions
       m_PatternDims[0] = static_cast<int>(dims[1]);
       m_PatternDims[1] = static_cast<int>(dims[2]);
 
-      m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
+      m_PatternData = this->allocateArray<uint8_t>(std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>()));
       err = H5Lite::readPointerDataset(gid, ebsdlib::H5Esprit::RawPatterns, m_PatternData);
+      if(err < 0)
+      {
+        H5Gclose(gid);
+        this->deallocateArrayData<uint8_t>(m_PatternData);
+        patternMsg << " could not be read.";
+        setErrorCode(-90333);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
     }
   }
   err = H5Gclose(gid);

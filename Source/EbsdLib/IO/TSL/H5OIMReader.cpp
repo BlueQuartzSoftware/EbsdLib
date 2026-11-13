@@ -37,6 +37,8 @@
 
 #include <algorithm>
 #include <array>
+#include <functional>
+#include <numeric>
 #include <vector>
 
 //<====== REPLACE std::list<std::string> with an Alias from a global header
@@ -159,11 +161,10 @@ int H5OIMReader::readFile()
   err = readData(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << "Error: could not read data. Internal Error code " << err << " generated.";
+    std::stringstream ss;
+    ss << getNameOfClass() << "Error: could not read data. " << getErrorMessage();
     setErrorCode(-900022);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -624,17 +625,50 @@ int H5OIMReader::readData(hid_t parId)
     err = H5Lite::getDatasetInfo(gid, ebsdlib::Ang::PatternData, dims, type_class, type_size);
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
-      totalDataRows = 1; // Calculate the total number of elements to allocate for the pattern data
-      for(unsigned long long dim : dims)
+      // The pattern dataset must hold one 2D pattern of integer pixels for each scan point.
+      int patternErr = 0;
+      std::stringstream patternMsg;
+      patternMsg << getNameOfClass() << " Error: The '" << ebsdlib::Ang::PatternData << "' dataset of scan '" << m_HDF5Path << "' in file '" << getFileName() << "'";
+      if(dims.size() != 3)
       {
-        totalDataRows = totalDataRows * dim;
+        patternErr = -90430;
+        patternMsg << " has " << dims.size() << " dimensions but 3 (points x pattern height x pattern width) are required.";
       }
+      else if(dims[0] != totalDataRows)
+      {
+        patternErr = -90431;
+        patternMsg << " holds " << dims[0] << " patterns but the scan has " << totalDataRows << " points (" << nColumns << " x " << nRows << ").";
+      }
+      else if(type_class != H5T_INTEGER)
+      {
+        patternErr = -90432;
+        patternMsg << " does not hold integer pixel values.";
+      }
+      if(patternErr < 0)
+      {
+        H5Gclose(gid);
+        setErrorCode(patternErr);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
+
+      // Calculate the total number of elements to allocate for the pattern data
+      const size_t numPatternElements = std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>());
       // Set the pattern dimensions
       m_PatternDims[0] = static_cast<int>(dims[1]);
       m_PatternDims[1] = static_cast<int>(dims[2]);
 
-      m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
+      m_PatternData = this->allocateArray<uint8_t>(numPatternElements);
       err = H5Lite::readPointerDataset(gid, ebsdlib::Ang::PatternData, m_PatternData);
+      if(err < 0)
+      {
+        H5Gclose(gid);
+        this->deallocateArrayData<uint8_t>(m_PatternData);
+        patternMsg << " could not be read.";
+        setErrorCode(-90433);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
     }
   }
   err = H5Gclose(gid);
