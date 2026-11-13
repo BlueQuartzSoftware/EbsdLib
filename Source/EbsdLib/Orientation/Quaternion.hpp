@@ -8,6 +8,7 @@
 
 #include <Eigen/Dense>
 
+#include <algorithm>
 #include <array>
 
 namespace ebsdlib
@@ -662,7 +663,8 @@ public:
     }
     qo = qo.scalarMultiply(sign);
 
-    OutputValueType omega = static_cast<OutputValueType>(2.0 * acos(qo.w()));
+    // Clamp the scalar part: rounding can push it just outside [-1, 1], where acos() returns NaN.
+    OutputValueType omega = static_cast<OutputValueType>(2.0 * acos(std::clamp(qo.w(), static_cast<T>(-1.0), static_cast<T>(1.0))));
     // If omega equals zero then return the rotation axis as [001]
     OutputValueType eps = static_cast<OutputValueType>(1.0e-12L);
     OutputType res;
@@ -735,7 +737,8 @@ public:
     res[0] = res[0] / s;
     res[1] = res[1] / s;
     res[2] = res[2] / s;
-    res[3] = tan(acos(w()));
+    // Clamp the scalar part: rounding can push it just outside [-1, 1], where acos() returns NaN.
+    res[3] = tan(acos(std::clamp(w(), static_cast<T>(-1.0), static_cast<T>(1.0))));
     return res;
   }
 
@@ -754,7 +757,8 @@ public:
     value_type s;
     value_type f;
 
-    value_type omega = static_cast<value_type>(2.0 * std::acos(w()));
+    // Clamp the scalar part: rounding can push it just outside [-1, 1], where acos() returns NaN.
+    value_type omega = static_cast<value_type>(2.0 * std::acos(std::clamp(w(), static_cast<T>(-1.0), static_cast<T>(1.0))));
     if(omega == 0.0)
     {
       OMHelperType::splat(res, 0.0);
