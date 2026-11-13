@@ -228,6 +228,7 @@ std::vector<AngPhase::Pointer> H5AngVolumeReader::getPhases()
 
   hid_t gid = H5Gopen(fileId, index.c_str(), H5P_DEFAULT);
   H5AngReader::Pointer reader = H5AngReader::New();
+  reader->setFileName(getFileName());
   reader->setHDF5Path(index);
   err = reader->readHeader(gid);
   if(err < 0)

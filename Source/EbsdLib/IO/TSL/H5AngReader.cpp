@@ -216,7 +216,7 @@ int H5AngReader::readHeader(hid_t parId)
     READ_PHASE_STRING_DATA("H5AngReader", pid, ebsdlib::Ang::Formula, Formula, currentPhase)
     // READ_PHASE_STRING_DATA("H5AngReader", pid, ebsdlib::Ang::Info, Info, m_CurrentPhase)
     READ_PHASE_HEADER_DATA_CAST("H5AngReader", pid, uint32_t, int, ebsdlib::Ang::Symmetry, Symmetry, currentPhase)
-    READ_PHASE_HEADER_ARRAY("H5AngReader", pid, float, ebsdlib::Ang::LatticeConstants, LatticeConstants, currentPhase)
+    READ_PHASE_LATTICE_CONSTANTS("H5AngReader", pid, ebsdlib::Ang::LatticeConstants, phaseGroupName, currentPhase)
     READ_PHASE_HEADER_DATA("H5AngReader", pid, int, ebsdlib::Ang::NumberFamilies, NumberFamilies, currentPhase)
 
     if(currentPhase->getNumberFamilies() > 0)

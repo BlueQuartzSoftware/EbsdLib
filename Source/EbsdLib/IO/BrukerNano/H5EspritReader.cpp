@@ -482,7 +482,7 @@ int H5EspritReader::readHeader(hid_t parId)
 
     READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, ebsdlib::H5Esprit::IT, IT, currentPhase)
 
-    READ_PHASE_HEADER_ARRAY("H5EspritReader", pid, float, ebsdlib::H5Esprit::LatticeConstants, LatticeConstants, currentPhase);
+    READ_PHASE_LATTICE_CONSTANTS("H5EspritReader", pid, ebsdlib::H5Esprit::LatticeConstants, phaseGroupName, currentPhase)
 
     READ_PHASE_STRING_DATA("H5EspritReader", pid, ebsdlib::H5Esprit::Name, Name, currentPhase)
 
