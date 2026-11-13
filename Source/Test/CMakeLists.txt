@@ -14,14 +14,21 @@ include(Catch)
 # Define the list of unit test source files
 set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ScanGridOrderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/CanvasItyImplementation.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFSectionCompositorTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFSectionUtilitiesTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/AngImportTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/AngleFileLoaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/OrientationTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ConvertToFundamentalZoneTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/CtfReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/CprReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/EdaxOIMReaderTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5EspritReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5EbsdVolumeReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5LatticeConstantsTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5OINAReaderTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/H5PatternDatasetTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/IPFLegendTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/QuaternionTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ODFTest.cpp
@@ -74,6 +81,7 @@ set(EbsdLib_UnitTest_SRCS
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/PUCMColorKeyTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/ColorKeyKindTest.cpp
     ${EbsdLibProj_SOURCE_DIR}/Source/Test/MarkerOccupancyGridTest.cpp
+    ${EbsdLibProj_SOURCE_DIR}/Source/Test/HklGridHeaderValidationTest.cpp
 )
 
 

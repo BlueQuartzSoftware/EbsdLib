@@ -4,6 +4,7 @@
 #include "EbsdLib/IO/HKL/CtfPhase.h"
 #include "EbsdLib/IO/TSL/AngPhase.h"
 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -204,4 +205,16 @@ TEST_CASE("ebsdlib::PhaseTest::EspritPhase_PhaseIndex", "[EbsdLib][PhaseTest]")
   auto phase = EspritPhase::New();
   phase->setPhaseIndex(3);
   REQUIRE(phase->getPhaseIndex() == 3);
+}
+
+TEST_CASE("ebsdlib::PhaseTest::CtfPhase_PrintInvalidSpaceGroup", "[EbsdLib][PhaseTest]")
+{
+  const int spaceGroup = GENERATE(0, 231);
+  CAPTURE(spaceGroup);
+  auto phase = CtfPhase::New();
+  phase->setLatticeConstants({1.0F, 1.0F, 1.0F, 90.0F, 90.0F, 90.0F});
+  phase->setSpaceGroup(spaceGroup);
+  std::ostringstream stream;
+  phase->printSelf(stream);
+  CHECK(stream.str().find("SpaceGroup " + std::to_string(spaceGroup) + "  Unknown\n") != std::string::npos);
 }

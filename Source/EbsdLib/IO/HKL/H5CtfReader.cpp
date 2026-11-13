@@ -265,7 +265,7 @@ int H5CtfReader::readHeader(hid_t parId)
     hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
     CtfPhase::Pointer m_CurrentPhase = CtfPhase::New();
 
-    READ_PHASE_HEADER_ARRAY("H5CtfReader", pid, float, ebsdlib::Ctf::LatticeConstants, LatticeConstants, m_CurrentPhase);
+    READ_PHASE_LATTICE_CONSTANTS("H5CtfReader", pid, ebsdlib::Ctf::LatticeConstants, phaseGroupName, m_CurrentPhase)
     READ_PHASE_STRING_DATA("H5CtfReader", pid, ebsdlib::Ctf::PhaseName, PhaseName, m_CurrentPhase)
     READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, ebsdlib::Ctf::LaueGroupTable, int, ebsdlib::Ctf::LaueGroup, LaueGroup, m_CurrentPhase)
     READ_PHASE_HEADER_DATA_CAST("H5CtfReader", pid, int, int, ebsdlib::Ctf::SpaceGroup, SpaceGroup, m_CurrentPhase)

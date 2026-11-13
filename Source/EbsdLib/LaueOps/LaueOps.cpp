@@ -35,8 +35,8 @@
 
 #include "LaueOps.h"
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/Core/EbsdLibConstants.h"
-#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/LaueOps/CubicLowOps.h"
 #include "EbsdLib/LaueOps/CubicOps.h"
 #include "EbsdLib/LaueOps/HexagonalLowOps.h"
@@ -48,21 +48,42 @@
 #include "EbsdLib/LaueOps/TriclinicOps.h"
 #include "EbsdLib/LaueOps/TrigonalLowOps.h"
 #include "EbsdLib/LaueOps/TrigonalOps.h"
+#include "EbsdLib/Math/EbsdLibMath.h"
+#include "EbsdLib/Math/Matrix3X1.hpp"
+#include "EbsdLib/Math/Matrix3X3.hpp"
+#include "EbsdLib/Orientation/AxisAngle.hpp"
+#include "EbsdLib/Orientation/Euler.hpp"
+#include "EbsdLib/Orientation/Homochoric.hpp"
+#include "EbsdLib/Orientation/OrientationMatrix.hpp"
 #include "EbsdLib/Orientation/Quaternion.hpp"
+#include "EbsdLib/Orientation/Rodrigues.hpp"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
-#include "EbsdLib/Utilities/ComputeStereographicProjection.h"
 #include "EbsdLib/Utilities/Fonts.hpp"
+#include "EbsdLib/Utilities/IColorKey.hpp"
+#include "EbsdLib/Utilities/InversePoleFigureUtilities.h"
 
 #include <canvas_ity.hpp>
 
 #include <algorithm> // for std::max
+#include <array>
 #include <chrono>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iomanip>
+#include <ios>
 #include <limits>
 #include <random>
 #include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 /**
 | Index | Verified | Class           | Rotation Point Group | Num Sym Ops |
@@ -97,13 +118,109 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 
 constexpr float k_OdfBinStepSize = 5.0f;
 
+uint64_t MixBits(uint64_t value)
+{
+  value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
+  value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
+  return value ^ (value >> 31U);
+}
+
+uint64_t NextSplitMix64(uint64_t& state)
+{
+  state += 0x9E3779B97F4A7C15ULL;
+  return MixBits(state);
+}
+
+double NextUnitInterval(uint64_t& state)
+{
+  return static_cast<double>(NextSplitMix64(state) >> 11U) * 0x1.0p-53;
+}
+
+uint64_t DoubleBits(double value)
+{
+  static_assert(sizeof(uint64_t) == sizeof(double));
+  uint64_t bits = 0;
+  std::memcpy(&bits, &value, sizeof(value));
+  return bits;
+}
+
 } // namespace
 
 // -----------------------------------------------------------------------------
-LaueOps::LaueOps() = default;
+LaueOps::LaueOps(const std::array<double, 3>& odfDimInit, const std::array<double, 3>& odfDimStep)
+: m_OdfDimInit(odfDimInit)
+, m_OdfDimStep(odfDimStep)
+{
+}
 
 // -----------------------------------------------------------------------------
 LaueOps::~LaueOps() = default;
+
+double LaueOps::odfBinInBallFraction(int bin) const
+{
+  if(bin < 0 || static_cast<size_t>(bin) >= getODFSize())
+  {
+    return 0.0;
+  }
+
+  const auto bins = getOdfNumBins();
+  const auto binIndex = static_cast<size_t>(bin);
+  const std::array<size_t, 3> phi = {binIndex % bins[0], (binIndex / bins[0]) % bins[1], binIndex / (bins[0] * bins[1])};
+  std::array<double, 3> origin;
+  double nearestSquared = 0.0;
+  double farthestSquared = 0.0;
+  for(size_t axis = 0; axis < 3; ++axis)
+  {
+    origin[axis] = m_OdfDimStep[axis] * static_cast<double>(phi[axis]);
+    const double lower = origin[axis] - m_OdfDimInit[axis];
+    const double upper = origin[axis] + m_OdfDimStep[axis] - m_OdfDimInit[axis];
+    const double nearest = std::max({lower, -upper, 0.0});
+    const double farthest = std::max(std::abs(lower), std::abs(upper));
+    nearestSquared += nearest * nearest;
+    farthestSquared += farthest * farthest;
+  }
+  constexpr double k_RadiusSquared = LPs::R1 * LPs::R1;
+  if(nearestSquared >= k_RadiusSquared)
+  {
+    return 0.0;
+  }
+  if(farthestSquared <= k_RadiusSquared)
+  {
+    return 1.0;
+  }
+
+  constexpr int k_Subdivisions = 6;
+  int insideCount = 0;
+  for(int z = 0; z < k_Subdivisions; ++z)
+  {
+    const double h3 = origin[2] + m_OdfDimStep[2] * ((z + 0.5) / k_Subdivisions) - m_OdfDimInit[2];
+    for(int y = 0; y < k_Subdivisions; ++y)
+    {
+      const double h2 = origin[1] + m_OdfDimStep[1] * ((y + 0.5) / k_Subdivisions) - m_OdfDimInit[1];
+      for(int x = 0; x < k_Subdivisions; ++x)
+      {
+        const double h1 = origin[0] + m_OdfDimStep[0] * ((x + 0.5) / k_Subdivisions) - m_OdfDimInit[0];
+        insideCount += h1 * h1 + h2 * h2 + h3 * h3 <= k_RadiusSquared;
+      }
+    }
+  }
+  return static_cast<double>(insideCount) / (k_Subdivisions * k_Subdivisions * k_Subdivisions);
+}
+
+bool LaueOps::isOdfBinReachable(int bin) const
+{
+  return odfBinInBallFraction(bin) > 0.0;
+}
+
+uint64_t LaueOps::clampFallbackCount() const
+{
+  return m_ClampFallbackCount.load(std::memory_order_relaxed);
+}
+
+void LaueOps::resetClampFallbackCount() const
+{
+  m_ClampFallbackCount.store(0, std::memory_order_relaxed);
+}
 
 // -----------------------------------------------------------------------------
 std::array<float, 3> LaueOps::getOdfBinStepSize() const
@@ -296,75 +413,17 @@ void LaueOps::RodriguesComposition(RodriguesDType sigma, RodriguesDType& rod)
 // -----------------------------------------------------------------------------
 bool LaueOps::InsideCyclicFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingType order)
 {
-  bool res = false;
-  bool doM = false;
+  constexpr double eps = 1.0e-10; // Include boundary points despite quaternion-to-Rodrigues roundoff.
+  const int32_t orderAsArrayIndex = to_underlying(order) - 1;
 
-  // if (M.has_value() && *M)
-  //   doM = true;
-
-  int32_t orderAsArrayIndex = to_underlying(order) - 1;
-  auto x = rod; // Make a copy of the input Rodrigues vector .r_copyd();
-
-  // Case: finite x(4)
-  if(x[3] != std::numeric_limits<double>::infinity())
+  // Quaternion form avoids inf*0 and huge-length roundoff in the EMsoftOO insideCyclicFZ inequality.
+  const double c = std::isinf(rod[3]) ? 0.0 : 1.0 / std::hypot(1.0, rod[3]);
+  const double s = std::isinf(rod[3]) ? 1.0 : rod[3] * c;
+  if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
   {
-    if(doM)
-    {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        // Check y-component vs tan(pi/2n)
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
-      }
-      else
-      {
-        // Check z-component vs tan(pi/2n)
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
-      }
-    }
-    else
-    {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        res = std::abs(x[1] * x[3]) <= LPs::BP[orderAsArrayIndex];
-      }
-      else
-      {
-        res = std::abs(x[2] * x[3]) <= LPs::BP[orderAsArrayIndex];
-      }
-    }
+    return std::abs(rod[1]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
   }
-  // Case: infinite x(4)
-  else
-  {
-    if(doM)
-    {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        if(x[1] == 0.0)
-          res = true;
-      }
-      else
-      {
-        if(x[2] == 0.0)
-          res = true;
-      }
-    }
-    else
-    {
-      if(fzType == FZType::Cyclic && order == AxisOrderingType::TwoFold)
-      {
-        if(x[1] == 0.0)
-          res = true;
-      }
-      else
-      {
-        if(x[2] == 0.0)
-          res = true;
-      }
-    }
-  }
-
-  return res;
+  return std::abs(rod[2]) * s <= LPs::BP[orderAsArrayIndex] * c + eps;
 }
 
 // -----------------------------------------------------------------------------
@@ -375,7 +434,7 @@ bool LaueOps::InsideDihedralFZ(const RodriguesDType& rod, const AxisOrderingType
   bool res = false;
   bool c1 = false;
 
-  if(rod[3] > LPs::rtt) // sqrt(3.0)
+  if(rod[3] > LPs::rtt + eps) // sqrt(3.0), including the 222 FZ corners.
   {
     return false;
   }
@@ -410,8 +469,8 @@ bool LaueOps::InsideDihedralFZ(const RodriguesDType& rod, const AxisOrderingType
       break;
 
     case AxisOrderingType::FourFold:
-      c2 = (std::fabs(r[0]) <= r1) && (std::fabs(r[1]) <= r1);
-      c2 &= (LPs::r22 * std::fabs(r[0] + r[1]) <= r1) && (LPs::r22 * std::fabs(r[0] - r[1]) <= r1);
+      c2 = (std::fabs(r[0]) <= r1 + eps) && (std::fabs(r[1]) <= r1 + eps);
+      c2 &= (LPs::r22 * std::fabs(r[0] + r[1]) <= r1 + eps) && (LPs::r22 * std::fabs(r[0] - r[1]) <= r1 + eps);
       break;
 
     case AxisOrderingType::SixFold:
@@ -509,7 +568,19 @@ bool LaueOps::IsInsideFZ(const RodriguesDType& rod, FZType fzType, AxisOrderingT
 
 bool LaueOps::IsInsideFZ(const QuatD& quat, FZType fzType, AxisOrderingType order)
 {
-  const RodriguesDType rod = QuaternionDType(quat.getPositiveOrientation()).toRodrigues();
+  const QuatD positiveQuat = quat.getPositiveOrientation();
+  if(fzType == FZType::Cyclic)
+  {
+    // Preserve finite near-half-turns: Quaternion::toRodrigues clamps w < 1e-8 to infinity.
+    const double sine = std::hypot(positiveQuat.x(), positiveQuat.y(), positiveQuat.z());
+    if(sine == 0.0)
+    {
+      return true;
+    }
+    const double length = positiveQuat.w() == 0.0 ? std::numeric_limits<double>::infinity() : sine / positiveQuat.w();
+    return InsideCyclicFZ({positiveQuat.x() / sine, positiveQuat.y() / sine, positiveQuat.z() / sine, length}, fzType, order);
+  }
+  const RodriguesDType rod = QuaternionDType(positiveQuat).toRodrigues();
   return IsInsideFZ(rod, fzType, order);
 }
 
@@ -623,28 +694,86 @@ QuatD LaueOps::_calcNearestQuat(const std::vector<QuatD>& quatsym, const QuatD& 
   return out;
 }
 
+// Interior points are unique; on a boundary choose the largest (w, x, y, z)
+// symmetry image, ignoring roundoff and fixing the sign of half-turns.
 QuatD LaueOps::ConvertToFZ(const std::vector<QuatD>& quatsym, const QuatD& qr, FZType fzType, AxisOrderingType order)
 {
   // Ensure the Quaternion is Normalized and the Scalar Part is positive
   QuatD normalizedQuat = qr.normalize().getPositiveOrientation();
   RodriguesDType rod = normalizedQuat.toRodrigues();
 
-  if(IsInsideFZ(rod, fzType, order))
+  constexpr double interiorMargin = 1.0e-6;
+  // A cyclic FZ is an unbounded slab. Near-180° images about different basal axes are all inside it
+  // with radial margin, so the margin test cannot find the tie. Cyclic groups have at most 6 operators.
+  if(fzType == FZType::Cyclic)
   {
-    return normalizedQuat;
-  }
-
-  size_t numsym = quatsym.size();
-  for(size_t i = 0; i < numsym; i++)
-  {
-    QuatD qc = (quatsym[i] * qr).normalize();
-    normalizedQuat = qc.getPositiveOrientation();
-    rod = normalizedQuat.toRodrigues();
-
-    if(normalizedQuat.w() < 1.0E5 && IsInsideFZ(rod, fzType, order))
+    const double axisComponent = order == AxisOrderingType::TwoFold ? normalizedQuat.y() : normalizedQuat.z();
+    if(std::abs(axisComponent) * (1.0 + interiorMargin) <= LPs::BP[to_underlying(order) - 1] * normalizedQuat.w() && std::hypot(normalizedQuat.w(), axisComponent) > interiorMargin)
     {
       return normalizedQuat;
     }
+  }
+  else if(std::isfinite(rod[3]) && IsInsideFZ(rod, fzType, order))
+  {
+    rod[3] *= 1.0 + interiorMargin;
+    if(IsInsideFZ(rod, fzType, order))
+    {
+      return normalizedQuat;
+    }
+  }
+
+  constexpr double tolerance = 1.0e-10;
+  constexpr size_t candidateCapacity = 24; // CubicOps has the largest symmetry group.
+  std::array<QuatD, candidateCapacity> candidates;
+  size_t candidateCount = 0;
+  if(quatsym.size() > candidateCapacity)
+  {
+    return {std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
+  }
+  for(const QuatD& symmetry : quatsym)
+  {
+    QuatD candidate = (symmetry * qr).normalize().getPositiveOrientation();
+    if(std::abs(candidate.w()) < tolerance)
+    {
+      for(size_t component = 0; component < 3; ++component)
+      {
+        if(std::abs(candidate[component]) > tolerance)
+        {
+          if(candidate[component] < 0.0)
+          {
+            candidate.negate();
+          }
+          break;
+        }
+      }
+      candidate.w() = std::abs(candidate.w());
+    }
+    if(IsInsideFZ(candidate, fzType, order))
+    {
+      candidates[candidateCount++] = candidate;
+    }
+  }
+  if(candidateCount > 0)
+  {
+    // Each component uses a fixed maximum so tolerance comparisons do not depend on scan order.
+    for(const size_t component : std::array<size_t, 4>{3, 0, 1, 2})
+    {
+      double componentMax = candidates[0][component];
+      for(size_t i = 1; i < candidateCount; ++i)
+      {
+        componentMax = std::max(componentMax, candidates[i][component]);
+      }
+      size_t survivorCount = 0;
+      for(size_t i = 0; i < candidateCount; ++i)
+      {
+        if(candidates[i][component] >= componentMax - tolerance)
+        {
+          candidates[survivorCount++] = candidates[i];
+        }
+      }
+      candidateCount = survivorCount;
+    }
+    return candidates[0];
   }
   // This should never happen, so I guess returning a Quaternion with all Infinity values is _a_ way to do it?
   // Maybe we should throw an exception instead? Or return a std::optional() if we were using C++17
@@ -688,6 +817,44 @@ void LaueOps::_calcDetermineHomochoricValues(double random[3], double init[3], d
   r1 = (step[0] * phi[0]) + (step[0] * random[0]) - (init[0]);
   r2 = (step[1] * phi[1]) + (step[1] * random[1]) - (init[1]);
   r3 = (step[2] * phi[2]) + (step[2] * random[2]) - (init[2]);
+}
+
+// -----------------------------------------------------------------------------
+bool LaueOps::_calcDetermineHomochoricValuesInBall(double random[3], double init[3], double step[3], int32_t phi[3], double& r1, double& r2, double& r3) const
+{
+  constexpr double k_RadiusSquared = LPs::R1 * LPs::R1;
+  constexpr int32_t k_MaxRedraws = 4096;
+
+  _calcDetermineHomochoricValues(random, init, step, phi, r1, r2, r3);
+  auto isInBall = [&r1, &r2, &r3, k_RadiusSquared]() { return r1 * r1 + r2 * r2 + r3 * r3 <= k_RadiusSquared; };
+  if(isInBall())
+  {
+    return true;
+  }
+
+  uint64_t state = 0x243F6A8885A308D3ULL;
+  for(size_t index = 0; index < 3; index++)
+  {
+    state = MixBits(state ^ DoubleBits(random[index]));
+    state = MixBits(state ^ static_cast<uint64_t>(static_cast<int64_t>(phi[index])));
+  }
+
+  for(int32_t redraw = 0; redraw < k_MaxRedraws; redraw++)
+  {
+    double redrawnRandom[3] = {NextUnitInterval(state), NextUnitInterval(state), NextUnitInterval(state)};
+    _calcDetermineHomochoricValues(redrawnRandom, init, step, phi, r1, r2, r3);
+    if(isInBall())
+    {
+      return true;
+    }
+  }
+
+  m_ClampFallbackCount.fetch_add(1, std::memory_order_relaxed);
+  const double scale = LPs::R1 / std::sqrt(r1 * r1 + r2 * r2 + r3 * r3);
+  r1 *= scale;
+  r2 *= scale;
+  r3 *= scale;
+  return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -745,23 +912,50 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
   /*[9]*/ m_OrientationOps.push_back(TrigonalLowOps::New()); // Trigonal-low
   /*[10]*/ m_OrientationOps.push_back(TrigonalOps::New());   // Trigonal-High
 
-  /*[11]*/ m_OrientationOps.push_back(OrthoRhombicOps::New()); // Axis OrthorhombicOps
-
   return m_OrientationOps;
 }
 
 // -----------------------------------------------------------------------------
-LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgNumber)
+LaueOps::Pointer LaueOps::GetOrientationOpsFromCrystalStructure(const uint32_t crystalStructure)
 {
-  // There are only 230 Space Groups, so if the user asks for something outside of
-  // that range, then return a null pointer. If they are asking for this kind of
-  // value then there is something wrong in the calling code.
-  if(sgNumber > 230)
+  switch(crystalStructure)
   {
+  case CrystalStructure::Hexagonal_High:
+    return HexagonalOps::New();
+  case CrystalStructure::Cubic_High:
+    return CubicOps::New();
+  case CrystalStructure::Hexagonal_Low:
+    return HexagonalLowOps::New();
+  case CrystalStructure::Cubic_Low:
+    return CubicLowOps::New();
+  case CrystalStructure::Triclinic:
+    return TriclinicOps::New();
+  case CrystalStructure::Monoclinic:
+    return MonoclinicOps::New();
+  case CrystalStructure::OrthoRhombic:
+    return OrthoRhombicOps::New();
+  case CrystalStructure::Tetragonal_Low:
+    return TetragonalLowOps::New();
+  case CrystalStructure::Tetragonal_High:
+    return TetragonalOps::New();
+  case CrystalStructure::Trigonal_Low:
+    return TrigonalLowOps::New();
+  case CrystalStructure::Trigonal_High:
+    return TrigonalOps::New();
+  default:
     return LaueOps::NullPointer();
   }
-  std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
-  std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
+}
+
+// -----------------------------------------------------------------------------
+uint32_t LaueOps::GetLaueOpsIndexFromSpaceGroupNumber(const size_t sgNumber)
+{
+  if(sgNumber == 0 || sgNumber > 230)
+  {
+    return CrystalStructure::UnknownCrystalStructure;
+  }
+  constexpr std::array<size_t, 32> sgpg = {1, 2, 3, 6, 10, 16, 25, 47, 75, 81, 83, 89, 99, 111, 123, 143, 147, 149, 156, 162, 168, 174, 175, 177, 183, 187, 191, 195, 200, 207, 215, 221};
+  constexpr std::array<size_t, 32> pgLaue = {1, 1, 2, 2, 2, 22, 22, 22, 4, 4, 4, 42, 42, 42, 42, 3, 3, 32, 32, 32, 6, 6, 6, 62, 62, 62, 62, 23, 23, 43, 43, 43};
 
   size_t pgNumber = sgpg.size() - 1;
   size_t i = 0;
@@ -769,40 +963,49 @@ LaueOps::Pointer LaueOps::GetOrientationOpsFromSpaceGroupNumber(const size_t sgN
   {
     if(sgpg[i] > sgNumber)
     {
-      pgNumber = i;
+      pgNumber = i - 1;
       break;
     }
   }
 
-  // std::cout << "Space Group: " << sgNumber << "   sgpg: " << i << "   sgpg[i]: " << sgpg[i] << "   pgNumber: " << pgNumber << "  pgLaue[pgNumber]: " << pgLaue[pgNumber] << std::endl;
-
   switch(pgLaue.at(pgNumber))
   {
   case 1:
-    return TriclinicOps::New();
+    return CrystalStructure::Triclinic;
   case 2:
-    return MonoclinicOps::New();
+    return CrystalStructure::Monoclinic;
   case 22:
-    return OrthoRhombicOps::New();
+    return CrystalStructure::OrthoRhombic;
   case 4:
-    return TetragonalLowOps::New();
+    return CrystalStructure::Tetragonal_Low;
   case 42:
-    return TetragonalOps::New();
+    return CrystalStructure::Tetragonal_High;
   case 3:
-    return TrigonalLowOps::New();
+    return CrystalStructure::Trigonal_Low;
   case 32:
-    return TrigonalOps::New();
+    return CrystalStructure::Trigonal_High;
   case 6:
-    return HexagonalLowOps::New();
+    return CrystalStructure::Hexagonal_Low;
   case 62:
-    return HexagonalOps::New();
+    return CrystalStructure::Hexagonal_High;
   case 23:
-    return CubicLowOps::New();
+    return CrystalStructure::Cubic_Low;
   case 43:
-    return CubicOps::New();
+    return CrystalStructure::Cubic_High;
   default:
+    return CrystalStructure::UnknownCrystalStructure;
+  }
+}
+
+// -----------------------------------------------------------------------------
+LaueOps::Pointer LaueOps::GetLaueOpsFromSpaceGroupNumber(const size_t sgNumber)
+{
+  const uint32_t crystalStructure = GetLaueOpsIndexFromSpaceGroupNumber(sgNumber);
+  if(crystalStructure == CrystalStructure::UnknownCrystalStructure)
+  {
     return LaueOps::NullPointer();
   }
+  return GetAllOrientationOps()[crystalStructure];
 }
 
 // -----------------------------------------------------------------------------
@@ -837,6 +1040,21 @@ size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps) const
 
   size_t symOp = distribution(generator); // Random remaining position.
   return symOp;
+}
+
+// -----------------------------------------------------------------------------
+size_t LaueOps::getRandomSymmetryOperatorIndex(const int numSymOps, std::mt19937_64& generator) const
+{
+  std::uniform_int_distribution<size_t> distribution(0, static_cast<size_t>(numSymOps - 1));
+  return distribution(generator);
+}
+
+// -----------------------------------------------------------------------------
+EulerDType LaueOps::randomizeEulerAngles(const EulerDType& euler, std::mt19937_64& generator) const
+{
+  const size_t symOp = getRandomSymmetryOperatorIndex(static_cast<int>(getNumSymOps()), generator);
+  const QuatD qc = getQuatSymOp(symOp) * euler.toQuaternion();
+  return QuaternionDType(qc).toEuler();
 }
 
 // -----------------------------------------------------------------------------
@@ -1002,9 +1220,9 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
   // Create canvas
   canvas_ity::canvas context(canvasDim, canvasDim);
 
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize);
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
 
@@ -1023,7 +1241,7 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
                      static_cast<float>(legendHeight));
 
   // Draw title at the large font.
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 1.5);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize * 1.5F);
   ebsdlib::WriteText(context, title, {margins[0], static_cast<float>(fontPtSize * 1.5)}, fontPtSize * 1.5);
 
   // Hex/trig basis convention on a small sub-line just under the title (smaller
@@ -1041,12 +1259,12 @@ UInt8ArrayType::Pointer LaueOps::annotateIPFImage(UInt8ArrayType::Pointer triang
   if(!convLine.empty())
   {
     const float subFontSize = fontPtSize * 0.7F;
-    context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), subFontSize);
+    ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, subFontSize);
     ebsdlib::WriteText(context, convLine, {margins[0], static_cast<float>(fontPtSize * 2.6F)}, static_cast<int>(subFontSize));
   }
 
   // Draw per-subclass annotations (Miller indices, SST boundary lines)
-  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize);
   drawIPFAnnotations(context, canvasDim, fontPtSize, margins, figureOrigin, figureCenter, generateEntirePlane, conv);
 
   // Extract rendered pixels and remove alpha channel
@@ -1135,8 +1353,8 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int
   context.stroke();
 
   // Draw min/max labels
-  std::vector<unsigned char> latoRegular = ebsdlib::fonts::GetLatoRegular();
-  context.set_font(latoRegular.data(), static_cast<int>(latoRegular.size()), fontPtSize * 0.8f);
+  const auto& latoRegular = ebsdlib::fonts::GetLatoRegular();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize * 0.8f);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
 
   // Format min/max values
@@ -1151,8 +1369,8 @@ UInt8ArrayType::Pointer LaueOps::drawColorBar(UInt8ArrayType::Pointer image, int
 
   // Draw MRD or counts label
   std::string unitLabel = isMRD ? "MRD" : "Counts";
-  std::vector<unsigned char> latoBold = ebsdlib::fonts::GetLatoBold();
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), fontPtSize * 0.7f);
+  const auto& latoBold = ebsdlib::fonts::GetLatoBold();
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, fontPtSize * 0.7f);
   ebsdlib::WriteText(context, unitLabel, {barLeft, barTop - fontPtSize * 0.5f}, fontPtSize * 0.7f);
 
   // Extract and remove alpha

@@ -1,20 +1,25 @@
 #include "PoleFigureCompositor.h"
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/LaueOps/LaueOps.h"
-#include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/CanvasUtilities.hpp"
 #include "EbsdLib/Utilities/ColorTable.h"
 #include "EbsdLib/Utilities/Fonts.hpp"
 #include "EbsdLib/Utilities/PoleFigureChrome.h"
 #include "EbsdLib/Utilities/PoleFigureUtilities.h"
 
+#include <canvas_ity.hpp>
 #include <fmt/format.h>
 
-#include <canvas_ity.hpp>
-
 #ifdef EbsdLib_USE_PARALLEL_ALGORITHMS
-#include <tbb/task_group.h>
+#include <tbb/task_group.h> // IWYU pragma: keep
 #endif
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 namespace ebsdlib
 {
@@ -54,12 +59,14 @@ LayoutMetrics PoleFigureCompositor::computeLayoutMetrics(const CompositePoleFigu
   metrics.fontPtSize = imageHeight / 16.0f;
   metrics.margins = imageHeight / 32.0f;
 
-  // Measure "X" character width using a temporary canvas
+  // Measure the "X" character width. A 1x1 canvas is enough: the measured width depends only
+  // on the font and the font size. A canvas allocates 16 bytes for each pixel, so an
+  // imageDim x imageDim canvas would use about 1 GB at imageDim 8000.
   float xCharWidth = 0.0f;
   {
-    std::vector<unsigned char> latoBold = fonts::GetLatoBold();
-    canvas_ity::canvas tempContext(config.imageDim, config.imageDim);
-    tempContext.set_font(latoBold.data(), static_cast<int>(latoBold.size()), metrics.fontPtSize);
+    const auto& latoBold = fonts::GetLatoBold();
+    canvas_ity::canvas tempContext(1, 1);
+    ebsdlib::fonts::LoadEmbeddedFont(tempContext, latoBold, metrics.fontPtSize);
     const std::array<char, 2> buf = {'X', 0};
     xCharWidth = tempContext.measure_text(buf.data());
   }
@@ -175,13 +182,13 @@ void PoleFigureCompositor::preprocessImages(std::vector<UInt8ArrayType::Pointer>
 // -----------------------------------------------------------------------------
 UInt8ArrayType::Pointer PoleFigureCompositor::compositeToCanvas(const CompositePoleFigureConfiguration_t& config, const std::vector<UInt8ArrayType::Pointer>& images, const LayoutMetrics& layout)
 {
-  std::vector<unsigned char> latoBold = fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = fonts::GetLatoRegular();
-  std::vector<unsigned char> firaSans = fonts::GetFiraSansRegular();
+  const auto& latoBold = fonts::GetLatoBold();
+  const auto& latoRegular = fonts::GetLatoRegular();
+  const auto& firaSans = fonts::GetFiraSansRegular();
 
   canvas_ity::canvas context(layout.pageWidth, layout.pageHeight);
 
-  context.set_font(latoBold.data(), static_cast<int>(latoBold.size()), layout.fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoBold, layout.fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
 
@@ -253,7 +260,7 @@ void PoleFigureCompositor::drawScalarBar(canvas_ity::canvas& context, const Comp
   // Max value text
   context.begin_path();
   const std::string maxStr = fmt::format("{:#.6}", config.maxScale);
-  context.set_font(const_cast<unsigned char*>(latoRegular.data()), static_cast<int>(latoRegular.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(maxStr.c_str(), position[0] + 2.0f * margins + rectWidth, position[1] + 2.0f * margins + 2.0f * fontPtSize + colorHeight);
@@ -262,7 +269,7 @@ void PoleFigureCompositor::drawScalarBar(canvas_ity::canvas& context, const Comp
   // Min value text
   context.begin_path();
   const std::string minStr = fmt::format("{:#.6}", config.minScale);
-  context.set_font(const_cast<unsigned char*>(latoRegular.data()), static_cast<int>(latoRegular.size()), fontPtSize);
+  ebsdlib::fonts::LoadEmbeddedFont(context, latoRegular, fontPtSize);
   context.set_color(canvas_ity::fill_style, 0.0f, 0.0f, 0.0f, 1.0f);
   context.text_baseline = canvas_ity::alphabetic;
   context.fill_text(minStr.c_str(), position[0] + 2.0f * margins + rectWidth, position[1] + 2.0f * margins + 2.0f * fontPtSize + static_cast<float>(numColors) * colorHeight);

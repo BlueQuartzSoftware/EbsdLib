@@ -91,7 +91,8 @@ public:
    * @param dimension The Dimension of the modified lambert projections images
    * @param resolution The Spacing of the modified lambert projections
    * @param sphereRadius The radius of the sphere from where the coordinates are coming from.
-   * @return
+   * @return The projection. When @p dimension is 0 or negative, the projection is empty (see initializeSquares())
+   * and no coordinates are binned.
    */
   static Pointer LambertBallToSquare(ebsdlib::FloatArrayType* coords, int dimension, float sphereRadius);
 
@@ -126,10 +127,14 @@ public:
   ebsdlib::DoubleArrayType::Pointer getSouthSquare() const;
 
   /**
-   * @brief initializeSquares
-   * @param dims
-   * @param resolution
-   * @param sphereRadius
+   * @brief Allocates the north and south squares, each dims x dims bins, filled with zeros.
+   *
+   * A dimension of 0 or a negative dimension is rejected: the projection is left empty, with getDimension() and
+   * getStepSize() equal to 0 and north and south squares that hold no bins. An empty projection adds no values,
+   * interpolates every value as 0 and creates stereographic projections that are all 0. Callers check
+   * getDimension() > 0 to detect it.
+   * @param dims Number of bins along each edge of a square; must be greater than 0.
+   * @param sphereRadius Radius of the sphere that the coordinates lie on.
    */
   void initializeSquares(int dims, float sphereRadius);
 

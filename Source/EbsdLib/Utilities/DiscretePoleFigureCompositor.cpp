@@ -1,5 +1,6 @@
 #include "EbsdLib/Utilities/DiscretePoleFigureCompositor.h"
 
+#include "EbsdLib/Core/EbsdDataArray.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
 #include "EbsdLib/Utilities/Fonts.hpp"
@@ -13,6 +14,8 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace ebsdlib
@@ -77,9 +80,9 @@ CompositePoleFigureResult DiscretePoleFigureCompositor::generateCompositeImage(C
   };
 
   // --- Fonts ---
-  std::vector<unsigned char> latoBold = fonts::GetLatoBold();
-  std::vector<unsigned char> latoRegular = fonts::GetLatoRegular();
-  std::vector<unsigned char> firaSans = fonts::GetFiraSansRegular();
+  const auto& latoBold = fonts::GetLatoBold();
+  const auto& latoRegular = fonts::GetLatoRegular();
+  const auto& firaSans = fonts::GetFiraSansRegular();
 
   // --- Marker sprite (single color => render once) ---
   const float halfSize = static_cast<float>(config.imageDim) / 2.0f;

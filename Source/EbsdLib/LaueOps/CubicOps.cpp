@@ -278,7 +278,10 @@ constexpr double k_EtaMax = 45.0;
 } // namespace CubicHigh
 
 // -----------------------------------------------------------------------------
-CubicOps::CubicOps() = default;
+CubicOps::CubicOps()
+: LaueOps(CubicHigh::k_OdfDimInitValue, CubicHigh::k_OdfDimStepValue)
+{
+}
 
 // -----------------------------------------------------------------------------
 CubicOps::~CubicOps() = default;
@@ -770,7 +773,7 @@ EulerDType CubicOps::determineEulerAngles(double random[3], int choose) const
   phi[1] = static_cast<int32_t>((choose / CubicHigh::k_OdfNumBins[0]) % CubicHigh::k_OdfNumBins[1]);
   phi[2] = static_cast<int32_t>(choose / (CubicHigh::k_OdfNumBins[0] * CubicHigh::k_OdfNumBins[1]));
 
-  _calcDetermineHomochoricValues(random, init, step, phi, h1, h2, h3);
+  _calcDetermineHomochoricValuesInBall(random, init, step, phi, h1, h2, h3);
 
   RodriguesDType ro = HomochoricDType(h1, h2, h3).toRodrigues();
   ro = getODFFZRod(ro);

@@ -38,6 +38,7 @@
 #include "EbsdLib/IO/ScanGridOrder.h"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -444,6 +445,29 @@ int CtfReader::readFile()
   {
     setErrorMessage("Either the X Cells or Y Cells was Zero (0) which is NOT allowed. Please update the CTF file header with appropriate values.");
     return -103;
+  }
+
+  const float xStep = getXStep();
+  if(!std::isfinite(xStep) || xStep < 0.0f)
+  {
+    setErrorCode(-102310);
+    setErrorMessage("The XStep value in the header of '" + getFileName() + "' is " + std::to_string(xStep) + ". The step size must be a finite number larger than zero.");
+    return getErrorCode();
+  }
+  const float yStep = getYStep();
+  if(!std::isfinite(yStep) || yStep < 0.0f)
+  {
+    setErrorCode(-102311);
+    setErrorMessage("The YStep value in the header of '" + getFileName() + "' is " + std::to_string(yStep) + ". The step size must be a finite number larger than zero.");
+    return getErrorCode();
+  }
+  // A file without a ZCells header line keeps the default of 1 slice.
+  if(getZCells() <= 0)
+  {
+    setErrorCode(-102312);
+    setErrorMessage("The ZCells value in the header of '" + getFileName() + "' is " + std::to_string(getZCells()) +
+                    ". The number of slices must be larger than zero; remove the ZCells line for a single slice file.");
+    return getErrorCode();
   }
 
   err = readData(in);

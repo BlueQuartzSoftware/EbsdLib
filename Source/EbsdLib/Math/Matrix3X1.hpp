@@ -144,8 +144,11 @@ public:
   }
 
   /**
-   * @brief returns a normalization of the 3x1 vector.
-   * @param g
+   * @brief Returns a normalization of the 3x1 vector.
+   *
+   * @pre The vector must not be the zero vector. There is no zero-length check: the zero vector gives NaN components.
+   * Use the static normalize(i, j, k) overload, which returns false for the zero vector, when the length may be zero.
+   * @return The normalized vector
    */
   SelfType normalize() const
   {

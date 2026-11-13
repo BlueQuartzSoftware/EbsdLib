@@ -188,21 +188,19 @@ int H5EspritReader::sanityCheckForOpening()
 
   if(m_HDF5Path.empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: HDF5 Path is empty.";
     setErrorCode(-1);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
 
   if(getFileName().empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Input filepath is empty";
     setErrorCode(-387);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return err;
   }
   return err;
@@ -220,23 +218,21 @@ int H5EspritReader::readFile()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-2);
-    setErrorMessage(str);
-    return err;
+    setErrorMessage(ss.str());
+    return getErrorCode();
   }
 
   H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     setErrorCode(-90020);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -244,11 +240,10 @@ int H5EspritReader::readFile()
   hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open 'EBSD' Group";
     setErrorCode(-90007);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(ebsdGid);
@@ -257,9 +252,9 @@ int H5EspritReader::readFile()
   err = readHeader(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read header";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read header. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -267,9 +262,9 @@ int H5EspritReader::readFile()
   err = readData(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read data. Internal Error code " << getErrorCode() << " generated.";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read data. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -287,24 +282,22 @@ int H5EspritReader::readHeaderOnly()
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-2);
-    setErrorMessage(str);
-    return err;
+    setErrorMessage(ss.str());
+    return getErrorCode();
   }
 
   H5ScopedFileSentinel sentinel(fileId, false);
   hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open path '" << m_HDF5Path << "'";
     err = H5Utilities::closeFile(fileId);
     setErrorCode(-90020);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(gid);
@@ -312,11 +305,10 @@ int H5EspritReader::readHeaderOnly()
   hid_t ebsdGid = H5Gopen(gid, ebsdlib::H5Esprit::EBSD.c_str(), H5P_DEFAULT);
   if(ebsdGid < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open 'EBSD' Group";
     setErrorCode(-90007);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
   sentinel.addGroupId(ebsdGid);
@@ -325,9 +317,9 @@ int H5EspritReader::readHeaderOnly()
   err = readHeader(ebsdGid);
   if(err < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
-    ss << getNameOfClass() << " Error: could not read header";
+    std::stringstream ss;
+    ss << getNameOfClass() << " Error: could not read header. " << getErrorMessage();
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
@@ -339,22 +331,20 @@ int H5EspritReader::readScanNames(std::list<std::string>& names)
 {
   if(getFileName().empty())
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Input filepath is empty";
     setErrorCode(-387);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     return getErrorCode();
   }
 
   hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    std::string str;
-    std::stringstream ss(str);
+    std::stringstream ss;
     ss << getNameOfClass() << " Error: Could not open HDF5 file '" << getFileName() << "'";
     setErrorCode(-20);
-    setErrorMessage(str);
+    setErrorMessage(ss.str());
     names.clear();
     return getErrorCode();
   }
@@ -482,7 +472,7 @@ int H5EspritReader::readHeader(hid_t parId)
 
     READ_PHASE_HEADER_DATA("H5EspritReader", pid, int32_t, ebsdlib::H5Esprit::IT, IT, currentPhase)
 
-    READ_PHASE_HEADER_ARRAY("H5EspritReader", pid, float, ebsdlib::H5Esprit::LatticeConstants, LatticeConstants, currentPhase);
+    READ_PHASE_LATTICE_CONSTANTS("H5EspritReader", pid, ebsdlib::H5Esprit::LatticeConstants, phaseGroupName, currentPhase)
 
     READ_PHASE_STRING_DATA("H5EspritReader", pid, ebsdlib::H5Esprit::Name, Name, currentPhase)
 
@@ -611,14 +601,48 @@ int H5EspritReader::readData(hid_t parId)
     err = H5Lite::getDatasetInfo(gid, ebsdlib::H5Esprit::RawPatterns, dims, type_class, type_size);
     if(err >= 0) // Only read the pattern data if the pattern data is available.
     {
-      totalDataRows = std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>());
+      // The pattern dataset must hold one 2D pattern of integer pixels for each scan point.
+      int patternErr = 0;
+      std::stringstream patternMsg;
+      patternMsg << getNameOfClass() << " Error: The '" << ebsdlib::H5Esprit::RawPatterns << "' dataset of scan '" << m_HDF5Path << "' in file '" << getFileName() << "'";
+      if(dims.size() != 3)
+      {
+        patternErr = -90330;
+        patternMsg << " has " << dims.size() << " dimensions but 3 (points x pattern height x pattern width) are required.";
+      }
+      else if(dims[0] != totalDataRows)
+      {
+        patternErr = -90331;
+        patternMsg << " holds " << dims[0] << " patterns but the scan has " << totalDataRows << " points (" << nColumns << " x " << nRows << ").";
+      }
+      else if(type_class != H5T_INTEGER)
+      {
+        patternErr = -90332;
+        patternMsg << " does not hold integer pixel values.";
+      }
+      if(patternErr < 0)
+      {
+        H5Gclose(gid);
+        setErrorCode(patternErr);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
 
       // Set the pattern dimensions
       m_PatternDims[0] = static_cast<int>(dims[1]);
       m_PatternDims[1] = static_cast<int>(dims[2]);
 
-      m_PatternData = this->allocateArray<uint8_t>(totalDataRows);
+      m_PatternData = this->allocateArray<uint8_t>(std::accumulate(dims.cbegin(), dims.cend(), static_cast<size_t>(1), std::multiplies<size_t>()));
       err = H5Lite::readPointerDataset(gid, ebsdlib::H5Esprit::RawPatterns, m_PatternData);
+      if(err < 0)
+      {
+        H5Gclose(gid);
+        this->deallocateArrayData<uint8_t>(m_PatternData);
+        patternMsg << " could not be read.";
+        setErrorCode(-90333);
+        setErrorMessage(patternMsg.str());
+        return getErrorCode();
+      }
     }
   }
   err = H5Gclose(gid);

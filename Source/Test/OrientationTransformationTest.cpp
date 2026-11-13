@@ -228,3 +228,46 @@ TEST_CASE("ebsdlib::OrientationTransformationTest::GetODFFZRod_180DegRotation_He
   // Parallel or antiparallel: |dot| ≈ 1
   CHECK(std::fabs(dot) == Approx(1.0).margin(1.0e-6));
 }
+
+// =============================================================================
+// Rounding error: scalar part just outside [-1, 1]
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::OrientationTransformationTest::Quaternion_ScalarPartRoundingError", "[EbsdLib][OrientationTransformationTest]")
+{
+  // This float quaternion is the misorientation a^-1 * (a * b) for a = (0.747518957, -0.618990719, -0.240656734, 0.0122617185)
+  // and a small rotation b, computed in float. It is a unit quaternion to float precision (isValid() accepts it), but
+  // rounding has pushed the scalar part one ULP above 1.0. acos() of that value is NaN.
+  const QuaternionFType q(-0.000147104263f, 0.00024650991f, 0.000268757343f, 1.00000012f);
+  REQUIRE(q.w() > 1.0f);
+  REQUIRE(q.isValid().result == 1);
+
+  auto checkFinite = [](const auto& values, size_t count) {
+    for(size_t i = 0; i < count; i++)
+    {
+      INFO("index " << i << " value " << values[i]);
+      CHECK(std::isfinite(values[i]));
+    }
+  };
+
+  // Quaternion -> AxisAngle: rotation angle is ~0
+  AxisAngleFType ax = q.toAxisAngle();
+  checkFinite(ax, 4);
+  CHECK(ax[3] == Approx(0.0f).margin(1.0e-3f));
+
+  // Quaternion -> Rodrigues: rotation angle is ~0
+  RodriguesFType ro = q.toRodrigues();
+  checkFinite(ro, 4);
+  CHECK(ro[3] == Approx(0.0f).margin(1.0e-3f));
+
+  // Quaternion -> Homochoric: vector length is ~0
+  HomochoricFType ho = q.toHomochoric();
+  checkFinite(ho, 3);
+
+  // The same quaternion with a negative scalar part represents the same rotation
+  const QuaternionFType qNeg(-q.x(), -q.y(), -q.z(), -q.w());
+  AxisAngleFType axNeg = qNeg.toAxisAngle();
+  checkFinite(axNeg, 4);
+  CHECK(axNeg[3] == Approx(0.0f).margin(1.0e-3f));
+}

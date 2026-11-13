@@ -35,6 +35,7 @@
 
 #include "ModifiedLambertProjection.h"
 
+#include <algorithm>
 #include <array>
 
 #include "EbsdLib/Core/EbsdMacros.h"
@@ -143,21 +144,23 @@ ModifiedLambertProjection::Pointer ModifiedLambertProjection::LambertBallToSquar
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::initializeSquares(int dims, float sphereRadius)
 {
-  m_Dimension = dims;
+  // A dimension of 0 divides by zero below and a negative one wraps when converted to size_t. Leave the
+  // projection empty instead.
+  m_Dimension = std::max(dims, 0);
   m_SphereRadius = sphereRadius;
   // We want half the sphere area for each square because each square represents a hemisphere.
   float halfSphereArea = 4.0f * ebsdlib::constants::k_PiF * sphereRadius * sphereRadius / 2.0f;
   // The length of a side of the square is the square root of the area
   float squareEdge = sqrt(halfSphereArea);
 
-  m_StepSize = squareEdge / static_cast<float>(m_Dimension);
+  m_StepSize = m_Dimension > 0 ? squareEdge / static_cast<float>(m_Dimension) : 0.0f;
 
   m_MaxCoord = squareEdge / 2.0f;
   m_MinCoord = -squareEdge / 2.0f;
   m_HalfDimension = static_cast<float>(m_Dimension) / 2.0f;
   m_HalfDimensionTimesStepSize = m_HalfDimension * m_StepSize;
 
-  std::vector<size_t> tDims(2, m_Dimension);
+  std::vector<size_t> tDims(2, static_cast<size_t>(m_Dimension));
   std::vector<size_t> cDims(1, 1);
   m_NorthSquare = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambert_NorthSquare", true);
   m_NorthSquare->initializeWithZeros();
@@ -190,6 +193,10 @@ int ModifiedLambertProjection::readHDF5Data(hid_t groupId)
 // -----------------------------------------------------------------------------
 void ModifiedLambertProjection::addInterpolatedValues(Square square, float* sqCoord, double value)
 {
+  if(m_Dimension <= 0)
+  {
+    return;
+  }
   int abin1 = 0, bbin1 = 0;
   int abin2 = 0, bbin2 = 0;
   int abin3 = 0, bbin3 = 0;
@@ -320,6 +327,10 @@ double ModifiedLambertProjection::getValue(Square square, int index)
 // -----------------------------------------------------------------------------
 double ModifiedLambertProjection::getInterpolatedValue(Square square, const float* sqCoord) const
 {
+  if(m_Dimension <= 0)
+  {
+    return 0.0;
+  }
   // float sqCoord[2] = { sqCoord0[0] - 0.5*m_StepSize, sqCoord0[1] - 0.5*m_StepSize};
   int abin1, bbin1;
   int abin2, bbin2;
@@ -558,7 +569,8 @@ void ModifiedLambertProjection::createStereographicProjection(int dim, ebsdlib::
 // -----------------------------------------------------------------------------
 ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographicProjection(int dim)
 {
-  std::vector<size_t> tDims(2, dim);
+  // A negative dimension would wrap when converted to size_t; it creates an empty image instead.
+  std::vector<size_t> tDims(2, static_cast<size_t>(std::max(dim, 0)));
   std::vector<size_t> cDims(1, 1);
   ebsdlib::DoubleArrayType::Pointer stereoIntensity = ebsdlib::DoubleArrayType::CreateArray(tDims, cDims, "ModifiedLambertProjection_StereographicProjection", true);
   createStereographicProjection(dim, *stereoIntensity);
@@ -568,7 +580,8 @@ ebsdlib::DoubleArrayType::Pointer ModifiedLambertProjection::createStereographic
 // -----------------------------------------------------------------------------
 std::vector<float> ModifiedLambertProjection::createCircularProjection(int dim)
 {
-  std::vector<float> stereoIntensity(dim * dim, 0.0f);
+  const size_t imageDim = static_cast<size_t>(std::max(dim, 0));
+  std::vector<float> stereoIntensity(imageDim * imageDim, 0.0f);
   int xpoints = dim;
   int ypoints = dim;
 

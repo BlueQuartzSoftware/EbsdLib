@@ -38,6 +38,8 @@
 #endif
 #include "EbsdLib/Utilities/ModifiedLambertProjection.h"
 
+#include <algorithm>
+
 using namespace ebsdlib;
 
 // -----------------------------------------------------------------------------
@@ -54,8 +56,15 @@ ComputeStereographicProjection::~ComputeStereographicProjection() = default;
 // -----------------------------------------------------------------------------
 void ComputeStereographicProjection::operator()() const
 {
-  m_Intensity->resizeTuples(static_cast<size_t>(m_Config->imageDim * m_Config->imageDim));
+  // An image dimension of 0 or less produces an empty image; a negative one would otherwise be squared into a
+  // positive size.
+  const int imageDim = std::max(m_Config->imageDim, 0);
+  m_Intensity->resizeTuples(static_cast<size_t>(imageDim) * static_cast<size_t>(imageDim));
   m_Intensity->initializeWithZeros();
+  if(imageDim == 0)
+  {
+    return;
+  }
 
   if(m_Config->discrete)
   {
@@ -76,6 +85,11 @@ void ComputeStereographicProjection::operator()() const
 
       int xCoord = static_cast<int>(x * (halfDim - 1)) + halfDim;
       int yCoord = static_cast<int>(y * (halfDim - 1)) + halfDim;
+      // For an image dimension of 1, halfDim - 1 is negative and the pixel lands outside the image.
+      if(xCoord < 0 || xCoord >= imageDim || yCoord < 0 || yCoord >= imageDim)
+      {
+        continue;
+      }
 
       size_t index = static_cast<size_t>((yCoord * m_Config->imageDim) + xCoord);
 
