@@ -152,13 +152,24 @@ void AngPhase::parseFormula(std::vector<std::string>& tokens)
 void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 {
   m_LatticeConstants.clear();
-
-  m_LatticeConstants.push_back(std::stof(tokens[1])); // A
-  m_LatticeConstants.push_back(std::stof(tokens[2])); // B
-  m_LatticeConstants.push_back(std::stof(tokens[3])); // C
-  m_LatticeConstants.push_back(std::stof(tokens[4])); // Alpha
-  m_LatticeConstants.push_back(std::stof(tokens[5])); // Beta
-  m_LatticeConstants.push_back(std::stof(tokens[6])); // Gamma
+  // The line holds the key and 6 values: A, B, C, Alpha, Beta, Gamma. A short or unparsable line leaves the lattice constants empty.
+  if(tokens.size() < 7)
+  {
+    return;
+  }
+  try
+  {
+    for(size_t i = 1; i < 7; ++i)
+    {
+      m_LatticeConstants.push_back(std::stof(tokens[i]));
+    }
+  } catch(const std::invalid_argument&)
+  {
+    m_LatticeConstants.clear();
+  } catch(const std::out_of_range&)
+  {
+    m_LatticeConstants.clear();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -176,6 +187,11 @@ void AngPhase::parseLatticeConstants(std::vector<std::string>& tokens)
 // -----------------------------------------------------------------------------
 void AngPhase::parseHKLFamilies(std::vector<std::string>& tokens)
 {
+  // The line holds the key, h, k, l, s1 and the diffraction intensity. A short line adds no family.
+  if(tokens.size() < 6)
+  {
+    return;
+  }
   HKLFamily::Pointer family = HKLFamily::New();
   try
   {

@@ -37,8 +37,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
@@ -53,6 +56,26 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 using namespace ebsdlib;
+
+namespace
+{
+// Writes a 2 x 2 square-grid .ang file with one phase. phaseLines holds the LatticeConstants, NumberFamilies and hklFamilies lines.
+std::string writePhaseAngFile(const std::string& name, const std::string& phaseLines)
+{
+  const std::string filePath = (std::filesystem::path(ebsdlib::unit_test::k_TestTempDir) / (name + ".ang")).string();
+  std::ofstream out(filePath);
+  REQUIRE(out.is_open());
+  out << "# TEM_PIXperUM          1.000000\n#\n# Phase 1\n# MaterialName  \tNickel\n# Formula     \tNi\n# Symmetry              43\n"
+      << phaseLines << "#\n# GRID: SqrGrid\n# XSTEP: 1.0\n# YSTEP: 1.0\n# NCOLS_ODD: 2\n# NCOLS_EVEN: 2\n# NROWS: 2\n";
+  for(int i = 0; i < 4; ++i)
+  {
+    out << "0.1 0.2 0.3 " << i % 2 << " " << i / 2 << " 100 1 1 0 0\n";
+  }
+  out.close();
+  REQUIRE(out.good());
+  return filePath;
+}
+} // namespace
 
 TEST_CASE("ebsdlib::AngImportTest-TestNormalFile", "[EbsdLib][AngImportTest]")
 {
@@ -181,4 +204,56 @@ TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderGrid", "[EbsdLib][AngImportTest]
     }
   }
   REQUIRE(misplaced == 0);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-TestShortPhaseLines", "[EbsdLib][AngImportTest]")
+{
+  const std::string validLattice = "# LatticeConstants      3.560 3.560 3.560  90.000  90.000  90.000\n";
+  const std::string validFamilies = "# NumberFamilies        2\n# hklFamilies   \t 1  1  1 1 8.469246 1\n# hklFamilies   \t 2  0  0 1 7.008760 1\n";
+
+  SECTION("Valid phase lines")
+  {
+    AngReader reader;
+    reader.setFileName(writePhaseAngFile("AngPhaseValid", validLattice + validFamilies));
+    const int err = reader.readFile();
+    INFO(reader.getErrorMessage());
+    REQUIRE(err == 0);
+    const auto phases = reader.getPhaseVector();
+    REQUIRE(phases.size() == 1);
+    REQUIRE(phases[0]->getLatticeConstants() == std::vector<float>{3.56f, 3.56f, 3.56f, 90.0f, 90.0f, 90.0f});
+    REQUIRE(phases[0]->getHKLFamilies().size() == 2);
+  }
+
+  struct BadPhase
+  {
+    std::string name;
+    std::string lines;
+    int errorCode;
+    std::string text;
+  };
+  const std::vector<BadPhase> badPhases = {
+      {"AngPhaseShortLattice", "# LatticeConstants 3.52 3.52\n" + validFamilies, -117, "LatticeConstants 3.52 3.52"},
+      {"AngPhaseLatticeText", "# LatticeConstants 3.52 3.52 abc 90 90 90\n" + validFamilies, -117, "LatticeConstants 3.52 3.52 abc 90 90 90"},
+      {"AngPhaseShortFamily", validLattice + "# NumberFamilies        2\n# hklFamilies   \t 1  1  1 1 8.469246 1\n# hklFamilies 2 0\n", -118, "hklFamilies 2 0"},
+  };
+  for(const auto& badPhase : badPhases)
+  {
+    DYNAMIC_SECTION(badPhase.name)
+    {
+      const std::string filePath = writePhaseAngFile(badPhase.name, badPhase.lines);
+
+      AngReader headerReader;
+      headerReader.setFileName(filePath);
+      CHECK(headerReader.readHeaderOnly() == badPhase.errorCode);
+
+      AngReader reader;
+      reader.setFileName(filePath);
+      const int err = reader.readFile();
+      INFO(reader.getErrorMessage());
+      REQUIRE(err == badPhase.errorCode);
+      const std::string message = reader.getErrorMessage();
+      REQUIRE(message.find(filePath) != std::string::npos);
+      REQUIRE(message.find("'" + badPhase.text + "'") != std::string::npos);
+    }
+  }
 }
