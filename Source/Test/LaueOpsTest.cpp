@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace ebsdlib;
@@ -202,6 +203,35 @@ TEST_CASE("ebsdlib::LaueOpsTest::GetAllOrientationOps", "[EbsdLib][LaueOpsTest]"
   for(size_t i = 0; i < ops.size(); i++)
   {
     REQUIRE(ops[i] != nullptr);
+  }
+}
+
+// -----------------------------------------------------------------------------
+TEST_CASE("ebsdlib::LaueOpsTest::GetOrientationOpsFromCrystalStructure", "[EbsdLib][LaueOpsTest]")
+{
+  // Independent oracle: the CrystalStructure constants in EbsdLibConstants.h and the class that implements each one.
+  const std::vector<std::pair<uint32_t, std::string>> expected = {{CrystalStructure::Hexagonal_High, HexagonalOps::ClassName()},   {CrystalStructure::Cubic_High, CubicOps::ClassName()},
+                                                                  {CrystalStructure::Hexagonal_Low, HexagonalLowOps::ClassName()}, {CrystalStructure::Cubic_Low, CubicLowOps::ClassName()},
+                                                                  {CrystalStructure::Triclinic, TriclinicOps::ClassName()},        {CrystalStructure::Monoclinic, MonoclinicOps::ClassName()},
+                                                                  {CrystalStructure::OrthoRhombic, OrthoRhombicOps::ClassName()},  {CrystalStructure::Tetragonal_Low, TetragonalLowOps::ClassName()},
+                                                                  {CrystalStructure::Tetragonal_High, TetragonalOps::ClassName()}, {CrystalStructure::Trigonal_Low, TrigonalLowOps::ClassName()},
+                                                                  {CrystalStructure::Trigonal_High, TrigonalOps::ClassName()}};
+  REQUIRE(expected.size() == CrystalStructure::LaueGroupEnd);
+  const auto allOps = LaueOps::GetAllOrientationOps();
+  for(const auto& [crystalStructure, className] : expected)
+  {
+    CAPTURE(crystalStructure, className);
+    const LaueOps::Pointer ops = LaueOps::GetOrientationOpsFromCrystalStructure(crystalStructure);
+    REQUIRE(ops != nullptr);
+    CHECK(ops->getNameOfClass() == className);
+    CHECK(ops->getNameOfClass() == allOps[crystalStructure]->getNameOfClass());
+  }
+
+  // LaueGroupEnd is the end marker, not a Laue class; the others are out of range values from files.
+  for(const uint32_t crystalStructure : {CrystalStructure::LaueGroupEnd, uint32_t{12}, CrystalStructure::UnknownCrystalStructure, std::numeric_limits<uint32_t>::max()})
+  {
+    CAPTURE(crystalStructure);
+    CHECK(LaueOps::GetOrientationOpsFromCrystalStructure(crystalStructure) == nullptr);
   }
 }
 

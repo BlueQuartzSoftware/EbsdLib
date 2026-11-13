@@ -752,6 +752,38 @@ std::vector<LaueOps::Pointer> LaueOps::GetAllOrientationOps()
 }
 
 // -----------------------------------------------------------------------------
+LaueOps::Pointer LaueOps::GetOrientationOpsFromCrystalStructure(const uint32_t crystalStructure)
+{
+  switch(crystalStructure)
+  {
+  case CrystalStructure::Hexagonal_High:
+    return HexagonalOps::New();
+  case CrystalStructure::Cubic_High:
+    return CubicOps::New();
+  case CrystalStructure::Hexagonal_Low:
+    return HexagonalLowOps::New();
+  case CrystalStructure::Cubic_Low:
+    return CubicLowOps::New();
+  case CrystalStructure::Triclinic:
+    return TriclinicOps::New();
+  case CrystalStructure::Monoclinic:
+    return MonoclinicOps::New();
+  case CrystalStructure::OrthoRhombic:
+    return OrthoRhombicOps::New();
+  case CrystalStructure::Tetragonal_Low:
+    return TetragonalLowOps::New();
+  case CrystalStructure::Tetragonal_High:
+    return TetragonalOps::New();
+  case CrystalStructure::Trigonal_Low:
+    return TrigonalLowOps::New();
+  case CrystalStructure::Trigonal_High:
+    return TrigonalOps::New();
+  default:
+    return LaueOps::NullPointer();
+  }
+}
+
+// -----------------------------------------------------------------------------
 uint32_t LaueOps::GetLaueOpsIndexFromSpaceGroupNumber(const size_t sgNumber)
 {
   if(sgNumber == 0 || sgNumber > 230)

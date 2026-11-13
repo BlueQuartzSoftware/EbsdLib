@@ -92,6 +92,19 @@ public:
   static std::vector<LaueOps::Pointer> GetAllOrientationOps();
 
   /**
+   * @brief Returns the orientation operations for a crystal-structure value, with a range check.
+   *
+   * Use this instead of indexing GetAllOrientationOps() with a value that was read from a file or returned by a
+   * phase's determineOrientationOpsIndex(): those values can be UnknownCrystalStructure (999) or any other
+   * out-of-range number, and indexing the vector with them reads out of bounds.
+   * @param crystalStructure One of the ebsdlib::CrystalStructure Laue-class constants, 0 through LaueGroupEnd - 1.
+   * @return The same LaueOps subclass as GetAllOrientationOps()[crystalStructure], or NullPointer() for
+   * LaueGroupEnd (11), UnknownCrystalStructure (999) and every other value outside that range.
+   * @note Each call creates one new object; it does not build the whole vector that GetAllOrientationOps() builds.
+   */
+  static Pointer GetOrientationOpsFromCrystalStructure(uint32_t crystalStructure);
+
+  /**
    * @brief Maps a space-group number to its Laue-class crystal structure.
    * @param sgNumber Space-group number in the range 1 through 230.
    * @return The ebsdlib::CrystalStructure constant, or UnknownCrystalStructure for 0 or values above 230.
