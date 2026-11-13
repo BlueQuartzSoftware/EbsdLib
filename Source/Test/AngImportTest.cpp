@@ -37,8 +37,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/TSL/AngReader.h"
@@ -53,6 +56,28 @@
 #include "EbsdLib/Test/EbsdLibTestFileLocations.h"
 
 using namespace ebsdlib;
+
+namespace
+{
+// Writes a 2 x 2 square-grid .ang file. headerValues holds the XSTEP, YSTEP, NCOLS_ODD, NCOLS_EVEN and NROWS lines.
+std::string writeSmallAngFile(const std::string& name, const std::string& headerValues)
+{
+  const std::string filePath = (std::filesystem::path(ebsdlib::unit_test::k_TestTempDir) / (name + ".ang")).string();
+  std::ofstream out(filePath);
+  REQUIRE(out.is_open());
+  out << "# TEM_PIXperUM          1.000000\n# x-star                0.5\n# y-star                0.5\n# z-star                0.5\n# WorkingDistance       5.000000\n#\n"
+      << "# Phase 1\n# MaterialName  \tNickel\n# Formula     \tNi\n# Symmetry              43\n# LatticeConstants      3.560 3.560 3.560  90.000  90.000  90.000\n"
+      << "# NumberFamilies        0\n#\n# GRID: SqrGrid\n"
+      << headerValues;
+  for(int i = 0; i < 4; ++i)
+  {
+    out << "0.1 0.2 0.3 " << i % 2 << " " << i / 2 << " 100 1 1 0 0\n";
+  }
+  out.close();
+  REQUIRE(out.good());
+  return filePath;
+}
+} // namespace
 
 TEST_CASE("ebsdlib::AngImportTest-TestNormalFile", "[EbsdLib][AngImportTest]")
 {
@@ -181,4 +206,57 @@ TEST_CASE("ebsdlib::AngImportTest-TestOutOfOrderGrid", "[EbsdLib][AngImportTest]
     }
   }
   REQUIRE(misplaced == 0);
+}
+
+TEST_CASE("ebsdlib::AngImportTest-TestUnparsableHeaderValue", "[EbsdLib][AngImportTest]")
+{
+  const std::string validSteps = "# XSTEP: 1.0\n# YSTEP: 1.0\n";
+  const std::string validDims = "# NCOLS_ODD: 2\n# NCOLS_EVEN: 2\n# NROWS: 2\n";
+
+  SECTION("Valid header")
+  {
+    AngReader reader;
+    reader.setFileName(writeSmallAngFile("AngHeaderValid", validSteps + validDims));
+    REQUIRE(reader.readHeaderOnly() > 0);
+    REQUIRE(reader.readFile() == 0);
+    REQUIRE(reader.getXStep() == 1.0f);
+    REQUIRE(reader.getNumRows() == 2);
+  }
+
+  struct BadHeader
+  {
+    std::string name;
+    std::string header;
+    std::string key;
+    std::string rawText;
+  };
+  const std::vector<BadHeader> badHeaders = {
+      {"AngHeaderXStepOverflow", "# XSTEP: 1e999\n# YSTEP: 1.0\n" + validDims, "XSTEP", "1e999"},
+      {"AngHeaderYStepText", "# XSTEP: 1.0\n# YSTEP: abc\n" + validDims, "YSTEP", "abc"},
+      {"AngHeaderNRowsOverflow", validSteps + "# NCOLS_ODD: 2\n# NCOLS_EVEN: 2\n# NROWS: 99999999999\n", "NROWS", "99999999999"},
+      {"AngHeaderNColsText", validSteps + "# NCOLS_ODD: two\n# NCOLS_EVEN: 2\n# NROWS: 2\n", "NCOLS_ODD", "two"},
+  };
+  for(const auto& badHeader : badHeaders)
+  {
+    DYNAMIC_SECTION(badHeader.name)
+    {
+      const std::string filePath = writeSmallAngFile(badHeader.name, badHeader.header);
+
+      AngReader headerReader;
+      headerReader.setFileName(filePath);
+      CHECK(headerReader.readHeaderOnly() == -115);
+      CHECK(headerReader.getErrorCode() == -115);
+
+      AngReader reader;
+      reader.setFileName(filePath);
+      const int err = reader.readFile();
+      INFO(reader.getErrorMessage());
+      CHECK(err == -115);
+      REQUIRE(reader.getErrorCode() == -115);
+      const std::string message = reader.getErrorMessage();
+      REQUIRE(message.find(filePath) != std::string::npos);
+      REQUIRE(message.find(badHeader.key) != std::string::npos);
+      REQUIRE(message.find("'" + badHeader.rawText + "'") != std::string::npos);
+    }
+  }
 }

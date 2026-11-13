@@ -35,10 +35,12 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
 #include "EbsdLib/EbsdLib.h"
@@ -94,6 +96,16 @@ public:
     } // move past the ":" character
     std::stringstream ss(value);
     ss >> m_value;
+    m_ParseError = ss.fail();
+    if constexpr(std::is_floating_point_v<T>)
+    {
+      m_ParseError = m_ParseError || !std::isfinite(m_value);
+    }
+  }
+
+  bool hasParseError() const override
+  {
+    return m_ParseError;
   }
   void print(std::ostream& out) override
   {
@@ -120,6 +132,7 @@ protected:
 private:
   T m_value = static_cast<T>(0);
   std::string m_key;
+  bool m_ParseError = false;
 
 public:
   AngHeaderEntry(const AngHeaderEntry&) = delete;            // Copy Constructor Not Implemented

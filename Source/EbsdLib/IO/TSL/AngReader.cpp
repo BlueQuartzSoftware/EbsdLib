@@ -250,6 +250,8 @@ ebsdlib::NumericTypes::Type AngReader::getPointerType(const std::string& feature
 int AngReader::readHeaderOnly()
 {
   int err = 1;
+  setErrorCode(0);
+  setErrorMessage("");
   std::string buf;
   std::ifstream in(getFileName(), std::ios_base::in);
   setHeaderIsComplete(false);
@@ -287,6 +289,10 @@ int AngReader::readHeaderOnly()
   m_PhaseVector = phaseVector;
   // Update the Original Header variable
   setOriginalHeader(origHeader);
+  if(getErrorCode() < 0)
+  {
+    return getErrorCode();
+  }
   return err;
 }
 
@@ -751,7 +757,13 @@ void AngReader::parseHeaderLine(std::string& buf)
     }
     if(tokens.size() > 1)
     {
+      const std::string rawValue = tokens[1];
       p->parseValue(tokens[1]);
+      if(p->hasParseError() && getErrorCode() >= 0)
+      {
+        setErrorCode(-115);
+        setErrorMessage("Ang file '" + getFileName() + "' has a header value that is not a valid number: " + p->getKey() + " = '" + rawValue + "'. Correct the value in the header.");
+      }
 #if 0
       std::cout << "<tr>\n    <td>" << p->getKey() << "</td>\n    <td>" << p->getHDFType() << "</td>\n";
       std::cout << "    <td colspan=\"2\"> Contains value for the header entry " << p->getKey() << "</td>\n</tr>" << std::endl;

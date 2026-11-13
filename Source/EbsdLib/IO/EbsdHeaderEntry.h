@@ -108,6 +108,15 @@ public:
   virtual void parseValue(std::string& value) = 0;
 
   /**
+   * @brief Returns true when the last call to parseValue() could not convert the text to a valid value.
+   * Entries that hold text never fail. Numeric entries fail on text that is not a number, a number out of range or a non-finite number.
+   */
+  virtual bool hasParseError() const
+  {
+    return false;
+  }
+
+  /**
    * @brief prints out the key and value for this header entry
    * @param out The output stream to printe the key/value pair
    */
