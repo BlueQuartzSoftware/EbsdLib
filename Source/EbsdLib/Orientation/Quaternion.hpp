@@ -621,6 +621,14 @@ public:
     return res;
   }
 
+  /**
+   * @brief Converts this quaternion to an orientation matrix.
+   *
+   * @pre The quaternion must have unit length, as isValid() checks. It is not normalized here: a non-unit quaternion
+   * gives a matrix scaled by its squared length, and the zero quaternion gives the zero matrix. Call normalize() first
+   * if the quaternion may not be a unit quaternion.
+   * @return The orientation matrix
+   */
   OrientationMatrix<T> toOrientationMatrix() const
   {
     using OutputType = OrientationMatrix<T>;

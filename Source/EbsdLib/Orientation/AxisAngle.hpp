@@ -112,6 +112,13 @@ public:
     return toOrientationMatrix().toEuler();
   }
 
+  /**
+   * @brief Converts this axis-angle pair to an orientation matrix.
+   *
+   * @pre The axis (x, y, z) must have unit length and the angle must be in [0, pi], as isValid() checks. The axis is
+   * not normalized here: a non-unit axis gives a matrix that is not orthogonal (not a rotation).
+   * @return The orientation matrix
+   */
   OrientationMatrix<T> toOrientationMatrix() const
   {
     using OutputType = OrientationMatrix<T>;
@@ -192,6 +199,13 @@ public:
     return res;
   }
 
+  /**
+   * @brief Converts this axis-angle pair to a quaternion.
+   *
+   * @pre The axis (x, y, z) must have unit length and the angle must be in [0, pi], as isValid() checks. The axis is
+   * not normalized here: a non-unit axis gives a quaternion that is not a unit quaternion.
+   * @return The quaternion
+   */
   Quaternion<T> toQuaternion() const
   {
     using OutputType = Quaternion<T>;
