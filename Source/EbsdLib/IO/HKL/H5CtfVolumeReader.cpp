@@ -337,6 +337,15 @@ int H5CtfVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
 
     xpointstemp = xpoints;
     ypointstemp = ypoints;
+    // A smaller slice is centered in the volume. A larger slice would be written outside its own slice of the volume.
+    if(xpointsslice > xpointstemp || ypointsslice > ypointstemp)
+    {
+      setErrorCode(-77001);
+      setErrorMessage("Slice " + EbsdStringUtils::number(slice + getSliceStart()) + " in file '" + getFileName() + "' has " + EbsdStringUtils::number(xpointsslice) + " x " +
+                      EbsdStringUtils::number(ypointsslice) + " cells, which is larger than the volume size of " + EbsdStringUtils::number(xpointstemp) + " x " + EbsdStringUtils::number(ypointstemp) +
+                      " cells. Each slice must fit inside the volume size.");
+      return getErrorCode();
+    }
     xstartspot = static_cast<int>((xpointstemp - xpointsslice) / 2);
     ystartspot = static_cast<int>((ypointstemp - ypointsslice) / 2);
 

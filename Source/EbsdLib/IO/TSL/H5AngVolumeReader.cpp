@@ -341,6 +341,15 @@ int H5AngVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
 
     xpointstemp = static_cast<int>(xpoints);
     ypointstemp = static_cast<int>(ypoints);
+    // A smaller slice is centered in the volume. A larger slice would be written outside its own slice of the volume.
+    if(xpointsslice > xpointstemp || ypointsslice > ypointstemp)
+    {
+      setErrorCode(-90050);
+      setErrorMessage("Slice " + EbsdStringUtils::number(slice + getSliceStart()) + " in file '" + getFileName() + "' has " + EbsdStringUtils::number(xpointsslice) + " x " +
+                      EbsdStringUtils::number(ypointsslice) + " cells, which is larger than the volume size of " + EbsdStringUtils::number(xpointstemp) + " x " + EbsdStringUtils::number(ypointstemp) +
+                      " cells. Each slice must fit inside the volume size.");
+      return getErrorCode();
+    }
     xstartspot = (xpointstemp - xpointsslice) / 2;
     ystartspot = (ypointstemp - ypointsslice) / 2;
     xstop = xpointsslice;
