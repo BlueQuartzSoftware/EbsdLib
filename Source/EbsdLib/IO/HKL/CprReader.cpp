@@ -10,6 +10,7 @@
 #include "EbsdLib/Utilities/inipp.h"
 
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -443,6 +444,35 @@ int CprReader::readFile()
   {
     setErrorMessage("Either the X Cells or Y Cells was Zero (0) which is NOT allowed. Please update the CTF file header with appropriate values.");
     setErrorCode(-103);
+    return getErrorCode();
+  }
+
+  const float xStep = getXStep();
+  if(!std::isfinite(xStep) || xStep < 0.0f)
+  {
+    setErrorCode(-102320);
+    setErrorMessage("The GridDistX value in the [Job] section of '" + getFileName() + "' is " + std::to_string(xStep) + ". The step size must be a finite number larger than zero.");
+    return getErrorCode();
+  }
+  const float yStep = getYStep();
+  if(!std::isfinite(yStep) || yStep < 0.0f)
+  {
+    setErrorCode(-102321);
+    setErrorMessage("The GridDistY value in the [Job] section of '" + getFileName() + "' is " + std::to_string(yStep) + ". The step size must be a finite number larger than zero.");
+    return getErrorCode();
+  }
+  if(getXCells() < 0)
+  {
+    setErrorCode(-102322);
+    setErrorMessage("The xCells value in the [Job] section of '" + getFileName() + "' is " + std::to_string(getXCells()) +
+                    ". The number of cells must be larger than zero. A missing or unreadable value is reported as -1.");
+    return getErrorCode();
+  }
+  if(getYCells() < 0)
+  {
+    setErrorCode(-102323);
+    setErrorMessage("The yCells value in the [Job] section of '" + getFileName() + "' is " + std::to_string(getYCells()) +
+                    ". The number of cells must be larger than zero. A missing or unreadable value is reported as -1.");
     return getErrorCode();
   }
 
